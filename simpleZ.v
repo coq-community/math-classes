@@ -1,10 +1,13 @@
 Require Import
   Structures RingOps BoringInstances AbstractProperties Numbers
-  Morphisms.
+  Morphisms RingAlgebra.
 
 Require UniversalAlgebra. Module UA := UniversalAlgebra.
 
 Require nat_Naturals.
+
+Lemma canonical_proper {A R} x `{Proper A R x}: R x x.
+Proof. firstorder. Qed.
 
 Require Import Ring.
 
@@ -149,7 +152,7 @@ Qed.
 Instance: Proper (equiv ==> equiv ==> equiv) C.
 Proof.
  repeat intro. unfold equiv, z_equiv. simpl.
- rewrite H, H0. reflexivity.
+ symmetry in H0. apply sg_mor; assumption.
 Qed.
 
 Lemma split_into_nats n m: C n m == NtoZ n + - NtoZ m.
@@ -169,7 +172,7 @@ Section for_another_ring.
   Add Ring R: (Ring_ring_theory R).
 
   Definition inject_N: N -> R := @naturals_to_semiring N _ _ _ _ _ _ R _ _ _ _ _ _.
-  Let inject_N_mor: SemiRing_Morphism inject_N := @naturals_to_semiring_mor N R _ _ _ _ _ _ _ _ _ _ _ _.
+  Let inject_N_mor: SemiRing_Morphism inject_N := @naturals_to_semiring_mor N _ _ _ _ _ _ R _ _ _ _ _ _.
 
 (*
   Let inject_N_uniq: forall f : N -> R, SemiRing_Morphism f -> pointwise_relation _ equiv f inject_N
@@ -247,7 +250,7 @@ Section for_another_ring.
     Qed.
 
     Lemma agree_on_nat: @equiv _ (pointwise_relation _ equiv) inject'_N inject_N.
-    Proof. intro. apply (@ding_unique N _ _ _ _ _ _ R _ _ _ _ _ _ inject'_N _ a). Qed.
+    Proof. intro. apply (@naturals_to_semiring_unique N _ _ _ _ _ _ R _ _ _ _ _ _ inject'_N _ a). Qed.
 
     Lemma agree: @equiv _ (pointwise_relation _ equiv) inject inject'.
     Proof.
@@ -264,15 +267,45 @@ Section for_another_ring.
 
 End for_another_ring.
 
-Lemma Z_initial: @CatStuff.initial RingCat.O RingCat.A _ (RingCat.MkO Z).
-Proof with try reflexivity.
+Definition Z_initial: @CatStuff.initial _ ring.Arrow _ (ring.as_object Z).
+Proof with auto.
  unfold CatStuff.initial.
- simpl.
+ intro.
  destruct y.
- exists (@exist (Z -> A) Ring_Morphism inject inject_mor).
+ unfold ring.Arrow.
+ unfold RingAlgebra.UA.Arrow.
+ set (f := @inject (variety_atomics tt) _ _ _ _ _ _ (ring.instance_from_impl variety_laws)).
+ set (g := fun u => match u return Z -> variety_atomics u with tt => f end).
+
+ assert (@RingAlgebra.UA.HomoMorphism ring.sig (fun _ => Z) variety_atomics (fun _ => equiv) _ ring.impl_from_instance _ g).
+  pose proof (@inject_mor _ _ _ _ _ _ _ _: Ring_Morphism f).
+  assert (forall u, Ring_Morphism (g u)).
+   destruct u. exact H.
+  constructor.
+   intro.
+   apply _.
+  destruct o; simpl. (* this belongs elsewhere *)
+      apply preserves_plus.
+     apply preserves_mult.
+    apply (@preserves_0 Z (variety_atomics tt) _ _ _ _ _ _ _ _ _ _ _ _ ).
+   apply (@preserves_1 Z (variety_atomics tt) _ _ _ _ _ _ _ _ _ _ _ _ ).
+  apply preserves_inv.
+ exists (exist _ g H).
+ intros.
+ unfold equiv.
+ unfold UniversalAlgebra.a_equiv.
+ simpl.
+ destruct b.
+ unfold g, f.
  destruct a'.
- intro. simpl. apply (agree x).
-Qed.
+ simpl.
+ apply (@agree (variety_atomics tt) _ _ _ _ _ _ (ring.instance_from_impl variety_laws) (x tt)).
+ simpl in x.
+ simpl in h.
+ apply (@ring.morphism_from_ua Z _ variety_atomics _ ring.impl_from_instance _ x h _).
+ apply ring.instance_from_impl.
+ auto.
+Qed. (* todo: not very nice. uglyness here results from prettyness above where the real work is done.. *)
 
 Global Instance: Integers Z.
 Proof Build_Integers Z _ _ _ _ _ _ _ Z_initial _.

@@ -1,0 +1,4 @@
+*.vo
+*.glob
+deps
+.sconsign.dblite

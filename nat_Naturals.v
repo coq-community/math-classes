@@ -1,7 +1,7 @@
 Set Automatic Introduction.
 
 Require CatStuff UniversalAlgebra.
-Require Import Structures RingOps BoringInstances Morphisms Numbers.
+Require Import Structures RingOps BoringInstances Morphisms Numbers SemiRingAlgebra.
 Import UniversalAlgebra.notations.
 
 Close Scope nat_scope.
@@ -11,11 +11,11 @@ Section contents.
 
   Variable (R: semiring.Object).
 
-  Let R_sr := semiring.Variety_as_SemiRing R.
+  Let R_sr := semiring.from_object R.
 
-  Add Ring R: (SemiRing_semi_ring_theory R).
+  Add Ring R: (SemiRing_semi_ring_theory (R tt)).
 
-  Fixpoint f (n: nat): R := match n with 0%nat => 0 | S n' => f n' + 1 end.
+  Fixpoint f (n: nat): R tt := match n with 0%nat => 0 | S n' => f n' + 1 end.
 
   Instance f_proper: Proper (equiv ==> equiv) f.
   Proof. unfold equiv, nat_equiv. repeat intro. subst. reflexivity. Qed.
@@ -26,9 +26,26 @@ Section contents.
   Let f_preserves_mult a a': f (a * a') == f a * f a'.
   Proof with try ring. induction a; simpl; intros... rewrite f_preserves_plus, IHa... Qed.
 
-  Instance: @UA.HomoMorphism semiring.sig nat _ R _ semiring.impl_from_instance _ f.
+  Definition yada:
+     (forall a : UA.sign_atomics semiring.sig,
+            Equiv ((fun _ : UA.sign_atomics semiring.sig => nat) a)) :=
+        fun _ => nat_equiv.
+
+  Lemma yodo:
+     (forall a : UA.sign_atomics semiring.sig,
+            Equiv ((fun d : UA.sign_atomics semiring.sig => R d) a)) .
+  Proof.
+    exact (fun _ => equiv).
+  Defined.
+
+  Definition wtf := (fun s => match s return nat -> R s with tt => f end).
+
+  Instance ding: @UA.HomoMorphism semiring.sig (fun _ => nat) R yada yodo semiring.impl_from_instance _
+    wtf.
   Proof with reflexivity.
-   constructor. apply _.
+   constructor.
+    intros [] x y H.
+    unfold equiv in H. unfold yada, equiv, nat_equiv in H. subst. reflexivity.
    destruct o; repeat intro.
       apply f_preserves_plus...
      apply f_preserves_mult...
@@ -36,7 +53,7 @@ Section contents.
    change (f 1 == 1). simpl. ring.
   Qed.
 
-  Definition arrow: semiring.Arrow (semiring.as_object nat) R := exist (UA.HomoMorphism semiring.sig) f _.
+  Definition arrow: semiring.Arrow (semiring.as_object nat) R := exist _ wtf ding.
 
   Lemma arrow_unique arrow': arrow == arrow'.
   Proof with reflexivity.
@@ -44,13 +61,16 @@ Section contents.
    unfold semiring.Arrow in arrow'.
    destruct arrow'. unfold arrow. simpl in *.
    set (@semiring.impl_from_instance nat _ _ _ _).
-   pose proof (hmok x _ _).
+   pose proof (@semiring.morphism_from_ua nat _ R _ _ _ x _ _ _).
+   destruct b.
+   unfold wtf.
+   intro.
    induction a.
-    change (0 == x 0). symmetry.
+    change (0 == x tt 0). symmetry.
     apply preserves_0.
-   change (f a + 1 == x (1 + a)).
+   change (f a + 1 == x tt (1 + a)).
    rewrite preserves_plus, preserves_1, IHa.
-   ring.
+   apply commutativity.
   Qed.
 
 End contents.
@@ -70,7 +90,7 @@ Proof with auto.
  intros.
  rewrite <- (iso_nats nat n).
  change (P (naturals_to_semiring N (naturals_to_semiring nat n))).
- pose proof (naturals_to_semiring_mor nat N).
+ pose proof (naturals_to_semiring_mor (N:=nat) N).
  induction (naturals_to_semiring nat n).
   change (P (naturals_to_semiring N (0:nat))).
   rewrite preserves_0...
@@ -88,12 +108,12 @@ Section borrowed_from_nat.
 
   Context `{Naturals A} (x y z: A).
 
-  Let w v := match v with 0%nat => x | 1%nat => y | _ => z end.
+  Let w (_: unit) v := match v with 0%nat => x | 1%nat => y | _ => z end.
   Let d := semiring.impl_from_instance.
 
   Lemma from_nat_stmt (s: UA.Statement semiring.sig):
-    (forall v : nat -> nat, @UniversalAlgebra.eval_stmt semiring.sig nat _ semiring.impl_from_instance v s) ->
-    (@UniversalAlgebra.eval_stmt semiring.sig A _ semiring.impl_from_instance w s).
+    (forall v : unit -> nat -> nat, @UniversalAlgebra.eval_stmt semiring.sig (fun _ => nat) (fun _ => equiv) semiring.impl_from_instance v s) ->
+    (@UniversalAlgebra.eval_stmt semiring.sig (fun _ => A) (fun _ => equiv) semiring.impl_from_instance w s).
   Proof.
    pose proof (@naturals_initial A _ _ _ _ _ _).
    pose proof (@naturals_initial nat _ _ _ _ _ _).
@@ -103,12 +123,14 @@ Section borrowed_from_nat.
    destruct x0. destruct x1.
    simpl in *.
    intros.
-   exact (@UA.carry_stmt semiring.sig nat A _ _ _ _ semiring.impl_from_instance semiring.impl_from_instance _ _ x1 x0 _ _ H0 H1 s H2 w).
+   apply (@UA.carry_stmt semiring.sig (fun _ => nat) (fun _ => A) (fun _ => equiv) (fun _ => equiv) _ _ semiring.impl_from_instance semiring.impl_from_instance) with x1 x0; auto.
+    apply _.
+   apply _.
   Qed.
 
-  Local Notation x' := (UA.Var _ 0).
-  Local Notation y' := (UA.Var _ 1).
-  Local Notation z' := (UA.Var _ 2).
+  Local Notation x' := (UA.Var semiring.sig 0 tt).
+  Local Notation y' := (UA.Var semiring.sig 1 tt).
+  Local Notation z' := (UA.Var semiring.sig 2%nat tt).
 
   (* Some clever autoquoting tactic might make what follows even more automatic. *)
   (* The ugly [pose proof ... . apply that_thing.]'s are because of Coq bug 2185. *)
@@ -130,5 +152,20 @@ Section borrowed_from_nat.
    pose proof (from_nat_stmt (0 === 1 -=> UA.Ext _ False)).
    apply H0. discriminate.
   Qed.
+
+(*
+Require Peano_dec.
+
+  Check Peano_dec.eq_nat_dec.
+
+  Goal (forall n m : nat, sum (@eq nat n m) (not (@eq nat n m))).
+   intros.
+   destruct (Peano_dec.eq_nat_dec n m).
+    left. assumption.
+
+
+Check ding.
+
+*)
 
 End borrowed_from_nat.
