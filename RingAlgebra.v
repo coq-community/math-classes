@@ -144,6 +144,26 @@ Section contents.
   Proof. apply (instance_from_impl (UA.variety_laws _ _ o)). Qed.
     (* not an instance because we don't want this to be used accidentally *)
 
+  Section arrow_from_morphism_from_instance_to_object.
+
+    Context A `{Ring A} (B: Object) (f: A -> B tt)
+      {fmor: @Ring_Morphism A (B tt) _ _ _ _ _ _ _ _ _ _ _ _ f}.
+
+    Program Definition arrow_from_morphism_from_instance_to_object:
+      Arrow (as_object A) B := fun u => match u return A -> B u with tt => f end.
+    Next Obligation.
+     constructor.
+      destruct a. apply _.
+     destruct o; simpl.
+         apply preserves_plus.
+        apply preserves_mult.
+       apply (@preserves_0 A (B tt) _ _ _ _ _ _ _ _ _ _ _ _). (* weird *)
+      apply (@preserves_1 A (B tt) _ _ _ _ _ _ _ _ _ _ _ _).
+     apply preserves_inv.
+    Qed.
+
+  End arrow_from_morphism_from_instance_to_object.
+
   Section morphism_from_ua.
 
     Context  `{e0: Equiv R0} {R1: unit -> Type} `{e1: forall u, Equiv (R1 u)} `{!Equivalence e0}
@@ -158,11 +178,11 @@ Section contents.
     Global Instance: RingOne R0 := @UA.op sig (fun _ => R0) _ one.
     Global Instance: GroupInv R0 := @UA.op sig (fun _ => R0) _ opp.
 
-    Global Instance: RingPlus (R1 u) := match u with tt => @UA.op sig R1 _ plus end.
-    Global Instance: RingMult (R1 u) := match u with tt => @UA.op sig R1 _ mult end.
-    Global Instance: RingZero (R1 u) := match u with tt => @UA.op sig R1 _ zero end.
-    Global Instance: RingOne (R1 u) := match u with tt => @UA.op sig R1 _ one end.
-    Global Instance: GroupInv (R1 u) := match u with tt => @UA.op sig R1 _ opp end.
+    Global Instance: RingPlus (R1 u) := fun u => match u with tt => @UA.op sig R1 _ plus end.
+    Global Instance: RingMult (R1 u) := fun u => match u with tt => @UA.op sig R1 _ mult end.
+    Global Instance: RingZero (R1 u) := fun u => match u with tt => @UA.op sig R1 _ zero end.
+    Global Instance: RingOne (R1 u) := fun u => match u with tt => @UA.op sig R1 _ one end.
+    Global Instance: GroupInv (R1 u) := fun u => match u with tt => @UA.op sig R1 _ opp end.
 
     Definition morphism_from_ua (sr0: @Ring R0 _ _ _ _ _ _) (sr1: @Ring (R1 tt) _ _ _ _ _ _):
      forall u, Ring_Morphism (f u).

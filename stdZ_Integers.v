@@ -1,6 +1,6 @@
-Require RingCat CatStuff.
+Require CatStuff.
 Require Import
-  BinInt Morphisms
+  BinInt Morphisms RingAlgebra
   Structures AbstractProperties RingOps BoringInstances Numbers.
 
 (* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
@@ -16,11 +16,9 @@ Qed.
 Lemma xI_in_ring_terms p: xI p = (p + p + 1)%positive.
 Proof. intros. rewrite <- xO_in_ring_terms. reflexivity. Qed.
 
-Section for_another_ring.
+Section ding.
 
   Context `{Ring R}.
-
-  Add Ring R: (Ring_ring_theory R).
 
   (* We first show the map from Z to R: *)
 
@@ -31,12 +29,6 @@ Section for_another_ring.
     | 1%positive => 1
     end.
 
-  Fixpoint map_nat (x: nat) {struct x} : R :=
-    match x with
-    | O => 0
-    | S x' => map_nat x' + 1
-    end.
-
   Definition map_Z (z: Z): R :=
     match z with
     | Z0 => 0
@@ -44,19 +36,17 @@ Section for_another_ring.
     | Zneg p => - map_pos p
     end.
 
-(*
-  Lemma map_nat_pos: forall p, map_nat (nat_of_P p) = map_pos p.
-   induction p.
-     simpl.
-  Admitted.
+End ding.
 
-  Fixpoint map_pos_mask (x : positive_mask) {struct x} : option R :=
-    match x with
-    | IsNul => Some 0
-    | IsPos p => Some (map_pos p)
-    | IsNeg => None
-    end.
-*)
+Instance inject: IntegersToRing Z := fun B _ _ _ _ _ => @map_Z B _ _ _ _.
+
+Section for_another_ring.
+
+  Context `{Ring R}.
+
+  Add Ring R: (Ring_ring_theory R).
+
+  (* We first show the map from Z to R: *)
 
   (* Next, we show that this map preserves everything: *)
 
@@ -102,6 +92,7 @@ Section for_another_ring.
    unfold Plt in H0.
    apply ZC2...
   Qed. *)
+    (* awful bit manipulation mess *)
 
   Lemma preserves_Zplus x y: map_Z (x + y) == map_Z x + map_Z y.
   Proof with try reflexivity; try assumption.
@@ -219,24 +210,109 @@ Section for_another_ring.
     Qed.
 
   End with_another_morphism.
-(*
-  Global Instance: Unique (pointwise_relation _ equiv) Ring_Morphism map_Z.
-  Proof.
-   constructor. apply _.
-   intros. apply same_morphism. assumption.
-  Qed.
-*)
+
 End for_another_ring.
 
-Lemma Z_initial: @CatStuff.initial RingCat.O RingCat.A _ (RingCat.MkO Z).
-Proof with try reflexivity.
- unfold CatStuff.initial.
- simpl.
- destruct y.
- exists (@exist (Z->A) Ring_Morphism map_Z map_Z_ring_mor).
- destruct a'.
- apply (same_morphism _).
+Instance yada `{Ring R}: Ring_Morphism (integers_to_ring Z R).
+ unfold integers_to_ring.
+ unfold inject.
+ intros.
+ apply map_Z_ring_mor.
 Qed.
 
-Global Instance: Integers Z.
-Proof Build_Integers Z _ _ _ _ _ _ _ Z_initial _.
+Global Instance stdZ_Integers: Integers Z.
+Proof.
+ apply (@Build_Integers Z _ _ _ _ _ _ _ _ (@yada)).
+ unfold CatStuff.proves_initial.
+ repeat intro. destruct b. simpl.
+ unfold integers_to_ring, inject. destruct f'. simpl in *.
+ apply (@same_morphism (y tt) _ _ _ _ _ _ (ring.from_object y) (x tt)).
+ pose proof (@ring.morphism_from_ua Z _ y _ ring.impl_from_instance _ x _ _).
+ simpl in H.
+ apply (H (@ring.from_object y)).
+Qed.
+
+Section borrowed_from_stdZ.
+
+  Context `{Integers A} (x y z: A).
+
+  Let three_vars (_: unit) v := match v with 0%nat => x | 1%nat => y | _ => z end.
+  Let two_vars (_: unit) v := match v with 0%nat => x | _ => y end.
+  Let no_vars (_: unit) (v: nat) := 0.
+  Let d := ring.impl_from_instance.
+
+  Lemma from_stdZ_stmt (s: UA.Statement ring.sig) (w: UA.Vars ring.sig _):
+    (forall v : unit -> nat -> Z, @UniversalAlgebra.eval_stmt ring.sig (fun _ => Z) (fun _ => equiv) ring.impl_from_instance v s) ->
+    (@UniversalAlgebra.eval_stmt ring.sig (fun _ => A) (fun _ => equiv) ring.impl_from_instance w s).
+  Proof.
+   pose proof (@integers_initial A _ _ _ _ _ _ _ _).
+   pose proof (@integers_initial Z _ _ _ _ _ _ _ _).
+
+   destruct (@CatStuff.initials_unique' ring.Object ring.Arrow _ _ _ _ _ (ring.as_object A) (ring.as_object Z) _ _ H1 H2).
+   pose proof (H3 tt). simpl in H5.
+   pose proof (H4 tt). simpl in H6.
+   clear H1 H2.
+   intros.
+   apply (@UA.carry_stmt ring.sig (fun _ => Z) (fun _ => A) (fun _ => equiv) (fun _ => equiv) _ _ ring.impl_from_instance ring.impl_from_instance) with (fun u => match u with tt => integers_to_ring Z A end) (fun u => match u with tt => integers_to_ring A Z end); auto.
+      apply _.
+     apply _.
+    set (@integers_to_ring_arrow Z _ _ _ _ _ _ _ _ (ring.as_object A)).
+    apply (proj2_sig a).
+   set (@integers_to_ring_arrow A _ _ _ _ _ _ _ _ (ring.as_object Z)).
+   apply (proj2_sig a).
+  Qed.
+
+  Local Notation x' := (UA.Var ring.sig 0 tt).
+  Local Notation y' := (UA.Var ring.sig 1 tt).
+  Local Notation z' := (UA.Var ring.sig 2%nat tt).
+
+  Import UniversalAlgebra.notations.
+
+  Lemma integers_mult_reg_l: ~ x == 0 -> x * y == x * z -> y == z.
+  Proof.
+   pose proof (from_stdZ_stmt ((x' === 0 -=> UA.Ext _ False) -=> x' * y' === x' * z' -=> y' === z') three_vars).
+   apply H1. intro. simpl. apply Zmult_reg_l.
+  Qed.
+
+  Lemma integers_0_neq_1: ~ 0 == 1.
+  Proof.
+   pose proof (from_stdZ_stmt (0 === 1 -=> UA.Ext _ False) no_vars) as M.
+   apply M. discriminate.
+  Qed.
+
+  Lemma integers_mult_eq_0_l: ~ x == 0 -> y * x == 0 -> y == 0.
+  Proof.
+   pose proof (from_stdZ_stmt ((x' === 0 -=> UA.Ext _ False) -=> y' * x' === 0 -=> y' === 0) two_vars) as M.
+   apply M. intro. simpl. apply Zmult_integral_l.
+  Qed.
+
+  Lemma integers_nz_mult_nz: ~ y == 0 -> ~ x == 0 -> ~ y * x == 0.
+  Proof. repeat intro. apply H1. apply integers_mult_eq_0_l; assumption. Qed.
+
+End borrowed_from_stdZ.
+
+Program Instance integers_eq_dec `{Integers Int}: forall x y: Int, Decision (x == y) :=
+  match ZArith_dec.Z_eq_dec (integers_to_ring _ Z x) (integers_to_ring _ Z y) with
+  | left E => left _
+  | right E => right _
+  end.
+
+Next Obligation.
+ change (x == y).
+ rewrite <- (iso_ints Z x), <- (iso_ints Z y).
+ rewrite E. reflexivity.
+Qed.
+
+Next Obligation.
+ apply E.
+ change (integers_to_ring _ Z x == integers_to_ring _ Z y).
+ apply (@integers_to_ring_mor Int _ _ _ _ _ _ _ _ Z _ _ _ _ _ _ _).
+ assumption.
+Qed.
+
+Lemma mult_0_inv `{Integers Int} (x y: Int): x * y == 0 -> {x==0}+{y==0}.
+Admitted. 
+
+
+(* good, now we have decidability for arbitrary ints, which we can use in simpleQ to do
+case distinction on ==0/<>0 in its transitivity proof! *)

@@ -21,7 +21,7 @@ Section list_instances.
 
   Global Instance: SemiGroup equiv app.
 
-  Global Instance: Monoid _ app nil := { lunit := fun _ => refl_equal _ }.
+  Global Instance: Monoid _ app nil := { lunit := fun x => @refl_equal _ x }.
   Proof. symmetry. apply (app_nil_end x). Qed.
 
 End list_instances.
@@ -52,10 +52,10 @@ Section positive_instances.
   Global Instance: SemiGroup equiv BinPos.Pplus.
   Global Instance: SemiGroup equiv BinPos.Pmult.
   Global Instance: Monoid equiv BinPos.Pmult BinPos.xH :=
-    { lunit := fun _ => refl_equal _; runit := BinPos.Pmult_1_r }.
+    { lunit := fun _ => @refl_equal _ _; runit := BinPos.Pmult_1_r }.
 
   (* misc: *)
-  Global Instance: Decidable pos_equiv := BinPos.positive_eq_dec.
+  Global Instance positive_eq_dec: forall (x y: BinPos.positive), Decision (x == y) := BinPos.positive_eq_dec.
 
 End positive_instances.
 
@@ -92,7 +92,7 @@ Section nat_instances.
   Global Instance nat_semiring: SemiRing equiv plus mult 0%nat 1%nat := { mult_0_l := Mult.mult_0_l }.
 
   (* misc *)
-  Global Instance: Decidable nat_equiv := Peano_dec.eq_nat_dec.
+  Global Instance: forall x y: nat, Decision (x == y) := Peano_dec.eq_nat_dec.
 
 End nat_instances.
 
@@ -137,7 +137,7 @@ Section Z_instances.
   Global Instance Zring: Ring equiv BinInt.Zplus BinInt.Zmult BinInt.Zopp BinInt.Z0 (BinInt.Zpos BinPos.xH).
 
   (* misc: *)
-  Global Instance: Decidable z_equiv := ZArith_dec.Z_eq_dec.
+  Global Instance: forall x y: BinInt.Z, Decision (x == y) := ZArith_dec.Z_eq_dec.
 
 End Z_instances.
 
@@ -145,7 +145,7 @@ Definition Z_ring_theory: Ring_theory.ring_theory 0 1 ring_plus ring_mult (fun x
   := RingOps.Ring_ring_theory BinInt.Z.
 Add Ring Z: Z_ring_theory.
 
-Require Import QArith_base CanonicalNames.
+Require Import QArith_base CanonicalNames Structures.
 
 Section Q_instances.
 
@@ -167,8 +167,9 @@ Section Q_instances.
   Global Instance: Reflexive Qle := Qle_refl.
   Global Instance Qle_PreOrder: PreOrder Qle.
 
-  Global Instance: PartialOrder q_equiv Qle.
-   unfold PartialOrder, relation_conjunction,
+  Global Instance: PartialOrder Qle.
+   constructor; try apply _.
+   unfold relation_conjunction,
      predicate_intersection, pointwise_extension, Basics.flip.
    split.
     intros H. rewrite H. split; reflexivity.
@@ -180,7 +181,7 @@ Section Q_instances.
 
   (* division: *)
 
-  Program Definition Qinv' (x: { x: Q | ~ Qeq x 0 }): Q := Qinv x.
+  Program Definition Qinv': { x: Q | ~ x == 0 } -> Q := Qinv.
 
   Lemma Qmult_inv_r' x: proj1_sig x * Qinv' x == 1.
   Proof.
@@ -207,16 +208,19 @@ Section Q_instances.
 
   Global Instance: Field q_equiv Qplus Qmult Qopp 0%Q 1%Q Qinv' := { mult_inverse := Qmult_inv_r' }.
   Proof. discriminate. Qed.
-  Global Instance: OrdField q_equiv Qplus Qmult Qopp 0%Q 1%Q Qinv' Qle.
+
+  Global Instance: RingOrder q_equiv Qplus Qmult 0%Q Qle.
   Proof with auto.
-   apply (@Build_OrdField Q q_equiv Qplus Qmult Qopp 0%Q 1%Q Qinv' Qle Field_instance_0 Qle_PreOrder _); intros.
+   constructor; try apply _; intros.
     apply Qplus_le_compat...
     reflexivity.
    apply Qmult_le_0_compat...
   Qed.
 
+  Global Instance: OrdField q_equiv Qplus Qmult Qopp 0%Q 1%Q Qinv' Qle.
+
   (* misc: *)
-  Global Instance: Decidable q_equiv := Qeq_dec.
+  Global Instance: forall x y: Q, Decision (x == y) := Qeq_dec.
 
 End Q_instances.
 

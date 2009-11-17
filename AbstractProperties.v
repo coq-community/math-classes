@@ -84,7 +84,7 @@ Section ring_props. Context `{Ring R}.
   Lemma equal_by_zero_sum: forall x y, x + - y == 0 -> x == y.
   Proof. intros. rewrite <- (plus_0_l y). rewrite <- H0. ring. Qed.
 
- Lemma plus_reg_l: forall n m p, p + n == p + m -> n == m.
+  Lemma plus_reg_l: forall n m p, p + n == p + m -> n == m.
   Proof.
    intros.
    rewrite <- plus_0_l.

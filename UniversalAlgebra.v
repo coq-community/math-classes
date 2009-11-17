@@ -96,7 +96,11 @@ Section for_signature. Variable sign: Signature.
     | App (t: OpType (sign_atomics sign)) y:  Term (function _ y t) -> Term (constant _ y) -> Term t
     | Op (o: sign): Term (sign o).
 
-  Inductive Statement: Type := Eq t (a b: Term (constant _ t)) | Impl (a b: Statement) | Ext (P: Prop).
+  Inductive Statement: Type :=
+    | Eq t (a b: Term (constant _ t))
+    | Impl (a b: Statement)
+    | Conj (a b: Statement)
+    | Ext (P: Prop).
 
   Section for_map.
     Context (A: sign_atomics sign -> Type) (B: sign_atomics sign -> Type)
@@ -177,16 +181,18 @@ Section for_signature. Variable sign: Signature.
       | Eq _ a b => eval vars a == eval vars b
       | Impl a b => F a -> F b
       | Ext P => P
+      | Conj a b => F a /\ F b
       end.
 
     Global Instance eval_stmt_proper: Proper (equiv ==> eq ==> iff) eval_stmt.
     Proof with auto.
      intros v v' ve s s' se. subst.
      induction s'; simpl.
-       split; intro.
-        rewrite <- ve...
-       rewrite ve...
-      firstorder.
+        split; intro.
+         rewrite <- ve...
+        rewrite ve...
+       firstorder.
+      intuition.
      intuition.
     Qed.
 
@@ -372,18 +378,19 @@ Section for_signature. Variable sign: Signature.
     Proof with auto.
      intros.
      induction s; simpl.
-       split; intros.
-        rewrite <- (iso_r _ (eval (fun a0 i => ab (v a0 i)) a)).
-        rewrite <- (iso_r _ (eval (fun a0 i => ab (v a0 i)) b)).
-        rewrite <- (carry_eval _ a (fun d i => ab (v d i))).
-        rewrite <- (carry_eval _ b (fun d i => ab (v d i))).
-        rewrite <- iso_vars_l.
-        rewrite H5.
-        reflexivity.
-       rewrite iso_vars_l.
-       do 2 rewrite carry_eval.
-       simpl. rewrite H5. reflexivity.
-      firstorder.
+        split; intros.
+         rewrite <- (iso_r _ (eval (fun a0 i => ab (v a0 i)) a)).
+         rewrite <- (iso_r _ (eval (fun a0 i => ab (v a0 i)) b)).
+         rewrite <- (carry_eval _ a (fun d i => ab (v d i))).
+         rewrite <- (carry_eval _ b (fun d i => ab (v d i))).
+         rewrite <- iso_vars_l.
+         rewrite H5.
+         reflexivity.
+        rewrite iso_vars_l.
+        do 2 rewrite carry_eval.
+        simpl. rewrite H5. reflexivity.
+       firstorder.
+      intuition.
      intuition.
     Qed.
 

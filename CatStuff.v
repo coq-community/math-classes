@@ -36,6 +36,9 @@ Section contents.
 
   Definition iso: relation X := fun x y => ex (@is_iso x y).
 
+  Definition proves_initial {x: X} (f: forall y: X, A x y): Prop :=
+    forall (y: X) f', f y == f'.
+
   Definition initial (x: X): Type := forall y: X, sig (fun a: A x y => forall a': A x y, a == a').
 
   Definition initials_unique (x x': X) (a: initial x) (b: initial x'): iso_arrows (proj1_sig (a x')) (proj1_sig (b x)).
@@ -48,6 +51,21 @@ Section contents.
    split.
     rewrite <- e0. apply e0.
    rewrite <- e. apply e.
+  Qed.
+
+  Definition initials_unique' (x x': X) (a: forall y, A x y) (b: forall y, A x' y):
+    proves_initial a -> proves_initial b ->
+    iso_arrows (a x') (b x).
+  Proof.
+   intros.
+   unfold proves_initial in *.
+   split.
+    rewrite <- (H2 x' cat_id).
+    rewrite <- H2.
+    reflexivity.
+   rewrite <- (H1 x cat_id).
+   rewrite <- H1.
+   reflexivity.
   Qed.
 
 End contents.

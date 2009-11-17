@@ -28,7 +28,10 @@ Qed. (* todo: move *)
 *)
 Section contents.
 
-Context `{NN: Naturals N}.
+Context `{NN: Naturals N} `{forall x y: N, Decision (x == y)}.
+  (* This is a good example of taking additional instances for efficiency. We could have omitted
+   the decider and relied on the generic one that works for all Naturals, but that would not let us
+   take advantage of more efficient specialized implementations. *)
 
 Definition N_semi_ring_theory: @Ring_theory.semi_ring_theory N 0 1 ring_plus ring_mult equiv
   := (RingOps.SemiRing_semi_ring_theory N).
@@ -37,13 +40,13 @@ Add Ring N: N_semi_ring_theory.
 Inductive Z: Type := C { pos: N; neg: N }.
 
 (* relations/operations/constants: *)
-Instance z_equiv: Equiv Z := fun x y => pos x + neg y == pos y + neg x.
-Instance z_plus: RingPlus Z := fun (x y: Z) => C (pos x + pos y) (neg x + neg y).
-Instance z_inv: GroupInv Z := fun (x: Z) => C (neg x) (pos x).
-Instance z_zero: RingZero Z := C 0 0.
-Instance z_mult: RingMult Z := fun x y => C (pos x * pos y + neg x * neg y) (pos x * neg y + neg x * pos y).
-Instance z_ring_one: RingOne Z := C 1 0.
-Instance z_one: MonoidUnit Z := 1.
+Global Instance z_equiv: Equiv Z := fun x y => pos x + neg y == pos y + neg x.
+Global Instance z_plus: RingPlus Z := fun (x y: Z) => C (pos x + pos y) (neg x + neg y).
+Global Instance z_inv: GroupInv Z := fun (x: Z) => C (neg x) (pos x).
+Global Instance z_zero: RingZero Z := C 0 0.
+Global Instance z_mult: RingMult Z := fun x y => C (pos x * pos y + neg x * neg y) (pos x * neg y + neg x * pos y).
+Global Instance z_ring_one: RingOne Z := C 1 0.
+Global Instance z_one: MonoidUnit Z := z_ring_one.
 
 (* z_equiv is nice: *)
 
@@ -51,12 +54,12 @@ Instance: Reflexive z_equiv. Proof. repeat intro. unfold z_equiv. reflexivity. Q
 Instance: Symmetric z_equiv. Proof. repeat intro. unfold z_equiv. symmetry. assumption. Qed.
 Instance: Transitive z_equiv.
 Proof.
- unfold z_equiv. repeat intro.
+ unfold z_equiv. intros x y z E E'.
  rewrite commutativity.
  rewrite (commutativity (pos z)).
  apply nat_Naturals.naturals_plus_reg_l with (pos y).
  do 2 rewrite associativity.
- rewrite <- H. rewrite H0. ring.
+ rewrite <- E. rewrite E'. ring.
 Qed.
 
 Instance: Equivalence z_equiv.
@@ -104,10 +107,10 @@ Proof. constructor; repeat intro; unfold z_plus, z_mult, equiv, z_equiv; simpl; 
 
 Let z_mult_equiv_compat_r y y': y == y' -> forall x, z_mult x y == z_mult x y'.
 Proof.
- unfold z_mult, equiv, z_equiv. repeat intro. simpl.
+ unfold z_mult, equiv, z_equiv. intros y y' E x. simpl.
  transitivity (pos x * (pos y + neg y') + neg x * (pos y' + neg y)); [ring |].
  transitivity (pos x * (pos y' + neg y) + neg x * (pos y + neg y')); [| ring].
- rewrite H. reflexivity.
+ rewrite E. reflexivity.
 Qed.
 
 Instance: Proper (z_equiv ==> z_equiv ==> z_equiv) z_mult.
@@ -137,8 +140,8 @@ Definition NtoZ (n: N): Z := C n 0.
 
 Instance: Proper (equiv ==> equiv) NtoZ.
 Proof.
- repeat intro. unfold NtoZ, equiv, z_equiv. simpl.
- rewrite H. reflexivity.
+ intros x y E. unfold NtoZ, equiv, z_equiv. simpl.
+ rewrite E. reflexivity.
 Qed.
 
 Global Instance: SemiRing_Morphism NtoZ.
@@ -151,8 +154,8 @@ Qed.
 
 Instance: Proper (equiv ==> equiv ==> equiv) C.
 Proof.
- repeat intro. unfold equiv, z_equiv. simpl.
- symmetry in H0. apply sg_mor; assumption.
+ intros x x' E y y' E'. unfold equiv, z_equiv. simpl.
+ symmetry in E'. apply sg_mor; assumption.
 Qed.
 
 Lemma split_into_nats n m: C n m == NtoZ n + - NtoZ m.
@@ -161,9 +164,15 @@ Proof.
  rewrite plus_0_r, plus_0_l. reflexivity.
 Qed.
 
-Global Instance: Decidable z_equiv := fun x y => @naturals_eqdec N _ _ _ _ _ _ (pos x + neg y) (pos y + neg x).
+Global Instance: forall x y: Z, Decision (x == y)
+  := fun x y => decide (pos x + neg y == pos y + neg x).
+    (* An example of specialization: while there will be a generic decider that works for
+     all Integers, this specialized one is potentially vastly more efficient. *)
 
 (* Next, we show that Z is initial, and therefore a model of the integers. *)
+
+Instance inject: IntegersToRing Z :=
+  fun _ _ _ _ _ _ z => naturals_to_semiring N _ (pos z) + - naturals_to_semiring N _ (neg z).
 
 Section for_another_ring.
 
@@ -171,48 +180,43 @@ Section for_another_ring.
 
   Add Ring R: (Ring_ring_theory R).
 
-  Definition inject_N: N -> R := @naturals_to_semiring N _ _ _ _ _ _ R _ _ _ _ _ _.
-  Let inject_N_mor: SemiRing_Morphism inject_N := @naturals_to_semiring_mor N _ _ _ _ _ _ R _ _ _ _ _ _.
+  Let n_to_sr := naturals_to_semiring N R.
+  Let n_to_sr_mor := naturals_to_semiring_mor N R: SemiRing_Morphism n_to_sr.
 
-(*
-  Let inject_N_uniq: forall f : N -> R, SemiRing_Morphism f -> pointwise_relation _ equiv f inject_N
-    := @ding_unique N _ _ _ _ _ _ R _ _ _ _ _ _.
-*)
-
-  Definition inject (z: Z): R := inject_N (pos z) + - inject_N (neg z).
-
-  Instance: Proper (equiv ==> equiv) inject.
+  Instance: Proper (equiv ==> equiv) (integers_to_ring Z R).
   Proof.
-   unfold equiv, z_equiv, inject. repeat intro.
+   unfold equiv, z_equiv, integers_to_ring, inject. intros x y E.
    apply AbstractProperties.equal_by_zero_sum.
-   transitivity (inject_N (pos x) + inject_N (neg y) + - (inject_N (neg x) + inject_N (pos y))); [ring|].
+   fold n_to_sr.
+   transitivity (n_to_sr (pos x) + n_to_sr (neg y) + - (n_to_sr (neg x) + n_to_sr (pos y))); [ring|].
    do 2 rewrite <- preserves_plus.
-   rewrite H0. rewrite (commutativity (pos y)). ring.
+   rewrite E. rewrite (commutativity (pos y)). ring.
   Qed.
 
-  Let inject_preserves_plus x y: inject (x + y) == inject x + inject y.
-  Proof. intros. unfold inject. simpl. do 2 rewrite preserves_plus. ring. Qed.
+  Let inject_preserves_plus x y: integers_to_ring Z R (x + y) == integers_to_ring Z R x + integers_to_ring Z R y.
+  Proof. intros. unfold integers_to_ring, inject. simpl. do 2 rewrite preserves_plus. ring. Qed.
 
-  Let preserves_mult x y: inject (x * y) == inject x * inject y.
+  Let preserves_mult x y: integers_to_ring Z R (x * y) == integers_to_ring Z R x * integers_to_ring Z R y.
   Proof.
-   intros. unfold inject. simpl.
+   intros. unfold integers_to_ring, inject. simpl.
    repeat (rewrite preserves_plus || rewrite preserves_mult). ring.
   Qed.
 
-  Let preserves_1: inject 1 == 1.
-  Proof. unfold inject. simpl. rewrite preserves_0, preserves_1. ring. Qed.
+  Let preserves_1: integers_to_ring Z R 1 == 1.
+  Proof. unfold integers_to_ring, inject. simpl. rewrite preserves_0, preserves_1. ring. Qed.
 
-  Let preserves_0: inject 0 == 0. Proof. unfold inject. simpl. ring. Qed.
+  Let preserves_0: integers_to_ring Z R 0 == 0.
+  Proof. unfold integers_to_ring, inject. simpl. ring. Qed.
 
-  Let preserves_inv x: inject (- x) == - inject x.
-  Proof. intros. unfold inject. simpl. ring. Qed.
+  Let preserves_inv x: integers_to_ring Z R (- x) == - integers_to_ring Z R x.
+  Proof. intros. unfold integers_to_ring, inject. simpl. ring. Qed.
 
-  Instance: SemiGroup_Morphism inject := { preserves_sg_op := inject_preserves_plus }.
-  Instance: @SemiGroup_Morphism _ _ _ _ ring_mult ring_mult inject := { preserves_sg_op := preserves_mult }.
-  Instance: @Monoid_Morphism _ _ _ _ (0:Z) (0:R) ring_plus ring_plus inject := { preserves_mon_unit := preserves_0 }.
-  Instance: @Monoid_Morphism _ _ _ _ (1:Z) (1:R) ring_mult ring_mult inject := { preserves_mon_unit := preserves_1 }.
-  Instance: @Group_Morphism _ _ _ _ ring_plus ring_plus (0:Z) (0:R) group_inv group_inv inject := { preserves_inv := preserves_inv }.
-  Instance inject_mor: Ring_Morphism inject.
+  Instance: SemiGroup_Morphism (integers_to_ring Z R) := { preserves_sg_op := inject_preserves_plus }.
+  Instance: @SemiGroup_Morphism _ _ _ _ ring_mult ring_mult (integers_to_ring Z R) := { preserves_sg_op := preserves_mult }.
+  Instance: @Monoid_Morphism _ _ _ _ (0:Z) (0:R) ring_plus ring_plus (integers_to_ring Z R) := { preserves_mon_unit := preserves_0 }.
+  Instance: @Monoid_Morphism _ _ _ _ (1:Z) (1:R) ring_mult ring_mult (integers_to_ring Z R) := { preserves_mon_unit := preserves_1 }.
+  Instance: @Group_Morphism _ _ _ _ ring_plus ring_plus (0:Z) (0:R) group_inv group_inv (integers_to_ring Z R) := { preserves_inv := preserves_inv }.
+  Instance inject_mor: Ring_Morphism (integers_to_ring Z R).
 
   Section for_another_morphism.
 
@@ -221,7 +225,7 @@ Section for_another_ring.
     Definition inject'_N (n: N): R := inject' (C n 0).
 
     Instance: Proper (equiv ==> equiv) inject'_N.
-    Proof. repeat intro. unfold inject'_N. rewrite H0. reflexivity. Qed.
+    Proof. intros x y E. unfold inject'_N. rewrite E. reflexivity. Qed.
 
     Instance: SemiRing_Morphism inject'_N.
     Proof with try apply _.
@@ -249,10 +253,10 @@ Section for_another_ring.
      apply RingOps.preserves_1.
     Qed.
 
-    Lemma agree_on_nat: @equiv _ (pointwise_relation _ equiv) inject'_N inject_N.
-    Proof. intro. apply (@naturals_to_semiring_unique N _ _ _ _ _ _ R _ _ _ _ _ _ inject'_N _ a). Qed.
+    Lemma agree_on_nat: @equiv _ (pointwise_relation _ equiv) inject'_N n_to_sr.
+    Proof. intro. apply (@naturals_to_semiring_unique N _ _ _ _ _ _ _ R _ _ _ _ _ _ inject'_N _ a). Qed.
 
-    Lemma agree: @equiv _ (pointwise_relation _ equiv) inject inject'.
+    Lemma agree: @equiv _ (pointwise_relation _ equiv) (integers_to_ring Z R) inject'.
     Proof.
      intros [pos0 neg0].
      rewrite split_into_nats.
@@ -260,55 +264,55 @@ Section for_another_ring.
      rewrite preserves_inv, Structures.preserves_inv.
      fold (inject'_N pos0) (inject'_N neg0).
      rewrite (agree_on_nat pos0), (agree_on_nat neg0).
-     unfold inject. simpl. rewrite RingOps.preserves_0. ring.
+     unfold integers_to_ring, inject. simpl. rewrite RingOps.preserves_0.
+     subst n_to_sr. ring.
     Qed.
 
   End for_another_morphism.
 
 End for_another_ring.
 
-Definition Z_initial: @CatStuff.initial _ ring.Arrow _ (ring.as_object Z).
-Proof with auto.
- unfold CatStuff.initial.
- intro.
- destruct y.
- unfold ring.Arrow.
- unfold RingAlgebra.UA.Arrow.
- set (f := @inject (variety_atomics tt) _ _ _ _ _ _ (ring.instance_from_impl variety_laws)).
- set (g := fun u => match u return Z -> variety_atomics u with tt => f end).
-
- assert (@RingAlgebra.UA.HomoMorphism ring.sig (fun _ => Z) variety_atomics (fun _ => equiv) _ ring.impl_from_instance _ g).
-  pose proof (@inject_mor _ _ _ _ _ _ _ _: Ring_Morphism f).
-  assert (forall u, Ring_Morphism (g u)).
-   destruct u. exact H.
-  constructor.
-   intro.
-   apply _.
-  destruct o; simpl. (* this belongs elsewhere *)
-      apply preserves_plus.
-     apply preserves_mult.
-    apply (@preserves_0 Z (variety_atomics tt) _ _ _ _ _ _ _ _ _ _ _ _ ).
-   apply (@preserves_1 Z (variety_atomics tt) _ _ _ _ _ _ _ _ _ _ _ _ ).
-  apply preserves_inv.
- exists (exist _ g H).
- intros.
- unfold equiv.
- unfold UniversalAlgebra.a_equiv.
- simpl.
- destruct b.
- unfold g, f.
- destruct a'.
- simpl.
- apply (@agree (variety_atomics tt) _ _ _ _ _ _ (ring.instance_from_impl variety_laws) (x tt)).
- simpl in x.
- simpl in h.
- apply (@ring.morphism_from_ua Z _ variety_atomics _ ring.impl_from_instance _ x h _).
- apply ring.instance_from_impl.
- auto.
-Qed. (* todo: not very nice. uglyness here results from prettyness above where the real work is done.. *)
-
 Global Instance: Integers Z.
-Proof Build_Integers Z _ _ _ _ _ _ _ Z_initial _.
+Proof.
+  apply (Build_Integers Z _ _ _ _ _ _ _ _ (@inject_mor)).
+  unfold CatStuff.proves_initial.
+  intros y f' b.
+  unfold ring.arrow_from_morphism_from_instance_to_object. simpl.
+  destruct b. intro. destruct f'. simpl in *.
+  apply (@agree (y tt) _ _ _ _ _ _ (ring.from_object y) (x tt)).
+  pose proof (@ring.morphism_from_ua Z _ y _ ring.impl_from_instance _ x _ _) as M.
+  simpl in M.
+  apply (M (@ring.from_object y)).
+Qed.
+
+ Definition abs (d: Z): N :=
+  nat_Naturals.naturals_max
+    (nat_Naturals.naturals_minus (pos d) (neg d))
+    (nat_Naturals.naturals_minus (neg d) (pos d)).
+
+  Lemma decomp (z: Z):
+    { z == naturals_to_semiring N Z (abs z) } + { z == - naturals_to_semiring N Z (abs z) }.
+  Proof.
+   intro.
+   destruct z.
+   unfold equiv, z_equiv.
+   simpl.
+   unfold abs.
+   simpl.
+  Admitted.
+
+End contents.
+
+Section abs.
+
+  Definition `{H: Integers Int} `{Naturals N}
+
+Definition abs (i: Int): N :=
+  let d := @integers_to_ring Int H0 (@Z N) _ _ _ _ _ i in
+  nat_Naturals.naturals_max
+    (nat_Naturals.naturals_minus (pos d) (neg d))
+    (nat_Naturals.naturals_minus (neg d) (pos d)).
+
 
 (* todo: forall z, z = abs z * sign z (where abs returns a natural) *) 
 (*
@@ -388,4 +392,3 @@ Proof with auto.
  intros.
 *) 
 
-End contents.

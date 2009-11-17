@@ -1,103 +1,108 @@
-Require Import Structures CatStuff RingOps FieldOps SemiRingAlgebra RingAlgebra.
+Require Import
+  Relation_Definitions Morphisms
+  Structures CatStuff RingOps FieldOps
+  SemiRingAlgebra RingAlgebra UniversalAlgebra.
 
-Class Naturals A {e plus mult zero one} :=
+(*Definition canonical_semiring_map A `{SemiRing.*)
+
+Section initial_maps.
+
+  Variable A: Type.
+
+  Class NaturalsToSemiRing :=
+    naturals_to_semiring: forall B `{RingMult B} `{RingPlus B} `{RingOne B} `{RingZero B}, A -> B.
+  Class IntegersToRing :=
+    integers_to_ring: forall B `{RingMult B} `{RingPlus B} `{RingOne B} `{RingZero B} `{GroupInv B}, A -> B.
+
+End initial_maps.
+
+Class Naturals A {e plus mult zero one} `{NaturalsToSemiRing A} :=
   { naturals_ring:> SemiRing e plus mult zero one
-  ; naturals_initial: @initial _ semiring.Arrow _ (semiring.as_object A)
-  ; naturals_eqdec:> Decidable e }.
+  ; naturals_to_semiring_mor:> forall `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
+  ; naturals_to_semiring_arrow := (fun x: semiring.Object =>
+        @semiring.arrow_from_morphism_from_instance_to_object A _ _ _ _ _ _ x (naturals_to_semiring A (x tt))
+           (@naturals_to_semiring_mor (x tt) _ _ _ _ _ (semiring.from_object x)) )
+  ; naturals_initial: proves_initial naturals_to_semiring_arrow }.
+
+Implicit Arguments naturals_to_semiring_mor [[e] [plus] [mult] [zero] [one] [H] [Naturals] [e0] [plus0] [mult0] [zero0] [one0] [H0]].
+Implicit Arguments naturals_to_semiring_arrow [[e] [plus] [mult] [zero] [one] [H] [Naturals]].
+
+Class Integers A {e plus mult opp zero one} `{IntegersToRing A} :=
+  { integers_ring:> Ring e plus mult opp zero one
+  ; integers_to_ring_mor: forall `{Ring B}, Ring_Morphism (integers_to_ring A B)
+  ; integers_to_ring_arrow := (fun x: ring.Object =>
+        @ring.arrow_from_morphism_from_instance_to_object _ _ _ _ _ _ _ _ x (integers_to_ring A (x tt))
+           (@integers_to_ring_mor _ _ _ _ _ _ _ (ring.from_object x)) )
+  ; integers_initial: proves_initial integers_to_ring_arrow }.
+
+Class Rationals A {e plus mult opp zero one mult_inv leq} :=
+  { rationals_ordfield:> OrdField e plus mult opp zero one mult_inv leq
+  ; rationals_eqdec:> forall x y: A, Decision (x == y)
+  ; rationals_frac: forall `{i: Integers B} (t := integers_to_ring B A) (a: A),
+     exists num: B, exists den: B, a == t num * / t den }.
+	(* todo: further require that denominator is nonzero *)
 
 (* Above, initiality is stated in categorical/universal algebra terms, which isn't the most
  pleasant form to subsequently reason about. We therefore state its key properties in
  more pleasant terms of canonical SemiRing_Morphisms, below. *)
 
-Section nicer_naturals_initial.
-
-  Context `{Naturals N} SR `{SemiRing SR}.
-
-  Definition naturals_to_semiring_arrow: semiring.Arrow (semiring.as_object N) (semiring.as_object SR)
-     := proj1_sig (naturals_initial (semiring.as_object SR)).
-
-  Definition naturals_to_semiring: N -> SR := proj1_sig naturals_to_semiring_arrow tt.
-
-  Lemma naturals_to_semiring_unique (f: N -> SR) (h: SemiRing_Morphism f): forall x, f x == naturals_to_semiring x.
-  Proof.
-   unfold naturals_to_semiring, naturals_to_semiring_arrow.
-   destruct (naturals_initial), x.
-   unfold semiring.Arrow, UniversalAlgebra.Arrow in e1.
-   simpl in *. intros. symmetry.
-   apply (((fun p => e1 (exist (UA.HomoMorphism semiring.sig (fun _ : unit => N) (fun _ : unit => SR)) (fun _ => f) p) tt x0: x tt x0 == f x0))).
-   constructor. intro. apply _.
-   destruct o; simpl.
-      apply preserves_plus.
-     apply preserves_mult.
-    apply preserves_0.
-   apply preserves_1.
-  Qed.
-
-  Definition naturals_to_semiring_mor: SemiRing_Morphism naturals_to_semiring.
-  Proof.
-   unfold naturals_to_semiring.
-   destruct naturals_to_semiring_arrow.
-   simpl.
-   simpl in h.
-   apply (@semiring.morphism_from_ua N _ (fun _ => SR) (fun _ => equiv) semiring.impl_from_instance semiring.impl_from_instance x h _ H0 tt).
-(*
-   Check (@semiring.morphism_from_ua N _ (fun _ => SR) (fun _ => equiv) semiring.impl_from_instance semiring.impl_from_instance _ _ _ H0).
-*)
-  Qed. (* making this an instance causes weird ring problems. see ringbug.v *)
-
-End nicer_naturals_initial.
-
-Lemma iso_nats `{Naturals A} B `{Naturals B}: forall a: A, naturals_to_semiring A (naturals_to_semiring B a) == a.
+Lemma naturals_to_semiring_unique `{Naturals N} SR `{SemiRing SR} (f: N -> SR) (h: SemiRing_Morphism f):
+ forall x, f x == naturals_to_semiring N SR x.
 Proof.
  intros.
- unfold naturals_to_semiring, naturals_to_semiring_arrow.
- generalize (@naturals_initial B _ _ _ _ _ _), (@naturals_initial A _ _ _ _ _ _).
- intros.
- destruct (@initials_unique semiring.Object semiring.Arrow _ _ _ _ _ (semiring.as_object A) (semiring.as_object B) i0 i).
- apply (H2 tt a).
+ set (@semiring.arrow_from_morphism_from_instance_to_object N _ _ _ _ _ _ (semiring.as_object SR) f h).
+ symmetry.
+ apply (naturals_initial (semiring.as_object SR) a tt x).
 Qed.
 
-Class Integers A {e plus mult opp zero one} :=
-  { integers_ring:> Ring e plus mult opp zero one
-  ; integers_initial: @initial _ ring.Arrow _ (ring.as_object A)
-  ; integers_eqdec:> Decidable e }.
+Lemma iso_nats A `{Naturals A} B `{Naturals B}: forall a: A,
+ naturals_to_semiring B A (naturals_to_semiring A B a) == a.
+Proof.
+ intros.
+ pose proof (@naturals_initial A _ _ _ _ _ _ _ (semiring.as_object A) cat_id tt a).
+ set (comp (naturals_to_semiring_arrow B (semiring.as_object A)) (naturals_to_semiring_arrow A (semiring.as_object B))).
+ pose proof (@naturals_initial A _ _ _ _ _ _ _ (semiring.as_object A) a0 tt a).
+ simpl in *.
+ rewrite <- H4.
+ assumption.
+Qed.
 
-Section nicer_integers_initial.
+Lemma integers_to_ring_unique `{Integers Int} R `{Ring R} (f: Int -> R) (h: Ring_Morphism f):
+ forall x, f x == integers_to_ring Int R x.
+Proof.
+ intros.
+ set (@ring.arrow_from_morphism_from_instance_to_object Int _ _ _ _ _ _ _ (ring.as_object R) f h).
+ symmetry.
+ apply (integers_initial (ring.as_object R) a tt x).
+Qed.
 
-  Context `{Integers Int} R `{Ring R}.
+Lemma iso_ints `{Integers A} B `{Integers B}: forall a: A,
+  integers_to_ring B A (integers_to_ring A B a) == a.
+Proof.
+ intros.
+ pose proof (@integers_initial A _ _ _ _ _ _ _ _ (ring.as_object A) cat_id tt a).
+ set (comp (integers_to_ring_arrow (ring.as_object A)) (integers_to_ring_arrow (ring.as_object B))).
+ pose proof (@integers_initial A _ _ _ _ _ _ _ _ (ring.as_object A) a0 tt a).
+ simpl in *.
+ rewrite <- H4.
+ assumption.
+Qed.
 
-  Definition integers_to_ring_arrow: ring.Arrow (ring.as_object Int) (ring.as_object R)
-     := proj1_sig (integers_initial (ring.as_object R)).
+Lemma ints_through_third `{Integers A} B `{Integers B} C `{Ring C}: forall a: A,
+  integers_to_ring B C (integers_to_ring A B a) == integers_to_ring A C a.
+Proof.
+ intros.
+ set (comp (integers_to_ring_arrow (ring.as_object C)) (integers_to_ring_arrow (ring.as_object B)): ring.Arrow (ring.as_object A) (ring.as_object C)).
+ pose proof (@integers_initial A _ _ _ _ _ _ _ _ (ring.as_object C) a0 tt a).
+ subst a0.
+ simpl in H4.
+ symmetry.
+ assumption.
+Qed.
 
-  Definition integers_to_ring: Int -> R := proj1_sig integers_to_ring_arrow tt.
+Lemma naturals_to_integers_injective `{Naturals N} `{Integers Int} x y:
+  naturals_to_semiring N Int x == naturals_to_semiring N Int y -> x == y.
+Proof.
+ intros.
+Admitted.
 
-  Lemma integers_to_ring_unique (f: Int -> R) (h: Ring_Morphism f): forall x, f x == integers_to_ring x.
-  Proof.
-   unfold integers_to_ring, integers_to_ring_arrow.
-   destruct (integers_initial), x.
-   unfold semiring.Arrow, UniversalAlgebra.Arrow in e1.
-   simpl in *. intros. symmetry.
-   apply (((fun p => e1 (exist (UA.HomoMorphism ring.sig (fun _ : unit => Int) (fun _ : unit => R)) (fun _ => f) p) tt x0: x tt x0 == f x0))).
-   constructor. intro. apply _.
-   destruct o; simpl.
-       apply preserves_plus.
-      apply preserves_mult.
-     apply preserves_0.
-    apply preserves_1.
-   apply preserves_inv.
-  Qed.
-
-  Definition integers_to_ring_mor: Ring_Morphism integers_to_ring.
-  Proof.
-   unfold integers_to_ring.
-   destruct integers_to_ring_arrow.
-   simpl in h.
-   apply (@ring.morphism_from_ua Int _ (fun _ => R) (fun _ => equiv) ring.impl_from_instance ring.impl_from_instance x h _ H0 tt).
-  Qed.
-
-End nicer_integers_initial.
-
-Class Rationals A {e plus mult opp zero one mult_inv leq} :=
-  { rationals_ordfield:> OrdField e plus mult opp zero one mult_inv leq
-  ; rationals_eqdec:> Decidable e
-  ; rationals_frac: forall `{i: Integers B} (t := integers_to_ring A) (a: A), exists num: B, exists den: B, a == t num * / t den }.

@@ -1,16 +1,7 @@
-
 Require Import
-  Structures RingOps BoringInstances AbstractProperties Numbers
-  Morphisms.
-
-Require nat_Naturals.
-
-Require Import Ring.
-
-(* the standard Z uses nasty binary positive crap with
-  various horrible horrible operations on it (especially Pminus).
-  the following is a much simpler implementation in terms of nat,
-  which lets us use nat's initiality to prove this Z's initiality *)
+  Program Relation_Definitions
+  RingOps BoringInstances AbstractProperties Numbers
+  Morphisms Ring Structures IntegerOrder stdZ_Integers.
 
 Section contents.
 
@@ -20,299 +11,315 @@ Definition Z_ring_theory: Ring_theory.ring_theory 0 1 ring_plus ring_mult (fun x
   := RingOps.Ring_ring_theory Z.
 Add Ring Z: Z_ring_theory.
 
-Inductive Q: Type := C { num: Z; den: Z }.
+Inductive Q: Type := C { num: Z; den: Z; den_nonzero: ~ den == 0 }.
+  (* We used to have den and den_nonzero bundled, which did work relatively nicely with Program, but the
+   extra messyness in proofs etc turned out not to be worth it. *)
 
-(* relations/operations/constants: *)
-Instance q_equiv: Equiv Q := fun x y => num x * den y == num y * den x.
-Instance q_plus: RingPlus Q := fun (x y: Q) => C (num x * den y + num y * den x) (den x * den y).
-Instance q_inv: GroupInv Q := fun (x: Q) => C (den x) (num x).
-Instance q_zero: RingZero Q := C 0 1.
-Instance q_mult: RingMult Q := fun x y => C (num x * num y) (den x * den y).
-Instance q_ring_one: RingOne Q := C 1 1.
-Instance q_one: MonoidUnit Q := 1.
+(* equality *)
 
-(* z_equiv is nice: *)
-
+Program Instance q_equiv: Equiv Q := fun x y => num x * den y == num y * den x.
 
 Instance: Reflexive q_equiv. Proof. repeat intro. unfold q_equiv. reflexivity. Qed.
 Instance: Symmetric q_equiv. Proof. repeat intro. unfold q_equiv. symmetry. assumption. Qed.
 Instance: Transitive q_equiv.
-Proof.
+Proof with auto.
  unfold q_equiv. repeat intro.
- rewrite commutativity.
- rewrite (commutativity (pos z)).
- apply nat_Naturals.generic_plus_reg_l with (pos y).
+ destruct x. destruct y. destruct z.
+ simpl in *.
+ apply (stdZ_Integers.integers_mult_reg_l den1)...
  do 2 rewrite associativity.
- rewrite <- H. rewrite H0. ring.
+ do 2 rewrite (commutativity den1).
+ rewrite H0, <- H1. ring.
 Qed.
 
-Instance: Equivalence z_equiv.
+Instance: Equivalence q_equiv.
+
+Instance: forall x y: Q, Decision (x == y)
+  := fun x y => decide (num x * den y == num y * den x).
+
+(* injection from Z *)
+
+Program Definition inject_Z (z: Z): Q := C z 1 _.
+Next Obligation. apply (integers_0_neq_1). symmetry. assumption. Qed.
+
+Instance: Proper (equiv ==> equiv) inject_Z.
+Proof.
+ unfold inject_Z, equiv, q_equiv. intros x x' E. simpl.
+ rewrite E. reflexivity.
+Qed.
+
+(* relations/operations/constants: *)
+
+Program Instance q_plus: RingPlus Q := fun (x y: Q) => C (num x * den y + num y * den x) (den x * den y) _.
+Next Obligation.
+ destruct x. destruct y. simpl in H0.
+ revert den_nonzero0 den_nonzero1 H0. simpl. apply integers_nz_mult_nz.
+Qed.
+
+Instance q_zero: RingZero Q := inject_Z 0.
+Instance q_ring_one: RingOne Q := inject_Z 1.
+
+Instance q_opp: GroupInv Q := fun (x: Q) => C (- num x) (den x) (den_nonzero x).
+
+Program Instance q_mult: RingMult Q := fun x y => C (num x * num y) (den x * den y) _.
+Next Obligation.
+ destruct x. destruct y. simpl in H0.
+ revert den_nonzero0 den_nonzero1 H0. simpl. apply integers_nz_mult_nz.
+Qed.
+
+Program Instance q_inv: MultInv Q := fun x => C (den x) (num x) _.
+Next Obligation.
+ unfold equiv, q_equiv in H1.
+ apply H1. simpl. ring_simplify. assumption.
+Qed.
+
+Definition q_le: relation Q := fun x y: Q => int_le (num x * den y) (num y * den x).
 
 (* plus is nice: *)
 
-Instance: Associative z_plus. Proof. repeat intro. unfold z_plus, equiv, z_equiv. simpl. ring. Qed.
-Instance: Commutative z_plus. Proof. repeat intro. unfold z_plus, equiv, z_equiv. simpl. ring. Qed.
-
-Instance: Proper (z_equiv ==> z_equiv ==> z_equiv) z_plus.
+Instance: Associative q_plus.
 Proof.
- unfold z_equiv. intros x y E x0 y0 E'. simpl.
- transitivity (pos x + neg y + (pos x0 + neg y0)); [ring|].
+ repeat intro. unfold q_plus, equiv, q_equiv. simpl.
+ rewrite (associativity (den x) (den y) (den z)). ring.
+Qed.
+
+Instance: Commutative q_plus.
+Proof.
+ repeat intro. unfold q_plus, equiv, q_equiv. simpl.
+ rewrite (commutativity (den y)). ring.
+Qed.
+
+Instance: Proper (q_equiv ==> q_equiv ==> q_equiv) q_plus.
+Proof.
+ unfold q_equiv, q_plus. intros x x' E y y' E'. simpl.
+ transitivity (num x * den x' * den y * den y' + num y * den y' * den x * den x'); [ring|].
  rewrite E, E'. ring.
 Qed.
 
-Let z_plus_0_l: forall x: Z, 0 + x == x. Proof. intro. unfold equiv, z_equiv. simpl. ring. Qed.
-Let z_plus_0_r: forall x: Z, x + 0 == x. Proof. intro. unfold equiv, z_equiv. simpl. ring. Qed.
-Let z_plus_opp_l: forall x: Z, -x + x == 0. Proof. intros. unfold equiv, z_equiv. simpl. ring. Qed.
-Let z_plus_opp_r: forall x: Z, x + -x == 0. Proof. intros. unfold equiv, z_equiv. simpl. ring. Qed.
+Instance: SemiGroup q_equiv q_plus.
 
-Global Instance: SemiGroup z_equiv z_plus.
-Global Instance: Monoid z_equiv z_plus z_zero := { lunit := z_plus_0_l; runit := z_plus_0_r }.
+Instance: Monoid q_equiv q_plus q_zero.
+Proof. constructor; try apply _; unfold sg_op, q_plus, equiv, q_equiv; intro; simpl; ring. Qed.
 
-(* inv is nice: *)
+(* opp is nice: *)
 
-Instance: Proper (z_equiv ==> z_equiv) z_inv.
+Instance: Proper (q_equiv ==> q_equiv) q_opp.
 Proof.
- unfold z_equiv, z_inv. repeat intro. simpl.
- symmetry. rewrite (commutativity (neg y)), (commutativity (neg x)). assumption.
+ unfold q_equiv, q_opp. intros x y E. simpl.
+ rewrite <- ring_distr_opp_mult, E. ring.
 Qed.
 
-Global Instance: Group z_equiv z_plus z_zero z_inv := { inv_l := z_plus_opp_l; inv_r := z_plus_opp_r }.
-Global Instance: AbGroup z_equiv z_plus z_zero z_inv.
+Instance: Group q_equiv q_plus q_zero q_opp.
+Proof. constructor; try apply _; unfold equiv, q_equiv, sg_op, q_plus, q_opp; intro x; simpl; ring. Qed.
+
+Instance: AbGroup q_equiv q_plus q_zero q_opp.
 
 (* mult is nice: *)
 
-Instance: Associative z_mult.
-Proof. repeat intro. unfold z_mult, equiv, z_equiv. simpl. ring. Qed.
-Instance: Commutative z_mult.
-Proof. repeat intro. unfold z_plus, equiv, z_equiv. simpl. ring. Qed.
+Instance: Proper (q_equiv ==> q_equiv ==> q_equiv) q_mult.
+Proof with try ring.
+ unfold q_equiv. intros x y E x0 y0 E'. simpl.
+ transitivity (num x * den y * (num x0 * den y0))...
+ rewrite E, E'...
+Qed.
 
-Global Instance: Distribute z_mult z_plus.
-Proof. constructor; repeat intro; unfold z_plus, z_mult, equiv, z_equiv; simpl; ring. Qed.
+Instance: Associative q_mult.
+Proof. repeat intro. unfold equiv, q_equiv. simpl. ring. Qed.
 
-Let z_mult_equiv_compat_r y y': y == y' -> forall x, z_mult x y == z_mult x y'.
+Instance: Commutative q_mult.
+Proof. repeat intro. unfold equiv, q_equiv. simpl. ring. Qed.
+
+Instance: Distribute q_mult q_plus.
+Proof. constructor; repeat intro; unfold equiv, q_equiv; simpl; ring. Qed.
+
+Instance: SemiGroup q_equiv q_mult.
+
+Instance: Monoid q_equiv q_mult q_ring_one.
+Proof. constructor; try apply _; unfold equiv, q_equiv; simpl; intro; ring. Qed.
+
+Instance: Ring q_equiv q_plus q_mult q_opp q_zero q_ring_one.
+
+Instance: Ring_Morphism inject_Z.
 Proof.
- unfold z_mult, equiv, z_equiv. repeat intro. simpl.
- transitivity (pos x * (pos y + neg y') + neg x * (pos y' + neg y)); [ring |].
- transitivity (pos x * (pos y' + neg y) + neg x * (pos y + neg y')); [| ring].
- rewrite H. reflexivity.
+ repeat (constructor; try apply _); unfold equiv, q_equiv; try reflexivity; simpl; intros.
+  change ((a + a') * (1 * 1) == (a * 1 + a' * 1) * 1). ring.
+ change ((a * a') * (1 * 1) == a * a' * 1). ring.
 Qed.
 
-Instance: Proper (z_equiv ==> z_equiv ==> z_equiv) z_mult.
-Proof with auto.
- repeat intro. transitivity (z_mult x y0).
- apply z_mult_equiv_compat_r...
- rewrite commutativity.
- rewrite (commutativity y).
- apply z_mult_equiv_compat_r...
-Qed.
+(* inv is nice: *)
 
-Let mult_1_l: forall x: Z, 1 * x == x. 
-Proof. repeat intro. unfold ring_mult, z_mult, equiv, z_equiv. simpl. ring. Qed.
-Let mult_1_r: forall x: Z, x * 1 == x.
-Proof. repeat intro. unfold ring_mult, z_mult, equiv, z_equiv. simpl. ring. Qed.
-
-Instance: SemiGroup z_equiv z_mult.
-Instance: Monoid z_equiv z_mult z_one := { lunit := mult_1_l; runit := mult_1_r }.
-Global Instance: Ring z_equiv z_plus z_mult z_inv z_zero z_one.
-
-Definition ring_theory: ring_theory 0 1 ring_plus ring_mult _ group_inv equiv := Ring_ring_theory.
-Add Ring Z: ring_theory.
-
-(* misc: *)
-
-Definition NtoZ (n: N): Z := C n 0.
-
-Instance: Proper (equiv ==> equiv) NtoZ.
+Instance: Proper (sig_relation q_equiv _ ==> q_equiv) q_inv.
 Proof.
- repeat intro. unfold NtoZ, equiv, z_equiv. simpl.
- rewrite H. reflexivity.
-Qed.
-
-Global Instance: SemiRing_Morphism NtoZ.
-Proof.
- unfold NtoZ.
- repeat (constructor; try apply _; try reflexivity); unfold equiv, z_equiv; simpl; intros.
-  change (a + a' + (0 + 0) == a + a' + 0). ring.
- change (a * a' + (a * 0 + 0 * a') == a * a' + 0 * 0 + 0). ring.
-Qed.
-
-Instance: Proper (equiv ==> equiv ==> equiv) C.
-Proof.
- repeat intro. unfold equiv, z_equiv. simpl.
- rewrite H, H0. reflexivity.
-Qed.
-
-Lemma split_into_nats n m: C n m == NtoZ n + - NtoZ m.
-Proof.
- intros. unfold group_inv, ring_plus, z_inv, z_plus. simpl.
- rewrite plus_0_r, plus_0_l. reflexivity.
-Qed.
-
-Global Instance: Decidable z_equiv := fun x y => @naturals_eqdec N _ _ _ _ _ _ (pos x + neg y) (pos y + neg x).
-
-(* Next, we show that Z is initial, and therefore a model of the integers. *)
-
-Section for_another_ring.
-
-  Context `{Ring R}.
-
-  Add Ring R: Ring_ring_theory.
-
-  Definition inject_N := proj1_sig (naturals_initial (SemiRingCat.MkO R)).
-
-  Definition inject (z: Z): R := proj1_sig inject_N (pos z) + - proj1_sig inject_N (neg z).
-
-  Instance: Proper (equiv ==> equiv) inject.
-  Proof.
-   unfold equiv, z_equiv, inject. repeat intro.
-   destruct inject_N. simpl.
-   apply AbstractProperties.equal_by_zero_sum.
-   transitivity (x0 (pos x) + x0 (neg y) + - (x0 (neg x) + x0 (pos y))); [ring|].
-   do 2 rewrite <- preserves_plus. rewrite H0.
-   rewrite (commutativity (pos y)). ring.
-  Qed.
-
-  Let inject_preserves_plus x y: inject (x + y) == inject x + inject y.
-  Proof.
-   intros. unfold inject. destruct inject_N. simpl.
-   do 2 rewrite preserves_plus. ring.
-  Qed.
-
-  Let preserves_mult x y: inject (x * y) == inject x * inject y.
-  Proof.
-   intros. unfold inject. destruct inject_N. simpl.
-   repeat (rewrite preserves_plus || rewrite preserves_mult). ring.
-  Qed.
-
-  Let preserves_1: inject 1 == 1.
-  Proof.
-   unfold inject. destruct inject_N. simpl.
-   rewrite preserves_0, preserves_1. ring.
-  Qed.
-
-  Let preserves_0: inject 0 == 0. Proof. unfold inject. destruct inject_N. simpl. ring. Qed.
-
-  Let preserves_inv x: inject (- x) == - inject x.
-  Proof. intros. unfold inject. simpl. ring. Qed.
-
-  Instance: SemiGroup_Morphism inject := { preserves_sg_op := inject_preserves_plus }.
-  Instance: @SemiGroup_Morphism _ _ _ _ ring_mult ring_mult inject := { preserves_sg_op := preserves_mult }.
-  Instance: @Monoid_Morphism _ _ _ _ (0:Z) (0:R) ring_plus ring_plus inject := { preserves_mon_unit := preserves_0 }.
-  Instance: @Monoid_Morphism _ _ _ _ (1:Z) (1:R) ring_mult ring_mult inject := { preserves_mon_unit := preserves_1 }.
-  Instance: @Group_Morphism _ _ _ _ ring_plus ring_plus (0:Z) (0:R) group_inv group_inv inject := { preserves_inv := preserves_inv }.
-  Instance inject_mor: Ring_Morphism inject.
-
-  Section for_another_morphism.
-
-    Context (inject': Z -> R) `{!Ring_Morphism inject'}.
-
-    Definition inject'_N (n: N): R := inject' (C n 0).
-
-    Instance: Proper (equiv ==> equiv) inject'_N.
-    Proof. repeat intro. unfold inject'_N. rewrite H0. reflexivity. Qed.
-
-    Instance: SemiRing_Morphism inject'_N.
-    Proof with try apply _.
-     repeat (constructor; try apply _).
-        unfold inject'_N. intros.
-        rewrite <- preserves_sg_op.
-        unfold sg_op.
-        unfold z_plus.
-        simpl.
-        rewrite plus_0_l.
-        reflexivity.
-       unfold inject'_N.
-       apply RingOps.preserves_0.
-      unfold inject'_N. intros.
-      rewrite <- preserves_sg_op.
-      unfold sg_op at 2.
-      unfold z_mult.
-      simpl.
-      apply sg_mor_op_proper.
-      unfold z_equiv.
-      simpl.
-      change (a * a' + (a * 0 + 0 * a') == a * a' + 0 * 0 + 0).
-      ring.
-     unfold inject'_N.
-     apply RingOps.preserves_1.
-    Qed.
-
-    Lemma agree_on_nat: @equiv _ (pointwise_relation _ equiv) (proj1_sig inject_N) inject'_N.
-    Proof.
-     unfold inject_N.
-     destruct naturals_initial. simpl.
-     apply (e1 (exist SemiRing_Morphism inject'_N _)).
-    Qed.
-
-    Lemma agree: @equiv _ (pointwise_relation _ equiv) inject inject'.
-    Proof.
-     intro z. destruct z.
-     rewrite split_into_nats.
-     rewrite preserves_plus.
-     rewrite preserves_plus.
-     rewrite preserves_inv.
-     rewrite Structures.preserves_inv.
-     fold (inject'_N pos0) (inject'_N neg0).
-     rewrite <- (agree_on_nat pos0).
-     rewrite <- (agree_on_nat neg0).
-     unfold inject. destruct inject_N. simpl.
-     rewrite RingOps.preserves_0. ring.
-    Qed.
-
-  End for_another_morphism.
-
-End for_another_ring.
-
-Lemma Z_initial: @CatStuff.initial RingCat.O RingCat.A _ (RingCat.MkO Z).
-Proof with try reflexivity.
- unfold CatStuff.initial.
- simpl.
- destruct y.
- exists (@exist (Z -> A) Ring_Morphism inject inject_mor).
- destruct a'.
- intro. simpl. apply (agree x).
-Qed.
-
-Global Instance: Integers Z.
-Proof Build_Integers Z _ _ _ _ _ _ _ Z_initial _.
-
-Lemma int_intermsof_nats `{Integers ZZ}:
-  forall z:ZZ, z == naturals_to_semiring (pos (integers_to_ring z)) + - naturals_to_semiring (neg (integers_to_ring z)).
-Proof with simpl in *; auto.
- intros.
- unfold integers_to_ring.
- set (@integers_initial ZZ _ _ _ _ _ _ _).
- pose proof (@integers_initial Z _ _ _ _ _ _ _).
- destruct (@CatStuff.initials_unique RingCat.O RingCat.A _ _ _ _ _ (RingCat.MkO Z) (RingCat.MkO ZZ) X i).
- clearbody i.
+ unfold q_equiv, sig_relation.
+ intros [x N] [x' N'] E.
  simpl in *.
-  set (i
-                (@RingCat.MkO Z z_equiv z_plus z_mult z_inv z_zero z_ring_one
-                   (@integers_ring Z z_equiv z_plus z_mult z_inv z_zero z_ring_one
-                      Integers_instance_0))) in H0, H1.
- set (i (RingCat.MkO Z)).
- assert (proj1_sig s == proj1_sig s0).
-  intro.
-  destruct s. destruct s0. simpl in *.
-  apply (e1 x0 a).
- destruct s. destruct s0...
- unfold naturals_to_semiring.
- destruct (naturals_initial (SemiRingCat.MkO ZZ))...
- destruct x0. destruct x1...
- rewrite <- (H0 z) at 1...
- destruct x. destruct X. destruct x2...
- rewrite (H2 z)...
- destruct (x0 z)...
- rewrite split_into_nats.
- rewrite preserves_plus.
- rewrite preserves_inv.
- set (@comp (SemiRingCat.O) SemiRingCat.A _ (SemiRingCat.MkO N) (SemiRingCat.MkO Z) (SemiRingCat.MkO ZZ)
-   (exist SemiRing_Morphism x2 _) (exist SemiRing_Morphism NtoZ _)).
- change (proj1_sig a pos0 + - proj1_sig a neg0 == x1 pos0 + - x1 neg0).
- destruct a...
- do 2 rewrite (nat_hm x3 x1). reflexivity.
+ symmetry.
+ rewrite (commutativity (den x')), (commutativity (den x)).
+ assumption.
 Qed.
 
-(* todo: also make one that mimics Rationals' rationals_frac (proved in terms of the above) *)
+Instance: Field q_equiv q_plus q_mult q_opp q_zero q_ring_one q_inv.
+Proof.
+ constructor; try apply _.
+  unfold equiv, q_equiv.
+  simpl.
+  do 2 rewrite mult_1_r.
+  apply integers_0_neq_1.
+ unfold mult_inv, q_inv, equiv, q_equiv.
+ intros [x N]. simpl. ring.
+Qed.
 
-End contents.
+(* le is nice: *)
+
+Instance: Proper (q_equiv ==> q_equiv ==> iff) q_le.
+Proof.
+ unfold q_le. intros x x' E y y' E'.
+ unfold q_equiv in *.
+ split; intro.
+  
+
+Admitted.
+
+Instance: Reflexive q_le.
+Proof. intro x. unfold q_le. apply reflexivity. Qed.
+
+Instance: Transitive q_le.
+Proof.
+ unfold q_le.
+ assert (PartialOrder int_le). apply _. revert H0.
+ assert (Proper (equiv ==> equiv ==> iff) int_le).
+  apply _.
+  revert H0.
+ pose proof int_le_mult_compat_inv_l. revert H0.
+ generalize int_le.
+ intros r M N O.
+ intros x y z xy yz.
+ cut (r (num x * den z * (den y * den y)) (num z * den x * (den y * den y))).
+  intro.
+  apply (M (num x * den z) (num z * den x) (den y * den y)).
+   admit.
+  assumption.
+ transitivity (num x * den y * (den z * den y)).
+  ring_simplify.
+  reflexivity.
+ 
+ 
+ assert (num x * den y * (den z * den y) == num y * den x * (den z * den y)).
+  rewrite xy.
+  ring.
+ rewrite H0.
+
+ transitivity (num x * den y * (den z * den y)).
+  ring_simplify.
+  
+
+ transitivity (num y * den x * den z * den y).
+  
+  
+
+  admit. (* uses xy *)
+ transitivity (num z * den y * den x * den y).
+  admit. (* uses yz *)  
+ ring_simplify.
+
+
+Admitted.
+
+Instance: PartialOrder q_le.
+Proof.
+ constructor. apply _.
+  constructor; apply _.
+ intros x x'.
+ unfold relation_conjunction.
+ unfold predicate_intersection.
+ unfold pointwise_extension.
+ split; intro E.
+  rewrite E.
+  intuition.
+ unfold q_le in E.
+ unfold q_equiv.
+ destruct E.
+ unfold flip in H1.
+ apply (@partial_order_equivalence Z _ int_le _ (num x * den x') (num x' * den x)).
+ split; assumption.
+Qed.
+
+Lemma q_le_0_mult (x: Q): q_le q_zero x -> forall y: Q, q_le 0 y -> q_le 0 (x * y).
+Proof.
+ unfold q_le.
+ assert (Proper (equiv ==> equiv ==> iff) int_le).
+  apply _.
+ revert H0.
+ pose proof int_le_0_mult.
+ revert H0.
+ generalize int_le.
+ intros.
+ simpl in *. 
+ ring_simplify in H2. ring_simplify in H3. ring_simplify.
+ apply H0; assumption.
+Qed. (* proof ugly because normal rewriting horribly inefficient. asked mattam about it on irc. *)
+
+Lemma q_le_compat_r (x y: Q): q_le x y -> forall z, q_le (x + z) (y + z).
+Proof.
+ unfold q_le.
+ assert (Proper (equiv ==> equiv ==> iff) int_le).
+  apply _.
+ revert H0.
+ assert (PartialOrder int_le).
+  apply _.
+ revert H0.
+ pose proof int_le_0_sqr.
+ revert H0.
+ pose proof int_le_plus_compat_l.
+ revert H0.
+ pose proof int_le_mult_compat_l.
+ revert H0.
+ generalize int_le.
+ simpl.
+ intros.
+ ring_simplify.
+ apply H1.
+ transitivity (num x * den y * (den z * den z)).
+  ring_simplify.
+  reflexivity.
+ transitivity (den x * num y * (den z * den z)).
+  apply H0. 
+   rewrite (commutativity (den x)). 
+   assumption.
+  apply H2.
+ ring_simplify. 
+ reflexivity.
+Qed.
+  (* again, horrible because of rewrite problems *)
+
+Instance: OrdField q_equiv q_plus q_mult q_opp q_zero q_ring_one q_inv q_le :=
+  { leq_plus := q_le_compat_r; leq_zero_mult := q_le_0_mult }.
+
+(* Q is a model of the rationals: *)
+
+Instance Q_rationals: @Rationals Q _ _ _ _ _ _ _ q_le.
+Proof.
+ apply (@Build_Rationals Q _ _ _ _ _ _ _ q_le _ _).
+ intros.
+ exists (integers_to_ring Z B (num a)).
+ exists (integers_to_ring Z B (den a)).
+ subst t.
+ rewrite (@ints_through_third Z _ _ _ _ _ _ _ _ B _ _ _ _ _ _ _ _ Q _ _ _ _ _ _ _).
+ rewrite (@ints_through_third Z _ _ _ _ _ _ _ _ B _ _ _ _ _ _ _ _ Q _ _ _ _ _ _ _).
+  (* hm, shouldn't be necessary to do this so uglily *)
+ rewrite <- (integers_to_ring_unique Q inject_Z _ (num a)).
+ rewrite <- (integers_to_ring_unique Q inject_Z _ (den a)).
+ unfold inject_Z, equiv, q_equiv. simpl.
+ unfold FieldOps.dec_mult_inv.
+ destruct_call decide.
+  unfold equiv, q_equiv in e1.
+  simpl in e1. 
+  exfalso.
+  destruct a.
+  simpl in e1.
+  ring_simplify in e1.
+  intuition.
+ simpl. ring.
+Qed.
+
+Print Assumptions Q_rationals.

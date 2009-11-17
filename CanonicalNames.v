@@ -1,7 +1,9 @@
+Global Generalizable All Variables.
 Require Import Relation_Definitions.
 
-Definition decision T := sumbool T (T -> False).
-Class Decidable `(r: relation A): Type := decide: forall x y : A, decision (r x y).
+Class Decision (T: Prop) := decide: sumbool T (T -> False).
+
+Implicit Arguments decide [[Decision]].
 
 (* canonically named relations/operations/constants: *)
 Class Equiv A := equiv: relation A.

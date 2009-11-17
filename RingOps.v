@@ -7,6 +7,7 @@ Module UA := UniversalAlgebra.
 Import UA.notations.
 
 Section srm. Context `{SemiRing_Morphism}.
+  Existing Instance a_sg.
   Lemma preserves_0: f 0 == 0.
   Proof. intros. apply (@preserves_mon_unit _ _ _ _ _ _ _ _ f _). Qed.
   Lemma preserves_1: f 1 == 1.
@@ -24,6 +25,9 @@ Lemma plus_0_l `{SemiRing} x: 0 + x == x. Proof. intros. apply (lunit x). Qed.
 Lemma mult_1_l `{SemiRing}: forall a, 1 * a == a. Proof. intros. apply (lunit a). Qed.
 Lemma mult_1_r `{SemiRing}: forall a, a * 1 == a. Proof. intros. apply (runit a). Qed.
 
+Lemma plus_mul_distribute_r `{Ring} x y z: (x + y) * z == x * z + y * z. Proof. apply distribute_r. Qed.
+Lemma plus_mul_distribute_l `{Ring} x y z: x * (y + z) == x * y + x * z. Proof. apply distribute_l. Qed.
+
 Lemma twice `{Ring R} a (h: a == a + a): a == 0. (* todo: doesn't this hold for semirings? *)
  rewrite <- (plus_opp_r a).
  rewrite h at 2.
@@ -37,6 +41,10 @@ Instance Ring_Semi `{Ring}: SemiRing _ _ _ _ _ := { mult_0_l := _ }.
 Proof. intros. apply twice. rewrite <- distribute_r. rewrite (lunit 0). reflexivity. Qed.
 
 Instance Ring_Semi_Morphism `{Ring_Morphism}: SemiRing_Morphism f.
+ pose proof ringmor_a.
+ pose proof ringmor_b.
+ constructor; apply _.
+Qed.
 
 Require Ring_theory.
 
