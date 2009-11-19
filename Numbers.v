@@ -27,6 +27,11 @@ Class Naturals A {e plus mult zero one} `{NaturalsToSemiRing A} :=
 Implicit Arguments naturals_to_semiring_mor [[e] [plus] [mult] [zero] [one] [H] [Naturals] [e0] [plus0] [mult0] [zero0] [one0] [H0]].
 Implicit Arguments naturals_to_semiring_arrow [[e] [plus] [mult] [zero] [one] [H] [Naturals]].
 
+(* key operations that specific implementations might wish to specialize: *)
+Class NatDistance N `{Equiv N} `{RingPlus N}
+  := nat_distance: forall (x y: N), { z: N | x + z == y \/ y + z == x }.
+
+
 Class Integers A {e plus mult opp zero one} `{IntegersToRing A} :=
   { integers_ring:> Ring e plus mult opp zero one
   ; integers_to_ring_mor: forall `{Ring B}, Ring_Morphism (integers_to_ring A B)
@@ -34,6 +39,10 @@ Class Integers A {e plus mult opp zero one} `{IntegersToRing A} :=
         @ring.arrow_from_morphism_from_instance_to_object _ _ _ _ _ _ _ _ x (integers_to_ring A (x tt))
            (@integers_to_ring_mor _ _ _ _ _ _ _ (ring.from_object x)) )
   ; integers_initial: proves_initial integers_to_ring_arrow }.
+
+(* key operations that specific implementations might wish to specialize: *)
+Class IntAbs Int N `{Equiv Int} `{RingMult Int} `{RingPlus Int} `{RingOne Int} `{GroupInv Int} `{RingZero Int} `{NaturalsToSemiRing N} :=
+  int_abs: forall i: Int, { n: N | naturals_to_semiring N Int n == i \/ - naturals_to_semiring N Int n == i }.
 
 Class Rationals A {e plus mult opp zero one mult_inv leq} :=
   { rationals_ordfield:> OrdField e plus mult opp zero one mult_inv leq

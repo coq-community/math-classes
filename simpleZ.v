@@ -28,14 +28,17 @@ Qed. (* todo: move *)
 *)
 Section contents.
 
-Context `{NN: Naturals N} `{forall x y: N, Decision (x == y)}.
+Context N `{NN: Naturals N}.
+ (* extra parameterization for efficiency: *)
+Context
+ `{forall x y: N, Decision (x == y)}
+ `{forall x y: N, Decision (x <= y)}
+ `{!NatDistance N}.
   (* This is a good example of taking additional instances for efficiency. We could have omitted
    the decider and relied on the generic one that works for all Naturals, but that would not let us
    take advantage of more efficient specialized implementations. *)
 
-Definition N_semi_ring_theory: @Ring_theory.semi_ring_theory N 0 1 ring_plus ring_mult equiv
-  := (RingOps.SemiRing_semi_ring_theory N).
-Add Ring N: N_semi_ring_theory.
+Add Ring N: (SemiRing_semi_ring_theory N).
 
 Inductive Z: Type := C { pos: N; neg: N }.
 
@@ -105,6 +108,10 @@ Proof. repeat intro. unfold z_plus, equiv, z_equiv. simpl. ring. Qed.
 Global Instance: Distribute z_mult z_plus.
 Proof. constructor; repeat intro; unfold z_plus, z_mult, equiv, z_equiv; simpl; ring. Qed.
 
+Instance: Params (@ring_mult) 2.
+Instance: Params (@ring_plus) 2.
+Instance: Params (@equiv) 2.
+
 Let z_mult_equiv_compat_r y y': y == y' -> forall x, z_mult x y == z_mult x y'.
 Proof.
  unfold z_mult, equiv, z_equiv. intros y y' E x. simpl.
@@ -160,7 +167,7 @@ Qed.
 
 Lemma split_into_nats n m: C n m == NtoZ n + - NtoZ m.
 Proof.
- intros. unfold group_inv, ring_plus, z_inv, z_plus. simpl.
+ intros. unfold group_inv, ring_plus, z_inv, z_plus, equiv, z_equiv. simpl.
  rewrite plus_0_r, plus_0_l. reflexivity.
 Qed.
 
@@ -285,110 +292,57 @@ Proof.
   apply (M (@ring.from_object y)).
 Qed.
 
- Definition abs (d: Z): N :=
-  nat_Naturals.naturals_max
-    (nat_Naturals.naturals_minus (pos d) (neg d))
-    (nat_Naturals.naturals_minus (neg d) (pos d)).
+Lemma NtoZ_uniq: forall x, naturals_to_semiring N Z x == NtoZ x.
+Proof.
+ intros.
+ symmetry.
+ apply (naturals_to_semiring_unique Z NtoZ _ x).
+Qed. 
 
-  Lemma decomp (z: Z):
-    { z == naturals_to_semiring N Z (abs z) } + { z == - naturals_to_semiring N Z (abs z) }.
-  Proof.
-   intro.
-   destruct z.
-   unfold equiv, z_equiv.
-   simpl.
-   unfold abs.
-   simpl.
-  Admitted.
+Global Program Instance: IntAbs Z N := fun (d: Z) => nat_distance (pos d) (neg d).
+
+Next Obligation.
+Proof.
+ rewrite NtoZ_uniq. destruct d.
+ unfold equiv, z_equiv. simpl. 
+ destruct (nat_distance pos0 neg0). simpl.
+ destruct o; [right | left]; rewrite <- H2; ring.
+Qed.
 
 End contents.
+(*
+Global Program Instance slow_int_abs `{Integers Int} `{Naturals N}: IntAbs Int N :=
+  fun x => exist _ (proj1_sig (int_abs (proj1_sig (integers_to_ring Int (Z N) x)))) _.
 
-Section abs.
+Next Obligation.
+ exact True.
+Qed.
 
-  Definition `{H: Integers Int} `{Naturals N}
+Next Obligation.
+ admit.
+Qed.
 
-Definition abs (i: Int): N :=
+Next Obligation.
+ destruct (nat_distance
+           (naturals_to_semiring N nat (pos N (integers_to_ring Int (Z N) x)))
+           (naturals_to_semiring N nat (neg N (integers_to_ring Int (Z N) x)))).
+ simpl.
+ destruct o.
+  
+
+ simpl in o.
+
+ int_abs (integers_to_ring Int (Z N) x).
+
+  Context `{H: Integers Int} `{Naturals N}.
+
+Definition generic_abs (i: Int): N :=
   let d := @integers_to_ring Int H0 (@Z N) _ _ _ _ _ i in
   nat_Naturals.naturals_max
     (nat_Naturals.naturals_minus (pos d) (neg d))
     (nat_Naturals.naturals_minus (neg d) (pos d)).
 
+End abs.
+*)
 
 (* todo: forall z, z = abs z * sign z (where abs returns a natural) *) 
-(*
-Lemma int_intermsof_nats `{Integers ZZ}:
-  forall z:ZZ, z == naturals_to_semiring (pos (integers_to_ring z)) + - naturals_to_semiring (neg (integers_to_ring z)).
-Proof with simpl in *; auto.
- intros.
- unfold integers_to_ring.
- set (@integers_initial ZZ _ _ _ _ _ _ _).
- pose proof (@integers_initial Z _ _ _ _ _ _ _).
- destruct (@CatStuff.initials_unique RingCat.O RingCat.A _ _ _ _ _ (RingCat.MkO Z) (RingCat.MkO ZZ) X i).
- clearbody i.
- simpl in *.
-  set (i
-                (@RingCat.MkO Z z_equiv z_plus z_mult z_inv z_zero z_ring_one
-                   (@integers_ring Z z_equiv z_plus z_mult z_inv z_zero z_ring_one
-                      Integers_instance_0))) in H0, H1.
- set (i (RingCat.MkO Z)).
- assert (proj1_sig s == proj1_sig s0).
-  intro.
-  destruct s. destruct s0. simpl in *.
-  apply (e1 x0 a).
- destruct s. destruct s0...
- unfold naturals_to_semiring.
- destruct (naturals_initial (SemiRingCat.MkO ZZ))...
- destruct x0. destruct x1...
- rewrite <- (H0 z) at 1...
- destruct x. destruct X. destruct x2...
- rewrite (H2 z)...
- destruct (x0 z)...
- rewrite split_into_nats.
- rewrite preserves_plus.
- rewrite preserves_inv.
- set (@comp (SemiRingCat.O) SemiRingCat.A _ (SemiRingCat.MkO N) (SemiRingCat.MkO Z) (SemiRingCat.MkO ZZ)
-   (exist SemiRing_Morphism x2 _) (exist SemiRing_Morphism NtoZ _)).
- change (proj1_sig a pos0 + - proj1_sig a neg0 == x1 pos0 + - x1 neg0).
- destruct a...
- do 2 rewrite (nat_hm x3 x1). reflexivity.
-Qed.
-*)
-(* todo: also make one that mimics Rationals' rationals_frac (proved in terms of the above) *)
-(*
-Lemma simpleZ_mult_reg_l: forall p: Z, ~ p == 0 -> forall n m, p * n == p * m -> n == m.
-Proof.
- unfold ring_mult.
- unfold z_mult.
- unfold equiv.
- unfold z_equiv.
- intros [pp pn]. simpl.
- intros H [nn nd] [mn md]. simpl.
- intros.
- rewrite plus_0_r in H.
- rewrite plus_0_l in H.
-
-
- assert (pn * ((nd + mn) + - (nn + md)) == pp * ((nd + mn) + - (nn + md))).
-  
-
-
- assert (~ pp == pn).
-  rewrite <- plus_0_r.
-  rewrite <- (plus_0_l pn).
-  assumption.
-
-  intro.
-
- destruct p. destruct
- destruct
- intros.
-
-End contents.
-
-
-
-Lemma integers_mult_reg_l `{Integers ZZ}: forall p: ZZ, ~ p == 0 -> forall n m, p * n == p * m -> n == m.
-Proof with auto.
- intros.
-*) 
-

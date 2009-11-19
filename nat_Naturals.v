@@ -190,7 +190,7 @@ End borrowed_from_nat.
 (* The instance below is given low priority because specific models will typically be able to
  provide a more efficient implementation. *)
 
-Program Instance naturals_eq_dec `{Naturals N}: forall x y: N, Decision (x == y) | 10 :=
+Program Instance slow_naturals_eq_dec `{Naturals N}: forall x y: N, Decision (x == y) | 10 :=
   match Peano_dec.eq_nat_dec (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y) with
   | left E => left _
   | right E => right _
@@ -209,10 +209,71 @@ Next Obligation.
  assumption.
 Qed.
 
-Require Import Max.
+Require Import NaturalsOrder.
 
-Definition naturals_max `{Naturals N} (x y: N): N :=
-  naturals_to_semiring _ _ (max (naturals_to_semiring _ _ x) (naturals_to_semiring _ _ y)).
+Program Instance slow_naturals_le_dec `{Naturals N}: forall x y: N, Decision (x <= y) | 10 :=
+  match Compare_dec.le_lt_dec (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y) with
+  | left E => left _
+  | right E => right _
+  end.
 
-Definition naturals_minus `{Naturals N} (x y: N): N :=
-  naturals_to_semiring _ _ (minus (naturals_to_semiring _ _ x) (naturals_to_semiring _ _ y)).
+Next Obligation.
+ destruct (nat_ding _ _ E). 
+ exists (naturals_to_semiring nat N x0). 
+ rewrite <- (iso_nats N nat y).
+ rewrite <- H1.
+ rewrite preserves_sg_op.
+ rewrite (iso_nats N nat).
+ reflexivity.
+Qed.
+
+Next Obligation.
+ apply (Lt.lt_not_le (naturals_to_semiring N nat y) (naturals_to_semiring N nat x)).
+  assumption.
+ apply nat_ding_rev.
+ apply naturals_to_semiring_preserves_order.
+ assumption.
+Qed. 
+
+
+Program Instance: NatDistance nat := fun (x y: nat) =>
+ if decide (MonoidOrder.m_le x y) then minus y x else minus x y.
+
+Next Obligation.
+ destruct H.
+ unfold equiv, nat_equiv in H.
+ subst. 
+ left.
+ rewrite Minus.minus_plus.
+ reflexivity.
+Qed.
+
+Next Obligation.
+ destruct (total_order x y).
+  intuition.
+ right.
+ change ((y + (x - y))%nat == x).
+ rewrite (Minus.le_plus_minus_r y x).
+  reflexivity.
+ apply nat_ding_rev.
+ assumption.
+Qed.
+
+Program Instance slow_distance `{Naturals N}: NatDistance N | 10 := fun (x y: N) => 
+  naturals_to_semiring _ N (proj1_sig (nat_distance (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y))).
+
+Next Obligation.
+ destruct nat_distance.
+ simpl.
+ destruct o; [left | right].
+  rewrite <- (iso_nats N nat y).
+  rewrite <- H1.
+  rewrite preserves_sg_op.
+  rewrite (iso_nats N nat).
+  reflexivity.
+ rewrite <- (iso_nats N nat x).
+ rewrite <- H1.
+ rewrite preserves_sg_op.
+ rewrite (iso_nats N nat).
+ reflexivity.
+Qed.

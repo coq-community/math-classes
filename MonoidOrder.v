@@ -4,8 +4,7 @@ Section contents.
 
   Context `{Monoid M}.
 
-  Definition m_le: relation M := fun x y: M =>
-   exists z: M, x & z == y.
+  Global Instance m_le: Order M := fun x y: M => exists z: M, x & z == y.
 
   Global Instance: Proper (equiv ==> equiv ==> iff) m_le.
   Proof with assumption.
@@ -35,3 +34,5 @@ Section contents.
   Global Instance: PreOrder m_le.
 
 End contents.
+
+Instance: Params (@m_le) 3.

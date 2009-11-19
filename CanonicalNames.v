@@ -1,5 +1,5 @@
 Global Generalizable All Variables.
-Require Import Relation_Definitions.
+Require Import RelationClasses Relation_Definitions.
 
 Class Decision (T: Prop) := decide: sumbool T (T -> False).
 
@@ -17,6 +17,8 @@ Class GroupInv A := group_inv: A -> A.
 Class MultInv A `{Equiv A} `{RingZero A} := mult_inv: { x: A | ~ equiv x ring_zero } -> A.
 Class CatId O (A:O->O->Type) := cat_id: forall {o}, A o o.
 Class CatComp O (A:O->O->Type) := comp: forall {x y z}, A y z -> A x y -> A x z.
+Class Order A := precedes: relation A.
+Class RalgebraAction A B := ralgebra_action: A -> B -> B.
 
 Instance ringplus_is_semigroupop `{f: RingPlus A}: SemiGroupOp A := f.
 Instance ringmult_is_semigroupop `{f: RingMult A}: SemiGroupOp A := f.
@@ -34,6 +36,7 @@ Global Notation "- x" := (group_inv x).
 Global Notation "// x" := (mult_inv x) (at level 35, right associativity).
   (* The "/ x" notation is introduced later for contexts with decidable equality where
    we can do away with the nonzero proof. *)
+Global Infix "<=" := precedes.
 
 (* typical properties: *)
 Class Commutative `{Equiv B} `(m: A -> A -> B) := commutativity: forall x y, m x y == m y x.

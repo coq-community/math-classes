@@ -55,10 +55,13 @@ Class Field `(e: Equiv A) plus mult inv zero one (mult_inv: MultInv A) :=
   ; mult_inv_proper: Proper (sig_relation equiv _ ==> equiv) mult_inv
   ; mult_inverse: forall x, ` x * // x == 1 }.
 
-Class PartialOrder `{e: Equiv A} (R: relation A) :=
+Class PartialOrder `{e: Equiv A} (R: Order A) :=
   { equ:> Equivalence e
+  ; partialorder_proper:> Proper (e ==> e ==> iff) R
   ; partial_preorder:> PreOrder R
   ; partial_order_equivalence: relation_equivalence e (relation_conjunction R (inverse R)) }.
+
+Class TotalOrder `(Order A) := total_order: forall x y: A, x <= y \/ y <= x.
 
 Class RingOrder `(e: Equiv A) (plus: RingPlus A) (mult: RingMult A) (zero: RingZero A) (leq: relation A) :=
   { ringorder_preorder: PreOrder leq
@@ -75,6 +78,32 @@ Class OrdField `(e: Equiv A) plus mult inv zero one mult_inv (leq: relation A) :
   ; leq_plus: forall x y, leq x y -> forall z, leq (x + z) (y + z)
   ; leq_zero_mult: forall x, leq zero x -> forall y, leq 0 y -> leq 0 (x * y) }.
 *)
+
+Local Infix "<*>" := ralgebra_action (at level 30).
+
+Class Rmodule `(e: Equiv Scalar) `(Equiv Elem) `{RalgebraAction Scalar Elem}
+    scalar_plus scalar_mult scalar_inv scalar_zero scalar_one
+    elem_plus elem_zero elem_opp:=
+  { rmodule_ring:> Ring e scalar_plus scalar_mult scalar_inv scalar_zero scalar_one
+  ; rmodule_abgroup:> AbGroup _ elem_plus elem_zero elem_opp
+  ; rmodule_distr_l: forall (a b: Elem) (x: Scalar), x <*> (a & b) == (x <*> a) & (x <*> b)
+  ; rmodule_distr_r: forall (a: Elem) (x y: Scalar), (x + y) <*> a == (x <*> a) & (y <*> a)
+  ; rmodule_assoc: forall (a: Elem) (x y: Scalar), (x * y) <*> a == x <*> (y <*> a)
+  }.
+
+Class Ralgebra `(e: Equiv Scalar) `(e': Equiv Elem) `{RalgebraAction Scalar Elem}
+    scalar_plus scalar_mult scalar_inv scalar_zero scalar_one
+    elem_plus elem_mult elem_zero elem_one elem_opp :=
+  { ralgebra_module:> Rmodule e e'
+      scalar_plus scalar_mult scalar_inv scalar_zero scalar_one
+      elem_plus elem_zero elem_opp
+  ; ralgebra_ring:> Ring e' elem_plus elem_mult elem_opp elem_zero elem_one
+  ; ralgebra_assoc: forall (a b: Elem) (x: Scalar), x <*> (a * b) == (x <*> a) * b
+  }.
+  (* Todo: Hm, Bas's identities looked slightly different.. *)
+
+Definition is_derivation `{Ralgebra Scalar Elem} (f: Elem -> Elem): Prop :=
+  True. (* something *)
 
 (* morphism classes: *)
 
