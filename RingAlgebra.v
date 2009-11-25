@@ -59,36 +59,23 @@ Section contents.
     |e_mult_1_l: E (1 * x === x)
     |e_mult_0_l: E (0 * x === 0)
     |e_distr: E (x * (y + z) === x * y + x * z)
+    |e_distr_l: E ((x + y) * z === x * z + y * z)
     |e_plus_opp: E (x + - x === 0).
-
-(*
-  Definition e_distr_r `{e: Equiv A} `{!Equivalence e} `{UA.Implementation sig A} `{@UA.Propers sig A _ _}:
-    (forall e: UA.Statement sig, E e -> (forall v, UA.eval_stmt sig A v e)) -> forall vars, UA.eval_stmt sig A vars ((x + y) * z === x * z + y * z).
-  Proof.
-   intros. simpl.
-   simpl.
-   rewrite_with (H1 _ e_mult_comm (fun v => match v: nat with 0 => UA.op sig plus (vars 0%nat) (vars 1%nat) | _ => vars 2 end)).
-   rewrite_with (H1 _ e_distr (fun v => match v: nat with 0 => vars 2 | 1 => vars 0%nat | _ => vars 1%nat end)).
-   simpl.
-   apply (@UA.propers sig A _ _ _ plus).
-    apply (H1 _ e_mult_comm (fun v => match v: nat with 0 => vars 2%nat | _ => vars 0%nat end)).
-   apply (H1 _ e_mult_comm (fun v => match v: nat with 0 => vars 2%nat | _ => vars 1%nat end)).
-  Qed.
-*)
 
   Lemma laws_from_instance `{Ring}: forall e, E e ->
     forall vars, @UA.eval_stmt sig (fun _ => A) (fun _ => equiv) impl_from_instance vars e.
   Proof.
    intros.
    inversion_clear H0; simpl.
-           apply associativity.
-          apply commutativity.
-         apply plus_0_l.
-        apply associativity.
-       apply commutativity.
-      apply mult_1_l.
-     apply mult_0_l.
-    apply distribute_l.
+            apply associativity.
+           apply commutativity.
+          apply plus_0_l.
+         apply associativity.
+        apply commutativity.
+       apply mult_1_l.
+      apply mult_0_l.
+     apply distribute_l.
+    apply distribute_r.
    apply plus_opp_r.
   Qed.
 
@@ -134,8 +121,7 @@ Section contents.
         apply (variety_laws _ e_mult_1_l (fun s n => match s with tt => x end)).
        apply (variety_laws _ e_mult_comm (fun s n => match s with tt => match n with 0 => x | _ => y end end)).
       apply (variety_laws _ e_distr (fun s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end)).
-     admit. (* todo *)
-      (*apply (@e_distr_r _ _ _ _ _ variety_laws (fun n => match n with 0 => a | 1 => b | _ => c end)).*)
+     apply (variety_laws _ e_distr_l (fun s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end)).
     Qed.
 
   End ops_from_impl.
@@ -198,14 +184,6 @@ Section contents.
       apply (H3 mult).
      apply (H3 one).
     Qed.
-
-(*
-    Definition homo_preserves_plus: forall a b, f (a + b) == f a + f b.  Proof UA.preserves sig f plus.
-    Definition homo_preserves_mult: forall a b, f (a * b) == f a * f b.  Proof UA.preserves sig f mult.
-    Definition homo_preserves_0: f 0 == 0.  Proof UA.preserves sig f zero.
-    Definition homo_preserves_1: f 1 == 1.  Proof UA.preserves sig f one.
-*)
-      (* these should go, eventually *)
 
   End morphism_from_ua.
 

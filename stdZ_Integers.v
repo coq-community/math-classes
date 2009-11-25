@@ -1,7 +1,7 @@
 Require CatStuff.
 Require Import
   BinInt Morphisms RingAlgebra
-  Structures AbstractProperties RingOps BoringInstances Numbers.
+  Structures AbstractProperties RingOps BoringInstances AbstractIntegers.
 
 (* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
 
@@ -231,88 +231,3 @@ Proof.
  simpl in H.
  apply (H (@ring.from_object y)).
 Qed.
-
-Section borrowed_from_stdZ.
-
-  Context `{Integers A} (x y z: A).
-
-  Let three_vars (_: unit) v := match v with 0%nat => x | 1%nat => y | _ => z end.
-  Let two_vars (_: unit) v := match v with 0%nat => x | _ => y end.
-  Let no_vars (_: unit) (v: nat) := 0.
-  Let d := ring.impl_from_instance.
-
-  Lemma from_stdZ_stmt (s: UA.Statement ring.sig) (w: UA.Vars ring.sig _):
-    (forall v : unit -> nat -> Z, @UniversalAlgebra.eval_stmt ring.sig (fun _ => Z) (fun _ => equiv) ring.impl_from_instance v s) ->
-    (@UniversalAlgebra.eval_stmt ring.sig (fun _ => A) (fun _ => equiv) ring.impl_from_instance w s).
-  Proof.
-   pose proof (@integers_initial A _ _ _ _ _ _ _ _).
-   pose proof (@integers_initial Z _ _ _ _ _ _ _ _).
-
-   destruct (@CatStuff.initials_unique' ring.Object ring.Arrow _ _ _ _ _ (ring.as_object A) (ring.as_object Z) _ _ H1 H2).
-   pose proof (H3 tt). simpl in H5.
-   pose proof (H4 tt). simpl in H6.
-   clear H1 H2.
-   intros.
-   apply (@UA.carry_stmt ring.sig (fun _ => Z) (fun _ => A) (fun _ => equiv) (fun _ => equiv) _ _ ring.impl_from_instance ring.impl_from_instance) with (fun u => match u with tt => integers_to_ring Z A end) (fun u => match u with tt => integers_to_ring A Z end); auto.
-      apply _.
-     apply _.
-    set (@integers_to_ring_arrow Z _ _ _ _ _ _ _ _ (ring.as_object A)).
-    apply (proj2_sig a).
-   set (@integers_to_ring_arrow A _ _ _ _ _ _ _ _ (ring.as_object Z)).
-   apply (proj2_sig a).
-  Qed.
-
-  Local Notation x' := (UA.Var ring.sig 0 tt).
-  Local Notation y' := (UA.Var ring.sig 1 tt).
-  Local Notation z' := (UA.Var ring.sig 2%nat tt).
-
-  Import UniversalAlgebra.notations.
-
-  Lemma integers_mult_reg_l: ~ x == 0 -> x * y == x * z -> y == z.
-  Proof.
-   pose proof (from_stdZ_stmt ((x' === 0 -=> UA.Ext _ False) -=> x' * y' === x' * z' -=> y' === z') three_vars).
-   apply H1. intro. simpl. apply Zmult_reg_l.
-  Qed.
-
-  Lemma integers_0_neq_1: ~ 0 == 1.
-  Proof.
-   pose proof (from_stdZ_stmt (0 === 1 -=> UA.Ext _ False) no_vars) as M.
-   apply M. discriminate.
-  Qed.
-
-  Lemma integers_mult_eq_0_l: ~ x == 0 -> y * x == 0 -> y == 0.
-  Proof.
-   pose proof (from_stdZ_stmt ((x' === 0 -=> UA.Ext _ False) -=> y' * x' === 0 -=> y' === 0) two_vars) as M.
-   apply M. intro. simpl. apply Zmult_integral_l.
-  Qed.
-
-  Lemma integers_nz_mult_nz: ~ y == 0 -> ~ x == 0 -> ~ y * x == 0.
-  Proof. repeat intro. apply H1. apply integers_mult_eq_0_l; assumption. Qed.
-
-End borrowed_from_stdZ.
-
-Program Instance integers_eq_dec `{Integers Int}: forall x y: Int, Decision (x == y) :=
-  match ZArith_dec.Z_eq_dec (integers_to_ring _ Z x) (integers_to_ring _ Z y) with
-  | left E => left _
-  | right E => right _
-  end.
-
-Next Obligation.
- change (x == y).
- rewrite <- (iso_ints Z x), <- (iso_ints Z y).
- rewrite E. reflexivity.
-Qed.
-
-Next Obligation.
- apply E.
- change (integers_to_ring _ Z x == integers_to_ring _ Z y).
- apply (@integers_to_ring_mor Int _ _ _ _ _ _ _ _ Z _ _ _ _ _ _ _).
- assumption.
-Qed.
-
-Lemma mult_0_inv `{Integers Int} (x y: Int): x * y == 0 -> {x==0}+{y==0}.
-Admitted. 
-
-
-(* good, now we have decidability for arbitrary ints, which we can use in simpleQ to do
-case distinction on ==0/<>0 in its transitivity proof! *)

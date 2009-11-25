@@ -1,7 +1,8 @@
-
-Require BinPos.
-
-Require Import CanonicalNames Structures Morphisms RingOps List.
+Require
+ BinPos.
+Require Import
+ Morphisms List
+ Structures RingOps.
 
 Section list_instances.
 
@@ -19,9 +20,11 @@ Section list_instances.
   Global Instance app_assoc_inst: Associative app.
   Proof. repeat intro. symmetry. apply (app_ass x y z). Qed.
 
-  Global Instance: SemiGroup equiv app.
+  Global Instance: SemiGroup (list A).
 
-  Global Instance: Monoid _ app nil := { lunit := fun x => @refl_equal _ x }.
+  Global Instance: MonoidUnit (list A) := nil.
+
+  Global Instance: Monoid (list A) := { monoid_lunit := fun x => @refl_equal _ x }.
   Proof. symmetry. apply (app_nil_end x). Qed.
 
 End list_instances.
@@ -49,10 +52,10 @@ Section positive_instances.
     { distribute_l := BinPos.Pmult_plus_distr_l; distribute_r := BinPos.Pmult_plus_distr_r }.
 
   (* structures: *)
-  Global Instance: SemiGroup equiv BinPos.Pplus.
-  Global Instance: SemiGroup equiv BinPos.Pmult.
-  Global Instance: Monoid equiv BinPos.Pmult BinPos.xH :=
-    { lunit := fun _ => @refl_equal _ _; runit := BinPos.Pmult_1_r }.
+  Global Instance: SemiGroup _ (op:=BinPos.Pplus).
+  Global Instance: SemiGroup _ (op:=BinPos.Pmult).
+  Global Instance: Monoid _ (op:=BinPos.Pmult) :=
+    { monoid_lunit := fun _ => @refl_equal _ _; monoid_runit := BinPos.Pmult_1_r }.
 
   (* misc: *)
   Global Instance positive_eq_dec: forall (x y: BinPos.positive), Decision (x == y) := BinPos.positive_eq_dec.
@@ -85,20 +88,18 @@ Section nat_instances.
     { distribute_l := Mult.mult_plus_distr_l; distribute_r := Mult.mult_plus_distr_r }.
 
   (* structures: *)  
-  Global Instance: SemiGroup equiv plus.
-  Global Instance: SemiGroup equiv mult.
-  Global Instance: Monoid equiv plus 0%nat := { lunit := Plus.plus_0_l; runit := Plus.plus_0_r }.
-  Global Instance: Monoid equiv mult 1%nat := { lunit := Mult.mult_1_l; runit := Mult.mult_1_r }.
-  Global Instance nat_semiring: SemiRing equiv plus mult 0%nat 1%nat := { mult_0_l := Mult.mult_0_l }.
+  Instance: SemiGroup nat (op:=plus).
+  Instance: SemiGroup nat (op:=mult).
+  Instance: Monoid _ (op:=plus) (unit:=0%nat) := { monoid_lunit := Plus.plus_0_l; monoid_runit := Plus.plus_0_r }.
+  Instance: Monoid _ (op:=mult) (unit:=1%nat) := { monoid_lunit := Mult.mult_1_l; monoid_runit := Mult.mult_1_r }.
+  Global Instance nat_semiring: !SemiRing nat := { mult_0_l := Mult.mult_0_l }.
 
   (* misc *)
   Global Instance: forall x y: nat, Decision (x == y) := Peano_dec.eq_nat_dec.
 
 End nat_instances.
 
-Definition nat_semi_ring_theory: Ring_theory.semi_ring_theory 0 1 ring_plus ring_mult equiv
-  := RingOps.SemiRing_semi_ring_theory nat.
-Add Ring nat: nat_semi_ring_theory.
+Add Ring nat: (RingOps.SemiRing_semi_ring_theory nat).
 
 Section Z_instances.
 
@@ -127,23 +128,23 @@ Section Z_instances.
     { distribute_l := BinInt.Zmult_plus_distr_r; distribute_r := BinInt.Zmult_plus_distr_l }.
 
   (* structures: *)
-  Global Instance: SemiGroup equiv BinInt.Zplus.
-  Global Instance: SemiGroup equiv BinInt.Zmult.
-  Global Instance Zplus_monoid: Monoid equiv BinInt.Zplus BinInt.Z0
-    := { lunit := BinInt.Zplus_0_l; runit := BinInt.Zplus_0_r }.
-  Global Instance: Monoid equiv BinInt.Zmult (BinInt.Zpos BinPos.xH) := { lunit := BinInt.Zmult_1_l; runit := BinInt.Zmult_1_r }.
-  Global Instance: Group equiv BinInt.Zplus BinInt.Z0 BinInt.Zopp := { inv_l := BinInt.Zplus_opp_l; inv_r := BinInt.Zplus_opp_r }.
-  Global Instance: AbGroup equiv BinInt.Zplus BinInt.Z0 BinInt.Zopp.
-  Global Instance Zring: Ring equiv BinInt.Zplus BinInt.Zmult BinInt.Zopp BinInt.Z0 (BinInt.Zpos BinPos.xH).
+  Instance: SemiGroup _ (op:=BinInt.Zplus).
+  Instance: SemiGroup _ (op:=BinInt.Zmult).
+  Instance: Monoid _ (op:=BinInt.Zplus) (unit:=BinInt.Z0)
+    := { monoid_lunit := BinInt.Zplus_0_l; monoid_runit := BinInt.Zplus_0_r }.
+  Instance: Monoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH)
+    := { monoid_lunit := BinInt.Zmult_1_l; monoid_runit := BinInt.Zmult_1_r }.
+  Instance: @Group _ _ (BinInt.Zplus) (BinInt.Z0) _
+    := { inv_l := BinInt.Zplus_opp_l; inv_r := BinInt.Zplus_opp_r }.
+  Instance: AbGroup BinInt.Z (op:=BinInt.Zplus) (unit:=BinInt.Z0).
+  Global Instance: Ring BinInt.Z.
 
   (* misc: *)
   Global Instance: forall x y: BinInt.Z, Decision (x == y) := ZArith_dec.Z_eq_dec.
 
 End Z_instances.
 
-Definition Z_ring_theory: Ring_theory.ring_theory 0 1 ring_plus ring_mult (fun x y => x + - y) group_inv equiv
-  := RingOps.Ring_ring_theory BinInt.Z.
-Add Ring Z: Z_ring_theory.
+Add Ring Z: (RingOps.Ring_ring_theory BinInt.Z).
 
 Require Import QArith_base CanonicalNames Structures.
 
@@ -166,48 +167,37 @@ Section Q_instances.
   Global Instance: Transitive Qle := Qle_trans.
   Global Instance: Reflexive Qle := Qle_refl.
   Global Instance Qle_PreOrder: PreOrder Qle.
-
+  Global Instance: AntiSymmetric Qle := Qle_antisym.
   Global Instance: PartialOrder Qle.
-   constructor; try apply _.
-   unfold relation_conjunction,
-     predicate_intersection, pointwise_extension, Basics.flip.
-   split.
-    intros H. rewrite H. split; reflexivity.
-   intros [A B]. apply Qle_antisym; assumption.
-  Qed.
 
   Lemma Qplus_opp_l x: Qplus (-x) x == 0%Q.
   Proof. intros. rewrite commutativity. apply Qplus_opp_r. Qed.
 
   (* division: *)
 
-  Program Definition Qinv': { x: Q | ~ x == 0 } -> Q := Qinv.
+  Program Instance: MultInv Q := Qinv.
 
-  Lemma Qmult_inv_r' x: proj1_sig x * Qinv' x == 1.
-  Proof.
-   destruct x. unfold Qinv'. simpl.
-   apply Qmult_inv_r. assumption.
-  Qed.
+  Lemma Qmult_inv_r' x: proj1_sig x * mult_inv x == 1.
+  Proof. destruct x. apply Qmult_inv_r. assumption. Qed.
 
-  Global Instance: Proper (sig_relation equiv _ ==> equiv) Qinv'.
-  Proof.
-   unfold Qinv', sig_relation.
-   intros [x p] [y q]. simpl.
-   intro. rewrite H. reflexivity.
+  Global Instance: Proper (sig_relation equiv _ ==> equiv) mult_inv.
+  Proof. 
+   unfold sig_relation. intros [x p] [y q]. simpl. intro E.
+   change (/ x == / y). rewrite E. reflexivity.
   Qed.
 
   (* structures: *)
-  Global Instance: SemiGroup q_equiv Qplus.
-  Global Instance: SemiGroup q_equiv Qmult.
-  Global Instance: Monoid q_equiv Qplus 0%Q := { lunit := Qplus_0_l; runit := Qplus_0_r }.
-  Global Instance: Monoid q_equiv Qmult 1%Q := { lunit := Qmult_1_l; runit := Qmult_1_r }.
-  Global Instance: Group q_equiv Qplus 0%Q Qopp := { inv_r := Qplus_opp_r; inv_l := Qplus_opp_l }.
-  Global Instance: AbGroup q_equiv Qplus 0%Q Qopp.
-  Global Instance: Distribute Qmult Qplus := { distribute_l := Qmult_plus_distr_r; distribute_r := Qmult_plus_distr_l }.
-  Global Instance Qring: Ring q_equiv Qplus Qmult Qopp 0%Q 1%Q.
-
-  Global Instance: Field q_equiv Qplus Qmult Qopp 0%Q 1%Q Qinv' := { mult_inverse := Qmult_inv_r' }.
-  Proof. discriminate. Qed.
+  Instance: SemiGroup _ (op:=Qplus).
+  Instance: SemiGroup _ (op:=Qmult).
+  Instance: Monoid Q (op:=Qplus) (unit:=0%Q) := { monoid_lunit := Qplus_0_l; monoid_runit := Qplus_0_r }.
+  Instance: Monoid Q (op:=Qmult) (unit:=1%Q) := { monoid_lunit := Qmult_1_l; monoid_runit := Qmult_1_r }.
+  Instance: @Group Q q_equiv Qplus 0%Q Qopp := { inv_r := Qplus_opp_r; inv_l := Qplus_opp_l }.
+  Instance: AbGroup Q (op:=Qplus) (unit:=0%Q).
+  Instance: Distribute Qmult Qplus := { distribute_l := Qmult_plus_distr_r; distribute_r := Qmult_plus_distr_l }.
+  Instance: Ring Q.
+  Instance: ZeroNeOne Q. Proof. discriminate. Qed.
+  Instance: Field Q := { mult_inverse := Qmult_inv_r' }.
+  Instance: Order Q := Qle.
 
   Global Instance: RingOrder q_equiv Qplus Qmult 0%Q Qle.
   Proof with auto.
@@ -217,7 +207,7 @@ Section Q_instances.
    apply Qmult_le_0_compat...
   Qed.
 
-  Global Instance: OrdField q_equiv Qplus Qmult Qopp 0%Q 1%Q Qinv' Qle.
+  Global Instance: OrdField Q.
 
   (* misc: *)
   Global Instance: forall x y: Q, Decision (x == y) := Qeq_dec.
@@ -227,7 +217,4 @@ End Q_instances.
 Require Field.
 Require Import FieldOps.
 
-Definition Q_field_theory: Field_theory.field_theory 0 1 ring_plus ring_mult (fun x y => x + - y)
-  group_inv (fun x y => x * / y) dec_mult_inv CanonicalNames.equiv
-    := FieldOps.Field_field_theory.
-Add Field Q: Q_field_theory.
+Add Field Q: (FieldOps.Field_field_theory Q).

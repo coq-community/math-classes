@@ -57,6 +57,7 @@ Section contents.
     |e_mult_1_l: E (1 * x === x)
     |e_mult_0_l: E (0 * x === 0)
     |e_distr: E (x * (y + z) === x * y + x * z).
+
 (*
   Definition e_distr_r `{e: Equiv A} `{!Equivalence e} `{UA.Implementation sig A} `{@UA.Propers sig A _ _}:
     (forall e: UA.Statement sig, E e -> (forall v, UA.eval_stmt sig A v e)) -> forall vars, UA.eval_stmt sig A vars ((x + y) * z === x * z + y * z).
@@ -104,37 +105,62 @@ Section contents.
     Global Instance: RingZero (A tt) := UA.op sig zero.
     Global Instance: RingOne (A tt) := UA.op sig one.
 
-  Definition instance_from_impl `{e: forall s, Equiv (A s)} `{!forall s, Equivalence (e s)} `{!UA.Propers sig A}
-    (variety_laws: forall e, E e -> forall vars, @UA.eval_stmt sig A _ _ vars e): @SemiRing (A tt) _ _ _ _ _. (* todo: tweak implicits such that the underscores aren't needed here *)
-  Proof with auto.
-   repeat (constructor; try apply _); repeat intro.
-               (**)
-               apply (variety_laws _ e_mult_assoc (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end)).
-              apply (@UA.propers sig A _ _ _ mult)...
-             apply (variety_laws _ e_mult_1_l (fun s n => match s with tt => x end)).
-            pose proof (variety_laws _ e_mult_comm (fun s n => match s with tt => match n with 0 => x | _ => mon_unit end end)).
-            simpl in H2. rewrite H2.
-            apply (variety_laws _ e_mult_1_l (fun s n => match s with tt => x end)).
-           apply (variety_laws _ e_plus_assoc (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end)).
-          apply (@UA.propers sig A _ _ _ plus)...
-         apply (variety_laws _ e_plus_0_l (fun s n => match s with tt => x end)).
-        pose proof (variety_laws _ e_plus_comm (fun s n => match s with tt => match n with 0 => x | _ => RingZero_instance_1 end end)).
-        simpl in H2. rewrite H2.
-        apply (variety_laws _ e_plus_0_l (fun s n => match s with tt => x end)).
-       apply (variety_laws _ e_plus_comm (fun s n => match s with tt => match n with 0 => x | _ => y end end)).
-      apply (variety_laws _ e_mult_comm (fun s n => match s with tt => match n with 0 => x | _ => y end end)).
-     apply (variety_laws _ e_distr (fun s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end)).
-    admit. (* todo *)
-    (*apply (@e_distr_r _ _ _ _ _ variety_laws (fun n => match n with 0 => a | 1 => b | _ => c end)).*)
-   apply (variety_laws _ e_mult_0_l (fun s n => match s with tt => x end)).
-  Qed.
+  Section instance_from_impl.
+
+    Context `{e: forall s, Equiv (A s)} `{!forall s, Equivalence (e s)} `{!UA.Propers sig A}
+      (variety_laws: forall e, E e -> forall vars, @UA.eval_stmt sig A _ _ vars e).
+
+    Let va (x y z: A()): UA.Vars sig A := (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end).
+
+    Instance: @SemiGroup _ (e tt) (UA.op _ plus).
+     constructor; try apply _.
+      intros x y z. apply (variety_laws _ e_plus_assoc (va x y z)). 
+     apply (@UA.propers sig A _ _ _ plus)... 
+    Qed.
+
+    Instance: @SemiGroup _ (e tt) (UA.op _ mult).
+     constructor; try apply _.
+      intros x y z. apply (variety_laws _ e_mult_assoc (va x y z)). 
+     apply (@UA.propers sig A _ _ _ mult)... 
+    Qed.
+
+    Instance: Commutative (UA.op _ plus).
+    Proof. repeat intro. apply (variety_laws _ e_plus_comm (va x y y)). Qed.
+
+    Instance: Commutative (UA.op _ mult).
+    Proof. repeat intro. apply (variety_laws _ e_mult_comm (va x y y)). Qed.
+
+    Instance: @Monoid _ (e tt) (UA.op _ plus) (UA.op _ zero).
+    Proof.
+     constructor; try apply _; intros. apply (variety_laws _ e_plus_0_l (va x x x)). 
+     rewrite commutativity. apply (variety_laws _ e_plus_0_l (va x x x)). 
+    Qed.
+
+    Instance: @Monoid _ (e tt) (UA.op _ mult) (UA.op _ one).
+     constructor; try apply _; intros. apply (variety_laws _ e_mult_1_l (va x x x)). 
+     rewrite commutativity. apply (variety_laws _ e_mult_1_l (va x x x)). 
+    Qed.
+
+    Instance instance_from_impl: @SemiRing _ (e tt) (UA.op _ plus) (UA.op _ mult) (UA.op _ zero) (UA.op _ one).
+    Proof.
+     constructor; try apply _. 
+      constructor; intros. 
+       apply (variety_laws _ e_distr (va a b c)).
+      rewrite commutativity.
+      pose proof (variety_laws _ e_distr (va c a b)).
+      simpl in H2.
+      rewrite H2.
+      apply (@UA.propers sig A _ _ _ plus); apply commutativity. (* ugly because of assertion failure bug already reported *)
+     intros. apply (variety_laws _ e_mult_0_l (va x x x)).
+    Qed.
+
+  End instance_from_impl.
 
   End ring_ops_from_semiring_homo.
 
   Definition from_object (o: Object): @SemiRing (o tt) _ _ _ _ _.
   Proof. apply (instance_from_impl (UA.variety_laws _ _ o)). Qed.
     (* not an instance because we don't want this to be used accidentally *)
-
 
   Section arrow_from_morphism_from_instance_to_object.
 
@@ -187,63 +213,7 @@ Section contents.
      apply (H3 one).
     Qed.
 
-(*
-    Definition homo_preserves_plus: forall a b, f tt (a + b) == f tt a + f tt b.  
-    Proof @UA.preserves sig (fun _ => R0) (R1) (fun _ => e0) (e1) _ _ f _ plus.
-    Definition homo_preserves_mult: forall a b, f tt (a * b) == f tt a * f tt b.  
-    Proof @UA.preserves sig (fun _ => R0) (R1) (fun _ => e0) (e1) _ _ f _ mult.
-    Definition homo_preserves_0: f tt 0 == 0.
-    Proof @UA.preserves sig (fun _ => R0) (R1) (fun _ => e0) (e1) _ _ f _ zero.
-    Definition homo_preserves_1: f tt 1 == 1.
-    Proof @UA.preserves sig (fun _ => R0) (R1) (fun _ => e0) (e1) _ _ f _ one.
-*)
-      (* these should go, eventually *)
-
   End morphism_from_ua.
 
-
-(*
-  Section morphism_from_ua.
-
-    Context  `{e0: Equiv R0} `{e1: Equiv R1} `{!Equivalence e0} `{!Equivalence e1}
-      `{UA.Implementation sig (fun _ => R0)} `{UA.Implementation sig (fun _ => R1)}
-      (f: UA.sign_atomics sig -> R0 -> R1)
-        `{!@UA.HomoMorphism sig (fun _ => R0) (fun _ => R1) (fun _ => e0) (fun _ => e1) _ _ f}.
-
-    Global Instance: RingPlus R0 := @UA.op sig (fun _ => R0) _ plus.
-    Global Instance: RingPlus R1 := @UA.op sig (fun _ => R1) _ plus.
-    Global Instance: RingMult R0 := @UA.op sig (fun _ => R0) _ mult.
-    Global Instance: RingMult R1 := @UA.op sig (fun _ => R1) _ mult.
-    Global Instance: RingZero R0 := @UA.op sig (fun _ => R0) _ zero.
-    Global Instance: RingZero R1 := @UA.op sig (fun _ => R1) _ zero.
-    Global Instance: RingOne R0 := @UA.op sig (fun _ => R0) _ one.
-    Global Instance: RingOne R1 := @UA.op sig (fun _ => R1) _ one.
-
-    Definition morphism_from_ua (sr0: @SemiRing R0 _ _ _ _ _) (sr1: @SemiRing R1 _ _ _ _ _):
-      forall u, SemiRing_Morphism (f u).
-    Proof.
-      destruct u.
-     pose proof (@UA.preserves sig (fun _ => _) (fun _ => R1) (fun _ => e0) (fun _ => e1) _ _ f _).
-     repeat (constructor; try apply _).
-          apply (@UA.homo_proper sig (fun _ => _) (fun _ => _) (fun _ => _) (fun _ => _) _ _ f _).
-         apply (H2 plus).
-        apply (H2 zero).
-       apply (@UA.homo_proper sig (fun _ => _) (fun _ => R1) (fun _ => e0) (fun _ => e1) _ _ f _).
-      apply (H2 mult).
-     apply (H2 one).
-    Qed.
-
-    Definition homo_preserves_plus: forall a b, f tt (a + b) == f tt a + f tt b.  
-    Proof @UA.preserves sig (fun _ => R0) (fun _ => R1) (fun _ => e0) (fun _ => e1) _ _ f _ plus.
-    Definition homo_preserves_mult: forall a b, f tt (a * b) == f tt a * f tt b.  
-    Proof @UA.preserves sig (fun _ => R0) (fun _ => R1) (fun _ => e0) (fun _ => e1) _ _ f _ mult.
-    Definition homo_preserves_0: f tt 0 == 0.
-    Proof @UA.preserves sig (fun _ => R0) (fun _ => R1) (fun _ => e0) (fun _ => e1) _ _ f _ zero.
-    Definition homo_preserves_1: f tt 1 == 1.
-    Proof @UA.preserves sig (fun _ => R0) (fun _ => R1) (fun _ => e0) (fun _ => e1) _ _ f _ one.
-      (* these should go, eventually *)
-
-  End morphism_from_ua.
-*)
 End contents.
 End semiring.
