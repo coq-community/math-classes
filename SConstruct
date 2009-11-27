@@ -9,11 +9,11 @@ while nodes:
   b = os.path.basename(node)
   if node.endswith('.v'):
     vs += [node]
-  if os.path.isdir(node) and node != './nodist':
+  if os.path.isdir(node):
     dirs += [node]
     nodes += glob.glob(node + '/*')
 
-coqc = '~/soft/coqtrunk/trunk/bin/coqc -I . $SOURCE'
+coqc = 'coqc -I . $SOURCE'
 
 env = DefaultEnvironment(ENV = os.environ)
 env.Append(BUILDERS = {'Coq' : Builder(action = coqc, suffix = '.vo', src_suffix = '.v')})
