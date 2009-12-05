@@ -1,9 +1,51 @@
-Require CatStuff.
-Require Import
-  BinInt Morphisms RingAlgebra
-  Structures AbstractProperties RingOps BoringInstances AbstractIntegers.
-
 (* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
+
+Require
+  theory.categories.
+Require Import
+  BinInt Morphisms Ring
+  abstract_algebra theory.rings interfaces.integers.
+
+(* canonical names: *)
+Instance z_equiv: Equiv BinInt.Z := eq.
+Instance: RingPlus BinInt.Z := BinInt.Zplus.
+Instance: RingZero BinInt.Z := BinInt.Z0.
+Instance: RingOne BinInt.Z := BinInt.Zpos BinPos.xH.
+Instance: RingMult BinInt.Z := BinInt.Zmult.
+Instance: GroupInv BinInt.Z := BinInt.Zopp.
+
+(* propers: *)
+Instance: Proper (equiv ==> equiv ==> equiv) BinInt.Zplus.
+Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
+Instance: Proper (equiv ==> equiv ==> equiv) BinInt.Zmult.
+Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
+Instance: Proper (equiv ==> equiv) BinInt.Zopp.
+Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
+
+(* properties: *)
+Instance: Associative BinInt.Zplus := BinInt.Zplus_assoc.
+Instance: Associative BinInt.Zmult := BinInt.Zmult_assoc.
+Instance: Commutative BinInt.Zplus := BinInt.Zplus_comm.
+Instance: Commutative BinInt.Zmult := BinInt.Zmult_comm.
+Instance: Distribute BinInt.Zmult BinInt.Zplus :=
+  { distribute_l := BinInt.Zmult_plus_distr_r; distribute_r := BinInt.Zmult_plus_distr_l }.
+
+(* structures: *)
+Instance: SemiGroup _ (op:=BinInt.Zplus).
+Instance: SemiGroup _ (op:=BinInt.Zmult).
+Instance: Monoid _ (op:=BinInt.Zplus) (unit:=BinInt.Z0)
+  := { monoid_lunit := BinInt.Zplus_0_l; monoid_runit := BinInt.Zplus_0_r }.
+Instance: Monoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH)
+  := { monoid_lunit := BinInt.Zmult_1_l; monoid_runit := BinInt.Zmult_1_r }.
+Instance: @Group _ _ (BinInt.Zplus) (BinInt.Z0) _
+  := { inv_l := BinInt.Zplus_opp_l; inv_r := BinInt.Zplus_opp_r }.
+Instance: AbGroup BinInt.Z (op:=BinInt.Zplus) (unit:=BinInt.Z0).
+Instance: Ring BinInt.Z.
+
+(* misc: *)
+Instance: forall x y: BinInt.Z, Decision (x == y) := ZArith_dec.Z_eq_dec.
+
+Add Ring Z: (stdlib_ring_theory BinInt.Z).
 
 Lemma xO_in_ring_terms p: xO p = (p + p)%positive.
 Proof with auto.
@@ -44,11 +86,7 @@ Section for_another_ring.
 
   Context `{Ring R}.
 
-  Add Ring R: (Ring_ring_theory R).
-
-  (* We first show the map from Z to R: *)
-
-  (* Next, we show that this map preserves everything: *)
+  Add Ring R: (stdlib_ring_theory R).
 
   Lemma preserves_Psucc x: map_pos (Psucc x) == map_pos x + 1.
   Proof.
@@ -214,20 +252,19 @@ Section for_another_ring.
 End for_another_ring.
 
 Instance yada `{Ring R}: Ring_Morphism (integers_to_ring Z R).
- unfold integers_to_ring.
- unfold inject.
- intros.
- apply map_Z_ring_mor.
+ unfold integers_to_ring, inject.
+ intros. apply map_Z_ring_mor.
+Qed.
+
+Lemma initial: categories.proves_initial (fun x =>
+   @ring_as_ua.arrow_from_morphism_from_instance_to_object Z _ _ _ _ _ _ _ x _
+     (@map_Z_ring_mor _ _ _ _ _ _ _ (ring_as_ua.from_object x))).
+Proof.
+  intros y [x h] [].
+  unfold ring_as_ua.arrow_from_morphism_from_instance_to_object. intro. simpl in *.
+  apply (@same_morphism (y tt) _ _ _ _ _ _ (ring_as_ua.from_object y) (x tt)).
+  apply (@ring_as_ua.morphism_from_ua Z _ y _ _ _ x h _ (ring_as_ua.from_object y)).
 Qed.
 
 Global Instance stdZ_Integers: Integers Z.
-Proof.
- apply (@Build_Integers Z _ _ _ _ _ _ _ _ (@yada)).
- unfold CatStuff.proves_initial.
- repeat intro. destruct b. simpl.
- unfold integers_to_ring, inject. destruct f'. simpl in *.
- apply (@same_morphism (y tt) _ _ _ _ _ _ (ring.from_object y) (x tt)).
- pose proof (@ring.morphism_from_ua Z _ y _ ring.impl_from_instance _ x _ _).
- simpl in H.
- apply (H (@ring.from_object y)).
-Qed.
+Proof Build_Integers Z _ _ _ _ _ _ _ _ _ initial.

@@ -1,13 +1,16 @@
+Require
+  theory.fields theory.integers.
+
 Require Import
   Morphisms Ring
-  simpleZ RingOps Naturals AbstractProperties Structures
-  AbstractRationals Structures IntegerTheory FieldOps.
+  interfaces.rationals interfaces.integers
+  abstract_algebra theory.rings.
 
 Section contents.
 
 Context Z `{Zth: Integers Z} `{forall x y: Z, Decision (x == y)} `{forall x y: Z, Decision (x <= y)}.
 
-Add Ring Ding: (Ring_ring_theory Z).
+Add Ring Z: (stdlib_ring_theory Z).
 
 Inductive Q: Type := C { num: Z; den: Z; den_nonzero: ~ den == 0 }.
   (* We used to have den and den_nonzero bundled, which did work relatively nicely with Program, but the
@@ -24,7 +27,7 @@ Proof with auto.
  unfold q_equiv. intros x y z V W.
  destruct x. destruct y. destruct z.
  simpl in *.
- apply (int_mult_injective den1)...
+ apply (theory.integers.mult_injective den1)...
  do 2 rewrite associativity.
  do 2 rewrite (commutativity den1).
  rewrite V, <- W. ring.
@@ -38,7 +41,7 @@ Instance: forall x y: Q, Decision (x == y)
 (* injection from Z *)
 
 Program Definition inject_Z (z: Z): Q := C z 1 _.
-Next Obligation. symmetry in H2. apply (zero_ne_one H2). Qed.
+Next Obligation. intro. symmetry in H2. apply (zero_ne_one H2). Qed.
 
 Instance: Proper (equiv ==> equiv) inject_Z.
 Proof. unfold inject_Z, equiv, q_equiv. intros x x' E. simpl. rewrite E. reflexivity. Qed.
@@ -47,9 +50,9 @@ Proof. unfold inject_Z, equiv, q_equiv. intros x x' E. simpl. rewrite E. reflexi
 
 Program Instance q_plus: RingPlus Q := fun (x y: Q) => C (num x * den y + num y * den x) (den x * den y) _.
 Next Obligation.
- destruct x. destruct y. simpl in H2.
- revert den_nonzero0 den_nonzero1 H2. simpl.
- intros. destruct (zero_product _ _ H2); intuition.
+ destruct x. destruct y. intro U. simpl in U.
+ revert den_nonzero0 den_nonzero1 U. simpl.
+ intros. destruct (zero_product _ _ U); intuition.
 Qed.
 
 Instance q_zero: RingZero Q := inject_Z 0.
@@ -59,15 +62,15 @@ Instance q_opp: GroupInv Q := fun (x: Q) => C (- num x) (den x) (den_nonzero x).
 
 Program Instance q_mult: RingMult Q := fun x y => C (num x * num y) (den x * den y) _.
 Next Obligation.
- destruct x. destruct y. simpl in H2.
- revert den_nonzero0 den_nonzero1 H2. simpl. 
- intros. destruct (zero_product _ _ H2); intuition.
+ destruct x. destruct y. intro U. simpl in U.
+ revert den_nonzero0 den_nonzero1 U. simpl. 
+ intros. destruct (zero_product _ _ U); intuition.
 Qed.
 
 Program Instance q_inv: MultInv Q := fun x => C (den x) (num x) _.
-Next Obligation. unfold equiv, q_equiv in H3. apply H3. rewrite H2. simpl. ring. Qed.
+Next Obligation. intro U. unfold equiv, q_equiv in H2. apply H2. rewrite U. simpl. ring. Qed.
 
-(* plus is nice: *)
+(* plus is nice, giving us a monoid: *)
 
 Ltac ring_on_int := repeat intro; unfold q_opp, q_plus, equiv, q_equiv; simpl; ring.
 
@@ -86,7 +89,7 @@ Instance: SemiGroup Q (op:=q_plus).
 Instance: Monoid Q (op:=q_plus) (unit:=q_zero).
 Proof. constructor; try apply _; ring_on_int. Qed.
 
-(* opp is nice: *)
+(* opp is nice, giving us an abelian group: *)
 
 Instance: Proper (q_equiv ==> q_equiv) q_opp.
 Proof. unfold q_equiv, q_opp. intros x y E. simpl. rewrite <- ring_distr_opp_mult, E. ring. Qed.
@@ -96,7 +99,7 @@ Proof. constructor; try apply _; ring_on_int. Qed.
 
 Instance: AbGroup Q (op:=q_plus) (unit:=q_zero).
 
-(* mult is nice: *)
+(* mult is nice, giving us a ring: *)
 
 Instance: Proper (q_equiv ==> q_equiv ==> q_equiv) q_mult.
 Proof with try ring.
@@ -116,17 +119,7 @@ Proof. constructor; try apply _; ring_on_int. Qed.
 
 Instance: Ring Q.
 
-Instance: Ring_Morphism inject_Z.
-Proof.
- repeat (constructor; try apply _); unfold equiv, q_equiv; try reflexivity; simpl; intros.
-  change ((a + a') * (1 * 1) == (a * 1 + a' * 1) * 1). ring.
- change ((a * a') * (1 * 1) == a * a' * 1). ring.
-Qed.
-
-Instance: Injective inject_Z.
-Proof. intros x y. unfold equiv, q_equiv. simpl. do 2 rewrite mult_1_r. intuition. Qed.
-
-(* inv is nice: *)
+(* inv is nice, giving us a field: *)
 
 Instance: Proper (sig_relation q_equiv _ ==> q_equiv) q_inv.
 Proof.
@@ -149,17 +142,24 @@ Qed.
 
 (* a final touch on inject_Z... *)
 
+Instance: Ring_Morphism inject_Z.
+Proof.
+ repeat (constructor; try apply _); unfold equiv, q_equiv; try reflexivity; simpl; intros.
+  change ((a + a') * (1 * 1) == (a * 1 + a' * 1) * 1). ring.
+ change ((a * a') * (1 * 1) == a * a' * 1). ring.
+Qed.
+
+Instance: Injective inject_Z.
+Proof. intros x y. unfold equiv, q_equiv. simpl. do 2 rewrite mult_1_r. intuition. Qed.
+
 Instance: Surjective (fun p => inject_Z (fst p) * / inject_Z (snd p)).
 Proof.
  intros [n d P]. exists (n, d).
  unfold equiv, q_equiv. simpl.
  ring_simplify.
- unfold FieldOps.dec_mult_inv. destruct decide.
-  exfalso.
-  apply P.
-  unfold equiv in e0.
-  simpl in e0.
-  ring_simplify in e0.
+ unfold dec_mult_inv. destruct decide.
+  exfalso. apply P.
+  unfold equiv in e0. simpl in e0. ring_simplify in e0.
   assumption.
  simpl. ring.
 Qed.
@@ -167,9 +167,6 @@ Qed.
 (* and presto, we have rationals: *)
 
 Global Instance simpleQ_rationals: Rationals Q.
-Proof. apply (alt_Build_Rationals Q Z inject_Z); apply _. Qed.
+Proof alt_Build_Rationals Q Z inject_Z _ _.
 
 End contents.
-
-Let T := Q (Z nat).
-Print Assumptions T.

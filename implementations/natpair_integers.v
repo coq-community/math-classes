@@ -7,11 +7,10 @@
 Set Automatic Introduction.
 
 Require
- UniversalAlgebra.
+ theory.naturals.
 Require Import
- Morphisms Structures RingOps BoringInstances AbstractProperties AbstractIntegers RingAlgebra Naturals SemiRingOrder.
-
-Module UA := UniversalAlgebra.
+ Morphisms Ring
+ abstract_algebra theory.rings interfaces.naturals interfaces.integers orders.semiring.
 
 Section contents.
 
@@ -22,11 +21,12 @@ Context (* Extra parameterization for efficiency: *)
  `{forall x y: N, Decision (x <= y)}
  `{!NatDistance N}.
 
-Add Ring N: (SemiRing_semi_ring_theory N).
+Add Ring N: (stdlib_semiring_theory N).
 
 Inductive Z: Type := C { pos: N; neg: N }.
 
 (* relations/operations/constants: *)
+
 Global Instance z_equiv: Equiv Z := fun x y => pos x + neg y == pos y + neg x.
 Global Instance z_plus: RingPlus Z := fun (x y: Z) => C (pos x + pos y) (neg x + neg y).
 Global Instance z_inv: GroupInv Z := fun (x: Z) => C (neg x) (pos x).
@@ -112,7 +112,7 @@ Instance: SemiGroup _ (op:=z_mult).
 Instance: Monoid Z (op:=z_mult) (unit:=z_one) := { monoid_lunit := mult_1_l; monoid_runit := mult_1_r }.
 Global Instance: Ring Z.
 
-Add Ring Z: (Ring_ring_theory Z).
+Add Ring Z: (stdlib_ring_theory Z).
 
 (* misc: *)
 
@@ -158,7 +158,7 @@ Section for_another_ring.
 
   Context `{Ring R}.
 
-  Add Ring R: (Ring_ring_theory R).
+  Add Ring R: (stdlib_ring_theory R).
 
   Let n_to_sr := naturals_to_semiring N R.
   Let n_to_sr_mor := naturals_to_semiring_mor N R: SemiRing_Morphism n_to_sr.
@@ -166,7 +166,7 @@ Section for_another_ring.
   Instance: Proper (equiv ==> equiv) (integers_to_ring Z R).
   Proof.
    unfold equiv, z_equiv, integers_to_ring, inject. intros x y E.
-   apply AbstractProperties.equal_by_zero_sum.
+   apply equal_by_zero_sum.
    fold n_to_sr.
    transitivity (n_to_sr (pos x) + n_to_sr (neg y) + - (n_to_sr (neg x) + n_to_sr (pos y))); [ring|].
    do 2 rewrite <- preserves_plus.
@@ -209,16 +209,16 @@ Section for_another_ring.
     Instance: SemiRing_Morphism inject'_N.
 
     Lemma agree_on_nat: @equiv _ (pointwise_relation _ equiv) inject'_N n_to_sr.
-    Proof. intro. apply (@naturals_to_semiring_unique N _ _ _ _ _ _ _ R _ _ _ _ _ _ inject'_N _ a). Qed.
+    Proof. intro. apply (@theory.naturals.to_semiring_unique N _ _ _ _ _ _ _ R _ _ _ _ _ _ inject'_N _ a). Qed.
 
     Lemma agree: @equiv _ (pointwise_relation _ equiv) (integers_to_ring Z R) inject'.
     Proof.
      intros [pos0 neg0].
      rewrite split_into_nats.
      preservation.
-     rewrite preserves_inv, Structures.preserves_inv.
+     rewrite preserves_inv, abstract_algebra.preserves_inv.
      rewrite (agree_on_nat pos0), (agree_on_nat neg0).
-     unfold integers_to_ring, inject. simpl. rewrite RingOps.preserves_0.
+     unfold integers_to_ring, inject. simpl. rewrite theory.rings.preserves_0.
      subst n_to_sr. ring.
     Qed.
 
@@ -226,20 +226,21 @@ Section for_another_ring.
 
 End for_another_ring.
 
-Global Instance: Integers Z.
+Lemma initial: categories.proves_initial (fun x =>
+   @ring_as_ua.arrow_from_morphism_from_instance_to_object Z _ _ _ _ _ _ _ x _
+     (@inject_mor _ _ _ _ _ _ _ (ring_as_ua.from_object x))).
 Proof.
-  apply (Build_Integers Z _ _ _ _ _ _ _ _ (@inject_mor)).
-  unfold CatStuff.proves_initial.
-  intros y f' b.
-  unfold ring.arrow_from_morphism_from_instance_to_object. simpl.
-  destruct b. intro. destruct f'. simpl in *.
-  apply (@agree (y tt) _ _ _ _ _ _ (ring.from_object y) (x tt)).
-  pose proof (@ring.morphism_from_ua Z _ y _ ring.impl_from_instance _ x _ _) as M.
-  apply (M (@ring.from_object y)).
+  intros y [x h] [].
+  unfold ring_as_ua.arrow_from_morphism_from_instance_to_object. intro. simpl in *.
+  apply (@agree (y tt) _ _ _ _ _ _ (ring_as_ua.from_object y) (x tt)).
+  apply (@ring_as_ua.morphism_from_ua Z _ y _ _ _ x h _ (ring_as_ua.from_object y)).
 Qed.
 
+Global Instance: Integers Z.
+Proof Build_Integers Z _ _ _ _ _ _ _ _ _ initial.
+
 Lemma NtoZ_uniq: forall x, naturals_to_semiring N Z x == NtoZ x.
-Proof. intros. symmetry. apply (naturals_to_semiring_unique Z NtoZ _ x). Qed. 
+Proof. intros. symmetry. apply (theory.naturals.to_semiring_unique Z NtoZ x). Qed. 
 
 Global Program Instance simpleZ_abs: IntAbs Z N := fun (d: Z) => nat_distance (pos d) (neg d).
 
@@ -264,22 +265,19 @@ Next Obligation.
 Qed.
 
 Next Obligation.
- apply E. destruct (sr_precedes_with N H3) as [z F]. exists z.
+ intro. apply E. destruct (sr_precedes_with N H3) as [z F]. exists z.
  rewrite NtoZ_uniq in F. unfold equiv, z_equiv in F. simpl in F. ring_simplify in F.
  rewrite <- F. change (pos x + neg y + z == pos x + z + neg y). ring.
 Qed. 
 
 Global Instance: TotalOrder integer_precedes.
  intros x y.
- cut ((exists z : N, x + NtoZ z == y) \/ (exists z : N, y + NtoZ z == x)).
-  intros [[z E] | [z E]]; [left | right].
-   apply (@sr_precedes_from Z _ _ _ _ _ _ N _ _ _ _ _ _ _) with z.
-   rewrite NtoZ_uniq. assumption.
-  apply (@sr_precedes_from Z _ _ _ _ _ _ N _ _ _ _ _ _ _) with z.
-  rewrite NtoZ_uniq. assumption.
+ cut ((exists z, x + NtoZ z == y) \/ (exists z, y + NtoZ z == x)).
+  intros [[z E] | [z E]]; [left | right];
+   apply (@sr_precedes_from _ _ _ _ _ _ _ N _ _ _ _ _ _ _) with z; rewrite NtoZ_uniq; assumption.
  unfold equiv, z_equiv.
  simpl.
- destruct (@total_order N _ _ (pos x + neg y) (pos y + neg x)) as [[z E] | [z E]];
+ destruct (total_order (pos x + neg y) (pos y + neg x)) as [[z E] | [z E]];
      [left | right]; exists z; ring_simplify; rewrite <- E.
   change (pos x + z + neg y == pos x + neg y + z). ring.
  change (pos y + z + neg x == pos y + neg x + z). ring.

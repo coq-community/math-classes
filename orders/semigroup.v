@@ -1,6 +1,6 @@
 Set Automatic Introduction.
 
-Require Import Relation_Definitions Morphisms Structures.
+Require Import Relation_Definitions Morphisms abstract_algebra.
 
 Section sg_order. Context `{SemiGroup G}.
 

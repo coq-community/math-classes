@@ -1,5 +1,6 @@
-
-Require Import RelationClasses CanonicalNames Morphisms Structures.
+Require Import
+  RelationClasses Morphisms
+  abstract_algebra.
 
 Section contents.
 
@@ -25,13 +26,13 @@ Section contents.
   Proof. intros. unfold max, sort. destruct decide; reflexivity. Qed.
 
   Global Instance max_proper `{!Proper (equiv ==> equiv ==> iff) precedes}: Proper (equiv ==> equiv ==> equiv) max.
-  Proof.
-   repeat intro.
+  Proof with assumption.
+   intros p x y E x' y' E'.
    unfold max, sort.
    do 2 destruct decide; simpl.
       firstorder. 
-     exfalso. apply f. apply -> (Proper0 x y H2 x0); assumption.
-    exfalso. apply f. apply <- (Proper0 x y H2 x0 y0); assumption.
+     exfalso. apply n. apply -> (p x y E x')...
+    exfalso. apply n. apply <- (p x y E x' y')...
    firstorder.
   Qed.
 
@@ -51,11 +52,11 @@ Section contents.
      intros.
      repeat destruct decide; try reflexivity; try intuition; simpl in *.
       exfalso.
-      apply f.
+      apply n.
       transitivity y...
      destruct (total_order x y); intuition.
      destruct (total_order y z); intuition.
-     apply antisymmetry...
+     apply (antisymmetry precedes)...
      transitivity y...
     Qed.
 

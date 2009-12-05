@@ -3,9 +3,7 @@ Require
 Require Import
  Morphisms Setoid Program.
 Require Export
- CanonicalNames.
-
-(* the stack itself: *)
+ canonical_names util.
 
 Class SemiGroup A {e: Equiv A} {op: SemiGroupOp A} :=
   { sg_eq:> Equivalence e
@@ -43,10 +41,6 @@ Class Ring A {e: Equiv A} {plus: RingPlus A} {mult: RingMult A} {inv: GroupInv A
 
   (* For now, we follow CoRN/ring_theory's example in having Ring and SemiRing
    require commutative multiplication. *)
-
-Definition sig_relation {A} (R: relation A) (P: A -> Prop): relation (sig P)
-  := fun a b => R (proj1_sig a) (proj1_sig b).
-   (* todo: move to util *)
 
 Class Field A {e: Equiv A} {plus mult inv zero one} {mult_inv: MultInv A}: Prop :=
   { field_ring:> @Ring A e plus mult inv zero one
@@ -90,12 +84,22 @@ Class Ralgebra `(e: Equiv Scalar) `(e': Equiv Elem) `{RalgebraAction Scalar Elem
       elem_plus elem_zero elem_opp
   ; ralgebra_ring:> @Ring Elem e' elem_plus elem_mult elem_opp elem_zero elem_one
   ; ralgebra_assoc: forall (a b: Elem) (x: Scalar), x <*> (a * b) == (x <*> a) * b }.
-  (* Todo: Hm, Bas's identities looked slightly different.. *)
 
 Definition is_derivation `{Ralgebra Scalar Elem} (f: Elem -> Elem): Prop :=
   True. (* something *)
 
-(* morphism classes: *)
+Class Category O (A: O -> O -> Type) {Oe: Equiv O} {Ae: forall x y, Equiv (A x y)} `{CatId O A} `{cc: CatComp O A}: Type :=
+  { Oe_equiv:> Equivalence Oe
+      (* Hm, not strictly needed here. does make the quotient construction rather easy. But shouldn't we now have a morphism for A? *)
+  ; Ae_equiv:> forall x y, Equivalence (Ae x y)
+  ; comp_proper: forall x y z, Proper (equiv ==> equiv ==> equiv)%signature (@cc x y z)
+  ; comp_assoc: forall w x y z (a: A w x) (b: A x y) (c: A y z),
+      equiv (comp c (comp b a)) (comp (comp c b) a)
+  ; id_l: forall x y (a: A y x), equiv (comp cat_id a) a
+  ; id_r: forall x y (a: A x y), equiv (comp a cat_id) a
+  }.
+
+(* Morphism classes: *)
 
 Class SemiGroup_Morphism {A B Aeq Beq Aop Bop} (f: A -> B) :=
   { a_sg: @SemiGroup A Aeq Aop
@@ -129,13 +133,3 @@ Class Ring_Morphism {A B Ae Aplus Amult Aopp Azero Aone Be Bplus Bmult Bopp Bzer
 
   (* The structure instance fields in the morphism classed used to be coercions, but
    that ultimately caused too much problems. *)
-
-Instance Injective_proper `{ea: Equiv A} `{eb: Equiv B} `{!Equivalence eb}:
-  Proper (pointwise_relation A eb ==> iff)  (@Injective A ea B eb).
-Proof.
- repeat intro.
- unfold pointwise_relation in H.
- split; intros E a b F.
-  apply (injective x). do 2 rewrite H. assumption.
- apply (injective y). do 2 rewrite <- H. assumption.
-Qed.

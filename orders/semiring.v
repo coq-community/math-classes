@@ -1,11 +1,12 @@
 Set Automatic Introduction.
 
-Require Import Relation_Definitions Morphisms Structures AbstractNaturals nat_Naturals RingOps Ring AbstractProperties.
+Require
+ theory.naturals.
+Require Import
+ Relation_Definitions Morphisms Ring
+ abstract_algebra interfaces.naturals theory.rings.
 
 Section sr_order. Context `{SemiRing R}.
-
-  Instance sr_precedes: Order R := fun x y: R =>
-    exists z: nat, x + naturals_to_semiring nat R z == y.
 
   Global Instance sr_precedes_proper: Proper (equiv ==> equiv ==> iff) sr_precedes.
   Proof with assumption.
@@ -31,29 +32,25 @@ Section sr_order. Context `{SemiRing R}.
   Definition sr_precedes_with N `{Naturals N} {x y: R}: sr_precedes x y -> exists z: N, x + naturals_to_semiring N R z == y.
    intros [z E].
    exists (naturals_to_semiring nat N z).
-   rewrite (naturals_to_semiring_unique R (fun x => naturals_to_semiring N R (naturals_to_semiring nat N x))).
-    assumption.
-   apply (compose_semiring_morphisms _ _ _ _ _).
+   rewrite (theory.naturals.to_semiring_unique R (fun x => naturals_to_semiring N R (naturals_to_semiring nat N x))).
+   assumption.
   Qed.
 
   Definition sr_precedes_from N `{Naturals N} {x y: R} (z: N): x + naturals_to_semiring N R z == y -> sr_precedes x y.
    intros.
    exists (naturals_to_semiring N nat z).
-   rewrite (naturals_to_semiring_unique R (fun x => naturals_to_semiring nat R (naturals_to_semiring N nat x))).
-    assumption.
-   apply (compose_semiring_morphisms _ _ _ _ _).
+   rewrite (theory.naturals.to_semiring_unique R (fun x => naturals_to_semiring nat R (naturals_to_semiring N nat x))).
+   assumption.
   Qed.
 
 End sr_order.
-
-Instance: Params (@sr_precedes) 6.
 
 Lemma preserves_nonneg `{SemiRing A} `{SemiRing B} `{Naturals N} (f: A -> B) `{!SemiRing_Morphism f}: forall n: N,
  sr_precedes 0 (f (naturals_to_semiring N A n)).
 Proof.
  intros.
  pattern n.
- apply Naturals_ordinary_ind.
+ apply theory.naturals.induction.
    intros x y E.
    rewrite E.
    intuition.
@@ -72,7 +69,7 @@ Qed.
 
 Section ring. Context `{Ring R}. (* extra sr_precedes properties that hold in rings: *)
 
-  Add Ring R: (Ring_ring_theory R).
+  Add Ring R: (stdlib_ring_theory R).
 
   Lemma precedes_flip (x y: R): sr_precedes x y <-> sr_precedes (-y) (-x).
   Proof.
@@ -82,26 +79,21 @@ Section ring. Context `{Ring R}. (* extra sr_precedes properties that hold in ri
   Qed.
 
   Lemma precedes_0_flip (z: R): sr_precedes 0 z <-> sr_precedes (-z) 0. 
-  Proof. 
+  Proof with auto.
    pose proof (precedes_flip z 0).
    pose proof (precedes_flip 0 z).
    intuition.
-    apply (sr_precedes_proper (-z) (-z) (reflexivity _) 0 (-0)).
-     symmetry.
-     apply opp_0.
-    assumption.
+    apply (sr_precedes_proper (-z) (-z) (reflexivity _) 0 (-0))...
+    symmetry. apply opp_0.
     (* for some reason [rewrite] didn't work above. todo: look into it *)
-   apply H4.
-   rewrite opp_0.
-   assumption.
-  Qed.
+   apply H4. rewrite opp_0...
+  Qed. (* Ugly due to Coq bugs *)
 
   Lemma zero_sr_precedes_nat `{Naturals N} (n: N): sr_precedes 0 (naturals_to_semiring N R n).
   Proof.
    exists (naturals_to_semiring N nat n).
-   rewrite (naturals_to_semiring_unique R (fun x => naturals_to_semiring nat R (naturals_to_semiring N nat x))).
-    ring.
-   apply (compose_semiring_morphisms N nat R); apply _.
+   rewrite (theory.naturals.to_semiring_unique R (fun x => naturals_to_semiring nat R (naturals_to_semiring N nat x))).
+   ring.
   Qed.
 
   Lemma neg_precedes_pos `{Naturals N} (n m: N): sr_precedes (- naturals_to_semiring N R n) (naturals_to_semiring N R m).
@@ -116,11 +108,11 @@ End ring.
 
 Lemma nats_preserve_sr_order `{SemiRing A} `{Naturals B} (f: A -> B) `{!SemiGroup_Morphism f} (x y: A):
   sr_precedes x y -> sr_precedes (f x) (f y).
-Proof. intros [z p]. 
- unfold sr_precedes. 
+Proof.
+ intros [z p].
  exists (naturals_to_semiring B nat (f (naturals_to_semiring nat A z))).
  rewrite <- p.
  rewrite preserves_sg_op.
- rewrite (iso_nats B nat).
+ rewrite (theory.naturals.to_semiring_involutive B nat).
  reflexivity.
 Qed.

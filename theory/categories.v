@@ -1,17 +1,8 @@
-Require Import Relation_Definitions Morphisms Setoid CanonicalNames.
+Set Automatic Introduction.
+
+Require Import Relation_Definitions Morphisms Setoid abstract_algebra.
 
 Section contents.
-
-  Class Category O (A: O -> O -> Type) {Oe: Equiv O} {Ae: forall x y, Equiv (A x y)} `{CatId O A} `{cc: CatComp O A}: Type :=
-    { Oe_equiv:> Equivalence Oe
-       (* hm, not strictly needed here. does make the quotient construction rather easy. but shouldn't we now have a morphism for A? *)
-    ; Ae_equiv:> forall x y, Equivalence (Ae x y)
-    ; comp_proper: forall x y z, Proper (equiv ==> equiv ==> equiv)%signature (@cc x y z)
-    ; comp_assoc: forall w x y z (a: A w x) (b: A x y) (c: A y z),
-        equiv (comp c (comp b a)) (comp (comp c b) a)
-    ; id_l: forall x y (a: A y x), equiv (comp cat_id a) a
-    ; id_r: forall x y (a: A x y), equiv (comp a cat_id) a
-    }.
 
   Context `{Category X A}.
 
@@ -23,16 +14,7 @@ Section contents.
   Let meh := @comp_proper X A _ _ _ _ _.
 
   Definition isos_unique (x y: X) (a: A x y) (b b': A y x): iso_arrows a b -> iso_arrows a b' -> b == b'.
-  Proof.
-   intros.
-   unfold iso_arrows in *.
-   intuition.
-   rewrite <- id_l.
-   rewrite <- H5.
-   rewrite <- comp_assoc.
-   rewrite H3.
-   apply id_r.
-  Qed.
+  Proof. intros [P Q] [R S]. rewrite <- id_l. rewrite <- S, <- comp_assoc, P. apply id_r. Qed.
 
   Definition iso: relation X := fun x y => ex (@is_iso x y).
 
@@ -47,7 +29,6 @@ Section contents.
    intros.
    destruct (a x). destruct (b x').
    destruct a. destruct b. simpl.
-   unfold iso_arrows.
    split.
     rewrite <- e0. apply e0.
    rewrite <- e. apply e.
@@ -56,16 +37,13 @@ Section contents.
   Definition initials_unique' (x x': X) (a: forall y, A x y) (b: forall y, A x' y):
     proves_initial a -> proves_initial b ->
     iso_arrows (a x') (b x).
-  Proof.
-   intros.
-   unfold proves_initial in *.
+  Proof with reflexivity.
+   intros H1 H2.
    split.
     rewrite <- (H2 x' cat_id).
-    rewrite <- H2.
-    reflexivity.
+    rewrite <- H2...
    rewrite <- (H1 x cat_id).
-   rewrite <- H1.
-   reflexivity.
+   rewrite <- H1...
   Qed.
 
 End contents.

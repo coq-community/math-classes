@@ -35,5 +35,5 @@ main = interact $ \s ->
     unlines $ ["digraph {"] ++ map (\(x, y) -> "\"" ++ x ++ "\" -> \"" ++ y ++ "\"") deps ++ ["}"]
  where
   parse_line :: String -> (String, [String])
-  parse_line l | (x, (_:xs)) <- span (/= ':') l = (strip_suffix x, map strip_suffix (tail $ words xs) \\ hide)
-  strip_suffix = takeWhile (/= '.')
+  parse_line l | (x, (_:xs)) <- span (/= ':') l = (strip_suffix $ head $ words x, map strip_suffix (tail $ words xs) \\ hide)
+  strip_suffix = reverse . tail . dropWhile (/= '.') . reverse
