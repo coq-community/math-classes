@@ -22,7 +22,7 @@ Section group_props. Context `{Group}.
   Proof. intros x y E. rewrite <- (inv_involutive x), <- (inv_involutive y), E. reflexivity. Qed.
 
   Lemma inv_zero: - mon_unit == mon_unit.
-  Proof. rewrite <- (inv_l mon_unit) at 3. rewrite monoid_runit. reflexivity. Qed.
+  Proof. rewrite <- (inv_l mon_unit) at 2. rewrite monoid_runit. reflexivity. Qed.
 
 End group_props.
 
@@ -118,58 +118,33 @@ Section ring_props. Context `{Ring R}.
 
   Add Ring R: stdlib_ring_theory.
 
-  Lemma opp_swap x y: x + - y == - (y + - x).
-  Proof. ring. Qed.
+  (* Hm, are the following really worth having as lemmas? *)
 
-  Lemma plus_opp_distr x y: - (x + y) == - x + - y.
-  Proof. apply sg_inv_distr. Qed.
-
-  Lemma ring_plus_left_inj a a' b: a + b == a' + b -> a == a'.
-  Proof.
-   intro E.
-   rewrite <- (plus_0_r a), <- (plus_0_r a').
-   rewrite <- (plus_opp_r b).
-   do 2 rewrite associativity.
-   rewrite E. reflexivity.
-  Qed.
-
-  Lemma ring_opp_mult a: -a == -(1) * a.
-  Proof.
-   apply ring_plus_left_inj with a.
-   rewrite <- (mult_1_l a) at 4.
-   rewrite <- distribute_r.
-   do 2 rewrite plus_opp_l.
-   symmetry. apply mult_0_l.
-  Qed.
-
-  Lemma ring_distr_opp_mult a b: -(a * b) == -a * b.
-  Proof. rewrite ring_opp_mult, (ring_opp_mult a). apply associativity. Qed.
-
-  Lemma ring_opp_mult_opp a b: -a * -b == a * b.
-  Proof.
-   rewrite <- ring_distr_opp_mult.
-   rewrite commutativity.
-   rewrite <- ring_distr_opp_mult.
-   rewrite commutativity.
-   apply inv_involutive.
-  Qed.
-
-  Lemma opp_0: -0 == 0. Proof. apply (@inv_zero R _ _ _ _ _). Qed.
-
-  Lemma ring_distr_opp a b: -(a+b) == -a+-b.
-  Proof. ring. Qed. (* hm, probably not worth a lemma then *)
+  Lemma opp_swap x y: x + - y == - (y + - x). Proof. ring. Qed.
+  Lemma plus_opp_distr x y: - (x + y) == - x + - y. Proof. ring. Qed.
+  Lemma ring_opp_mult a: -a == -(1) * a. Proof. ring. Qed.
+  Lemma ring_distr_opp_mult a b: -(a * b) == -a * b. Proof. ring. Qed.
+  Lemma ring_opp_mult_opp a b: -a * -b == a * b. Proof. ring. Qed.
+  Lemma opp_0: -0 == 0. Proof. ring. Qed.
+  Lemma ring_distr_opp a b: -(a+b) == -a+-b. Proof. ring. Qed.
 
   Lemma equal_by_zero_sum x y: x + - y == 0 -> x == y.
   Proof. intro E. rewrite <- (plus_0_l y). rewrite <- E. ring. Qed.
 
-  Lemma plus_reg_l n m p: p + n == p + m -> n == m.
+  Global Instance: forall p: R, Injective (ring_plus p).
   Proof.
-   intro E.
+   intros p x y E.
    rewrite <- plus_0_l.
    rewrite <- (plus_opp_l p).
    rewrite <- associativity.
    rewrite E.
    ring.
+  Qed.
+
+  Lemma ring_plus_left_inj a a' b: a + b == a' + b -> a == a'.
+  Proof.
+   intro E. apply (injective (ring_plus b)).
+   rewrite commutativity, E. ring.
   Qed.
 
 End ring_props.

@@ -51,9 +51,7 @@ Proof.
  intros.
  pattern n.
  apply theory.naturals.induction.
-   intros x y E.
-   rewrite E.
-   intuition.
+   intros x y E. rewrite E. intuition.
   do 2 rewrite preserves_0.
   reflexivity.
  intros m [x E].
@@ -62,8 +60,7 @@ Proof.
  rewrite plus_0_l.
  do 2 rewrite preserves_1.
  exists (1 + x).
- rewrite preserves_plus.
- rewrite preserves_1.
+ rewrite preserves_plus, preserves_1.
  apply plus_0_l.
 Qed. 
 
@@ -82,12 +79,9 @@ Section ring. Context `{Ring R}. (* extra sr_precedes properties that hold in ri
   Proof with auto.
    pose proof (precedes_flip z 0).
    pose proof (precedes_flip 0 z).
-   intuition.
-    apply (sr_precedes_proper (-z) (-z) (reflexivity _) 0 (-0))...
-    symmetry. apply opp_0.
-    (* for some reason [rewrite] didn't work above. todo: look into it *)
+   intuition. rewrite <- opp_0...
    apply H4. rewrite opp_0...
-  Qed. (* Ugly due to Coq bugs *)
+  Qed.
 
   Lemma zero_sr_precedes_nat `{Naturals N} (n: N): sr_precedes 0 (naturals_to_semiring N R n).
   Proof.
@@ -97,12 +91,7 @@ Section ring. Context `{Ring R}. (* extra sr_precedes properties that hold in ri
   Qed.
 
   Lemma neg_precedes_pos `{Naturals N} (n m: N): sr_precedes (- naturals_to_semiring N R n) (naturals_to_semiring N R m).
-  Proof.
-   apply (@transitivity R sr_precedes _ _ 0).   
-    apply -> precedes_0_flip.
-    apply zero_sr_precedes_nat.
-   apply zero_sr_precedes_nat.
-  Qed.
+  Proof. transitivity (0:R); [apply -> precedes_0_flip |]; apply zero_sr_precedes_nat. Qed.
 
 End ring.
 
@@ -111,8 +100,7 @@ Lemma nats_preserve_sr_order `{SemiRing A} `{Naturals B} (f: A -> B) `{!SemiGrou
 Proof.
  intros [z p].
  exists (naturals_to_semiring B nat (f (naturals_to_semiring nat A z))).
- rewrite <- p.
- rewrite preserves_sg_op.
+ rewrite <- p, preserves_sg_op.
  rewrite (theory.naturals.to_semiring_involutive B nat).
  reflexivity.
 Qed.

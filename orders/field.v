@@ -25,27 +25,7 @@ Section decfield_order. Context `{Field F} `{forall x y: F, Decision (x == y)}.
   Qed.
 
   Global Instance field_precedes_reflexive: Reflexive field_precedes.
-  Proof.
-   pose proof (_: Proper (equiv ==> equiv) dec_mult_inv).
-   intros x.
-   unfold field_precedes.
-   exists 0.
-   exists 0.
-   assert (naturals_to_semiring nat F 0 == 0).
-    apply preserves_0.
-   assert (/ naturals_to_semiring nat F 0 == 0).
-    set (naturals_to_semiring nat F 0) in *.
-    rewrite H2.
-    unfold dec_mult_inv.
-    destruct decide.
-     reflexivity.
-    intuition.
-   set (naturals_to_semiring nat F 0) in *.
-   rewrite H2.
-   rewrite mult_0_l.
-   rewrite plus_0_r.
-   reflexivity.
-  Qed.
+  Proof. intro. exists 0, 0. rewrite preserves_0. ring. Qed.
 
   (* field_precedes can actually only happen if the denominator is nonzero: *)
 
@@ -56,18 +36,13 @@ Section decfield_order. Context `{Field F} `{forall x y: F, Decision (x == y)}.
    intros [x0 [x1 H1]].
    destruct x1.
     exists 0, 1.
-    split. discriminate. 
-    pose proof (_: Proper (equiv ==> equiv) dec_mult_inv).
-    assert (naturals_to_semiring nat F 0 == 0).
-     apply preserves_0.
-    set (naturals_to_semiring nat F) in *.
-    rewrite <- H1.
-    rewrite H3.
-    rewrite inv_0.
-    ring.
+    split. discriminate.
+    change (x + naturals_to_semiring nat F x0 * / naturals_to_semiring nat F 0 == y) in H1.
+    fold 0 in H1.
+    rewrite <- H1, preserves_0, preserves_0, inv_0. ring.
    exists x0, (S x1).
    split... discriminate.
-  Qed. (* Ugly due to Coq bugs *)
+  Qed. (* Todo: can be cleaned up further. *)
 
   (* And if the map from nat to F is injective, we know even more: *)
 
@@ -77,41 +52,27 @@ Section decfield_order. Context `{Field F} `{forall x y: F, Decision (x == y)}.
     exists num: nat, exists den: nat, ~ naturals_to_semiring nat F den == 0 /\
       x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den == y.
   Proof with auto.
-   intros [x0 [x1 H1]].
-   destruct x1.
-    pose proof (_: Proper (equiv ==> equiv) dec_mult_inv).
+   intros [x0 [[|x1] E]].
     exists 0, 1.
-    split.
-     rewrite preserves_1.
-     intro.
-     apply field_0neq1.
-     symmetry...
-    assert (naturals_to_semiring nat F 0 == 0).
-     apply preserves_0.
-    set (naturals_to_semiring nat F) in *.
-    rewrite <- H1.
-    rewrite H3.
-    rewrite inv_0.
-    ring.
+    rewrite preserves_1, preserves_0.
+    split. intro. apply field_0neq1. symmetry...
+    change (x + naturals_to_semiring nat F x0 * / naturals_to_semiring nat F 0 == y) in E.
+    rewrite <- E, preserves_0, inv_0. ring.
    exists x0, (S x1).
-   split...
-   intro.
+   split... intro  U.
    absurd (S x1 = 0). discriminate.
-   apply (injective (naturals_to_semiring nat F) (S x1) 0).
-   rewrite H2.
-   reflexivity.
-  Qed. (* Ugly due to Coq bugs. *)
+   apply (injective (naturals_to_semiring nat F)).
+   rewrite U. reflexivity.
+  Qed.
 
   Global Instance field_precedes_transitive: Transitive field_precedes.
   Proof with auto.
-   pose proof (_: Proper (equiv ==> equiv) dec_mult_inv).
    intros x y z E G.
    destruct (field_precedes_with_nonzero_denominator _ _ E) as [num [den [A U]]].
    destruct (field_precedes_with_nonzero_denominator _ _ G) as [num' [den' [B V]]].
-   clear E G.
    unfold field_precedes.
    exists (num * den' + num' * den), (den * den').
-   rewrite <- V, <- U. clear V U.
+   rewrite <- V, <- U.
    rewrite preserves_plus.
    repeat rewrite preserves_mult.
    set (naturals_to_semiring nat F) in *. 
@@ -135,43 +96,35 @@ Section decfield_order. Context `{Field F} `{forall x y: F, Decision (x == y)}.
    clear V x.
    assert (naturals_to_semiring nat F num' * / naturals_to_semiring nat F den' +
      naturals_to_semiring nat F num * / naturals_to_semiring nat F den == 0).
-    apply (plus_reg_l) with y.
+    apply (injective (ring_plus y)).
     rewrite plus_0_r.
-    rewrite associativity.
-    assumption.
+    rewrite associativity...
    set (naturals_to_semiring nat F) in *. 
    assert (f den' * / f den' * f den * f num' + f den * / f den * f num * f den' == f den * f den' * 0).
-    rewrite <- H1 at 3.
-    ring.
+    rewrite <- H1 at 1. ring.
    rewrite dec_mult_inverse in H2...
    rewrite dec_mult_inverse in H2...
    ring_simplify in H2.
    do 2 rewrite <- preserves_mult in H2.
    rewrite <- preserves_plus in H2.
-   assert (den * num' + num * den' == 0).
-    apply (injective f).
-    assumption.
-   destruct (theory.naturals.zero_sum _ _ H3).
-   assert (f den * f num' == 0). rewrite <- preserves_mult. rewrite H4. apply preserves_0.
-   destruct (zero_product _ _ H6). intuition.
-   rewrite H7.
-   ring.
-  Qed.
+   destruct (zero_product (f den) (f num')).
+     assert (den * num' + num * den' == 0). apply (injective f)...
+     destruct (theory.naturals.zero_sum (den * num') (num * den') H3).
+     rewrite <- preserves_mult. rewrite H4. apply preserves_0.
+    intuition.
+   rewrite H3. ring.
+  Qed. (* Todo: can be cleaned up further. *)
 
   Global Instance field_partialorder: PartialOrder field_precedes.
 
   Lemma ringorder_plus: forall x y: F, x <= y -> forall z, x + z <= y + z.
-   intros x y [num [den E]] z. 
-   exists num, den. rewrite <- E. ring.
-  Qed.
+  Proof. intros x y [num [den E]] z. exists num, den. rewrite <- E. ring. Qed.
 
   Lemma ringorder_mult: forall x: F, 0 <= x -> forall y: F, 0 <= y -> 0 <= x * y.
+  Proof.
    intros x [num [den E]] y [num' [den' G]].
    exists (num * num'), (den * den').
-   rewrite <- G, <- E.
-   pose proof (_: Proper (equiv ==> equiv) dec_mult_inv).
-   do 2 rewrite preserves_mult.
-   rewrite dec_mult_inv_distr.
+   rewrite <- G, <- E, preserves_mult, preserves_mult, dec_mult_inv_distr.
    ring.
   Qed.
 

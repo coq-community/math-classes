@@ -3,14 +3,14 @@ Set Automatic Introduction.
 Require
   Field_theory.
 Require Import
-  Morphisms
+  Morphisms Ring Field
   abstract_algebra theory.rings.
 
 Section dec_mult_inv.
 
   Context
-    `{e: Equiv A} `{RingZero A} `{!MultInv A} `{forall x y: A, Decision (x == y)}
-    `{!Equivalence e} `{mult_inv_proper: !Proper (sig_relation equiv _ ==> equiv) mult_inv}.
+    `{e: Equiv A} `{RingZero A} `{mi: !MultInv A} `{forall x y: A, Decision (x == y)}
+    `{!Equivalence e} `{mult_inv_proper: !Proper (sig_relation equiv _ ==> equiv) mi}.
 
   Global Instance dec_mult_inv_proper: Proper (e ==> e) dec_mult_inv.
   Proof with auto.
@@ -32,14 +32,11 @@ Section field_props. Context `{Field F} `{forall x y: F, Decision (x == y)}.
   Definition stdlib_field_theory:
     Field_theory.field_theory 0 1 ring_plus ring_mult (fun x y => x + - y)
       group_inv (fun x y => x * / y) dec_mult_inv equiv.
-  Proof.
+  Proof with auto.
    intros.
    constructor.
       apply (theory.rings.stdlib_ring_theory _).
-     intro.
-     apply field_0neq1.
-     symmetry.
-     assumption.
+     intro. apply field_0neq1. symmetry...
     reflexivity.
    intros.
    rewrite commutativity.
@@ -48,6 +45,8 @@ Section field_props. Context `{Field F} `{forall x y: F, Decision (x == y)}.
    apply mult_inverse'.
   Qed.
 
+  Add Field F: stdlib_field_theory.
+
   Lemma mult_reg_l  x: ~ x == 0 -> forall y z: F, x * y == x * z -> y == z.
   Proof.
    intros E y z G.
@@ -55,12 +54,10 @@ Section field_props. Context `{Field F} `{forall x y: F, Decision (x == y)}.
    rewrite <- (mult_inverse (exist _ x E)).
    simpl.
    rewrite (commutativity x).
-   rewrite <- associativity.
-   rewrite G.
-   rewrite associativity.
+   rewrite <- associativity, G, associativity.
    rewrite (commutativity _ x).
    rewrite (mult_inverse (exist _ x E)).
-   apply mult_1_l.
+   ring.
   Qed.
 
   Global Instance: ZeroProduct F.
@@ -81,40 +78,21 @@ Section field_props. Context `{Field F} `{forall x y: F, Decision (x == y)}.
   Proof. unfold dec_mult_inv. destruct decide; intuition. Qed.
 
   Lemma dec_mult_inv_distr (x y: F): / (x * y) == / x * / y.
-  Proof with auto.
-   pose proof (_: Proper (equiv ==> equiv) dec_mult_inv).
-   destruct (decide (x == 0)) as [E|E]. rewrite E, mult_0_l, inv_0, mult_0_l. reflexivity.
-   destruct (decide (y == 0)) as [G|G]. rewrite G, mult_0_r, inv_0, mult_0_r. reflexivity.
-   assert (~ x * y == 0). intro U. destruct (zero_product _ _ U); intuition.
-   apply mult_reg_l with (x * y)...
-   rewrite dec_mult_inverse...
-   rewrite (commutativity (/x)).
-   rewrite <- associativity.
-   rewrite (associativity y).
-   rewrite dec_mult_inverse...
-   rewrite mult_1_l.
-   rewrite dec_mult_inverse...
-   reflexivity.
+  Proof.
+   destruct (decide (x == 0)) as [E|E]. rewrite E, mult_0_l, inv_0. ring.
+   destruct (decide (y == 0)) as [G|G]. rewrite G, mult_0_r, inv_0. ring.
+   field. intuition.
   Qed.
 
   Lemma equal_by_one_quotient (x y: F): x */ y == 1 -> x == y.
-  Proof with auto.
+  Proof with auto; try field; auto.
    intro E.
-   pose proof dec_mult_inv_proper.
-   assert (x * / y * y == 1 * y).
-    rewrite E.
-    reflexivity.
-   rewrite <- associativity in H2.
-   rewrite (commutativity (/ y)) in H2.
    destruct (decide (y == 0)).
-    exfalso.
-    rewrite e0 in E.
-    rewrite inv_0 in E.
-    rewrite mult_0_r in E.
-    apply field_0neq1...
-   rewrite dec_mult_inverse in H2...
-   rewrite mult_1_r, mult_1_l in H2...
-  Qed. (* Ugly due to Coq bugs *)
+    exfalso. apply field_0neq1.
+    rewrite <- E, e0, inv_0...
+   transitivity (1 * y)...
+   rewrite <- E...
+  Qed.
 
 End field_props.
 

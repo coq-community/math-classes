@@ -14,14 +14,13 @@ Hint Unfold precedes integer_precedes.
 
 Lemma iso_ints `{Integers A} B `{Integers B}: forall a: A,
   integers_to_ring B A (integers_to_ring A B a) == a.
-Proof.
+Proof with auto.
  intros.
  pose proof (@integers_initial A _ _ _ _ _ _ _ _ (ring_as_ua.object A) cat_id tt a).
  set (comp (integers_to_ring_arrow (ring_as_ua.object A)) (integers_to_ring_arrow (ring_as_ua.object B))).
  pose proof (@integers_initial A _ _ _ _ _ _ _ _ (ring_as_ua.object A) a0 tt a).
  simpl in *.
- rewrite <- H4.
- assumption.
+ rewrite <- H4...
 Qed.
 
 Section contents.
@@ -30,11 +29,8 @@ Section contents.
 
   Add Ring Int: (stdlib_ring_theory Int).
 
-  (* Some hints to help class resolution/eauto: *)
   Let itoZnat_mor := integers_to_ring_mor (Z nat).
-  Let nat_to_Int_mor := _: Proper (equiv ==> equiv) (naturals_to_semiring nat Int).
-  Let ring_hint: Ring Int := _.
-  Let semiring_hint: SemiRing Int := _.
+    (* a hint to help class resolution/eauto *)
 
   Lemma integers_to_ring_unique R `{Ring R} (f: Int -> R) {h: Ring_Morphism f}:
    forall x, f x == integers_to_ring Int R x.
@@ -56,8 +52,6 @@ Section contents.
    (f: A -> Int) (g: Int -> A) `{!Ring_Morphism f} `{!Ring_Morphism g}: Injective g.
   Proof with auto.
    intros x y E.
-   pose proof (_: Ring_Morphism (fun v => f (g v))).
-   pose proof (_: Ring_Morphism (@id Int)).
    rewrite <- (integers_to_ring_unique' Int (fun v => f (g v)) id x).
    rewrite <- (integers_to_ring_unique' Int (fun v => f (g v)) id y).
    rewrite E. reflexivity.
@@ -73,36 +67,29 @@ Section contents.
     end.
 
   Next Obligation. rewrite <- (iso_ints (Z nat) x), <- (iso_ints (Z nat) y), E. reflexivity. Qed.
-  Next Obligation. intro. apply E. rewrite H1. reflexivity. Qed.
+  Next Obligation. intro U. apply E. rewrite U. reflexivity. Qed.
 
   Global Instance naturals_to_integers_injective `{Naturals N}: Injective (naturals_to_semiring N Int).
   Proof.
-   set (itoZN_mor := integers_to_ring_mor (Z N)).
    intros x y E.
    rewrite <- (plus_0_r x), <- (plus_0_r y).
    change (NtoZ N x == NtoZ N y).
    do 2 rewrite <- (NtoZ_uniq N).
    do 2 rewrite <- (theory.naturals.to_semiring_unique (Z N) (fun x => integers_to_ring Int (Z N) (naturals_to_semiring N Int x))).
+   set (itoZN_mor := integers_to_ring_mor (Z N)).
    rewrite E. reflexivity.
   Qed.
 
   Instance: AntiSymmetric integer_precedes.
-  Proof with eauto.
-   intros x y [v p] [w q]. rewrite <- p in *. clear p y.
-   assert (v + w == 0) as vw.
+  Proof with ring.
+   intros x y [v p] [w q]. rewrite <- p in *.
+   destruct (theory.naturals.zero_sum v w) as [B _].
     apply naturals_to_integers_injective.
-    rewrite preserves_plus.
-    transitivity 0.
-     apply plus_reg_l with x.
-     rewrite <- q at 2.
-     ring.
-    symmetry.
-    apply (@preserves_0 nat Int _ _ _ _ _ _ _ _ _ _ (naturals_to_semiring nat Int) _).
-   destruct (theory.naturals.zero_sum _ _ vw) as [B _].
-   rewrite B, preserves_0.
-   ring.
-  Qed. (* Ugly because of [rewrite] performance problem already
-           presented to mattam ( http://codepad.org/c8JSVCDa ). *)
+    rewrite preserves_plus, preserves_0.
+    apply (injective (ring_plus x)).
+    rewrite <- q at 2...
+   rewrite B, preserves_0...
+  Qed.
 
   Global Instance: PartialOrder integer_precedes.
 
@@ -111,7 +98,6 @@ Section contents.
    intros E.
    apply (@zero_ne_one nat _ _ _ _).
    apply (injective (naturals_to_semiring nat Int)). 
-   set (naturals_to_semiring nat Int).
    rewrite preserves_0, preserves_1...
   Qed.
 
@@ -177,16 +163,13 @@ Section contents.
   Proof with eauto.
    unfold int_abs'. destruct int_abs. simpl.
    apply (injective (naturals_to_semiring N Int)).
-   assert (SemiRing_Morphism (fun x => naturals_to_semiring N Int (naturals_to_semiring N' N x))).
-    apply _.
    pose proof (theory.naturals.to_semiring_unique Int (fun x => naturals_to_semiring N Int (naturals_to_semiring N' N x)) n) as A.
-   rewrite A. clear A H5.
-   destruct o. assumption. 
+   rewrite A. (* todo: the separate pose is due to a Coq bug *)
+   destruct o...
    apply (antisymmetry integer_precedes).
-     apply <- precedes_flip.
-     rewrite H5...
+    apply <- precedes_flip. rewrite H5...
    rewrite <- H5...
-  Qed. (* ugly due to Coq bugs *)
+  Qed.
 
   Lemma abs_opp `{Naturals N} `{!IntAbs Int N} z: int_abs' Int N (- z) == int_abs' Int N z.
   Proof.
@@ -203,18 +186,15 @@ Section contents.
   
   Next Obligation.
    intros.
-   destruct (int_abs _ _ (integers_to_ring Int (Z N) x)) as [x0 [M|M]]; simpl; [left | right].
-    rewrite <- (iso_ints (Z N) x).
-    rewrite <- M.
+   destruct int_abs as [x0 [M | M]]; simpl; [left | right].
+    rewrite <- (iso_ints (Z N) x), <- M.
     symmetry.
-    apply (theory.naturals.to_semiring_unique Int (fun x => integers_to_ring (Z N) Int (naturals_to_semiring N (Z N) x))).
-   rewrite <- (iso_ints (Z N) x).
-   rewrite <- M.
+    apply (theory.naturals.to_semiring_unique Int (fun x => integers_to_ring _ _  (_ x))).
+   rewrite <- (iso_ints (Z N) x), <- M.
    rewrite preserves_inv. 
-   apply inv_proper. 
-   symmetry.
-   apply (theory.naturals.to_semiring_unique Int (fun x => integers_to_ring (Z N) Int (naturals_to_semiring N (Z N) x))).
-  Qed. (* ugly due to Coq bugs *)
+   apply inv_proper. symmetry.
+   apply (theory.naturals.to_semiring_unique Int (fun x => integers_to_ring _ _ (_ x))).
+  Qed.
   
 Hint Immediate zero_sr_precedes_nat opp_0 inv_involutive.
 Hint Resolve opp_0.
@@ -237,7 +217,6 @@ Hint Resolve opp_0.
    destruct (int_abs Int nat y) as [x1 o0].
    assert (x0 * x1 == 0) as U.
     apply (injective (naturals_to_semiring _ _)).
-    set (naturals_to_semiring nat Int) in *.
     rewrite preserves_mult, preserves_0.
     rewrite <- ring_opp_mult_opp.
     destruct o; destruct o0; rewrite H1, H2...
@@ -254,8 +233,8 @@ Hint Resolve opp_0.
   Global Instance mult_injective (x: Int): ~ x == 0 -> Injective (ring_mult x).
   Proof with intuition.
    intros E y z U.
-   assert (x * (y + - z) == 0) as V. rewrite distribute_l, U. ring.
-   destruct (zero_product _ _ V)...
+   destruct (zero_product x (y + - z))...
+    rewrite distribute_l, U. ring.
    apply equal_by_zero_sum...
   Qed.
   
@@ -264,7 +243,6 @@ End contents.
 Section preservation. Context `{Integers A} `{Integers B} (f: A -> B) `{!Ring_Morphism f}.
 
   Let hint: SemiRing A := _.
-  Let hint': SemiRing B := _.
   Let hint'': SemiRing_Morphism f := _.
 
   Section with_naturals. Context `{Naturals N}.
@@ -276,13 +254,12 @@ Section preservation. Context `{Integers A} `{Integers B} (f: A -> B) `{!Ring_Mo
       forall a, f (int_abs' A N a) == int_abs' B N (f a).
     Proof with eauto; try apply _.
      pose proof (@neg_precedes_pos B _ _ _ _ _ _ _ N) as U.
-     pose proof (@transitivity B sr_precedes _) as TR.
      assert (forall (x0 x: N), - NB x0 == f x -> f x == x0); unfold NA, NB in *.
       intros x0 x P.
-      apply (@antisymmetry B _ integer_precedes _).
+      apply (antisymmetry integer_precedes).
        apply <- (@precedes_flip B _ _ _ _ _ _ _).
        rewrite <- P, inv_involutive...
-      apply TR with 0...
+      transitivity (0:B)...
       apply <- (precedes_flip (naturals_to_semiring N B x0) 0).
       rewrite P, opp_0...
      intro.
@@ -353,15 +330,17 @@ Section more. Context `{Integers Int}.
    rewrite <- P in *. clear P x.
    cut (x0 == 0). intro E. rewrite E, preserves_0. ring.
    rename u into x.
-   ring_simplify in H2.
    assert (naturals_to_semiring nat Int x0 * y + naturals_to_semiring nat Int x == 0).
-    apply plus_reg_l with (x' * y). rewrite <- H2 at 2. ring.
+    ring_simplify in H2.
+    apply (injective (ring_plus (x' * y))). rewrite <- H2 at 2. ring.
    clear H2. 
    destruct H1. rewrite <- H1 in *. clear H1 y.
    destruct (theory.naturals.zero_sum x0 (x0 * x1 + x))...
    apply (injective (naturals_to_semiring nat Int)).
-   rewrite preserves_plus, preserves_plus, preserves_mult, associativity.
-   rewrite distribute_l, mult_1_r in H3...
+   rewrite preserves_0.
+   rewrite <- H3.
+   rewrite preserves_plus, preserves_plus, preserves_mult.
+   ring.
   Qed.
 
 End more.
