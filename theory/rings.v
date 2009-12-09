@@ -90,25 +90,13 @@ Section ring_props. Context `{Ring R}.
   Lemma plus_mul_distribute_r x y z: (x + y) * z == x * z + y * z. Proof. apply distribute_r. Qed.
   Lemma plus_mul_distribute_l x y z: x * (y + z) == x * y + x * z. Proof. apply distribute_l. Qed.
 
-  Lemma twice a (h: a == a + a): a == 0. (* todo: doesn't this hold for semirings? *)
-   rewrite <- (plus_opp_r a).
-   rewrite h at 2.
-   rewrite <- associativity.
-   rewrite plus_opp_r.
-   rewrite (monoid_runit a).
-   reflexivity.
-  Qed.
-
-  Global Instance Ring_Semi: SemiRing R := { mult_0_l := _ }.
-  Proof. intros. apply twice. rewrite <- distribute_r. rewrite (monoid_lunit 0). reflexivity. Qed.
-
   Lemma stdlib_ring_theory: Ring_theory.ring_theory 0 1 ring_plus ring_mult (fun x y => x + - y) group_inv equiv.
   Proof.
    constructor; intros.
-           apply plus_0_l.
+           apply (monoid_lunit x).
           apply commutativity.
          apply associativity.
-        apply mult_1_l.
+        apply (monoid_lunit x).
        apply commutativity.
       apply associativity.
      apply distribute_r.
@@ -117,6 +105,9 @@ Section ring_props. Context `{Ring R}.
   Qed.
 
   Add Ring R: stdlib_ring_theory.
+
+  Global Instance Ring_Semi: SemiRing R := { mult_0_l := _ }.
+  Proof. intro. ring. Qed.
 
   (* Hm, are the following really worth having as lemmas? *)
 
