@@ -84,12 +84,6 @@ End semiringmor_props.
 
 Section ring_props. Context `{Ring R}.
 
-  Lemma plus_opp_r x: x + -x == 0. Proof. intros. apply (inv_r x). Qed.
-  Lemma plus_opp_l x: -x + x == 0. Proof. intros. apply (inv_l x). Qed.
-
-  Lemma plus_mul_distribute_r x y z: (x + y) * z == x * z + y * z. Proof. apply distribute_r. Qed.
-  Lemma plus_mul_distribute_l x y z: x * (y + z) == x * y + x * z. Proof. apply distribute_l. Qed.
-
   Lemma stdlib_ring_theory: Ring_theory.ring_theory 0 1 ring_plus ring_mult (fun x y => x + - y) group_inv equiv.
   Proof.
    constructor; intros.
@@ -101,7 +95,7 @@ Section ring_props. Context `{Ring R}.
       apply associativity.
      apply distribute_r.
     reflexivity.
-   apply plus_opp_r.
+   apply (inv_r x).
   Qed.
 
   Add Ring R: stdlib_ring_theory.
@@ -111,6 +105,10 @@ Section ring_props. Context `{Ring R}.
 
   (* Hm, are the following really worth having as lemmas? *)
 
+  Lemma plus_opp_r x: x + -x == 0. Proof. ring. Qed.
+  Lemma plus_opp_l x: -x + x == 0. Proof. ring. Qed.
+  Lemma plus_mul_distribute_r x y z: (x + y) * z == x * z + y * z. Proof. ring. Qed.
+  Lemma plus_mul_distribute_l x y z: x * (y + z) == x * y + x * z. Proof. ring. Qed.
   Lemma opp_swap x y: x + - y == - (y + - x). Proof. ring. Qed.
   Lemma plus_opp_distr x y: - (x + y) == - x + - y. Proof. ring. Qed.
   Lemma ring_opp_mult a: -a == -(1) * a. Proof. ring. Qed.
