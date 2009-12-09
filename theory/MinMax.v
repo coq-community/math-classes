@@ -4,23 +4,19 @@ Require Import
 
 Section contents.
 
-  Context `{Equiv A} `{Order A} `{forall x y: A, Decision (x <= y)}.
+  Context `{e: Equiv A} `{Order A} `{forall x y: A, Decision (x <= y)}.
 
-  Section twovars.
+  Definition sort (x y: A): prod A A := if decide (x <= y) then (x, y) else (y, x).
 
-    Variables x y: A.
+  Definition min (x y: A) := fst (sort x y).
 
-    Definition sort: prod A A := if decide (x <= y) then (x, y) else (y, x).
-    Definition min := fst sort.
-    Definition max := snd sort.
+  Instance max: SemiGroupOp A := fun x y => snd (sort x y).
 
-    Lemma max_ub_l `{Reflexive _ precedes}: x <= max.
-    Proof. unfold max, sort. intros. destruct decide; firstorder. Qed.
+  Lemma max_ub_l `{Reflexive _ precedes} x y: x <= x & y.
+  Proof. unfold sg_op, max, sort. intros. destruct decide; firstorder. Qed.
 
-    Lemma max_r: x <= y -> max = y.
-    Proof. unfold max, sort. intros. destruct decide; firstorder. Qed.
-
-  End twovars.
+  Lemma max_r x y: x <= y -> x & y = y.
+  Proof. unfold sg_op, max, sort. intros. destruct decide; firstorder. Qed.
 
   Lemma max_idem x: max x x = x.
   Proof. intros. unfold max, sort. destruct decide; reflexivity. Qed.
@@ -44,10 +40,11 @@ Section contents.
     Proof. intros. unfold max, sort. destruct (decide (x <= y)); destruct (decide (y <= x)); firstorder. Qed.
 
     Lemma max_ub_r (x y: A): y <= max x y.
-    Proof. intros. rewrite max_comm. apply max_ub_l. firstorder. Qed.
+    Proof. intros. rewrite max_comm. apply max_ub_l. Qed.
 
-    Lemma max_assoc (x y z: A): max x (max y z) == max (max x y) z.
+    Global Instance: Associative max.
     Proof with try assumption.
+     intros x y z.
      unfold max, sort.
      intros.
      repeat destruct decide; try reflexivity; try intuition; simpl in *.
@@ -62,6 +59,8 @@ Section contents.
 
     Lemma max_l x y: x <= y -> max y x == y.
     Proof. intros. rewrite max_comm, max_r; firstorder. Qed.
+
+    Global Instance max_semigroup `{!Equivalence e}: SemiGroup A.
 
   End more_props.
 
