@@ -25,12 +25,8 @@ Section contents.
 
   Definition initials_unique (x x': X) (a: initial x) (b: initial x'): iso_arrows (proj1_sig (a x')) (proj1_sig (b x)).
   Proof with auto.
-   unfold initial.
-   intros.
-   destruct (a x). destruct (b x').
-   destruct a. destruct b. simpl.
-   split.
-    rewrite <- e0. apply e0.
+   destruct (a x), (b x'), a, b.
+   split. rewrite <- e0. apply e0.
    rewrite <- e. apply e.
   Qed.
 

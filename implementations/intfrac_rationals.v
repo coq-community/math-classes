@@ -24,8 +24,7 @@ Instance: Reflexive q_equiv. Proof. repeat intro. unfold q_equiv. reflexivity. Q
 Instance: Symmetric q_equiv. Proof. repeat intro. unfold q_equiv. symmetry. assumption. Qed.
 Instance: Transitive q_equiv.
 Proof with auto.
- unfold q_equiv. intros x y z V W.
- destruct x. destruct y. destruct z.
+ unfold q_equiv. intros [] [] [] V W.
  simpl in *.
  apply (theory.integers.mult_injective den1)...
  do 2 rewrite associativity.
@@ -50,9 +49,7 @@ Proof. unfold inject_Z, equiv, q_equiv. intros x x' E. simpl. rewrite E. reflexi
 
 Program Instance q_plus: RingPlus Q := fun (x y: Q) => C (num x * den y + num y * den x) (den x * den y) _.
 Next Obligation.
- destruct x. destruct y. intro U. simpl in U.
- revert den_nonzero0 den_nonzero1 U. simpl.
- intros. destruct (zero_product _ _ U); intuition.
+ destruct x, y. simpl. intro E. destruct (zero_product _ _ E); intuition.
 Qed.
 
 Instance q_zero: RingZero Q := inject_Z 0.
@@ -62,9 +59,7 @@ Instance q_opp: GroupInv Q := fun (x: Q) => C (- num x) (den x) (den_nonzero x).
 
 Program Instance q_mult: RingMult Q := fun x y => C (num x * num y) (den x * den y) _.
 Next Obligation.
- destruct x. destruct y. intro U. simpl in U.
- revert den_nonzero0 den_nonzero1 U. simpl. 
- intros. destruct (zero_product _ _ U); intuition.
+ destruct x, y. simpl. intro E. destruct (zero_product _ _ E); intuition.
 Qed.
 
 Program Instance q_inv: MultInv Q := fun x => C (den x) (num x) _.

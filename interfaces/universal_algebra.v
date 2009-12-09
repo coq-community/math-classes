@@ -219,7 +219,7 @@ Section for_equational_theory. Variable et: EquationalTheory.
   Global Program Instance: CatComp Variety Arrow := fun x y z => fun f g v a => (`f) _ ((`g) v a).
 
   Next Obligation. Proof with reflexivity.
-   destruct f. destruct g.
+   destruct f, g.
    constructor; repeat intro; simpl.
     pose proof (@homo_proper et x y (variety_equiv x) (variety_equiv y) _ _ x1 _ a).
     pose proof (@homo_proper et y z (variety_equiv y) (variety_equiv z) _ _ x0 _ a).  
@@ -232,7 +232,7 @@ Section for_equational_theory. Variable et: EquationalTheory.
     pose proof (@homo_proper _ y z (variety_equiv y) (variety_equiv z) _ _ x0 _ a).
     rewrite H0. assumption.
    apply (@IHo0 (o1 (x0 _ (x1 _ x2))) (o2 (x1 _ x2))); auto.
-  Qed.
+  Qed. (* todo: why is this proof so ugly? *)
 
   Global Instance o_equiv: Equiv Variety := eq.
 
@@ -243,7 +243,7 @@ Section for_equational_theory. Variable et: EquationalTheory.
   Proof with auto.
    constructor; try apply _; intros.
        unfold a_equiv.
-       destruct x. destruct y.
+       destruct x, y.
        constructor; repeat intro.
          reflexivity.
         symmetry...
@@ -252,16 +252,16 @@ Section for_equational_theory. Variable et: EquationalTheory.
        transitivity (proj1_sig y b a)...
       repeat intro.
       simpl.
-      destruct x. destruct y. destruct z. destruct x0. destruct y0. destruct x1. destruct y1.
+      destruct x, y, z, x0, y0, x1, y1.
       unfold equiv, a_equiv, pointwise_relation in *.
       simpl in *.
       intros.
       pose proof (@homo_proper _ _ _ _ _ _ _ x _ b).
       rewrite H0.
       apply H.
-     destruct w. destruct y. destruct z. destruct x. intro. reflexivity.
-    destruct x. destruct y. intro. intro. reflexivity.
-   destruct x. destruct y. intro. intro. reflexivity.
+     repeat intro. reflexivity.
+    repeat intro. reflexivity.
+   repeat intro. reflexivity.
   Qed.
 
 End for_equational_theory.
