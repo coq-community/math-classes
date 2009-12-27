@@ -241,7 +241,7 @@ Section for_another_ring.
 
     Lemma same_morphism: @equiv _ (pointwise_relation _ equiv) map_Z map_Z'.
     Proof.
-     intro z. destruct z.
+     intros [].
        apply agree_on_0.
       apply agree_on_positive.
      apply agree_on_negative.

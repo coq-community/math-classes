@@ -103,9 +103,9 @@ Section contents.
 
   Lemma abs_uniq `{Naturals N} (a a': IntAbs Int N): forall z: Int, proj1_sig (a z) == proj1_sig (a' z).
   Proof with eauto.
-   intros. destruct a. destruct a'. simpl.
+   intros. destruct a, a'. simpl.
    apply (injective (naturals_to_semiring N Int)).
-   destruct o; destruct o0; rewrite <- H3 in H4; clear H3.
+   destruct o, o0; rewrite <- H3 in H4; clear H3.
       symmetry...
      apply (antisymmetry integer_precedes). rewrite <- H4...
      apply <- precedes_flip. rewrite H4...
@@ -149,11 +149,10 @@ Section contents.
   Proof with eauto; try reflexivity.
    intros z z' E.
    unfold int_abs'.
-   destruct int_abs as [x o].
-   destruct int_abs as [x' o'].
+   destruct int_abs as [x o], int_abs as [x' o'].
    simpl. rewrite E in o. clear E z.
    apply (injective (naturals_to_semiring N Int)).
-   destruct o as [A|A]; destruct o' as [C|C]; rewrite <- C in A; clear C z'...
+   destruct o as [A|A], o' as [C|C]; rewrite <- C in A; clear C z'...
      destruct (neg_is_pos _ _ (symmetry A)) as [B C]. rewrite B, C...
     destruct (neg_is_pos _ _ A) as [B C]. rewrite B, C...
    apply (injective group_inv)...
@@ -213,13 +212,12 @@ Hint Resolve opp_0.
   Global Instance zero_product: ZeroProduct Int.
   Proof with auto.
    intros x y E.
-   destruct (int_abs Int nat x) as [x0 o].
-   destruct (int_abs Int nat y) as [x1 o0].
+   destruct (int_abs Int nat x) as [x0 o], (int_abs Int nat y) as [x1 o0].
    assert (x0 * x1 == 0) as U.
     apply (injective (naturals_to_semiring _ _)).
     rewrite preserves_mult, preserves_0.
     rewrite <- ring_opp_mult_opp.
-    destruct o; destruct o0; rewrite H1, H2...
+    destruct o, o0; rewrite H1, H2...
       rewrite ring_opp_mult_opp, E. ring.
      rewrite <- ring_distr_opp_mult, E. ring.
     transitivity (-(x * y)). ring. rewrite E...
