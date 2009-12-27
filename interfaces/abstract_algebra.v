@@ -88,23 +88,29 @@ Class Ralgebra `(e: Equiv Scalar) `(e': Equiv Elem) `{RalgebraAction Scalar Elem
 Definition is_derivation `{Ralgebra Scalar Elem} (f: Elem -> Elem): Prop :=
   True. (* something *)
 
-Class Category O (A: O -> O -> Type) {Oe: Equiv O} {Ae: forall x y, Equiv (A x y)} `{CatId O A} `{cc: CatComp O A}: Type :=
-  { Oe_equiv:> Equivalence Oe
-      (* Hm, not strictly needed here. does make the quotient construction rather easy. But shouldn't we now have a morphism for A? *)
-  ; Ae_equiv:> forall x y, Equivalence (Ae x y)
-  ; comp_proper: forall x y z, Proper (equiv ==> equiv ==> equiv)%signature (@cc x y z)
+Class Category O (A: O -> O -> Type) {e: forall x y, Equiv (A x y)} `{CatId O A} `{cc: CatComp O A}: Type :=
+  { arrow_equiv:> forall x y: O, Equivalence (@equiv _ (e x y))
+  ; comp_proper:> forall x y z: O, Proper (equiv ==> equiv ==> equiv)%signature (@comp _ _ _ x y z)
   ; comp_assoc: forall w x y z (a: A w x) (b: A x y) (c: A y z),
       equiv (comp c (comp b a)) (comp (comp c b) a)
   ; id_l: forall x y (a: A y x), equiv (comp cat_id a) a
   ; id_r: forall x y (a: A x y), equiv (comp a cat_id) a
   }.
 
+Implicit Arguments comp_assoc [[O] [A] [e] [H] [cc] [Category] [w] [x] [y] [z]].
+
 (* Morphism classes: *)
+
+Class Setoid_Morphism `{Aeq: Equiv A} `{Beq: Equiv B} (f: A -> B) :=
+  { setoidmod_a: Equivalence Aeq
+  ; setoidmod_b: Equivalence Beq
+  ; sm_proper:> Proper (equiv ==> equiv) f
+  }.
 
 Class SemiGroup_Morphism {A B Aeq Beq Aop Bop} (f: A -> B) :=
   { a_sg: @SemiGroup A Aeq Aop
   ; b_sg: @SemiGroup B Beq Bop
-  ; sg_mor_op_proper:> Proper (Aeq ==> Beq) f
+  ; sg_mor_op_proper:> Setoid_Morphism f (* todo: rename *)
   ; preserves_sg_op: forall a a': A, f (a & a') == f a & f a' }.
 
 Class Monoid_Morphism {A B Ae Be Aunit Bunit Amult Bmult} (f: A -> B) :=
@@ -133,3 +139,23 @@ Class Ring_Morphism {A B Ae Aplus Amult Aopp Azero Aone Be Bplus Bmult Bopp Bzer
 
   (* The structure instance fields in the morphism classed used to be coercions, but
    that ultimately caused too much problems. *)
+
+(* todo: move what follows *)
+
+Instance: forall T (e: Equiv T), Equivalence e -> @Setoid_Morphism T e T e id.
+Proof. constructor; apply _. Qed.
+
+Instance compose_setoid_morphisms (A B C: Type)
+  `{!Equiv A} `{!Equiv B} `{!Equiv C} (f: A -> B) (g: B -> C)
+  `{!Setoid_Morphism f} `{!Setoid_Morphism g}: Setoid_Morphism (g ∘ f).
+Proof.
+ intros A B C Ae Be Ce f g P Q.
+ constructor.
+   destruct P. apply _.
+  destruct Q. apply _.
+ repeat intro.
+ unfold compose.
+ do 2 apply sm_proper.
+ assumption.
+Qed.
+

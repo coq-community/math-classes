@@ -257,13 +257,13 @@ Instance yada `{Ring R}: Ring_Morphism (integers_to_ring Z R).
 Qed.
 
 Lemma initial: categories.proves_initial (fun x =>
-   @ring_as_ua.arrow_from_morphism_from_instance_to_object Z _ _ _ _ _ _ _ x _
-     (@map_Z_ring_mor _ _ _ _ _ _ _ (ring_as_ua.from_object x))).
+   @varieties.ring.arrow_from_morphism_from_instance_to_object Z _ _ _ _ _ _ _ x _
+     (@map_Z_ring_mor _ _ _ _ _ _ _ (varieties.ring.from_object x))).
 Proof.
   intros y [x h] [].
-  unfold ring_as_ua.arrow_from_morphism_from_instance_to_object. intro. simpl in *.
-  apply (@same_morphism (y tt) _ _ _ _ _ _ (ring_as_ua.from_object y) (x tt)).
-  apply (@ring_as_ua.morphism_from_ua Z _ y _ _ _ x h _ (ring_as_ua.from_object y)).
+  unfold varieties.ring.arrow_from_morphism_from_instance_to_object. intro. simpl in *.
+  apply (@same_morphism (y tt) _ _ _ _ _ _ (varieties.ring.from_object y) (x tt)).
+  apply (@varieties.ring.morphism_from_ua Z _ y _ _ _ x h _ (varieties.ring.from_object y)).
 Qed.
 
 Global Instance stdZ_Integers: Integers Z.

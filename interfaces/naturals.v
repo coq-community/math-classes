@@ -1,7 +1,9 @@
 Require Import
  Relation_Definitions Morphisms
- abstract_algebra theory.semiring_as_ua theory.categories
+ abstract_algebra theory.categories
  orders.semigroup.
+Require
+ varieties.semiring.
 
 Section initial_maps.
   Variable A: Type.
@@ -15,8 +17,8 @@ Class Naturals A {e plus mult zero one} `{NaturalsToSemiRing A} :=
   { naturals_ring:> @SemiRing A e plus mult zero one
   ; naturals_to_semiring_mor:> forall `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
   ; naturals_to_semiring_arrow := (fun x =>
-        @semiring_as_ua.arrow_from_morphism_from_instance_to_object A _ _ _ _ _ _ x (naturals_to_semiring A (x tt))
-           (@naturals_to_semiring_mor (x tt) _ _ _ _ _ (semiring_as_ua.from_object x)) )
+        @varieties.semiring.arrow_from_morphism_from_instance_to_object A _ _ _ _ _ _ x (naturals_to_semiring A (x tt))
+           (@naturals_to_semiring_mor (x tt) _ _ _ _ _ (varieties.semiring.from_object x)) )
   ; naturals_initial: proves_initial naturals_to_semiring_arrow }.
 
 Implicit Arguments naturals_to_semiring_mor [[e] [plus] [mult] [zero] [one] [H] [Naturals] [e0] [plus0] [mult0] [zero0] [one0] [H0]].

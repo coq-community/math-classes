@@ -33,7 +33,7 @@ Instance: SemiGroup nat (op:=plus).
 Instance: SemiGroup nat (op:=mult).
 Instance: Monoid _ (op:=plus) (unit:=0%nat) := { monoid_lunit := Plus.plus_0_l; monoid_runit := Plus.plus_0_r }.
 Instance: Monoid _ (op:=mult) (unit:=1%nat) := { monoid_lunit := Mult.mult_1_l; monoid_runit := Mult.mult_1_r }.
-Instance nat_semiring: !SemiRing nat := { mult_0_l := Mult.mult_0_l }.
+Instance nat_semiring: SemiRing nat := { mult_0_l := Mult.mult_0_l }.
 
 (* misc *)
 Global Instance: forall x y: nat, Decision (x == y) := Peano_dec.eq_nat_dec.
@@ -85,12 +85,12 @@ End contents.
 End for_another_semiring.
 
 Lemma initial: categories.proves_initial (fun x =>
-   @semiring_as_ua.arrow_from_morphism_from_instance_to_object nat _  _ _ _ _ _ x _
-    (@for_another_semiring.f_mor _ _ _ _ _ _ (semiring_as_ua.from_object x))).
+   @varieties.semiring.arrow_from_morphism_from_instance_to_object nat _  _ _ _ _ _ x _
+    (@for_another_semiring.f_mor _ _ _ _ _ _ (varieties.semiring.from_object x))).
 Proof.
  intros y [x h] [] a. simpl in *. 
- pose proof (semiring_as_ua.from_object y).
- pose proof (@semiring_as_ua.morphism_from_ua nat nat_equiv y _ _ _ x h _ _ tt).
+ pose proof (varieties.semiring.from_object y).
+ pose proof (@varieties.semiring.morphism_from_ua nat nat_equiv y _ _ _ x h _ _ tt).
  induction a. symmetry. apply preserves_0.
  change (naturals_to_semiring nat (y tt) a + 1 == x tt (1 + a)).
  rewrite IHa, preserves_plus, preserves_1.

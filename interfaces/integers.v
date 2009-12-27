@@ -2,7 +2,9 @@ Set Automatic Introduction.
 
 Require Import
   Relation_Definitions Morphisms Ring
-  abstract_algebra theory.ring_as_ua interfaces.naturals theory.categories.
+  abstract_algebra interfaces.naturals theory.categories.
+Require
+  varieties.ring.
 
 Section integers_to_ring.
 
@@ -19,8 +21,8 @@ Class Integers A {e plus mult opp zero one} `{IntegersToRing A} :=
   { integers_ring:> @Ring A e plus mult opp zero one
   ; integers_to_ring_mor:> forall B `{Ring B}, Ring_Morphism (integers_to_ring A B)
   ; integers_to_ring_arrow := (fun x =>
-        @ring_as_ua.arrow_from_morphism_from_instance_to_object _ _ _ _ _ _ _ _ x (integers_to_ring A (x tt))
-          (@integers_to_ring_mor _ _ _ _ _ _ _ (ring_as_ua.from_object x)) )
+        @varieties.ring.arrow_from_morphism_from_instance_to_object _ _ _ _ _ _ _ _ x (integers_to_ring A (x tt))
+          (@integers_to_ring_mor _ _ _ _ _ _ _ (varieties.ring.from_object x)) )
   ; integers_initial: proves_initial integers_to_ring_arrow }.
 
 Section specializable.

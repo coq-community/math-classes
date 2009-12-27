@@ -24,20 +24,20 @@ End sig.
 
 Section laws.
 
-  Global Instance: RingPlus (Term sig (constant _ tt)) :=
-    fun x => App sig _ _ (App sig _ _ (Op sig plus) x).
-  Global Instance: RingMult (Term sig (constant _ tt)) :=
-    fun x => App sig _ _ (App sig _ _ (Op sig mult) x).
-  Global Instance: RingZero (Term sig (constant _ tt)) := Op sig zero.
-  Global Instance: RingOne (Term sig (constant _ tt)) := Op sig one.
+  Global Instance: RingPlus (Term sig nat (constant _ tt)) :=
+    fun x => App sig _ _ _ (App sig _ _ _ (Op sig _ plus) x).
+  Global Instance: RingMult (Term sig nat (constant _ tt)) :=
+    fun x => App sig _ _ _ (App sig _ _ _ (Op sig _ mult) x).
+  Global Instance: RingZero (Term sig nat (constant _ tt)) := Op sig _ zero.
+  Global Instance: RingOne (Term sig nat (constant _ tt)) := Op sig _ one.
 
-  Local Notation x := (Var sig 0 tt).
-  Local Notation y := (Var sig 1 tt).
-  Local Notation z := (Var sig 2 tt).
+  Local Notation x := (Var sig _ 0%nat tt).
+  Local Notation y := (Var sig _ 1%nat tt).
+  Local Notation z := (Var sig _ 2 tt).
 
   Import notations.
 
-  Inductive Laws: Statement sig -> Prop :=
+  Inductive Laws: EqEntailment sig -> Prop :=
     |e_plus_assoc: Laws (x + (y + z) === (x + y) + z)
     |e_plus_comm: Laws (x + y === y + x)
     |e_plus_0_l: Laws (0 + x === x)
@@ -93,30 +93,32 @@ Section from_object. Variable o: Variety theory.
   Global Instance: RingOne (o tt) := variety_op theory o one.
 
   Definition from_object: SemiRing (o tt).
-  Proof with auto.
+  Proof with simpl; auto.
    repeat (constructor; try apply _); repeat intro.
-               apply (variety_laws theory _ _ e_mult_assoc (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end)).
+               apply (variety_laws theory _ _ e_mult_assoc (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end))...
               apply (variety_propers theory o mult)...
-             apply (variety_laws theory _ _ e_mult_1_l (fun s n => match s with tt => x end)).
+             apply (variety_laws theory _ _ e_mult_1_l (fun s n => match s with tt => x end))...
             pose proof (variety_laws theory _ _ e_mult_comm (fun s n => match s with tt => match n with 0 => x | _ => variety_op theory o one end end)).
-            simpl in H. rewrite H.
-            apply (variety_laws theory _ _ e_mult_1_l (fun s n => match s with tt => x end)).
-           apply (variety_laws theory _ _ e_plus_assoc (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end)).
+            simpl in H. rewrite H...
+            apply (variety_laws theory _ _ e_mult_1_l (fun s n => match s with tt => x end))...
+           apply (variety_laws theory _ _ e_plus_assoc (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end))...
           apply (variety_propers theory o plus)...
-         apply (variety_laws theory _ _ e_plus_0_l (fun s n => match s with tt => x end)).
+         apply (variety_laws theory _ _ e_plus_0_l (fun s n => match s with tt => x end))...
         pose proof (variety_laws theory _ _ e_plus_comm (fun s n => match s with tt => match n with 0 => x | _ => variety_op theory o zero end end)).
-        simpl in H. rewrite H.
-        apply (variety_laws theory _ _ e_plus_0_l (fun s n => match s with tt => x end)).
-       apply (variety_laws theory _ _ e_plus_comm (fun s n => match s with tt => match n with 0 => x | _ => y end end)).
-      apply (variety_laws theory _ _ e_mult_comm (fun s n => match s with tt => match n with 0 => x | _ => y end end)).
-     apply (variety_laws theory _ _ e_distr_l (fun s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end)).
-    apply (variety_laws theory _ _ e_distr_r (fun s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end)).
-   apply (variety_laws theory _ _ e_mult_0_l (fun s n => match s with tt => x end)).
+        simpl in H. rewrite H...
+        apply (variety_laws theory _ _ e_plus_0_l (fun s n => match s with tt => x end))...
+       apply (variety_laws theory _ _ e_plus_comm (fun s n => match s with tt => match n with 0 => x | _ => y end end))...
+      apply (variety_laws theory _ _ e_mult_comm (fun s n => match s with tt => match n with 0 => x | _ => y end end))...
+     apply (variety_laws theory _ _ e_distr_l (fun s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end))...
+    apply (variety_laws theory _ _ e_distr_r (fun s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end))...
+   apply (variety_laws theory _ _ e_mult_0_l (fun s n => match s with tt => x end))...
   Qed.
 
 End from_object.
 
 (* Finally, we can also convert morphism instances and categorical arrows: *)
+
+Require Import categories.ua_variety.
 
 Program Definition arrow_from_morphism_from_instance_to_object
   A `{SemiRing A} (B: Variety theory) (f: A -> B tt) {fmor: SemiRing_Morphism f}: Arrow theory (object A) B
@@ -152,12 +154,12 @@ Section morphism_from_ua.
   Proof.
    destruct u.
    pose proof (@preserves sig (fun _ => _) R1 (fun _ => e0) e1 _ _ f _).
+   destruct H2.
    repeat (constructor; try apply _).
-        apply (@homo_proper sig (fun _ => _) _ (fun _ => _) _ _ _ f _).
-       apply (H3 plus).
-      apply (H3 zero).
-     apply (@homo_proper sig (fun _ => _) _ (fun _ => _) _ _ _ f _).
+      apply (H3 plus).
+     apply (H3 zero).
     apply (H3 mult).
    apply (H3 one).
   Qed.
+
 End morphism_from_ua.

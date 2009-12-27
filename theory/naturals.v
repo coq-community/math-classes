@@ -11,9 +11,9 @@ Lemma to_semiring_unique `{Naturals N} SR `{SemiRing SR} (f: N -> SR) {h: SemiRi
  forall x, f x == naturals_to_semiring N SR x.
 Proof.
  intros.
- set (@semiring_as_ua.arrow_from_morphism_from_instance_to_object N _ _ _ _ _ _ (semiring_as_ua.object SR) f h).
+ set (@varieties.semiring.arrow_from_morphism_from_instance_to_object N _ _ _ _ _ _ (varieties.semiring.object SR) f h).
  symmetry.
- apply (naturals_initial (semiring_as_ua.object SR) a tt x).
+ apply (naturals_initial (varieties.semiring.object SR) a tt x).
 Qed.
 
 Lemma to_semiring_unique' `{Naturals N} `{SemiRing SR} (f g: N -> SR):
@@ -30,9 +30,9 @@ Lemma to_semiring_involutive A `{Naturals A} B `{Naturals B}: forall a: A,
  naturals_to_semiring B A (naturals_to_semiring A B a) == a.
 Proof.
  intros.
- pose proof (@naturals_initial A _ _ _ _ _ _ _ (semiring_as_ua.object A) cat_id tt a).
- set (comp (naturals_to_semiring_arrow B (semiring_as_ua.object A)) (naturals_to_semiring_arrow A (semiring_as_ua.object B))).
- pose proof (@naturals_initial A _ _ _ _ _ _ _ (semiring_as_ua.object A) a0 tt a).
+ pose proof (@naturals_initial A _ _ _ _ _ _ _ (varieties.semiring.object A) cat_id tt a).
+ set (comp (naturals_to_semiring_arrow B (varieties.semiring.object A)) (naturals_to_semiring_arrow A (varieties.semiring.object B))).
+ pose proof (@naturals_initial A _ _ _ _ _ _ _ (varieties.semiring.object A) a0 tt a).
  simpl in *.
  rewrite <- H4.
  assumption.
@@ -95,16 +95,16 @@ Section borrowed_from_nat.
   Qed.
 
   Lemma from_nat_stmt:
-    forall (s : Statement semiring_as_ua.theory) (w : Vars semiring_as_ua.theory (semiring_as_ua.object N)),
-     (forall v : Vars semiring_as_ua.theory (semiring_as_ua.object nat),
-       eval_stmt semiring_as_ua.theory v s) -> eval_stmt semiring_as_ua.theory w s.
+    forall (s : Statement varieties.semiring.theory) (w : Vars varieties.semiring.theory (varieties.semiring.object N) nat),
+     (forall v : Vars varieties.semiring.theory (varieties.semiring.object nat) nat,
+       eval_stmt varieties.semiring.theory v s) -> eval_stmt varieties.semiring.theory w s.
   Proof.
    pose proof (@naturals_initial nat _ _ _ _ _ _ _) as AI.
    pose proof (@naturals_initial N _ _ _ _ _ _ _) as BI.
    intros s w U.
-   apply (transfer_statement semiring_as_ua.theory _ _ _ _
-     (@theory.categories.initials_unique' (Variety semiring_as_ua.theory) (Arrow semiring_as_ua.theory)
-         _ _ _ _ _ _ _ _ _ AI BI)).
+   apply (transfer_statement varieties.semiring.theory _ _ _ _
+     (@theory.categories.initials_unique' (Variety varieties.semiring.theory) (categories.ua_variety.Arrow varieties.semiring.theory)
+         _ _ _ _ _ _ _ _ AI BI)).
    intuition.
   Qed.
 
@@ -114,9 +114,9 @@ Section borrowed_from_nat.
   Let two_vars (_: unit) v := match v with 0%nat => x | _ => y end.
   Let no_vars (_: unit) (v: nat) := 0.
 
-  Local Notation x' := (Var semiring_as_ua.sig 0 tt).
-  Local Notation y' := (Var semiring_as_ua.sig 1 tt).
-  Local Notation z' := (Var semiring_as_ua.sig 2%nat tt).
+  Local Notation x' := (Var varieties.semiring.sig _ 0 tt).
+  Local Notation y' := (Var varieties.semiring.sig _ 1 tt).
+  Local Notation z' := (Var varieties.semiring.sig _ 2%nat tt).
 
   (* Some clever autoquoting tactic might make what follows even more automatic. *)
   (* The ugly [pose proof ... . apply that_thing.]'s are because of Coq bug 2185. *)
@@ -126,6 +126,7 @@ Section borrowed_from_nat.
    intros u v w.
    pose proof (from_nat_stmt (x' + y' === x' + z' -=> y' === z')
      (fun _ d => match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
+   simpl in P.
    apply P. intro. simpl. apply Plus.plus_reg_l.
   Qed.
 

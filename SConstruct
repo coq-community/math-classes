@@ -13,7 +13,8 @@ while nodes:
     dirs += [node]
     nodes += glob.glob(node + '/*')
 
-Rs = ' -R interfaces interfaces -R theory theory -R orders orders '
+Rs = ' -R interfaces interfaces -R theory theory -R orders orders -R varieties varieties -R categories categories '
+  # Todo: This doesn't scale. Find a better approach.
 Rs_and_Is = Rs + ' -I implementations -I misc '
 
 coqc = 'coqc ' + Rs_and_Is + ' $SOURCE'
@@ -31,4 +32,4 @@ for node in vs:
 os.system('coqdep ' + Rs_and_Is + ' '.join(vs) + ' > deps')
 ParseDepends('deps')
 
-Default(['implementations', 'theory'])
+Default(['implementations', 'theory', 'categories', 'orders', 'varieties'])

@@ -190,6 +190,7 @@ Section for_another_ring.
   Let preserves_inv x: integers_to_ring Z R (- x) == - integers_to_ring Z R x.
   Proof. derive_preservation. Qed.
 
+  Instance: Setoid_Morphism (integers_to_ring Z R).
   Instance: SemiGroup_Morphism (integers_to_ring Z R) := { preserves_sg_op := inject_preserves_plus }.
   Instance: @SemiGroup_Morphism _ _ _ _ ring_mult ring_mult (integers_to_ring Z R) := { preserves_sg_op := preserves_mult }.
   Instance: @Monoid_Morphism _ _ _ _ (0:Z) (0:R) ring_plus ring_plus (integers_to_ring Z R) := { preserves_mon_unit := preserves_0 }.
@@ -227,13 +228,13 @@ Section for_another_ring.
 End for_another_ring.
 
 Lemma initial: categories.proves_initial (fun x =>
-   @ring_as_ua.arrow_from_morphism_from_instance_to_object Z _ _ _ _ _ _ _ x _
-     (@inject_mor _ _ _ _ _ _ _ (ring_as_ua.from_object x))).
+   @varieties.ring.arrow_from_morphism_from_instance_to_object Z _ _ _ _ _ _ _ x _
+     (@inject_mor _ _ _ _ _ _ _ (varieties.ring.from_object x))).
 Proof.
   intros y [x h] [].
-  unfold ring_as_ua.arrow_from_morphism_from_instance_to_object. intro. simpl in *.
-  apply (@agree (y tt) _ _ _ _ _ _ (ring_as_ua.from_object y) (x tt)).
-  apply (@ring_as_ua.morphism_from_ua Z _ y _ _ _ x h _ (ring_as_ua.from_object y)).
+  unfold varieties.ring.arrow_from_morphism_from_instance_to_object. intro. simpl in *.
+  apply (@agree (y tt) _ _ _ _ _ _ (varieties.ring.from_object y) (x tt)).
+  apply (@varieties.ring.morphism_from_ua Z _ y _ _ _ x h _ (varieties.ring.from_object y)).
 Qed.
 
 Global Instance: Integers Z.

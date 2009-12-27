@@ -16,9 +16,9 @@ Lemma iso_ints `{Integers A} B `{Integers B}: forall a: A,
   integers_to_ring B A (integers_to_ring A B a) == a.
 Proof with auto.
  intros.
- pose proof (@integers_initial A _ _ _ _ _ _ _ _ (ring_as_ua.object A) cat_id tt a).
- set (comp (integers_to_ring_arrow (ring_as_ua.object A)) (integers_to_ring_arrow (ring_as_ua.object B))).
- pose proof (@integers_initial A _ _ _ _ _ _ _ _ (ring_as_ua.object A) a0 tt a).
+ pose proof (@integers_initial A _ _ _ _ _ _ _ _ (varieties.ring.object A) cat_id tt a).
+ set (comp (integers_to_ring_arrow (varieties.ring.object A)) (integers_to_ring_arrow (varieties.ring.object B))).
+ pose proof (@integers_initial A _ _ _ _ _ _ _ _ (varieties.ring.object A) a0 tt a).
  simpl in *.
  rewrite <- H4...
 Qed.
@@ -36,8 +36,8 @@ Section contents.
    forall x, f x == integers_to_ring Int R x.
   Proof.
    intros. symmetry.
-   set (a := @ring_as_ua.arrow_from_morphism_from_instance_to_object Int _ _ _ _ _ _ _ (ring_as_ua.object R) f h).
-   apply (integers_initial (ring_as_ua.object R) a tt x).
+   set (a := @varieties.ring.arrow_from_morphism_from_instance_to_object Int _ _ _ _ _ _ _ (varieties.ring.object R) f h).
+   apply (integers_initial (varieties.ring.object R) a tt x).
   Qed.
 
   Lemma integers_to_ring_unique' R `{Ring R} (f g: Int -> R) {h: Ring_Morphism f} {u: Ring_Morphism g}:
@@ -244,6 +244,7 @@ Section preservation. Context `{Integers A} `{Integers B} (f: A -> B) `{!Ring_Mo
 
   Let hint: SemiRing A := _.
   Let hint'': SemiRing_Morphism f := _.
+    (* todo: these shouldn't be necessary *)
 
   Section with_naturals. Context `{Naturals N}.
 
@@ -341,6 +342,6 @@ Section more. Context `{Integers Int}.
    rewrite <- H3.
    rewrite preserves_plus, preserves_plus, preserves_mult.
    ring.
-  Qed.
+  Qed. (* todo: clean up *)
 
 End more.

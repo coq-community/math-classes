@@ -70,6 +70,8 @@ Add Field Q: (theory.fields.stdlib_field_theory Q).
 
 Instance: Proper (equiv ==> equiv) inject_Z. Proof. intros x y H. rewrite H. reflexivity. Qed.
 
+Instance: Setoid_Morphism inject_Z.
+
 Instance: SemiGroup_Morphism inject_Z (Aop:=Zmult) (Bop:=Qmult) := { preserves_sg_op := fun _ _  => refl_equal }.
 
 Instance: SemiGroup_Morphism inject_Z (Aop:=Zplus) (Bop:=Qplus) := { preserves_sg_op := _ }.

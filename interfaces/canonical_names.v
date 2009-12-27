@@ -56,6 +56,8 @@ Class AntiSymmetric `{ea: Equiv A} (R: relation A): Prop := antisymmetry: forall
 Class Distribute `{Equiv A} (f g: A->A->A): Prop :=
   { distribute_l: forall a b c, f a (g b c) == g (f a b) (f a c)
   ; distribute_r: forall a b c, f (g a b) c == g (f a c) (f b c) }.
+Class HeteroSymmetric {A} {T: A -> A -> Type} (R: forall x y, T x y -> T y x -> Prop): Prop :=
+  hetero_symmetric: forall x y (a: T x y) (b: T y x), R _ _ a b -> R _ _ b a.
 
 Implicit Arguments injective [[A] [ea] [B] [eb] [Injective]].
 Implicit Arguments antisymmetry [[A] [ea] [AntiSymmetric]].
