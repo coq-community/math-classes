@@ -4,24 +4,24 @@ Require Import
   Relation_Definitions Morphisms Setoid Program
   abstract_algebra theory.categories.
 
-Record Object :=
-  { obj: Type
-  ; arr: obj -> obj -> Type
-  ; arr_e: forall x y, Equiv (arr x y)
-  ; id_inst: CatId obj arr
-  ; comp_inst: CatComp obj arr
-  ; cat_inst: Category obj arr }.
+Section contents.
 
-Definition object_from_instance X A `{Category X A}: Object := {| obj := X |}.
+  Record Object :=
+    { obj: Type
+    ; arr: obj -> obj -> Type
+    ; arr_e: forall x y, Equiv (arr x y)
+    ; id_inst: CatId obj arr
+    ; comp_inst: CatComp obj arr
+    ; cat_inst: Category obj arr }.
 
-Implicit Arguments arr_e [[x] [y]].
+  Definition object_from_instance X A `{Category X A}: Object := {| obj := X |}.
 
-Existing Instance arr_e.
-Existing Instance id_inst.
-Existing Instance comp_inst.
-Existing Instance cat_inst.
+  Implicit Arguments arr_e [[x] [y]].
 
-Section contents. (* Delayed because there's no [Existing Global Instance]. Todo: Ask mattam why there isn't. *)
+  Global Existing Instance arr_e.
+  Global Existing Instance id_inst.
+  Global Existing Instance comp_inst.
+  Global Existing Instance cat_inst.
 
   Let obj_iso (x: Object): Equiv (obj x) := @iso (obj x) (arr x) _ _ _.
 
@@ -41,8 +41,8 @@ Section contents. (* Delayed because there's no [Existing Global Instance]. Todo
         comp (snd (proj1_sig (X q))) (map_arr b _ _ r').
         (* the other half follows automatically *)
 
-    Existing Instance functor_inst.
-    Existing Instance map_arr_mor.
+    Global Existing Instance functor_inst.
+    Global Existing Instance map_arr_mor.
 
     Let e_refl: Reflexive e.
     Proof.
@@ -107,9 +107,6 @@ Section contents. (* Delayed because there's no [Existing Global Instance]. Todo
     Global Instance: Equivalence e.
 
   End arrows.
-
-  Existing Instance functor_inst.
-  Existing Instance map_arr_mor.
 
   Implicit Arguments map_arr [[x] [y] [v] [w]].
   Implicit Arguments map_obj [[x] [y]].

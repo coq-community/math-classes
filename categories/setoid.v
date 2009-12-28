@@ -16,7 +16,7 @@ Section contents.
 
   Inductive Arrow (A B: Object) := { f:> A -> B; mor: Setoid_Morphism f }.
 
-  Existing Instance mor.
+  Global Existing Instance mor.
 
   Global Instance arr_eq A B: Equiv (Arrow A B)
     := fun m n => forall x y, x == y -> m x == n y.
@@ -76,5 +76,3 @@ Section contents.
   Qed.
 
 End contents.
-
-Existing Instance mor.

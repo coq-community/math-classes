@@ -15,7 +15,7 @@ Section dec_mult_inv.
   Global Instance dec_mult_inv_proper: Proper (e ==> e) dec_mult_inv.
   Proof with auto.
    unfold dec_mult_inv. intros x y E.
-   destruct (decide (x == 0)) as [? | P]; destruct (decide (y == 0)) as [? | Q].
+   destruct decide as [? | P]; destruct decide as [? | Q].
       reflexivity.
      exfalso. apply Q. rewrite <- E...
     exfalso. apply P. rewrite E...
@@ -41,7 +41,7 @@ Section field_props. Context `{Field F} `{forall x y: F, Decision (x == y)}.
    intros.
    rewrite commutativity.
    unfold dec_mult_inv.
-   destruct (decide (p == 0)). intuition.
+   destruct decide. intuition.
    apply mult_inverse'.
   Qed.
 

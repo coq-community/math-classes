@@ -87,10 +87,11 @@ Section borrowed_from_nat.
    intros.
    rewrite <- (to_semiring_involutive _ nat n).
    pose proof (naturals_to_semiring_mor nat _).
-   induction (naturals_to_semiring _ nat n).
+   set (m := naturals_to_semiring _ nat n). (* This [set] is suddenly needed in 12609... Todo: File a ticket. *)
+   induction m.
     change (P (naturals_to_semiring nat _ (0:nat))).
     rewrite preserves_0...
-   change (P (naturals_to_semiring nat _ (1 + n0))).
+   change (P (naturals_to_semiring nat _ (1 + m))).
    rewrite preserves_plus, preserves_1...
   Qed.
 
@@ -197,8 +198,7 @@ End borrowed_from_nat.
 
   Next Obligation.
    intros.
-   destruct (nat_distance (naturals_to_semiring N nat x) (naturals_to_semiring N nat y)). simpl.
-    (* for some reason plain [destruct nat_distance] doesn't work here *)
+   destruct nat_distance. simpl.
    destruct o; [left | right].
     rewrite <- (to_semiring_involutive N nat y).
     rewrite <- H1.

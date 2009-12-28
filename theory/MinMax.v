@@ -37,7 +37,7 @@ Section contents.
     Context `{!TotalOrder precedes} `{!PartialOrder precedes}.
 
     Lemma max_comm (x y: A): max x y == max y x.
-    Proof. intros. unfold max, sort. destruct (decide (x <= y)); destruct (decide (y <= x)); firstorder. Qed.
+    Proof. intros. unfold max, sort. destruct decide; destruct decide; firstorder. Qed.
 
     Lemma max_ub_r (x y: A): y <= max x y.
     Proof. intros. rewrite max_comm. apply max_ub_l. Qed.

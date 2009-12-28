@@ -249,7 +249,7 @@ Next Obligation.
 Proof.
  rewrite NtoZ_uniq. destruct d.
  unfold equiv, z_equiv. simpl. 
- destruct (nat_distance pos0 neg0). simpl.
+ destruct nat_distance. simpl.
  destruct o as [A|A]; [right | left]; rewrite <- A; ring.
 Qed.
 

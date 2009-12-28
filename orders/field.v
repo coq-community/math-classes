@@ -25,7 +25,7 @@ Section decfield_order. Context `{Field F} `{forall x y: F, Decision (x == y)}.
   Qed.
 
   Global Instance field_precedes_reflexive: Reflexive field_precedes.
-  Proof. intro. exists 0, 0. rewrite preserves_0. ring. Qed.
+  Proof. intro. exists (0:nat), (0:nat). rewrite preserves_0. ring. Qed.
 
   (* field_precedes can actually only happen if the denominator is nonzero: *)
 
@@ -35,7 +35,7 @@ Section decfield_order. Context `{Field F} `{forall x y: F, Decision (x == y)}.
   Proof with auto.
    intros [x0 [x1 H1]].
    destruct x1.
-    exists 0, 1.
+    exists (0:nat), (1:nat).
     split. discriminate.
     change (x + naturals_to_semiring nat F x0 * / naturals_to_semiring nat F 0 == y) in H1.
     fold 0 in H1.
@@ -53,7 +53,7 @@ Section decfield_order. Context `{Field F} `{forall x y: F, Decision (x == y)}.
       x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den == y.
   Proof with auto.
    intros [x0 [[|x1] E]].
-    exists 0, 1.
+    exists (0:nat), (1:nat).
     rewrite preserves_1, preserves_0.
     split. intro. apply field_0neq1. symmetry...
     change (x + naturals_to_semiring nat F x0 * / naturals_to_semiring nat F 0 == y) in E.

@@ -59,7 +59,7 @@ Section with_atomic. Variable Atomic: Set.
       | function A g => fun x y => forall i j, he _ i j -> F g (x i) (y j) (*(e A ==> F g)%signature*)
       end.
 
-    Existing Instance op_type_equiv.
+    Global Existing Instance op_type_equiv.
 
     (* op_type_equiv is /almost/ an equivalence relation. Note that it is /not/ readily reflexive. *)
 
@@ -93,8 +93,6 @@ Section with_atomic. Variable Atomic: Set.
     Qed.
 
   End with_atomic_inter.
-
-  Existing Instance op_type_equiv.
 
   Section map_op.
 
@@ -131,8 +129,6 @@ Section with_atomic. Variable Atomic: Set.
   Qed.
 
 End with_atomic.
-
-Existing Instance op_type_equiv.
 
 Inductive Signature: Type :=
   { sign_op:> Set
