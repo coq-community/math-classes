@@ -262,6 +262,17 @@ Section for_signature. Variable sign: Signature.
 
   End Vars.
 
+  Definition no_vars x: Vars x False := fun _ => False_rect _.
+
+  (* Given an assignment mapping variables to closed terms, we can close open terms: *)
+
+  Fixpoint close {V} {o} (v: Vars (fun x => Term False (constant _ x)) V) (t: Term V o): Term False o :=
+    match t in Term _ o return Term False o with
+    | Var x y => v y x
+    | App x y z r => App _ x y (close v z) (close v r)
+    | Op o => Op _ o
+    end.
+
   Section eval.
 
     Context

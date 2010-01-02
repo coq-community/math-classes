@@ -1,7 +1,7 @@
 Set Automatic Introduction.
 
 Require Import
-  RelationClasses List Morphisms
+  RelationClasses Relation_Definitions List Morphisms
   universal_algebra abstract_algebra canonical_names
   theory.categories.
 Require categories.ua_variety.
@@ -14,27 +14,27 @@ Section contents. Variable et: EquationalTheory.
    For this we simply take universal_algebra's Term type, but exclude variables by taking False
    as the variable index type: *)
 
-  Let Term := Term et False.
-  Let Term0 a := Term (constant _ a).
+  Let ClosedTerm := Term et False.
+  Let ClosedTerm0 a := ClosedTerm (constant _ a).
 
   (* Operations are implemented as App-tree builders, so that [o a b] yields [App (App (Op o) a) b]. *)
 
-  Fixpoint app_tree {o}: Term o -> op_type Term0 o :=
+  Fixpoint app_tree {o}: ClosedTerm o -> op_type ClosedTerm0 o :=
     match o with
     | constant _ => id
     | function _ _ => fun x y => app_tree (App _ _ _ _ x y)
     end.
   
-  Instance: Implementation et Term0 := fun x => app_tree (Op _ _ x).
+  Instance: Implementation et ClosedTerm0 := fun x => app_tree (Op _ _ x).
 
   (* We define term equivalence on all operation types: *)
 
-  Inductive e: forall o, Equiv (Term o) :=
+  Inductive e: forall o, Equiv (ClosedTerm o) :=
     | e_refl o: Reflexive (e o)
     | e_trans o: Transitive (e o)
     | e_sym o: Symmetric (e o)
     | e_sub o h x y a b: e _ x y -> e _ a b -> e _ (App _ _ h o x a) (App _ _ h o y b) 
-    | e_law (s: EqEntailment et): et_laws et s -> forall (v: Vars et Term0 nat),
+    | e_law (s: EqEntailment et): et_laws et s -> forall (v: Vars et ClosedTerm0 nat),
       (forall x, In x (entailment_premises _ s) -> e _ (eval et v (fst (projT2 x))) (eval et v (snd (projT2 x)))) ->
         e _ (eval et v (fst (projT2 (entailment_conclusion _ s)))) (eval et v (snd (projT2 (entailment_conclusion _ s)))).
 
@@ -45,7 +45,7 @@ Section contents. Variable et: EquationalTheory.
 
   (* .. and then take the specialization at arity 0 for Term0: *)
 
-  Instance e0: forall a, Equiv (Term0 a) := fun a => e (constant _ a).
+  Instance e0: forall a, Equiv (ClosedTerm0 a) := fun a => e (constant _ a).
 
   (* e (and hence e0) is an equivalence relation by definition: *)
 
@@ -55,6 +55,16 @@ Section contents. Variable et: EquationalTheory.
   Instance: forall a, Equivalence (e0 a).
   Proof. unfold e0. intro. apply _. Qed.
 
+  (* While this fancy congruence is the one we'll use to make our initial object a setoid,
+   in our proofs we will also need to talk about extensionally equal closed term
+   builders (i.e. terms of type [op_type ClosedTerm0 a] for some a), where we use /Leibniz/ equality
+   on closed terms: *)
+
+  Let structural_eq a: relation _ := @op_type_equiv (sorts et) ClosedTerm0 (fun _ => eq) a.
+
+  Instance structural_eq_refl a: Reflexive (structural_eq a).
+  Proof. induction a; repeat intro. reflexivity. subst. apply IHa. Qed.
+
   (* The implementation is proper: *)
 
   Instance app_tree_proper: forall o, Proper (equiv ==> equiv)%signature (@app_tree o).
@@ -63,13 +73,12 @@ Section contents. Variable et: EquationalTheory.
    apply IHo, e_sub...
   Qed.
 
-  Instance: Propers et Term0.
+  Instance: Propers et ClosedTerm0.
   Proof. intro. apply app_tree_proper. reflexivity. Qed.
 
   (* Better still, the laws hold: *)
 
-  Lemma laws_hold s (L: et_laws et s):
-    forall vars, @eval_stmt _ _ _ _ vars s.
+  Lemma laws_hold s (L: et_laws et s): forall vars, eval_stmt _ vars s.
   Proof with simpl in *; intuition.
    intros.
    rewrite boring_eval_entailment.
@@ -80,234 +89,128 @@ Section contents. Variable et: EquationalTheory.
 
   (* And with that, we have our object: *)
 
-  Definition v: Variety et := MkVariety et Term0 _ _ _ _ laws_hold.
+  Definition the_object: Variety et := MkVariety et ClosedTerm0 _ _ _ _ laws_hold.
 
-  (* To show initiality, we begin by constructing arrows to arbitrary other objects: *)
+  (* To show its initiality, we begin by constructing arrows to arbitrary other objects: *)
 
-  Section for_another_object.
+  Section for_another_object. Variable other: Variety et.
 
-    Variable w: Variety et.
+    (* Computationally, the arrow simply evaluates closed terms in the other
+     model. For induction purposes, we first define this for arbitrary op_types: *)
 
-    (* We can evaluate terms of arbitrary optype in w: *)
+    Definition eval_in_other {o}: ClosedTerm o -> op_type other o := @eval et other _ False o (no_vars _ other).
 
-    Definition novars: forall x, Vars et x False.
-     unfold Vars.
-     intuition.
-    Defined.
+    Definition morph a: the_object a -> other a := eval_in_other.
 
-    Definition eval_nocst {o}: Term o -> op_type w o := @eval et w _ False o (novars w).
+    (* Given an assignment mapping variables to closed terms of arity 0, we can now
+     evaluate open terms in the other model in two ways: by first closing it and then
+     evaluating the closed term using eval_in_other, or by evaluating it directly but
+     with variable lookup implemented in terms of eval_in_other. We now show that
+     these two ways yield the same result, thanks to proper-ness of the algebra's
+     operations: *)
 
-    Fixpoint subst {o} (v: Vars et Term0 nat) (t: universal_algebra.Term et nat o): Term o :=
-      match t with
-      | Var x y => v y x
-      | App x y z r => App _ _ x y (subst v z) (subst v r)
-      | Op o => Op _ _ o
-      end.
-
-    Lemma subst_eval o (v: Vars et Term0 nat) (t: universal_algebra.Term _ _ o):
-      @eval _ w _ _ _ (fun x y => eval_nocst (v x y)) t ==
-      eval_nocst (subst v t).
+    Lemma subst_eval o V (v: Vars _ ClosedTerm0 _) (t: Term _ V o):
+      @eval _ other _ _ _ (fun x y => eval_in_other (v x y)) t ==
+      eval_in_other (close _ v t).
     Proof with auto.
-     set (fun x y => eval_nocst (v0 x y)).
-     induction t.
-       simpl.
+     induction t; simpl.
        reflexivity.
-      simpl.
-      apply IHt1.
-      assumption.
-     simpl.
-     unfold op.
-     apply (variety_propers _ w).
-    Qed.
+      apply IHt1...
+     apply (variety_propers _ other).
+    Qed. (* todo: rename *)
 
-    Fixpoint gel {o}: op_type Term0 o -> Term o -> Prop :=
-      match o with
-      | constant a => fun x y => x = y
-      | function d _ => fun x y => forall z: Term0 _, @gel _ (x z) (App _ _ _ _ y z)
-      end.
+    (* On the side of the_object, evaluating a term of arity 0 is the same as closing it: *)
 
-    Lemma gel_impl_term a (t: Term a): gel (app_tree t) t.
-    Proof.
-     induction a; simpl. reflexivity.
-     intros. apply IHa.
-    Qed.
-
-    Lemma subst_eval'
-     (x : sorts et)
-     (t : universal_algebra.T0 et x)
-     (v0 : Vars et Term0 nat):
-      eval et v0 t = subst v0 t.
-    Proof.
+    Lemma eval_is_close V x v (t: Term0 et V x): eval et v t = close _ v t.
+    Proof with auto; try reflexivity.
      pattern x, t.
-     apply applications_ind.
-       simpl.
-       intros.
-       apply H0.
-       assumption.
-      simpl.
-      intros.
-      reflexivity.
-     intros.
-     assert (gel (eval et v0 (Op et nat o)) (subst v0 (Op et nat o))).
-      simpl.
-      apply gel_impl_term.
-     revert H.
-     generalize (Op et nat o).
+     apply applications_ind; simpl...
      intro.
-     induction (et o).
-      simpl.
-      intro.
-      assumption.
-     simpl.
-     intros.
-     apply IHo0.
-     simpl.
-     rewrite H0.
-     apply H.
-    Qed.
-
-    Lemma prep_eval (x: sorts et) (t: universal_algebra.T0 et x) (v0: Vars et Term0 nat):
-      eval_nocst (eval et v0 t) == 
-      @eval _ w _ _ _ (fun x y => eval_nocst (v0 x y)) t.
-    Proof.
-     rewrite subst_eval.
-     rewrite (subst_eval' x t v0).
+     cut (@equiv _ (structural_eq _) (app_tree (close _ v (Op et _ o))) (eval et v (Op et _ o))).
+      generalize (Op et V o).
+      induction (et o); simpl...
+      intros ? H ? E. apply IHo0. simpl. rewrite E. apply H...
      reflexivity.
     Qed.
 
-    Definition morph a: v a -> w a := @eval_nocst _.
+    (* And with those two somewhat subtle lemmas, we show that eval_in_other is a setoid morphism: *)
 
-    Instance prep_proper: Proper (equiv ==> equiv) (@eval_nocst o).
-    Proof.
-     intro.
-     intro.
-     intro.
-     intro.
-     induction H.
-         induction x.
-           intuition.
-          simpl.
-          apply IHx1.
-          assumption.
-         simpl.
-         apply (variety_propers _ w o).
-       transitivity (eval_nocst y); assumption.
-       symmetry. assumption.
-      simpl.
-      apply IHe1.
-      assumption.
-     simpl.
-     unfold Vars in v0.
-     pose proof (variety_laws et w s H (fun a n => eval_nocst (v0 a n))).
+    Instance prep_proper: Proper (equiv ==> equiv) (@eval_in_other o).
+    Proof with intuition.
+     intros o x y H.
+     induction H; simpl...
+        induction x; simpl...
+         apply IHx1...
+        apply (variety_propers _ other o).
+       transitivity (eval_in_other y)...
+      apply IHe1...
+     unfold Vars in v.
+     pose proof (variety_laws et other s H (fun a n => eval_in_other (v a n))) as Q.
      clear H.
      destruct s.
+     rewrite boring_eval_entailment in Q.
      simpl in *.
-     rewrite boring_eval_entailment in H2.
-     simpl in H2.
-     rewrite prep_eval.
-     rewrite prep_eval.
-     apply H2. clear H2.
-     clear entailment_conclusion.
-     induction entailment_premises.
-      simpl. auto.
-     simpl in *.
-     split; try intuition.
-     clear IHentailment_premises.
-     rewrite <- prep_eval.
-     rewrite <- prep_eval.
-     apply H1.
-     left.
+     do 2 rewrite eval_is_close.
+     do 2 rewrite <- subst_eval.
+     apply Q. clear Q.
+     induction entailment_premises; simpl...
+     do 2 rewrite subst_eval.
+     do 2 rewrite <- eval_is_close...
+    Qed.
+
+    Instance: forall a, Setoid_Morphism (@eval_in_other (constant _ a)).
+    Proof. intro. constructor; try apply _. Qed.
+
+    (* Furthermore, we can show preservation of operations, giving us a homomorphism (and an arrow): *)
+
+    Instance: @HomoMorphism et ClosedTerm0 other _ (variety_equiv et other) _ _ (fun _ => eval_in_other).
+    Proof with intuition.
+     constructor; intro. apply _.
+     change (Preservation et ClosedTerm0 other (fun _ => eval_in_other) (app_tree (Op _ _ o)) (variety_op _ other o)).
+     generalize (variety_propers _ other o: eval_in_other (Op _ _ o) == variety_op _ other o).
+     generalize (Op _ False o) (variety_op et other o).
+     induction (et o)...
+     simpl. intro. apply IHo0, H.
      reflexivity.
     Qed.
 
-    Instance prep_mor: forall a, Setoid_Morphism (@eval_nocst (constant _ a)).
-     intro.
-     constructor; try apply _.
-    Qed.
+    Program Definition the_arrow: ua_variety.Arrow et the_object other := fun _ => eval_in_other.
 
-    Instance homo: @HomoMorphism et Term0 w _ (variety_equiv et w) _ _ (fun _ => eval_nocst).
-     constructor.
-      intro. apply prep_mor.
-     unfold op.
-     unfold Implementation_instance_0.
-     simpl.
-     intro.
-     assert (eval_nocst (Op _ _ o) == variety_op _ w o).
-      simpl.
-      apply (variety_propers _ w o).
-     revert H.
-     generalize (Op _ False o).
-     generalize (variety_op et w o).
-     intros.
-     induction (et o).
-      simpl.
-      assumption.
-     simpl.
-     intros.
-     apply IHo1.
-     simpl.
-     apply H.
-     reflexivity.
-    Qed.
+    (* All that remains is to show that this arrow is unique: *)
 
-    Program Definition bla: ua_variety.Arrow et v w := fun _ => eval_nocst.
-
-    Definition uniq: forall y, bla == y.
-     intro.
-     unfold equiv.
-     unfold ua_variety.e.
+    Theorem arrow_unique: forall y, the_arrow == y.
+    Proof with auto; try intuition.
+     unfold equiv, ua_variety.e.
      simpl.
      unfold Morphisms.pointwise_relation.
-     intros.
-     destruct y.
+     intros [x h] b a.
      simpl in *.
      pattern b, a.
-     apply applications_ind.
-       simpl.
-       intros.
-       apply H0.
-       assumption.
-      intuition.
+     apply applications_ind...
      intros.
-     pose proof (@preserves et Term0 w _ _ _ _ x h o).
-     unfold op in H.
-     unfold Implementation_instance_0 in H.
-     change (Preservation et Term0 w x (app_tree (Op _ _ o)) (@eval_nocst _ (Op _ _ o))) in H.
+     pose proof (@preserves et ClosedTerm0 other _ _ _ _ x h o).
+     change (Preservation et ClosedTerm0 other x (app_tree (Op _ _ o)) (@eval_in_other _ (Op _ _ o))) in H.
      revert H.
      generalize (Op _ False o).
-     intros t H.
-     induction (et o).
-      simpl.
-      symmetry.
-      assumption.
-     simpl.
+     induction (et o); simpl.
+      symmetry...
      intros.
      apply IHo0.
-     clear IHo0.
-     simpl in H.
-     simpl.
-     assert (app_tree (App _ _ o0 a0 t v0) == app_tree (App _ _ o0 a0 t v0)).
-      apply app_tree_proper.
-      unfold equiv.
-      reflexivity.
-     apply (@Preservation_proper et Term0 w _ _ _ _ x h _ _ o0
-      (app_tree (App _ _ o0 a0 t v0)) (app_tree (App _ _ o0 a0 t v0)) H1
-      (eval_nocst t (eval_nocst v0)) (eval_nocst t (x a0 v0))).
+     simpl in *.
+     assert (app_tree (App _ _ o0 a0 t v) == app_tree (App _ _ o0 a0 t v)).
+      apply app_tree_proper...
+     apply (@Preservation_proper et ClosedTerm0 other _ _ _ _ x h _ _ o0
+      (app_tree (App _ _ o0 a0 t v)) (app_tree (App _ _ o0 a0 t v)) H1
+      (eval_in_other t (eval_in_other v)) (eval_in_other t (x a0 v))).
       2: apply H.
-     pose proof (@prep_proper _ t t (reflexivity _)).
-     apply H2.
-     assumption.
-    Qed.
+     pose proof (@prep_proper _ t t (reflexivity _))... (* todo: why doesn't rewrite work here? *)
+    Qed. (* todo: needs further cleanup *)
 
   End for_another_object.
 
-  Lemma the: @proves_initial (Variety et) (ua_variety.Arrow et) _ v bla.
-   unfold proves_initial.
-   intro.
-   apply uniq.
-  Qed.
+  Corollary the_proof: proves_initial the_arrow.
+  Proof. unfold proves_initial. intro. apply arrow_unique. Qed.
 
-  (* Todo: This module requires heavy cleanup. *)
   (* Todo: Show decidability of equality (likely quite tricky). Without that, we cannot use any of this to
    get a canonical model of the naturals/integers, because such models must be decidable. *)
 
