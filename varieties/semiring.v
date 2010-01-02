@@ -12,7 +12,7 @@ Section sig.
 
   Import op_type_notations.
 
-  Definition sig: Signature := Build_Signature op unit
+  Definition sig: Signature := Build_Signature unit op
     (fun o => match o with
       | plus => tt -=> tt -=> constant _ tt
       | mult => tt -=> tt -=> constant _ tt
@@ -136,7 +136,7 @@ Section morphism_from_ua.
 
   Context  `{e0: Equiv R0} {R1: unit -> Type} `{e1: forall u, Equiv (R1 u)} `{!Equivalence e0}
     `{forall u, Equivalence (e1 u)}
-    `{Implementation sig (fun _ => R0)} `{Implementation sig R1}
+    `{@Implementation sig (fun _ => R0)} `{@Implementation sig R1}
     (f: forall u, R0 -> R1 u)
       `{!@HomoMorphism sig (fun _ => R0) R1 (fun _ => e0) e1 _ _ f}.
 

@@ -13,8 +13,8 @@ Section contents.
 
   Variable et: EquationalTheory.
 
-  Let TargetObject := productcat.Object (sign_atomics et) (fun _ => setoidcat.Object).
-  Let TargetArrow := productcat.Arrow (sign_atomics et) (fun _ => setoidcat.Object) (fun _ => setoidcat.Arrow).
+  Let TargetObject := productcat.Object (sorts et) (fun _ => setoidcat.Object).
+  Let TargetArrow := productcat.Arrow (sorts et) (fun _ => setoidcat.Object) (fun _ => setoidcat.Arrow).
 
   Definition forget_object (v: Variety et): TargetObject := fun i => @setoidcat.Build_Object (v i) equiv _.
 

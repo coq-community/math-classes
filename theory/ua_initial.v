@@ -8,7 +8,7 @@ Require categories.ua_variety.
 
 Section contents. Variable et: EquationalTheory.
 
-  Let op_type := op_type (sign_atomics et).
+  Let op_type := op_type (sorts et).
 
   (* The initial object will consists of arity-0 terms with a congruence incorporating the variety's laws.
    For this we simply take universal_algebra's Term type, but exclude variables by taking False
@@ -133,13 +133,13 @@ Section contents. Variable et: EquationalTheory.
     Qed.
 
     Lemma subst_eval'
-     (x : sign_atomics et)
-     (t : universal_algebra.Term0 et x)
+     (x : sorts et)
+     (t : universal_algebra.T0 et x)
      (v0 : Vars et Term0 nat):
       eval et v0 t = subst v0 t.
     Proof.
      pattern x, t.
-     apply indu.
+     apply applications_ind.
        simpl.
        intros.
        apply H0.
@@ -166,7 +166,7 @@ Section contents. Variable et: EquationalTheory.
      apply H.
     Qed.
 
-    Lemma prep_eval (x: sign_atomics et) (t: universal_algebra.Term0 et x) (v0: Vars et Term0 nat):
+    Lemma prep_eval (x: sorts et) (t: universal_algebra.T0 et x) (v0: Vars et Term0 nat):
       eval_nocst (eval et v0 t) == 
       @eval _ w _ _ _ (fun x y => eval_nocst (v0 x y)) t.
     Proof.
@@ -262,7 +262,7 @@ Section contents. Variable et: EquationalTheory.
      destruct y.
      simpl in *.
      pattern b, a.
-     apply indu.
+     apply applications_ind.
        simpl.
        intros.
        apply H0.

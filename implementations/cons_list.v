@@ -129,7 +129,7 @@ Section contents.
    simpl in *.
    pose proof (varieties.monoid.from_object y).
    assert (universal_algebra.Implementation varieties.monoid.sig
-    (fun _ : universal_algebra.sign_atomics varieties.monoid.sig => list A)).
+    (fun _ : universal_algebra.sorts varieties.monoid.sig => list A)).
     exact (ua.variety_op _ (varieties.monoid.object (list A))).
    pose proof (@varieties.monoid.morphism_from_ua (list A) _ y _ (ua.variety_op _ (varieties.monoid.object (list A))) (ua.variety_op _ y) x h _ _ tt).
    induction a.

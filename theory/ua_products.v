@@ -8,7 +8,7 @@ Section contents.
 
   Context (et: EquationalTheory) {I: Type} (v: I -> Variety et).
 
-  Let carrier: sign_atomics et -> Type := fun sort => forall i: I, v i sort.
+  Let carrier: sorts et -> Type := fun sort => forall i: I, v i sort.
 
   Instance e sort: Equiv (carrier sort) := fun x y => forall i, x i == y i.
 
@@ -20,8 +20,8 @@ Section contents.
    intros ? y ? ? ? i. transitivity (y i); firstorder.
   Qed.
 
-  Fixpoint rec_impl o: (forall i, op_type (sign_atomics et) (v i) o) -> op_type (sign_atomics et) carrier o :=
-    match o return (forall i, op_type (sign_atomics et) (v i) o) -> op_type (sign_atomics et) carrier o with
+  Fixpoint rec_impl o: (forall i, op_type (sorts et) (v i) o) -> op_type (sorts et) carrier o :=
+    match o return (forall i, op_type (sorts et) (v i) o) -> op_type (sorts et) carrier o with
     | constant _ => id
     | function _ g => fun X X0 => rec_impl g (fun i => X i (X0 i))
     end.
@@ -38,7 +38,7 @@ Section contents.
   Instance proper_implementation: Propers (et_sig et) carrier.
   Proof. intro. apply rec_impl_proper. intro. apply (variety_propers _ (v i)). Qed.
 
-  Fixpoint nqe {t}: op_type (sign_atomics et) carrier t -> (forall i, op_type _ (v i) t) -> Prop :=
+  Fixpoint nqe {t}: op_type (sorts et) carrier t -> (forall i, op_type _ (v i) t) -> Prop :=
    match t with
    | constant x => fun f g => forall i, f i == g i
    | function _ _ => fun f g => forall tuple, nqe (f tuple) (fun i => g i (tuple i))
@@ -61,12 +61,12 @@ Section contents.
    induction term; simpl in *.
      reflexivity.
     set (k := (fun i : I =>
-        eval et (fun (sort : sign_atomics et) (n : nat) => vars sort n i) term1
+        eval et (fun (sort: sorts et) (n : nat) => vars sort n i) term1
           (eval et vars term2 i))).
     cut (nqe (eval et vars term1 (eval et vars term2)) k).
-     set (p := fun i : I => eval et (fun (sort : sign_atomics et) (n : nat) => vars sort n i) term1
-       (eval et (fun (sort : sign_atomics et) (n : nat) => vars sort n i) term2)).
-     assert (op_type_equiv (sign_atomics et) carrier t
+     set (p := fun i : I => eval et (fun (sort : sorts et) (n : nat) => vars sort n i) term1
+       (eval et (fun (sort : sorts et) (n : nat) => vars sort n i) term2)).
+     assert (op_type_equiv (sorts et) carrier t
         (eval et vars term1 (eval et vars term2))
         (eval et vars term1 (eval et vars term2))).
       apply sig_type_refl.
@@ -76,7 +76,7 @@ Section contents.
      subst p k.
      simpl.
      intro.
-     pose proof (eval_proper et _ (fun (sort : sign_atomics et) (n : nat) => vars sort n i) (fun (sort : sign_atomics et) (n : nat) => vars sort n i) (reflexivity _) term1 term1 eq_refl).
+     pose proof (eval_proper et _ (fun (sort : sorts et) (n : nat) => vars sort n i) (fun (sort : sorts et) (n : nat) => vars sort n i) (reflexivity _) term1 term1 eq_refl).
      apply H0.
      apply IHterm2.
     apply IHterm1.
@@ -104,8 +104,8 @@ Section contents.
 
    pose proof (fun i => variety_laws _ _ _ H (fun sort n =>  vars sort n i)). clear H.
    assert (forall i : I, eval_stmt (et_sig et)
-     (fun (sort : sign_atomics (et_sig et)) (n : nat) => vars sort n i)
-     (boring_entailment_as_statement (et_sig et) s)).
+     (fun (sort : sorts (et_sig et)) (n : nat) => vars sort n i)
+     (entailment_as_conjunctive_statement (et_sig et) s)).
     intros.
     rewrite <- boring_eval_entailment.
     apply (H0 i).
@@ -143,7 +143,7 @@ Section contents.
    replace (variety_op _ (v i) o) with (select_op i) by reflexivity.
    clearbody select_op.
    revert select_op.
-   induction (sign_sig (et_sig et) o). simpl. reflexivity.
+   induction (operation_type (et_sig et) o). simpl. reflexivity.
    intros. intro. apply IHo0.
   Qed.
 
@@ -159,7 +159,7 @@ Section contents.
    set (fun i => proj1_sig (component_arrow i)).
    intro.
    change (Preservation (et_sig et) (variety_atomics _ c) carrier
-     (fun (a0 : sign_atomics (et_sig et)) (X : variety_atomics _ c a0) (i : I) =>
+     (fun (a0 : sorts (et_sig et)) (X : variety_atomics _ c a0) (i : I) =>
      v0 i a0 X) (op (et_sig et) o) (op (et_sig et) o)).
    set (fun i => @preserves _ _ _ _ _ _ _ _ (proj2_sig (component_arrow i)) o).
    clearbody p.
@@ -175,7 +175,7 @@ Section contents.
    revert p.
    generalize (variety_op _ c o).
    revert o0.
-   induction (sign_sig (et_sig et) o); simpl; auto.
+   induction (operation_type (et_sig et) o); simpl; auto.
   Qed.
 
   Theorem yep: is_product v product project factor.

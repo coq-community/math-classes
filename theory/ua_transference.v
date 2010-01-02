@@ -22,15 +22,15 @@ Section contents.
    destruct i as [iso_r iso_l].
    unfold equiv, e, pointwise_relation in iso_l, iso_r. simpl in *. unfold id in iso_l, iso_r.
    induction t; simpl in *; intros...
-    set (eval et (fun (a : sign_atomics et) (i : nat) => proj1_sig ba _ (v a i)) t2).
-    pose proof (@epA nat (function (sign_atomics et) y t1) (fun a i => proj1_sig ba _ (v a i))
+    set (eval et (fun (a : sorts et) (i : nat) => proj1_sig ba _ (v a i)) t2).
+    pose proof (@epA nat (function (sorts et) y t1) (fun a i => proj1_sig ba _ (v a i))
          (fun a i => proj1_sig ba _ (v a i)) (reflexivity _) t2 t2 (reflexivity _)
-         : Proper (equiv ==> op_type_equiv (sign_atomics et) A t1)%signature o).
+         : Proper (equiv ==> op_type_equiv (sorts et) A t1)%signature o).
     rewrite (IHt2 v).
     subst o.
     pose proof (IHt1 v (proj1_sig ba _ (eval et v t3)) (proj1_sig ba _ (eval et v t3))).
     rewrite H0...
-    pose proof (@map_op_proper (sign_atomics et) B A _ _ _ _ _ _). apply H1.
+    pose proof (@map_op_proper (sorts et) B A _ _ _ _ _ _). apply H1.
     unfold compose in *.
     pose proof (epB _ _ v v (reflexivity _) t2 t2 (reflexivity _)). apply H2.
      (* can't apply these directly because of Coq bug *)
@@ -45,7 +45,7 @@ Section contents.
     rewrite <- H1, iso_l...
    apply IHo0. apply H...
     apply H0...
-   assert (op_type_equiv (sign_atomics et) A o0 (o1 x) (o1 y)). apply H...
+   assert (op_type_equiv (sorts et) A o0 (o1 x) (o1 y)). apply H...
    apply (@Preservation_proper et A B _ _ _ _ (proj1_sig ab) (proj2_sig ab) _ _ o0 (o1 x) (o1 y) H3 (o2 (proj1_sig ab _ y)) (o2 (proj1_sig ab _ y)))...
    apply H0...
   Qed. (* todo: make [reflexivity] work as a hint. further cleanup. *)
@@ -61,7 +61,7 @@ Section contents.
     map_op _ ab ba (eval et (A:=A) (fun _ i => ba _ (v _ i)) t) == eval et v t.
   Proof with auto.
    intros.
-   pose proof (@map_op_proper (sign_atomics et) A B _ _ _ _ _ _).
+   pose proof (@map_op_proper (sorts et) A B _ _ _ _ _ _).
    rewrite (transfer_eval t v).
    assert (iso_arrows ba ab). apply hetero_symmetric...
    apply (@map_iso _ A B _ _ (`ab) (`ba) (proj2 H0) _ _ _).

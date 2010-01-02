@@ -89,8 +89,10 @@ Section contents.
      set (d := fun v => (fun i => snd (proj1_sig (x i v)), fun i => fst (proj1_sig (x i v))): P v).
      assert (forall v, iso_arrows (fst (d v)) (snd (d v))) as Q.
       split; simpl; intro.
-       change (comp (snd (proj1_sig (x i v))) (fst (proj1_sig (x i v))) == cat_id). apply x.
-      change (comp (fst (proj1_sig (x i v))) (snd (proj1_sig (x i v))) == cat_id). apply x.
+       change (comp (snd (proj1_sig (x i v))) (fst (proj1_sig (x i v))) == cat_id).
+       destruct (x i v) as [? Q]. apply Q. (* Using Coq trunk 12609 this line was just [apply x], but that broke in subsequent revisions. :-( *)
+      change (comp (fst (proj1_sig (x i v))) (snd (proj1_sig (x i v))) == cat_id).
+      destruct (x i v) as [? Q]. apply Q. (* As above. *)
      exists (fun v => exist (fun p => iso_arrows (fst p) (snd p)) _ (Q v)).
      intros p q r r' rr' i.
      simpl.
@@ -100,17 +102,16 @@ Section contents.
      destruct (x i q) as [a1a2 i1].
      simpl in *.
      assert (cat.map_arr alt r == cat.map_arr alt r').
-      rewrite rr'. reflexivity.
+      rewrite rr'...
      rewrite (H2 i). clear H2.
      rewrite rr' in H1.
      rewrite <- (id_l _ _  (comp (cat.map_arr alt r' i) (fst aa0))).
      rewrite <- (proj1 i1).
      apply transitivity with (comp (fst a1a2) (comp (comp (snd a1a2) (cat.map_arr alt r' i)) (fst aa0))).
       rewrite comp_assoc.
-      repeat rewrite (comp_assoc _ _ _). (* todo: why must we specify the implicits? *)
-      reflexivity.
+      repeat rewrite (comp_assoc _ _)... (* todo: why must we specify the implicits? *)
      rewrite <- H1.
-     repeat rewrite <- (comp_assoc _ _ _).
+     repeat rewrite <- (comp_assoc _ _).
      rewrite (proj2 i0), id_r...
     Qed. (* WARNING: Uses DependentFunctionalChoice. (Todo: reflect.) *)
 

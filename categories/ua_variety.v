@@ -21,7 +21,7 @@ Section contents.
    constructor. intro. apply _.
    unfold id. intro.
    generalize (@op et (variety_atomics _ H) _ o). intro.
-   induction (sign_sig et o); simpl; intuition.
+   induction (operation_type et o); simpl; intuition.
   Qed.
 
   Global Program Instance comp: CatComp Object Arrow := fun _ _ _ f g v => (`f) v ∘ (`g) v.
