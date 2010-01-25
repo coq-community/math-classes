@@ -9,7 +9,8 @@ Section contents.
   Variables
     (et: EquationalTheory)
     (v: Variety et)
-    (P: forall s: sorts et, v s -> Prop). (* P defines the "subset". *)
+    (P: forall s: sorts et, v s -> Prop) (* P defines the "subset". *)
+    (Pp: forall s, Proper (equiv ==> iff) (P s)).
 
   Let op_type := op_type (sorts et).
 
@@ -48,17 +49,28 @@ Section contents.
 
   (* To construct a subalgebra, we require that P is closed under the operations: *)
 
-  Fixpoint closed {o: OpType (sorts et)}: op_type v o -> Prop :=
+  Fixpoint op_closed {o: OpType (sorts et)}: op_type v o -> Prop :=
     match o with
-    | constant x => P x 
-    | function x y => fun d => forall z: v x, P _ z -> closed (d z)
+    | constant x => P x
+    | function x y => fun d => forall z: v x, P _ z -> op_closed (d z)
     end.
 
-  Variable cl: forall o, closed (variety_op et v o).
+  Instance op_closed_proper o: Proper (equiv ==> iff) (@op_closed o).
+  Proof with intuition.
+   induction o; simpl; repeat intro.
+    apply Pp...
+   split; intros.
+    apply (IHo (x z))... apply H...
+   apply (IHo _ (y z))... apply H...
+  Qed.
+
+  Definition ops_closed := forall o, op_closed (variety_op et v o).
+
+  Variable cl: ops_closed.
 
   (* We can implement closed operations in the new algebra: *)
 
-  Fixpoint close_op {d}: forall (o: op_type v d), closed o -> op_type carrier d :=
+  Fixpoint close_op {d}: forall (o: op_type v d), op_closed o -> op_type carrier d :=
     match d with
     | constant _ => fun o c => exist _ o (c)
     | function x y => fun o c X => close_op (o (proj1_sig X)) (c (proj1_sig X) (proj2_sig X))
@@ -71,7 +83,7 @@ Section contents.
   (* It is not hard to show that this implementation is proper: *)
 
   Definition close_op_proper d (o0 o1: op_type v d)
-    (P: closed o0) (Q: closed o1): o0 == o1 -> close_op o0 P == close_op o1 Q.
+    (P: op_closed o0) (Q: op_closed o1): o0 == o1 -> close_op o0 P == close_op o1 Q.
   Proof with intuition.
    induction d; simpl in *...
    intros [x p] [y q] H0.
