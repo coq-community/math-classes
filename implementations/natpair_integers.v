@@ -160,14 +160,12 @@ Section for_another_ring.
 
   Add Ring R: (stdlib_ring_theory R).
 
-  Let n_to_sr := naturals_to_semiring N R.
-  Let n_to_sr_mor := naturals_to_semiring_mor N R: SemiRing_Morphism n_to_sr.
+  Notation n_to_sr := (naturals_to_semiring N R).
 
   Instance: Proper (equiv ==> equiv) (integers_to_ring Z R).
   Proof.
    unfold equiv, z_equiv, integers_to_ring, inject. intros x y E.
    apply equal_by_zero_sum.
-   fold n_to_sr.
    transitivity (n_to_sr (pos x) + n_to_sr (neg y) + - (n_to_sr (neg x) + n_to_sr (pos y))); [ring|].
    do 2 rewrite <- preserves_plus.
    rewrite E. rewrite (commutativity (pos y)). ring.
@@ -220,21 +218,20 @@ Section for_another_ring.
      rewrite preserves_inv, abstract_algebra.preserves_inv.
      rewrite (agree_on_nat pos0), (agree_on_nat neg0).
      unfold integers_to_ring, inject. simpl. rewrite theory.rings.preserves_0.
-     subst n_to_sr. ring.
+     ring.
     Qed.
 
   End for_another_morphism.
 
 End for_another_ring.
 
-Lemma initial: categories.proves_initial (fun x =>
-   @varieties.ring.arrow_from_morphism_from_instance_to_object Z _ _ _ _ _ _ _ x _
-     (@inject_mor _ _ _ _ _ _ _ (varieties.ring.from_object x))).
+(* Initiality stated categorically: *)
+
+Lemma initial: categories.proves_initial
+  (fun _ => @initial_arrow Z inject _ _ _ _ _ _ _ _ inject_mor).
 Proof.
-  intros y [x h] [].
-  unfold varieties.ring.arrow_from_morphism_from_instance_to_object. intro. simpl in *.
-  apply (@agree (y tt) _ _ _ _ _ _ (varieties.ring.from_object y) (x tt)).
-  apply (@varieties.ring.morphism_from_ua Z _ y _ _ _ x h _ (varieties.ring.from_object y)).
+  intros y [x h] []. simpl in *.
+  apply agree, (@ring.morphism_from_ua _ _ _ (ring.variety Z)); apply _.
 Qed.
 
 Global Instance: Integers Z.
@@ -266,7 +263,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
- intro. apply E. destruct (sr_precedes_with N H3) as [z F]. exists z.
+ intro. apply E. destruct (sr_precedes_with N H2) as [z F]. exists z.
  rewrite NtoZ_uniq in F. unfold equiv, z_equiv in F. simpl in F. ring_simplify in F.
  rewrite <- F. change (pos x + neg y + z == pos x + z + neg y). ring.
 Qed. 

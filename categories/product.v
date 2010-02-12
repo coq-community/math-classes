@@ -18,7 +18,7 @@ Section contents.
   Definition Arrow := fun x y: Object => forall i, A i (x i) (y i).
 
   Global Instance: CatId Object Arrow := fun _ _ => cat_id.
-  Global Instance: CatComp Object Arrow := fun _ _ _ d e i => comp (d i) (e i).
+  Global Instance comp': CatComp Object Arrow := fun _ _ _ d e i => comp (d i) (e i).
   Global Instance e x y: Equiv (Arrow x y) := fun f g => forall i, f i == g i.
 
   Let ith_cat i := cat.object_from_instance (O i) (A i).
@@ -48,7 +48,7 @@ Section contents.
   Definition product_obj: cat.Object := cat.object_from_instance Object Arrow.
 
   Program Definition project (i: I): cat.Arrow product_obj (ith_cat i) :=
-    cat.Build_Arrow product_obj (ith_cat i) (fun d => d i) (fun _ _ a => a i) _.
+    cat.arrow product_obj (ith_cat i) (fun d => d i) (fun _ _ a => a i) _.
   Next Obligation. Proof. (* functorial *)
    constructor; intros; try reflexivity.
    constructor; try apply _.
@@ -62,7 +62,7 @@ Section contents.
     Implicit Arguments cat.map_arr [[x] [y] [v] [w]].
 
     Program Definition factor: categories.cat.Arrow c0 product_obj
-      := cat.Build_Arrow _ product_obj (fun X0 _ => X _ X0) (fun _ _ X0 i => cat.map_arr (X i) X0) _.
+      := cat.arrow _ product_obj (fun X0 _ => X _ X0) (fun _ _ X0 i => cat.map_arr (X i) X0) _.
     Next Obligation. Proof with reflexivity. (* functorial *)
      pose proof (fun i => cat.functor_inst _ _ (X i)). (* shouldn't be necessary *)
      constructor; intros.
@@ -119,6 +119,9 @@ Section contents.
 
   Lemma yep: is_product ith_cat product_obj project factor.
   Proof. intro. apply s. Qed. 
+
+  Global Instance mono: forall (a: Arrow X Y), (forall i, Mono (a i)) -> Mono a.
+  Proof. firstorder. Qed.
 
   (* todo: register a Producer for Cat *)
 

@@ -4,7 +4,7 @@ Require Import
   RelationClasses Relation_Definitions List Morphisms
   universal_algebra abstract_algebra canonical_names
   theory.categories.
-Require categories.ua_variety.
+Require categories.variety.
 
 Section contents. Variable et: EquationalTheory.
 
@@ -14,7 +14,7 @@ Section contents. Variable et: EquationalTheory.
    For this we simply take universal_algebra's Term type, but exclude variables by taking False
    as the variable index type: *)
 
-  Let ClosedTerm := Term et False.
+  Let ClosedTerm := (Term et False).
   Let ClosedTerm0 a := ClosedTerm (constant _ a).
 
   (* Operations are implemented as App-tree builders, so that [o a b] yields [App (App (Op o) a) b]. *)
@@ -24,8 +24,8 @@ Section contents. Variable et: EquationalTheory.
     | constant _ => id
     | function _ _ => fun x y => app_tree (App _ _ _ _ x y)
     end.
-  
-  Instance: Implementation et ClosedTerm0 := fun x => app_tree (Op _ _ x).
+
+  Instance: AlgebraOps et ClosedTerm0 := fun x => app_tree (Op _ _ x).
 
   (* We define term equivalence on all operation types: *)
 
@@ -73,8 +73,13 @@ Section contents. Variable et: EquationalTheory.
    apply IHo, e_sub...
   Qed.
 
-  Instance: Propers et ClosedTerm0.
-  Proof. intro. apply app_tree_proper. reflexivity. Qed.
+  Instance: Algebra et ClosedTerm0.
+  Proof.
+   constructor. intro. apply _.
+   intro. apply app_tree_proper. reflexivity.
+  Qed.
+    (* hm, this isn't "the" (closed) term algebra, because we used equivalence modulo an equational theory *)
+
 
   (* Better still, the laws hold: *)
 
@@ -87,13 +92,20 @@ Section contents. Variable et: EquationalTheory.
    induction entailment_premises... subst...
   Qed.
 
-  (* And with that, we have our object: *)
+  (* Hence, we have a variety: *)
 
-  Definition the_object: Variety et := MkVariety et ClosedTerm0 _ _ _ _ laws_hold.
+  Global Instance: Variety et ClosedTerm0.
+  Proof. constructor. apply _. intros. apply laws_hold. assumption. Qed.
+
+  (* And hence, an object in the category: *)
+
+  Definition the_object: variety.Object et := variety.object et ClosedTerm0.
+
+  (* Interestingly, this object is initial, which we prove in the remainder of this file. *)
 
   (* To show its initiality, we begin by constructing arrows to arbitrary other objects: *)
 
-  Section for_another_object. Variable other: Variety et.
+  Section for_another_object. Variable other: variety.Object et.
 
     (* Computationally, the arrow simply evaluates closed terms in the other
      model. For induction purposes, we first define this for arbitrary op_types: *)
@@ -114,9 +126,16 @@ Section contents. Variable et: EquationalTheory.
       eval_in_other (close _ v t).
     Proof with auto.
      induction t; simpl.
-       reflexivity.
+       unfold eval_in_other.
+       destruct other.
+       simpl.
+       destruct variety_proof.
+       destruct variety_algebra.
+       reflexivity. (* todo: destructs should not be necessary *)
       apply IHt1...
-     apply (variety_propers _ other).
+     unfold eval_in_other.
+     simpl.
+     apply (@algebra_propers et other _ _ _ o).
     Qed. (* todo: rename *)
 
     (* On the side of the_object, evaluating a term of arity 0 is the same as closing it: *)
@@ -141,11 +160,11 @@ Section contents. Variable et: EquationalTheory.
      induction H; simpl...
         induction x; simpl...
          apply IHx1...
-        apply (variety_propers _ other o).
+        apply (@algebra_propers et other _ _ _ o).
        transitivity (eval_in_other y)...
       apply IHe1...
      unfold Vars in v.
-     pose proof (variety_laws et other s H (fun a n => eval_in_other (v a n))) as Q.
+     pose proof (@variety_laws et other _ _ _ s H (fun a n => eval_in_other (v a n))) as Q.
      clear H.
      destruct s.
      rewrite boring_eval_entailment in Q.
@@ -159,28 +178,32 @@ Section contents. Variable et: EquationalTheory.
     Qed.
 
     Instance: forall a, Setoid_Morphism (@eval_in_other (constant _ a)).
-    Proof. intro. constructor; try apply _. Qed.
+    Proof. intro. constructor; try apply _. destruct other. simpl. destruct variety_proof. apply _. Qed.
+      (* todo: too many destructs *)
 
     (* Furthermore, we can show preservation of operations, giving us a homomorphism (and an arrow): *)
 
-    Instance: @HomoMorphism et ClosedTerm0 other _ (variety_equiv et other) _ _ (fun _ => eval_in_other).
+    Instance: @HomoMorphism et ClosedTerm0 other _ (variety.variety_equiv et other) _ _ (fun _ => eval_in_other).
     Proof with intuition.
-     constructor; intro. apply _.
-     change (Preservation et ClosedTerm0 other (fun _ => eval_in_other) (app_tree (Op _ _ o)) (variety_op _ other o)).
-     generalize (variety_propers _ other o: eval_in_other (Op _ _ o) == variety_op _ other o).
-     generalize (Op _ False o) (variety_op et other o).
+     constructor; try apply _.
+     intro.
+     change (Preservation et ClosedTerm0 other (fun _ => eval_in_other) (app_tree (Op _ _ o)) (variety.variety_op _ other o)).
+     generalize (algebra_propers et o  : eval_in_other (Op _ _ o) == variety.variety_op _ other o).
+     generalize (Op _ False o) (variety.variety_op et other o).
      induction (et o)...
      simpl. intro. apply IHo0, H.
+     assert (Equivalence (variety.variety_equiv et other a)). (* todo: shouldn't be needed *)
+      apply _.
      reflexivity.
     Qed.
 
-    Program Definition the_arrow: ua_variety.Arrow et the_object other := fun _ => eval_in_other.
+    Program Definition the_arrow: variety.Arrow et the_object other := fun _ => eval_in_other.
 
     (* All that remains is to show that this arrow is unique: *)
 
     Theorem arrow_unique: forall y, the_arrow == y.
     Proof with auto; try intuition.
-     unfold equiv, ua_variety.e.
+     unfold equiv, variety.e.
      simpl.
      unfold Morphisms.pointwise_relation.
      intros [x h] b a.
@@ -193,13 +216,15 @@ Section contents. Variable et: EquationalTheory.
      revert H.
      generalize (Op _ False o).
      induction (et o); simpl.
+      assert (Symmetric (variety.variety_equiv et other a0)). (* todo: shouldn't be necessary *)
+       apply _.
       symmetry...
      intros.
      apply IHo0.
      simpl in *.
      assert (app_tree (App _ _ o0 a0 t v) == app_tree (App _ _ o0 a0 t v)).
       apply app_tree_proper...
-     apply (@Preservation_proper et ClosedTerm0 other _ _ _ _ x h _ _ o0
+     apply (@Preservation_proper et ClosedTerm0 other _ _ x _ _ _ o0
       (app_tree (App _ _ o0 a0 t v)) (app_tree (App _ _ o0 a0 t v)) H1
       (eval_in_other t (eval_in_other v)) (eval_in_other t (x a0 v))).
       2: apply H.

@@ -1,3 +1,8 @@
+(* This is an almost verbatim copy from ua_subalgebra, but with predicates in Type instead of Prop.
+
+We can't just rely on universe polymorphism (UP) because UP only works for inductives,
+but op_closed is a fixpoint! *)
+
 Set Automatic Introduction.
 
 Require Import
@@ -8,27 +13,32 @@ Require categories.algebra.
 
 Section subalgebras.
 
-  Context `{Algebra sign A} (P: forall s, A s -> Prop).
+  Context `{Algebra sign A} (P: forall s, A s -> Type).
 
   (* We begin by describing what it means for P to be a proper closed subset: *)
 
-  Fixpoint op_closed {o: OpType (sorts sign)}: op_type (sorts sign) A o -> Prop :=
+  Fixpoint op_closed {o: OpType (sorts sign)}: op_type (sorts sign) A o -> Type :=
     match o with
     | constant x => P x
     | function x y => fun d => forall z, P _ z -> op_closed (d z)
     end.
 
-  Global Instance op_closed_proper: forall `{forall s, Proper (equiv ==> iff) (P s)} o, Proper (equiv ==> iff) (@op_closed o).
+  Definition op_closed_proper: forall
+     (Pproper: forall s x x', x == x' -> iffT (P s x) (P s x')) o,
+   forall x x', x == x' -> iffT (@op_closed o x) (@op_closed o x').
   Proof with intuition.
    induction o; simpl; intros x y E.
-    rewrite E...
-   split; intros.
-    apply (IHo (x z))... apply E...
-   apply (IHo _ (y z))... apply E...
+    intuition.
+   split; intros...
+    apply (IHo (x z))...
+    apply E...
+   apply (IHo (y z))...
+   symmetry.
+   apply E...
   Qed.
 
-  Class ClosedSubset: Prop :=
-    { subset_proper:> forall s, Proper (equiv ==> iff) (P s)
+  Class ClosedSubset: Type :=
+    { subset_proper: forall s x x', x == x' -> iffT (P s x) (P s x')
     ; subset_closed: forall o, op_closed (algebra_op sign o) }.
 
   (* Now suppose P is closed in this way. *)
@@ -37,7 +47,7 @@ Section subalgebras.
 
   (* Our new algebra's elements are just those for which P holds: *)
 
-  Definition carrier s := sig (P s). 
+  Definition carrier s := sigT (P s). 
 
   Hint Unfold carrier: typeclass_instances.
 
@@ -45,13 +55,20 @@ Section subalgebras.
 
   Fixpoint close_op {d}: forall (o: op_type (sorts sign) A d), op_closed o -> op_type (sorts sign) carrier d :=
     match d with
-    | constant _ => fun o c => exist _ o (c)
-    | function x y => fun o c X => close_op (o (proj1_sig X)) (c (proj1_sig X) (proj2_sig X))
+    | constant _ => fun o c => existT _ o (c)
+    | function x y => fun o c X => close_op (o (projT1 X)) (c (projT1 X) (projT2 X))
     end.
 
   Global Instance impl: AlgebraOps sign carrier := fun o => close_op (algebra_op sign o) (subset_closed o).
 
   (* By showing that these ops are proper, we get our new algebra: *)
+  Instance: forall d, Equiv (op_type (sorts sign) carrier d).
+   intro.
+   apply op_type_equiv.
+   intro.
+   apply sigT_relation.
+   apply e.
+  Defined.
 
   Definition close_op_proper d (o0 o1: op_type (sorts sign) A d)
     (P: op_closed o0) (Q: op_closed o1): o0 == o1 -> close_op o0 P == close_op o1 Q.
@@ -63,37 +80,5 @@ Section subalgebras.
 
   Global Instance subalgebra: Algebra sign carrier.
   Proof. constructor. apply _. intro. apply close_op_proper, algebra_propers, _. Qed.
-
-  (* And we have the obvious projection morphism: *)
-
-  Definition proj s := @proj1_sig (A s) (P s).
-
-  Global Instance: HomoMorphism sign carrier A proj.
-  Proof with try apply _.
-   constructor...
-    constructor...
-    firstorder.
-   intro.
-   unfold impl, algebra_op.
-   generalize (subset_closed o).
-   unfold algebra_op.
-   generalize (H o).
-   induction (sign o); simpl; intuition.
-  Qed.
-
-  (* Which is mono because proj is injective. *)
-
-  Instance: Injective (proj i).
-  Proof. firstorder. Qed.
-
-  Global Instance: Mono (algebra.arrow _ proj).
-   apply categories.algebra.mono.
-   apply categories.product.mono.
-   intro.
-   simpl.
-   apply setoid.mono.
-   simpl.
-   apply _.
-  Qed. (* this really should be completely automatic. *)
 
 End subalgebras.

@@ -6,24 +6,40 @@ Require Import
 Require
   varieties.ring.
 
-Section integers_to_ring.
+Section initial_maps.
 
   Variable Int: Type.
 
   Class IntegersToRing :=
     integers_to_ring: forall R `{RingMult R} `{RingPlus R} `{RingOne R} `{RingZero R} `{GroupInv R}, Int -> R.
 
-End integers_to_ring.
+  Context `{IntegersToRing} (B: variety.Object ring.theory).
+
+  Definition f u: Int -> B u.
+  Proof.
+   destruct u.
+   apply (H (B tt) _ _ _ _ _).
+  Defined.
+
+  Definition initial_arrow `{Ring Int} {d: Ring_Morphism (H (B tt) _ _ _ _ _)}:
+    variety.Arrow ring.theory (@variety.object ring.theory _ _ _ (ring.variety Int)) B.
+  Proof.
+   simpl.
+   intros.
+   apply (@variety.arrow ring.theory (fun _ => Int) _ _ (ring.variety Int) B _ _ _ f).
+   simpl.
+   apply (@ring.mor_from_sr_to_alg (fun _ => Int) _ (ring.implementation Int) (ring.variety Int) B _ _ _).
+   assumption.
+  Defined. (* todo: clean up *)
+
+End initial_maps.
 
 Instance: Params (@integers_to_ring) 8.
 
 Class Integers A {e plus mult opp zero one} `{IntegersToRing A} :=
   { integers_ring:> @Ring A e plus mult opp zero one
-  ; integers_to_ring_mor:> forall B `{Ring B}, Ring_Morphism (integers_to_ring A B)
-  ; integers_to_ring_arrow := (fun x =>
-        @varieties.ring.arrow_from_morphism_from_instance_to_object _ _ _ _ _ _ _ _ x (integers_to_ring A (x tt))
-          (@integers_to_ring_mor _ _ _ _ _ _ _ (varieties.ring.from_object x)) )
-  ; integers_initial: proves_initial integers_to_ring_arrow }.
+  ; integers_to_ring_mor:> forall `{Ring B}, Ring_Morphism (integers_to_ring A B)
+  ; integers_initial: proves_initial (fun B => initial_arrow A B) }.
 
 Section specializable.
 

@@ -7,6 +7,10 @@ Section functor_class.
 
   Context `{Category X A} `{Category X' A'}.
 
+  Record FunctorOps :=
+    { functor_object:> X -> X'
+    ; functor_arrow:> forall v w, A v w  -> A' (functor_object v) (functor_object w) }.
+
   Class Functor (map_obj: X -> X') (map_arr: forall v w, A v w  -> A' (map_obj v) (map_obj w)): Prop :=
     { functor_morphism:> forall a b, Setoid_Morphism (map_arr a b)
     ; preserves_id: forall a, @map_arr a a cat_id == cat_id
@@ -14,16 +18,89 @@ Section functor_class.
         map_arr _ _ (comp f g) == comp (map_arr _ _ f) (map_arr _ _ g)
     }.
 
+  Class ForgetOps :=
+    { forget_object: X -> X'
+    ; forget_arrow: forall v w, A v w  -> A' (forget_object v) (forget_object w) }.
+
+  Class ForgetFunctor `{ForgetOps}: Prop := forget_functor:> Functor forget_object forget_arrow. 
+
+  (* Forget(/Ops) is currently just there for canonical names. At some point we may want
+   a real specification of what it means to be forgetful. *)
+
 End functor_class.
+
+Inductive CatStructure: Type := { cat_object:> Type; cat_arrow:> cat_object -> cat_object -> Type }.
+
+Section adjunction.
+
+  Local Notation Functor F := (Functor F (functor_arrow F)).
+
+  Context
+   {A: CatStructure} `{Category A A}
+   {X: CatStructure} `{Category X X}
+   (F: @FunctorOps X X A A) (G: @FunctorOps A A X X)
+   `{Functor F} `{Functor G}
+   (φ: forall {x a}, A (F x) a -> X x (G a))
+   `{forall x a, Bijective (φ x a)}.
+
+  Implicit Arguments φ [[x] [a]].
+  Implicit Arguments functor_arrow [X A X' A' [v] [w]].
+
+  Class Adjunction: Prop :=
+   { natural_left: forall x a a' (k: A a a'),
+       pointwise_relation _ equiv (comp (functor_arrow G k) ∘ φ) (@φ x a' ∘ comp k)
+   ; natural_right: forall x x' a (h: X x' x),
+       pointwise_relation _ equiv (flip comp h ∘ @φ x a) (φ ∘ flip comp (functor_arrow F h))
+   }.
+
+End adjunction.
 
 Instance id_functor: forall `{Category X A}, @Functor X A _ _ _ X A _ _ _ id (fun _ _ => id).
 Proof.
  intros.
  pose proof arrow_equiv.
+ unfold id.
  constructor; try reflexivity.
- constructor; try apply _.
- repeat intro. assumption.
+ intros.
+ apply id_setoid_morphism.
+ apply _.
 Qed.
+
+Instance compose_functors
+  `{Functor Ao Aa Ae Aid Acomp Bo Ba Be Bid Bcomp AB_obj AB_arrow}
+  `{Functor Bo Ba _ _ _ Co Ca Ce Cid Ccomp BC_obj BC_arrow}:
+    @Functor Ao Aa _ _ _ Co Ca _ _ _
+      (BC_obj ∘ AB_obj) (fun _ _ => BC_arrow _ _ ∘ AB_arrow _ _).
+Proof.
+   constructor.
+     intros.
+     set (BC_arrow (AB_obj a) (AB_obj b)).
+     set (AB_arrow a b).
+     apply (@compose_setoid_morphisms _ _ _ _ _ _).
+      apply _.
+     subst c.
+     destruct H0.
+     apply functor_morphism0.
+    unfold Basics.compose.
+    intros.
+    destruct H, H0.
+    destruct (functor_morphism1 (AB_obj a) (AB_obj a)).
+    destruct (functor_morphism0 a a).
+    rewrite preserves_id0.
+    rewrite preserves_id1.
+    reflexivity.
+   unfold Basics.compose.
+   intros.
+   destruct H, H0.
+   destruct (functor_morphism0 x z).
+   destruct (functor_morphism1 (AB_obj x) (AB_obj y)).
+   destruct (functor_morphism1 (AB_obj x) (AB_obj z)).
+   destruct (functor_morphism0 x y).
+   rewrite preserves_comp0.
+   rewrite preserves_comp1.
+   reflexivity.
+  Qed. (* todo: clean up. those destructs should not be needed *)
+
 
 Definition is_sole `{Equiv T} (P: T -> Prop) (x: T): Prop :=
   P x /\ forall y, P y -> y == x. (* todo: move *)
@@ -31,6 +108,9 @@ Definition is_sole `{Equiv T} (P: T -> Prop) (x: T): Prop :=
 Section contents.
 
   Context `{Category X A}.
+
+  Class Mono {x y} (a: A x y): Prop :=
+    mono: forall z (f g: A z x), comp a f == comp a g -> f == g.
 
   Section isomorphy.
 

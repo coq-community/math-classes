@@ -95,7 +95,7 @@ Class Category O (A: O -> O -> Type) {e: forall x y, Equiv (A x y)} `{CatId O A}
       equiv (comp c (comp b a)) (comp (comp c b) a)
   ; id_l: forall x y (a: A y x), equiv (comp cat_id a) a
   ; id_r: forall x y (a: A x y), equiv (comp a cat_id) a
-  }.
+  }. (* note: no equality on objects. *)
 
 Implicit Arguments comp_assoc [[O] [A] [e] [H] [cc] [Category] [w] [x] [y] [z]].
 
@@ -142,7 +142,7 @@ Class Ring_Morphism {A B Ae Aplus Amult Aopp Azero Aone Be Bplus Bmult Bopp Bzer
 
 (* todo: move what follows *)
 
-Instance: forall T (e: Equiv T), Equivalence e -> @Setoid_Morphism T e T e id.
+Global Instance id_setoid_morphism: forall {T} {e: Equiv T}, Equivalence e -> @Setoid_Morphism T e T e id.
 Proof. constructor; apply _. Qed.
 
 Instance compose_setoid_morphisms (A B C: Type)

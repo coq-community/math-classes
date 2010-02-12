@@ -6,7 +6,7 @@ Require Import
 
 Section contents.
 
-  Record Object :=
+  Record Object := object
     { obj: Type
     ; arr: obj -> obj -> Type
     ; arr_e: forall x y, Equiv (arr x y)
@@ -27,7 +27,7 @@ Section contents.
 
   Section arrows. Context (x y: Object).
 
-    Record Arrow: Type :=
+    Record Arrow: Type := arrow
       { map_obj:> obj x -> obj y
       ; map_arr: forall v w, arr x v w -> arr y (map_obj v) (map_obj w)
       ; functor_inst: Functor map_obj map_arr
@@ -123,19 +123,18 @@ Section contents.
   Qed. (* Putting this in the "arrows" section above (where it belongs) triggers a Coq bug. *)
     (* Todo: clean up. *)
 
-  Global Instance id': CatId Object Arrow := fun _ => Build_Arrow _ _ id (fun _ _ => id) _.
+  Global Instance id': CatId Object Arrow := fun _ => arrow _ _ id (fun _ _ => id) _.
 
   Global Program Instance comp': CatComp Object Arrow
-    := fun x y z X X0 => Build_Arrow x z (compose X X0) (fun _ _ => compose (map_arr X) (map_arr X0)) _.
+    := fun x y z X X0 => arrow x z (compose X X0) (fun _ _ => compose (map_arr X) (map_arr X0)) _.
 
   Next Obligation.
-   constructor; repeat intro.
-     apply (@compose_setoid_morphisms (arr x a b) (arr y (X0 a) (X0 b)) (arr z (X (X0 a)) (X (X0 b))) _ _ _).
-      apply _.
-     apply (@functor_morphism _ _ _ _ _ _ _ _ _ _ _ _ (functor_inst _ _ X)).
-    unfold compose. do 2 rewrite preserves_id. reflexivity. 
-   unfold compose. do 2 rewrite preserves_comp. reflexivity.
-  Qed. (* todo: this is still too verbose. look into it *)
+   destruct x, y, z, X, X0.
+   simpl in *.
+   apply (@compose_functors _ _ _ _ _ _ _ _ _ _ map_obj1 map_arr1 _ _ _ _ _ _ _ _).
+     (* todo: hm, why so ugly? *)
+   apply _.
+  Qed.
 
   Program Let proper_arrows (x y z: Object) (x0 y0: Arrow y z) (x1 y1: Arrow x y)
     (f: forall v, {p : arr _ (x0 v) (y0 v) * arr _ (y0 v) (x0 v) | iso_arrows (fst p) (snd p)})

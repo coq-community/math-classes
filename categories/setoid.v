@@ -6,15 +6,15 @@ Require Import
 
 Section contents.
 
-  Inductive Object := { T:> Type; e: T -> T -> Prop; e_e: Equivalence e }.
+  Inductive Object := object { T:> Type; e: T -> T -> Prop; setoid_proof: Equivalence e }.
     (* We don't use the type [Equiv T] for e because it leads to universe consistency
      problems in theory/ua_forget. Hopefully when Coq gets universe polymorphism for
      definitions (like Equiv), we can use the proper type again. *)
 
   Global Instance: forall o, Equiv (T o) := e.
-  Existing Instance e_e.
+  Existing Instance setoid_proof.
 
-  Inductive Arrow (A B: Object) := { f:> A -> B; mor: Setoid_Morphism f }.
+  Inductive Arrow (A B: Object) := arrow { f:> A -> B; mor: Setoid_Morphism f }.
 
   Global Existing Instance mor.
 
@@ -32,10 +32,10 @@ Section contents.
   Qed.
 
   Global Program Instance: CatId Object Arrow
-    := fun _ => Build_Arrow _ _ id _.
+    := fun _ => arrow _ _ id _.
 
   Global Program Instance cc: CatComp Object Arrow
-    := fun _ _ _ a b => Build_Arrow _ _ (compose a b) _.
+    := fun _ _ _ a b => arrow _ _ (compose a b) _.
 
   Global Instance: forall x y z, Proper (equiv ==> equiv ==> equiv) (cc x y z).
   Proof. repeat intro. simpl. firstorder. Qed.
@@ -53,13 +53,13 @@ Section contents.
 
   Section product. Context {Index: Type} (c: Index -> Object).
 
-    Definition product_obj: Object := Build_Object (forall i, c i) (fun x y => forall i, x i == y i) _.
+    Definition product_obj: Object := object (forall i, c i) (fun x y => forall i, x i == y i) _.
 
-    Program Definition project (i: Index): Arrow product_obj (c i) := Build_Arrow _ _ (fun x => x i) _.
+    Program Definition project (i: Index): Arrow product_obj (c i) := arrow _ _ (fun x => x i) _.
     Next Obligation. constructor; try apply _. firstorder. Qed.
 
     Program Definition factor (d: Object) (df: forall i, Arrow d (c i)): Arrow d product_obj :=
-     Build_Arrow d product_obj (fun x y => df y x) _.
+     arrow d product_obj (fun x y => df y x) _.
     Next Obligation. constructor; try apply _. intros x y E i. rewrite E. reflexivity. Qed.
 
   End product.
@@ -73,6 +73,13 @@ Section contents.
    intros ? E' ? x E. rewrite E.
    intro i. simpl. symmetry.
    apply (E' i x x). reflexivity.
+  Qed.
+
+  Global Instance mono: forall (a: Arrow X Y), Injective a -> Mono a.
+  Proof.
+   intros ? ? ? ? ? ? ? E ? ? U.
+   pose proof (E _ _ U).
+   firstorder.
   Qed.
 
 End contents.

@@ -22,3 +22,17 @@ Proof.
  split; repeat intro; unfold sig_equiv, sig_relation in *; try intuition.
  transitivity (proj1_sig y); intuition.
 Qed.
+
+Definition sigT_relation {A} (R: relation A) (P: A -> Type): relation (sigT P)
+  := fun a b => R (projT1 a) (projT1 b).
+
+Instance sigT_equiv: forall (e: Equiv A) (P: A -> Type), Equiv (sigT P) := @sigT_relation.
+Implicit Arguments sigT_equiv [[A] [e]].
+
+Global Instance sigT_equivalence `{e: Equiv A} (P: A -> Type) `{!Equivalence e}: Equivalence (sigT_equiv P).
+Proof.
+ split; repeat intro; unfold sigT_equiv, sigT_relation in *; try intuition.
+ transitivity (projT1 y); intuition.
+Qed.
+
+Definition iffT (A B: Type): Type := prod (A -> B) (B -> A).

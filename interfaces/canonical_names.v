@@ -52,6 +52,9 @@ Class Commutative `{Equiv B} `(m: A -> A -> B): Prop := commutativity: forall x 
 Class Associative `{Equiv A} (m: A -> A -> A): Prop := associativity: forall x y z, m x (m y z) == m (m x y) z.
 Class Injective `{ea: Equiv A} `{eb: Equiv B} (f: A -> B): Prop := injective: forall x y, f x == f y -> x == y.
 Class Surjective {A} `{Equiv B} (f: A -> B): Prop := surjective: forall x: B, exists y, f y == x.
+Class Bijective `{ea: Equiv A} `{eb: Equiv B} (f: A -> B): Prop :=
+  { bijective_injective:> Injective f
+  ; bijective_surjective:> Surjective f }.
 Class AntiSymmetric `{ea: Equiv A} (R: relation A): Prop := antisymmetry: forall x y, R x y -> R y x -> x == y.
 Class Distribute `{Equiv A} (f g: A->A->A): Prop :=
   { distribute_l: forall a b c, f a (g b c) == g (f a b) (f a c)

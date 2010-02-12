@@ -1,7 +1,7 @@
 Set Automatic Introduction.
 
 Require
-  theory.rings.
+  theory.rings categories.variety.
 Require Import
   Program Morphisms
   abstract_algebra universal_algebra.
@@ -63,11 +63,11 @@ Section from_instance.
 
   Context A `{Ring A}.
 
-  Instance implementation: Implementation sig (fun _ => A) := fun o =>
+  Instance implementation: AlgebraOps sig (fun _ => A) := fun o =>
     match o with plus => ring_plus | mult => ring_mult | zero => 0 | one => 1 | opp => group_inv end.
 
-  Global Instance: @Propers sig _ _ implementation.
-  Proof. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
+  Global Instance: Algebra sig _.
+  Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
 
   Lemma laws e (l: Laws e) vars: eval_stmt sig vars e.
   Proof.
@@ -85,11 +85,66 @@ Section from_instance.
    apply theory.rings.plus_opp_l.
   Qed.
 
-  Definition object: Variety theory := MkVariety theory _ _ implementation _ _ laws.
+  Instance variety: Variety theory (fun _ => A).
+  Proof. constructor. apply _. exact laws. Qed.
 
+  Definition Object := variety.Object theory.
+  Definition Arrow := variety.Arrow theory.
+  Definition object: Object := variety.object theory (fun _ => A).
+ 
 End from_instance.
 
 (* Similarly, given a categorical object, we can make the corresponding class instances: *)
+
+Section ops_from_alg_to_sr. Context `{AlgebraOps theory A}.
+  Global Instance: RingPlus (A tt) := algebra_op _ plus.
+  Global Instance: RingMult (A tt) := algebra_op _ mult.
+  Global Instance: RingZero (A tt) := algebra_op _ zero.
+  Global Instance: RingOne (A tt) := algebra_op _ one.
+  Global Instance: GroupInv (A tt) := algebra_op _ opp.
+End ops_from_alg_to_sr.
+
+Lemma mor_from_sr_to_alg `{Variety theory A} `{Variety theory B}
+  (f: forall u, A u -> B u) `{!Ring_Morphism (f tt)}: HomoMorphism sig A B f.
+Proof.
+ constructor.
+    intros []. apply _.
+   intros []; simpl.
+       apply rings.preserves_plus.
+      apply rings.preserves_mult.
+     change (f tt 0 == 0). apply rings.preserves_0.
+    change (f tt 1 == 1). apply rings.preserves_1.
+   apply rings.preserves_opp.
+  change (Algebra theory A). apply _.
+ change (Algebra theory B). apply _.
+Qed.
+
+Instance struct_from_var_to_class `{v: Variety theory A}: Ring (A tt).
+Proof with simpl; auto.
+ repeat (constructor; try apply _); repeat intro.
+               apply (variety_laws _ e_plus_assoc (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end))...
+              apply (algebra_propers theory plus)...
+             apply (variety_laws _ e_plus_0_l (fun s n => match s with tt => x end))...
+            pose proof (variety_laws _ e_plus_comm (fun s n => match s with tt => match n with 0 => x | _ => algebra_op theory zero end end)).
+            simpl in H. rewrite H...
+            apply (variety_laws _ e_plus_0_l (fun s n => match s with tt => x end))...
+           apply (algebra_propers theory opp)...
+          apply (variety_laws _ e_plus_opp_l (fun s n => match s with tt => x end))...
+         apply (variety_laws _ e_plus_opp_r (fun s n => match s with tt => x end))...
+        apply (variety_laws _ e_plus_comm (fun s n => match s with tt => match n with 0 => x | _ => y end end))...
+       apply (variety_laws _ e_mult_assoc (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end))...
+      apply (algebra_propers theory mult)...
+     apply (variety_laws _ e_mult_1_l (fun s n => match s with tt => x end))...
+    pose proof (variety_laws _ e_mult_comm (fun s n => match s with tt => match n with 0 => x | _ => algebra_op theory one end end)).
+    simpl in H. rewrite H...
+    apply (variety_laws _ e_mult_1_l (fun s n => match s with tt => x end))...
+   apply (variety_laws _ e_mult_comm (fun s n => match s with tt => match n with 0 => x | _ => y end end))...
+  apply (variety_laws _ e_distr (fun s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end))...
+ apply (variety_laws _ e_distr_l (fun s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end))...
+Qed.
+
+
+(*
 
 Section from_object. Variable o: Variety theory.
 
@@ -128,6 +183,7 @@ End from_object.
 
 (* Finally, we can also convert morphism instances and categorical arrows: *)
 
+
 Require Import categories.ua_variety.
 
 Program Definition arrow_from_morphism_from_instance_to_object
@@ -142,38 +198,39 @@ Next Obligation.
   change (f 1 == 1). apply theory.rings.preserves_1.
  apply preserves_inv.
 Qed.
-
+*)
 Section morphism_from_ua.
 
-  Context  `{e0: Equiv R0} {R1: unit -> Type} `{e1: forall u, Equiv (R1 u)} `{!Equivalence e0}
-    `{forall u, Equivalence (e1 u)}
-    `{@Implementation sig (fun _ => R0)} `{@Implementation sig R1}
-    (f: forall u, R0 -> R1 u)
-      `{!@HomoMorphism sig (fun _ => R0) R1 (fun _ => e0) e1 _ _ f}.
+  Context (*  {R1: unit -> Type} `{e1: forall u, Equiv (R1 u)}*) (*`{!Equivalence e0}*)
+(*    `{forall u, Equivalence (e1 u)} *)
+    `{Variety theory R0 bla } `{Variety theory R1 kip }
+    (f: forall u, R0 u -> R1 u)
+      `{!@HomoMorphism sig R0 R1 _ _ _ _ f}.
 
-  Global Instance: RingPlus R0 := @universal_algebra.op sig (fun _ => R0) _ plus.
-  Global Instance: RingMult R0 := @universal_algebra.op sig (fun _ => R0) _ mult.
-  Global Instance: RingZero R0 := @universal_algebra.op sig (fun _ => R0) _ zero.
-  Global Instance: RingOne R0 := @universal_algebra.op sig (fun _ => R0) _ one.
-  Global Instance: GroupInv R0 := @universal_algebra.op sig (fun _ => R0) _ opp.
+  Global Instance: forall u, Equiv (R0 u) := fun u x y => True.
+ 
+  Global Instance: RingPlus (R0 tt) := @universal_algebra.algebra_op sig R0 _ plus.
+  Global Instance: RingMult (R0 tt) := @universal_algebra.algebra_op sig R0 _ mult.
+  Global Instance: RingZero (R0 tt) := @universal_algebra.algebra_op sig R0 _ zero.
+  Global Instance: RingOne (R0 tt) := @universal_algebra.algebra_op sig R0 _ one.
+  Global Instance: GroupInv (R0 tt) := @universal_algebra.algebra_op sig R0 _ opp.
 
-  Global Instance: RingPlus (R1 u) := fun u => match u with tt => universal_algebra.op sig plus end.
-  Global Instance: RingMult (R1 u) := fun u => match u with tt => universal_algebra.op sig mult end.
-  Global Instance: RingZero (R1 u) := fun u => match u with tt => universal_algebra.op sig zero end.
-  Global Instance: RingOne (R1 u) := fun u => match u with tt => universal_algebra.op sig one end.
-  Global Instance: GroupInv (R1 u) := fun u => match u with tt => universal_algebra.op sig opp end.
-
-  Lemma morphism_from_ua (sr0: Ring R0) (sr1: Ring (R1 tt)): forall u, Ring_Morphism (f u).
-  Proof.
-   destruct u.
-   pose proof (@preserves sig (fun _ => _) R1 (fun _ => e0) e1 _ _ f _).
-   destruct H2.
+(*
+  Global Instance: RingPlus (R1 u) := fun u => match u with tt => universal_algebra.algebra_op sig plus end.
+  Global Instance: RingMult (R1 u) := fun u => match u with tt => universal_algebra.algebra_op sig mult end.
+  Global Instance: RingZero (R1 u) := fun u => match u with tt => universal_algebra.algebra_op sig zero end.
+  Global Instance: RingOne (R1 u) := fun u => match u with tt => universal_algebra.algebra_op sig one end.
+  Global Instance: GroupInv (R1 u) := fun u => match u with tt => universal_algebra.algebra_op sig opp end.
+*)
+  Lemma morphism_from_ua: Ring_Morphism (f tt).
+   pose proof (@preserves sig R0 R1 _ _ _ _ f _).
    repeat (constructor; try apply _).
-       apply (H3 plus).
-      apply (H3 zero).
-     apply (H3 opp).
-    apply (H3 mult).
-   apply (H3 one).
+       apply (H2 plus).
+      apply (H2 zero).
+     apply (H2 opp).
+    apply (H2 mult).
+   apply (H2 one).
   Qed.
 
 End morphism_from_ua.
+

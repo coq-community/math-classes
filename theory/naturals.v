@@ -10,10 +10,10 @@ Require Export
 Lemma to_semiring_unique `{Naturals N} SR `{SemiRing SR} (f: N -> SR) {h: SemiRing_Morphism f}:
  forall x, f x == naturals_to_semiring N SR x.
 Proof.
- intros.
- set (@varieties.semiring.arrow_from_morphism_from_instance_to_object N _ _ _ _ _ _ (varieties.semiring.object SR) f h).
- symmetry.
- apply (naturals_initial (varieties.semiring.object SR) a tt x).
+ intros. symmetry.
+ pose proof (@semiring.mor_from_sr_to_alg _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (fun _ => f) _).
+ set (@variety.arrow semiring.theory _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (fun _ => f) _).
+ apply (naturals_initial _ a tt x).
 Qed.
 
 Lemma to_semiring_unique' `{Naturals N} `{SemiRing SR} (f g: N -> SR):
@@ -30,12 +30,10 @@ Lemma to_semiring_involutive A `{Naturals A} B `{Naturals B}: forall a: A,
  naturals_to_semiring B A (naturals_to_semiring A B a) == a.
 Proof.
  intros.
- pose proof (@naturals_initial A _ _ _ _ _ _ _ (varieties.semiring.object A) cat_id tt a).
- set (comp (naturals_to_semiring_arrow B (varieties.semiring.object A)) (naturals_to_semiring_arrow A (varieties.semiring.object B))).
- pose proof (@naturals_initial A _ _ _ _ _ _ _ (varieties.semiring.object A) a0 tt a).
- simpl in *.
- rewrite <- H4.
- assumption.
+ pose proof (proj2 (@categories.initials_unique' (variety.Object semiring.theory)
+   (variety.Arrow semiring.theory) _ _ _ _ (semiring.object A) (semiring.object B) _ _
+    naturals_initial naturals_initial) tt a).
+ apply H1. (* todo: separate pose necessary due to Coq bug *)
 Qed.
 
 Lemma morphisms_involutive `{Naturals A} `{Naturals B} (f: A -> B) (g: B -> A)
@@ -77,7 +75,7 @@ Section borrowed_from_nat.
   Proof.
    intros x y. 
    destruct (total_order (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y)); [left | right];
-    rewrite <- preserves_naturals_order in H1; try apply _; assumption. 
+    rewrite <- preserves_naturals_order in H0; try apply _; assumption. 
   Qed.
 
   Lemma induction
@@ -96,16 +94,14 @@ Section borrowed_from_nat.
   Qed.
 
   Lemma from_nat_stmt:
-    forall (s : Statement varieties.semiring.theory) (w : Vars varieties.semiring.theory (varieties.semiring.object N) nat),
-     (forall v : Vars varieties.semiring.theory (varieties.semiring.object nat) nat,
+    forall (s: Statement varieties.semiring.theory) (w : Vars varieties.semiring.theory (varieties.semiring.object N) nat),
+     (forall v: Vars varieties.semiring.theory (varieties.semiring.object nat) nat,
        eval_stmt varieties.semiring.theory v s) -> eval_stmt varieties.semiring.theory w s.
   Proof.
    pose proof (@naturals_initial nat _ _ _ _ _ _ _) as AI.
    pose proof (@naturals_initial N _ _ _ _ _ _ _) as BI.
-   intros s w U.
-   apply (transfer_statement varieties.semiring.theory _ _ _ _
-     (@theory.categories.initials_unique' (Variety varieties.semiring.theory) (categories.ua_variety.Arrow varieties.semiring.theory)
-         _ _ _ _ _ _ _ _ AI BI)).
+   intros s w ?.
+   apply (transfer_statement _ (categories.initials_unique' _ _ _ _ AI BI)).
    intuition.
   Qed.
 
@@ -142,20 +138,20 @@ Section borrowed_from_nat.
   Global Instance: ZeroNeOne N.
   Proof.
    pose proof (from_nat_stmt (0 === 1 -=> Ext _ False) no_vars).
-   apply H1. discriminate.
+   apply H0. discriminate.
   Qed.
 
   Lemma zero_sum: x + y == 0 -> x == 0 /\ y == 0.
   Proof.
    pose proof (from_nat_stmt (x' + y' === 0 -=> Conj _ (x' === 0) (y' === 0)) two_vars).
-   apply H1. intro. simpl. apply Plus.plus_is_O.
+   apply H0. intro. simpl. apply Plus.plus_is_O.
   Qed.
 
   Lemma nz_mult_nz: ~ y == 0 -> ~ x == 0 -> ~ y * x == 0.
   Proof.
    pose proof (from_nat_stmt ((y' === 0 -=> Ext _ False) -=>
      (x' === 0 -=> Ext _ False) -=> (y' * x' === 0 -=> Ext _ False)) two_vars).
-   unfold not. apply H1. intro. simpl. apply Mult_nz_mult_nz.
+   unfold not. apply H0. intro. simpl. apply Mult_nz_mult_nz.
   Qed.
 
 End borrowed_from_nat.
@@ -177,6 +173,7 @@ End borrowed_from_nat.
   Obligation Tactic := idtac.
 
   Global Program Instance: forall x y: N, Decision (x <= y) | 10 :=
+    fun x y =>
     match decide (natural_precedes (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y)) with
     | left E => left _
     | right E => right _
@@ -201,18 +198,19 @@ End borrowed_from_nat.
    destruct nat_distance. simpl.
    destruct o; [left | right].
     rewrite <- (to_semiring_involutive N nat y).
-    rewrite <- H1.
+    rewrite <- H0.
     rewrite preserves_sg_op.
     rewrite (to_semiring_involutive N nat).
     reflexivity.
    rewrite <- (to_semiring_involutive N nat x).
-   rewrite <- H1.
+   rewrite <- H0.
    rewrite preserves_sg_op.
    rewrite (to_semiring_involutive N nat).
    reflexivity.
   Qed.
 
   Global Program Instance: forall x y: N, Decision (x == y) | 10 :=
+    fun x y =>
     match Peano_dec.eq_nat_dec (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y) with
     | left E => left _
     | right E => right _
@@ -225,9 +223,7 @@ End borrowed_from_nat.
   Qed.
 
   Next Obligation.
-   intros. intro. apply E.
-   change (naturals_to_semiring _ nat x == naturals_to_semiring _ nat y).
-   apply (naturals_to_semiring_mor _ nat). assumption.
+   intros x y ? E ? F. apply E. rewrite F. reflexivity.
   Qed.
 
   Global Instance: ZeroProduct N.

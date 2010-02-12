@@ -3,26 +3,46 @@ Require Import
  abstract_algebra theory.categories
  orders.semigroup.
 Require
- varieties.semiring.
+ varieties.semiring categories.variety.
 
 Section initial_maps.
+
   Variable A: Type.
+
   Class NaturalsToSemiRing :=
     naturals_to_semiring: forall B `{RingMult B} `{RingPlus B} `{RingOne B} `{RingZero B}, A -> B.
+
+  Context `{NaturalsToSemiRing} (B: semiring.Object).
+
+  Definition f u: A -> B u.
+   intro u.
+   pose (variety.variety_op semiring.theory B).
+   simpl.
+   destruct u.
+   apply (H (B tt) _ _ _ _).
+  Defined. (* todo: clean up *)
+
+  Definition initial_arrow `{SemiRing A} {d: SemiRing_Morphism (H (B tt) _ _ _ _)}:
+    semiring.Arrow (@variety.object semiring.theory _ _ _ (semiring.variety A)) B.
+  Proof.
+   simpl.
+   intros.
+   apply (@variety.arrow semiring.theory (fun _ => A) _ _ (semiring.variety A) B _ _ _ f).
+   simpl.
+   apply (@semiring.mor_from_sr_to_alg (fun _ => A) _ (semiring.implementation A) (semiring.variety A) B _ _ _).
+   assumption.
+  Defined. (* todo: clean up *)
+
 End initial_maps.
 
 Instance: Params (@naturals_to_semiring) 7.
 
-Class Naturals A {e plus mult zero one} `{NaturalsToSemiRing A} :=
+Class Naturals A {e plus mult zero one} `{U: NaturalsToSemiRing A} :=
   { naturals_ring:> @SemiRing A e plus mult zero one
   ; naturals_to_semiring_mor:> forall `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
-  ; naturals_to_semiring_arrow := (fun x =>
-        @varieties.semiring.arrow_from_morphism_from_instance_to_object A _ _ _ _ _ _ x (naturals_to_semiring A (x tt))
-           (@naturals_to_semiring_mor (x tt) _ _ _ _ _ (varieties.semiring.from_object x)) )
-  ; naturals_initial: proves_initial naturals_to_semiring_arrow }.
+  ; naturals_initial: proves_initial (fun B => initial_arrow A B) }.
 
-Implicit Arguments naturals_to_semiring_mor [[e] [plus] [mult] [zero] [one] [H] [Naturals] [e0] [plus0] [mult0] [zero0] [one0] [H0]].
-Implicit Arguments naturals_to_semiring_arrow [[e] [plus] [mult] [zero] [one] [H] [Naturals]].
+Implicit Arguments naturals_to_semiring_mor [[e] [plus] [mult] [zero] [one] [U] [Naturals] [e0] [plus0] [mult0] [zero0] [one0] ].
 
 (* Specializable operations: *)
 

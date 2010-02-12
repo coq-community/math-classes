@@ -2,7 +2,7 @@ Set Automatic Introduction.
 
 Require Import
   Morphisms Setoid Program List
-  abstract_algebra theory.categories util.
+  abstract_algebra theory.categories util monads.
 
 Record Entailment (P: Type): Type := { entailment_premises: list P; entailment_conclusion: P }.
 
@@ -61,6 +61,12 @@ Section with_sorts. Variable Sorts: Set.
       op_type_equiv o (x y) (x y).
     Proof. intro H0. apply H0. reflexivity. Qed.
 
+(*
+    Lemma sig_type_refl' (o: OpType) a (x: op_type (function a o)):
+      Proper equiv x -> op_type_equiv _ x x.
+    Proof. intro H0. apply H0. Qed.
+*)
+
   End with_sort_realizations.
 
   Section map_op.
@@ -113,17 +119,20 @@ Inductive Signature: Type :=
 
 Section for_signature. Variable sign: Signature.
 
-  Let sorts := sorts sign.
-  Let OpType := OpType sorts.
+  (* Let sorts := sorts sign.  -- cleaner but causes problems, test case presented to mattam *)
+  Let OpType := OpType (sorts sign).
 
   (* An implementation of a signature for a given realization of the sorts is simply a function (of the right type) for each operation: *)
 
-  Class Implementation (A: sorts -> Type) := op: forall o, op_type _ A (sign o).
+  Class AlgebraOps (A: sorts sign -> Type) := algebra_op: forall o, op_type _ A (sign o).
 
-  (* And we'll usually want to work with proper implementations: *)
-
-  Class Propers (A: sorts -> Type) `{forall a, Equiv (A a)} `{Implementation A} :=
-    propers:> forall o: sign, Proper equiv (op o). (* This equiv is op_type_equiv defined above. *)
+  Class Algebra
+      (carriers: sorts sign -> Type)
+      {e: forall a, Equiv (carriers a)}
+      `{AlgebraOps carriers}: Prop :=
+    { algebra_equivalence:> forall a, Equivalence (equiv: relation (carriers a))
+    ; algebra_propers:> forall o: sign, Proper equiv (algebra_op o)
+    }.
 
   (* As an aside: given two implementations in different realizations of the sorts, and a map between
    them for each sort, we can say what it means for that map to preserve the algebra's operations,
@@ -131,9 +140,11 @@ Section for_signature. Variable sign: Signature.
 
   Section for_map.
 
-    Context (A B: sorts -> Type)
+    Context (A B: sorts sign -> Type)
       `{ea: forall a, Equiv (A a)} `{eb: forall a, Equiv (B a)}
-      `{!Implementation A} `{!Implementation B} (f: forall a, A a -> B a).
+      `{ai: AlgebraOps A} `{bi: AlgebraOps B}.
+
+    Section with_f. Context (f: forall a, A a -> B a).
 
     Implicit Arguments f [[a]].
 
@@ -145,23 +156,126 @@ Section for_signature. Variable sign: Signature.
 
     Class HomoMorphism: Prop :=
       { homo_proper:> forall a, Setoid_Morphism (@f a)
-      ; preserves: forall (o: sign), Preservation (op o) (op o) }.
+      ; preserves: forall (o: sign), Preservation (ai o) (bi o)
+      ; homo_source_algebra: Algebra A
+      ; homo_target_algebra: Algebra B
+      }.
 
-    Global Instance Preservation_proper `{HomoMorphism}
-      `{!forall a, Equivalence (ea a)} `{!forall a, Equivalence (eb a)} n:
-      Proper (op_type_equiv _ A n ==> op_type_equiv _ B n ==> iff) (@Preservation n).
+    Context `{forall i, Equivalence (ea i)} `{forall i, Equivalence (eb i)} `{forall a, Setoid_Morphism (@f a)}.
+
+    Global Instance Preservation_proper n:
+      Proper (op_type_equiv _ _ _ ==> op_type_equiv _ B n ==> iff) (@Preservation n).
+        (* todo: use equiv in the signature and see why things break *)
     Proof with auto.
      induction n; simpl; intros x y E x' y' E'.
       split; intro F. rewrite <- E, <- E'... rewrite E, E'...
      split; simpl; intros; apply (IHn _ _ (E _ _ (reflexivity _)) _ _ (E' _ _ (reflexivity _)))...
     Qed.
 
+    Global Instance Preservation_proper'' n:
+      Proper (eq ==> op_type_equiv _ B n ==> iff) (@Preservation n).
+        (* todo: use equiv in the signature and see why things break *)
+    Proof with auto.
+     induction n; simpl; intros x y E x' y' E'.
+      split; intro F. rewrite <- E, <- E'... rewrite E, E'...
+     split; simpl; intros.
+      subst.
+      apply (IHn (y x0) (y x0) eq_refl (y' (f x0)) (x' (f x0)) ).
+       symmetry.
+       apply E'.
+       reflexivity.
+      apply H2.
+     subst.
+     apply (IHn (y x0) (y x0) eq_refl (y' (f x0)) (x' (f x0)) ).
+      symmetry.
+      apply E'.
+      reflexivity.
+     apply H2.
+    Qed. (* todo: evil, get rid of *)
+
+    End with_f.
+
+    Lemma Preservation_proper' (f g: forall a, A a -> B a)
+     `{forall i, Equivalence (ea i)} `{forall i, Equivalence (eb i)} `{forall a, Setoid_Morphism (@f a)}:
+      (forall a (x: A a), f a x == g a x) -> forall (n: OpType) x y, Proper equiv x -> Proper equiv y ->
+        @Preservation f n x y ->
+        @Preservation g n x y.
+    Proof.
+     induction n.
+      simpl.
+      intros.
+      rewrite <- H5.
+      symmetry.
+      intuition.
+     simpl.
+     intros.
+     apply IHn.
+       apply H3. reflexivity.
+      apply H4. reflexivity.
+     assert (y (g a x0) == y (f a x0)).
+      apply H4.
+      symmetry.
+      apply H2.
+     apply (Preservation_proper'' f n (x x0) (x x0) eq_refl _ _ H6).
+     apply H5.
+    Qed.
+
+    Lemma HomoMorphism_Proper: Proper ((fun f g => forall a x, f a x == g a x) ==> iff) HomoMorphism.
+    Proof with try apply _.
+     constructor; intros [? ? ? ?]; simpl in *.
+      constructor...
+       constructor...
+       repeat intro.
+       do 2 rewrite <- H.
+       rewrite H0.
+       reflexivity.
+      intro.
+      apply (Preservation_proper' x y H (sign o) (ai o) (bi o))...
+      apply preserves0.
+     constructor...
+      constructor...
+      repeat intro.
+      do 2 rewrite H.
+      rewrite H0.
+      reflexivity.
+     intro.
+     assert (forall (a : sorts sign) (x0 : A a), y a x0 == x a x0). symmetry. apply H.
+     apply (Preservation_proper' y x H0 (sign o) (ai o) (bi o))...
+     apply preserves0.
+    Qed.
+
   End for_map.
+
+  Global Instance id_homomorphism A
+    `{forall a, Equiv (A a)} {ao: AlgebraOps A} `{!Algebra A}: HomoMorphism _ _ (fun _ => id).
+  Proof with try apply _; auto.
+   constructor; intros...
+   generalize (ao o).
+   induction (sign o); simpl...
+   reflexivity.
+  Qed.
+
+  Global Instance compose_homomorphisms A B C f g
+    `{forall a, Equiv (A a)} `{forall a, Equiv (B a)} `{forall a, Equiv (C a)}
+    {ao: AlgebraOps A} {bo: AlgebraOps B} {co: AlgebraOps C}
+    {gh: HomoMorphism A B g} {fh: HomoMorphism B C f}: HomoMorphism A C (fun a => f a ∘ g a).
+  Proof with try apply _; auto.
+   pose proof (homo_source_algebra _ _ g).
+   pose proof (homo_target_algebra _ _ g).
+   pose proof (homo_target_algebra _ _ f).
+   constructor; intros...
+    apply (compose_setoid_morphisms _ _ _)... (* todo: why not automatic? *)
+   generalize (ao o) (bo o) (co o) (preserves _ _ g o) (preserves _ _ f o).
+   induction (sign o); simpl; intros; unfold compose.
+    destruct fh. (* todo: shouldn't be necessary *)
+    rewrite H5... (* todo: not nice *)
+   apply (IHo0 _ (o2 (g _ x)))...
+  Qed.
 
   (* Proceeding on our way toward equational theories and varieties, we define terms: *)
 
-  Inductive Term (V: Set): OpType -> Set :=
-    | Var (v: V) (a: sorts): Term V (constant _ a)
+  Inductive Term (V: Type): OpType -> Type :=
+    | Var (v: V) (a: sorts sign): Term V (constant _ a)
     | App (t: OpType) y: Term V (function _ y t) -> Term V (constant _ y) -> Term V t
     | Op (o: sign): Term V (sign o).
 
@@ -175,7 +289,7 @@ Section for_signature. Variable sign: Signature.
 
   Section applications_ind.
 
-    Context (V: Set) (P: forall a, Term0 V a -> Prop).
+    Context (V: Type) (P: forall a, Term0 V a -> Prop).
 
     (* To be able to prove such a P by induction, we must first transform it into a statement
      about terms of all arities. Roughly speaking, we do this by saying
@@ -250,12 +364,12 @@ Section for_signature. Variable sign: Signature.
 
   Section Vars.
 
-    Context (A: sorts -> Type) (V: Set) `{e: forall a, Equiv (A a)} `{forall a, Equivalence (e a)}.
+    Context (A: sorts sign -> Type) (V: Type) `{e: forall a, Equiv (A a)} `{forall a, Equivalence (e a)}.
 
     Definition Vars := forall a, V -> A a.
 
     Global Instance: Equiv Vars :=
-     @pointwise_dependent_relation sorts (fun a => V -> A a)
+     @pointwise_dependent_relation (sorts sign) (fun a => V -> A a)
       (fun _ => pointwise_relation _ equiv).
 
     Global Instance: Equivalence (equiv: relation Vars).
@@ -275,16 +389,15 @@ Section for_signature. Variable sign: Signature.
 
   Section eval.
 
-    Context
-     `{ea: forall a, Equiv (A a)} `{!forall a, Equivalence (ea a)} `{!Implementation A} `{@Propers A ea _}.
+    Context `{Algebra A}.
 
     Fixpoint eval {V} {n: OpType} (vars: Vars A V) (t: Term V n) {struct t}: op_type _ A n :=
       match t in Term _ n return op_type _ A n with
       | Var v a => vars a v
-      | Op o => op o
+      | Op o => algebra_op o
       | App n a f p => eval vars f (eval vars p)
       end.
- 
+
     Global Instance eval_proper {V} (n: OpType):
       Proper (equiv ==> eq ==> equiv) (@eval V n).
     Proof with auto.
@@ -292,7 +405,8 @@ Section for_signature. Variable sign: Signature.
      induction a.
        apply E...
       apply IHa1...
-     apply propers.
+     simpl.
+     apply algebra_propers.
     Qed.
 
     Definition eval_stmt (vars: Vars A nat): Statement -> Prop :=
@@ -318,9 +432,9 @@ Section for_signature. Variable sign: Signature.
      apply eval_proper... symmetry...
     Qed.
 
-    Definition boring_eval_entailment (vars: Vars A nat) (e: EqEntailment):
-      eval_stmt vars e <-> eval_stmt vars (entailment_as_conjunctive_statement e).
-    Proof. destruct e. simpl. induction entailment_premises0; simpl; intuition. Qed.
+    Definition boring_eval_entailment (vars: Vars A nat) (ee: EqEntailment):
+      eval_stmt vars ee <-> eval_stmt vars (entailment_as_conjunctive_statement ee).
+    Proof. destruct ee. simpl. induction entailment_premises0; simpl; intuition. Qed.
 
   End eval.
 
@@ -332,20 +446,15 @@ Record EquationalTheory :=
   { et_sig:> Signature
   ; et_laws:> EqEntailment et_sig -> Prop }.
 
-Record Variety (et: EquationalTheory): Type := MkVariety
-  { variety_atomics:> sorts et -> Type
-  ; variety_equiv: forall a, Equiv (variety_atomics a)
-  ; variety_op:> Implementation et variety_atomics
-  ; variety_equivalence: forall a, Equivalence (variety_equiv a)
-  ; variety_propers: Propers et variety_atomics
-  ; variety_laws: forall s: EqEntailment et, et_laws et s -> forall vars: forall a, nat -> variety_atomics a,
-      @eval_stmt et variety_atomics variety_equiv variety_op vars s
- }.
-
-Existing Instance variety_equivalence.
-Existing Instance variety_op.
-Existing Instance variety_propers.
-Existing Instance variety_equiv.
+Class Variety
+  (et: EquationalTheory)
+  (carriers: sorts et -> Type)
+  {e: forall a, Equiv (carriers a)}
+  `{!AlgebraOps et carriers}: Prop :=
+  { variety_algebra:> Algebra et carriers
+  ; variety_laws: forall s: EqEntailment et, et_laws et s -> forall vars: forall a, nat -> carriers a,
+      @eval_stmt et carriers e _ vars s
+  }.
 
 Module op_type_notations.
   Global Infix "-=>" := (function _) (at level 95, right associativity).

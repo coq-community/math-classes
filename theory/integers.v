@@ -1,3 +1,5 @@
+(* General results about arbitrary integer implementations. *)
+
 Set Automatic Introduction.
 
 Require Export
@@ -12,15 +14,16 @@ Hint Immediate @neg_precedes_pos @preserves_0 @preserves_nonneg @zero_sr_precede
 Hint Resolve @neg_precedes_pos @preserves_0 @preserves_nonneg @zero_sr_precedes_nat.
 Hint Unfold precedes integer_precedes.
 
+(* Any two integer implementations are trivially isomorphic because of their initiality,
+ but it's nice to have this stated in terms of integers_to_ring being self-inverse: *)
+
 Lemma iso_ints `{Integers A} B `{Integers B}: forall a: A,
   integers_to_ring B A (integers_to_ring A B a) == a.
-Proof with auto.
+Proof.
  intros.
- pose proof (@integers_initial A _ _ _ _ _ _ _ _ (varieties.ring.object A) cat_id tt a).
- set (comp (integers_to_ring_arrow (varieties.ring.object A)) (integers_to_ring_arrow (varieties.ring.object B))).
- pose proof (@integers_initial A _ _ _ _ _ _ _ _ (varieties.ring.object A) a0 tt a).
- simpl in *.
- rewrite <- H4...
+ destruct (categories.initials_unique' (ring.object A) (ring.object B) _ _
+   integers_initial integers_initial) as [_ P].
+ apply (P tt a).
 Qed.
 
 Section contents.
@@ -29,15 +32,15 @@ Section contents.
 
   Add Ring Int: (stdlib_ring_theory Int).
 
-  Let itoZnat_mor := integers_to_ring_mor (Z nat).
-    (* a hint to help class resolution/eauto *)
+  (* Two more immediate results that are just convenient to have as properties of integers_to_ring: *)
 
   Lemma integers_to_ring_unique R `{Ring R} (f: Int -> R) {h: Ring_Morphism f}:
    forall x, f x == integers_to_ring Int R x.
   Proof.
    intros. symmetry.
-   set (a := @varieties.ring.arrow_from_morphism_from_instance_to_object Int _ _ _ _ _ _ _ (varieties.ring.object R) f h).
-   apply (integers_initial (varieties.ring.object R) a tt x).
+   pose proof (@ring.mor_from_sr_to_alg _ _ _ (ring.variety _) _ _ _ (ring.variety _) (fun _ => f) _).
+   set (@variety.arrow ring.theory _ _ _ (ring.variety _) _ _ _ (ring.variety _) (fun _ => f) _).
+   apply (integers_initial _ a tt x).
   Qed.
 
   Lemma integers_to_ring_unique' R `{Ring R} (f g: Int -> R) {h: Ring_Morphism f} {u: Ring_Morphism g}:
@@ -48,9 +51,12 @@ Section contents.
    reflexivity.
   Qed.
 
+  (* A ring morphism from integers to another ring is injective if there's an injection in the other direction: *)
+
+Require Import Program.
   Lemma int_to_ring_injective `{Ring A}  
    (f: A -> Int) (g: Int -> A) `{!Ring_Morphism f} `{!Ring_Morphism g}: Injective g.
-  Proof with auto.
+  Proof.
    intros x y E.
    rewrite <- (integers_to_ring_unique' Int (fun v => f (g v)) id x).
    rewrite <- (integers_to_ring_unique' Int (fun v => f (g v)) id y).
@@ -60,7 +66,7 @@ Section contents.
   Global Instance int_to_int_injective `{Integers B} (f: Int -> B) `{!Ring_Morphism f}: Injective f.
   Proof. apply int_to_ring_injective with (integers_to_ring B Int); apply _. Qed.
 
-  Global Program Instance: forall x y: Int, Decision (x == y) | 10 :=
+  Global Program Instance: forall x y: Int, Decision (x == y) | 10 := fun x y =>
     match decide (integers_to_ring _ (Z nat) x == integers_to_ring _ (Z nat) y) with
     | left E => left _
     | right E => right _
@@ -69,6 +75,9 @@ Section contents.
   Next Obligation. rewrite <- (iso_ints (Z nat) x), <- (iso_ints (Z nat) y), E. reflexivity. Qed.
   Next Obligation. intro U. apply E. rewrite U. reflexivity. Qed.
 
+(*  Let itoZnat_mor := integers_to_ring_mor (Z nat). *)
+    (* a hint to help class resolution/eauto. todo: shouldn't be necessary *)
+
   Global Instance naturals_to_integers_injective `{Naturals N}: Injective (naturals_to_semiring N Int).
   Proof.
    intros x y E.
@@ -76,7 +85,6 @@ Section contents.
    change (NtoZ N x == NtoZ N y).
    do 2 rewrite <- (NtoZ_uniq N).
    do 2 rewrite <- (theory.naturals.to_semiring_unique (Z N) (fun x => integers_to_ring Int (Z N) (naturals_to_semiring N Int x))).
-   set (itoZN_mor := integers_to_ring_mor (Z N)).
    rewrite E. reflexivity.
   Qed.
 
@@ -105,13 +113,13 @@ Section contents.
   Proof with eauto.
    intros. destruct a, a'. simpl.
    apply (injective (naturals_to_semiring N Int)).
-   destruct o, o0; rewrite <- H3 in H4; clear H3.
+   destruct o as [A | A], o0 as [B | B]; rewrite <- A in B; clear A.
       symmetry...
-     apply (antisymmetry integer_precedes). rewrite <- H4...
-     apply <- precedes_flip. rewrite H4...
+     apply (antisymmetry integer_precedes). rewrite <- B...
+     apply <- precedes_flip. rewrite B...
     apply (antisymmetry integer_precedes).
-     apply <- precedes_flip. rewrite <- H4...
-    rewrite H4...
+     apply <- precedes_flip. rewrite <- B...
+    rewrite B...
    apply (injective group_inv). symmetry...
   Qed.
 
@@ -166,8 +174,8 @@ Section contents.
    rewrite A. (* todo: the separate pose is due to a Coq bug *)
    destruct o...
    apply (antisymmetry integer_precedes).
-    apply <- precedes_flip. rewrite H5...
-   rewrite <- H5...
+    apply <- precedes_flip. rewrite H3...
+   rewrite <- H3...
   Qed.
 
   Lemma abs_opp `{Naturals N} `{!IntAbs Int N} z: int_abs' Int N (- z) == int_abs' Int N z.
@@ -252,7 +260,7 @@ Section preservation. Context `{Integers A} `{Integers B} (f: A -> B) `{!Ring_Mo
     Lemma preserves_abs `{!IntAbs A N} `{!IntAbs B N}:
       forall a, f (int_abs' A N a) == int_abs' B N (f a).
     Proof with eauto; try apply _.
-     pose proof (@neg_precedes_pos B _ _ _ _ _ _ _ N) as U.
+     pose proof (@neg_precedes_pos B _ _ _ _ _ _ _ N).
      assert (forall (x0 x: N), - NB x0 == f x -> f x == x0); unfold NA, NB in *.
       intros x0 x P.
       apply (antisymmetry integer_precedes).
@@ -294,7 +302,7 @@ Section more. Context `{Integers Int}.
        [left | right]; apply preserve_sr_order...
   Qed.
 
-  Global Program Instance: forall x y: Int, Decision (x <= y) | 10 :=
+  Global Program Instance: forall x y: Int, Decision (x <= y) | 10 := fun x y =>
    match decide (integers_to_ring Int (Z nat) x <= integers_to_ring Int (Z nat) y) with
    | left E => left _
    | right E => right _
@@ -325,7 +333,7 @@ Section more. Context `{Integers Int}.
   Proof with auto.
    intros H1 [u H2].
    destruct (total_order x x') as [P | [x0 P]]...
-   exists 0.
+   exists (0:nat).
    rewrite <- P in *. clear P x.
    cut (x0 == 0). intro E. rewrite E, preserves_0. ring.
    rename u into x.

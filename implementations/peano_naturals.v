@@ -84,18 +84,20 @@ Section contents.
 End contents.
 End for_another_semiring.
 
-Lemma initial: categories.proves_initial (fun x =>
-   @varieties.semiring.arrow_from_morphism_from_instance_to_object nat _  _ _ _ _ _ x _
-    (@for_another_semiring.f_mor _ _ _ _ _ _ (varieties.semiring.from_object x))).
+Lemma initial: @categories.proves_initial _ _ _ _
+  (fun B => @initial_arrow nat nat_to_semiring B _ _ _ _ _ _
+     (@for_another_semiring.f_mor _ _ _ _ _ _ (@semiring.struct_from_var_to_class _ _ _ (variety.variety_proof semiring.theory B)))).
 Proof.
- intros y [x h] [] a. simpl in *. 
- pose proof (varieties.semiring.from_object y).
- pose proof (@varieties.semiring.morphism_from_ua nat nat_equiv y _ _ _ x h _ _ tt).
- induction a. symmetry. apply preserves_0.
- change (naturals_to_semiring nat (y tt) a + 1 == x tt (1 + a)).
- rewrite IHa, preserves_plus, preserves_1.
+ intros y [x h] [] a. simpl in *.
+ pose proof (@universal_algebra.preserves semiring.theory _ _ _ _ _ _ _ h) as pr.
+ induction a; simpl.
+  symmetry. apply (pr semiring.zero).
+ rewrite IHa. clear IHa.
+ pose proof (pr semiring.plus 1 a). simpl in H. rewrite H. clear H.
+ change (x tt a + 1 == x tt 1 + x tt a).
+ pose proof (pr semiring.one). simpl in H. rewrite H.
  apply commutativity.
-Qed.
+Qed. (* todo: these [pose]s are nasty *)
 
 Global Instance nat_Naturals: Naturals nat.
 Proof @Build_Naturals nat _ _ _ _ _ _ _ (@for_another_semiring.f_mor) initial.
@@ -109,7 +111,7 @@ Qed.
 Lemma predefined_le_coincides_rev (x y: nat): x <= y -> (x <= y)%nat.
 Proof. intros [z []]. auto with arith. Qed.
 
-Program Instance: forall x y: nat, Decision (x <= y) :=
+Program Instance le_nat_dec (x y: nat): Decision (x <= y) :=
   match Compare_dec.le_lt_dec x y with
   | left E => left (predefined_le_coincides _ _ E)
   | right E => right _

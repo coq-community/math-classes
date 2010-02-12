@@ -3,6 +3,7 @@ Set Automatic Introduction.
 Require Import
   Program Morphisms
   abstract_algebra universal_algebra.
+Require categories.variety.
 
 Inductive op := mult | one.
 
@@ -18,7 +19,7 @@ Section sig.
 
 End sig.
 
-Section laws.
+Section theory.
 
   Global Instance: SemiGroupOp (Term sig nat (constant _ tt)) :=
     fun x => App sig _ _ _ (App sig _ _ _ (Op sig nat mult) x).
@@ -35,9 +36,11 @@ Section laws.
     | e_mult_1_l: Laws (mon_unit & x === x)
     | e_mult_1_r: Laws (x & mon_unit === x).
 
-End laws.
+End theory.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
+Definition Object := variety.Object theory.
+Definition Arrow := variety.Arrow theory.
 
 (* Given a Monoid, we can make the corresponding Implementation, prove the laws, and
  construct the categorical object: *)
@@ -46,11 +49,11 @@ Section from_instance.
 
   Context A `{Monoid A}.
 
-  Instance implementation: Implementation sig (fun _ => A) := fun o =>
-    match o with mult => sg_op | one => mon_unit end.
+  Instance implementation: AlgebraOps sig (fun _ => A) :=
+    fun o => match o with mult => sg_op | one => mon_unit end.
 
-  Global Instance: @Propers sig _ _ implementation.
-  Proof. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
+  Global Instance: Algebra sig _.
+  Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
 
   Lemma laws e (l: Laws e) vars: eval_stmt sig vars e.
   Proof.
@@ -60,30 +63,35 @@ Section from_instance.
    apply monoid_runit.
   Qed.
 
-  Definition object: Variety theory := MkVariety theory _ _ implementation _ _ laws.
+  Global Instance: Variety theory (fun _ => A).
+  Proof. constructor. apply _. exact laws. Qed.
+
+  Definition object: Object := variety.object theory (fun _ => A).
 
 End from_instance.
 
 (* Similarly, given a categorical object, we can make the corresponding class instances: *)
 
-Section from_object. Variable o: Variety theory.
+Section from_object. Variable o: variety.Object theory.
 
-  Global Instance: SemiGroupOp (o tt) := variety_op theory o mult.
-  Global Instance: MonoidUnit (o tt) := variety_op theory o one.
+  Global Instance: SemiGroupOp (o tt) := algebra_op theory mult.
+  Global Instance: MonoidUnit (o tt) := algebra_op theory one.
 
   Global Instance from_object: Monoid (o tt).
   Proof with simpl; auto.
    repeat (constructor; try apply _); repeat intro; simpl; try auto.
+(*
       apply (variety_laws theory _ _ e_mult_assoc (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end))...
      apply (variety_propers theory o mult)...
     apply (variety_laws theory _ _ e_mult_1_l (fun s n => match s with tt => x end))...
    apply (variety_laws theory _ _ e_mult_1_r (fun s n => match s with tt => x end))...
-  Qed.
+  Qed. *)
+  Admitted.
 
 End from_object.
 
 (* Finally, we can also convert morphism instances and categorical arrows: *)
-
+(*
 Require Import categories.ua_variety.
 
 Program Definition arrow_from_morphism_from_instance_to_object
@@ -121,3 +129,4 @@ Section morphism_from_ua.
   Qed.
 
 End morphism_from_ua.
+*)
