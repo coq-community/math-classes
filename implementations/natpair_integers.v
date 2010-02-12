@@ -50,6 +50,7 @@ Proof.
 Qed.
 
 Instance: Equivalence z_equiv.
+Instance: Setoid Z.
 
 (* plus is nice: *)
 

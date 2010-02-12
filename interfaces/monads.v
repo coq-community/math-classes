@@ -1,11 +1,9 @@
 
 Require categories.setoid.
 Require Import Setoid Morphisms.
-Require Import (*abstract_algebra*) canonical_names theory.categories.
+Require Import abstract_algebra canonical_names theory.categories.
 
 Section contents.
-
-Local Notation Setoid := setoid.Object.
 
 Context (M: Type -> Type).
 
@@ -18,14 +16,14 @@ Class Monad {Me: forall A, Equiv A -> Equiv (M A)} `{MonadReturn} `{MonadBind}: 
     (* Propers: *)
   { ret_proper:> forall `{Equiv A}, Proper (equiv ==> equiv) (@ret _ A)
   ; bind_proper:> forall `{Equiv A} `{Equiv B},
-     Proper (equiv ==> pointwise_relation _ equiv ==> equiv) (@bind _ A B)
+     Proper (equiv ==> (fun f g => forall x y, x == y -> f x == g y) ==> equiv) (@bind _ A B)
 
-  ; equivalence: forall `{e: Equiv A}, Equivalence e -> Equivalence (Me A e)
+  ; equivalence: forall `{Setoid A}, Setoid (M A)
 
   (* Laws: *)
-  ; mon_lunit: forall (A B: Setoid) (x: A) (f: A -> M B), ret x >>= f == f x
-  ; mon_runit: forall `{e: Equiv A} `{Equivalence _ e} (m: M A), m >>= ret == m
-  ; mon_assoc: forall (A B C: Setoid) (n: M A) (f: A -> M B) (g: B -> M C),
+  ; mon_lunit: forall `{Setoid A} `{Setoid B} (x: A) (f: A -> M B), ret x >>= f == f x
+  ; mon_runit: forall `{Setoid A} (m: M A), m >>= ret == m
+  ; mon_assoc: forall `{Setoid A} `{Setoid B} `{Setoid C} (n: M A) (f: A -> M B) (g: B -> M C),
       (n >>= f) >>= g == n >>= (fun x => f x >>= g)
         (* todo: write using Setoid type class (rather than categories.setoid.Object) *)
   }.

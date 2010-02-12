@@ -33,6 +33,7 @@ Proof with auto.
 Qed.
 
 Instance: Equivalence q_equiv.
+Instance: Setoid Q.
 
 Instance: forall x y: Q, Decision (x == y)
   := fun x y => decide (num x * den y == num y * den x).

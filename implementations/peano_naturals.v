@@ -29,6 +29,7 @@ Instance: Commutative mult := Mult.mult_comm.
 Instance: Distribute mult plus :=
   { distribute_l := Mult.mult_plus_distr_l; distribute_r := Mult.mult_plus_distr_r }.
 
+Instance: Setoid nat.
 Instance: SemiGroup nat (op:=plus).
 Instance: SemiGroup nat (op:=mult).
 Instance: Monoid _ (op:=plus) (unit:=0%nat) := { monoid_lunit := Plus.plus_0_l; monoid_runit := Plus.plus_0_r }.

@@ -31,6 +31,7 @@ Instance: Distribute BinInt.Zmult BinInt.Zplus :=
   { distribute_l := BinInt.Zmult_plus_distr_r; distribute_r := BinInt.Zmult_plus_distr_l }.
 
 (* structures: *)
+Instance: Setoid BinInt.Z.
 Instance: SemiGroup _ (op:=BinInt.Zplus).
 Instance: SemiGroup _ (op:=BinInt.Zmult).
 Instance: Monoid _ (op:=BinInt.Zplus) (unit:=BinInt.Z0)

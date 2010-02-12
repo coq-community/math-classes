@@ -5,8 +5,10 @@ Require Import
 Require Export
  canonical_names util.
 
+Class Setoid A {e: Equiv A} := setoid_eq:> Equivalence e.
+
 Class SemiGroup A {e: Equiv A} {op: SemiGroupOp A} :=
-  { sg_eq:> Equivalence e
+  { sg_setoid:> Setoid A
   ; sg_ass:> Associative sg_op
   ; sg_mor:> Proper (e ==> e ==> e)%signature sg_op }.
 

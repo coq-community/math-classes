@@ -4,7 +4,7 @@ Require Import
 
 Section contents.
 
-  Context `{e: Equiv A} `{Order A} `{forall x y: A, Decision (x <= y)}.
+  Context `{e: Setoid A} `{Order A} `{forall x y: A, Decision (x <= y)}.
 
   Definition sort (x y: A): prod A A := if decide (x <= y) then (x, y) else (y, x).
 
@@ -60,7 +60,7 @@ Section contents.
     Lemma max_l x y: x <= y -> max y x == y.
     Proof. intros. rewrite max_comm, max_r; firstorder. Qed.
 
-    Global Instance max_semigroup `{!Equivalence e}: SemiGroup A.
+    Global Instance max_semigroup: SemiGroup A.
 
   End more_props.
 

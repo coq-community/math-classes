@@ -41,6 +41,7 @@ Proof.
 Qed.
 
 (* structures: *)
+Instance: Setoid Q.
 Instance: SemiGroup _ (op:=Qplus).
 Instance: SemiGroup _ (op:=Qmult).
 Instance: Monoid Q (op:=Qplus) (unit:=0%Q) := { monoid_lunit := Qplus_0_l; monoid_runit := Qplus_0_r }.

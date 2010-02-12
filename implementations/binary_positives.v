@@ -23,6 +23,7 @@ Instance: Distribute BinPos.Pmult BinPos.Pplus :=
   { distribute_l := BinPos.Pmult_plus_distr_l; distribute_r := BinPos.Pmult_plus_distr_r }.
 
 (* structures: *)
+Instance: Setoid BinPos.positive.
 Instance: SemiGroup _ (op:=BinPos.Pplus).
 Instance: SemiGroup _ (op:=BinPos.Pmult).
 Instance: Monoid _ (op:=BinPos.Pmult) :=
