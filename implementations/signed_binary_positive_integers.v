@@ -1,10 +1,10 @@
 (* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
 
 Require
-  theory.categories.
+  theory.categories interfaces.naturals.
 Require Import
-  BinInt Morphisms Ring
-  abstract_algebra theory.rings interfaces.integers.
+  BinInt Morphisms Ring Arith
+  abstract_algebra theory.rings interfaces.integers signed_binary_positives peano_naturals.
 
 (* canonical names: *)
 Instance z_equiv: Equiv BinInt.Z := eq.
@@ -48,38 +48,12 @@ Instance: forall x y: BinInt.Z, Decision (x == y) := ZArith_dec.Z_eq_dec.
 
 Add Ring Z: (stdlib_ring_theory BinInt.Z).
 
-Lemma xO_in_ring_terms p: xO p = (p + p)%positive.
-Proof with auto.
- unfold sg_op.
- induction p; simpl...
-  rewrite Pplus_carry_spec, <- IHp...
- congruence.
-Qed.
-
-Lemma xI_in_ring_terms p: xI p = (p + p + 1)%positive.
-Proof. intros. rewrite <- xO_in_ring_terms. reflexivity. Qed.
-
-Section ding.
-
-  Context `{Ring R}.
-
-  (* We first show the map from Z to R: *)
-
-  Fixpoint map_pos (x: positive) {struct x} : R :=
-    match x with
-    | (p~0)%positive => map_pos p + map_pos p
-    | (p~1)%positive => map_pos p + map_pos p + 1
-    | 1%positive => 1
-    end.
-
-  Definition map_Z (z: Z): R :=
-    match z with
-    | Z0 => 0
-    | Zpos p => map_pos p
-    | Zneg p => - map_pos p
-    end.
-
-End ding.
+Definition map_Z `{RingPlus R} `{RingZero R} `{RingOne R} `{GroupInv R} (z: Z): R :=
+  match z with
+  | Z0 => 0
+  | Zpos p => map_pos p
+  | Zneg p => - map_pos p
+  end.
 
 Instance inject: IntegersToRing Z := fun B _ _ _ _ _ => @map_Z B _ _ _ _.
 
@@ -89,30 +63,6 @@ Section for_another_ring.
 
   Add Ring R: (stdlib_ring_theory R).
 
-  Lemma preserves_Psucc x: map_pos (Psucc x) == map_pos x + 1.
-  Proof.
-   intros.
-   induction x; simpl; try reflexivity.
-   rewrite IHx. ring.
-  Qed.
-
-  Lemma preserves_Pplus x y: map_pos (x + y) == map_pos x + map_pos y.
-  Proof with try ring.
-   induction x.
-     simpl.
-     destruct y; simpl.
-       simpl.
-       rewrite Pplus_carry_spec.
-       rewrite preserves_Psucc.
-       rewrite IHx...
-      rewrite IHx...
-     rewrite preserves_Psucc...
-    destruct y; simpl; try rewrite IHx...
-   intros.
-   destruct y; simpl...
-   rewrite preserves_Psucc...
-  Qed.
-
   Lemma preserves_opp x: map_Z (- x) == - map_Z x.
   Proof with try reflexivity.
    destruct x; simpl...
@@ -120,84 +70,36 @@ Section for_another_ring.
    rewrite inv_involutive...
   Qed.
 
-  Lemma preserves_Pminus x y: (y < x)%positive -> map_pos (x - y) == map_pos x + - map_pos y.
-  Proof with auto.
-   intros.
-  Admitted. (*
-   rewrite <- map_nat_pos.
-   rewrite nat_of_P_minus_morphism.
-    
-    admit.
-   unfold Plt in H0.
-   apply ZC2...
-  Qed. *)
-    (* awful bit manipulation mess *)
-
   Lemma preserves_Zplus x y: map_Z (x + y) == map_Z x + map_Z y.
-  Proof with try reflexivity; try assumption.
-   destruct x; simpl; intros.
-     rewrite plus_0_l...
-    destruct y; simpl.
-      intros.
-      rewrite plus_0_r...
+  Proof with try reflexivity; try assumption; try ring.
+   destruct x; simpl; intros...
+    destruct y; simpl...
      apply preserves_Pplus.
     case_eq (Pcompare p p0 Eq); intros; simpl.
-      rewrite (Pcompare_Eq_eq _ _ H0).
-      rewrite inv_r...
+      rewrite (Pcompare_Eq_eq _ _ H0)...
      rewrite preserves_Pminus...
-     rewrite ring_distr_opp.
-     rewrite inv_involutive.
-     ring.
     apply preserves_Pminus.
     unfold Plt.
     rewrite (ZC1 _ _ H0)...
-   destruct y; simpl.
-     rewrite plus_0_r...
+   destruct y; simpl...
     case_eq (Pcompare p p0 Eq); intros; simpl.
-      rewrite (Pcompare_Eq_eq _ _ H0).
-      rewrite inv_l...
+      rewrite (Pcompare_Eq_eq _ _ H0)...
      rewrite preserves_Pminus...
-     ring.
-    rewrite preserves_Pminus.
-     rewrite ring_distr_opp.
-     rewrite inv_involutive.
-     ring.
+    rewrite preserves_Pminus...
     unfold Plt.
     rewrite (ZC1 _ _ H0)...
-   rewrite preserves_Pplus.
-   rewrite ring_distr_opp.
-   ring.
-  Qed.
-
-  Lemma preserves_Pmult x y: map_pos (x * y) == map_pos x * map_pos y.
-  Proof with try reflexivity; try ring.
-   induction x; intros; simpl...
-    rewrite preserves_Pplus.
-    rewrite distribute_r.
-    rewrite xO_in_ring_terms.
-    rewrite preserves_Pplus.
-    rewrite IHx...
-   rewrite distribute_r.
-   rewrite IHx...
+   rewrite preserves_Pplus...
   Qed.
 
   Lemma preserves_Zmult x y: map_Z (x * y) == map_Z x * map_Z y.
   Proof with try reflexivity; try ring.
-   destruct x; simpl; intros.
-     symmetry.
-     apply mult_0_l.
+   destruct x; simpl; intros...
     destruct y; simpl...
      apply preserves_Pmult.
-    rewrite preserves_Pmult.
-    rewrite ring_opp_mult.
-    rewrite (ring_opp_mult (map_pos p0))...
+    rewrite preserves_Pmult...
    destruct y; simpl...
-    rewrite preserves_Pmult.
-    rewrite ring_opp_mult.
-    rewrite (ring_opp_mult (map_pos p))...
-   rewrite preserves_Pmult.
-   symmetry.
-   apply ring_opp_mult_opp.
+    rewrite preserves_Pmult...
+   rewrite preserves_Pmult...
   Qed.
 
   Instance: Proper (equiv ==> equiv)%signature map_Z.

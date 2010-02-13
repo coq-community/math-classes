@@ -153,3 +153,14 @@ Qed.
 
 Lemma Mult_nz_mult_nz (x y: nat): ~ y == 0 -> ~ x == 0 -> ~ y * x == 0.
 Proof. intros A B C. destruct (Mult.mult_is_O y x C); intuition. Qed.
+
+(* On occasion we will be confronted with nat's minus operation, for which
+ we prove a simple conditional preservation property: *)
+
+Lemma preserves_minus `{Ring R} (f: nat -> R) `{!SemiRing_Morphism f}
+  x y (P: (y <= x)%nat): f (x - y)%nat == f x + - f y.
+Proof.
+ rewrite (Minus.le_plus_minus _ _ P: x = (y + (x - y)%nat)) at 2.
+ rewrite preserves_plus, commutativity, associativity, plus_opp_l, plus_0_l.
+ reflexivity.
+Qed.
