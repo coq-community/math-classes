@@ -36,3 +36,5 @@ Proof.
 Qed.
 
 Definition iffT (A B: Type): Type := prod (A -> B) (B -> A).
+
+Class NonEmpty {A: Type} (P: A -> Prop): Prop := { non_empty: sig P }.

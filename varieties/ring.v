@@ -66,7 +66,7 @@ Section from_instance.
   Instance implementation: AlgebraOps sig (fun _ => A) := fun o =>
     match o with plus => ring_plus | mult => ring_mult | zero => 0 | one => 1 | opp => group_inv end.
 
-  Global Instance: Algebra sig _.
+  Global Instance alg: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
 
   Lemma laws e (l: Laws e) vars: eval_stmt sig vars e.
@@ -199,38 +199,25 @@ Next Obligation.
  apply preserves_inv.
 Qed.
 *)
+
 Section morphism_from_ua.
 
-  Context (*  {R1: unit -> Type} `{e1: forall u, Equiv (R1 u)}*) (*`{!Equivalence e0}*)
-(*    `{forall u, Equivalence (e1 u)} *)
-    `{Variety theory R0 bla } `{Variety theory R1 kip }
-    (f: forall u, R0 u -> R1 u)
-      `{!@HomoMorphism sig R0 R1 _ _ _ _ f}.
+  Context `{Variety theory R0} `{Variety theory R1} f `{!HomoMorphism sig R0 R1 f}.
 
-  Global Instance: forall u, Equiv (R0 u) := fun u x y => True.
- 
   Global Instance: RingPlus (R0 tt) := @universal_algebra.algebra_op sig R0 _ plus.
   Global Instance: RingMult (R0 tt) := @universal_algebra.algebra_op sig R0 _ mult.
   Global Instance: RingZero (R0 tt) := @universal_algebra.algebra_op sig R0 _ zero.
   Global Instance: RingOne (R0 tt) := @universal_algebra.algebra_op sig R0 _ one.
   Global Instance: GroupInv (R0 tt) := @universal_algebra.algebra_op sig R0 _ opp.
 
-(*
-  Global Instance: RingPlus (R1 u) := fun u => match u with tt => universal_algebra.algebra_op sig plus end.
-  Global Instance: RingMult (R1 u) := fun u => match u with tt => universal_algebra.algebra_op sig mult end.
-  Global Instance: RingZero (R1 u) := fun u => match u with tt => universal_algebra.algebra_op sig zero end.
-  Global Instance: RingOne (R1 u) := fun u => match u with tt => universal_algebra.algebra_op sig one end.
-  Global Instance: GroupInv (R1 u) := fun u => match u with tt => universal_algebra.algebra_op sig opp end.
-*)
   Lemma morphism_from_ua: Ring_Morphism (f tt).
    pose proof (@preserves sig R0 R1 _ _ _ _ f _).
    repeat (constructor; try apply _).
-       apply (H2 plus).
-      apply (H2 zero).
-     apply (H2 opp).
-    apply (H2 mult).
-   apply (H2 one).
+       apply (H1 plus).
+      apply (H1 zero).
+     apply (H1 opp).
+    apply (H1 mult).
+   apply (H1 one).
   Qed.
 
 End morphism_from_ua.
-
