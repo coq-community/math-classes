@@ -2,7 +2,7 @@ Set Automatic Introduction.
 
 Require Import
   Morphisms Setoid Program List
-  abstract_algebra theory.categories util monads.
+  abstract_algebra theory.categories util monads setoids.
 
 Record Entailment (P: Type): Type := { entailment_premises: list P; entailment_conclusion: P }.
 
@@ -130,7 +130,7 @@ Section for_signature. Variable sign: Signature.
       (carriers: sorts sign -> Type)
       {e: forall a, Equiv (carriers a)}
       `{AlgebraOps carriers}: Prop :=
-    { algebra_equivalence:> forall a, Equivalence (equiv: relation (carriers a))
+    { algebra_setoids:> forall a, Setoid (carriers a)
     ; algebra_propers:> forall o: sign, Proper equiv (algebra_op o)
     }.
 

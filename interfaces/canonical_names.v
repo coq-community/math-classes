@@ -15,8 +15,10 @@ Class RingOne A := ring_one: A.
 Class RingZero A := ring_zero: A.
 Class GroupInv A := group_inv: A -> A.
 Class MultInv A `{Equiv A} `{RingZero A} := mult_inv: { x: A | ~ equiv x ring_zero } -> A.
-Class CatId O (A:O->O->Type) := cat_id: forall {o}, A o o.
-Class CatComp O (A:O->O->Type) := comp: forall {x y z}, A y z -> A x y -> A x z.
+Class Arrows (O: Type): Type := Arrow: O -> O -> Type.
+Infix "-->" := Arrow.
+Class CatId O `{Arrows O} := cat_id: forall {o}, o --> o.
+Class CatComp O `{Arrows O} := comp: forall {x y z}, (y --> z) -> (x --> y) -> (x --> z).
 Class Order A := precedes: relation A.
 Class RalgebraAction A B := ralgebra_action: A -> B -> B.
 

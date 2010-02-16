@@ -13,7 +13,7 @@ Section initial_maps.
   Class IntegersToRing :=
     integers_to_ring: forall R `{RingMult R} `{RingPlus R} `{RingOne R} `{RingZero R} `{GroupInv R}, Int -> R.
 
-  Context `{IntegersToRing} (B: variety.Object ring.theory).
+  Context `{IntegersToRing} (B: ring.Object).
 
   Definition f u: Int -> B u.
   Proof.
@@ -21,12 +21,11 @@ Section initial_maps.
    apply (H (B tt) _ _ _ _ _).
   Defined.
 
-  Definition initial_arrow `{Ring Int} {d: Ring_Morphism (H (B tt) _ _ _ _ _)}:
-    variety.Arrow ring.theory (@variety.object ring.theory _ _ _ (ring.variety Int)) B.
+  Definition initial_arrow `{Ring Int} {d: Ring_Morphism (H (B tt) _ _ _ _ _)}: ring.object Int --> B.
   Proof.
    simpl.
    intros.
-   apply (@variety.arrow ring.theory (fun _ => Int) _ _ (ring.variety Int) B _ _ _ f).
+   exists f.
    simpl.
    apply (@ring.mor_from_sr_to_alg (fun _ => Int) _ (ring.implementation Int) (ring.variety Int) B _ _ _).
    assumption.

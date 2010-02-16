@@ -27,24 +27,20 @@ Section contents.
   Global Existing Instance variety_op.
   Global Existing Instance variety_proof.
 
-  Definition Arrow (X Y: Object): Type := sig (HomoMorphism et X Y).
+  Global Instance: Arrows Object := fun X Y: Object => sig (HomoMorphism et X Y).
 
   Program Definition arrow `{Variety et A} `{Variety et B}
-    f `{!HomoMorphism et A B f}: Arrow (object A) (object B) := f.
+    f `{!HomoMorphism et A B f}: object A --> object B := f.
 
+  Global Program Instance: CatId Object := fun _ _ => id.
 
-  Program Definition arrow' {A B: Object} f `{!HomoMorphism et A B f}: Arrow A B := f.
-
-
-  Global Program Instance: CatId Object Arrow := fun _ _ => id.
-
-  Global Program Instance comp: CatComp Object Arrow := fun _ _ _ f g v => (`f) v ∘ (`g) v.
+  Global Program Instance: CatComp Object := fun _ _ _ f g v => f v ∘ g v.
   Next Obligation. destruct f, g. apply _. Qed.
 
-  Global Program Instance e x y: Equiv (Arrow x y)
-    := fun x y => forall b, pointwise_relation _ equiv (x b) (y b).
+  Global Program Instance: forall (x y: Object), Equiv (x --> y)
+    := fun _ _ x y => forall b, pointwise_relation _ equiv (x b) (y b).
 
-  Global Instance: forall x y, Equivalence (e x y).
+  Global Instance: forall (x y: Object), Setoid (x --> y).
   Proof.
    constructor.
      repeat intro. reflexivity.
@@ -52,14 +48,13 @@ Section contents.
    intros ? ? ? E F ? ?. rewrite (E _ _). apply F.
   Qed.
 
-  Instance: Proper (equiv ==> equiv ==> equiv) (comp x y z).
+  Instance: forall (x y z: Object), Proper (equiv ==> equiv ==> equiv) (comp: y --> z -> x --> y -> x --> z).
   Proof.
-   intros ? ? ? x0 ? E ? ? F ? ?.
-   simpl. unfold compose. unfold equiv, e, pointwise_relation in E, F.
-   destruct (proj2_sig x0). unfold equiv. rewrite F, E. reflexivity.
+   intros ??? [? [??]] ? E ?? F ??. simpl.
+   unfold compose. rewrite (F _ _), (E _ _). reflexivity.
   Qed.
 
-  Global Instance cat: Category Object Arrow.
+  Global Instance: Category Object.
   Proof. constructor; try apply _; repeat intro; unfold equiv; reflexivity. Qed.
 
   (* Definition obj: cat.Object := cat.object Object Arrow e _ _ _.

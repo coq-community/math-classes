@@ -5,7 +5,7 @@ Require Import
 Require Export
  canonical_names util.
 
-Class Setoid A {e: Equiv A} := setoid_eq:> Equivalence e.
+Class Setoid A {e: Equiv A} := setoid_eq:> Equivalence (@equiv A e).
 
 Class SemiGroup A {e: Equiv A} {op: SemiGroupOp A} :=
   { sg_setoid:> Setoid A
@@ -17,7 +17,7 @@ Class Monoid A `{Equiv A} {op: SemiGroupOp A} {unit: MonoidUnit A} :=
   ; monoid_lunit: forall x, mon_unit & x == x
   ; monoid_runit: forall x, x & mon_unit == x }.
 
-Class Group A {e: Equiv A} (op: SemiGroupOp A) {unit: MonoidUnit A} {inv: GroupInv A} :=
+Class Group A {e: Equiv A} {op: SemiGroupOp A} {unit: MonoidUnit A} {inv: GroupInv A}: Prop :=
   { group_monoid:> Monoid A
   ; inv_proper:> Proper (e ==> e) inv
   ; inv_l: forall x, - x & x == mon_unit
@@ -90,24 +90,25 @@ Class Ralgebra `(e: Equiv Scalar) `(e': Equiv Elem) `{RalgebraAction Scalar Elem
 Definition is_derivation `{Ralgebra Scalar Elem} (f: Elem -> Elem): Prop :=
   True. (* something *)
 
-Class Category O (A: O -> O -> Type) {e: forall x y, Equiv (A x y)} `{CatId O A} `{cc: CatComp O A}: Type :=
-  { arrow_equiv:> forall x y: O, Equivalence (@equiv _ (e x y))
+Class Category O `{!Arrows O} `{forall x y: O, Equiv (x --> y)} `{!CatId O} `{!CatComp O}: Prop :=
+  { arrow_equiv:> forall x y: O, Setoid (x --> y)
   ; comp_proper:> forall x y z: O, Proper (equiv ==> equiv ==> equiv)%signature (@comp _ _ _ x y z)
-  ; comp_assoc: forall w x y z (a: A w x) (b: A x y) (c: A y z),
-      equiv (comp c (comp b a)) (comp (comp c b) a)
-  ; id_l: forall x y (a: A y x), equiv (comp cat_id a) a
-  ; id_r: forall x y (a: A x y), equiv (comp a cat_id) a
-  }. (* note: no equality on objects. *)
+  ; comp_assoc: forall (w x y z: O) (a: w --> x) (b: x --> y) (c: y --> z),
+      comp c (comp b a) == comp (comp c b) a
+  ; id_l: forall (x y: O) (a: y --> x), comp cat_id a == a
+  ; id_r: forall (x y: O) (a: x --> y), comp a cat_id == a }.
+      (* note: no equality on objects. *)
 
-Implicit Arguments comp_assoc [[O] [A] [e] [H] [cc] [Category] [w] [x] [y] [z]].
+(* todo: use my comp everywhere *)
+
+Implicit Arguments comp_assoc [[O] [Arrows0] [H] [CatId0] [CatComp0] [Category] [w] [x] [y] [z]].
 
 (* Morphism classes: *)
 
 Class Setoid_Morphism `{Aeq: Equiv A} `{Beq: Equiv B} (f: A -> B) :=
-  { setoidmod_a: Equivalence Aeq
-  ; setoidmod_b: Equivalence Beq
-  ; sm_proper:> Proper (equiv ==> equiv) f
-  }.
+  { setoidmod_a: Setoid A
+  ; setoidmod_b: Setoid B
+  ; sm_proper:> Proper (equiv ==> equiv) f }.
 
 Class SemiGroup_Morphism {A B Aeq Beq Aop Bop} (f: A -> B) :=
   { a_sg: @SemiGroup A Aeq Aop
@@ -142,22 +143,4 @@ Class Ring_Morphism {A B Ae Aplus Amult Aopp Azero Aone Be Bplus Bmult Bopp Bzer
   (* The structure instance fields in the morphism classed used to be coercions, but
    that ultimately caused too much problems. *)
 
-(* todo: move what follows *)
-
-Global Instance id_setoid_morphism: forall {T} {e: Equiv T}, Equivalence e -> @Setoid_Morphism T e T e id.
-Proof. constructor; apply _. Qed.
-
-Instance compose_setoid_morphisms (A B C: Type)
-  `{!Equiv A} `{!Equiv B} `{!Equiv C} (f: A -> B) (g: B -> C)
-  `{!Setoid_Morphism f} `{!Setoid_Morphism g}: Setoid_Morphism (g ∘ f).
-Proof.
- intros A B C Ae Be Ce f g P Q.
- constructor.
-   destruct P. apply _.
-  destruct Q. apply _.
- repeat intro.
- unfold compose.
- do 2 apply sm_proper.
- assumption.
-Qed.
-
+(* Todo: We really introduce way too many names in the above, but Coq currently doesn't seem to support nameless class fields.  *)

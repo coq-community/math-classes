@@ -2,9 +2,9 @@ Set Automatic Introduction.
 
 Require Import
   RelationClasses Morphisms Program
-  universal_algebra canonical_names util theory.categories.
-
-Require categories.algebra.
+  universal_algebra canonical_names theory.categories abstract_algebra.
+Require
+  categories.algebra forget_algebra.
 
 Section subalgebras.
 
@@ -87,13 +87,11 @@ Section subalgebras.
   Proof. firstorder. Qed.
 
   Global Instance: Mono (algebra.arrow _ proj).
-   apply categories.algebra.mono.
+  Proof.
+   apply forget_algebra.mono.
    apply categories.product.mono.
-   intro.
-   simpl.
-   apply setoid.mono.
-   simpl.
-   apply _.
+   intro. apply setoid.mono.
+   simpl. apply _.
   Qed. (* this really should be completely automatic. *)
 
 End subalgebras.

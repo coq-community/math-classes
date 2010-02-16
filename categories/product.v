@@ -9,24 +9,20 @@ Axiom dependent_functional_choice: DependentFunctionalChoice.
 
 Section contents.
 
-  Context (I: Type) (O: I -> Type) (A: forall i, O i -> O i -> Type)
-    {ei: forall i (x y: O i), Equiv (A i x y)}
-    `{forall i, CatId (O i) (A i)} `{forall i, CatComp (O i) (A i)}
-    {c: forall i, Category (O i) (A i)}.
+  Context {I: Type} (O: I -> Type)
+    `{forall i, Arrows (O i)}
+    `{forall i (x y: O i), Equiv (x --> y)}
+    `{forall i, CatId (O i)} `{forall i, CatComp (O i)}
+    `{forall i, Category (O i)}.
 
   Definition Object := forall i, O i.
-  Definition Arrow := fun x y: Object => forall i, A i (x i) (y i).
+  Global Instance pa: Arrows Object := fun x y => forall i, x i --> y i. (* todo: make nameless *)
 
-  Global Instance: CatId Object Arrow := fun _ _ => cat_id.
-  Global Instance comp': CatComp Object Arrow := fun _ _ _ d e i => comp (d i) (e i).
-  Global Instance e x y: Equiv (Arrow x y) := fun f g => forall i, f i == g i.
+  Global Instance: CatId Object := fun _ _ => cat_id.
+  Global Instance: CatComp Object := fun _ _ _ d e i => comp (d i) (e i).
+  Global Instance e (x y: Object): Equiv (x --> y) := fun f g => forall i, f i == g i.
 
-  Let ith_cat i := cat.object_from_instance (O i) (A i).
-
-  Let hint c0 i := @cat.map_arr_mor c0 (ith_cat i).
-    (* todo: should not be needed *)
-
-  Global Instance: forall x y, Equivalence (e x y).
+  Global Instance: forall x y: Object, Setoid (x --> y).
   Proof with auto.
    constructor.
      repeat intro. reflexivity.
@@ -34,7 +30,7 @@ Section contents.
    intros ? ? ? E ? i. rewrite (E i)...
   Qed.
 
-  Global Instance cat: Category Object Arrow.
+  Global Instance: Category Object.
   Proof with try reflexivity.
    constructor. apply _.
       intros ? ? ? x y E x' y' F i.
@@ -45,10 +41,12 @@ Section contents.
    repeat intro. apply id_r.
   Qed.
 
-  Definition product_obj: cat.Object := cat.object_from_instance Object Arrow.
+  Let product_object := cat.object Object.
 
-  Program Definition project (i: I): cat.Arrow product_obj (ith_cat i) :=
-    cat.arrow product_obj (ith_cat i) (fun d => d i) (fun _ _ a => a i) _.
+  Notation ith_obj i := (cat.object (O i)).
+
+  Program Definition project i: cat.object Object --> ith_obj i :=
+    cat.arrow (fun d => d i) (fun _ _ a => a i) _.
   Next Obligation. Proof. (* functorial *)
    constructor; intros; try reflexivity.
    constructor; try apply _.
@@ -57,25 +55,27 @@ Section contents.
 
   Section factors.
 
-    Variables (c0: cat.Object) (X: forall i, cat.Arrow c0 (ith_cat i)).
+    Variables (C: cat.Object) (X: forall i, C --> ith_obj i).
 
-    Implicit Arguments cat.map_arr [[x] [y] [v] [w]].
+    Let ith_functor i := cat.Functor_inst _ _ (X i).
+    Let hint_b i := @functor_morphism _ _ _ _ _ _ _ _ _ _ _ _ (ith_functor i).
+      (* These are necessary because of limitations in current unification.
+       Todo: re-investigate with new proof engine. *)
 
-    Program Definition factor: categories.cat.Arrow c0 product_obj
-      := cat.arrow _ product_obj (fun X0 _ => X _ X0) (fun _ _ X0 i => cat.map_arr (X i) X0) _.
-    Next Obligation. Proof with reflexivity. (* functorial *)
-     pose proof (fun i => cat.functor_inst _ _ (X i)). (* shouldn't be necessary *)
+    Program Definition factor: C --> product_object
+      := cat.arrow (fun (c: C) i => X i c) (fun (x y: C) (c: x --> y) i => fmap (X i) c) _.
+    Next Obligation. Proof with try reflexivity; intuition. (* functorial *)
      constructor; intros.
        constructor; try apply _.
-       intros ? ? E ?. rewrite E...
-      intro. rewrite preserves_id...
-     intro. rewrite preserves_comp...
-    Qed.
-
-    Let hint' := cat.map_arr_mor.
+       intros ? ? E ?.
+       change (fmap (X i) x == fmap (X i) y).
+       rewrite E...
+      intro. unfold fmap at 1. rewrite preserves_id... destruct X...
+     intro. unfold fmap at 1. rewrite preserves_comp... destruct X...
+    Qed. (* todo: those [destruct X]'s shouldn't be necessary *)
 
     Lemma s: is_sole (fun h' => forall i, X i == comp (project i) h') factor.
-    Proof with try reflexivity.
+    Proof with try reflexivity; intuition.
      split.
       intro.
       exists (fun v => refl_arrows (X i v)).
@@ -83,45 +83,64 @@ Section contents.
       rewrite id_r, id_l, E...
      intros alt alt_factors.
      generalize (dependent_functional_choice I _ _ alt_factors). clear alt_factors.
-     unfold equiv, cat.e. simpl. unfold compose.
-     intros [x H2].
-     set (P := fun v => prod (Arrow (alt v) (fun i : I => (X i) v)) (Arrow (fun i : I => (X i) v) (alt v))).
-     set (d := fun v => (fun i => snd (proj1_sig (x i v)), fun i => fst (proj1_sig (x i v))): P v).
-     assert (forall v, iso_arrows (fst (d v)) (snd (d v))) as Q.
+     unfold isoT in *.
+     simpl.
+     intros [x H4].
+     unfold equiv.
+     unfold cat.e.
+     unfold compose in H4.
+     set (P := fun v => prod (alt v --> (fun i => (X i) v)) ((fun i => (X i) v) --> alt v)).
+     set (d := fun v => (fun i => snd (` (x i v)), fun i => fst (` (x i v))): P v).
+     assert (forall v, uncurry iso_arrows (d v)) as Q.
       split; simpl; intro.
-       change (comp (snd (proj1_sig (x i v))) (fst (proj1_sig (x i v))) == cat_id).
-       destruct (x i v) as [? Q]. apply Q. (* Using Coq trunk 12609 this line was just [apply x], but that broke in subsequent revisions. :-( *)
-      change (comp (fst (proj1_sig (x i v))) (snd (proj1_sig (x i v))) == cat_id).
-      destruct (x i v) as [? Q]. apply Q. (* As above. *)
-     exists (fun v => exist (fun p => iso_arrows (fst p) (snd p)) _ (Q v)).
+       change (comp (snd (` (x i v))) (fst (` (x i v))) == cat_id).
+       destruct (x i v) as [? []]...
+      change (comp (fst (` (x i v))) (snd (` (x i v))) == cat_id).
+      destruct (x i v) as [? []]...
+     exists (fun v => exist (uncurry iso_arrows) _ (Q v)).
      intros p q r r' rr' i.
      simpl.
-     change (comp (cat.map_arr alt r i) (fst (proj1_sig (x i p))) == comp (fst (proj1_sig (x i q))) (cat.map_arr (X i) r')).
-     pose proof (H2 i p q r r' rr'). clear H2.
+     
+     unfold comp.
+     unfold CatComp_instance_0. (* todo: no! *)
+     pose proof (H4 i p q r r' rr'). clear H4.
      destruct (x i p) as [aa0 i0].
      destruct (x i q) as [a1a2 i1].
      simpl in *.
-     assert (cat.map_arr alt r == cat.map_arr alt r').
+     unfold uncurry in *.
+     unfold iso_arrows in *.
+     destruct (cat.Functor_inst _ _ alt).
+     simpl in *.
+     assert (fmap alt r == fmap alt r').
       rewrite rr'...
-     rewrite (H2 i). clear H2.
-     rewrite rr' in H1.
-     rewrite <- (id_l _ _  (comp (cat.map_arr alt r' i) (fst aa0))).
-     rewrite <- (proj1 i1).
-     apply transitivity with (comp (fst a1a2) (comp (comp (snd a1a2) (cat.map_arr alt r' i)) (fst aa0))).
+     rewrite (H4 i). clear H4.
+     rewrite rr' in H5.
+     unfold compose in x, aa0, a1a2.
+     simpl in *.
+     unfold fmap.
+     set (cat.Fmap_inst _ _ alt).
+     rewrite <- (id_l _ _ (comp (f p q r' i) (fst aa0))).
+     transitivity (comp (comp (fst a1a2) (snd a1a2)) (comp (f p q r' i) (fst aa0))).
+      apply comp_proper...
+     apply transitivity with (comp (fst a1a2) (comp (comp (snd a1a2) (cat.Fmap_inst _ _ alt p q r' i)) (fst aa0))).
       rewrite comp_assoc.
       repeat rewrite (comp_assoc _ _)... (* todo: why must we specify the implicits? *)
-     rewrite <- H1.
+     simpl.
+     rewrite <- H5.
      repeat rewrite <- (comp_assoc _ _).
      rewrite (proj2 i0), id_r...
     Qed. (* WARNING: Uses DependentFunctionalChoice. (Todo: reflect.) *)
+      (* todo: awful proof. clean up! *)
 
   End factors.
 
-  Lemma yep: is_product ith_cat product_obj project factor.
+(* Can't do due to universe inconsistency:
+  Lemma yep: is_product (fun i => ith_obj i) product_object project factor.
   Proof. intro. apply s. Qed. 
+*)
 
-  Global Instance mono: forall (a: Arrow X Y), (forall i, Mono (a i)) -> Mono a.
-  Proof. firstorder. Qed.
+  Global Instance mono (X Y: Object): forall (a: X --> Y), (forall i, @Mono _ _ (H0 _) (H2 i) _ _ (a i)) -> Mono a.
+  Proof. firstorder. Qed. (* todo: why so ugly all of a sudden? *)
 
   (* todo: register a Producer for Cat *)
 

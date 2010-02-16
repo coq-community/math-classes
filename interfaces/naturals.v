@@ -22,12 +22,11 @@ Section initial_maps.
    apply (H (B tt) _ _ _ _).
   Defined. (* todo: clean up *)
 
-  Definition initial_arrow `{SemiRing A} {d: SemiRing_Morphism (H (B tt) _ _ _ _)}:
-    semiring.Arrow (@variety.object semiring.theory _ _ _ (semiring.variety A)) B.
+  Definition initial_arrow `{SemiRing A} {d: SemiRing_Morphism (H (B tt) _ _ _ _)}: semiring.object A --> B.
   Proof.
    simpl.
    intros.
-   apply (@variety.arrow semiring.theory (fun _ => A) _ _ (semiring.variety A) B _ _ _ f).
+   exists f.
    simpl.
    apply (@semiring.mor_from_sr_to_alg (fun _ => A) _ (semiring.implementation A) (semiring.variety A) B _ _ _).
    assumption.

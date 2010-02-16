@@ -7,9 +7,9 @@ Set Automatic Introduction.
 
 Require Import
   RelationClasses Morphisms Program
-  universal_algebra canonical_names util theory.categories.
-
-Require categories.algebra.
+  universal_algebra canonical_names util theory.categories abstract_algebra.
+Require
+  categories.algebra.
 
 Section subalgebras.
 

@@ -31,7 +31,7 @@ Lemma to_semiring_involutive A `{Naturals A} B `{Naturals B}: forall a: A,
 Proof.
  intros.
  pose proof (proj2 (@categories.initials_unique' (variety.Object semiring.theory)
-   (variety.Arrow semiring.theory) _ _ _ _ (semiring.object A) (semiring.object B) _ _
+   _ _ _ _ _ (semiring.object A) (semiring.object B) _ _
     naturals_initial naturals_initial) tt a).
  apply H1. (* todo: separate pose necessary due to Coq bug *)
 Qed.

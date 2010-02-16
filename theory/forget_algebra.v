@@ -11,31 +11,27 @@ Section contents.
 
   Variable sign: Signature.
 
-  Notation TargetObject := (product.Object (sorts sign) (fun _ => setoid.Object)).
-  Notation TargetArrow := (product.Arrow (sorts sign) (fun _ => setoid.Object) (fun _ => setoid.Arrow)).
+  Notation TargetObject := (product.Object (fun _: sorts sign => setoid.Object)).
 
-  Definition object (v: algebra.Object sign): TargetObject := fun i => setoid.object (v i) equiv _.
+  Let TargetArrows: Arrows TargetObject := @product.pa _ (fun _: sorts sign => setoid.Object) (fun _ => _: Arrows setoid.Object).
+    (* hm, not happy about this *)
+
+  Definition object (v: algebra.Object sign): TargetObject := fun i => setoid.object (v i) (algebra.algebra_equiv sign v i) _.
  
-  Definition arrow (x y: algebra.Object sign) (a: algebra.Arrow sign x y): TargetArrow (object x) (object y)
-    := fun i => setoid.arrow (object x i) (object y i)
-      (proj1_sig a i) (@homo_proper sign _ _ _ _ _ _ _ (proj2_sig a) i).
+  Global Program Instance: Fmap object := fun _ _ => id.
+  Next Obligation. destruct x. simpl. apply _. Qed.
 
-  Global Instance: @ForgetOps _ (algebra.Arrow sign) _ TargetArrow :=
-    { forget_object := object; forget_arrow := arrow }.
-
-  Instance: Setoid_Morphism (arrow a b).
+  Global Instance forget: Functor object _.
   Proof.
-   constructor; try apply _.
-   intros x y E i A B F. simpl in *.
-   destruct (@homo_proper _ _ _ _ _ _ _ (proj1_sig x) (proj2_sig x) i).
+   constructor.
+     constructor; try apply _.
+     intros x y E i A B F. simpl in *.
+     unfold id.
+     destruct (@homo_proper _ _ _ _ _ _ _ (proj1_sig x) (proj2_sig x) i).
      (* todo: shouldn't be necessary. perhaps an [Existing Instance] for
        a specialization of proj2_sig is called for. *)
-   rewrite F. apply E.
-  Qed.
-
-  Global Instance forget: Functor object arrow.
-  Proof.
-   constructor. apply _. repeat intro. assumption.
+     rewrite F. apply E.
+    repeat intro. assumption.
    intros ? ? ? f g i ? ? E.
    simpl in *. unfold Basics.compose.
    destruct (@homo_proper _ _ _ _ _ _ _ (proj1_sig f) (proj2_sig f) i). (* todo: clean up *)
@@ -45,5 +41,23 @@ Section contents.
 
   (* Unfortunately we cannot also define the arrow in Cat because this leads to
    universe inconsistencies. Todo: look into this. *)
+
+  Let hintje: forall x y, Equiv (object x --> object y). intros. apply _. Defined. (* todo: shouldn't be necessary *)
+
+  Global Instance mono: forall (X Y: algebra.Object sign) (a: X --> Y),
+    Mono (@fmap _ _ _ TargetArrows object _ _ _ a) -> (* todo: too ugly *)
+    Mono a.
+  Proof with simpl in *; intuition.
+   repeat intro.
+   destruct a as [? [? ?]].
+   assert (fmap object f == fmap object g).
+    apply H.
+    repeat intro...
+    destruct f as [? [? ?]].
+    simpl in *.
+    pose proof (H0 i).
+    rewrite H1...
+   apply H1...
+  Qed.
 
 End contents.

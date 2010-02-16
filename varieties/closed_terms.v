@@ -43,17 +43,15 @@ Section contents. Variable et: EquationalTheory.
   Existing Instance e_sym.
   Existing Instance e_trans.
 
-  (* .. and then take the specialization at arity 0 for Term0: *)
-
-  Instance e0: forall a, Equiv (ClosedTerm0 a) := fun a => e (constant _ a).
-
-  (* e (and hence e0) is an equivalence relation by definition: *)
-
   Instance: forall o, Equivalence (e o).
   Proof. constructor; apply _. Qed.
 
-  Instance: forall a, Equivalence (e0 a).
-  Proof. unfold e0. intro. apply _. Qed.
+  (* .. and then take the specialization at arity 0 for Term0: *)
+
+  Instance: forall a, Equiv (ClosedTerm0 a) := fun a => e (constant _ a).
+
+  Instance: forall a, Setoid (ClosedTerm0 a).
+  Proof. intro. unfold Setoid. apply _. Qed.
 
   (* While this fancy congruence is the one we'll use to make our initial object a setoid,
    in our proofs we will also need to talk about extensionally equal closed term
@@ -197,15 +195,12 @@ Section contents. Variable et: EquationalTheory.
      reflexivity.
     Qed.
 
-    Program Definition the_arrow: variety.Arrow et the_object other := fun _ => eval_in_other.
+    Program Definition the_arrow: the_object --> other := fun _ => eval_in_other.
 
     (* All that remains is to show that this arrow is unique: *)
 
     Theorem arrow_unique: forall y, the_arrow == y.
     Proof with auto; try intuition.
-     unfold equiv, variety.e.
-     simpl.
-     unfold Morphisms.pointwise_relation.
      intros [x h] b a.
      simpl in *.
      pattern b, a.
@@ -215,10 +210,7 @@ Section contents. Variable et: EquationalTheory.
      change (Preservation et ClosedTerm0 other x (app_tree (Op _ _ o)) (@eval_in_other _ (Op _ _ o))) in H.
      revert H.
      generalize (Op _ False o).
-     induction (et o); simpl.
-      assert (Symmetric (variety.variety_equiv et other a0)). (* todo: shouldn't be necessary *)
-       apply _.
-      symmetry...
+     induction (et o); simpl...
      intros.
      apply IHo0.
      simpl in *.
@@ -226,8 +218,7 @@ Section contents. Variable et: EquationalTheory.
       apply app_tree_proper...
      apply (@Preservation_proper et ClosedTerm0 other _ _ x _ _ _ o0
       (app_tree (App _ _ o0 a0 t v)) (app_tree (App _ _ o0 a0 t v)) H1
-      (eval_in_other t (eval_in_other v)) (eval_in_other t (x a0 v))).
-      2: apply H.
+      (eval_in_other t (eval_in_other v)) (eval_in_other t (x a0 v)))...
      pose proof (@prep_proper _ t t (reflexivity _))... (* todo: why doesn't rewrite work here? *)
     Qed. (* todo: needs further cleanup *)
 

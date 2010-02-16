@@ -94,7 +94,7 @@ Section contents. Variable et: Signature.
   Lemma eSub_eAlgebra: eSub -> eAlgebra.
   Proof with intuition.
    intros [proper closed].
-   constructor. apply _.
+   constructor. unfold abstract_algebra.Setoid. apply _.
    intro o.
    generalize (closed o). clear closed. (* todo: must be a cleaner way *)
    unfold algebra_op.
@@ -127,6 +127,8 @@ Section contents. Variable et: Signature.
     { congruence_proper:> forall s, Proper (equiv ==> equiv ==> iff) (e s)
     ; congruence_quotient:> @Algebra et v e _
     }.
+
+  (* Todo: Show that congruences yield varieties, too. *)
 
 End contents.
 
@@ -190,7 +192,7 @@ Section first_iso.
     rewrite H3, H4.
     intuition.
    constructor.
-    intro. apply _.
+    intro. unfold abstract_algebra.Setoid. apply _.
    intro.
    unfold algebra_op.
    generalize (preserves sign A B f o).
@@ -247,7 +249,7 @@ Section first_iso.
   Definition quot_obj := algebra.object sign A (algebra_equiv:=phi). (* A/Φ *)
   Definition subobject := algebra.object sign (ua_subalgebraT.carrier image).
 
-  Program Definition back: algebra.Arrow sign subobject quot_obj := fun a X => projT1 (projT2 X).
+  Program Definition back: subobject --> quot_obj := fun _ X => projT1 (projT2 X).
 
   Next Obligation. Proof with try apply _; intuition.
    repeat constructor...
@@ -265,7 +267,7 @@ Section first_iso.
    intros ? [x [? E]]. apply IHo0... simpl in *. rewrite <- E...
   Defined.
 
-  Program Definition forth: algebra.Arrow sign quot_obj subobject := 
+  Program Definition forth: quot_obj --> subobject := 
     fun a X => existT _ (f a X) (existT _ X (reflexivity _)).
 
   Next Obligation. Proof with try apply _; intuition.

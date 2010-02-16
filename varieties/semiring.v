@@ -83,7 +83,6 @@ Section from_instance.
   Proof. constructor. apply _. exact laws. Qed.
 
   Definition Object := variety.Object theory.
-  Definition Arrow := variety.Arrow theory.
   Definition object: Object := variety.object theory (fun _ => A).
 
 End from_instance.

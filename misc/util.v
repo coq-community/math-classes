@@ -38,3 +38,5 @@ Qed.
 Definition iffT (A B: Type): Type := prod (A -> B) (B -> A).
 
 Class NonEmpty {A: Type} (P: A -> Prop): Prop := { non_empty: sig P }.
+
+Definition uncurry {A B C} (f: A -> B -> C) (p: A * B): C := f (fst p) (snd p).

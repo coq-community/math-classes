@@ -40,7 +40,6 @@ End theory.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
 Definition Object := variety.Object theory.
-Definition Arrow := variety.Arrow theory.
 
 (* Given a Monoid, we can make the corresponding Implementation, prove the laws, and
  construct the categorical object: *)
