@@ -19,7 +19,7 @@ Section contents.
   Global Instance pa: Arrows Object := fun x y => forall i, x i --> y i. (* todo: make nameless *)
 
   Global Instance: CatId Object := fun _ _ => cat_id.
-  Global Instance: CatComp Object := fun _ _ _ d e i => comp (d i) (e i).
+  Global Instance: CatComp Object := fun _ _ _ d e i => d i ◎ e i.
   Global Instance e (x y: Object): Equiv (x --> y) := fun f g => forall i, f i == g i.
 
   Global Instance: forall x y: Object, Setoid (x --> y).
@@ -34,7 +34,7 @@ Section contents.
   Proof with try reflexivity.
    constructor. apply _.
       intros ? ? ? x y E x' y' F i.
-      change (comp (x i) (x' i) == comp (y i) (y' i)).
+      change (x i ◎ x' i == y i ◎ y' i).
       rewrite (E i), (F i)...
      repeat intro. apply comp_assoc.
     repeat intro. apply id_l.
@@ -74,7 +74,7 @@ Section contents.
      intro. unfold fmap at 1. rewrite preserves_comp... destruct X...
     Qed. (* todo: those [destruct X]'s shouldn't be necessary *)
 
-    Lemma s: is_sole (fun h' => forall i, X i == comp (project i) h') factor.
+    Lemma s: is_sole (fun h' => forall i, X i == project i ◎ h') factor.
     Proof with try reflexivity; intuition.
      split.
       intro.
@@ -93,14 +93,13 @@ Section contents.
      set (d := fun v => (fun i => snd (` (x i v)), fun i => fst (` (x i v))): P v).
      assert (forall v, uncurry iso_arrows (d v)) as Q.
       split; simpl; intro.
-       change (comp (snd (` (x i v))) (fst (` (x i v))) == cat_id).
+       change (snd (` (x i v)) ◎ fst (` (x i v)) == cat_id).
        destruct (x i v) as [? []]...
-      change (comp (fst (` (x i v))) (snd (` (x i v))) == cat_id).
+      change (fst (` (x i v)) ◎ snd (` (x i v)) == cat_id).
       destruct (x i v) as [? []]...
      exists (fun v => exist (uncurry iso_arrows) _ (Q v)).
      intros p q r r' rr' i.
      simpl.
-     
      unfold comp.
      unfold CatComp_instance_0. (* todo: no! *)
      pose proof (H4 i p q r r' rr'). clear H4.

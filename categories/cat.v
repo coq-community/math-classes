@@ -35,7 +35,7 @@ Implicit Arguments arrow [[x] [y]].
 Existing Instance Fmap_inst.
 Existing Instance Functor_inst.
 
-Hint Extern 4 (Arrows Object) => exact Arrow : typeclass_instances.
+Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances.
   (* Matthieu is adding [Existing Instance (c: T).], which is nicer. *)
 
 Section contents.
@@ -48,7 +48,7 @@ Section contents.
 
     Global Program Instance e: Equiv (x --> y) := fun a b =>
       exists X: forall _, isoT _ _, forall (p q: x) (r r': p --> q), r == r' ->
-       comp (fmap a r) (snd (X p)) == comp (snd (X q)) (fmap b r').
+       fmap a r ◎ snd (X p) == snd (X q) ◎ fmap b r'.
 
     Let e_refl: Reflexive e.
     Proof.
@@ -78,7 +78,7 @@ Section contents.
     Program Let trans_arrows (x0 y0 z: x -> y) (v: x)
      (x1: sig (fun (p: (x0 v --> y0 v) * _) => uncurry iso_arrows p))
      (x2: sig (fun (p: (y0 v --> z v) * _) => uncurry iso_arrows p)): (* todo: use isoT *)
-      isoT (x0 v) (z v)  := (comp (fst x2) (fst x1), comp (snd x1) (snd x2)).
+      isoT (x0 v) (z v) := (fst x2 ◎ fst x1, snd x1 ◎ snd x2).
 
     Next Obligation. Proof with assumption.
      destruct H as [? H1], H0 as [? H2]. unfold uncurry. simpl in *.
@@ -118,8 +118,8 @@ Section contents.
   Global Instance: CatId Object := fun _ => arrow id (fun _ _ => id) _.
 
   Global Program Instance: CatComp Object
-    := fun x y z X X0 => arrow (compose X X0)
-     (fun _ _ => compose (@Fmap_inst _ _ X _ _) (@Fmap_inst _ _ X0 _ _)) _.
+    := fun x y z X X0 => arrow (X ∘ X0)
+     (fun _ _ => @Fmap_inst _ _ X _ _ ∘ @Fmap_inst _ _ X0 _ _) _.
        (* With the intermediate Arrow constant out of the way we should
         just be able to say "fmap X" and "fmap X0" here. *)
 
@@ -132,7 +132,7 @@ Section contents.
     (f: forall v, @isoT _ _ _ _ _ (map_obj x0 v) (map_obj y0 v))
     (g: forall v, @isoT _ _ _ _ _ (map_obj x1 v) (map_obj y1 v)) (v: x):
       @isoT _ _ _ _ _ (map_obj x0 (map_obj x1 v)) (map_obj y0 (map_obj y1 v))
-   := (comp (fst (f (y1 v))) (fmap x0 (fst (g v))), comp (fmap x0 (snd (g v))) (snd (f (y1 v)))).
+   := (fst (f (y1 v)) ◎ fmap x0 (fst (g v)), fmap x0 (snd (g v)) ◎ snd (f (y1 v))).
      (* Todo: Investigate why things go wrong without the underscores. *)
 
   Next Obligation. Proof with try apply _; intuition.
@@ -208,14 +208,14 @@ Section contents.
 
   Next Obligation. split; apply id_l. Qed.
 
-  Let id_l' (x y: Object) (a: y --> x): comp cat_id a == a.
+  Let id_l' (x y: Object) (a: y --> x): cat_id ◎ a == a.
   Proof.
    exists (id_lr_arrows _ _ a).
    intros ? ? ? ? E. simpl. unfold compose, id.
    rewrite id_r, id_l, <- E. reflexivity.
   Qed.
 
-  Let id_r' (x y: Object) (a: x --> y): comp a cat_id == a.
+  Let id_r' (x y: Object) (a: x --> y): a ◎ cat_id == a.
   Proof.
    exists (id_lr_arrows _ _ a).
    intros ? ? ? ? E. simpl. unfold compose, id.
@@ -230,7 +230,7 @@ Section contents.
       (fmap c (fmap b (fmap a cat_id)), fmap c (fmap b (fmap a cat_id))).
     Next Obligation. unfold uncurry. simpl. split; repeat rewrite preserves_id; try apply _; apply id_l. Qed.
 
-    Lemma comp_assoc': comp c (comp b a) == comp (comp c b) a.
+    Lemma comp_assoc': c ◎ (b ◎ a) == (c ◎ b) ◎ a.
     Proof.
      exists comp_assoc_arrows.
      simpl. intros ? ? ? ? E. unfold compose.

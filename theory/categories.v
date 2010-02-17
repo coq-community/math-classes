@@ -17,22 +17,28 @@ Section functor_class.
 
 End functor_class.
 
+Section natural_transformation.
+
+  Context `{Category C} `{Category D} (F G: C -> D) `{!Functor F Fa} `{!Functor G Ga}.
+
+  Class NaturalTransformation (η: forall c: C, F c --> G c): Prop :=
+    natural: forall (x y: C) (f: x --> y), η y ◎ fmap F f == fmap G f ◎ η x.
+
+End natural_transformation.
+
 Section adjunction.
 
   Context `{Category A} `{Category X}
     (F: X -> A) `{!Functor F Fa} (* todo: we don't want to name Fa and Fg here *)
     (G: A -> X) `{!Functor G Ga}
-   (φ: forall {x a}, (F x --> a) -> (x --> G a))
-   `{forall x a, Bijective (φ x a)}.
+    (φ: forall {x a}, (F x --> a) -> (x --> G a))
+    `{forall x a, Bijective (φ x a)}.
 
   Implicit Arguments φ [[x] [a]].
 
   Class Adjunction: Prop :=
-   { natural_left: forall (x: X) (a a': A) (k: a --> a'),
-       pointwise_relation _ equiv (comp (fmap G k) ∘ φ) (@φ x _ ∘ comp k)
-   ; natural_right: forall (x x': X) (a: A) (h: x' --> x),
-       pointwise_relation _ equiv (flip comp h ∘ @φ _ a) (φ ∘ flip comp (fmap F h))
-   }.
+   { natural_left: forall (x: X) (a a': A) (k: a --> a'), (fmap G k ◎) ∘ φ == @φ x _ ∘ (k ◎)
+   ; natural_right: forall (x x': X) (a: A) (h: x' --> x), (◎ h) ∘ @φ _ a == φ ∘ (◎ fmap F h) }.
 
 End adjunction.
 
@@ -99,12 +105,12 @@ Section contents.
   Context `{Category X}.
 
   Class Mono {x y} (a: x --> y): Prop :=
-    mono: forall z (f g: z --> x), comp a f == comp a g -> f == g.
+    mono: forall z (f g: z --> x), a ◎ f == a ◎ g -> f == g.
 
   Section isomorphy.
 
     Definition iso_arrows {x y: X} (a: x --> y) (b: y --> x): Prop
-      := comp a b == cat_id /\ comp b a == cat_id. (* todo: product *)
+      := a ◎ b == cat_id /\ b ◎ a == cat_id. (* todo: product *)
 
     Global Instance: HeteroSymmetric (@iso_arrows).
     Proof. unfold iso_arrows. repeat intro. intuition. Qed.
@@ -117,8 +123,8 @@ Section contents.
     Definition iso: Equiv X := fun x y => ex (uncurry (@iso_arrows x y)).
     Definition isoT: X -> X -> Type := fun x y => sig (uncurry (@iso_arrows x y)).
 
-    Instance: Reflexive iso.
-    Proof. repeat intro. exists (@cat_id _ _ _ x, @cat_id _ _ _ x). split; apply id_l. Qed.
+    Program Instance: Reflexive iso := fun x => ex_intro _ (cat_id, cat_id) _.
+    Next Obligation. split; apply id_l. Qed.
 
     Instance: Symmetric iso.
     Proof. intros ? ? [[f f'] ?]. exists (f', f). unfold uncurry. apply (hetero_symmetric). assumption. Qed.
@@ -126,7 +132,7 @@ Section contents.
     Instance: Transitive iso.
     Proof with assumption.
      intros ? ? ? [[f f'] [U V]] [[g g'] [W Z]].
-     exists (comp g f, comp f' g').
+     exists (g ◎ f, f' ◎ g').
      split; simpl.
       rewrite <- comp_assoc, (comp_assoc g' f' f), U, id_l...
      rewrite <- comp_assoc, (comp_assoc f g g'), Z, id_l...
@@ -138,8 +144,8 @@ Section contents.
     Lemma arrows_between_isomorphic_objects (a b c d: X)
       (ab: a --> b) (ba: b --> a) (cd: c --> d) (dc: d --> c) (ac: a --> c) (bd: b --> d):
        iso_arrows ab ba -> iso_arrows cd dc ->
-        comp ac ba == comp dc bd ->
-        comp bd ab == comp cd ac.
+        ac ◎ ba == dc ◎ bd ->
+        bd ◎ ab == cd ◎ ac.
     Proof. (* shows that you only need one half of the diagram to commute for the other half to commute as well*)
      intros.
      rewrite <- (id_l _ _ (comp bd ab)).
@@ -154,13 +160,12 @@ Section contents.
      reflexivity.
     Qed.
 
-    Program Definition refl_arrows (x: X): isoT x x
-      := (@cat_id _ _ _ x, @cat_id _ _ _ x).
+    Program Definition refl_arrows (x: X): isoT x x := (cat_id, cat_id).
     Next Obligation. split; apply id_l. Qed.
 
   End isomorphy.
 
-  Section initiality.
+  Section initiality. (* todo: typeclassify *)
 
     Definition proves_initial {x: X} (f: forall y, x --> y): Prop := forall y f', f y == f'.
 
@@ -174,7 +179,7 @@ Section contents.
      rewrite <- (H1 x cat_id). rewrite <- H1...
     Qed.
 
-    Lemma initials_unique (x x': X) (a: initial x) (b: initial x'): iso_arrows (` (a x')) (` (b x)).
+    Program Lemma initials_unique (x x': X) (a: initial x) (b: initial x'): iso_arrows (a x') (b x).
     Proof.
      split.
       destruct (b x') as [? e1]. rewrite <- e1. apply e1.
@@ -194,10 +199,10 @@ Section contents.
 
     Definition is_product (candidate: X) (proj: forall i, candidate --> component i)
       (h: forall (c: X) (ccomp: forall i, c --> component i), c --> candidate): Prop
-        := forall c ccomp, is_sole (fun h' => forall i, ccomp i == comp (proj i) h') (h c ccomp).
+        := forall c ccomp, is_sole (fun h' => forall i, ccomp i == proj i ◎ h') (h c ccomp).
 
     Definition is_product' (p: Product): Prop
-        := forall c ccomp, is_sole (fun h' => forall i, ccomp i == comp (project p i) h') (factor p c ccomp).
+        := forall c ccomp, is_sole (fun h' => forall i, ccomp i == project p i ◎ h') (factor p c ccomp).
 
 (*    Class IsProduct (p: Product) := is_p: is_product p. *)
 (*
@@ -213,7 +218,7 @@ Section contents.
 *)
     Lemma help_products_unique (d: X) (proj: forall i, d --> component i) h:
       is_product d proj h ->
-      is_sole (fun a: d --> d => forall i, proj i == comp (proj i) a) cat_id.
+      is_sole (fun a: d --> d => forall i, proj i == proj i ◎ a) cat_id.
     Proof with intuition.
      intros.
      split.
@@ -265,23 +270,23 @@ Section contents.
 
   Section freedom.
 
-    Context `{Category B} (forget_obj: X -> B) `{!Functor forget_obj forget_arr} (S: B).
+    Context `{Category B} (forget: X -> B) `{!Functor forget forget_arr} (S: B).
 
     Section candidate.
 
-      Context (x: X) (inject: S --> forget_obj x).
+      Context (x: X) (inject: S --> forget x).
 
-      Definition proves_free (d: forall (y: X), (S --> forget_obj y) -> (x --> y)): Prop :=
-        forall (y: X) (f: S --> forget_obj y),
-         is_sole (fun b => comp (fmap forget_obj b) inject == f) (d y f).
+      Definition proves_free (d: forall (y: X), (S --> forget y) -> (x --> y)): Prop :=
+        forall (y: X) (f: S --> forget y),
+         is_sole (fun b => fmap forget b ◎ inject == f) (d y f).
 
       Definition free: Prop := ex proves_free.
 
     End candidate.
 
-    Lemma frees_unique (x y: X) (f: S --> forget_obj x) (g: S --> forget_obj y)
-      (d: forall (y: X), (S --> forget_obj y) -> (x --> y))
-      (e: forall (z: X), (S --> forget_obj z) -> (y --> z)):
+    Lemma frees_unique (x y: X) (f: S --> forget x) (g: S --> forget y)
+      (d: forall (y: X), (S --> forget y) -> (x --> y))
+      (e: forall (z: X), (S --> forget z) -> (y --> z)):
        proves_free x f d -> proves_free y g e ->
        iso_arrows (d y g) (e x f).
     Proof with auto.

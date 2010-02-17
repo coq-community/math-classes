@@ -16,7 +16,7 @@ Class Monad {Me: forall A, Equiv A -> Equiv (M A)} `{MonadReturn} `{MonadBind}: 
     (* Propers: *)
   { ret_proper:> forall `{Equiv A}, Proper (equiv ==> equiv) (@ret _ A)
   ; bind_proper:> forall `{Equiv A} `{Equiv B},
-     Proper (equiv ==> (fun f g => forall x y, x == y -> f x == g y) ==> equiv) (@bind _ A B)
+     Proper (equiv ==> (equiv ==> equiv) ==> equiv) (@bind _ A B)
 
   ; equivalence: forall `{Setoid A}, Setoid (M A)
 

@@ -43,6 +43,15 @@ Infix "*" := ring_mult.
 Notation "- x" := (group_inv x).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
 Infix "<=" := precedes.
+Infix "◎" := comp (at level 40, left associativity).
+  (* Taking over ∘ is just a little too zealous at this point. With our current
+   approach, it would require changing all (nondependent) function types A->B
+   with A-->B to make them use the canonical name for arrows, which is
+   a tad extreme. *)
+Notation "(◎)" := comp.
+Notation "( f ◎)" := (comp f).
+Notation "(◎ f )" := (fun g => comp g f).
+  (* Haskell style! *)
 
 Program Definition dec_mult_inv `{e: Equiv A} `{RingZero A} `{!MultInv A}
   `{forall x y: A, Decision (x == y)} (x: A): A := if decide (x == 0) then 0 else // x.

@@ -81,7 +81,7 @@ Section contents.
   Instance: MonadBind M := fun _ _ z f => gen_bind f z.
 
   Instance: forall (A : Type) (H1 : Equiv A) (B : Type) (H2 : Equiv B),
-    Proper (equiv ==> (fun p q => forall x y, x == y -> p x == q y) ==> equiv) (@bind M _ A B).
+    Proper (equiv ==> (equiv ==> equiv) ==> equiv) (@bind M _ A B).
   Proof with intuition.
    intros A ? B ? x y E x0 y0 E'.
    revert x y E.
