@@ -8,7 +8,7 @@ also yield subvarieties (by showing that the laws still hold in the subalgebra).
 
 Section contents.
 
-  Context `{Variety et A} `{ClosedSubset et A _ _ P}.
+  Context `{Variety et A} `{@ClosedSubset et A _ _ P}. (* todo: why so ugly? *)
 
   Definition Pvars (vars: Vars et (carrier P) nat): Vars et A nat
     := fun s n => ` (vars s n).
