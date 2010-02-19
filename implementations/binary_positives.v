@@ -1,5 +1,5 @@
 Require Import
-  Morphisms
+  Morphisms BinPos
   abstract_algebra.
 
 (* canonical names for relations/operations/constants: *)
