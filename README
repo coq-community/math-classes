@@ -1,1 +1,30 @@
 Known to compile with Coq trunk 12783.
+
+Directory structure:
+
+  interfaces/
+    Definitions of abstract interfaces/structures.
+  implementations/
+    Definitions of concrete data structures and algorithms, and proofs
+    that they are instances of certain structures (i.e. implement certain interfaces).
+  orders/
+    Definitions and theory about orders on different structures.
+  categories/
+    Proofs that certain structures form categories.
+  varieties/
+    Proofs that certain structures are varieties, and translation to/from type classes dedicated
+    to these structures (defined in interfaces/).
+  theory/
+    Proofs of properties of structures.
+  misc/
+    Miscellaneous things.
+  broken/
+    Things that currently do not compile.
+  tools/
+    Scripts and utilities.
+  quote/
+    Prototype implementation of type class based quoting. To be integrated.
+
+The reason we treat categories and varieties differently from other structures
+(like groups and rings) is that they are like meta-interfaces whose implementations
+are not concrete data structures and algorithms but are themselves abstract structures.
