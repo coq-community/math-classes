@@ -32,4 +32,6 @@ for node in vs:
 os.system('coqdep ' + Rs_and_Is + ' '.join(vs) + ' > deps')
 ParseDepends('deps')
 
-Default(['implementations', 'theory', 'categories', 'orders', 'varieties'])
+Alias('coqide', Command(['dummy'], [], 'coqide ' + Rs_and_Is + ' &'))
+
+Default('implementations', 'theory', 'categories', 'orders', 'varieties')
