@@ -27,7 +27,8 @@ Instance: Setoid BinPos.positive.
 Instance: SemiGroup _ (op:=BinPos.Pplus).
 Instance: SemiGroup _ (op:=BinPos.Pmult).
 Instance: Monoid _ (op:=BinPos.Pmult) :=
-  { monoid_lunit := fun _ => @refl_equal _ _; monoid_runit := BinPos.Pmult_1_r }.
+  { monoid_lunit := λ _ => @refl_equal _ _; monoid_runit := BinPos.Pmult_1_r }.
 
 (* misc: *)
-Instance positive_eq_dec: forall (x y: BinPos.positive), Decision (x == y) := BinPos.positive_eq_dec.
+Instance positive_eq_dec: Π x y, Decision (x = y) := BinPos.positive_eq_dec.
+  (* silly type-change constant *)

@@ -14,19 +14,19 @@ Section contents. Variable et: Signature.
 
   Context `{!@Algebra et v ve vo}.
 
-  Notation vv := (ua_products.carrier et bool (fun _: bool => v)).
+  Notation vv := (ua_products.carrier et bool (λ _: bool => v)).
 
-  Let hint := @ua_products.product_algebra et bool (fun _ => v) _ _ _.
+  Let hint := @ua_products.product_algebra et bool (λ _ => v) _ _ _.
 
   (* Given an equivalence on the algebra's carrier that respects its setoid equality... *)
 
-  Context (e: forall s, relation (v s)).
+  Context (e: Π s, relation (v s)).
 
   Section for_nice_e.
 
   Context
-    (e_e: forall s, Equivalence (e s))
-    (e_proper: forall s, Proper (equiv ==> equiv ==> iff) (e s)).
+    (e_e: Π s, Equivalence (e s))
+    (e_proper: Π s, Proper (equiv ==> equiv ==> iff) (e s)).
 
   (* We can show that that equivalence lifted to arbitrary operation types still respects the setoid equality: *)
 
@@ -40,11 +40,11 @@ Section contents. Variable et: Signature.
    repeat intro.
    unfold respectful.
    split; intros.
-    assert (x x1 == y x1). apply H0...
-    assert (x0 y1 == y0 y1). apply H1...
+    assert (x x1 = y x1). apply H0...
+    assert (x0 y1 = y0 y1). apply H1...
     apply (IHo (x x1) (y x1) H4 (x0 y1) (y0 y1) H5)...
-   assert (x x1 == y x1). apply H0...
-   assert (x0 y1 == y0 y1). apply H1...
+   assert (x x1 = y x1). apply H0...
+   assert (x0 y1 = y0 y1). apply H1...
    apply (IHo (x x1) (y x1) H4 (x0 y1) (y0 y1) H5)...
   Qed. (* todo: clean up *)
 
@@ -57,7 +57,7 @@ Section contents. Variable et: Signature.
     (* 2: the indirect way of saying that the relation as a set of pairs is a subalgebra in the product algebra: *)
   Let eSub := @ua_subalgebraT.ClosedSubset et vv _ _ Q.
 
-  Lemma eAlgebra_eSub: eAlgebra -> eSub.
+  Lemma eAlgebra_eSub: eAlgebra → eSub.
   Proof with intuition.
    intros.
    constructor.
@@ -72,8 +72,8 @@ Section contents. Variable et: Signature.
    unfold algebra_op.
    unfold ua_products.product_ops.
    unfold algebra_op.
-   set (f := fun _: bool => vo o).
-   assert (forall b, Proper equiv (f b)).
+   set (f := λ _: bool => vo o).
+   assert (Π b, Proper equiv (f b)).
     intro.
     unfold f.
     apply algebra_propers.
@@ -82,7 +82,7 @@ Section contents. Variable et: Signature.
     unfold lifted_e.
     destruct H0.
     apply algebra_propers.
-   assert (forall b, Proper (lifted_e (et o)) (f b))...
+   assert (Π b, Proper (lifted_e (et o)) (f b))...
    clearbody f.
    induction (et o)...
    simpl in *...
@@ -91,7 +91,7 @@ Section contents. Variable et: Signature.
    reflexivity.
   Qed. (* todo: clean up *)
 
-  Lemma eSub_eAlgebra: eSub -> eAlgebra.
+  Lemma eSub_eAlgebra: eSub → eAlgebra.
   Proof with intuition.
    intros [proper closed].
    constructor. unfold abstract_algebra.Setoid. apply _.
@@ -102,8 +102,8 @@ Section contents. Variable et: Signature.
    unfold ua_products.product_ops.
    intro.
    change (lifted_e _ (algebra_op et o) (algebra_op et o)).
-   set (f := fun _: bool => algebra_op et o) in *.
-   assert (forall b, lifted_normal _ (f b) (f b)). intros.
+   set (f := λ _: bool => algebra_op et o) in *.
+   assert (Π b, lifted_normal _ (f b) (f b)). intros.
     subst f. simpl.
     apply algebra_propers...
    change (lifted_e (et o) (f true) (f false)).
@@ -113,7 +113,7 @@ Section contents. Variable et: Signature.
    simpl in *.
    repeat intro.
    unfold respectful in H0.
-   apply (IHo0 (fun b => f b (if b then x else y)))...
+   apply (IHo0 (λ b => f b (if b then x else y)))...
   Qed. (* todo: clean up *)
 
   Lemma back_and_forth: iffT eSub eAlgebra.
@@ -124,7 +124,7 @@ Section contents. Variable et: Signature.
   (* This justifies the following definition of a congruence: *)
 
   Class Congruence: Prop :=
-    { congruence_proper:> forall s, Proper (equiv ==> equiv ==> iff) (e s)
+    { congruence_proper:> Π s, Proper (equiv ==> equiv ==> iff) (e s)
     ; congruence_quotient:> @Algebra et v e _
     }.
 
@@ -134,11 +134,11 @@ End contents.
 
 Section in_domain.
 
-  Context {A B} {R: Equiv B} (f: A -> B).
+  Context {A B} {R: Equiv B} (f: A → B).
 
-  Definition in_domain: Equiv A := fun x y => f x == f y.
+  Definition in_domain: Equiv A := λ x y => f x = f y. (* todo: use pointwise thingy *)
 
-  Global Instance in_domain_equivalence: Equivalence R -> Equivalence in_domain.
+  Global Instance in_domain_equivalence: Equivalence R → Equivalence in_domain.
   Proof with intuition.
    constructor; repeat intro; unfold equiv, in_domain in *...
    transitivity (f y)...
@@ -155,13 +155,13 @@ Section first_iso.
 
   Context `{Algebra sign A} `{Algebra sign B} `{!HomoMorphism sign A B f}.
 
-  Notation phi := (fun s => in_domain (f s)).
+  Notation phi := (λ s => in_domain (f s)).
 
   Lemma square o0 x x' y y':
-    Preservation sign A B f x x' ->
-    Preservation sign A B f y y' ->
-    op_type_equiv (sorts sign) B o0 x' y' ->
-    @op_type_equiv (sorts sign) A (fun s : sorts sign => @in_domain (A s) (B s) (e0 s) (f s)) o0 x y.
+    Preservation sign A B f x x' →
+    Preservation sign A B f y y' →
+    op_type_equiv (sorts sign) B o0 x' y' →
+    @op_type_equiv (sorts sign) A (λ s: sorts sign => @in_domain (A s) (B s) (e0 s) (f s)) o0 x y.
   Proof.
    induction o0.
     simpl.
@@ -211,16 +211,16 @@ Section first_iso.
    pose proof (H4 x).
    pose proof (H4 y).
    clear H4.
-   assert (o2 (f a x) == o2 (f a y)).
+   assert (o2 (f a x) = o2 (f a y)).
     apply H3.
     assumption.
    apply (square _ _ _ _ _ H6 H7).
    apply H4.
   Qed.
 
-  Definition image s (b: B s): Type := sigT (fun a => f s a == b).
+  Definition image s (b: B s): Type := sigT (λ a => f s a = b).
 
-  Lemma image_proper: forall s (x0 x' : B s), x0 == x' -> iffT (image s x0) (image s x').
+  Lemma image_proper: Π s (x0 x' : B s), x0 = x' → iffT (image s x0) (image s x').
   Proof. intros ??? E. split; intros [v ?]; exists v; rewrite E in *; assumption. Qed.
 
   Instance: ClosedSubset image.
@@ -249,13 +249,13 @@ Section first_iso.
   Definition quot_obj := algebra.object sign A (algebra_equiv:=phi). (* A/Φ *)
   Definition subobject := algebra.object sign (ua_subalgebraT.carrier image).
 
-  Program Definition back: subobject --> quot_obj := fun _ X => projT1 (projT2 X).
+  Program Definition back: subobject ⟶ quot_obj := λ _ X => projT1 (projT2 X).
 
   Next Obligation. Proof with try apply _; intuition.
    repeat constructor...
     intros [x [i E']] [y [j E'']] E.
-    change (x == y) in E.
-    change (f a i == f a j).
+    change (x = y) in E.
+    change (f a i = f a j).
     rewrite E', E''...
    unfold ua_subalgebraT.impl.
    generalize (subset_closed image o).
@@ -263,12 +263,12 @@ Section first_iso.
    generalize (H o) (H1 o) (preserves sign A B f o)
      (_: Proper equiv (H o)) (_: Proper equiv (H1 o)).
    induction (sign o); simpl; intros ? ? ? ? ?.
-    intros [? E]. change (f a x == f a o0). rewrite E...
+    intros [? E]. change (f a x = f a o0). rewrite E...
    intros ? [x [? E]]. apply IHo0... simpl in *. rewrite <- E...
   Defined.
 
-  Program Definition forth: quot_obj --> subobject := 
-    fun a X => existT _ (f a X) (existT _ X (reflexivity _)).
+  Program Definition forth: quot_obj ⟶ subobject := 
+    λ a X => existT _ (f a X) (existT _ X (reflexivity _)).
 
   Next Obligation. Proof with try apply _; intuition.
    repeat constructor... intro...

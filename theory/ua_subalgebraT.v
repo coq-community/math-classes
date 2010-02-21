@@ -13,19 +13,19 @@ Require
 
 Section subalgebras.
 
-  Context `{Algebra sign A} (P: forall s, A s -> Type).
+  Context `{Algebra sign A} (P: Π s, A s → Type).
 
   (* We begin by describing what it means for P to be a proper closed subset: *)
 
-  Fixpoint op_closed {o: OpType (sorts sign)}: op_type (sorts sign) A o -> Type :=
+  Fixpoint op_closed {o: OpType (sorts sign)}: op_type (sorts sign) A o → Type :=
     match o with
     | constant x => P x
-    | function x y => fun d => forall z, P _ z -> op_closed (d z)
+    | function x y => λ d => Π z, P _ z → op_closed (d z)
     end.
 
-  Definition op_closed_proper: forall
-     (Pproper: forall s x x', x == x' -> iffT (P s x) (P s x')) o,
-   forall x x', x == x' -> iffT (@op_closed o x) (@op_closed o x').
+  Definition op_closed_proper:
+   Π (Pproper: Π s x x', x = x' → iffT (P s x) (P s x')) o,
+   Π x x', x = x' → iffT (@op_closed o x) (@op_closed o x').
   Proof with intuition.
    induction o; simpl; intros x y E.
     intuition.
@@ -38,8 +38,8 @@ Section subalgebras.
   Qed.
 
   Class ClosedSubset: Type :=
-    { subset_proper: forall s x x', x == x' -> iffT (P s x) (P s x')
-    ; subset_closed: forall o, op_closed (algebra_op sign o) }.
+    { subset_proper: Π s x x', x = x' → iffT (P s x) (P s x')
+    ; subset_closed: Π o, op_closed (algebra_op sign o) }.
 
   (* Now suppose P is closed in this way. *)
 
@@ -53,16 +53,16 @@ Section subalgebras.
 
   (* We can implement closed operations in the new algebra: *)
 
-  Fixpoint close_op {d}: forall (o: op_type (sorts sign) A d), op_closed o -> op_type (sorts sign) carrier d :=
+  Fixpoint close_op {d}: Π (o: op_type (sorts sign) A d), op_closed o → op_type (sorts sign) carrier d :=
     match d with
-    | constant _ => fun o c => existT _ o (c)
-    | function x y => fun o c X => close_op (o (projT1 X)) (c (projT1 X) (projT2 X))
+    | constant _ => λ o c => existT _ o (c)
+    | function x y => λ o c X => close_op (o (projT1 X)) (c (projT1 X) (projT2 X))
     end.
 
-  Global Instance impl: AlgebraOps sign carrier := fun o => close_op (algebra_op sign o) (subset_closed o).
+  Global Instance impl: AlgebraOps sign carrier := λ o => close_op (algebra_op sign o) (subset_closed o).
 
   (* By showing that these ops are proper, we get our new algebra: *)
-  Instance: forall d, Equiv (op_type (sorts sign) carrier d).
+  Instance: Π d, Equiv (op_type (sorts sign) carrier d).
    intro.
    apply op_type_equiv.
    intro.
@@ -71,7 +71,7 @@ Section subalgebras.
   Defined.
 
   Definition close_op_proper d (o0 o1: op_type (sorts sign) A d)
-    (P: op_closed o0) (Q: op_closed o1): o0 == o1 -> close_op o0 P == close_op o1 Q.
+    (P: op_closed o0) (Q: op_closed o1): o0 = o1 → close_op o0 P = close_op o1 Q.
   Proof with intuition.
    induction d; simpl in *...
    intros [x p] [y q] U.

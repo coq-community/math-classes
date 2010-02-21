@@ -29,23 +29,23 @@ Section sr_order. Context `{SemiRing R}.
 
   Global Instance: PreOrder sr_precedes.
 
-  Definition sr_precedes_with N `{Naturals N} {x y: R}: sr_precedes x y -> exists z: N, x + naturals_to_semiring N R z == y.
+  Definition sr_precedes_with N `{Naturals N} {x y: R}: sr_precedes x y → exists z: N, x + naturals_to_semiring N R z = y.
    intros [z E].
    exists (naturals_to_semiring nat N z).
-   rewrite (theory.naturals.to_semiring_unique R (fun x => naturals_to_semiring N R (naturals_to_semiring nat N x))).
+   rewrite (theory.naturals.to_semiring_unique R (λ x => naturals_to_semiring N R (naturals_to_semiring nat N x))).
    assumption.
   Qed.
 
-  Definition sr_precedes_from N `{Naturals N} {x y: R} (z: N): x + naturals_to_semiring N R z == y -> sr_precedes x y.
+  Definition sr_precedes_from N `{Naturals N} {x y: R} (z: N): x + naturals_to_semiring N R z = y → sr_precedes x y.
    intros.
    exists (naturals_to_semiring N nat z).
-   rewrite (theory.naturals.to_semiring_unique R (fun x => naturals_to_semiring nat R (naturals_to_semiring N nat x))).
+   rewrite (theory.naturals.to_semiring_unique R (λ x => naturals_to_semiring nat R (naturals_to_semiring N nat x))).
    assumption.
   Qed.
 
 End sr_order.
 
-Lemma preserves_nonneg `{SemiRing A} `{SemiRing B} `{Naturals N} (f: A -> B) `{!SemiRing_Morphism f}: forall n: N,
+Lemma preserves_nonneg `{SemiRing A} `{SemiRing B} `{Naturals N} (f: A → B) `{!SemiRing_Morphism f}: Π n: N,
  sr_precedes 0 (f (naturals_to_semiring N A n)).
 Proof.
  intros.
@@ -86,7 +86,7 @@ Section ring. Context `{Ring R}. (* extra sr_precedes properties that hold in ri
   Lemma zero_sr_precedes_nat `{Naturals N} (n: N): sr_precedes 0 (naturals_to_semiring N R n).
   Proof.
    exists (naturals_to_semiring N nat n).
-   rewrite (theory.naturals.to_semiring_unique R (fun x => naturals_to_semiring nat R (naturals_to_semiring N nat x))).
+   rewrite (theory.naturals.to_semiring_unique R (λ x => naturals_to_semiring nat R (naturals_to_semiring N nat x))).
    ring.
   Qed.
 
@@ -95,8 +95,8 @@ Section ring. Context `{Ring R}. (* extra sr_precedes properties that hold in ri
 
 End ring.
 
-Lemma nats_preserve_sr_order `{SemiRing A} `{Naturals B} (f: A -> B) `{!SemiGroup_Morphism f} (x y: A):
-  sr_precedes x y -> sr_precedes (f x) (f y).
+Lemma nats_preserve_sr_order `{SemiRing A} `{Naturals B} (f: A → B) `{!SemiGroup_Morphism f} (x y: A):
+  sr_precedes x y → sr_precedes (f x) (f y).
 Proof.
  intros [z p].
  exists (naturals_to_semiring B nat (f (naturals_to_semiring nat A z))).

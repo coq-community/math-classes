@@ -4,7 +4,7 @@ Require Import
   Relation_Definitions Morphisms Setoid Program
   abstract_algebra theory.categories.
 
-Inductive Object := object { T:> Type; e: T -> T -> Prop; setoid_proof: @Setoid T e }.
+Inductive Object := object { T:> Type; e: T → T → Prop; setoid_proof: @Setoid T e }.
   (* We don't use the type [Equiv T] for e because it leads to universe consistency
    problems in theory/ua_forget. Hopefully when Coq gets universe polymorphism for
    definitions (like Equiv), we can use the proper type again. *)
@@ -16,12 +16,12 @@ Existing Instance setoid_proof.
 
 Section contents.
 
-  Global Instance: Arrows Object := fun A B => sig (@Setoid_Morphism A _ B _).
+  Global Instance: Arrows Object := λ A B => sig (@Setoid_Morphism A B _ _).
 
-  Global Program Instance: forall x y: Object, Equiv (x --> y)
-    := fun _ _ => respectful equiv equiv.
+  Global Program Instance: Π x y: Object, Equiv (x ⟶ y)
+    := λ _ _ => respectful equiv equiv.
 
-  Global Instance: forall x y: Object, Setoid (x --> y).
+  Global Instance: Π x y: Object, Setoid (x ⟶ y).
   Proof with intuition.
    intros x y.
    constructor.
@@ -31,11 +31,11 @@ Section contents.
    apply transitivity with (x1 x3)...
   Qed.
 
-  Global Program Instance: CatId Object := fun _ => id.
-  Global Program Instance: CatComp Object := fun _ _ _ => compose.
+  Global Program Instance: CatId Object := λ _ => id.
+  Global Program Instance: CatComp Object := λ _ _ _ => compose.
   Next Obligation. destruct x, x0. apply _. Qed.
 
-  Global Instance: forall x y z: Object, Proper (equiv ==> equiv ==> equiv) (comp: (y --> z) -> (x --> y) -> (x --> z)).
+  Global Instance: Π x y z: Object, Proper (equiv ==> equiv ==> equiv) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof. repeat intro. simpl. firstorder. Qed.
 
   Global Instance: Category Object.
@@ -44,19 +44,20 @@ Section contents.
     destruct a; try destruct b; try destruct c; simpl; rewrite E; reflexivity.
   Qed.
 
-  Section product. Context {Index: Type} (c: Index -> Object).
+  Section product. Context {Index: Type} (c: Index → Object).
 
-    Definition product_obj: Object := object (forall i, c i) (fun x y => forall i, x i == y i) _.
+    Definition product_obj: Object := object (Π i, c i) (λ x y => Π i, x i = y i) _.
+      (* todo: use pointwise_relation or something *)
 
-    Program Definition project i: product_obj --> c i := (fun x => x i).
+    Program Definition project i: product_obj ⟶ c i := (λ x => x i).
     Next Obligation. constructor; try apply _. firstorder. Qed.
 
-    Program Definition factor (d: Object) (df: forall i, d --> c i): d --> product_obj := fun x y => df y x.
+    Program Definition factor (d: Object) (df: Π i, d ⟶ c i): d ⟶ product_obj := λ x y => df y x.
     Next Obligation. constructor; try apply _. intros ?? E ?. destruct df. rewrite E. reflexivity. Qed.
 
   End product.
 
-  Instance: Producer Object Arrow := fun I c => mkProduct c (product_obj c) (project c) (factor c).
+  Instance: Producer Object Arrow := λ I c => mkProduct c (product_obj c) (project c) (factor c).
 
   Instance: Produces Object.
   Proof.
@@ -67,7 +68,7 @@ Section contents.
    apply (E' i _ _ E).
   Qed.
 
-  Global Instance mono: forall (X Y: Object) (a: X --> Y), @Injective X _ Y _ (@proj1_sig _ (@Setoid_Morphism _ _ _ _) a) -> Mono a.
+  Global Instance mono: Π (X Y: Object) (a: X ⟶ Y), @Injective X _ Y _ (@proj1_sig _ (@Setoid_Morphism _ _ _ _) a) → Mono a.
   Proof. (* todo: why so ugly? *)
    intros ? ? ? ? ? ? ? E ? ? U.
    pose proof (E _ _ U).

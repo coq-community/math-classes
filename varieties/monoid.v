@@ -31,7 +31,7 @@ Section theory.
 
   Import notations.
 
-  Inductive Laws: EqEntailment sig -> Prop :=
+  Inductive Laws: EqEntailment sig → Prop :=
     | e_mult_assoc: Laws (x & (y & z) === (x & y) & z)
     | e_mult_1_l: Laws (mon_unit & x === x)
     | e_mult_1_r: Laws (x & mon_unit === x).

@@ -44,7 +44,7 @@ Instance: AbGroup BinInt.Z (op:=BinInt.Zplus) (unit:=BinInt.Z0).
 Instance: Ring BinInt.Z.
 
 (* misc: *)
-Instance: forall x y: BinInt.Z, Decision (x == y) := ZArith_dec.Z_eq_dec.
+Instance: Π x y: BinInt.Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
 
 Add Ring Z: (stdlib_ring_theory BinInt.Z).
 
@@ -55,7 +55,7 @@ Definition map_Z `{RingPlus R} `{RingZero R} `{RingOne R} `{GroupInv R} (z: Z): 
   | Zneg p => - map_pos p
   end.
 
-Instance inject: IntegersToRing Z := fun B _ _ _ _ _ => @map_Z B _ _ _ _.
+Instance inject: IntegersToRing Z := λ B _ _ _ _ _ => @map_Z B _ _ _ _.
 
 Section for_another_ring.
 
@@ -63,14 +63,14 @@ Section for_another_ring.
 
   Add Ring R: (stdlib_ring_theory R).
 
-  Lemma preserves_opp x: map_Z (- x) == - map_Z x.
+  Lemma preserves_opp x: map_Z (- x) = - map_Z x.
   Proof with try reflexivity.
    destruct x; simpl...
     rewrite opp_0...
    rewrite inv_involutive...
   Qed.
 
-  Lemma preserves_Zplus x y: map_Z (x + y) == map_Z x + map_Z y.
+  Lemma preserves_Zplus x y: map_Z (x + y) = map_Z x + map_Z y.
   Proof with try reflexivity; try assumption; try ring.
    destruct x; simpl; intros...
     destruct y; simpl...
@@ -91,7 +91,7 @@ Section for_another_ring.
    rewrite preserves_Pplus...
   Qed.
 
-  Lemma preserves_Zmult x y: map_Z (x * y) == map_Z x * map_Z y.
+  Lemma preserves_Zmult x y: map_Z (x * y) = map_Z x * map_Z y.
   Proof with try reflexivity; try ring.
    destruct x; simpl; intros...
     destruct y; simpl...
@@ -113,15 +113,15 @@ Section for_another_ring.
 
   Section with_another_morphism.
 
-    Context (map_Z': Z->R) `{!Ring_Morphism map_Z'}.
+    Context map_Z' `{!Ring_Morphism (map_Z': Z → R)}.
 
-    Let agree_on_0: map_Z Z0 == map_Z' Z0.
+    Let agree_on_0: map_Z Z0 = map_Z' Z0.
     Proof. symmetry. apply preserves_0. Qed.
 
-    Let agree_on_1: map_Z 1%Z == map_Z' 1%Z.
+    Let agree_on_1: map_Z 1%Z = map_Z' 1%Z.
     Proof. symmetry. apply preserves_1. Qed.
 
-    Let agree_on_positive p: map_Z (Zpos p) == map_Z' (Zpos p).
+    Let agree_on_positive p: map_Z (Zpos p) = map_Z' (Zpos p).
     Proof with try reflexivity.
      induction p; simpl.
        rewrite IHp.
@@ -134,7 +134,7 @@ Section for_another_ring.
      apply agree_on_1.
     Qed.
 
-    Let agree_on_negative p: map_Z (Zneg p) == map_Z' (Zneg p).
+    Let agree_on_negative p: map_Z (Zneg p) = map_Z' (Zneg p).
     Proof with try reflexivity.
      intros.
      replace (Zneg p) with (- (Zpos p))...
@@ -160,7 +160,7 @@ Instance yada `{Ring R}: Ring_Morphism (integers_to_ring Z R).
 Qed.
 
 Lemma initial: categories.proves_initial
-  (fun _ => @initial_arrow Z inject _ _ _ _ _ _ _ _ map_Z_ring_mor).
+  (λ _ => @initial_arrow Z inject _ _ _ _ _ _ _ _ map_Z_ring_mor).
 Proof.
  intros y [x h] [].
  simpl in *.

@@ -1,4 +1,4 @@
-Require Import Morphisms Program.
+Require Import Morphisms Program Unicode.Utf8.
 
 (* First, two ways to do quoting in the naive scenario without
  holes/variables in the expression: *)
@@ -94,9 +94,9 @@ Module with_vars.
 
 (* Some random utilities: *)
 
-Lemma sum_assoc {A B C}: (A+B)+C -> A+(B+C). intuition. Defined.
-Lemma bla {A B C}: (A+B) -> A+(B+C). intuition. Defined.
-Lemma monkey {A B}: False + A -> A + B. intuition. Defined.
+Lemma sum_assoc {A B C}: (A+B)+C → A+(B+C). intuition. Defined.
+Lemma bla {A B C}: (A+B) → A+(B+C). intuition. Defined.
+Lemma monkey {A B}: False + A → A + B. intuition. Defined.
 
 
 Section obvious.
@@ -144,8 +144,8 @@ Section eqs.
   Global Instance expr_eq: Equiv (Expr A) :=
     fix F (x y: Expr A) :=
       match x, y with
-      | Var v, Var w => v == w
-      | Mult v w, Mult p q => F v p /\ F w q
+      | Var v, Var w => v = w
+      | Mult v w, Mult p q => F v p ∧ F w q
       | Zero, Zero => True
       | _, _ => False
       end.
@@ -163,12 +163,12 @@ Section eqs.
 
 End eqs.
 
-Instance: forall `{Equiv A}, Proper (equiv ==> equiv) (ret Expr).
+Instance: Π `{Equiv A}, Proper (equiv ==> equiv) (ret Expr).
  repeat intro.
  assumption.
 Qed.
 
-Instance bind_proper: forall `{Equiv A} `{Equiv B},
+Instance bind_proper: Π `{Equiv A} `{Equiv B},
  Proper (equiv ==> pointwise_relation A equiv ==> equiv) (@expr_bind A B).
 Proof.
  intros A H B H0 x y E.
@@ -363,9 +363,9 @@ End Quote.
 (* When quoting something from scratch we will want to start with an empty heap.
  To avoid having to mention this, we define quote' and eval_quote': *)
 
-Definition quote': forall x {V'} {v: Vars V'} {d: Quote novars x v}, Expr _ := @quote _ _.
+Definition quote': Π x {V'} {v: Vars V'} {d: Quote novars x v}, Expr _ := @quote _ _.
 
-Definition eval_quote': forall x {V'} {v: Vars V'} {d: Quote novars x v},
+Definition eval_quote': Π x {V'} {v: Vars V'} {d: Quote novars x v},
   eval (merge novars v) quote = x
     := @eval_quote _ _ .
 
@@ -374,7 +374,7 @@ Implicit Arguments eval_quote' [[V'] [v] [d]].
 
 (* Time for some tests! *)
 
-Goal forall x y (P: Value -> Prop), P ((x * y) * (x * 0)).
+Goal Π x y (P: Value -> Prop), P ((x * y) * (x * 0)).
   intros.
   rewrite <- (eval_quote' _).
     (* turns the goal into
@@ -419,7 +419,7 @@ Proof with intuition.
  apply eval_proper... intro...
 Qed.
 
-Goal forall x y, x * y = y * x.
+Goal Π x y, x * y = y * x.
  intros.
  apply (quote_equality _ _).
  simpl quote.

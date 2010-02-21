@@ -4,18 +4,18 @@ Require Import
 
 Section contents.
 
-  Context `{e: Setoid A} `{Order A} `{forall x y: A, Decision (x <= y)}.
+  Context `{e: Setoid A} `{Order A} `{Π x y: A, Decision (x <= y)}.
 
   Definition sort (x y: A): prod A A := if decide (x <= y) then (x, y) else (y, x).
 
   Definition min (x y: A) := fst (sort x y).
 
-  Instance max: SemiGroupOp A := fun x y => snd (sort x y).
+  Instance max: SemiGroupOp A := λ x y => snd (sort x y).
 
   Lemma max_ub_l `{Reflexive _ precedes} x y: x <= x & y.
   Proof. unfold sg_op, max, sort. intros. destruct decide; firstorder. Qed.
 
-  Lemma max_r x y: x <= y -> x & y = y.
+  Lemma max_r x y: x <= y → x & y = y.
   Proof. unfold sg_op, max, sort. intros. destruct decide; firstorder. Qed.
 
   Lemma max_idem x: max x x = x.
@@ -36,7 +36,7 @@ Section contents.
 
     Context `{!TotalOrder precedes} `{!PartialOrder precedes}.
 
-    Lemma max_comm (x y: A): max x y == max y x.
+    Lemma max_comm (x y: A): max x y = max y x.
     Proof. intros. unfold max, sort. destruct decide; destruct decide; firstorder. Qed.
 
     Lemma max_ub_r (x y: A): y <= max x y.
@@ -57,7 +57,7 @@ Section contents.
      transitivity y...
     Qed.
 
-    Lemma max_l x y: x <= y -> max y x == y.
+    Lemma max_l x y: x <= y → max y x = y.
     Proof. intros. rewrite max_comm, max_r; firstorder. Qed.
 
     Global Instance max_semigroup: SemiGroup A.

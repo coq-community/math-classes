@@ -17,8 +17,8 @@ Section contents.
 Context N `{Naturals N}.
 
 Context (* Extra parameterization for efficiency: *)
- `{forall x y: N, Decision (x == y)}
- `{forall x y: N, Decision (x <= y)}
+ `{Π x y: N, Decision (x = y)}
+ `{Π x y: N, Decision (x <= y)}
  `{!NatDistance N}.
 
 Add Ring N: (stdlib_semiring_theory N).
@@ -27,11 +27,11 @@ Inductive Z: Type := C { pos: N; neg: N }.
 
 (* relations/operations/constants: *)
 
-Global Instance z_equiv: Equiv Z := fun x y => pos x + neg y == pos y + neg x.
-Global Instance z_plus: RingPlus Z := fun (x y: Z) => C (pos x + pos y) (neg x + neg y).
-Global Instance z_inv: GroupInv Z := fun (x: Z) => C (neg x) (pos x).
+Global Instance z_equiv: Equiv Z := λ x y => pos x + neg y = pos y + neg x.
+Global Instance z_plus: RingPlus Z := λ (x y: Z) => C (pos x + pos y) (neg x + neg y).
+Global Instance z_inv: GroupInv Z := λ (x: Z) => C (neg x) (pos x).
 Global Instance z_zero: RingZero Z := C 0 0.
-Global Instance z_mult: RingMult Z := fun x y => C (pos x * pos y + neg x * neg y) (pos x * neg y + neg x * pos y).
+Global Instance z_mult: RingMult Z := λ x y => C (pos x * pos y + neg x * neg y) (pos x * neg y + neg x * pos y).
 Global Instance z_ring_one: RingOne Z := C 1 0.
 Global Instance z_one: MonoidUnit Z := z_ring_one.
 
@@ -66,10 +66,10 @@ Proof.
  rewrite E, E'. ring.
 Qed.
 
-Let z_plus_0_l (x: Z): 0 + x == x. Proof. ring_on_nat. Qed.
-Let z_plus_0_r (x: Z): x + 0 == x. Proof. ring_on_nat. Qed.
-Let z_plus_opp_l (x: Z): -x + x == 0. Proof. ring_on_nat. Qed.
-Let z_plus_opp_r (x: Z): x + -x == 0. Proof. ring_on_nat. Qed.
+Let z_plus_0_l (x: Z): 0 + x = x. Proof. ring_on_nat. Qed.
+Let z_plus_0_r (x: Z): x + 0 = x. Proof. ring_on_nat. Qed.
+Let z_plus_opp_l (x: Z): -x + x = 0. Proof. ring_on_nat. Qed.
+Let z_plus_opp_r (x: Z): x + -x = 0. Proof. ring_on_nat. Qed.
 
 Global Instance: SemiGroup Z (op:=z_plus).
 Global Instance: Monoid Z (op:=z_plus) (unit:=z_zero) := { monoid_lunit := z_plus_0_l; monoid_runit := z_plus_0_r }.
@@ -89,7 +89,7 @@ Instance: Commutative z_mult. Proof. ring_on_nat. Qed.
 
 Global Instance: Distribute z_mult z_plus. Proof. constructor; ring_on_nat. Qed.
 
-Let z_mult_equiv_compat_r y y': y == y' -> forall x, z_mult x y == z_mult x y'.
+Let z_mult_equiv_compat_r y y': y = y' → (Π x, z_mult x y = z_mult x y').
 Proof.
  unfold z_mult, equiv, z_equiv. intros E x. simpl.
  transitivity (pos x * (pos y + neg y') + neg x * (pos y' + neg y)); [ring |].
@@ -106,8 +106,8 @@ Proof with auto.
  apply z_mult_equiv_compat_r...
 Qed.
 
-Let mult_1_l: forall x: Z, 1 * x == x. Proof. ring_on_nat. Qed.
-Let mult_1_r: forall x: Z, x * 1 == x. Proof. ring_on_nat. Qed.
+Let mult_1_l (x: Z): 1 * x = x. Proof. ring_on_nat. Qed.
+Let mult_1_r (x: Z): x * 1 = x. Proof. ring_on_nat. Qed.
 
 Instance: SemiGroup _ (op:=z_mult).
 Instance: Monoid Z (op:=z_mult) (unit:=z_one) := { monoid_lunit := mult_1_l; monoid_runit := mult_1_r }.
@@ -126,8 +126,8 @@ Global Instance: SemiRing_Morphism NtoZ.
 Proof.
  unfold NtoZ.
  repeat (constructor; try apply _; try reflexivity); unfold equiv, z_equiv; simpl; intros.
-  change (a + a' + (0 + 0) == a + a' + 0). ring.
- change (a * a' + (a * 0 + 0 * a') == a * a' + 0 * 0 + 0). ring.
+  change (a + a' + (0 + 0) = a + a' + 0). ring.
+ change (a * a' + (a * 0 + 0 * a') = a * a' + 0 * 0 + 0). ring.
 Qed.
 
 Instance: Proper (equiv ==> equiv ==> equiv) C.
@@ -136,18 +136,18 @@ Proof.
  symmetry in E'. apply sg_mor; assumption.
 Qed.
 
-Lemma split_into_nats n m: C n m == NtoZ n + - NtoZ m.
+Lemma split_into_nats n m: C n m = NtoZ n + - NtoZ m.
 Proof. ring_on_nat. Qed.
 
-Global Instance: forall x y: Z, Decision (x == y)
-  := fun x y => decide (pos x + neg y == pos y + neg x).
+Global Instance: Π x y: Z, Decision (x = y)
+  := λ x y => decide (pos x + neg y = pos y + neg x).
     (* An example of specialization: while there will be a generic decider that works for
      all Integers, this specialized one is potentially vastly more efficient. *)
 
 (* Next, we show that Z is initial, and therefore a model of the integers. *)
 
 Global Instance inject: IntegersToRing Z :=
-  fun _ _ _ _ _ _ z => naturals_to_semiring N _ (pos z) + - naturals_to_semiring N _ (neg z).
+  λ _ _ _ _ _ _ z => naturals_to_semiring N _ (pos z) + - naturals_to_semiring N _ (neg z).
 
 (* Hint Rewrite preserves_0 preserves_1 preserves_mult preserves_plus: preservation.
   doesn't work for some reason, so we use: *)
@@ -174,19 +174,19 @@ Section for_another_ring.
 
   Ltac derive_preservation := unfold integers_to_ring, inject; simpl; preservation; ring.
 
-  Let inject_preserves_plus x y: integers_to_ring Z R (x + y) == integers_to_ring Z R x + integers_to_ring Z R y.
+  Let inject_preserves_plus x y: integers_to_ring Z R (x + y) = integers_to_ring Z R x + integers_to_ring Z R y.
   Proof. derive_preservation. Qed.
 
-  Let preserves_mult x y: integers_to_ring Z R (x * y) == integers_to_ring Z R x * integers_to_ring Z R y.
+  Let preserves_mult x y: integers_to_ring Z R (x * y) = integers_to_ring Z R x * integers_to_ring Z R y.
   Proof. derive_preservation. Qed.
 
-  Let preserves_1: integers_to_ring Z R 1 == 1.
+  Let preserves_1: integers_to_ring Z R 1 = 1.
   Proof. derive_preservation. Qed.
 
-  Let preserves_0: integers_to_ring Z R 0 == 0.
+  Let preserves_0: integers_to_ring Z R 0 = 0.
   Proof. derive_preservation. Qed.
 
-  Let preserves_inv x: integers_to_ring Z R (- x) == - integers_to_ring Z R x.
+  Let preserves_inv x: integers_to_ring Z R (- x) = - integers_to_ring Z R x.
   Proof. derive_preservation. Qed.
 
   Instance: Setoid_Morphism (integers_to_ring Z R).
@@ -199,7 +199,7 @@ Section for_another_ring.
 
   Section for_another_morphism.
 
-    Context (inject': Z -> R) `{!Ring_Morphism inject'}.
+    Context (inject': Z → R) `{!Ring_Morphism inject'}.
 
     Definition inject'_N (n: N): R := inject' (C n 0).
 
@@ -229,7 +229,7 @@ End for_another_ring.
 (* Initiality stated categorically: *)
 
 Lemma initial: categories.proves_initial
-  (fun _ => @initial_arrow Z inject _ _ _ _ _ _ _ _ inject_mor).
+  (λ _ => @initial_arrow Z inject _ _ _ _ _ _ _ _ inject_mor).
 Proof.
   intros y [x h] []. simpl in *.
   apply agree, (@ring.morphism_from_ua _ _ _ (ring.variety Z)); apply _.
@@ -238,10 +238,10 @@ Qed.
 Global Instance: Integers Z.
 Proof Build_Integers Z _ _ _ _ _ _ _ _ _ initial.
 
-Lemma NtoZ_uniq: forall x, naturals_to_semiring N Z x == NtoZ x.
-Proof. intros. symmetry. apply (theory.naturals.to_semiring_unique Z NtoZ x). Qed. 
+Lemma NtoZ_uniq x: naturals_to_semiring N Z x = NtoZ x.
+Proof. symmetry. apply (theory.naturals.to_semiring_unique Z NtoZ x). Qed. 
 
-Global Program Instance simpleZ_abs: IntAbs Z N := fun (d: Z) => nat_distance (pos d) (neg d).
+Global Program Instance simpleZ_abs: IntAbs Z N := λ d: Z => nat_distance (pos d) (neg d).
 
 Next Obligation.
 Proof.
@@ -260,26 +260,26 @@ Global Program Instance simpleZ_le_dec (x y: Z): Decision (x <= y) :=
 Next Obligation.
  destruct E as [z E]. apply (@sr_precedes_from Z _ _ _ _ _ _  N _ _ _ _ _ _ _ x y z).
  rewrite NtoZ_uniq. unfold equiv, z_equiv. simpl. ring_simplify.
- rewrite <- E. change (pos x + z + neg y == pos x + neg y + z). ring.
+ rewrite <- E. change (pos x + z + neg y = pos x + neg y + z). ring.
 Qed.
 
 Next Obligation.
  intro. apply E. destruct (sr_precedes_with N H2) as [z F]. exists z.
  rewrite NtoZ_uniq in F. unfold equiv, z_equiv in F. simpl in F. ring_simplify in F.
- rewrite <- F. change (pos x + neg y + z == pos x + z + neg y). ring.
+ rewrite <- F. change (pos x + neg y + z = pos x + z + neg y). ring.
 Qed. 
 
 Global Instance: TotalOrder integer_precedes.
  intros x y.
- cut ((exists z, x + NtoZ z == y) \/ (exists z, y + NtoZ z == x)).
+ cut ((exists z, x + NtoZ z = y) ∨ (exists z, y + NtoZ z = x)).
   intros [[z E] | [z E]]; [left | right];
    apply (@sr_precedes_from _ _ _ _ _ _ _ N _ _ _ _ _ _ _) with z; rewrite NtoZ_uniq; assumption.
  unfold equiv, z_equiv.
  simpl.
  destruct (total_order (pos x + neg y) (pos y + neg x)) as [[z E] | [z E]];
      [left | right]; exists z; ring_simplify; rewrite <- E.
-  change (pos x + z + neg y == pos x + neg y + z). ring.
- change (pos y + z + neg x == pos y + neg x + z). ring.
+  change (pos x + z + neg y = pos x + neg y + z). ring.
+ change (pos y + z + neg x = pos y + neg x + z). ring.
 Qed.
 
 End contents.

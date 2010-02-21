@@ -8,17 +8,17 @@ Require Import
 
 Section contents.
 
-Context Z `{Zth: Integers Z} `{forall x y: Z, Decision (x == y)} `{forall x y: Z, Decision (x <= y)}.
+Context Z `{Zth: Integers Z} `{Π x y: Z, Decision (x = y)} `{Π x y: Z, Decision (x <= y)}.
 
 Add Ring Z: (stdlib_ring_theory Z).
 
-Inductive Q: Type := C { num: Z; den: Z; den_nonzero: ~ den == 0 }.
+Inductive Q: Type := C { num: Z; den: Z; den_nonzero: den ≠ 0 }.
   (* We used to have den and den_nonzero bundled, which did work relatively nicely with Program, but the
    extra messyness in proofs etc turned out not to be worth it. *)
 
 (* equality *)
 
-Program Instance q_equiv: Equiv Q := fun x y => num x * den y == num y * den x.
+Program Instance q_equiv: Equiv Q := λ x y => num x * den y = num y * den x.
 
 Instance: Reflexive q_equiv. Proof. repeat intro. unfold q_equiv. reflexivity. Qed.
 Instance: Symmetric q_equiv. Proof. repeat intro. unfold q_equiv. symmetry. assumption. Qed.
@@ -35,8 +35,8 @@ Qed.
 Instance: Equivalence q_equiv.
 Instance: Setoid Q.
 
-Instance: forall x y: Q, Decision (x == y)
-  := fun x y => decide (num x * den y == num y * den x).
+Instance: Π x y: Q, Decision (x = y)
+  := λ x y => decide (num x * den y = num y * den x).
 
 (* injection from Z *)
 
@@ -48,7 +48,7 @@ Proof. unfold inject_Z, equiv, q_equiv. intros x x' E. simpl. rewrite E. reflexi
 
 (* relations/operations/constants: *)
 
-Program Instance q_plus: RingPlus Q := fun (x y: Q) => C (num x * den y + num y * den x) (den x * den y) _.
+Program Instance q_plus: RingPlus Q := λ (x y: Q) => C (num x * den y + num y * den x) (den x * den y) _.
 Next Obligation.
  destruct x, y. simpl. intro E. destruct (zero_product _ _ E); intuition.
 Qed.
@@ -56,14 +56,14 @@ Qed.
 Instance q_zero: RingZero Q := inject_Z 0.
 Instance q_ring_one: RingOne Q := inject_Z 1.
 
-Instance q_opp: GroupInv Q := fun (x: Q) => C (- num x) (den x) (den_nonzero x).
+Instance q_opp: GroupInv Q := λ (x: Q) => C (- num x) (den x) (den_nonzero x).
 
-Program Instance q_mult: RingMult Q := fun x y => C (num x * num y) (den x * den y) _.
+Program Instance q_mult: RingMult Q := λ x y => C (num x * num y) (den x * den y) _.
 Next Obligation.
  destruct x, y. simpl. intro E. destruct (zero_product _ _ E); intuition.
 Qed.
 
-Program Instance q_inv: MultInv Q := fun x => C (den x) (num x) _.
+Program Instance q_inv: MultInv Q := λ x => C (den x) (num x) _.
 Next Obligation. intro U. unfold equiv, q_equiv in H2. apply H2. rewrite U. simpl. ring. Qed.
 
 (* plus is nice, giving us a monoid: *)
@@ -141,14 +141,14 @@ Qed.
 Instance: Ring_Morphism inject_Z.
 Proof.
  repeat (constructor; try apply _); unfold equiv, q_equiv; try reflexivity; simpl; intros.
-  change ((a + a') * (1 * 1) == (a * 1 + a' * 1) * 1). ring.
- change ((a * a') * (1 * 1) == a * a' * 1). ring.
+  change ((a + a') * (1 * 1) = (a * 1 + a' * 1) * 1). ring.
+ change ((a * a') * (1 * 1) = a * a' * 1). ring.
 Qed.
 
 Instance: Injective inject_Z.
 Proof. intros x y. unfold equiv, q_equiv. simpl. do 2 rewrite mult_1_r. intuition. Qed.
 
-Instance: Surjective (fun p => inject_Z (fst p) * / inject_Z (snd p)).
+Instance: Surjective (λ p => inject_Z (fst p) * / inject_Z (snd p)).
 Proof.
  intros [n d P]. exists (n, d).
  unfold equiv, q_equiv. simpl.

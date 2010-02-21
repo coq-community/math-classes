@@ -11,15 +11,15 @@ Section contents.
   Context `{Variety et A} `{@ClosedSubset et A _ _ P}. (* todo: why so ugly? *)
 
   Definition Pvars (vars: Vars et (carrier P) nat): Vars et A nat
-    := fun s n => ` (vars s n).
+    := λ s n => ` (vars s n).
 
   (* To prove that the laws still hold in the subalgebra, we first prove that evaluation in it
    is the same as evaluation in the original: *)
 
-  Fixpoint heq {o}: op_type (sorts et) (carrier P) o -> op_type (sorts et) A o -> Prop :=
+  Program Fixpoint heq {o}: op_type (sorts et) (carrier P) o → op_type (sorts et) A o → Prop :=
     match o with
-    | constant x => fun a b => `a == b
-    | function x y => fun a b => forall u, heq (a u) (b (`u))
+    | constant x => λ a b => `a = b
+    | function x y => λ a b => Π u, heq (a u) (b u)
     end.
 
   Instance heq_proper: Proper (equiv ==> equiv ==> iff) (@heq o).
@@ -27,14 +27,14 @@ Section contents.
    intros o x y U x0 y0 K.
    induction o; simpl in *.
     destruct x, y.
-    change (x == x1) in U.
+    change (x = x1) in U.
     simpl in *.
     split; intro.
      transitivity x...
      transitivity x0...
     transitivity x1...
     transitivity y0...
-   assert (forall u, x u == y u). intros.
+   assert (Π u, x u = y u). intros.
     apply U.
     reflexivity.
    split; repeat intro.
@@ -65,7 +65,7 @@ Section contents.
    induction (et o); simpl in *...
   Qed.
 
-  Lemma laws s: et_laws et s -> forall vars: forall a, nat -> carrier P a, eval_stmt et vars s.
+  Lemma laws s: et_laws et s → (Π vars: Π a, nat → carrier P a, eval_stmt et vars s).
   Proof with intuition.
    intros.
    generalize (@variety_laws et A _ _ _ s H1 (Pvars vars)). clear H1.

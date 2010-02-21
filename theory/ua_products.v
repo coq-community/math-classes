@@ -8,38 +8,38 @@ Require setoids.
 Section algebras.
 
   Context
-    (sig: Signature) (I: Type) (carriers: I -> sorts sig -> Type)
-    `(forall i s, Equiv (carriers i s))
-    `{forall i, AlgebraOps sig (carriers i)}
-    `{forall i, Algebra sig (carriers i)}.
+    (sig: Signature) (I: Type) (carriers: I → sorts sig → Type)
+    `(Π i s, Equiv (carriers i s))
+    `{Π i, AlgebraOps sig (carriers i)}
+    `{Π i, Algebra sig (carriers i)}.
 
-  Definition carrier: sorts sig -> Type := fun sort => forall i: I, carriers i sort.
+  Definition carrier: sorts sig → Type := λ sort => Π i: I, carriers i sort.
 
-  Fixpoint rec_impl o: (forall i, op_type (sorts sig) (carriers i) o) -> op_type (sorts sig) carrier o :=
-    match o return (forall i, op_type (sorts sig) (carriers i) o) -> op_type (sorts sig) carrier o with
+  Fixpoint rec_impl o: (Π i, op_type (sorts sig) (carriers i) o) → op_type (sorts sig) carrier o :=
+    match o return (Π i, op_type (sorts sig) (carriers i) o) → op_type (sorts sig) carrier o with
     | constant _ => id
-    | function _ g => fun X X0 => rec_impl g (fun i => X i (X0 i))
+    | function _ g => λ X X0 => rec_impl g (λ i => X i (X0 i))
     end.
 
-  Instance rec_impl_proper: forall o, Proper (equiv ==> equiv) (rec_impl o).
+  Instance rec_impl_proper: Π o, Proper (equiv ==> equiv) (rec_impl o).
   Proof with auto.
    induction o; simpl. repeat intro...
    intros ? ? Y x0 y0 ?. apply IHo.
-   intros. intro. apply Y. change (x0 i == y0 i)...
+   intros. intro. apply Y. change (x0 i = y0 i)...
   Qed.
 
-  Global Instance product_ops: AlgebraOps sig carrier := fun o => rec_impl (sig o) (fun i => algebra_op sig o).
+  Global Instance product_ops: AlgebraOps sig carrier := λ o => rec_impl (sig o) (λ i => algebra_op sig o).
 
-  Instance: forall o: sig, Proper equiv (algebra_op sig o: op_type (sorts sig) carrier (sig o)).
+  Instance: Π o: sig, Proper equiv (algebra_op sig o: op_type (sorts sig) carrier (sig o)).
   Proof. intro. apply rec_impl_proper. intro. apply (algebra_propers _). Qed.
 
   Instance product_e sort: Equiv (carrier sort) := equiv. (* hint; shouldn't be needed *)
 
   Global Instance product_algebra: Algebra sig carrier.
 
-  Lemma preservation i o: Preservation sig carrier (carriers i) (fun _ v => v i) (algebra_op sig o) (algebra_op sig o).
+  Lemma preservation i o: Preservation sig carrier (carriers i) (λ _ v => v i) (algebra_op sig o) (algebra_op sig o).
    unfold product_ops, algebra_op.
-   set (select_op := fun i0 : I => H0 i0 o).
+   set (select_op := λ i0 : I => H0 i0 o).
    replace (H0 i o) with (select_op i) by reflexivity.
    clearbody select_op.
    revert select_op.
@@ -47,10 +47,10 @@ Section algebras.
    intros. intro. apply IHo0.
   Qed.
 
-  Lemma algebra_projection_morphisms i: @HomoMorphism sig carrier (carriers i) _ _ _ _ (fun a v => v i). 
+  Lemma algebra_projection_morphisms i: @HomoMorphism sig carrier (carriers i) _ _ _ _ (λ a v => v i). 
   Proof.
    constructor; try apply _.
-    intro. apply (@setoids.projection_morphism I (fun i => carriers i a) (fun i => _ i _: Equiv (carriers i a))).
+    intro. apply (@setoids.projection_morphism I (λ i => carriers i a) (λ i => _ i _: Equiv (carriers i a))).
     intro. apply _.
    apply preservation.
   Qed.
@@ -61,42 +61,42 @@ Section varieties.
 
   Context
     (et: EquationalTheory)
-    (I: Type) (carriers: I -> sorts et -> Type)
-    `(forall i s, Equiv (carriers i s))
-    `(forall i, AlgebraOps et (carriers i))
-    `(forall i, Variety et (carriers i)).
+    (I: Type) (carriers: I → sorts et → Type)
+    `(Π i s, Equiv (carriers i s))
+    `(Π i, AlgebraOps et (carriers i))
+    `(Π i, Variety et (carriers i)).
 
   Notation carrier := (carrier et I carriers).
   Let carrier_e := product_e et I carriers _.
 
-  Fixpoint nqe {t}: op_type (sorts et) carrier t -> (forall i, op_type _ (carriers i) t) -> Prop :=
+  Fixpoint nqe {t}: op_type (sorts et) carrier t → (Π i, op_type _ (carriers i) t) → Prop :=
    match t with
-   | constant x => fun f g => forall i, f i == g i
-   | function _ _ => fun f g => forall tuple, nqe (f tuple) (fun i => g i (tuple i))
+   | constant x => λ f g => Π i, f i = g i
+   | function _ _ => λ f g => Π tuple, nqe (f tuple) (λ i => g i (tuple i))
    end. (* todo: rename *)
 
-  Instance nqe_proper t: Proper (equiv ==> (fun x y => forall i, x i == y i) ==> iff) (@nqe t).
+  Instance nqe_proper t: Proper (equiv ==> (λ x y => Π i, x i = y i) ==> iff) (@nqe t).
   Proof with auto; try reflexivity.
    induction t; simpl; intros ? ? P ? ? E.
     intuition. rewrite <- (P i), <- E... rewrite (P i), E...
    split; intros U tuple;
     apply (IHt (x tuple) (y tuple) (P tuple tuple (reflexivity _))
-      (fun u => x0 u (tuple u)) (fun u => y0 u (tuple u)))...
+      (λ u => x0 u (tuple u)) (λ u => y0 u (tuple u)))...
     intro. apply E...
    intro. apply E...
   Qed.
 
   Lemma nqe_always {t} (term: Term _ nat t) vars:
-    nqe (eval et vars term) (fun i => eval et (fun sort n => vars sort n i) term).
+    nqe (eval et vars term) (λ i => eval et (λ sort n => vars sort n i) term).
   Proof.
    induction term; simpl in *.
      reflexivity.
-    set (k := (fun i : I =>
-        eval et (fun (sort: sorts et) (n : nat) => vars sort n i) term1
+    set (k := (λ i : I =>
+        eval et (λ (sort: sorts et) (n : nat) => vars sort n i) term1
           (eval et vars term2 i))).
     cut (nqe (eval et vars term1 (eval et vars term2)) k).
-     set (p := fun i : I => eval et (fun (sort : sorts et) (n : nat) => vars sort n i) term1
-       (eval et (fun (sort : sorts et) (n : nat) => vars sort n i) term2)).
+     set (p := λ i : I => eval et (λ (sort : sorts et) (n : nat) => vars sort n i) term1
+       (eval et (λ (sort : sorts et) (n : nat) => vars sort n i) term2)).
      assert (op_type_equiv (sorts et) carrier t
         (eval et vars term1 (eval et vars term2))
         (eval et vars term1 (eval et vars term2))).
@@ -107,34 +107,34 @@ Section varieties.
      subst p k.
      simpl.
      intro.
-     pose proof (eval_proper et _ (fun (sort : sorts et) (n : nat) => vars sort n i) (fun (sort : sorts et) (n : nat) => vars sort n i) (reflexivity _) term1 term1 eq_refl).
+     pose proof (eval_proper et _ (λ (sort : sorts et) (n : nat) => vars sort n i) (λ (sort : sorts et) (n : nat) => vars sort n i) (reflexivity _) term1 term1 eq_refl).
      apply H3.
      apply IHterm2.
     apply IHterm1.
-   change (nqe (rec_impl et _ _ (et o) (fun i : I => @algebra_op _ (carriers i) _ o)) (fun i : I => @algebra_op _ (carriers i) _ o)).
-   generalize (fun i: I => @algebra_op et (carriers i) _ o).
+   change (nqe (rec_impl et _ _ (et o) (λ i : I => @algebra_op _ (carriers i) _ o)) (λ i : I => @algebra_op _ (carriers i) _ o)).
+   generalize (λ i: I => @algebra_op et (carriers i) _ o).
    induction (et o); simpl. reflexivity.
    intros. apply IHo0.
   Qed.
 
   Lemma component_equality_to_product t
     (A A': op_type _ carrier t)
-    (B B': forall i, op_type _ (carriers i) t):
-    (forall i, B i == B' i) -> nqe A B -> nqe A' B' -> A == A'.
+    (B B': Π i, op_type _ (carriers i) t):
+    (Π i, B i = B' i) → nqe A B → nqe A' B' → A = A'.
   Proof with auto.
    induction t; simpl in *; intros BE ABE ABE'.
     intro. rewrite ABE, ABE'...
    intros x y U.
-   apply (IHt (A x) (A' y) (fun i => B i (x i)) (fun i => B' i (y i)))...
+   apply (IHt (A x) (A' y) (λ i => B i (x i)) (λ i => B' i (y i)))...
    intros. apply BE, U.
   Qed.
 
-  Lemma laws_hold s: et_laws et s -> forall vars, eval_stmt et vars s.
+  Lemma laws_hold s: et_laws et s → (Π vars, eval_stmt et vars s).
   Proof.
    intros.
-   pose proof (fun i => variety_laws s H2 (fun sort n =>  vars sort n i)). clear H2.
-   assert (forall i : I, eval_stmt (et_sig et)
-     (fun (sort : sorts (et_sig et)) (n : nat) => vars sort n i)
+   pose proof (λ i => variety_laws s H2 (λ sort n =>  vars sort n i)). clear H2.
+   assert (Π i : I, eval_stmt (et_sig et)
+     (λ (sort : sorts (et_sig et)) (n : nat) => vars sort n i)
      (entailment_as_conjunctive_statement (et_sig et) s)).
     intros.
     rewrite <- boring_eval_entailment.
@@ -149,7 +149,7 @@ Section varieties.
    simpl in *.
    intro.
    apply component_equality_to_product with
-       (fun i => eval et (fun sort n => vars sort n i) t) (fun i => eval et (fun sort n => vars sort n i) t0).
+       (λ i => eval et (λ sort n => vars sort n i) t) (λ i => eval et (λ sort n => vars sort n i) t0).
      intro.
      apply H2. clear H2. simpl.
      induction entailment_premises... simpl in *.
@@ -178,26 +178,26 @@ Section categorical.
 
   Context
     (et: EquationalTheory)
-    (I: Type) (carriers: I -> variety.Object et).
+    (I: Type) (carriers: I → variety.Object et).
 
   Definition product: variety.Object et.
-   apply (@variety.object et (fun s => forall i: I, carriers i s)
-     (product_e et I carriers (fun i => variety.variety_equiv et (carriers i)))
-    (@product_ops et I carriers (fun i => variety.variety_op et (carriers i))) ).
+   apply (@variety.object et (λ s => Π i: I, carriers i s)
+     (product_e et I carriers (λ i => variety.variety_equiv et (carriers i)))
+    (@product_ops et I carriers (λ i => variety.variety_op et (carriers i))) ).
    apply (@product_variety et I carriers).
-   apply (fun _ => _).
+   apply (λ _ => _).
   Defined.
 
-  Program Definition project (i: I): product --> carriers i := fun _ c => c i.
+  Program Definition project (i: I): product ⟶ carriers i := λ _ c => c i.
 
   Next Obligation.
    apply (@algebra_projection_morphisms et I carriers
-     (fun x => @variety.variety_equiv et (carriers x)) (fun x => variety.variety_op et (carriers x)) ).
+     (λ x => @variety.variety_equiv et (carriers x)) (λ x => variety.variety_op et (carriers x)) ).
    intro. apply _.
   Qed.
 
-  Program Definition factor c (component_arrow: forall i, c --> carriers i): c --> product :=
-    fun a X i => component_arrow i a X.
+  Program Definition factor c (component_arrow: Π i, c ⟶ carriers i): c ⟶ product :=
+    λ a X i => component_arrow i a X.
 
   Next Obligation. Proof.
    constructor; try apply _.
@@ -205,7 +205,15 @@ Section categorical.
      intros ? ? E i.
      destruct (proj2_sig (component_arrow i)).
      rewrite E. reflexivity.
-    admit.
+    intro.
+    pose proof (λ i => @preserves _ _ _ _ _ _ _ _ (proj2_sig (component_arrow i)) o).
+    unfold product_ops, algebra_op.
+    set (λ i => variety.variety_op et (carriers i) o).
+    set (variety.variety_op et c o) in *.
+    change (∀i : I, Preservation et c (carriers i) (` (component_arrow i)) o1 (o0 i)) in H.
+    clearbody o0 o1.
+    revert o0 o1 H.
+    induction (et o); simpl; intuition.
    apply (@product_algebra et I carriers).
    intro. apply _.
   Qed.

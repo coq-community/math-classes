@@ -2,12 +2,12 @@ Set Automatic Introduction.
 
 Require Import
   Relation_Definitions Morphisms Setoid Program
-  abstract_algebra theory.categories.
+  abstract_algebra interfaces.functors theory.categories.
 
 Record Object := object
   { obj:> Type
   ; Arrows_inst: Arrows obj
-  ; Equiv_inst: forall x y: obj, Equiv (x --> y)
+  ; Equiv_inst: Π x y: obj, Equiv (x ⟶ y)
   ; CatId_inst: CatId obj
   ; CatComp_inst: CatComp obj
   ; Category_inst: Category obj }.
@@ -27,7 +27,7 @@ Existing Instance Category_inst.
 Unfortunately, that doesn't register the coercion and class instances. *)
 
 Record Arrow (x y: Object): Type := arrow
-  { map_obj:> obj x -> obj y
+  { map_obj:> obj x → obj y
   ; Fmap_inst: Fmap map_obj
   ; Functor_inst: Functor map_obj _ }.
 
@@ -40,25 +40,25 @@ Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances.
 
 Section contents.
 
-  Instance hint (x y: Object) (a: x --> y) p q: Setoid_Morphism (fmap a: p --> q -> _).
+  Instance hint (x y: Object) (a: x ⟶ y) p q: Setoid_Morphism (fmap a: (p ⟶ q) → _).
 
   Implicit Arguments map_obj [[x] [y]].
 
   Section more_arrows. Context (x y: Object).
 
-    Global Program Instance e: Equiv (x --> y) := fun a b =>
-      exists X: forall _, isoT _ _, forall (p q: x) (r r': p --> q), r == r' ->
-       fmap a r ◎ snd (X p) == snd (X q) ◎ fmap b r'.
+    Global Program Instance e: Equiv (x ⟶ y) := λ a b =>
+      exists X: Π _, isoT _ _, Π (p q: x) (r r': p ⟶ q), r = r' →
+       fmap a r ◎ snd (X p) = snd (X q) ◎ fmap b r'.
 
     Let e_refl: Reflexive e.
     Proof.
      intro a.
-     exists (fun v => refl_arrows (a v)).
+     exists (λ v => refl_arrows (a v)).
      intros ???? E. simpl.
      rewrite E, id_l, id_r. reflexivity.
     Qed.
 
-    Program Let sym_arrows (a b: x -> y) (v: x) (p: isoT (a v) (b v)): isoT (b v) (a v)
+    Program Let sym_arrows (a b: x → y) (v: x) (p: isoT (a v) (b v)): isoT (b v) (a v)
         := (snd p, fst p).
 
     Next Obligation. destruct p. simpl in *. firstorder. Qed.
@@ -66,7 +66,7 @@ Section contents.
     Let e_sym: Symmetric e.
     Proof.
      intros ?? [x1 H].
-     exists (fun v => sym_arrows _ _ _ (x1 v)). simpl.
+     exists (λ v => sym_arrows _ _ _ (x1 v)). simpl.
      intros ???? E.
      pose proof (H _ _ _ _ E) as H0.
      destruct (x1 p), (x1 q). simpl in *.
@@ -75,9 +75,9 @@ Section contents.
      assumption.
     Qed. (* todo: clean up *)
 
-    Program Let trans_arrows (x0 y0 z: x -> y) (v: x)
-     (x1: sig (fun (p: (x0 v --> y0 v) * _) => uncurry iso_arrows p))
-     (x2: sig (fun (p: (y0 v --> z v) * _) => uncurry iso_arrows p)): (* todo: use isoT *)
+    Program Let trans_arrows (x0 y0 z: x → y) (v: x)
+     (x1: sig (λ (p: (x0 v ⟶ y0 v) * _) => uncurry iso_arrows p))
+     (x2: sig (λ (p: (y0 v ⟶ z v) * _) => uncurry iso_arrows p)): (* todo: use isoT *)
       isoT (x0 v) (z v) := (fst x2 ◎ fst x1, snd x1 ◎ snd x2).
 
     Next Obligation. Proof with assumption.
@@ -88,23 +88,23 @@ Section contents.
 
     Let e_trans: Transitive e.
     Proof.
-     intros ? ? z [f H] [g H0].
-     exists (fun v => trans_arrows _ _ _ _ (f v) (g v)).
+     intros a b c [f H] [g H0].
+     exists (λ v => trans_arrows _ _ _ _ (f v) (g v)).
      simpl. intros ? ? ? ? U.
      generalize (H _ _ _ _ U), (H0 _ _ _ _ U).
-     rewrite U. intros E E'.
+     rewrite U. clear U H H0 r. intros E E'.
      rewrite comp_assoc, E, <- comp_assoc, E', comp_assoc.
      reflexivity.
     Qed.
 
     Instance: Equivalence e.
-    Global Instance: Setoid (x --> y).
+    Global Instance: Setoid (x ⟶ y).
 
   End more_arrows.
 
   Let obj_iso (x: Object): Equiv x := @iso x _ _ _ _.
 
-  Global Instance: forall (x y: Object) (a: x --> y), Setoid_Morphism (map_obj a).
+  Global Instance: Π (x y: Object) (a: x ⟶ y), Setoid_Morphism (map_obj a).
   Proof.
    constructor; try apply _.
    intros v w [[f g] [E F]].
@@ -115,22 +115,13 @@ Section contents.
    rewrite <- preserves_comp. rewrite F. auto.
   Qed. (* Putting this in the "arrows" section above (where it belongs) triggers a Coq bug. *)
 
-  Global Instance: CatId Object := fun _ => arrow id (fun _ _ => id) _.
+  Global Instance: CatId Object := λ _ => arrow id _ _. (* (λ _ _ => id) _. *)
 
-  Global Program Instance: CatComp Object
-    := fun x y z X X0 => arrow (X ∘ X0)
-     (fun _ _ => @Fmap_inst _ _ X _ _ ∘ @Fmap_inst _ _ X0 _ _) _.
-       (* With the intermediate Arrow constant out of the way we should
-        just be able to say "fmap X" and "fmap X0" here. *)
+  Global Program Instance: CatComp Object := λ _ _ _ x y => arrow (x ∘ y) _ _.
 
-  Next Obligation.
-   destruct x, y, z, X, X0. simpl.
-   apply (compose_functors (BC_obj := map_obj0)). (* todo: why do we need this? *)
-  Qed.
-
-  Program Let proper_arrows (x y z: Object) (x0 y0: y --> z) (x1 y1: x --> y)
-    (f: forall v, @isoT _ _ _ _ _ (map_obj x0 v) (map_obj y0 v))
-    (g: forall v, @isoT _ _ _ _ _ (map_obj x1 v) (map_obj y1 v)) (v: x):
+  Program Let proper_arrows (x y z: Object) (x0 y0: y ⟶ z) (x1 y1: x ⟶ y)
+    (f: Π v, @isoT _ _ _ _ _ (map_obj x0 v) (map_obj y0 v))
+    (g: Π v, @isoT _ _ _ _ _ (map_obj x1 v) (map_obj y1 v)) (v: x):
       @isoT _ _ _ _ _ (map_obj x0 (map_obj x1 v)) (map_obj y0 (map_obj y1 v))
    := (fst (f (y1 v)) ◎ fmap x0 (fst (g v)), fmap x0 (snd (g v)) ◎ snd (f (y1 v))).
      (* Todo: Investigate why things go wrong without the underscores. *)
@@ -147,8 +138,8 @@ Section contents.
    rewrite e1, id_l, <- preserves_comp, e3, preserves_id...
   Defined.
 
-  Global Instance: forall x y z: Object, Proper (equiv ==> equiv ==> equiv) (comp: y --> z -> x --> y -> x --> z).
-  Proof.
+  Global Instance: Π x y z: Object, Proper (equiv ==> equiv ==> equiv) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Proof with try apply _.
    repeat intro.
    unfold equiv.
    unfold e.
@@ -156,51 +147,30 @@ Section contents.
    destruct H0.
    simpl in *.
    exists (proper_arrows x y z x0 y0 x1 y1 x2 x3).
-   unfold compose.
    intros.
    simpl.
    pose proof (H0 _ _ _ _ H1). clear H0.
-   revert H2.
-   destruct (x3 p), (x3 q).
-   simpl.
-   clear x3.
-   destruct x4, x5.
-   destruct u, u0.
+   destruct (x3 p) as [[a a0] [e0 e1]], (x3 q) as [[a1 a2] [e2 e3]]. clear x3.
    simpl in *.
-   unfold fmap.
-   rewrite H1. clear r H1.
-   intros.
-   pose proof (H (y1 p) (y1 q) (Fmap_inst _ _ y1 _ _ r') (Fmap_inst _ _ y1 _ _ r') (reflexivity _)). clear H.
-   destruct (x2 (y1 p)), (x2 (y1 q)).
-   clear x2.
-   destruct x3, x4, u, u0.
+   change (
+     fmap x0 (fmap x1 r) ◎ (fmap x0 a0 ◎ snd (` (x2 (y1 p)))) =
+     fmap x0 a2 ◎ snd (` (x2 (y1 q))) ◎ fmap y0 (fmap y1 r')).
+   rewrite H1 in H2 |- *. clear r H1.
+   pose proof (H (y1 p) (y1 q) (fmap y1 r') (fmap y1 r') (reflexivity _)). clear H.
+   destruct (x2 (y1 p)) as [[a3 a4] [e4 e5]], (x2 (y1 q)) as [[a5 a6] [e6 e7]]. clear x2.
    simpl in *.
-   destruct z.
-   destruct Category_inst0.
-   simpl in *.
-   apply transitivity with (comp (fmap x0 a2) (comp a6 (fmap y0 (fmap y1 r')))).
-    rewrite <- H5. clear H5.
-    apply transitivity with (comp (comp (fmap x0 (fmap x1 r')) (fmap x0 a0)) a4).
-     repeat rewrite comp_assoc. reflexivity.
-    simpl in *.
-    rewrite <- preserves_comp.
-     Focus 2.
-     clear.
-     destruct x0.
-     simpl.
-     apply _.
-    unfold fmap.
-    rewrite H1.
-    rewrite comp_assoc.
-    change (comp (fmap x0 (comp a2 (fmap y1 r'))) a4 ==
-      comp (comp (fmap x0 a2) (fmap x0 (fmap y1 r'))) a4).
-    rewrite <- preserves_comp.
-     reflexivity.
-    destruct x0. apply _.
-   repeat rewrite comp_assoc. reflexivity.
+   rewrite <- comp_assoc, <- H0. clear H0.
+   apply transitivity with ((fmap x0 (fmap x1 r') ◎ fmap x0 a0) ◎ a4).
+    repeat rewrite comp_assoc. reflexivity.
+   pose proof (_: Functor x0 _). (* todo: shouldn't be necessary *)
+   rewrite <- preserves_comp...
+   rewrite H2.
+   rewrite comp_assoc.
+   rewrite <- preserves_comp...
+   reflexivity.
   Qed. (* todo: clean up! *)
  
-  Program Let id_lr_arrows (x y: Object) (a: y --> x) v: isoT (map_obj a v) (map_obj a v)
+  Program Let id_lr_arrows (x y: Object) (a: y ⟶ x) v: isoT (map_obj a v) (map_obj a v)
     := (cat_id, cat_id).
     (* We can't remove the map_obj here and elsewhere even though it's a coercion,
      because unification isn't smart enough to resolve and use that coercion. This is
@@ -208,14 +178,14 @@ Section contents.
 
   Next Obligation. split; apply id_l. Qed.
 
-  Let id_l' (x y: Object) (a: y --> x): cat_id ◎ a == a.
+  Let id_l' (x y: Object) (a: x ⟶ y): cat_id ◎ a = a.
   Proof.
    exists (id_lr_arrows _ _ a).
    intros ? ? ? ? E. simpl. unfold compose, id.
    rewrite id_r, id_l, <- E. reflexivity.
   Qed.
 
-  Let id_r' (x y: Object) (a: x --> y): a ◎ cat_id == a.
+  Let id_r' (x y: Object) (a: x ⟶ y): a ◎ cat_id = a.
   Proof.
    exists (id_lr_arrows _ _ a).
    intros ? ? ? ? E. simpl. unfold compose, id.
@@ -224,19 +194,18 @@ Section contents.
 
   Section comp_assoc.
 
-    Variables (w x y z: Object) (a: w --> x) (b: x --> y) (c: y --> z).
+    Variables (w x y z: Object) (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z).
 
     Program Let comp_assoc_arrows (v: w): isoT (c (b (a v))) (c (b (a v))) :=
       (fmap c (fmap b (fmap a cat_id)), fmap c (fmap b (fmap a cat_id))).
     Next Obligation. unfold uncurry. simpl. split; repeat rewrite preserves_id; try apply _; apply id_l. Qed.
 
-    Lemma comp_assoc': c ◎ (b ◎ a) == (c ◎ b) ◎ a.
+    Lemma comp_assoc': c ◎ (b ◎ a) = (c ◎ b) ◎ a.
     Proof.
      exists comp_assoc_arrows.
      simpl. intros ? ? ? ? E. unfold compose.
      repeat rewrite preserves_id; try apply _. (* todo: remove need for [try apply _] *)
      rewrite id_l, id_r.
-     unfold fmap. (* todo: shouldn't be necessary *)
      rewrite E. reflexivity.
     Qed.
 

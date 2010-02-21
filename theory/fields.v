@@ -9,7 +9,7 @@ Require Import
 Section dec_mult_inv.
 
   Context
-    `{e: Equiv A} `{RingZero A} `{mi: !MultInv A} `{forall x y: A, Decision (x == y)}
+    `{e: Equiv A} `{RingZero A} `{mi: !MultInv A} `{Π x y: A, Decision (x = y)}
     `{!Equivalence e} `{mult_inv_proper: !Proper (sig_relation equiv _ ==> equiv) mi}.
 
   Global Instance dec_mult_inv_proper: Proper (e ==> e) dec_mult_inv.
@@ -24,14 +24,14 @@ Section dec_mult_inv.
 
 End dec_mult_inv.
 
-Section field_props. Context `{Field F} `{forall x y: F, Decision (x == y)}.
+Section field_props. Context `{Field F} `{Π x y: F, Decision (x = y)}.
 
-  Lemma mult_inverse': forall x p, x * // exist _ x p == 1.
+  Lemma mult_inverse': Π x p, x * // exist _ x p = 1.
   Proof. intros. apply (mult_inverse (exist _ _ _)). Qed.
 
   Definition stdlib_field_theory:
-    Field_theory.field_theory 0 1 ring_plus ring_mult (fun x y => x + - y)
-      group_inv (fun x y => x * / y) dec_mult_inv equiv.
+    Field_theory.field_theory 0 1 ring_plus ring_mult (λ x y => x + - y)
+      group_inv (λ x y => x * / y) dec_mult_inv equiv.
   Proof with auto.
    intros.
    constructor.
@@ -47,7 +47,7 @@ Section field_props. Context `{Field F} `{forall x y: F, Decision (x == y)}.
 
   Add Field F: stdlib_field_theory.
 
-  Lemma mult_reg_l  x: ~ x == 0 -> forall y z: F, x * y == x * z -> y == z.
+  Lemma mult_reg_l x: x ≠ 0 → (Π y z: F, x * y = x * z → y = z).
   Proof.
    intros E y z G.
    rewrite <- mult_1_l.
@@ -63,31 +63,31 @@ Section field_props. Context `{Field F} `{forall x y: F, Decision (x == y)}.
   Global Instance: ZeroProduct F.
   Proof.
    intros x y E.
-   destruct (decide (x == 0)) as [? | P]. intuition.
+   destruct (decide (x = 0)) as [? | P]. intuition.
    rewrite <- (mult_0_r x) in E.
    right. apply (mult_reg_l x P _ _ E).
   Qed.
 
-  Lemma dec_mult_inverse (x: F): ~ x == 0 -> x * / x == 1.
+  Lemma dec_mult_inverse (x: F): x ≠ 0 → x * / x = 1.
   Proof.
    unfold dec_mult_inv. destruct decide. intuition.
    intros. apply (mult_inverse (exist _ x _)).
   Qed.
 
-  Lemma inv_0: / 0 == 0.
+  Lemma inv_0: / 0 = 0.
   Proof. unfold dec_mult_inv. destruct decide; intuition. Qed.
 
-  Lemma dec_mult_inv_distr (x y: F): / (x * y) == / x * / y.
+  Lemma dec_mult_inv_distr (x y: F): / (x * y) = / x * / y.
   Proof.
-   destruct (decide (x == 0)) as [E|E]. rewrite E, mult_0_l, inv_0. ring.
-   destruct (decide (y == 0)) as [G|G]. rewrite G, mult_0_r, inv_0. ring.
+   destruct (decide (x = 0)) as [E|E]. rewrite E, mult_0_l, inv_0. ring.
+   destruct (decide (y = 0)) as [G|G]. rewrite G, mult_0_r, inv_0. ring.
    field. intuition.
   Qed.
 
-  Lemma equal_by_one_quotient (x y: F): x */ y == 1 -> x == y.
+  Lemma equal_by_one_quotient (x y: F): x */ y = 1 → x = y.
   Proof with auto; try field; auto.
    intro E.
-   destruct (decide (y == 0)).
+   destruct (decide (y = 0)).
     exfalso. apply field_0neq1.
     rewrite <- E, e0, inv_0...
    transitivity (1 * y)...

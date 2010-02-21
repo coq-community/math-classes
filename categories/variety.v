@@ -15,8 +15,8 @@ Section contents.
   Variable et: EquationalTheory.
 
   Record Object: Type := object
-    { variety_carriers:> sorts et -> Type
-    ; variety_equiv: forall a, Equiv (variety_carriers a)
+    { variety_carriers:> sorts et → Type
+    ; variety_equiv: Π a, Equiv (variety_carriers a)
     ; variety_op: AlgebraOps et variety_carriers
     ; variety_proof: Variety et variety_carriers
     }.
@@ -27,20 +27,20 @@ Section contents.
   Global Existing Instance variety_op.
   Global Existing Instance variety_proof.
 
-  Global Instance: Arrows Object := fun X Y: Object => sig (HomoMorphism et X Y).
+  Global Instance: Arrows Object := λ X Y: Object => sig (HomoMorphism et X Y).
 
   Program Definition arrow `{Variety et A} `{Variety et B}
-    f `{!HomoMorphism et A B f}: object A --> object B := f.
+    f `{!HomoMorphism et A B f}: object A ⟶ object B := f.
 
-  Global Program Instance: CatId Object := fun _ _ => id.
+  Global Program Instance: CatId Object := λ _ _ => id.
 
-  Global Program Instance: CatComp Object := fun _ _ _ f g v => f v ∘ g v.
+  Global Program Instance: CatComp Object := λ _ _ _ f g v => f v ∘ g v.
   Next Obligation. destruct f, g. apply _. Qed.
 
-  Global Program Instance: forall (x y: Object), Equiv (x --> y)
-    := fun _ _ x y => forall b, pointwise_relation _ equiv (x b) (y b).
+  Global Program Instance: Π (x y: Object), Equiv (x ⟶ y)
+    := λ _ _ x y => Π b, pointwise_relation _ equiv (x b) (y b).
 
-  Global Instance: forall (x y: Object), Setoid (x --> y).
+  Global Instance: Π (x y: Object), Setoid (x ⟶ y).
   Proof.
    constructor.
      repeat intro. reflexivity.
@@ -48,7 +48,7 @@ Section contents.
    intros ? ? ? E F ? ?. rewrite (E _ _). apply F.
   Qed.
 
-  Instance: forall (x y z: Object), Proper (equiv ==> equiv ==> equiv) (comp: y --> z -> x --> y -> x --> z).
+  Instance: Π (x y z: Object), Proper (equiv ==> equiv ==> equiv) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof.
    intros ??? [? [??]] ? E ?? F ??. simpl.
    unfold compose. rewrite (F _ _), (E _ _). reflexivity.

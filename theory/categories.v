@@ -1,129 +1,81 @@
 Set Automatic Introduction.
 
 Require Import
-  Relation_Definitions Morphisms Setoid Program abstract_algebra setoids.
+  Relation_Definitions Morphisms Setoid Program abstract_algebra setoids functors.
 
-Section functor_class.
+Notation "x ⇛ y" := (Π a, x a ⟶ y a) (at level 90, right associativity).
+  (* Transformations (polymorphic arrows). Couldn't find an "arrow with dot over it" unicode character. *)
 
-  Context `{Category C} `{Category D} (map_obj: C -> D).
-
-  Class Fmap: Type := fmap: forall {v w: C}, (v --> w) -> (map_obj v --> map_obj w).
-
-  Class Functor `(Fmap): Prop :=
-    { functor_morphism:> forall (a b: C), Setoid_Morphism (@fmap _ a b)
-    ; preserves_id: forall a, fmap (cat_id: a --> a) == cat_id
-    ; preserves_comp: forall x y z (f: y --> z) (g: x --> y),
-        fmap (comp f g) == comp (fmap f) (fmap g) }.
-
-End functor_class.
+(* Natural transformations: *)
 
 Section natural_transformation.
 
-  Context `{Category C} `{Category D} (F G: C -> D) `{!Functor F Fa} `{!Functor G Ga}.
+  Context `{Category C} `{Category D} `{!Functor (F: C → D) Fa} `{!Functor (G: C → D) Ga}.
 
-  Class NaturalTransformation (η: forall c: C, F c --> G c): Prop :=
-    natural: forall (x y: C) (f: x --> y), η y ◎ fmap F f == fmap G f ◎ η x.
+  Class NaturalTransformation (η: Π c, F c ⟶ G c): Prop :=
+    natural: Π (x y: C) (f: x ⟶ y), η y ◎ fmap F f = fmap G f ◎ η x.
 
 End natural_transformation.
+
+(* The elegant symmetrical definition of adjunctions: *)
 
 Section adjunction.
 
   Context `{Category A} `{Category X}
-    (F: X -> A) `{!Functor F Fa} (* todo: we don't want to name Fa and Fg here *)
-    (G: A -> X) `{!Functor G Ga}
-    (φ: forall {x a}, (F x --> a) -> (x --> G a))
-    `{forall x a, Bijective (φ x a)}.
+    (F: X → A) `{!Functor F Fa} (* todo: we don't want to name Fa and Fg here *)
+    (G: A → X) `{!Functor G Ga}
+    (φ: Π {x a}, (F x ⟶ a) → (x ⟶ G a))
+    `{Π x a, Bijective (φ x a)}.
 
   Implicit Arguments φ [[x] [a]].
 
   Class Adjunction: Prop :=
-   { natural_left: forall (x: X) (a a': A) (k: a --> a'), (fmap G k ◎) ∘ φ == @φ x _ ∘ (k ◎)
-   ; natural_right: forall (x x': X) (a: A) (h: x' --> x), (◎ h) ∘ @φ _ a == φ ∘ (◎ fmap F h) }.
+   { natural_left `(k: a ⟶ a'): `((fmap G k ◎) ∘ φ = @φ x _ ∘ (k ◎))
+   ; natural_right `(h: x' ⟶ x):`((◎ h) ∘ @φ _ a = φ ∘ (◎ fmap F h)) }.
 
 End adjunction.
 
-Section id_functor.
+(* The more practical definition via universal morphisms: *)
 
-  Context `{Category C}.
+Section alt_adjunction.
 
-  Global Instance: Fmap id := fun _ _ => id.
+  Context `{Category C} `{Category D}
+    `{!Functor (F: C → D) F'} (* todo: we don't want to name F' and F' here *)
+    `{!Functor (G: D → C) G'}
+    (η: id ⇛ G ∘ F) `{!NaturalTransformation η}
+    (φ: Π (x: C) (y: D) (f: x ⟶ G y), F x ⟶ y).
 
-  Global Instance id_functor: Functor (id: C -> C) _.
-  Proof.
-   intros.
-   pose proof arrow_equiv.
-   unfold id.
-   constructor; try reflexivity.
-   intros.
-   apply id_setoid_morphism.
-  Qed.
+  Class AltAdjunction: Prop :=
+   { alt_adjunction_natural_unit: NaturalTransformation η (* todo: really necessary? *)
+   ; alt_adjunction_factor: Π (x: C) (y: D) (f: x ⟶ G y),
+       is_sole ((f =) ∘ (◎ η x) ∘ fmap G) (φ x y f) }.
 
-End id_functor.
-
-Instance compose_functors
-  `{@Functor Ao Aa Ae Aid Acomp Bo Ba Be Bid Bcomp AB_obj AB_arrow}
-  `{@Functor Bo Ba _ _ _ Co Ca Ce Cid Ccomp BC_obj BC_arrow}:
-    @Functor Ao Aa _ _ _ Co Ca _ _ _
-      (BC_obj ∘ AB_obj) (fun _ _ => BC_arrow _ _ ∘ AB_arrow _ _).
-Proof. (* todo: ugly *)
-   constructor.
-     intros.
-     set (BC_arrow (AB_obj a) (AB_obj b)).
-     set (AB_arrow a b).
-     apply (@compose_setoid_morphisms _ _ _ _ _ _).
-      apply _.
-     subst a0.
-     destruct H0.
-     apply functor_morphism0.
-    unfold Basics.compose.
-    intros.
-    destruct H, H0.
-    destruct (functor_morphism1 (AB_obj a) (AB_obj a)).
-    destruct (functor_morphism0 a a).
-    unfold fmap.
-    rewrite preserves_id0.
-    rewrite preserves_id1.
-    reflexivity.
-   unfold Basics.compose.
-   intros.
-   destruct H, H0.
-   destruct (functor_morphism0 x z).
-   destruct (functor_morphism1 (AB_obj x) (AB_obj y)).
-   destruct (functor_morphism1 (AB_obj x) (AB_obj z)).
-   destruct (functor_morphism0 x y).
-   unfold fmap.
-   rewrite preserves_comp0.
-   rewrite preserves_comp1.
-   reflexivity.
-  Qed. (* todo: clean up. those destructs should not be needed *)
-
-Definition is_sole `{Equiv T} (P: T -> Prop) (x: T): Prop :=
-  P x /\ forall y, P y -> y == x. (* todo: move *)
+End alt_adjunction.
 
 Section contents.
 
   Context `{Category X}.
 
-  Class Mono {x y} (a: x --> y): Prop :=
-    mono: forall z (f g: z --> x), a ◎ f == a ◎ g -> f == g.
+  Class Mono `(a: x ⟶ y): Prop :=
+    mono: Π z (f g: z ⟶ x), a ◎ f = a ◎ g → f = g.
 
   Section isomorphy.
 
-    Definition iso_arrows {x y: X} (a: x --> y) (b: y --> x): Prop
-      := a ◎ b == cat_id /\ b ◎ a == cat_id. (* todo: product *)
+    Definition iso_arrows {x y: X} (a: x ⟶ y) (b: y ⟶ x): Prop
+      := a ◎ b = cat_id ∧ b ◎ a = cat_id. (* todo: product *)
 
     Global Instance: HeteroSymmetric (@iso_arrows).
     Proof. unfold iso_arrows. repeat intro. intuition. Qed.
 
-    Definition is_iso {x y: X} (a: x --> y): Prop := ex (iso_arrows a).
+    Definition is_iso {x y: X} (a: x ⟶ y): Prop := ex (iso_arrows a).
 
-    Definition isos_unique (x y: X) (a: x --> y) (b b': y --> x): iso_arrows a b -> iso_arrows a b' -> b == b'.
+    Definition isos_unique (x y: X) (a: x ⟶ y) (b b': y ⟶ x): iso_arrows a b → iso_arrows a b' → b = b'.
     Proof. intros [P Q] [R S]. rewrite <- id_l. rewrite <- S, <- comp_assoc, P. apply id_r. Qed.
 
-    Definition iso: Equiv X := fun x y => ex (uncurry (@iso_arrows x y)).
-    Definition isoT: X -> X -> Type := fun x y => sig (uncurry (@iso_arrows x y)).
+    Definition iso: Equiv X := λ x y => ex (uncurry (@iso_arrows x y)).
+    Definition isoT: X → X → Type := λ x y => sig (uncurry (@iso_arrows x y)).
 
-    Program Instance: Reflexive iso := fun x => ex_intro _ (cat_id, cat_id) _.
+    Program Instance: Reflexive iso := λ x => ex_intro _ (cat_id, cat_id) _.
     Next Obligation. split; apply id_l. Qed.
 
     Instance: Symmetric iso.
@@ -133,7 +85,7 @@ Section contents.
     Proof with assumption.
      intros ? ? ? [[f f'] [U V]] [[g g'] [W Z]].
      exists (g ◎ f, f' ◎ g').
-     split; simpl.
+     split; simpl in *.
       rewrite <- comp_assoc, (comp_assoc g' f' f), U, id_l...
      rewrite <- comp_assoc, (comp_assoc f g g'), Z, id_l...
     Qed.
@@ -142,18 +94,17 @@ Section contents.
     Global Instance iso_setoid: @Setoid X iso.
 
     Lemma arrows_between_isomorphic_objects (a b c d: X)
-      (ab: a --> b) (ba: b --> a) (cd: c --> d) (dc: d --> c) (ac: a --> c) (bd: b --> d):
-       iso_arrows ab ba -> iso_arrows cd dc ->
-        ac ◎ ba == dc ◎ bd ->
-        bd ◎ ab == cd ◎ ac.
+      (ab: a ⟶ b) (ba: b ⟶ a) (cd: c ⟶ d) (dc: d ⟶ c) (ac: a ⟶ c) (bd: b ⟶ d):
+       iso_arrows ab ba → iso_arrows cd dc →
+        ac ◎ ba = dc ◎ bd →
+        bd ◎ ab = cd ◎ ac.
     Proof. (* shows that you only need one half of the diagram to commute for the other half to commute as well*)
-     intros.
-     rewrite <- (id_l _ _ (comp bd ab)).
-     destruct H1, H2.
+     intros [H1 H4] [H2 H5] H3.
+     rewrite <- (id_l (comp bd ab)).
      rewrite <- H2.
      rewrite <- comp_assoc.
      rewrite (comp_assoc ab bd dc).
-     rewrite <- H3. clear H3.
+     rewrite <- H3.
      rewrite <- comp_assoc.
      rewrite H4.
      rewrite id_r.
@@ -167,16 +118,16 @@ Section contents.
 
   Section initiality. (* todo: typeclassify *)
 
-    Definition proves_initial {x: X} (f: forall y, x --> y): Prop := forall y f', f y == f'.
+    Definition proves_initial {x: X} (f: Π y, x ⟶ y): Prop := Π y f', f y = f'.
 
-    Definition initial (x: X): Type := forall y: X, sig (fun a: x --> y => forall a': x --> y, a == a').
+    Definition initial (x: X): Type := Π y: X, sig (λ a: x ⟶ y => Π a': x ⟶ y, a = a').
 
-    Lemma initials_unique' (x x': X) (a: forall y, x --> y) (b: forall y, x' --> y):
-      proves_initial a -> proves_initial b -> iso_arrows (a x') (b x).
+    Lemma initials_unique' (x x': X) (a: Π y, x ⟶ y) (b: Π y, x' ⟶ y):
+      proves_initial a → proves_initial b → iso_arrows (a x') (b x).
     Proof with reflexivity.
      intros H1 H2. split.
-      rewrite <- (H2 x' cat_id). rewrite <- H2...
-     rewrite <- (H1 x cat_id). rewrite <- H1...
+      rewrite <- (H2 _ cat_id). rewrite <- H2...
+     rewrite <- (H1 _ cat_id). rewrite <- H1...
     Qed.
 
     Program Lemma initials_unique (x x': X) (a: initial x) (b: initial x'): iso_arrows (a x') (b x).
@@ -190,35 +141,35 @@ Section contents.
 
   Section products.
 
-    Context {I: Type} (component: I -> X).
+    Context {I: Type} (component: I → X).
 
     Record Product: Type := mkProduct
       { product_object:> X
-      ; project: forall i, product_object --> component i
-      ; factor: forall (c: X) (ccomp: forall i, c --> component i), c --> product_object }.
+      ; project: Π i, product_object ⟶ component i
+      ; prod_factor: Π (c: X), (Π i, c ⟶ component i) → (c ⟶ product_object) }.
 
-    Definition is_product (candidate: X) (proj: forall i, candidate --> component i)
-      (h: forall (c: X) (ccomp: forall i, c --> component i), c --> candidate): Prop
-        := forall c ccomp, is_sole (fun h' => forall i, ccomp i == proj i ◎ h') (h c ccomp).
+    Definition is_product (candidate: X) (proj: Π i, candidate ⟶ component i)
+      (h: Π (c: X) (ccomp: Π i, c ⟶ component i), c ⟶ candidate): Prop
+        := Π c ccomp, is_sole (λ h' => Π i, ccomp i = proj i ◎ h') (h c ccomp).
 
     Definition is_product' (p: Product): Prop
-        := forall c ccomp, is_sole (fun h' => forall i, ccomp i == project p i ◎ h') (factor p c ccomp).
+        := Π c ccomp, is_sole (λ h' => Π i, ccomp i = project p i ◎ h') (prod_factor p c ccomp).
 
 (*    Class IsProduct (p: Product) := is_p: is_product p. *)
 (*
     Record Product: Type := product
       { product_object:> X
-      ; project: forall i, A product_object (component i)
-      ; factor: forall (c: X) (ccomp: forall i, A c (component i)), A c product_object
+      ; project: Π i, A product_object (component i)
+      ; factor: Π (c: X) (ccomp: Π i, A c (component i)), A c product_object
       ; correct: is_product product_object project factor
       }.
 *)
 (*
     Existing Class Product.
 *)
-    Lemma help_products_unique (d: X) (proj: forall i, d --> component i) h:
-      is_product d proj h ->
-      is_sole (fun a: d --> d => forall i, proj i == proj i ◎ a) cat_id.
+    Lemma help_products_unique (d: X) (proj: Π i, d ⟶ component i) h:
+      is_product d proj h →
+      is_sole (λ a: d ⟶ d => Π i, proj i = proj i ◎ a) cat_id.
     Proof with intuition.
      intros.
      split.
@@ -235,9 +186,9 @@ Section contents.
      apply id_r.
     Qed.
 
-    Lemma products_unique (c c': X) (proj: forall i, c --> component i) (proj': forall i, c' --> component i)
+    Lemma products_unique (c c': X) (proj: Π i, c ⟶ component i) (proj': Π i, c' ⟶ component i)
       h h':
-      is_product _ proj h -> is_product _ proj' h' -> iso_arrows (h c' proj') (h' c proj).
+      is_product _ proj h → is_product _ proj' h' → iso_arrows (h c' proj') (h' c proj).
     Proof with auto.
      intro.
      intros.
@@ -260,64 +211,68 @@ Section contents.
 
   End products.
 
-  Class Producer: Type := produce: forall `(c: Index -> X), Product c.
+  Class Producer: Type := produce: Π `(c: Index → X), Product c.
 
-  Definition binary_product `{Producer} (x y: X): Product (fun b: bool => if b then x else y) := produce _.
-  Definition empty_product `{Producer}: Product (fun f: False => match f with end) := produce _.
+  Definition binary_product `{Producer} (x y: X): Product (λ b: bool => if b then x else y) := produce _.
+  Definition empty_product `{Producer}: Product (λ f: False => match f with end) := produce _.
 
   Class Produces `{Producer}: Prop :=
-    produces: forall `(c: Index -> X), is_product' _ (produce c).
+    produces: Π `(c: Index → X), is_product' _ (produce c).
 
   Section freedom.
 
-    Context `{Category B} (forget: X -> B) `{!Functor forget forget_arr} (S: B).
+    Context `{Category B} (forget: X → B) `{!Functor forget forget_arr} (S: B).
 
     Section candidate.
 
-      Context (x: X) (inject: S --> forget x).
+      Context {x} (inject: S ⟶ forget x).
 
-      Definition proves_free (d: forall (y: X), (S --> forget y) -> (x --> y)): Prop :=
-        forall (y: X) (f: S --> forget y),
-         is_sole (fun b => fmap forget b ◎ inject == f) (d y f).
+      Definition proves_free (factor: Π x', (S ⟶ forget x') → (x ⟶ x')): Prop :=
+          Π x' (inject': S ⟶ forget x'), is_sole ((inject' =) ∘ (◎ inject) ∘ fmap forget) (factor _ inject').
 
       Definition free: Prop := ex proves_free.
 
     End candidate.
 
-    Lemma frees_unique (x y: X) (f: S --> forget x) (g: S --> forget y)
-      (d: forall (y: X), (S --> forget y) -> (x --> y))
-      (e: forall (z: X), (S --> forget z) -> (y --> z)):
-       proves_free x f d -> proves_free y g e ->
-       iso_arrows (d y g) (e x f).
-    Proof with auto.
-     intros P Q. split.
-      destruct (Q y g) as [? R].
-      rewrite (R cat_id)...
-       apply (R (comp (d y g) (e x f))).
-       intros.
-       rewrite preserves_comp.
-       rewrite <- comp_assoc.
-       destruct (Q x f) as [V _].
-       rewrite V.
-       destruct (P y g)...
-       apply _.
-      intros. rewrite preserves_id. apply id_l. apply _.
-     destruct (P x f) as [? R].
+    Lemma frees_unique (x x': X) (inject: S ⟶ forget x) (inject': S ⟶ forget x')
+      (factor: Π z, (S ⟶ forget z) → (x ⟶ z))
+      (factor': Π z, (S ⟶ forget z) → (x' ⟶ z)):
+       proves_free inject factor → proves_free inject' factor' →
+       iso_arrows (factor _ inject') (factor' _ inject).
+    Proof with auto; try reflexivity; try apply _.
+     intros P Q.
+     pose proof (proj1 (P _ inject')) as E.
+     pose proof (proj2 (P _ inject)) as R.
+     pose proof (proj1 (Q _ inject)) as E'.
+     pose proof (proj2 (Q _ inject')) as R'.
+     clear P Q.
+     unfold compose in *.
+     split.
+      rewrite (R' cat_id)...
+       apply (R' (factor _ inject' ◎ factor' _ inject)).
+       rewrite preserves_comp...
+       rewrite <- comp_assoc, <- E'...
+      rewrite preserves_id, id_l...
      rewrite (R cat_id)...
-      apply (R (comp (e x f) (d y g))).
-      intros.
-      rewrite preserves_comp.
-      rewrite <- comp_assoc.
-      destruct (P y g) as [V _].
-      rewrite V.
-      destruct (Q x f)...
-      apply _.
-     intros. rewrite preserves_id. apply id_l. apply _.
-    Qed. (* todo: get rid of all those [apply _]'s *)
+      apply (R (factor' _ inject ◎ factor _ inject')).
+      rewrite preserves_comp...
+      rewrite <- comp_assoc, <- E...
+     rewrite preserves_id, id_l...
+    Qed.
 
   End freedom.
 
 End contents.
+
+Lemma freedom_as_adjunction
+  `{Category Base} `{Category Extra}
+  `{!Functor (forget: Extra → Base) forget_arr}
+  `{!Functor (freeF: Base → Extra) free_arr}
+  (eta: id ⇛ forget ∘ freeF)
+  (phi: Π x y, (x ⟶ forget y) → (freeF x ⟶ y))
+  `{!AltAdjunction eta phi}:
+    Π b, proves_free forget b (eta b) (phi b).
+Proof. exact (alt_adjunction_factor _ _). Qed.
 
 Implicit Arguments Producer [].
 Implicit Arguments Produces [[Arrows0] [H] [CatComp0] [H1]]. (* todo: rename args *)

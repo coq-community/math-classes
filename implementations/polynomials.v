@@ -20,18 +20,20 @@ Section contents.
 
   Definition all (l: list Prop): Prop := fold_left and l True.
 
-  Definition poly_eq_zero: poly -> Prop := all ∘ map (equiv 0).
+  Definition poly_eq_zero: poly → Prop := all ∘ map (equiv 0).
 
   Global Instance poly_eq: Equiv poly :=
     fix F p q :=
     match p, q with
     | [], _ => poly_eq_zero q
     | _, [] => poly_eq_zero p
-    | h :: t, h' :: t' => h == h /\  F t t'
+    | h :: t, h' :: t' => h = h ∧ F t t'
     end.
 
-  Lemma poly_eq_p_zero p: (p == 0) = poly_eq_zero p.
+(*
+  Lemma poly_eq_p_zero p: (p = 0) = poly_eq_zero p.
   Proof. induction p; auto. Qed.
+*)
 
   Instance: Reflexive poly_eq.
   Proof with intuition. repeat intro. induction x... split... Qed.

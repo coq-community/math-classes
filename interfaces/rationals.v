@@ -6,15 +6,15 @@ Require Import
 
 Class Rationals A {e plus mult opp zero one mult_inv} :=
   { rationals_field:> @Field A e plus mult opp zero one mult_inv
-  ; rationals_eqdec:> forall x y: A, Decision (x == y)
-  ; rationals_frac: Surjective (fun p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p))
+  ; rationals_eqdec:> Π x y: A, Decision (x = y)
+  ; rationals_frac: Surjective (λ p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p))
   ; rationals_embed_ints:> Injective (integers_to_ring (Z nat) A) }.
 
 (* This definition of Rationals uses maps from plain (Z nat) for simplicity, but maps from
  any model of the integers suffice, as the following "smart" constructor shows: *)
 
-Lemma alt_Build_Rationals A Int (inject: Int -> A) `{Field A} {d: forall x y : A, Decision (x == y)} `{Integers Int} `{!Ring_Morphism inject}:
-  Surjective (fun p => inject (fst p) * / inject (snd p)) -> Injective inject -> Rationals A.
+Lemma alt_Build_Rationals A Int (inject: Int → A) `{Field A} {d: Π x y: A, Decision (x = y)} `{Integers Int} `{!Ring_Morphism inject}:
+  Surjective (λ p => inject (fst p) * / inject (snd p)) → Injective inject → Rationals A.
 Proof with auto.
  intros sur ?.
  apply (Build_Rationals A _ _ _ _ _ _ _ _ _).
@@ -23,10 +23,10 @@ Proof with auto.
   exists (integers_to_ring Int (Z nat) y, integers_to_ring Int (Z nat) z). simpl.
   pose proof dec_mult_inv_proper.
   do 2 rewrite (integers_to_ring_unique' _
-    (fun x => integers_to_ring (Z nat) A (integers_to_ring Int (Z nat) x)) inject)...
+    (λ x => integers_to_ring (Z nat) A (integers_to_ring Int (Z nat) x)) inject)...
  intros x y ?.
  apply (injective (integers_to_ring (Z nat) Int)), (injective inject).
- do 2 rewrite (integers_to_ring_unique _ (fun v => inject (integers_to_ring (Z nat) Int v)))...
+ do 2 rewrite (integers_to_ring_unique _ (λ v => inject (integers_to_ring (Z nat) Int v)))...
 Qed.
 
 Section sec. Context `{Rationals Q}.
@@ -39,7 +39,7 @@ Section sec. Context `{Rationals Q}.
    apply (injective (naturals_to_semiring N (Z nat))).
    apply (injective (integers_to_ring (Z nat) Q)).
    do 2 rewrite (theory.naturals.to_semiring_unique Q
-     (fun v => integers_to_ring (Z nat) Q (naturals_to_semiring N (Z nat) v)))...
+     (λ v => integers_to_ring (Z nat) Q (naturals_to_semiring N (Z nat) v)))...
   Qed.
 
   Instance: OrdField Q. 
