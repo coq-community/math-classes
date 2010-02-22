@@ -55,7 +55,7 @@ Section contents.
   Qed.
 
   Global Instance: Category Object.
-  Proof. constructor; try apply _; repeat intro; unfold equiv; reflexivity. Qed.
+  Proof. constructor; try apply _; repeat intro; reflexivity. Qed.
 
   (* Definition obj: cat.Object := cat.object Object Arrow e _ _ _.
     Defining this causes a universe inconsistency when this module

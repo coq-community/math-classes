@@ -105,17 +105,17 @@ Section contents.
   Let obj_iso (x: Object): Equiv x := @iso x _ _ _ _.
 
   Global Instance: Π (x y: Object) (a: x ⟶ y), Setoid_Morphism (map_obj a).
-  Proof.
-   constructor; try apply _.
+  Proof with try apply _.
+   constructor...
    intros v w [[f g] [E F]].
    exists (fmap a f, fmap a g).
-   unfold uncurry.
-   destruct a. simpl in *. destruct Functor_inst0. (* this [destruct] shouldn't be needed *)
-   split. rewrite <- preserves_comp. rewrite E. auto.
-   rewrite <- preserves_comp. rewrite F. auto.
+   unfold uncurry. destruct a. simpl in *.
+   split; rewrite <- preserves_comp...
+    rewrite E. apply preserves_id...
+   rewrite F. apply preserves_id...
   Qed. (* Putting this in the "arrows" section above (where it belongs) triggers a Coq bug. *)
 
-  Global Instance: CatId Object := λ _ => arrow id _ _. (* (λ _ _ => id) _. *)
+  Global Instance: CatId Object := λ _ => arrow id _ _.
 
   Global Program Instance: CatComp Object := λ _ _ _ x y => arrow (x ∘ y) _ _.
 
@@ -162,7 +162,6 @@ Section contents.
    rewrite <- comp_assoc, <- H0. clear H0.
    apply transitivity with ((fmap x0 (fmap x1 r') ◎ fmap x0 a0) ◎ a4).
     repeat rewrite comp_assoc. reflexivity.
-   pose proof (_: Functor x0 _). (* todo: shouldn't be necessary *)
    rewrite <- preserves_comp...
    rewrite H2.
    rewrite comp_assoc.
@@ -205,8 +204,7 @@ Section contents.
      exists comp_assoc_arrows.
      simpl. intros ? ? ? ? E. unfold compose.
      repeat rewrite preserves_id; try apply _. (* todo: remove need for [try apply _] *)
-     rewrite id_l, id_r.
-     rewrite E. reflexivity.
+     rewrite id_l, id_r, E. reflexivity.
     Qed.
 
   End comp_assoc.

@@ -62,16 +62,13 @@ Section contents. Variable et: Signature.
    intros.
    constructor.
     unfold Q.
-    intro.
     repeat intro.
     constructor; intro.
      rewrite <- (H1 true), <- (H1 false)...
     rewrite (H1 true), (H1 false)...
    intro o.
    simpl.
-   unfold algebra_op.
-   unfold ua_products.product_ops.
-   unfold algebra_op.
+   unfold algebra_op, ua_products.product_ops, algebra_op.
    set (f := λ _: bool => vo o).
    assert (Π b, Proper equiv (f b)).
     intro.
@@ -87,8 +84,7 @@ Section contents. Variable et: Signature.
    induction (et o)...
    simpl in *...
    apply IHo0...
-   apply H1.
-   reflexivity.
+   apply H1...
   Qed. (* todo: clean up *)
 
   Lemma eSub_eAlgebra: eSub → eAlgebra.
@@ -108,7 +104,6 @@ Section contents. Variable et: Signature.
     apply algebra_propers...
    change (lifted_e (et o) (f true) (f false)).
    clearbody f.
-   simpl in *.
    induction (et o)...
    simpl in *.
    repeat intro.
@@ -184,38 +179,21 @@ Section first_iso.
   Qed.
 
   Instance co: Congruence sign phi.
+  Proof with intuition.
    constructor.
-    intro.
     repeat intro.
     unfold in_domain.
-    destruct HomoMorphism0.
-    rewrite H3, H4.
-    intuition.
-   constructor.
-    intro. unfold abstract_algebra.Setoid. apply _.
-   intro.
+    rewrite H3, H4...
+   constructor; intro.
+    unfold abstract_algebra.Setoid. apply _.
    unfold algebra_op.
    generalize (preserves sign A B f o).
    generalize (@algebra_propers sign B _ _ _ o).
    unfold algebra_op.
    generalize (H o), (H1 o).
-   induction (sign o).
-    simpl.
-    unfold in_domain.
-    intros.
-    destruct HomoMorphism0.
-    apply homo_proper.
-   simpl in *.
-   repeat intro.
-   unfold in_domain in H5.
-   pose proof (H4 x).
-   pose proof (H4 y).
-   clear H4.
-   assert (o2 (f a x) = o2 (f a y)).
-    apply H3.
-    assumption.
-   apply (square _ _ _ _ _ H6 H7).
-   apply H4.
+   induction (sign o); simpl in *; repeat intro.
+    apply _.
+   apply (square _ _ _ _ _ (H4 x) (H4 y))...
   Qed.
 
   Definition image s (b: B s): Type := sigT (λ a => f s a = b).
@@ -225,12 +203,8 @@ Section first_iso.
 
   Instance: ClosedSubset image.
   Proof with intuition.
-   constructor.
-    unfold image.
-    repeat intro.
-    split; intros [q p]; exists q;
-     rewrite p...
-   intro.
+   constructor; repeat intro.
+    split; intros [q p]; exists q; rewrite p...
    generalize (preserves sign A B f o).
    generalize (@algebra_propers sign B _ _ _ o).
    unfold algebra_op.
@@ -239,11 +213,9 @@ Section first_iso.
     exists o1...
    destruct X.
    apply (@op_closed_proper sign B _ _ _ image image_proper _ (o1 z) (o1 (f a x))).
-    apply H3.
-    symmetry.
-    assumption.
+    apply H3...
    apply IHo0 with (o2 x)...
-   apply H3...
+   apply _.
   Qed.
 
   Definition quot_obj := algebra.object sign A (algebra_equiv:=phi). (* A/Φ *)

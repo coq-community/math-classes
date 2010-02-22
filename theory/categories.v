@@ -172,11 +172,9 @@ Section contents.
       is_sole (λ a: d ⟶ d => Π i, proj i = proj i ◎ a) cat_id.
     Proof with intuition.
      intros.
-     split.
-      intros.
+     split; intros.
       symmetry.
       apply id_r.
-     intros.
      destruct (H1 d proj).
      clear H1.
      rewrite (H4 y)...

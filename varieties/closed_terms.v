@@ -122,17 +122,10 @@ Section contents. Variable et: EquationalTheory.
     Lemma subst_eval o V (v: Vars _ ClosedTerm0 _) (t: Term _ V o):
       @eval _ other _ _ _ (λ x y => eval_in_other (v x y)) t =
       eval_in_other (close _ v t).
-    Proof with auto.
+    Proof.
      induction t; simpl.
-       unfold eval_in_other.
-       destruct other.
-       simpl.
-       destruct variety_proof.
-       destruct variety_algebra.
-       reflexivity. (* todo: destructs should not be necessary *)
-      apply IHt1...
-     unfold eval_in_other.
-     simpl.
+       reflexivity.
+      apply IHt1. auto.
      apply (@algebra_propers et other _ _ _ o).
     Qed. (* todo: rename *)
 
@@ -175,8 +168,7 @@ Section contents. Variable et: EquationalTheory.
     Qed.
 
     Instance: Π a, Setoid_Morphism (@eval_in_other (constant _ a)).
-    Proof. intro. constructor; try apply _. destruct other. simpl. destruct variety_proof. apply _. Qed.
-      (* todo: too many destructs *)
+    Proof. constructor; simpl; try apply _. Qed.
 
     (* Furthermore, we can show preservation of operations, giving us a homomorphism (and an arrow): *)
 
@@ -189,9 +181,7 @@ Section contents. Variable et: EquationalTheory.
      generalize (Op _ False o) (variety.variety_op et other o).
      induction (et o)...
      simpl. intro. apply IHo0, H.
-     assert (Equivalence (variety.variety_equiv et other a)). (* todo: shouldn't be needed *)
-      apply _.
-     reflexivity.
+     apply reflexivity. (* todo: shouldn't have to say [apply] here. file bug *)
     Qed.
 
     Program Definition the_arrow: the_object ⟶ other := λ _ => eval_in_other.

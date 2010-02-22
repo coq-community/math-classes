@@ -53,7 +53,7 @@ Section contents.
   Qed.
 
   Global Instance: Category Object.
-  Proof. constructor; try apply _; repeat intro; unfold equiv; reflexivity. Qed.
+  Proof. constructor; try apply _; repeat intro; reflexivity. Qed.
 
   (* Definition obj: cat.Object := cat.Build_Object Object Arrow e _ _ _.
     Risks universe inconsistencies.. *)

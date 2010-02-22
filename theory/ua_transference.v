@@ -37,11 +37,10 @@ Section contents.
          : Proper (equiv ==> op_type_equiv (sorts et) A t1)%signature o).
     rewrite (IHt2 v).
     subst o.
-    pose proof (IHt1 v (ba (eval et v t3)) (ba (eval et v t3))).
-    rewrite H2...
-    pose proof (@map_op_proper (sorts et) B A _ _ _ _ _ _). apply H3.
+    rewrite (IHt1 v (ba (eval et v t3)) (ba (eval et v t3)))...
+    apply (@map_op_proper (sorts et) B A _ _ _ _ _ _).
     unfold compose in *.
-    pose proof (epB _ _ v v (reflexivity _) t2 t2 (reflexivity _)). apply H4.
+    pose proof (epB _ _ v v (reflexivity _) t2 t2 (reflexivity _)). apply H2.
      (* can't apply these directly because of Coq bug *)
     apply ab_ba.
    generalize
@@ -53,11 +52,9 @@ Section contents.
    induction (et o); simpl; repeat intro.
     rewrite <- ba_ab, H1...
    apply IHo0.
-    cut (Preservation et A B (@ab) (o1 y) (o2 (ab y))). (* this cut shouldn't be necessary; get rid of it *)
-     rewrite H4.
+     rewrite <- H4.
      intuition.
-    apply H1.
-   apply H2...
+    apply H2...
    apply H3...
   Qed. (* todo: make [reflexivity] work as a hint. further cleanup. *)
 
@@ -85,12 +82,11 @@ Section contents.
   Qed.
 
   Theorem transfer_statement (s: Statement et): (Π v, eval_stmt et (A:=A) v s) → (Π v, eval_stmt et (A:=B) v s).
-  Proof.
-   intros U v.
-   assert (v = (λ _ i => ab (ba (v _ i)))).
-    destruct i. intros a a0. symmetry. 
-    apply ab_ba.
-   rewrite H1, transfer_statement_and_vars. apply U.
+  Proof with intuition.
+   intros ? v.
+   assert (v = (λ _ i => ab (ba (v _ i)))) as P.
+    destruct i. intros a a0. symmetry...
+   rewrite P, transfer_statement_and_vars...
   Qed.
 
 End contents.

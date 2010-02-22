@@ -22,7 +22,7 @@ Section contents.
   Next Obligation. destruct x. simpl. apply _. Qed.
 
   Global Instance forget: Functor object _.
-  Proof.
+  Proof with intuition.
    constructor.
      constructor; try apply _.
      intros x y E i A B F. simpl in *.
@@ -31,12 +31,12 @@ Section contents.
      (* todo: shouldn't be necessary. perhaps an [Existing Instance] for
        a specialization of proj2_sig is called for. *)
      rewrite F. apply E.
-    repeat intro. assumption.
+    repeat intro...
    intros ? ? f ? g i ? ? E.
    simpl in *. unfold Basics.compose.
    destruct (@homo_proper _ _ _ _ _ _ _ (proj1_sig f) (proj2_sig f) i). (* todo: clean up *)
    destruct (@homo_proper _ _ _ _ _ _ _ (proj1_sig g) (proj2_sig g) i).
-   rewrite E. reflexivity.
+   rewrite E...
   Qed.
 
   (* Unfortunately we cannot also define the arrow in Cat because this leads to

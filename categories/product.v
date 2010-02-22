@@ -58,9 +58,7 @@ Section contents.
     Variables (C: cat.Object) (X: Π i, C ⟶ ith_obj i).
 
     Let ith_functor i := cat.Functor_inst _ _ (X i).
-    Let hint_b i := @functor_morphism _ _ _ _ _ _ _ _ _ _ _ _ (ith_functor i).
-      (* These are necessary because of limitations in current unification.
-       Todo: re-investigate with new proof engine. *)
+      (* todo: really necessary? *)
 
     Program Definition factor: C ⟶ product_object
       := cat.arrow (λ (c: C) i => X i c) (λ (x y: C) (c: x ⟶ y) i => fmap (X i) c) _.
@@ -118,12 +116,11 @@ Section contents.
      simpl in *.
      unfold fmap.
      set (cat.Fmap_inst _ _ alt).
-     rewrite <- (id_l (comp (f p q r' i) (fst aa0))).
-     transitivity (comp (comp (fst a1a2) (snd a1a2)) (comp (f p q r' i) (fst aa0))).
+     rewrite <- (id_l (f p q r' i ◎ fst aa0)).
+     transitivity ((fst a1a2 ◎ snd a1a2) ◎ (f p q r' i ◎ fst aa0)).
       apply comp_proper...
      apply transitivity with (comp (fst a1a2) (comp (comp (snd a1a2) (cat.Fmap_inst _ _ alt p q r' i)) (fst aa0))).
-      rewrite comp_assoc.
-      repeat rewrite (comp_assoc _ _)... (* todo: why must we specify the implicits? *)
+      repeat rewrite comp_assoc...
      simpl.
      rewrite <- H5.
      repeat rewrite <- (comp_assoc _ _).

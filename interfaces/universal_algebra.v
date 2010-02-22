@@ -221,34 +221,26 @@ Section for_signature. Variable sign: Signature.
 
     Lemma HomoMorphism_Proper: Proper ((λ f g => Π a x, f a x = g a x) ==> iff) HomoMorphism.
       (* todo: use pointwise_thingy *)
-    Proof with try apply _.
+    Proof with try apply _; intuition.
      constructor; intros [? ? ? ?]; simpl in *.
-      constructor...
-       constructor...
+      repeat constructor...
        repeat intro.
        do 2 rewrite <- H.
-       rewrite H0.
-       reflexivity.
-      intro.
+       rewrite H0...
       apply (Preservation_proper' x y H (sign o) (ai o) (bi o))...
-      apply preserves0.
-     constructor...
-      constructor...
+     repeat constructor...
       repeat intro.
       do 2 rewrite H.
-      rewrite H0.
-      reflexivity.
-     intro.
+      rewrite H0...
      assert (Π (a : sorts sign) (x0 : A a), y a x0 = x a x0). symmetry. apply H.
      apply (Preservation_proper' y x H0 (sign o) (ai o) (bi o))...
-     apply preserves0.
     Qed.
 
   End for_map.
 
   Global Instance id_homomorphism A
     `{Π a, Equiv (A a)} {ao: AlgebraOps A} `{!Algebra A}: HomoMorphism _ _ (λ _ => id).
-  Proof with try apply _; auto.
+  Proof with try apply _; intuition.
    constructor; intros...
    generalize (ao o).
    induction (sign o); simpl...
@@ -264,11 +256,9 @@ Section for_signature. Variable sign: Signature.
    pose proof (homo_target_algebra _ _ g).
    pose proof (homo_target_algebra _ _ f).
    constructor; intros...
-    apply (compose_setoid_morphisms _ _ _)... (* todo: why not automatic? *)
    generalize (ao o) (bo o) (co o) (preserves _ _ g o) (preserves _ _ f o).
    induction (sign o); simpl; intros; unfold compose.
-    destruct fh. (* todo: shouldn't be necessary *)
-    rewrite H5... (* todo: not nice *)
+    rewrite H5...
    apply (IHo0 _ (o2 (g _ x)))...
   Qed.
 
