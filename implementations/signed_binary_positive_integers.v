@@ -1,10 +1,11 @@
 (* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
 
 Require
-  theory.categories interfaces.naturals.
+  interfaces.naturals.
 Require Import
   BinInt Morphisms Ring Arith
-  abstract_algebra theory.rings interfaces.integers signed_binary_positives peano_naturals.
+  abstract_algebra theory.categories theory.rings interfaces.integers
+  signed_binary_positives peano_naturals.
 
 (* canonical names: *)
 Instance z_equiv: Equiv BinInt.Z := eq.
@@ -157,10 +158,9 @@ End for_another_ring.
 Instance yada `{Ring R}: Ring_Morphism (integers_to_ring Z R).
  unfold integers_to_ring, inject.
  intros. apply map_Z_ring_mor.
-Qed.
+Qed. (* todo: rename or get rid of *)
 
-Lemma initial: categories.proves_initial
-  (λ _ => @initial_arrow Z inject _ _ _ _ _ _ _ _ map_Z_ring_mor).
+Instance: Initial (ring.object Z).
 Proof.
  intros y [x h] [].
  simpl in *.
@@ -168,5 +168,4 @@ Proof.
  apply (@ring.morphism_from_ua _ _ _ (ring.variety Z)); apply _.
 Qed.
 
-Global Instance stdZ_Integers: Integers Z.
-Proof Build_Integers Z _ _ _ _ _ _ _ _ _ initial.
+Instance: Integers Z.

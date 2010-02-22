@@ -213,8 +213,10 @@ Section contents. Variable et: EquationalTheory.
 
   End for_another_object.
 
-  Corollary the_proof: proves_initial the_arrow.
-  Proof. unfold proves_initial. intro. apply arrow_unique. Qed.
+  Hint Extern 4 (InitialArrow the_object) => exact the_arrow: typeclass_instances.
+
+  Instance: Initial the_object.
+  Proof. intro. apply arrow_unique. Qed.
 
   (* Todo: Show decidability of equality (likely quite tricky). Without that, we cannot use any of this to
    get a canonical model of the naturals/integers, because such models must be decidable. *)

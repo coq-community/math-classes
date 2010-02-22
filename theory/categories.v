@@ -116,18 +116,20 @@ Section contents.
 
   End isomorphy.
 
-  Section initiality. (* todo: typeclassify *)
+  Section initiality.
 
-    Definition proves_initial {x: X} (f: Π y, x ⟶ y): Prop := Π y f', f y = f'.
+    Class InitialArrow (x: X): Type := initial_arrow: Π y, x ⟶ y.
+
+    Class Initial (x: X) `{InitialArrow x}: Prop :=
+      initial_arrow_unique: Π y f', initial_arrow y = f'.
 
     Definition initial (x: X): Type := Π y: X, sig (λ a: x ⟶ y => Π a': x ⟶ y, a = a').
 
-    Lemma initials_unique' (x x': X) (a: Π y, x ⟶ y) (b: Π y, x' ⟶ y):
-      proves_initial a → proves_initial b → iso_arrows (a x') (b x).
+    Lemma initials_unique' (x x': X) `{Initial x} `{Initial x'}:
+      iso_arrows (initial_arrow x': x ⟶ x') (initial_arrow x).
     Proof with reflexivity.
-     intros H1 H2. split.
-      rewrite <- (H2 _ cat_id). rewrite <- H2...
-     rewrite <- (H1 _ cat_id). rewrite <- H1...
+     split. rewrite <- (H4 _ cat_id), <- H4...
+     rewrite <- (H2 _ cat_id), <- H2...
     Qed.
 
     Program Lemma initials_unique (x x': X) (a: initial x) (b: initial x'): iso_arrows (a x') (b x).

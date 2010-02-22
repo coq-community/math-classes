@@ -21,8 +21,8 @@ Lemma iso_ints `{Integers A} B `{Integers B}: Π a: A,
   integers_to_ring B A (integers_to_ring A B a) = a.
 Proof.
  intros.
- destruct (categories.initials_unique' (ring.object A) (ring.object B) _ _
-   integers_initial integers_initial) as [_ P].
+ destruct (@categories.initials_unique' _ _ _ _ _ _ (ring.object A) (ring.object B) _
+   integers_initial _ integers_initial) as [_ P].
  apply (P tt a).
 Qed.
 
@@ -186,7 +186,7 @@ Section contents.
   
   Global Program Instance slow_int_abs `{Naturals N}: IntAbs Int N | 10 :=
     λ x => exist _ (proj1_sig (int_abs (Z N) N (integers_to_ring Int (Z N) x))) _.
-  
+
   Next Obligation.
    intros.
    destruct int_abs as [x0 [M | M]]; simpl; [left | right].
@@ -198,7 +198,7 @@ Section contents.
    apply inv_proper. symmetry.
    apply (theory.naturals.to_semiring_unique Int (λ x => integers_to_ring _ _ (_ x))).
   Qed.
-  
+
 Hint Immediate zero_sr_precedes_nat opp_0 inv_involutive.
 Hint Resolve opp_0.
 

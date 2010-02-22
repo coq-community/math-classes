@@ -10,7 +10,7 @@ Require
  theory.naturals.
 Require Import
  Morphisms Ring
- abstract_algebra theory.rings interfaces.naturals interfaces.integers orders.semiring.
+ abstract_algebra theory.categories theory.rings interfaces.naturals interfaces.integers orders.semiring.
 
 Section contents.
 
@@ -195,7 +195,7 @@ Section for_another_ring.
   Instance: @Monoid_Morphism _ _ _ _ (0:Z) (0:R) ring_plus ring_plus (integers_to_ring Z R) := { preserves_mon_unit := preserves_0 }.
   Instance: @Monoid_Morphism _ _ _ _ (1:Z) (1:R) ring_mult ring_mult (integers_to_ring Z R) := { preserves_mon_unit := preserves_1 }.
   Instance: @Group_Morphism _ _ _ _ ring_plus ring_plus (0:Z) (0:R) group_inv group_inv (integers_to_ring Z R) := { preserves_inv := preserves_inv }.
-  Instance inject_mor: Ring_Morphism (integers_to_ring Z R).
+  Global Instance inject_mor: Ring_Morphism (integers_to_ring Z R).
 
   Section for_another_morphism.
 
@@ -228,15 +228,13 @@ End for_another_ring.
 
 (* Initiality stated categorically: *)
 
-Lemma initial: categories.proves_initial
-  (λ _ => @initial_arrow Z inject _ _ _ _ _ _ _ _ inject_mor).
+Instance: Initial (ring.object Z).
 Proof.
-  intros y [x h] []. simpl in *.
-  apply agree, (@ring.morphism_from_ua _ _ _ (ring.variety Z)); apply _.
+ intros y [x h] []. simpl in *.
+ apply agree, (@ring.morphism_from_ua _ _ _ (ring.variety Z)); apply _.
 Qed.
 
 Global Instance: Integers Z.
-Proof Build_Integers Z _ _ _ _ _ _ _ _ _ initial.
 
 Lemma NtoZ_uniq x: naturals_to_semiring N Z x = NtoZ x.
 Proof. symmetry. apply (theory.naturals.to_semiring_unique Z NtoZ x). Qed. 

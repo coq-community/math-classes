@@ -2,7 +2,7 @@
 
 Set Automatic Introduction.
 
-Require
+Require Import
   theory.categories.
 Require Import
   Morphisms Ring
@@ -74,7 +74,7 @@ Section contents.
    rewrite f_preserves_plus, IHa...
   Qed.
 
-  Instance f_mor: SemiRing_Morphism (naturals_to_semiring nat R).
+  Global Instance: SemiRing_Morphism (naturals_to_semiring nat R).
    repeat (constructor; try apply _).
       apply f_preserves_plus.
      apply f_preserves_0.
@@ -85,14 +85,13 @@ Section contents.
 End contents.
 End for_another_semiring.
 
-Lemma initial: @categories.proves_initial _ _ _ _
-  (λ B => @initial_arrow nat nat_to_semiring B _ _ _ _ _ _
-     (@for_another_semiring.f_mor _ _ _ _ _ _ (@semiring.struct_from_var_to_class _ _ _ (variety.variety_proof semiring.theory B)))).
+Instance: Initial (semiring.object nat).
 Proof.
  intros y [x h] [] a. simpl in *.
  pose proof (@universal_algebra.preserves semiring.theory _ _ _ _ _ _ _ h) as pr.
  induction a; simpl.
   symmetry. apply (pr semiring.zero).
+ change (naturals_to_semiring nat (y tt) a + 1 = x tt (S a)).
  rewrite IHa. clear IHa.
  pose proof (pr semiring.plus 1 a). simpl in H. rewrite H. clear H.
  change (x tt a + 1 = x tt 1 + x tt a).
@@ -101,7 +100,6 @@ Proof.
 Qed. (* todo: these [pose]s are nasty *)
 
 Global Instance nat_Naturals: Naturals nat.
-Proof @Build_Naturals nat _ _ _ _ _ _ _ (@for_another_semiring.f_mor) initial.
 
 Lemma predefined_le_coincides (x y: nat): (x <= y)%nat → x <= y.
 Proof.

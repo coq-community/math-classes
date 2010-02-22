@@ -13,21 +13,15 @@ Section initial_maps.
   Class IntegersToRing :=
     integers_to_ring: Π R `{RingMult R} `{RingPlus R} `{RingOne R} `{RingZero R} `{GroupInv R}, Int → R.
 
-  Context `{IntegersToRing} (B: ring.Object).
+  Context `{IntegersToRing} `{Ring Int} `{Π `{Ring B}, Ring_Morphism (integers_to_ring B)}.
 
-  Definition f u: Int → B u :=
-    match u return Int → B u with tt => H (B tt) _ _ _ _ _ end.
-      (* todo: use integers_to_ring here? *)
-
-  Definition initial_arrow `{Ring Int} {d: Ring_Morphism (H (B tt) _ _ _ _ _)}: ring.object Int ⟶ B.
-  Proof.
-   simpl.
-   intros.
-   exists f.
-   simpl.
-   apply (@ring.mor_from_sr_to_alg (λ _ => Int) _ (ring.implementation Int) (ring.variety Int) B _ _ _).
-   assumption.
-  Defined. (* todo: clean up *)
+  Global Instance integer_initial_arrow: InitialArrow (ring.object Int).
+   intro.
+   exists (λ u => match u return Int → y u with tt => integers_to_ring (y tt) end).
+   abstract (simpl;
+    apply (@ring.mor_from_sr_to_alg (λ _ => Int) _ _ (ring.variety Int) _ _ _ _ _);
+    apply _).
+  Defined. (* for some reason [Program] isn't cooperating here. look into it *)
 
 End initial_maps.
 
@@ -36,7 +30,7 @@ Instance: Params (@integers_to_ring) 8.
 Class Integers A {e plus mult opp zero one} `{IntegersToRing A} :=
   { integers_ring:> @Ring A e plus mult opp zero one
   ; integers_to_ring_mor:> Π `{Ring B}, Ring_Morphism (integers_to_ring A B)
-  ; integers_initial: proves_initial (λ B => initial_arrow A B) }.
+  ; integers_initial:> Initial (ring.object A) }.
 
 Section specializable.
 

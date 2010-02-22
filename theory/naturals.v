@@ -31,8 +31,7 @@ Lemma to_semiring_involutive A `{Naturals A} B `{Naturals B}: Π a: A,
 Proof.
  intros.
  pose proof (proj2 (@categories.initials_unique' (variety.Object semiring.theory)
-   _ _ _ _ _ (semiring.object A) (semiring.object B) _ _
-    naturals_initial naturals_initial) tt a).
+   _ _ _ _ _ (semiring.object A) (semiring.object B) _ naturals_initial _ naturals_initial) tt a).
  apply H1. (* todo: separate pose necessary due to Coq bug *)
 Qed.
 
@@ -101,7 +100,8 @@ Section borrowed_from_nat.
    pose proof (@naturals_initial nat _ _ _ _ _ _ _) as AI.
    pose proof (@naturals_initial N _ _ _ _ _ _ _) as BI.
    intros s w ?.
-   apply (transfer_statement _ (categories.initials_unique' _ _ _ _ AI BI)).
+   apply (transfer_statement _ (@categories.initials_unique' semiring.Object _ _ _ _ _
+     (semiring.object nat) (semiring.object N) _ AI _ BI)).
    intuition.
   Qed.
 

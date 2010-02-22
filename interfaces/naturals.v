@@ -12,18 +12,15 @@ Section initial_maps.
   Class NaturalsToSemiRing :=
     naturals_to_semiring: Π B `{RingMult B} `{RingPlus B} `{RingOne B} `{RingZero B}, A → B.
 
-  Context `{NaturalsToSemiRing} (B: semiring.Object).
+  Context `{NaturalsToSemiRing} `{SemiRing A} `{Π `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring B)}.
 
-  Definition f u: A → B u :=
-    match u return A → B u with tt => H (B tt) _ _ _ _ end.
-
-  Definition initial_arrow `{SemiRing A} {d: SemiRing_Morphism (H (B tt) _ _ _ _)}: semiring.object A ⟶ B.
-  Proof.
-   exists f.
-   simpl.
-   apply (@semiring.mor_from_sr_to_alg (λ _ => A) _ (semiring.implementation A) (semiring.variety A) B _ _ _ _).
-   assumption.
-  Defined. (* todo: clean up *)
+  Global Instance natural_initial_arrow: InitialArrow (semiring.object A).
+   intro.
+   exists (λ u => match u return A → y u with tt => naturals_to_semiring (y tt) end).
+   abstract (simpl;
+    apply (@semiring.mor_from_sr_to_alg (λ _ => A) _ _ (semiring.variety A) _ _ _ _ _);
+    apply _).
+  Defined. (* for some reason [Program] isn't cooperating here. look into it *)
 
 End initial_maps.
 
@@ -32,9 +29,10 @@ Instance: Params (@naturals_to_semiring) 7.
 Class Naturals A {e plus mult zero one} `{U: NaturalsToSemiRing A} :=
   { naturals_ring:> @SemiRing A e plus mult zero one
   ; naturals_to_semiring_mor:> Π `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
-  ; naturals_initial: proves_initial (λ B => initial_arrow A B) }.
+  ; naturals_initial:> Initial (semiring.object A) }.
 
 Implicit Arguments naturals_to_semiring_mor [[e] [plus] [mult] [zero] [one] [U] [Naturals] [e0] [plus0] [mult0] [zero0] [one0] ].
+  (* todo: really necessary? *)
 
 (* Specializable operations: *)
 
