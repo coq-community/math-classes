@@ -5,14 +5,14 @@ Require Import
 Require Export
  canonical_names util.
 
-Class Setoid A {e: Equiv A} := setoid_eq:> Equivalence (@equiv A e).
+Class Setoid A {e: Equiv A}: Prop := setoid_eq:> Equivalence (@equiv A e).
 
-Class SemiGroup A {e: Equiv A} {op: SemiGroupOp A} :=
+Class SemiGroup A {e: Equiv A} {op: SemiGroupOp A}: Prop :=
   { sg_setoid:> Setoid A
   ; sg_ass:> Associative sg_op
   ; sg_mor:> Proper (e ==> e ==> e)%signature sg_op }.
 
-Class Monoid A `{Equiv A} {op: SemiGroupOp A} {unit: MonoidUnit A} :=
+Class Monoid A `{Equiv A} {op: SemiGroupOp A} {unit: MonoidUnit A}: Prop :=
   { monoid_semigroup:> SemiGroup A
   ; monoid_lunit: `(mon_unit & x = x)
   ; monoid_runit: `(x & mon_unit = x) }.
