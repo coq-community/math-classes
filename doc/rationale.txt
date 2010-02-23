@@ -1,5 +1,5 @@
 
-=== To bunde or not to bundle? (Or: What to bundle?) ===
+=== To bundle or not to bundle? (Or: What to bundle?) ===
 
 How should we define reflexive, transitive, and symmetric relations?
 
