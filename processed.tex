@@ -1,0 +1,1468 @@
+\documentclass[a4paper,10pt, runningheads]{llncs}
+\usepackage{url}
+\usepackage{bbm}
+\usepackage{ucs}
+% \usepackage[utf8x,utf8]{inputenc}
+\newcommand{\N}{\ensuremath{\mathbbm{N}}}
+\newcommand{\Z}{\ensuremath{\mathbbm{Z}}}
+\newcommand{\Q}{\ensuremath{\mathbbm{Q}}}
+%% ODER: format ==         = "\mathrel{==}"
+%% ODER: format /=         = "\neq "
+%
+%
+\makeatletter
+\@ifundefined{lhs2tex.lhs2tex.sty.read}%
+  {\@namedef{lhs2tex.lhs2tex.sty.read}{}%
+   \newcommand\SkipToFmtEnd{}%
+   \newcommand\EndFmtInput{}%
+   \long\def\SkipToFmtEnd#1\EndFmtInput{}%
+  }\SkipToFmtEnd
+
+\newcommand\ReadOnlyOnce[1]{\@ifundefined{#1}{\@namedef{#1}{}}\SkipToFmtEnd}
+\usepackage{amstext}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\DeclareFontFamily{OT1}{cmtex}{}
+\DeclareFontShape{OT1}{cmtex}{m}{n}
+  {<5><6><7><8>cmtex8
+   <9>cmtex9
+   <10><10.95><12><14.4><17.28><20.74><24.88>cmtex10}{}
+\DeclareFontShape{OT1}{cmtex}{m}{it}
+  {<-> ssub * cmtt/m/it}{}
+\newcommand{\texfamily}{\fontfamily{cmtex}\selectfont}
+\DeclareFontShape{OT1}{cmtt}{bx}{n}
+  {<5><6><7><8>cmtt8
+   <9>cmbtt9
+   <10><10.95><12><14.4><17.28><20.74><24.88>cmbtt10}{}
+\DeclareFontShape{OT1}{cmtex}{bx}{n}
+  {<-> ssub * cmtt/bx/n}{}
+\newcommand{\tex}[1]{\text{\texfamily#1}}	% NEU
+
+\newcommand{\Sp}{\hskip.33334em\relax}
+
+
+\newcommand{\Conid}[1]{\mathit{#1}}
+\newcommand{\Varid}[1]{\mathit{#1}}
+\newcommand{\anonymous}{\kern0.06em \vbox{\hrule\@width.5em}}
+\newcommand{\plus}{\mathbin{+\!\!\!+}}
+\newcommand{\bind}{\mathbin{>\!\!\!>\mkern-6.7mu=}}
+\newcommand{\rbind}{\mathbin{=\mkern-6.7mu<\!\!\!<}}% suggested by Neil Mitchell
+\newcommand{\sequ}{\mathbin{>\!\!\!>}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+\usepackage{polytable}
+
+%mathindent has to be defined
+\@ifundefined{mathindent}%
+  {\newdimen\mathindent\mathindent\leftmargini}%
+  {}%
+
+\def\resethooks{%
+  \global\let\SaveRestoreHook\empty
+  \global\let\ColumnHook\empty}
+\newcommand*{\savecolumns}[1][default]%
+  {\g@addto@macro\SaveRestoreHook{\savecolumns[#1]}}
+\newcommand*{\restorecolumns}[1][default]%
+  {\g@addto@macro\SaveRestoreHook{\restorecolumns[#1]}}
+\newcommand*{\aligncolumn}[2]%
+  {\g@addto@macro\ColumnHook{\column{#1}{#2}}}
+
+\resethooks
+
+\newcommand{\onelinecommentchars}{\quad-{}- }
+\newcommand{\commentbeginchars}{\enskip\{-}
+\newcommand{\commentendchars}{-\}\enskip}
+
+\newcommand{\visiblecomments}{%
+  \let\onelinecomment=\onelinecommentchars
+  \let\commentbegin=\commentbeginchars
+  \let\commentend=\commentendchars}
+
+\newcommand{\invisiblecomments}{%
+  \let\onelinecomment=\empty
+  \let\commentbegin=\empty
+  \let\commentend=\empty}
+
+\visiblecomments
+
+\newlength{\blanklineskip}
+\setlength{\blanklineskip}{0.66084ex}
+
+\newcommand{\hsindent}[1]{\quad}% default is fixed indentation
+\let\hspre\empty
+\let\hspost\empty
+\newcommand{\NB}{\textbf{NB}}
+\newcommand{\Todo}[1]{$\langle$\textbf{To do:}~#1$\rangle$}
+
+\EndFmtInput
+\makeatother
+%
+%
+%
+%
+%
+%
+% This package provides two environments suitable to take the place
+% of hscode, called "plainhscode" and "arrayhscode". 
+%
+% The plain environment surrounds each code block by vertical space,
+% and it uses \abovedisplayskip and \belowdisplayskip to get spacing
+% similar to formulas. Note that if these dimensions are changed,
+% the spacing around displayed math formulas changes as well.
+% All code is indented using \leftskip.
+%
+% Changed 19.08.2004 to reflect changes in colorcode. Should work with
+% CodeGroup.sty.
+%
+\ReadOnlyOnce{polycode.fmt}%
+\makeatletter
+
+\newcommand{\hsnewpar}[1]%
+  {{\parskip=0pt\parindent=0pt\par\vskip #1\noindent}}
+
+% can be used, for instance, to redefine the code size, by setting the
+% command to \small or something alike
+\newcommand{\hscodestyle}{}
+
+% The command \sethscode can be used to switch the code formatting
+% behaviour by mapping the hscode environment in the subst directive
+% to a new LaTeX environment.
+
+\newcommand{\sethscode}[1]%
+  {\expandafter\let\expandafter\hscode\csname #1\endcsname
+   \expandafter\let\expandafter\endhscode\csname end#1\endcsname}
+
+% "compatibility" mode restores the non-polycode.fmt layout.
+
+\newenvironment{compathscode}%
+  {\par\noindent
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \(\pboxed}%
+  {\endpboxed\)%
+   \par\noindent
+   \ignorespacesafterend}
+
+\newcommand{\compaths}{\sethscode{compathscode}}
+
+% "plain" mode is the proposed default.
+% It should now work with \centering.
+% This required some changes. The old version
+% is still available for reference as oldplainhscode.
+
+\newenvironment{plainhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\hspre\(\let\hspost\)%
+   \pboxed}%
+  {\endpboxed%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+\newenvironment{oldplainhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \(\pboxed}%
+  {\endpboxed\)%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+% Here, we make plainhscode the default environment.
+
+\newcommand{\plainhs}{\sethscode{plainhscode}}
+\newcommand{\oldplainhs}{\sethscode{oldplainhscode}}
+\plainhs
+
+% The arrayhscode is like plain, but makes use of polytable's
+% parray environment which disallows page breaks in code blocks.
+
+\newenvironment{arrayhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \(\parray}%
+  {\endparray\)%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+\newcommand{\arrayhs}{\sethscode{arrayhscode}}
+
+% The mathhscode environment also makes use of polytable's parray 
+% environment. It is supposed to be used only inside math mode 
+% (I used it to typeset the type rules in my thesis).
+
+\newenvironment{mathhscode}%
+  {\parray}{\endparray}
+
+\newcommand{\mathhs}{\sethscode{mathhscode}}
+
+% texths is similar to mathhs, but works in text mode.
+
+\newenvironment{texthscode}%
+  {\(\parray}{\endparray\)}
+
+\newcommand{\texths}{\sethscode{texthscode}}
+
+% The framed environment places code in a framed box.
+
+\def\codeframewidth{\arrayrulewidth}
+\RequirePackage{calc}
+
+\newenvironment{framedhscode}%
+  {\parskip=\abovedisplayskip\par\noindent
+   \hscodestyle
+   \arrayrulewidth=\codeframewidth
+   \tabular{@{}|p{\linewidth-2\arraycolsep-2\arrayrulewidth-2pt}|@{}}%
+   \hline\framedhslinecorrect\\{-1.5ex}%
+   \let\endoflinesave=\\
+   \let\\=\@normalcr
+   \(\pboxed}%
+  {\endpboxed\)%
+   \framedhslinecorrect\endoflinesave{.5ex}\hline
+   \endtabular
+   \parskip=\belowdisplayskip\par\noindent
+   \ignorespacesafterend}
+
+\newcommand{\framedhslinecorrect}[2]%
+  {#1[#2]}
+
+\newcommand{\framedhs}{\sethscode{framedhscode}}
+
+% The inlinehscode environment is an experimental environment
+% that can be used to typeset displayed code inline.
+
+\newenvironment{inlinehscode}%
+  {\(\def\column##1##2{}%
+   \let\>\undefined\let\<\undefined\let\\\undefined
+   \newcommand\>[1][]{}\newcommand\<[1][]{}\newcommand\\[1][]{}%
+   \def\fromto##1##2##3{##3}%
+   \def\nextline{}}{\) }%
+
+\newcommand{\inlinehs}{\sethscode{inlinehscode}}
+
+% The joincode environment is a separate environment that
+% can be used to surround and thereby connect multiple code
+% blocks.
+
+\newenvironment{joincode}%
+  {\let\orighscode=\hscode
+   \let\origendhscode=\endhscode
+   \def\endhscode{\def\hscode{\endgroup\def\@currenvir{hscode}\\}\begingroup}
+   %\let\SaveRestoreHook=\empty
+   %\let\ColumnHook=\empty
+   %\let\resethooks=\empty
+   \orighscode\def\hscode{\endgroup\def\@currenvir{hscode}}}%
+  {\origendhscode
+   \global\let\hscode=\orighscode
+   \global\let\endhscode=\origendhscode}%
+
+\makeatother
+\EndFmtInput
+%
+
+
+
+
+
+  % Without these, lhs2tex uses three-line equal signs.
+
+
+
+\arrayhs%i.e. no page breaks in code blocks
+\divide\abovedisplayskip 4
+\divide\belowdisplayskip 4
+\begin{document}
+\title{The algebraic hierarchy in type theory using type classes}
+\author{Bas Spitters \and Eelis van der Weegen}
+\institute{Radboud University Nijmegen}
+\maketitle
+\begin{abstract}
+We propose generic design patterns to organize algebraic structures using type classes inside the
+Coq system. We support multiple inheritance, sharing of notations and theories, and automated
+structure inference. A library for many-sorted universal algebra abstracts from the specific
+algebraic structures and aids the organization of the library. Category theory provides a further
+useful abstraction. We provide abstract
+interfaces for $\N$, $\Z$, $\Q$ as the initial semiring, the initial ring and a field of
+fractions. Similarly, we provide an interface for polynomials over a ring $R$ using $R$-algebras.
+We show that the standard implementations of these are in fact instances of these type classes.
+We report on the efficiency penality of these abstractions.
+
+Finally, we use type classes to conveniently implement a quote function using the prolog-like
+abilities of type class unification. We integrate this with our development of universal algebra.
+\end{abstract}
+
+\section{Introduction}
+Developing formalized libraries for mathematics requires a detailed analysis of the
+architecture of mathematics~\cite{C-corn,DBLP:conf/types/HaftmannW08}, similar to that of a large
+software project.
+The development of an algebraic hierarchy is an important aspect. Challenges include: 1. multiple
+inheritance: A ring is a type with two operations. How do we inherit from the two theories of
+monoids? 2. Sharing of notations. 3. Combining syntactic and semantic methods, usually this is
+addressed by reflection.
+
+Several solutions have been proposed for the Coq theorem prover~\cite{Coq,BC04}: dependent
+records~\cite{DBLP:journals/jsc/GeuversPWZ02} (a.k.a.\ telescopes), packed classes~\cite{Packed} and
+occasionally modules. Although the latter option is quickly discarded%
+\footnote{Modules are not first class, but currently they seem to be superior for extraction to
+OCaml~\cite{letouzey02}. Modules may also be seen as parametrised sections. They allow management
+of namespaces, notations, hints, etc. An \ensuremath{\Conid{Import}} command imports all the constants from a
+module. Thus allowing the user to type \ensuremath{\Conid{B}} instead of \ensuremath{\Conid{A.B}}. Similar functionality would be useful
+for type classes.}
+algebraic theories as `interfaces', as opposed to `modules', has been an important
+guiding principle~\cite{Packed}.
+
+In this fashion we implement\footnote{The sources are available
+at:~\url{http://www.eelis.net/research/math-classes/}}
+ algebraic theories as type classes, not instances, thus addressing the
+challenges above; see Section~\ref{classes}. Type classes have recently entered
+Coq~\cite{DBLP:conf/tphol/SozeauO08}. In Coq,
+type classes are \emph{first class} citizens based on dependent records. The presence of dependent types makes them even more
+powerful than the already succesful second class implementations in Haskell and Isabelle. Moreover,
+Coq's type classes are well integrated with setoid-rewriting~\cite{Setoid-rewrite}.
+
+We abstract from concrete algebra and formalize many-sorted universal algebra, including a
+construction of
+free $\Sigma$-algebras; see Section~\ref{univ}. We are also concerned with efficiency.
+In fact, our aim is to use the present development as a new basis for Bishop's program in type
+theory~\cite{typesreal-article}.\marginpar{More}
+
+So, we would like to replace data structures with more efficient ones. Concretely,
+Coq provides unary, binary and machine numbers. We use type classes polymorphism to
+develop a unified library for them; see Section~\ref{modul}.
+The interfaces for $\N$, $\Z,\Q$ are the initial semiring, the initial ring and a field of
+fractions; see Section~\ref{interfaces}. In future work we aim to base our development of the reals
+on an abstract dense set, allowing us to use the efficient dyadic
+rationals~\cite{boldo2009combining} as a base for exact real number computation in
+Coq~\cite{Riemann,Oconnor:real}.
+
+The paper is organised as follows: Section~\ref{classes} starts with a development of the concrete
+algebraic hierarchy addressing the issues raised above. Section~\ref{univ} abstracts to universal
+algebra, we develop the basic theory to the point of the first homomorphism theorem.
+Section~\ref{interfaces} provides interfaces to usual datastructures by providing their universal
+properties. To allow symbolic manipulation of semantic objects one needs a quote function. Usually,
+this function is implemented in Coq's tactics language. A more convenient way is to use type class
+unification; see section~\ref{quote}. In section~\ref{canonical}, we end with a short comparision
+between type classes and canonical structures.
+
+In this paper we focus on the Coq proof assistant. We conjecture that the methods can be transfered
+to any type theory based proof assistant supporting type classes such as
+Matita~\cite{asperti2007user}.
+
+\section{Preliminaries}
+\subsection{Coq type theory}
+The Coq proof assistant is based on the calculus of inductive
+constructions~\cite{CoquandHuet,CoquandPaulin}.\marginpar{More}
+This type theory lacks quotient types, as it would make type checking undecidable. Instead it
+supports setoids (aka Bishop sets), a pair of a type and an equivalence
+relation~\cite{Bishop67,Hofmann,Capretta}. Recently, improved support has been added to the
+system~\cite{Setoid-rewrite}. Functions respecting these equivalence relations are called \ensuremath{\Conid{Proper}}.
+As we will see in Section~\ref{univ2} below this functionality can also be used to work with
+quotient algebras.
+
+\subsection{Type classes}
+Implementation in Ltac, Notation etc
+Coercions
+
+
+\section{To bunde or not to bundle? (Or: What to bundle?)}
+
+How should we define reflexive, transitive, and symmetric relations? In a first attempt, we
+might define:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{20}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Record}\;\Conid{ReflexiveRelation:}\;\Conid{Type}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\hspace*{0mm}\{\Varid{rr\char95 carrier:}\;\Conid{Type}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{rr\char95 rel:}\;\Varid{rr\char95 carrier}\;\rightarrow\;\Varid{rr\char95 carrier}\;\rightarrow\;\Conid{Prop}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{rr\char95 proof:}\;\Pi\;{}\<[20]%
+\>[20]{}\Varid{x},\Varid{rr\char95 rel}\;\Varid{x}\;\Varid{x}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+and similar for transitive and symmetric relations.
+
+With this approach, we run into problems when we try to define \ensuremath{\Conid{EquivalenceRelation}} in terms of
+\ensuremath{\Conid{ReflexiveRelation}} and its two siblings, because when posit three objects of type
+\ensuremath{\Conid{ReflexiveRelation}}, \ensuremath{\Conid{TransitiveRelation}}, and \ensuremath{\Conid{SymmetricRelation}}, respectively, we have to
+add equalities expressing that they talk about the same carrier and relation, and these equalities
+are a nightmare to work with (because the three carriers and relations won't be convertible).
+Technically, this leads to the research in manifest fields, the \emph{with} construction, to which
+we return in Section~\ref{manifest}.
+
+As a first step we would define \ensuremath{\Conid{ReflexiveRelation}} as:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{20}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Record}\;\Conid{ReflexiveRelation}\;(\Varid{carrier:}\;\Conid{Type})\;\mathbin{:}\;\Conid{Type}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\hspace*{0mm}\{\Varid{rr\char95 rel:}\;\Varid{rr\char95 carrier}\;\rightarrow\;\Varid{rr\char95 carrier}\;\rightarrow\;\Conid{Prop}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{rr\char95 proof:}\;\Pi\;{}\<[20]%
+\>[20]{}\Varid{x},\Varid{rr\char95 rel}\;\Varid{x}\;\Varid{x}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+This would solve the problem for the carrier, but \ensuremath{\Conid{EquivalenceRelation}} would still need equalities
+for the relation:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Record}\;\Conid{EquivalenceRelation:}\;\Conid{Type}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\hspace*{0mm}\{\Varid{er\char95 carrier:}\;\Conid{Type}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{er\char95 refl:}\;\Conid{ReflexiveRelation}\;\Varid{er\char95 carrier}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{er\char95 sym:}\;\Conid{SymmetricRelation}\;\Varid{er\char95 carrier}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{er\char95 trans:}\;\Conid{TransitiveRelation}\;\Varid{er\char95 trans}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{same\char95 rel:}\;\Varid{rr\char95 rel}\;\Varid{er\char95 refl}\;\mathrel{=}\;\Varid{sr\char95 rel}\;\Varid{er\char95 sym}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{same\char95 rel':}\;\Varid{rr\char95 rel}\;\Varid{er\char95 refl}\;\mathrel{=}\;\Varid{tr\char95 rel}\;\Varid{er\char95 trans}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+A natural solution is to pull the relation out of \ensuremath{\Conid{ReflexiveRelation}} (and its siblings) as well:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{20}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{28}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Record}\;\Conid{ReflexiveRelation}\;(\Varid{carrier:}\;\Conid{Type})\;{}\<[E]%
+\\
+\>[3]{}\hsindent{25}{}\<[28]%
+\>[28]{}(\Varid{rel:}\;\Varid{carrier}\;\rightarrow\;\Varid{carrier}\;\rightarrow\;\Conid{Prop})\;\mathbin{:}\;\Conid{Prop}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\hspace*{0mm}\{\Varid{rr\char95 proof:}\;\Pi\;{}\<[20]%
+\>[20]{}\Varid{x},\Varid{rr\char95 rel}\;\Varid{x}\;\Varid{x}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+or equivalently:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{8}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{32}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Definition}\;\Conid{ReflexiveRelation}\;(\Varid{carrier:}\;\Conid{Type})\;{}\<[E]%
+\\
+\>[3]{}\hsindent{29}{}\<[32]%
+\>[32]{}(\Varid{rel:}\;\Varid{carrier}\;\rightarrow\;\Varid{carrier}\;\rightarrow\;\Conid{Prop})\;\mathbin{:}\;\Conid{Prop}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Pi\;{}\<[8]%
+\>[8]{}\Varid{x},\Varid{rr\char95 rel}\;\Varid{x}\;\Varid{x.}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+This is how reflexivity is defined in the standard library, and this is entirely sensible. The
+change from \ensuremath{\Conid{Type}} to \ensuremath{\Conid{Prop}} reflects the fact that \ensuremath{\Conid{ReflexiveRelation}} is now strictly a property,
+proofs of which can be nicely kept opaque;%
+\footnote{Coq distinguishes between transparent and opague definitions. The former can be unfolded,
+whereas this is impossible for the latter.}
+we will return to this issue in Section~\ref{explicit}.
+We can now define \ensuremath{\Conid{EquivalenceRelation}} without awkward equalities:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Record}\;\Conid{EquivalenceRelation:}\;\Conid{Type}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\hspace*{0mm}\{\Varid{er\char95 carrier:}\;\Conid{Type}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{er\char95 rel:}\;\Varid{er\char95 carrier}\;\rightarrow\;\Varid{er\char95 carrier}\;\rightarrow\;\Conid{Prop}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{er\char95 refl:}\;\Conid{ReflexiveRelation}\;\Varid{er\char95 carrier}\;\Varid{er\char95 rel}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{er\char95 sym:}\;\Conid{SymmetricRelation}\;\Varid{er\char95 carrier}\;\Varid{er\char95 rel}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{er\char95 trans:}\;\Conid{TransitiveRelation}\;\Varid{er\char95 trans}\;\Varid{er\char95 rel}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+But looking at \ensuremath{\Conid{EquivalenceRelation}}, we see that it now essentially has the same form as the
+original naive \ensuremath{\Conid{ReflexiveRelation}} record we started with. Clearly, equivalence relations
+and reflexive relations are analogous concepts, and by the same argument we
+conclude that \ensuremath{\Conid{EquivalenceRelation}} should really be defined as:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{30}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Record}\;\Conid{EquivalenceRelation}\;(\Varid{er\char95 carrier:}\;\Conid{Type})\;{}\<[E]%
+\\
+\>[B]{}\hsindent{30}{}\<[30]%
+\>[30]{}(\Varid{er\char95 rel:}\;\Varid{er\char95 carrier}\;\rightarrow\;\Varid{er\char95 carrier}\;\rightarrow\;\Conid{Prop})\;\mathbin{:}\;\Conid{Prop}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\hspace*{0mm}\{\Varid{er\char95 refl:}\;\Conid{ReflexiveRelation}\;\Varid{er\char95 carrier}\;\Varid{er\char95 rel}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{er\char95 sym:}\;\Conid{SymmetricRelation}\;\Varid{er\char95 carrier}\;\Varid{er\char95 rel}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{er\char95 trans:}\;\Conid{TransitiveRelation}\;\Varid{er\char95 trans}\;\Varid{er\char95 rel}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+After all, when we define a type with
+two different equivalence relations on it,
+such as the quotient of a setoid,
+we have the same considerations as for \ensuremath{\Conid{ReflexiveRelation}} above.
+
+At the risk of overstressing the point, let us look at how the same problem and solution keep
+appearing in composite structures. Suppose we use a definition of \ensuremath{\Conid{Monoid}} that bundles the
+relation. Then if we proceed to define \ensuremath{\Conid{SemiRing}} as a double \ensuremath{\Conid{Monoid}}, we face a dilemma:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{20}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Record}\;\Conid{SemiRing}\;\Conid{A:}\;\Conid{Type}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\hspace*{0mm}\{\Varid{mult\char95 monoid:}\;\Conid{Monoid}\;\Conid{A}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{plus\char95 monoid:}\;\Conid{Monoid}\;\Conid{A}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{plus\char95 comm:}\;\Conid{Commutative}\;(\Varid{mon\char95 op}\;\Varid{plus\char95 monoid}){}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{mult\char95 comm:}\;\Conid{Commutative}\;(\Varid{mon\char95 op}\;\Varid{mult\char95 monoid}){}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{mult\char95 0\char95 l:}\;\Pi\;{}\<[20]%
+\>[20]{}\Varid{x:}\;\Conid{A},\Varid{?}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+Which equality do we use in the expression ?, \ensuremath{\Varid{mult\char95 monoid}}'s equality or \ensuremath{\Varid{plus\char95 monoid}}'s?
+Again, for this definition to be usable at all, we would need to add an equality expressing that the
+two monoids contain the same equivalence relation. And again, the proper solution is to change
+Monoid and unbundle the relation. But here, we have a choice as to how much we unbundle exactly.
+(For the moment we ignore the question of whether the unit and binary operator should be unbundled
+as well, focusing only on the equivalence relation and its equivalence proof.)
+
+We \emph{could} become over-eager and decide to unbundle the equivalence proof term as well:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Record}\;\Conid{Monoid}\;(\Conid{A:}\;\Conid{Type})\;(\Conid{R:}\;\Conid{A}\;\rightarrow\;\Conid{A}\;\rightarrow\;\Conid{Prop})\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}(\Varid{e:}\;\Conid{Equivalence}\;\mathbb{R})\;\mathbin{:}\;\Conid{Type}\;\Conid{:=}\;\Varid{...}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+However, this way if we happen to have two proofs \ensuremath{\Varid{p}} and \ensuremath{\Varid{q}} that a certain relation is an
+equivalence, we end up with two non-convertible ways to express that the relation (together with
+some unit and binary operation) form a Monoid: 'Monoid A R p ...' and 'Monoid A R q ...'. We must
+either try to deal with this (by proving that Monoid proofs with different Equivalence proofs are
+interchangable, and hope for automation, such as type class instance resolution, to use them
+interchangably), or take great care to ensure that \ensuremath{\Conid{Equivalence}} proof terms are always shared,
+essentially elevating them to `values', which goes against the principle of proof
+irrelevance.\marginpar{What if we add proof irrelevance?}
+
+Neither of these options are very appealing. We really should just make \ensuremath{\Conid{Monoid}} take as parameters
+only the operations/relations. If we treat the monoid's unit and binary operation the same way, this
+means that \ensuremath{\Conid{Monoid}} ends up in \ensuremath{\Conid{Prop}}, and that its instances can be left opaque, which is really
+how things ought to be.
+
+Another benefit of this approach is that it works very smoothly when these records are in fact type
+classes. When relations and operations are bundled and do \emph{not} appear as parameters of the
+structure record/class, expressing as a type class constraint that some collection of relations and
+operations posess the structure seems to require manifest fields; see Section~\ref{manifest}. With
+our unbundled approach, on the other hand, such type class constraints are easily expressed without
+any extensions as simple type inhabitation queries
+% (e.g. ``hey Coq, find me a proof of [Monoid some_rel some_op some_unit]'')
+of types living in Prop, so that we don't even care what instances are found (thus embracing proof
+irrelevance).
+
+We remark that leaving the equivalence proofs bundled means that when one has a proof that something
+is a semiring, one has two proofs (via the two monoids) that the equivalence relation is an
+equivalence. Fortunately, having redundant proofs like this is entirely harmless when one's terms
+never refer (directly or indirectly) to proofs, which is the case when the relations and operations
+they are composed of are left unbundled. Here, too, we enjoy the warm embrace of proof irrelevance.
+
+From the discussion so far, we derive some principles:
+\begin{enumerate}
+ \item structural concepts (like Reflexive, Setoid, Monoid) should have their structural components
+(i.e. carriers, relations, and operations) as parameters, and nothing else;
+ \item (as a consequence) these concepts should be defined as predicates (which includes records and
+classes living in Prop), and their proofs may be kept opaque;
+ \item (as a second consequence) algebraic expressions need/should never refer (directly or
+indirectly) to proofs.
+\end{enumerate}
+% \setcounter{enumi}{3}
+
+This list will grow in subsequent sections.
+
+The principles listed so far are not particularly controversial, in fact this
+approach ensures maximum flexibility~\cite{Hints}. However,
+there is a common perception that unbundling carriers, relations, and operations this way invariably
+leads either to unmanagably big algebraic expressions (involving endless projections and/or implicit
+arguments), or to unmanageably long and tedious enumeration of carriers/relations/operations, or to
+problems establishing canonical names for operations (since we no longer project them out of
+structure instances all the time).
+
+In the next sections, we show how systematic use of type classes (and their support infrastructure
+in Coq), combined with the use of a special form of type class we call an `operational type class'
+(as opposed to a `structural' type class we might use in place of the records shown thus far), lets
+us avoid these problems.
+
+\section{Managing unbundled structure with type classes}
+
+So far, we have only looked at the definitions of the structures themselves, and have not yet
+considered the perspective of someone trying to prove some theorems about these abstract structures.
+We would like to approximate the common mathematical vernacular, where one
+simply says:
+
+for $x, y, z$ in a semigroup $G$, $x * y * z = z * y * x$, $\ldots$
+
+Suppose we have defined \ensuremath{\Conid{SemiGroup}} in line with the aforementioned principles:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Record}\;\Conid{SemiGroup}\;(\Conid{A:}\;\Conid{Type})\;(\Varid{eq:}\;\Conid{A}\;\rightarrow\;\Conid{A}\;\rightarrow\;\Conid{Prop})\;(\Varid{op:}\;\Conid{A}\;\rightarrow\;\Conid{A}\;\rightarrow\;\Conid{A})\;\mathbin{:}\;\Conid{Prop}\;\Conid{:=}\;\Varid{...}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+Then our starting point is the obvious but awful:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{20}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Lemma}\;\Varid{assoc1}\;\Conid{A}\;\Varid{eq}\;\Varid{op}\;(\Conid{P:}\;\Conid{SemiGroup}\;\Conid{A}\;\Varid{eq}\;\Varid{op})\;\Varid{x}\;\Varid{y}\;\Varid{z:}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{17}{}\<[20]%
+\>[20]{}\Varid{eq}\;(\Varid{op}\;(\Varid{op}\;\Varid{x}\;\Varid{y})\;\Varid{z})\;(\Varid{op}\;(\Varid{op}\;\Varid{z}\;\Varid{y})\;\Varid{x})\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+As a first cleaning measure, we might hope to introduce some notations to let us use infix notation
+for the semigroup operator (say, \ensuremath{\Varid{\&}}) and for equality. Unfortunately, at this point the names \ensuremath{\Varid{eq}}
+and \ensuremath{\Varid{op}} are just local names and there is no way to predeclare that they are to be associated with
+any notation. What we really need are canonical names for these notions, so that we may fashion
+notations for them.
+
+This is a typical job for type classes, and they are used in this way in the \ensuremath{\Conid{Clean}} standard
+library~\cite{Clean}. Similarly, Haskell uses type classes to overload notations.
+We simply follow suit:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Class}\;\Conid{Equiv}\;\Conid{A}\;\Conid{:=}\;\Varid{equiv:}\;\Varid{relation}\;\Conid{A.}{}\<[E]%
+\\
+\>[3]{}\mathbf{Class}\;\Conid{SemiGroupOp}\;\Conid{A}\;\Conid{:=}\;\Varid{sg\char95 op:}\;\Conid{A}\;\rightarrow\;\Conid{A}\;\rightarrow\;\Conid{A.}{}\<[E]%
+\\[\blanklineskip]%
+\>[3]{}\mathbf{Infix}\;\text{\tt \char34 =\char34}\;\Conid{:=}\;\Varid{equiv:}\;\Varid{type\char95 scope.}{}\<[E]%
+\\
+\>[3]{}\mathbf{Infix}\;\text{\tt \char34 \&\char34}\;\Conid{:=}\;\Varid{sg\char95 op}\;(\Varid{at}\;\Varid{level}\;\Varid{50},\Varid{left}\;\Varid{associativity})\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+We choose to use \ensuremath{\Varid{\&}} here and reserve the notation \ensuremath{\Varid{*}} for ring multiplication.
+
+We use = for setoid equality, since Leibniz equality seems less important for the formalization of
+mathematics. More precisely, setoid equality is the basic concept. In special case, one can prove
+that setoid equality coincides with Leibniz equality.
+
+We would have like to use a haskell style definition
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Class}\;\Conid{Equiv}\;\Conid{A}\;\Conid{:=}\;(\mathrel{=})\;\mathbin{:}\;\Varid{relation}\;\Conid{A.}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+Unfortunately, currently this is not supported in Coq.
+
+These single-field type classes are given special treatment in that they are not translated into
+records the way classes with any other number of fields are, but are instead turned into ordinary
+definitions. The effect of this is that \ensuremath{\Conid{Equiv}\;\Conid{A}} immediately reduces to \ensuremath{\Varid{relation}\;\Conid{A}}, and that the
+equiv `projection' is the identity function whose argument is inferred using instance resolution.
+Thus, for a very modest cost in indirection, we gain the ability to use canonical names, and with
+it, notations:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{21}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{30}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Record}\;\Conid{SemiGroup}\;(\Conid{A:}\;\Conid{Type})\;(\Varid{eq:}\;\Conid{Equiv}\;\Conid{A})\;{}\<[E]%
+\\
+\>[3]{}\hsindent{27}{}\<[30]%
+\>[30]{}(\Varid{op:}\;\Conid{SemiGroupOp}\;\Conid{A})\;\mathbin{:}\;\Conid{Prop}\;\Conid{:=}\;\Varid{...}{}\<[E]%
+\\
+\>[3]{}\mathbf{Lemma}\;\Varid{assoc1}\;\Conid{A}\;\Varid{eq}\;\Varid{op}\;(\Conid{P:}\;\Conid{SemiGroup}\;\Conid{A}\;\Varid{eq}\;\Varid{op})\;\Varid{x}\;\Varid{y}\;\Varid{z:}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{18}{}\<[21]%
+\>[21]{}\Varid{x}\;\Varid{\&}\;\Varid{y}\;\Varid{\&}\;\Varid{z}\;\mathrel{=}\;\Varid{z}\;\Varid{\&}\;\Varid{y}\;\Varid{\&}\;\Varid{x.}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+We call these type classes \emph{operational type classes}. We note that operational type classes
+allow us to avoid Coq's notation \ensuremath{\mathbf{scope}} mechanism.
+
+It is important to point out that although the expression now \emph{looks} like it is bound to some
+specific semigroup structure (which with traditional approaches would imply projections from bundles
+and/or reference to proofs), it is really only referring near-directly to the actual operations
+involved, with the semigroup proof existing only as opaque `knowledge about the operations' which we
+may use in the proof. This lack of projections keeps our terms small and independent, and keeps
+rewriting simple and sane.
+
+On the other hand, it \emph{does} mean that all the carriers/relations/operations end up in the
+context. The context for \ensuremath{\Varid{assoc1}} looks like:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\Conid{A:}\;\Conid{Type}{}\<[E]%
+\\
+\>[3]{}\Varid{eq:}\;\Conid{Equiv}\;\Conid{A}{}\<[E]%
+\\
+\>[3]{}\Varid{op:}\;\Conid{SemiGroupOp}\;\Conid{A}{}\<[E]%
+\\
+\>[3]{}\Conid{P:}\;\Conid{SemiGroup}\;\Conid{A}\;\Varid{eq}\;\Varid{op}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+While we are not particularly worried about overly large contexts (we feel that this will most
+likely not be problematic for any but the most complex formalizations), having to \emph{declare}
+these entities (like \ensuremath{\Varid{eq}} and \ensuremath{\Varid{op}} for \ensuremath{\Varid{assoc1}}) \emph{is} a bit of a chore. Fortunately, Coq
+provides a feature called implicit generalization, which is exactly what we need.
+\marginpar{describe how it works} With it, we can write \ensuremath{\Varid{assoc1}} as follows:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Lemma}\;\Varid{assoc1}\hspace*{0mm}`(\Conid{SemiGroup}\;\Conid{A})\;\Varid{x}\;\Varid{y}\;\Varid{z:}\;\Varid{x}\;\Varid{\&}\;\Varid{y}\;\Varid{\&}\;\Varid{z}\;\mathrel{=}\;\Varid{z}\;\Varid{\&}\;\Varid{y}\;\Varid{\&}\;\Varid{x.}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+Thus, we have reached the mathematical ideal we aimed for.
+
+Let us now stop and think to what extent this approach suffers from all the problems commonly
+associated with it. In particular, let us imagine what happens to our terms and contexts when we
+want to talk about nested structures such as polynomials over the ring of matrices over a
+given ring; see Section~\ref{interfaces}.
+
+\section{Subset types}
+BEGIN SPECULATIVE
+
+A record type is \marginpar{mostly?} syntactic sugar for a $\Sigma$-type. In the presence of a
+squash operator, \ensuremath{[\mskip1.5mu \mskip1.5mu]\;\Conid{:Type->Prop}}, we may define a subset type as \ensuremath{\lambda \;\hspace*{0mm}\{\Conid{A\char92 mid}\;\Conid{B\char92 }\mskip1.5mu\}\;\Varid{=Sig}\;\Conid{A.}\;[\mskip1.5mu \Conid{B}\mskip1.5mu]}. This is
+pursued by Barras~\cite{Barras:subset,Werner}. The program machinery fakes subset types in the
+present Coq implementation. Proof irrelevanve in Coq would allow a faithful
+implementation.
+
+Squash is a monad and allows many constructions: subsets, unions, images, heterogeneous equality,
+\ldots.
+
+Question: Would the meta-theory simplify if we would just add a conversion rule $x\triangleright
+\epsilon$ for $x:Prop$? We could add a term constructor $[a]$ which will have type $[A]$. There
+seems to be no reason to connect this to \ensuremath{\Conid{Prop}} or impredicativity.
+
+END SPECULATIVE
+
+We add another principle:
+\begin{itemize}\setcounter{enumi}{3}
+ \item Working hypothesis: `every record can be reordered as a subset'. Consequently, we
+rewrite this subset \ensuremath{\lambda \;\hspace*{0mm}\{\Conid{A\char92 mid}\;\Conid{B\char92 }\mskip1.5mu\}} as \ensuremath{\mathbf{Record}\;\Varid{r}\;(\Varid{a:A})\;\Conid{:=}\;\hspace*{0mm}\{\Varid{b:B}\mskip1.5mu\}}.
+\end{itemize}
+
+\section{Algebraic hierarchy using type classes}\label{classes}
+\paragraph{Hierarchy.}\label{hierarchy}
+In our formalization of algebraic structures we use the structure as (implicit) parameters, but
+pack the proofs. This can be nicely organized by using canonical names. For instance, we define:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{18}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Class}\;\Conid{SemiRing}\;\Conid{A}\;\hspace*{0mm}\{\Varid{e:}\;\Conid{Equiv}\;\Conid{A}\mskip1.5mu\}\;\hspace*{0mm}\{\Varid{plus:}\;\Conid{RingPlus}\;\Conid{A}\mskip1.5mu\}\;\hspace*{0mm}\{\Varid{mult:}\;\Conid{RingMult}\;\Conid{A}\mskip1.5mu\}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{18}{}\<[18]%
+\>[18]{}\hspace*{0mm}\{\Varid{zero:}\;\Conid{RingZero}\;\Conid{A}\mskip1.5mu\}\;\hspace*{0mm}\{\Varid{one:}\;\Conid{RingOne}\;\Conid{A}\mskip1.5mu\}\;\Conid{:Prop}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\hspace*{0mm}\{\Varid{semiring\char95 mult\char95 monoid:>}\;\Conid{Monoid}\;\Conid{A}\;(\Varid{op:=mult})\;(\Varid{unit:=one}){}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{semiring\char95 plus\char95 monoid:>}\;\Conid{Monoid}\;\Conid{A}\;(\Varid{op:=plus})\;(\Varid{unit:=zero}){}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{semiring\char95 plus\char95 comm:>}\;\Conid{Commutative}\;\Varid{plus}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{semiring\char95 mult\char95 comm:>}\;\Conid{Commutative}\;\Varid{mult}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{semiring\char95 distr:>}\;\Conid{Distribute}\;\Varid{mult}\;\Varid{plus}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{mult\char95 0\char95 l:}\;\forall\;\Varid{x},\Varid{0}\;\Varid{*}\;\Varid{x}\;= \;\Varid{0}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+where e.g.\ \ensuremath{\Conid{RingPlus}} is the operation class for the semigroup operator.
+The notation \ensuremath{\Conid{:>}} makes \ensuremath{\Varid{semiring\char95 mult\char95 monoid}} a coercion: when asked for a monoid it suffices to
+provide a ring.
+
+\emph{Structure-as-parameters} helps setoid-rewriting: type class resolution
+can find the equivalence relation in the context.
+% A similar style should be possible for, say, the |Ring| tactic, instead of
+% declaring the ring structure by a separate command, we would rely on type class resolution to find
+% it.
+We note that \ensuremath{\Varid{op}} does not depend on the proof that \ensuremath{\Varid{e}} is an equivalence. We use Coq's implicit
+quantification (\ensuremath{\hspace*{0mm}`\hspace*{0mm}\{\mskip1.5mu\}}) to avoid having to write all the parameters when \emph{stating} a theorem
+and Coq's maximally inserted implicit arguments to find the parameters when \emph{applying} a
+theorem. Both features are new in Coq and stem from the type class implementation.
+
+We mention the trade-off between bigger contexts versus bigger terms. Our contexts are bigger than
+those of telescopes or packed classes. In our experience, this has been relatively
+harmless\footnote{Coq's data structure for contexts is not very efficient however, we believe this
+may be a bottleneck for huge developments. It seems that the data structure chosen
+in~\cite{asperti2009compact} will behave better.}%
+: most
+terms in the context are there to support canonical names. Bigger terms
+\emph{do} cause problems: 1. when proofs are part of mathematical objects we need to share these
+proofs to allow rewriting. Moreover, it prohibits Opaque proofs and `proof irrelevance'. 2. The
+projection paths may not be canonical.
+
+Coercion pullbacks~\cite{Hints} were introduced to address problems with multiple coercions paths,
+as in the definition of a semiring: a type with two monoid structures on it. We avoid some
+of these problems by explicitly specifying the fields. We emphasize that the semiring properties are automatically derived from the ring
+properties, although the properties of a semiring are not structurally included in the ring
+properties.
+
+\subsection{Manifest fields}\label{manifest}
+
+Manifest fields in records allow us to fix a field of a dependent record.
+Luo~\cite{DBLP:conf/types/Luo08} has proposed coersive subtyping to implement manifest fields.
+It was conjectured~\cite{Hints} that implementing the algebraic hierarchy with type classes would
+be awkward due to problems with equality. We avoided these problems by shifting the fields
+from the dependent record to its argument, thus mimicking manifest fields by using type classes.
+Since \ensuremath{\Varid{op}} is \emph{instantiated} with \ensuremath{\Varid{mult}}, we need not worry about the
+equality \ensuremath{\Varid{op=mult}}.
+
+\section{Universal algebra}\label{univ}
+After having implemented concrete algebraic structures, we generalized some of our constructions
+by implementing many-sorted universal algebra. A formalization of universal algebra
+already exists in Coq~\cite{DBLP:conf/tphol/Capretta99}. It has recently been extended with more
+categorical results~\cite{dominguez2008formalizing}. We have conveniently redeveloped most of this
+using type classes. We defined equational theories and their varieties:
+the categories of their models. A quote function helps to translate a statement for an instance of
+a type class to a statement in the equational logic.
+
+\subsection{Category theory}\label{cats}
+Using type classes, we provide a basic library for category theory: categories, functors,
+adjunctions, monads,\ldots We follow the usual type theoretical definition of a\marginpar{Use
+notation for comp} category~\cite{saibi1995constructive}
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{4}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Class}\;\Conid{Category}\;\Conid{O}\hspace*{0mm}`\hspace*{0mm}\{\Varid{!Arrows}\;\Conid{O}\mskip1.5mu\}\hspace*{0mm}`\hspace*{0mm}\{\forall\;\Varid{x}\;\Varid{y:}\;\Conid{O},\Conid{Equiv}\;(\Varid{x}\;\longrightarrow\;\Varid{y})\mskip1.5mu\}{}\<[E]%
+\\
+\>[B]{}\hsindent{4}{}\<[4]%
+\>[4]{}\hspace*{0mm}`\hspace*{0mm}\{\Varid{!CatId}\;\Conid{O}\mskip1.5mu\}\hspace*{0mm}`\hspace*{0mm}\{\Varid{!CatComp}\;\Conid{O}\mskip1.5mu\}\;\mathbin{:}\;\Conid{Prop}\;\Conid{:=}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\hspace*{0mm}\{\Varid{arrow\char95 equiv:>}\;\forall\;\Varid{x}\;\Varid{y:}\;\Conid{O},\Conid{Setoid}\;(\Varid{x}\;\longrightarrow\;\Varid{y}){}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{comp\char95 proper:>}\;\forall\;\Varid{x}\;\Varid{y}\;\Varid{z:}\;\Conid{O},{}\<[E]%
+\\
+\>[3]{}\hsindent{4}{}\<[7]%
+\>[7]{}\Conid{Proper}\;(\Varid{equiv}\;\Rightarrow \;\Varid{equiv}\;\Rightarrow \;\Varid{equiv})\;\Varid{\%signature}\;(\Varid{@comp}\;\anonymous \;\anonymous \;\anonymous \;\Varid{x}\;\Varid{y}\;\Varid{z}){}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{comp\char95 assoc:}\;\forall\;(\Varid{w}\;\Varid{x}\;\Varid{y}\;\Varid{z:}\;\Conid{O})\;(\Varid{a:}\;\Varid{w}\;\longrightarrow\;\Varid{x})\;(\Varid{b:}\;\Varid{x}\;\longrightarrow\;\Varid{y})\;(\Varid{c:}\;\Varid{y}\;\longrightarrow\;\Varid{z}),{}\<[E]%
+\\
+\>[3]{}\hsindent{4}{}\<[7]%
+\>[7]{}\Varid{comp}\;\Varid{c}\;(\Varid{comp}\;\Varid{b}\;\Varid{a})\;= \;\Varid{comp}\;(\Varid{comp}\;\Varid{c}\;\Varid{b})\;\Varid{a}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{id\char95 l:}\;\forall\;(\Varid{x}\;\Varid{y:}\;\Conid{O})\;(\Varid{a:}\;\Varid{y}\;\longrightarrow\;\Varid{x}),\Varid{comp}\;\Varid{cat\char95 id}\;\Varid{a}\;= \;\Varid{a}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{};\Varid{id\char95 r:}\;\forall\;(\Varid{x}\;\Varid{y:}\;\Conid{O})\;(\Varid{a:}\;\Varid{x}\;\longrightarrow\;\Varid{y}),\Varid{comp}\;\Varid{a}\;\Varid{cat\char95 id}\;= \;\Varid{a}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+This is based on the 2-categorical idea that we have equality on arrows, but not on objects.
+Similarly, we have equality on natural transformations, but not on functors.
+
+For instance natural transformations are formalized as: \ensuremath{\circ}
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{6}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\Conid{Context}\hspace*{0mm}`\hspace*{0mm}\{\Conid{Category}\;\Conid{C}\mskip1.5mu\}\hspace*{0mm}`\hspace*{0mm}\{\Conid{Category}\;\Conid{D}\mskip1.5mu\}\;(\Conid{F}\;\Conid{G:}\;\Conid{C}\;\to \;\Conid{D}){}\<[E]%
+\\
+\>[3]{}\hsindent{3}{}\<[6]%
+\>[6]{}\hspace*{0mm}`\hspace*{0mm}\{\Varid{!Functor}\;\Conid{F}\;\Conid{Fa}\mskip1.5mu\}\hspace*{0mm}`\hspace*{0mm}\{\Varid{!Functor}\;\Conid{G}\;\Conid{Ga}\mskip1.5mu\}\;.{}\<[E]%
+\\[\blanklineskip]%
+\>[3]{}\mathbf{Class}\;\Conid{NaturalTransformation}\;(\Conid{Î·:}\;\forall\;\Varid{c:}\;\Conid{C},\Conid{F}\;\Varid{c}\;\longrightarrow\;\Conid{G}\;\Varid{c})\;\mathbin{:}\;\Conid{Prop}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Varid{natural:}\;\forall\;(\Varid{x}\;\Varid{y:}\;\Conid{C})\;(\Varid{f:}\;\Varid{x}\;\longrightarrow\;\Varid{y}),\Conid{Î·}\;\Varid{y}\;\circ\;\Varid{fmap}\;\Conid{F}\;\Varid{f}\;= \;\Varid{fmap}\;\Conid{G}\;\Varid{f}\;\circ\;\Conid{Î·}\;\Varid{x.}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+The notation \ensuremath{\circ} denotes function composition.
+Here \ensuremath{\Varid{fmap}\;\Conid{F}} explicitly refers to the arrow part of the functor \ensuremath{\Conid{F}}.\\
+In mathematics one would apply $F$ to both objects and arrows ($F x$, $F f$). However, this does
+not seem to fit with type theory, hence we follow the customs in functional programming.
+
+The proofs are short and follow the textbook easily.\marginpar{really?}
+
+We provide the category of setoids, the category of categories, the dual of a category, products,
+and hence co-products, the category of $\Sigma$-algebras.
+
+We provide the construction of the term-algebra for a signature $\Sigma$ and show that it is
+initial in the category of $\Sigma$-algebras. We proceed to prove that this provides a left-adjoint
+to the forgetful functor. The resulting expression monad will be used below.
+
+\subsection{Universal algebra continued}\label{univ2}
+
+We have developed basic universal algebra~\cite{meinke1993universal} upto the first homomorphism
+theorem.~\marginpar{Description of the work.}
+%perhaps the soundness theorem for equational logic.
+
+In order to prove the first homophism theorem, we define a congruence:
+%theory/ua_congruence.v
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{30}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Class}\;\Conid{Congruence:}\;\Conid{Prop}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\hspace*{0mm}\{\Varid{congruence\char95 proper:>}\;\Pi\;{}\<[30]%
+\>[30]{}\Varid{s},\Conid{Proper}\;(\Varid{equiv}\;\Rightarrow \;\Varid{equiv}\;\Rightarrow \;\Varid{iff})\;(\Varid{e}\;\Varid{s}){}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{};\Varid{congruence\char95 quotient:>}\;\Varid{@Algebra}\;\Varid{et}\;\Varid{v}\;\Varid{e}\;\anonymous {}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+We note the use of \ensuremath{\Conid{Proper}}.
+
+We define the forgetful functor from the category of $\Sigma$-algebras to the category of sets.
+
+We define the term algebra consisting of closed terms, terms with the empty type as set of
+variables. % extensionally equal closed term???
+We show that the term algebra is initial. One may expect that this could be useful to
+\emph{define}, say, the natural numbers as the initial semiring. However, it seems difficult to
+prove decidability of equality, as it seems to require a normalization procedure.
+
+We define the product of two algebras and show that it is the categorical product.
+
+Given a sub\emph{set} of an algebra, we define the sub\emph{algebra} generated by it.
+An interesting fact to mention is the use of the following heterogeneous equality between
+elements of the algebra and of the subalgebra, i.e.\ terms of different types may be equal.
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Fixpoint}\;\Varid{heq}\;\hspace*{0mm}\{\Varid{o}\mskip1.5mu\}\;\mathbin{:}\;\Varid{op\char95 type}\;\Varid{carrier}\;\Varid{o}\;\to \;\Varid{op\char95 type}\;\Varid{v}\;\Varid{o}\;\to \;\Conid{Prop}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mathbf{match}\;\Varid{o}\;\mathbf{with}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid \;\Varid{constant}\;\Varid{x}\;\Rightarrow \;\lambda\hspace{-1mm} \;\Varid{a}\;\Varid{b}\;\Rightarrow \hspace*{0mm}`\Varid{a}\;= \;\Varid{b}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid \;\Varid{function}\;\Varid{x}\;\Varid{y}\;\Rightarrow \;\lambda\hspace{-1mm} \;\Varid{a}\;\Varid{b}\;\Rightarrow \;\forall\;\Varid{u},\Varid{heq}\;(\Varid{a}\;\Varid{u})\;(\Varid{b}\;(\hspace*{0mm}`\Varid{u})){}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Varid{end.}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+
+We connect the abstract theory to the concrete theory. Concretely, let $\Sigma$ be the theory
+of monoids. Given a monoid, we can construct the corresponding $\Sigma$-algebra and an
+object in the category of $\Sigma$-algebras. Conversely, given an object in the category, we
+construct a monoid.
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Variable}\;\Varid{o:}\;\Conid{Variety}\;\Varid{theory.}{}\<[E]%
+\\
+\>[B]{}\mathbf{Global}\;\mathbf{Instance}\;\Varid{from\char95 object:}\;\Conid{Monoid}\;(\Varid{o}\;\Varid{tt})\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+Similarly, for arrows.
+
+
+
+%There is a slight problem when defining the forgetful functor from the category of
+%$\Sigma$-algebras to Sets. This problem is caused by our use of the category of all
+%categories\footnote{Perhaps we should have used higher categories for this.}.
+%We conjecture that this problem disappears when Coq's universe polymorphism is extended to
+%definitions.
+\section{Interfaces using category theory}\label{interfaces}\label{modul}
+The current work was stimulated by our desire~\cite{Riemann} to move between several
+implementations in a flexible way. In haskell type class polymorphism is used for this purpose.
+Hence, we do the same in type theory.
+
+We have characterized the naturals as the initial object in the category of semirings and derived
+many of their properties from this interface. Unary, binary and machine numbers are
+instances of this interface, so we can directly apply these results to all these instances.
+Similarly, for the integers are the initial ring. The rationals are the field of fractions of the
+integers. 
+Given a ring $R$, the $R$-algebra $R[X]$ of polynomials, is the free $R$-algebra of a set $X$.
+We provide two implementations of polynomials: the
+standard representation using lists of coefficients and the Bernstein representation. A Bernstein
+basis polynomial is one of the form:
+\[b_{\nu,n}(x) = {n \choose \nu} x^{\nu} \left( 1 - x \right)^{n - \nu}, \quad \nu = 0, \ldots, n.\]
+A Bernstein polynomial is a linear combination of these basic polynomials. Bernstein polynomials
+have been used for efficient computations inside the Coq system~\cite{ZumkellerPhD}.
+
+We encourage more efficient implementations by assigning the default implementation a
+low priority. For example, the distance function on the natural numbers, which is derived from its
+semiring structure, is assigned priority 10.
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Global}\;\mathbf{Program}\;\Conid{Instance:}\;\Conid{NatDistance}\;\Conid{N}\;\mid \;\Varid{10}\;\Conid{:=}\;\Varid{...}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+The context grows as follows:\marginpar{expand}
+
+\section{Type class quoting}\label{quote}
+Unification hints~\cite{Hints} allow one to semi-automatically construct a quote
+function\footnote{Gonthier provides similar functionality using canonical structures}.
+Unification hints are absent in Coq. Fortunately, type classes provide similar functionality as
+we will now show.
+
+We define a term language.
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Inductive}\;\Conid{Expr}\;(\Conid{V:}\;\Conid{Type})\;\Conid{:=}\;\Conid{Mult}\;(\Varid{a}\;\Varid{b:}\;\Conid{Expr}\;\Conid{V})\;\mid \;\Conid{Zero}\;\mid \;\Conid{Var}\;(\Varid{v:}\;\Conid{V})\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+This defines a monad on Type\marginpar{Do this!}.
+The expression type is parameterized over the set of variable indices. Hence, we diverge
+ from~\cite{Hints}, which uses \ensuremath{\mathbb{N}} for variables thereby introducing bounds problems and
+ dummy variables.
+
+\noindent An expression is only meaningful in the context of a variable assignment:\footnote{nat is
+an Expr-algebra. eval is map vars composed with the algebra map.}
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Definition}\;\Conid{Value}\;\Conid{:=}\;\Varid{nat.}{}\<[E]%
+\\
+\>[B]{}\mathbf{Definition}\;\Conid{Vars}\;\Conid{V}\;\Conid{:=}\;\Conid{V}\;\to \;\Conid{Value.}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\mathbf{Fixpoint}\;\Varid{eval}\;\hspace*{0mm}\{\Conid{V}\mskip1.5mu\}\;(\Varid{vs:}\;\Conid{Vars}\;\Conid{V})\;(\Varid{e:}\;\Conid{Expr}\;\Conid{V})\;\mathbin{:}\;\Conid{Value}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mathbf{match}\;\Varid{e}\;\mathbf{with}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mid \;\Conid{Zero}\;\Rightarrow \;\Varid{0}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mid \;\Conid{Mult}\;\Varid{a}\;\Varid{b}\;\Rightarrow \;\Varid{eval}\;\Varid{vs}\;\Varid{a}\;\Varid{*}\;\Varid{eval}\;\Varid{vs}\;\Varid{b}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mid \;\Conid{Var}\;\Varid{v}\;\Rightarrow \;\Varid{vs}\;\Varid{v}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Varid{end.}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+%
+Monads are trees with grafting. As explained by sigfpe~\cite{MonadsGrafting}, the tree monad
+$TX:=1+T^2X$, may be seen as the prototypical monad. Indeed, the \ensuremath{\Conid{Expr}} monad, i.e.\ the free
+$\Sigma$-algebra monad, behaves much like the tree monad. We now provide a direct definition of the
+corresponding bind operation.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Fixpoint}\;\Varid{bind}\;\hspace*{0mm}\{\Conid{V}\;\Conid{W}\mskip1.5mu\}\;(\Varid{f:}\;\Conid{V}\;\to \;\Conid{Expr}\;\Conid{W})\;(\Varid{e:}\;\Conid{Expr}\;\Conid{V})\;\mathbin{:}\;\Conid{Expr}\;\Conid{W}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mathbf{match}\;\Varid{e}\;\mathbf{with}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mid \;\Conid{Zero}\;\Rightarrow \;\Conid{Zero}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mid \;\Conid{Mult}\;\Varid{a}\;\Varid{b}\;\Rightarrow \;\Conid{Mult}\;(\Varid{bind}\;\Varid{f}\;\Varid{a})\;(\Varid{bind}\;\Varid{f}\;\Varid{b}){}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mid \;\Conid{Var}\;\Varid{v}\;\Rightarrow \;\Varid{vs}\;\Varid{v}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Varid{end.}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+We have shown that \ensuremath{\Conid{Expr}}, i.e.\ \ensuremath{\Varid{bind}} together with \ensuremath{\Conid{Var}}, is a monad on the category of Types
+with extensional functions between them~\marginpar{Really?}.
+
+\noindent Some simple combinators for variable packs:
+%
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Definition}\;\Varid{novars:}\;\Conid{Vars}\;\Conid{False}\;\Conid{:=}\;\Conid{False\char95 rect}\;\Varid{\char95 .}{}\<[E]%
+\\
+\>[B]{}\mathbf{Definition}\;\Varid{singlevar}\;(\Varid{x:}\;\Conid{Value})\;\mathbin{:}\;\Conid{Vars}\;\Varid{unit}\;\Conid{:=}\;\lambda\hspace{-1mm} \;\anonymous \;\Rightarrow \;\Varid{x.}{}\<[E]%
+\\
+\>[B]{}\mathbf{Definition}\;\Varid{merge}\;\hspace*{0mm}\{\Conid{A}\;\Conid{B}\mskip1.5mu\}\;(\Varid{a:}\;\Conid{Vars}\;\Conid{A})\;(\Varid{b:}\;\Conid{Vars}\;\Conid{B})\;\mathbin{:}\;\Conid{Vars}\;(\Conid{A+B})\;\Conid{:=}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\lambda\hspace{-1mm} \;\Varid{i}\;\Rightarrow \;\Varid{if}\;\Varid{i}\;\Varid{then}\;\Varid{a}\;\Varid{j}\;\Varid{else}\;\Varid{b}\;\Varid{j.}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+\noindent These last two combinators are the `constructors' of an implicitly defined subset of
+ Gallina terms, representing heaps, for which we implement syntactic lookup with type classes.
+Given a heap and value, \ensuremath{\Conid{Lookup}} instances give the value's index in the heap:\marginpar{A
+canonical structures approach would allow us to do this in Coq?}
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Class}\;\Conid{Lookup}\;\hspace*{0mm}\{\Conid{A}\mskip1.5mu\}\;(\Varid{x:}\;\Conid{Value})\;(\Varid{f:}\;\Conid{Vars}\;\Conid{A})\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\hspace*{0mm}\{\Varid{lookup:}\;\Conid{A};\Varid{lookup\char95 correct:}\;\Varid{f}\;\Varid{lookup}\;\mathrel{=}\;\Varid{x}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+% Context (x: Value) {A B} (va: Vars A) (vb: Vars B).
+
+If the heap is a merge of two heaps and we can find the value's index in the left heap, we can
+access it by indexing the merged heap (and vice versa)
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Global}\;\mathbf{Instance}\;\Varid{lookup\char95 left}\hspace*{0mm}`\hspace*{0mm}\{\Varid{!Lookup}\;\Varid{x}\;\Varid{va}\mskip1.5mu\}\;\mathbin{:}\;\Conid{Lookup}\;\Varid{x}\;(\Varid{merge}\;\Varid{va}\;\Varid{vb}){}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Conid{:=}\;\hspace*{0mm}\{\Varid{lookup}\;\Conid{:=}\;\Varid{inl}\;(\Varid{lookup}\;\Varid{x}\;\Varid{va})\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+If the heap is just a singlevar, we can easily index it.
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Global}\;\mathbf{Program}\;\Conid{Instance:}\;\Conid{Lookup}\;\Varid{x}\;(\Varid{singlevar}\;\Varid{x})\;\Conid{:=}\;\hspace*{0mm}\{\Varid{lookup}\;\Conid{:=}\;\Varid{tt}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+One useful operation we need before we get to Quote relates to variables and expression
+ evaluation. As its name suggests, \ensuremath{\Varid{map\char95 var}} maps an expression's variable indices.\marginpar{monad}
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Definition}\;\Varid{map\char95 var}\;\hspace*{0mm}\{\Conid{V}\;\Conid{W:}\;\Conid{Type}\mskip1.5mu\}\;(\Varid{f:}\;\Conid{V}\;\to \;\Conid{W})\;\mathbin{:}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\Conid{Expr}\;\Conid{V}\;\to \;\Conid{Expr}\;\Conid{W}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Varid{fix}\;\Conid{F}\;(\Varid{e:}\;\Conid{Expr}\;\Conid{V})\;\mathbin{:}\;\Conid{Expr}\;\Conid{W}\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mathbf{match}\;\Varid{e}\;\mathbf{with}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid \;\Conid{Mult}\;\Varid{a}\;\Varid{b}\;\Rightarrow \;\Conid{Mult}\;(\Conid{F}\;\Varid{a})\;(\Conid{F}\;\Varid{b}){}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid \;\Conid{Zero}\;\Rightarrow \;\Conid{Zero}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid \;\Conid{Var}\;\Varid{v}\;\Rightarrow \;\Conid{Var}\;(\Varid{f}\;\Varid{v}){}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Varid{end.}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+In \ensuremath{\Conid{Quote}} below, the idea is that \ensuremath{\Conid{V},\Varid{l}}, and \ensuremath{\Varid{n}} are all input variables, while \ensuremath{\Conid{V'}} and \ensuremath{\Varid{r}} are
+output variables (in the sense that we will rely on unification to generate them). \ensuremath{\Conid{V}} and \ensuremath{\Varid{l}}
+represent the current heap, \ensuremath{\Varid{n}} represents the value we want to quote, and \ensuremath{\Conid{V'}} and \ensuremath{\Varid{r'}} represent
+the heap of newly encountered variables during the quotation.
+  This explains the type of quote: it is an expression that refers either to variables from
+the old heap, or to newly encountered variables. Finally, \ensuremath{\Varid{eval\char95 quote}} is the usual correctness
+property, which now merges the two heaps.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Class}\;\Conid{Quote}\;\hspace*{0mm}\{\Conid{V}\mskip1.5mu\}\;(\Varid{l:}\;\Conid{Vars}\;\Conid{V})\;(\Varid{n:}\;\Conid{Value})\;\hspace*{0mm}\{\Conid{V'}\mskip1.5mu\}\;(\Varid{r:}\;\Conid{Vars}\;\Conid{V'})\;\Conid{:=}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\hspace*{0mm}\{\Varid{quote:}\;\Conid{Expr}\;(\Conid{V}\;\Varid{+}\;\Conid{V'}){}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{};\Varid{eval\char95 quote:}\;\Varid{@eval}\;(\Conid{V+V'})\;(\Varid{merge}\;\Varid{l}\;\Varid{r})\;\Varid{quote}\;\mathrel{=}\;\Varid{n}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Our first instance for \ensuremath{\Conid{Zero}} is easy. The `novars' in the result type reflects the fact that no
+new variables are encountered.
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{Global}\;\mathbf{Program}\;\mathbf{Instance}\;\Varid{quote\char95 zero}\;\Conid{V}\;(\Varid{v:}\;\Conid{Vars}\;\Conid{V})\;\mathbin{:}\;{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Conid{Quote}\;\Varid{v}\;\Varid{0}\;\Varid{novars}\;\Conid{:=}{}\<[E]%
+\\
+\>[3]{}\hspace*{0mm}\{\Varid{quote}\;\Conid{:=}\;\Conid{Zero}\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+The instance for multiplication is a bit more complex. The first line consists of
+ variable declarations. The second line is important. `Quote x y z' must be read as
+ `quoting y with existing heap x generates new heap z', so the second line basically just
+shuffles heaps around.
+ The third line contains some \ensuremath{\Varid{map\char95 var}}'s because the heap shuffling must be
+reflected in the variable indices, but apart from that it's just constructing a \ensuremath{\Conid{Mult}} term with
+quoted subterms.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Global}\;\mathbf{Program}\;\mathbf{Instance}\;\Varid{quote\char95 mult}\;\Conid{V}\;(\Varid{v:}\;\Conid{Vars}\;\Conid{V})\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Varid{n}\;\Conid{V'}\;(\Varid{v':}\;\Conid{Vars}\;\Conid{V'})\;\Varid{m}\;\Conid{V''}\;(\Varid{v'':}\;\Conid{Vars}\;\Conid{V''}){}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\hspace*{0mm}`\hspace*{0mm}\{\Varid{!Quote}\;\Varid{v}\;\Varid{n}\;\Varid{v'}\mskip1.5mu\}\hspace*{0mm}`\hspace*{0mm}\{\Varid{!Quote}\;(\Varid{merge}\;\Varid{v}\;\Varid{v'})\;\Varid{m}\;\Varid{v''}\mskip1.5mu\}\;\mathbin{:}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Conid{Quote}\;\Varid{v}\;(\Varid{n}\;\Varid{*}\;\Varid{m})\;(\Varid{merge}\;\Varid{v'}\;\Varid{v''})\;\Conid{:=}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\hspace*{0mm}\{\Varid{quote}\;\Conid{:=}\;\Conid{Mult}\;(\Varid{map\char95 var}\;\Varid{bla}\;(\Varid{quote}\;\Varid{n}))\;(\Varid{map\char95 var}\;\Varid{sum\char95 assoc}\;(\Varid{quote}\;\Varid{m}))\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+  Now follows the instance where we recognize values that are already in the heap. This
+   is expressed by the Lookup requirement, which will only be fulfilled if the Lookup instances
+   defined above can find the value in the heap. The novars in the \ensuremath{\Conid{Quote}\;\Varid{v}\;\Varid{x}\;\Varid{novars}} result
+   reflects that this quotation does not generate new variables.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Global}\;\mathbf{Program}\;\mathbf{Instance}\;\Varid{quote\char95 old\char95 var}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Conid{V}\;(\Varid{v:}\;\Conid{Vars}\;\Conid{V})\;\Varid{x}\;\hspace*{0mm}\{\Varid{i:}\;\Conid{Lookup}\;\Varid{x}\;\Varid{v}\mskip1.5mu\}\;\mathbin{:}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Conid{Quote}\;\Varid{v}\;\Varid{x}\;\Varid{novars}\;\mid \;\Varid{8}\;\Conid{:=}\;\hspace*{0mm}\{\Varid{quote}\;\Conid{:=}\;\Conid{Var}\;(\Varid{inl}\;(\Varid{lookup}\;\Varid{x}\;\Varid{v}))\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+\noindent Finally, the instance for new variables. We give this a lower priority so that it is only
+used if Lookup fails. The \ensuremath{\Varid{8}} in the previous example is a random number less than \ensuremath{\Varid{9}} below. A
+similar method is used in Coq's notation mechanism. We strongly recommend a change in
+implementation supporting an agda style precedence relation which is only restricted to be a
+directed acyclic graph~\cite{danielsson2009parsing}.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Global}\;\mathbf{Program}\;\mathbf{Instance}\;\Varid{quote\char95 new\char95 var}\;\Conid{V}\;(\Varid{v:}\;\Conid{Vars}\;\Conid{V})\;\Varid{x:}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Conid{Quote}\;\Varid{v}\;\Varid{x}\;(\Varid{singlevar}\;\Varid{x})\;\mid \;\Varid{9}\;\Conid{:=}\;\hspace*{0mm}\{\Varid{quote}\;\Conid{:=}\;\Conid{Var}\;(\Varid{inr}\;\Varid{tt})\mskip1.5mu\}\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+\noindent As announced this provides a light-weight quoting function\footnote{\ensuremath{\Varid{eval\char95 quote'}} is a
+modification of \ensuremath{\Varid{eval\char95 quote}} which works in the empty context.}:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Conid{Goal}\;\forall\;\Varid{x}\;\Varid{y}\;(\Conid{P:}\;\Conid{Value}\;\to \;\Conid{Prop}),\Conid{P}\;((\Varid{x}\;\Varid{*}\;\Varid{y})\;\Varid{*}\;(\Varid{x}\;\Varid{*}\;\Varid{0}))\;.{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Varid{intros.}\;\Varid{rewrite}\;\leftarrow \;(\Varid{eval\char95 quote'}\;\anonymous )\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+This turns the goal into \ensuremath{(\Varid{eval}\;\Varid{variable\char95 pack}\;\Varid{quote})}.
+
+It would be interesting to use this technique to implement the \ensuremath{\Varid{congruence}} tactic, which implements
+the congruence closure algorithm~\cite{corbineau2007deciding}. One would naturally obtain a tactic
+which moreover works on setoid equalities.
+
+\section{Canonical structures}\label{canonical}
+Packed classes use canonical structures for the algebraic hierarchy. Both canonical structures and
+type classes may be seen as instances of hints in unification~\cite{Hints}. Some uses of canonical
+structures can be replaced by type class instances. The user manual (2.7.15) uses canonical
+structures to derive the setoid equality on the natural
+numbers in the following example \ensuremath{(\Conid{S}\;\Varid{x})\;= \;(\Conid{S}\;\Varid{y})}. We have conveniently reimplemented this with
+type classes with superior proof terms. Canonical structures give
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{@equiv}\;(\Conid{Build\char95 Setoid}\;\mathbb{N}\;(\Varid{@eq}\;\mathbb{N})\;(\Varid{@eq\char95 equivalence}\;\mathbb{N}))\;(\Conid{S}\;\Varid{x})\;(\Conid{S}\;\Varid{y}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+which includes an explicit proof that \ensuremath{(\Varid{@eq}\;\mathbb{N})} is an equivalence,
+whereas we obtain \ensuremath{\Varid{@equiv}\;\mathbb{N}\;(\Varid{@eq}\;\mathbb{N})\;(\Conid{S}\;\Varid{x})\;(\Conid{S}\;\Varid{y})}.
+
+\subsection{Big operators}
+Canonical structures have been used to provide a uniform treatment~\cite{bertot2008canonical} of big
+operators (like $\Pi,\sum, \max$). These operators extend a pair of a binary and a 0-ary operation
+to an $n$-ary operation for any $n$. Categorically, one considers the algebra maps from non-empty
+lists, lists, inhabited finite sets and finite sets to the carrier of a semigroup, monoid,
+commutative semigroup, commutative monoid. Hence we reuse the libraries for lists etc.
+
+We use type classes to deduce the relevant monoid operation and write:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbf{Definition}\;\Varid{seq\char95 sum}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\hspace*{0mm}`\hspace*{0mm}\{\Conid{Sequence}\;\Conid{A}\;\Conid{T}\mskip1.5mu\}\hspace*{0mm}`\hspace*{0mm}\{\Conid{RingPlus}\;\Conid{A}\mskip1.5mu\}\hspace*{0mm}`\hspace*{0mm}\{\Varid{z:}\;\Conid{RingZero}\;\Conid{A}\mskip1.5mu\}\;\mathbin{:}\;\Conid{T}\;\to \;\Conid{A}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Conid{:=}\;\Varid{@seq\char95 to\char95 monoid}\;\Conid{A}\;\Conid{T}\;\anonymous \;\Conid{A}\;\Varid{ring\char95 plus}\;\Varid{z}\;\Varid{id.}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mathbf{Eval}\;\Varid{compute}\;\mathbf{in}\;\Varid{seq\char95 sum}\;[\mskip1.5mu \Varid{3};\Varid{2}\mskip1.5mu]\;.{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+\section{Constructive mathematics and proof irrelevance}\label{explicit}
+As originally concieved~\cite{ITT,CMCP}, Propositions are Types and we can extract information from
+them. In practice, it is convenient to assume that all proofs of a proposition are equal, the
+principle of proof irrelevance. These two views clearly contradict eachother. In Coq, a middle way
+was choosen, we are forbidden to extract information from proofs, but proofs are not identified.
+Here we need to pay, but do not seem to get anything in return.%
+\footnote{To be precise, what we get in return is the possibility to extract precisely the program
+we want.}
+There are various proposals to add the principle of proof irrelevance to Coq, perhaps a
+promissing one is the Calculus of implicit
+constructions~\cite{miquel2001implicit,barras2008implicit}. Such a change would fit naturally with
+the Hoare-style separation between programs and proofs which is used by the \ensuremath{\mathbf{Program}} machinery.
+
+On the other hand, we found instances where we needed proof \emph{relevance}. In this case, it lead
+to a duplication of code which may have been avoided by universe polymorphism for \ensuremath{\mathbf{Fixpoint}}s. In
+practice, manual dead-code analysis seems useful. Making Harrop formulas proof irrelevant seems to
+be a good first approximation~\cite{lcf:spi:03}.
+
+\section{Conclusions}
+Telescopes have been criticized~\cite{Packed} for the lack of multiple inheritance and
+the efficiency penalty of a long chain of coercion projections. Packed classes~\cite{Packed} provide
+a solution to these problems. We provide an alternative solution. We have already
+discussed multiple inheritance in Section~\ref{hierarchy}. Moreover, by exposing the
+carrier we avoid the chains of projections.
+
+We conclude that unification hints, canonical structures and type classes all appear to have
+similar expressive powers. Canonical structures, being tied to the unifier, are more robust, but
+seems to require more inguinity. Type classes are easier to use. Unification hints, may be a
+good generalization, but are absent from Coq. We encourage their inclusion to the
+Coq system.
+
+An obvious topic for future research is the extension from equational logic to partial Horn
+logic~\cite{palmgren2007partial}. Another topic would be to fully, but practically, embrase the
+categorical approach to universal algebra~\cite{pitts2001categorical}.
+
+According to \ensuremath{\Varid{coqwc}}, our development consists of 3103 lines of specifications and 707 lines of
+proofs.\marginpar{update,targz}
+
+% Alt-Ergo congruence closure parametrized by an equational theory.
+% As usual either implement in Coq (verify the algorithm), or Check traces, or Check Alt-Ergo (Work
+% in progress).
+
+% http://lara.epfl.ch/dokuwiki/sav09:congruence_closure_algorithm_and_correctness
+% I understand that this is the algorithm underlying congruence and perhaps first-order.
+% 
+% Type classes vs soft typing (Mizar types).
+% Type classes and types in homalg?
+
+\paragraph{Acknowledgements.}
+This research was stimulated by the new possibilities provided by the introduction of type classes
+in Coq. In fact, this seems to be the first substantial development that tries to exploid all their
+possibilities. As a consequence, we found many small bugs and unintended behavior in the type
+class implementation. All these issues were quickly solved by Matthieu Sozeau. Discussions with
+Georges Gonthier and Claudio Sacerdoti Coen have helped to
+sharpen our understanding of the relation with Canonical Structures and with Unification Hints.
+%Jeremy, Thierry, Claudio, Georges?, Wouter
+%\enlargethispage{5mm}
+\bibliographystyle{plain}
+\bibliography{alg}
+\end{document}
