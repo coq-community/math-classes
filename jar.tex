@@ -61,10 +61,11 @@ powerful than the already succesful second class implementations in Haskell and 
 Coq's type classes are well integrated with setoid-rewriting~\cite{Setoid-rewrite}.
 
 We abstract from concrete algebra and formalize many-sorted universal algebra, including a
-construction of
-free $\tau$-algebras; see Section~\ref{univ}. We are also concerned with efficiency.
-In fact, our aim is to use the present development as a new basis for Bishop's program in type
-theory~\cite{typesreal-article}.\marginpar{More}
+construction of free $\tau$-algebras; see Section~\ref{univ}.
+
+% We are also concerned with efficiency.
+% In fact, our aim is to use the present development as a new basis for Bishop's program in type
+% theory~\cite{typesreal-article}.\marginpar{More}
 
 So, we would like to replace data structures with more efficient ones. Concretely,
 Coq provides unary, binary and machine numbers. We use type classes polymorphism to
@@ -96,16 +97,17 @@ This type theory lacks quotient types, as it would make type checking undecidabl
 supports setoids (aka Bishop sets), a pair of a type and an equivalence
 relation~\cite{Bishop67,Hofmann,Capretta}. Recently, improved support has been added to the
 system~\cite{Setoid-rewrite}. Functions respecting these equivalence relations are called |Proper|.
-As we will see in Section~\ref{univ2} below this functionality can also be used to work with
+As we will see in Section~\ref{univ} below this functionality can also be used to work with
 quotient algebras.
 
-Future versions of Coq are planned to support proof irrelevance: every |p,q:P:Prop| are
-convertible; see section~\cite{explit}.
+Coq has two kinds of sorts |Prop| for propostions and |Type| for data types. Coq
+is scheduled to support proof irrelevance: every |p,q:P:Prop| are
+convertible in the future; see section~\ref{PI}.
 
-\subsection{Type classes}
-Implementation in Ltac, Notation etc\\
-Coercions\\
-Unification hints
+% \subsection{Type classes}
+% Implementation in Ltac, Notation etc\\
+% Coercions\\
+% Unification hints
 
 \section{To bunde or not to bundle? (Or: What to bundle?)}
 
@@ -165,7 +167,7 @@ change from |Type| to |Prop| reflects the fact that |ReflexiveRelation| is now s
 proofs of which can be nicely kept opaque;%
 \footnote{Coq distinguishes between transparent and opague definitions. The former can be unfolded,
 whereas this is impossible for the latter.}
-we will return to this issue in Section~\ref{explicit}.
+we will return to this issue in Section~\ref{PI}.
 We can now define |EquivalenceRelation| without awkward equalities:
 \begin{code}
   Record EquivalenceRelation: Type :=
@@ -264,8 +266,6 @@ famously does refer to a proof that the element is non-zero, but not to a proof 
 indeed form a field.}
 \end{enumerate}
 % \setcounter{enumi}{3}
-
-This list will grow in subsequent sections.
 
 The principles listed so far are not particularly controversial, in fact this
 approach ensures maximum flexibility~\cite{Hints}. However,
@@ -435,38 +435,32 @@ After having implemented concrete algebraic structures, we generalize some of ou
 by implementing many-sorted universal algebra. A formalization of universal algebra
 already exists in Coq~\cite{DBLP:conf/tphol/Capretta99} and has recently been extended with
 more categorical results~\cite{dominguez2008formalizing}. We have conveniently redeveloped most of
-this using type classes. We define equational theories and their varieties of algebras, i.e.\ their
-finitary algebraic category of models. A quote function helps to translate a statement for an
-instance of
-a type class to a statement in the equational logic. We will come back to this in
-Section~\ref{quote}.
+this using type classes. We define equational theories and their category of algebras. A quote
+function helps to translate a statement for an instance of a type class to a statement in the
+equational logic. We will come back to this in Section~\ref{quote}.
 
 % \subsection{Universal algebra continued}\label{univ2}
 
 We have developed basic universal algebra~\cite{meinke1993universal} upto the first homomorphism
 theorem.~\marginpar{Description of the work.}
 Discuss: the duplication of code which may have been avoided by universe
-polymorphism for |Fixpoint|s.
+polymorphism for |Fixpoint|s.\marginpar{universe polymorphism}
 %perhaps the soundness theorem for equational logic?
 
 In order to prove the first homophism theorem, we define a congruence.
-The compatibility of the relation |e| can be stated in two provably  equivalent ways.
-Directly, |eAlgebra := @Algebra et v e _| or  indirectly, by stating that the relation
-as a set of pairs is a subalgebra in the product algebra.
-%theory/ua_congruence.v
-% \begin{code}
-%  eSub := @ua_subalgebraT.ClosedSubset et vv _ _ Q.
-% \end{code}
-Subsequently, we choose for former as a definition:
 \begin{code}
 Class Congruence: Prop :=
     { congruence_proper:> Π s, Proper (equiv ==> equiv ==> iff) (e s)
     ; congruence_quotient:> @Algebra et v e _
     }.
 \end{code}
+Alternatively, we could have state the compatibility of the relation |e| by stating that the
+relation as a set of pairs is a subalgebra in the product algebra. We prove that both approaches
+are equivalent.
+
 A congruence relation is coarser than the setoid relation, as indicated by the use of |Proper|
 above. Since our theory is founded on a congruence, the initial setoid equality, the development of 
-congruences and quotients benefits from this.
+congruences and quotients benefits from this.\marginpar{how}
 
 We define the forgetful functor from the category of $\tau$-algebras to the category of sets.
 We define the term algebra consisting of closed terms, terms with the empty type as set of
@@ -492,8 +486,8 @@ elements of the algebra and of the subalgebra, i.e.\ terms of different types ma
 
 We connect the abstract theory to the concrete theory. Concretely, let $\tau_m$ be the theory
 of monoids. Given a monoid, we can construct the corresponding $\tau_m$-algebra and an
-object in the category of $\\tau$-algebras. Conversely, given an object in the category/variety, we
-construct a monoid.
+object in the category of $\tau$-algebras. Conversely, given an object in the category/variety, we
+construct an instance of the |Monoid| type class.\marginpar{Update code}
 %varieties/monoid.v
 \begin{code}
 Variable o: variety.Object theory.
@@ -507,7 +501,7 @@ the lines before.\marginpar{Why this way?}
 \subsection{Category theory}\label{cats}
 Using type classes, we provide a basic library for category theory: categories, functors,
 adjunctions, monads,\ldots We follow the usual type theoretical definition of a
-category~\cite{saibi1995constructive}
+category~\cite{saibi1995constructive}.\marginpar{Update code}
 
 %format ◎ = "\circ"
 %interfaces/abstract_algebra.v
@@ -522,8 +516,6 @@ Class Category O `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)}
   ; id_l `(a: x ⟶ y): cat_id ◎ a = a
   ; id_r `(a: x ⟶ y): a ◎ cat_id = a }.
 \end{code}
-Where |%signature|
-tells Coq how to interpret |equiv|.\marginpar{Where is this defined?}
 This is based on the 2-categorical idea that we have equality on arrows, but not on objects.
 Similarly, we have equality on natural transformations, but not on functors.
 
@@ -544,7 +536,7 @@ not seem to fit with type theory.\marginpar{Explain why.}
 The proofs are short and follow the textbook easily.\marginpar{really?}
 
 We have defined the category of setoids, the category of categories, the dual of a category,
-products, and hence co-products, the category of $\tau$-algebras.
+products, and hence co-products and the category of $\tau$-algebras, for a given type $\tau$.
 
 We provide the construction of the term-algebra for a type $\tau$ and show that it is
 initial in the category of $\tau$-algebras. We proceed to prove that this provides a left-adjoint
@@ -583,8 +575,8 @@ semiring structure, is assigned priority 10.
 
 \section{Type class quoting}\label{quote}
 Unification hints~\cite{Hints} allow one to semi-automatically construct a quote
-function\footnote{Gonthier provides similar functionality using canonical structures}.
-Unification hints are absent in Coq. Fortunately, type classes provide similar functionality as
+function\footnote{Gonthier provides similar functionality using canonical structures}. However,
+this feature is absent from Coq. Fortunately, type classes provide similar functionality as
 we will now show.
 
 We define a term language for monoids:
@@ -592,7 +584,7 @@ We define a term language for monoids:
 Inductive Expr (V: Type) := Mult (a b: Expr V) | Zero | Var (v: V).
 \end{code}
 This defines a monad on the category of |Type|s with extensional functions.\marginpar{Proof this
-formally}.
+formally?}
 The expression type is parameterized over the set of variable indices. Hence, we diverge
  from~\cite{Hints}, which uses |nat| for variables thereby introducing bounds problems and
  dummy variables.
@@ -776,28 +768,21 @@ Definition seq_sum
 \end{code}
 \marginpar{distributivity?}
 
-\section{Subset types and proof irrelevance}
+\section{Subset types and proof irrelevance}\label{PI}
 We have mentioned proof irrelevance a number of times before. It is an important theme in our
 approach. The |Program| machinery allows one to conveniently write programs with Hoare-style
-pre-
-and post-conditions. I.e.\ functions $f: \{ A \mid P \} \to \{ B \mid Q \}$. Both side conditions
+pre- and post-conditions. I.e.\ functions $f: \{ A \mid P \} \to \{ B \mid Q \}$. Both side
+conditions
 are intended to be proof irrelevant, they are in |Prop|. Presently, Coq does not support such subset
 types, thus forcing the user to manually prove that |f| does not depend on the proof of |P|.
 The addition of proof irrelevance and subset types to Coq is pursued by
 Barras~\cite{Barras:subset,Werner}. 
-
 % Squash is a monad and allows many constructions: subsets, unions, images, heterogeneous equality,
 % \ldots.
 
-We add another principle:
-\begin{enumerate}\setcounter{enumi}{3}
- \item Working hypothesis: every record can be reordered in such a way that all the non-informative
-fields come last.
-\end{enumerate}
-
 Pollack~\cite{pollack2000dependently} introduces record types with telescopes. 
 Given a telescope\[
-T=[x_1:A_1][x_2:A_2(x_1)]\cdots[x_k:A_k(x_1,\ldots,x_{k_1})]
+T=[x_1:A_1][x_2:A_2(x_1)]\cdots[x_k:A_k(x_1,\ldots,x_k)].
 \]
 There is an inductively defined type $\Sigma T$, with a single constructor, given by the following 
 formation and introduction rule in pseudo-code for $k=2$:
@@ -818,7 +803,7 @@ For our methodology to work we have to be able to transform the occuring record 
 subset $\{ A \mid  B\}$. We moreover conjecture that the terms in |B| only depend on the
 variables in |A|, but not in |B| itself. However, we do not need this.
 
-\subsection{Propositions as [ ]-Types}\label{explicit}
+\subsection{Propositions as [ ]-Types}
 As originally concieved~\cite{ITT,CMCP}, Propositions are Types and we can extract information from
 them. In practice, it is convenient to assume that all proofs of a proposition are equal: the
 principle of proof irrelevance. These two views clearly contradict eachother. In Coq, a middle way
@@ -832,7 +817,8 @@ naturally with the Hoare-style separation between programs and proofs which is u
 machinery. 
 
 One may be tempted to propose Propositions as [ ]-types~\cite{awodey2004propositions}. Here the
-construction $[P]:=\{\top\mid p:P\}$ squashes all the information about how we proved $P$. However,
+construction $[P]:=\{\top\mid p:P\}$ squashes all the information about how we proved $P$. In Coq,
+the [ ]-types are isomorphic to the type of sort |Prop|. However,
 there are places where we needed proof \emph{relevance}; e.g.\ in the proof of the first isomorphism
 theorem above.In practice, manual dead-code analysis seems useful. Making Harrop formulas proof
 irrelevant seems to be a good first approximation~\cite{lcf:spi:03}. However, a further refinement
