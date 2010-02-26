@@ -136,6 +136,25 @@ Section ring_props. Context `{Ring R}.
    rewrite commutativity, E. ring.
   Qed.
 
+  Class RingMultInverse (x: R): Type := ring_mult_inverse: R.
+
+  Implicit Arguments ring_mult_inverse [[RingMultInverse]].
+
+  Class RingUnit (x: R) `{RingMultInverse x}: Prop
+    := ring_unit_mult_inverse: x * ring_mult_inverse x = 1.
+
+  Definition divides_zero (x: R): Prop := ∃ y, y ≠ 0 ∧ x * y = 0.
+
+  Lemma units_dont_divide_zero `{RingUnit x}: ¬ divides_zero x.
+  Proof with try ring.
+   intros [z [z_nonzero xz_zero]].
+   apply z_nonzero.
+   transitivity (1 * z)...
+   rewrite <- ring_unit_mult_inverse.
+   transitivity (x * z * ring_mult_inverse x)...
+   rewrite xz_zero...
+  Qed.
+
 End ring_props.
 
 Implicit Arguments stdlib_ring_theory [[e] [plus0] [mult0] [inv] [zero] [one] [H]].
