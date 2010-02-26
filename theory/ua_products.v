@@ -177,55 +177,48 @@ Require categories.variety.
 Section categorical.
 
   Context
-    (et: EquationalTheory)
-    (I: Type) (carriers: I → variety.Object et).
+    (et: EquationalTheory).
 
-  Definition product: variety.Object et.
-   apply (@variety.object et (λ s => Π i: I, carriers i s)
-     (product_e et I carriers (λ i => variety.variety_equiv et (carriers i)))
-    (@product_ops et I carriers (λ i => variety.variety_op et (carriers i))) ).
-   apply (@product_variety et I carriers).
-   apply (λ _ => _).
-  Defined.
+  Global Instance: Producer (variety.Object et) := λ I carriers =>
+    {| variety.variety_carriers := λ s => Π i, carriers i s
+    ; variety.variety_proof := product_variety et I _ _ _ (fun H => variety.variety_proof et (carriers H)) |}.
+      (* todo: clean up *)
 
-  Program Definition project (i: I): product ⟶ carriers i := λ _ c => c i.
+  Section for_a_given_c. Context (I: Type) (c: I → variety.Object et).
+
+  Global Program Instance: ElimProduct c (product c) := λ i _ c => c i.
 
   Next Obligation.
-   apply (@algebra_projection_morphisms et I carriers
-     (λ x => @variety.variety_equiv et (carriers x)) (λ x => variety.variety_op et (carriers x)) ).
+   apply (@algebra_projection_morphisms et I c
+     (λ x => @variety.variety_equiv et (c x)) (λ x => variety.variety_op et (c x)) ).
    intro. apply _.
   Qed.
 
-  Program Definition factor c (component_arrow: Π i, c ⟶ carriers i): c ⟶ product :=
-    λ a X i => component_arrow i a X.
+  Global Program Instance: IntroProduct c (product c) := λ _ h a X i => h i a X.
 
-  Next Obligation. Proof.
-   constructor; try apply _.
-     constructor; try apply _.
-     intros ? ? E i.
-     destruct (proj2_sig (component_arrow i)).
-     rewrite E. reflexivity.
+  Next Obligation. Proof with intuition.
+   repeat constructor; try apply _.
+     intros ?? E ?. destruct h. simpl. rewrite E...
     intro.
-    pose proof (λ i => @preserves _ _ _ _ _ _ _ _ (proj2_sig (component_arrow i)) o).
+    pose proof (λ i => @preserves _ _ _ _ _ _ _ _ (proj2_sig (h i)) o).
     unfold product_ops, algebra_op.
-    set (λ i => variety.variety_op et (carriers i) o).
-    set (variety.variety_op et c o) in *.
-    change (∀i : I, Preservation et c (carriers i) (` (component_arrow i)) o1 (o0 i)) in H.
-    clearbody o0 o1.
-    revert o0 o1 H.
-    induction (et o); simpl; intuition.
-   apply (@product_algebra et I carriers).
-   intro. apply _.
+    set (λ i => variety.variety_op et (c i) o).
+    set (variety.variety_op et H o) in *.
+    change (∀i : I, Preservation et H (c i) (` (h i)) o1 (o0 i)) in H0.
+    clearbody o0 o1. revert o0 o1 H0.
+    induction (et o); simpl...
+   apply (@product_algebra et I c)...
   Qed.
 
-  Theorem yep: is_product carriers product project factor.
+  Global Instance: Product c (product c).
   Proof.
-   split. repeat intro. reflexivity.
-   repeat intro.
-   simpl.
-   symmetry.
-   apply H.
+   split; repeat intro. reflexivity.
+   symmetry. simpl. apply H.
   Qed.
+
+  End for_a_given_c.
+
+  Global Instance: HasProducts (variety.Object et).
 
 End categorical.
 

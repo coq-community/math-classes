@@ -145,79 +145,52 @@ Section contents.
 
     Context {I: Type} (component: I → X).
 
-    Record Product: Type := mkProduct
-      { product_object:> X
-      ; project: Π i, product_object ⟶ component i
-      ; prod_factor: Π (c: X), (Π i, c ⟶ component i) → (c ⟶ product_object) }.
+    Section def.
 
-    Definition is_product (candidate: X) (proj: Π i, candidate ⟶ component i)
-      (h: Π (c: X) (ccomp: Π i, c ⟶ component i), c ⟶ candidate): Prop
-        := Π c ccomp, is_sole (λ h' => Π i, ccomp i = proj i ◎ h') (h c ccomp).
+      Context (product: X).
 
-    Definition is_product' (p: Product): Prop
-        := Π c ccomp, is_sole (λ h' => Π i, ccomp i = project p i ◎ h') (prod_factor p c ccomp).
+      Class ElimProduct: Type := tuple_proj: Π i, product ⟶ component i.
+      Class IntroProduct: Type := make_tuple: Π x, (Π i, x ⟶ component i) → (x ⟶ product).
 
-(*    Class IsProduct (p: Product) := is_p: is_product p. *)
-(*
-    Record Product: Type := product
-      { product_object:> X
-      ; project: Π i, A product_object (component i)
-      ; factor: Π (c: X) (ccomp: Π i, A c (component i)), A c product_object
-      ; correct: is_product product_object project factor
-      }.
-*)
-(*
-    Existing Class Product.
-*)
-    Lemma help_products_unique (d: X) (proj: Π i, d ⟶ component i) h:
-      is_product d proj h →
-      is_sole (λ a: d ⟶ d => Π i, proj i = proj i ◎ a) cat_id.
+      Class Product `{ElimProduct} `{IntroProduct}: Prop :=
+        product_factors: Π c ccomp, is_sole (λ h' => Π i, ccomp i = tuple_proj i ◎ h')
+          (make_tuple c ccomp).
+
+      Lemma tuple_round_trip `{Product} (x: X) (h: Π i, x ⟶ component i) i:
+        tuple_proj i ◎ make_tuple x h = h i.
+      Proof. symmetry. apply product_factors. Qed.
+
+    End def.
+
+    Lemma products_unique `{Product c} `{Product c'}:
+      iso_arrows
+        (make_tuple c c' (tuple_proj c'))
+        (make_tuple c' c (tuple_proj c)).
     Proof with intuition.
-     intros.
-     split; intros.
-      symmetry.
-      apply id_r.
-     destruct (H1 d proj).
-     clear H1.
-     rewrite (H4 y)...
-     rewrite (H4 cat_id)...
-     intros.
-     symmetry.
-     apply id_r.
-    Qed.
-
-    Lemma products_unique (c c': X) (proj: Π i, c ⟶ component i) (proj': Π i, c' ⟶ component i)
-      h h':
-      is_product _ proj h → is_product _ proj' h' → iso_arrows (h c' proj') (h' c proj).
-    Proof with auto.
-     intro.
-     intros.
-     split.
-      destruct (help_products_unique c proj h H1).
-      apply H4.
-      intro.
+     unfold iso_arrows.
+     revert c H1 H2 H3 c' H4 H5 H6.
+     cut (Π `{Product x} `{Product y},
+       make_tuple x y (tuple_proj y) ◎ make_tuple y x (tuple_proj x) = cat_id)...
+     pose proof (proj2 (product_factors x x (tuple_proj x))) as Q.
+     rewrite (Q cat_id)... rewrite Q...
       rewrite comp_assoc.
-      destruct (H1 c' proj').
-      destruct (H2 c proj).
-      rewrite <- H5...
-     destruct (help_products_unique c' proj' h' H2).
-     apply H4.
-     intro.
-     rewrite comp_assoc.
-     destruct (H1 c' proj').
-     destruct (H2 c proj).
-     rewrite <- H7...
+      repeat rewrite tuple_round_trip...
+     rewrite id_r...
     Qed.
 
   End products.
 
-  Class Producer: Type := produce: Π `(c: Index → X), Product c.
+  Class Producer: Type := product I: (I → X) → X.
 
+  Class HasProducts `{Producer}
+    `{Π I c, ElimProduct c (product I c)}
+    `{Π I c, IntroProduct c (product I c)}: Prop :=
+      makes_products: Π I (c: I → X), Product c (product I c).
+
+(*
   Definition binary_product `{Producer} (x y: X): Product (λ b: bool => if b then x else y) := produce _.
   Definition empty_product `{Producer}: Product (λ f: False => match f with end) := produce _.
-
-  Class Produces `{Producer}: Prop :=
-    produces: Π `(c: Index → X), is_product' _ (produce c).
+*)
 
   Section freedom.
 
@@ -275,4 +248,5 @@ Lemma freedom_as_adjunction
 Proof. exact (alt_adjunction_factor _ _). Qed.
 
 Implicit Arguments Producer [].
-Implicit Arguments Produces [[Arrows0] [H] [CatComp0] [H1]]. (* todo: rename args *)
+Implicit Arguments HasProducts [[Arrows0] [H] [CatComp0] [H1] [H2] [H3]]. (* todo: rename args *)
+Implicit Arguments product [[X] [Producer] [I]].

@@ -44,29 +44,29 @@ Section contents.
     destruct a; try destruct b; try destruct c; simpl; rewrite E; reflexivity.
   Qed.
 
+  Global Instance: Producer Object := λ _ c => object (Π i, c i) (λ x y => Π i, x i = y i) _.
+    (* todo: use pointwise_relation or something like that *)
+
   Section product. Context {Index: Type} (c: Index → Object).
 
-    Definition product_obj: Object := object (Π i, c i) (λ x y => Π i, x i = y i) _.
-      (* todo: use pointwise_relation or something *)
-
-    Program Definition project i: product_obj ⟶ c i := (λ x => x i).
+    Global Program Instance: ElimProduct c (product c) := λ i x => x i.
     Next Obligation. constructor; try apply _. firstorder. Qed.
 
-    Program Definition factor (d: Object) (df: Π i, d ⟶ c i): d ⟶ product_obj := λ x y => df y x.
-    Next Obligation. constructor; try apply _. intros ?? E ?. destruct df. rewrite E. reflexivity. Qed.
+    Global Program Instance: IntroProduct c (product c) := λ d df x y => df y x.
+    Next Obligation. constructor; try apply _. repeat intro. destruct df. simpl. firstorder. Qed.
+
+    Global Instance: Product c (product c).
+    Proof.
+     split.
+      intros ? ? ? E. simpl. unfold compose. destruct ccomp. rewrite E. reflexivity.
+     intros ? E' ? x E. intro. simpl in *.
+     symmetry in E |- *.
+     apply (E' i _ _ E).
+    Qed.
 
   End product.
 
-  Instance: Producer Object Arrow := λ I c => mkProduct c (product_obj c) (project c) (factor c).
-
-  Instance: Produces Object.
-  Proof.
-   split.
-    intros ? ? ? E. simpl. unfold compose. destruct ccomp. rewrite E. reflexivity.
-   intros ? E' ? x E. intro. simpl in *.
-   symmetry in E |- *.
-   apply (E' i _ _ E).
-  Qed.
+  Global Instance: HasProducts Object.
 
   Global Instance mono: Π (X Y: Object) (a: X ⟶ Y), @Injective X _ Y _ (@proj1_sig _ (@Setoid_Morphism _ _ _ _) a) → Mono a.
   Proof. (* todo: why so ugly? *)
