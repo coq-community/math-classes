@@ -8,7 +8,6 @@ factor out the commonality.
 Set Automatic Introduction.
 
 Require Import Morphisms abstract_algebra Program universal_algebra.
-Require categories.cat.
 
 Section contents.
 
@@ -56,9 +55,5 @@ Section contents.
 
   Global Instance: Category Object.
   Proof. constructor; try apply _; repeat intro; reflexivity. Qed.
-
-  (* Definition obj: cat.Object := cat.object Object Arrow e _ _ _.
-    Defining this causes a universe inconsistency when this module
-    is imported in theory/ua_forget.. *)
 
 End contents.

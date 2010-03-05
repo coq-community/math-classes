@@ -130,14 +130,11 @@ Section contents.
 
   End factors.
 
-(* Can't do due to universe inconsistency:
-  Lemma yep: is_product (λ i => ith_obj i) product_object project factor.
-  Proof. intro. apply s. Qed. 
-*)
+  (* At the time of this writing (Coq trunk 12801), attempting to state the above in terms
+  of the nice product-relates interfaces from theory/categories results in universe
+  inconsistency errors that I have isolated and reported as Coq bug #2252. *)
 
   Global Instance mono (X Y: Object): Π (a: X ⟶ Y), (Π i, @Mono _ _ (H0 _) (H2 i) _ _ (a i)) → Mono a.
   Proof. firstorder. Qed. (* todo: why so ugly all of a sudden? *)
-
-  (* todo: register a Producer for Cat *)
 
 End contents.
