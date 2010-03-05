@@ -1,7 +1,8 @@
-(* This is an almost verbatim copy from ua_subalgebra, but with predicates in Type instead of Prop.
+(* This is an almost verbatim copy of ua_subalgebra, but with predicates in Type
+instead of Prop (and with carrier sigT instead of sig).
 
-We can't just rely on universe polymorphism (UP) because UP only works for inductives,
-but op_closed is a fixpoint! *)
+Hopefully one day Coq's universe polymorphism will permit a merge of sig and sigT,
+at which point we may try to merge ua_subalgebra and ua_subalgebraT as well. *)
 
 Set Automatic Introduction.
 
