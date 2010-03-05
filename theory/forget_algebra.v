@@ -39,9 +39,6 @@ Section contents.
    rewrite E...
   Qed.
 
-  (* Unfortunately we cannot also define the arrow in Cat because this leads to
-   universe inconsistencies. Todo: look into this. *)
-
   Let hintje: Π x y, Equiv (object x ⟶ object y). intros. apply _. Defined. (* todo: shouldn't be necessary *)
 
   Global Instance mono: Π (X Y: algebra.Object sign) (a: X ⟶ Y),

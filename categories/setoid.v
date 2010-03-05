@@ -4,14 +4,9 @@ Require Import
   Relation_Definitions Morphisms Setoid Program
   abstract_algebra theory.categories.
 
-Inductive Object := object { T:> Type; e: T → T → Prop; setoid_proof: @Setoid T e }.
-  (* We don't use the type [Equiv T] for e because it leads to universe consistency
-   problems in theory/ua_forget. Hopefully when Coq gets universe polymorphism for
-   definitions (like Equiv), we can use the proper type again. *)
+Inductive Object := object { T:> Type; e: Equiv T; setoid_proof: @Setoid T e }.
 
-Hint Extern 4 (Equiv (T ?x)) => exact (e x): typeclass_instances.
-  (* Matthieu is adding [Existing Instance (c: T).], which is nicer. *)
-
+Existing Instance e.
 Existing Instance setoid_proof.
 
 Section contents.

@@ -5,7 +5,7 @@ Set Automatic Introduction.
 Require Import
   Morphisms Setoid abstract_algebra Program universal_algebra theory.categories.
 Require
-  categories.cat categories.setoid categories.product.
+  categories.setoid categories.product.
 
 Section contents.
 
@@ -54,8 +54,5 @@ Section contents.
 
   Global Instance: Category Object.
   Proof. constructor; try apply _; repeat intro; reflexivity. Qed.
-
-  (* Definition obj: cat.Object := cat.Build_Object Object Arrow e _ _ _.
-    Risks universe inconsistencies.. *)
 
 End contents.
