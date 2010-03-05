@@ -6,7 +6,7 @@ Require Import
 
 Class Rationals A {e plus mult opp zero one mult_inv} :=
   { rationals_field:> @Field A e plus mult opp zero one mult_inv
-  ; rationals_eqdec:> Π x y: A, Decision (x = y)
+  ; rationals_eqdec:> Π x y: A, Decision (x = y) (* todo: this is bad; should be unbundled *)
   ; rationals_frac: Surjective (λ p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p))
   ; rationals_embed_ints:> Injective (integers_to_ring (Z nat) A) }.
 
@@ -42,7 +42,7 @@ Section sec. Context `{Rationals Q}.
      (λ v => integers_to_ring (Z nat) Q (naturals_to_semiring N (Z nat) v)))...
   Qed.
 
-  Instance: OrdField Q. 
+  Instance: OrdField Q.
    (* making this global (as it should be) indirectly produces an [Add Ring] bug that i've presented to mattam *)
 
 End sec.

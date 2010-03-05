@@ -27,7 +27,11 @@ Class AbGroup A `{Equiv A} {op unit inv}: Prop :=
   { abgroup_group:> @Group A _ op unit inv
   ; abgroup_commutative:> Commutative op }.
 
-Class SemiRing A {e: Equiv A} {plus: RingPlus A} {mult: RingMult A} {zero: RingZero A} {one: RingOne A}: Prop :=
+Section upper_classes.
+
+Context A {e: Equiv A} {plus: RingPlus A} {mult: RingMult A} {zero: RingZero A} {one: RingOne A}.
+
+Class SemiRing: Prop :=
   { semiring_mult_monoid:> Monoid A (op:=mult) (unit:=one)
   ; semiring_plus_monoid:> Monoid A (op:=plus) (unit:=zero)
   ; semiring_plus_comm:> Commutative plus
@@ -35,7 +39,9 @@ Class SemiRing A {e: Equiv A} {plus: RingPlus A} {mult: RingMult A} {zero: RingZ
   ; semiring_distr:> Distribute mult plus
   ; mult_0_l: `(0 * x = 0) }.
 
-Class Ring A {e: Equiv A} {plus: RingPlus A} {mult: RingMult A} {inv: GroupInv A} {zero: RingZero A} {one: RingOne A}: Prop :=
+Context {inv: GroupInv A}.
+
+Class Ring: Prop :=
   { ring_group:> AbGroup A (op:=plus) (unit:=zero)
   ; ring_monoid:> Monoid A (op:=mult) (unit:=one)
   ; ring_mult_comm:> Commutative mult
@@ -44,11 +50,22 @@ Class Ring A {e: Equiv A} {plus: RingPlus A} {mult: RingMult A} {inv: GroupInv A
   (* For now, we follow CoRN/ring_theory's example in having Ring and SemiRing
    require commutative multiplication. *)
 
-Class Field A {e: Equiv A} {plus mult inv zero one} {mult_inv: MultInv A}: Prop :=
-  { field_ring:> @Ring A e plus mult inv zero one
+Class IntegralDomain: Prop :=
+  { intdom_ring:> Ring
+  ; intdom_nontrivial:> ZeroNeOne A
+  ; intdom_nozeroes:> NoZeroDivisors A }.
+
+Class Field {mult_inv: MultInv A}: Prop :=
+  { field_ring:> Ring
   ; field_0neq1:> ZeroNeOne A
-  ; mult_inv_proper:> Proper (sig_relation equiv _ ==> equiv) mult_inv
+  ; mult_inv_proper:> Proper (sig_relation (=) _ ==> (=)) mult_inv
   ; mult_inverse: `(` x * // x = 1) }.
+
+End upper_classes.
+
+Implicit Arguments mult_0_l [[A] [e] [plus] [mult] [zero] [one] [SemiRing]].
+Implicit Arguments field_0neq1 [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv] [Field]].
+Implicit Arguments mult_inverse [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv0] [Field]].
 
 Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
   { equ:> Equivalence e
@@ -65,7 +82,7 @@ Class RingOrder `(e: Equiv A) (plus: RingPlus A) (mult: RingMult A) (zero: RingZ
     (* todo: use "precedes" here? *)
 
 Class OrdField A {e: Equiv A} {plus mult inv zero one mult_inv leq}: Prop :=
-  { ordfield_field:> @Field A e plus mult inv zero one mult_inv
+  { ordfield_field:> @Field A e plus mult zero one inv mult_inv
   ; ordfield_order:> RingOrder e plus mult zero leq }.
 
 Local Infix "<*>" := ralgebra_action (at level 30).
@@ -85,16 +102,17 @@ Class Ralgebra `(e: Equiv Scalar) `(e': Equiv Elem) `{RalgebraAction Scalar Elem
   { ralgebra_module:> Rmodule e e'
       scalar_plus scalar_mult scalar_inv scalar_zero scalar_one
       elem_plus elem_zero elem_opp
-  ; ralgebra_ring:> @Ring Elem e' elem_plus elem_mult elem_opp elem_zero elem_one
+  ; ralgebra_ring:> @Ring Elem e' elem_plus elem_mult elem_zero elem_one elem_opp
   ; ralgebra_assoc: `(x <*> (a * b) = (x <*> a) * b) }.
 
 Definition is_derivation `{Ralgebra Scalar Elem} (f: Elem → Elem): Prop :=
   True. (* something *)
 
 Class Category O `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatComp O}: Prop :=
-  { arrow_equiv:> Π x y: O, Setoid (x ⟶ y)
-  ; comp_proper:> Π x y z, Proper (equiv ==> equiv ==> equiv)%signature (@comp _ _ _ x y z)
-  ; comp_assoc (w x y z: O) (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
+  { arrow_equiv:> Π x y, Setoid (x ⟶ y)
+  ; comp_proper:> Π x y z,
+    Proper (equiv ==> equiv ==> equiv)%signature (comp: (y ⟶ z) → (x ⟶ y) → x ⟶ z)
+  ; comp_assoc w x y z (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
       c ◎ (b ◎ a) = (c ◎ b) ◎ a
   ; id_l `(a: x ⟶ y): cat_id ◎ a = a
   ; id_r `(a: x ⟶ y): a ◎ cat_id = a }.
@@ -108,42 +126,42 @@ Implicit Arguments comp_assoc [[O] [Arrows0] [H] [CatId0] [CatComp0] [Category] 
 
 Section morphism_classes.
 
-  Context {A B: Type}.
+  Context {A B: Type} `{Aeq: Equiv A} `{Beq: Equiv B}.
 
-  Class Setoid_Morphism `{Aeq: Equiv A} `{Beq: Equiv B} (f: A → B) :=
+  Class Setoid_Morphism (f: A → B) :=
     { setoidmod_a: Setoid A
     ; setoidmod_b: Setoid B
     ; sm_proper:> Proper (equiv ==> equiv) f }.
 
-  Class SemiGroup_Morphism {Aeq Beq Aop Bop} (f: A → B) :=
+  Class SemiGroup_Morphism {Aop Bop} (f: A → B) :=
     { a_sg: @SemiGroup A Aeq Aop
     ; b_sg: @SemiGroup B Beq Bop
     ; sg_mor_op_proper:> Setoid_Morphism f (* todo: rename *)
     ; preserves_sg_op: `(f (a & a') = f a & f a') }.
 
-  Class Monoid_Morphism {Ae Be Aunit Bunit Amult Bmult} (f: A → B) :=
-    { monmor_a: @Monoid A Ae Amult Aunit
-    ; monmor_b: @Monoid B Be Bmult Bunit
+  Class Monoid_Morphism {Aunit Bunit Amult Bmult} (f: A → B) :=
+    { monmor_a: @Monoid A Aeq Amult Aunit
+    ; monmor_b: @Monoid B Beq Bmult Bunit
     ; monmor_sgmor:> SemiGroup_Morphism f
     ; preserves_mon_unit: f mon_unit = mon_unit }.
 
-  Class Group_Morphism {Aeq Beq Aop Bop Aunit Bunit Ainv Binv} (f: A → B):=
+  Class Group_Morphism {Aop Bop Aunit Bunit Ainv Binv} (f: A → B):=
     { groupmor_a: @Group A Aeq Aop Aunit Ainv
     ; groupmor_b: @Group B Beq Bop Bunit Binv
     ; groupmor_monoidmor:> Monoid_Morphism f
     ; preserves_inv: `(f (- x) = - f x) }.
 
-  Class SemiRing_Morphism {Ae Be Aplus Amult Azero Aone Bplus Bmult Bzero Bone} (f: A → B) :=
-    { semiringmor_a: @SemiRing A Ae Aplus Amult Azero Aone
-    ; semiringmor_b: @SemiRing B Be Bplus Bmult Bzero Bone
-    ; semiringmor_plus_mor:> @Monoid_Morphism Ae Be Azero Bzero Aplus Bplus f
-    ; semiringmor_mult_mor:> @Monoid_Morphism Ae Be Aone Bone Amult Bmult f }.
+  Class SemiRing_Morphism {Aplus Amult Azero Aone Bplus Bmult Bzero Bone} (f: A → B) :=
+    { semiringmor_a: @SemiRing A Aeq Aplus Amult Azero Aone
+    ; semiringmor_b: @SemiRing B Beq Bplus Bmult Bzero Bone
+    ; semiringmor_plus_mor:> @Monoid_Morphism Azero Bzero Aplus Bplus f
+    ; semiringmor_mult_mor:> @Monoid_Morphism Aone Bone Amult Bmult f }.
 
-  Class Ring_Morphism {Ae Aplus Amult Aopp Azero Aone Be Bplus Bmult Bopp Bzero Bone} (f: A → B) :=
-    { ringmor_a: @Ring A Ae Aplus Amult Aopp Azero Aone
-    ; ringmor_b: @Ring B Be Bplus Bmult Bopp Bzero Bone
-    ; ringmor_groupmor:> @Group_Morphism _ _ Aplus Bplus Azero Bzero Aopp Bopp f
-    ; ringmor_monoidmor:> @Monoid_Morphism _ _ Aone Bone Amult Bmult f }.
+  Class Ring_Morphism {Aplus Amult Aopp Azero Aone Bplus Bmult Bopp Bzero Bone} (f: A → B) :=
+    { ringmor_a: @Ring A Aeq Aplus Amult Azero Aone Aopp
+    ; ringmor_b: @Ring B Beq Bplus Bmult Bzero Bone Bopp
+    ; ringmor_groupmor:> @Group_Morphism Aplus Bplus Azero Bzero Aopp Bopp f
+    ; ringmor_monoidmor:> @Monoid_Morphism Aone Bone Amult Bmult f }.
 
 End morphism_classes.
 

@@ -212,7 +212,7 @@ Hint Resolve opp_0.
     reflexivity.
    rewrite E. symmetry...
   Qed.
-  
+
   Global Instance zero_product: ZeroProduct Int.
   Proof with auto.
    intros x y E.
@@ -231,15 +231,12 @@ Hint Resolve opp_0.
       destruct (zero_product x0 x1 U); rewrite H1; rewrite preserves_0;
        [left | right | left | right | left | right | left | right]; ring.
   Qed.
-  
-  Global Instance mult_injective (x: Int): x ≠ 0 → Injective (ring_mult x).
-  Proof with intuition.
-   intros E y z U.
-   destruct (zero_product x (y + - z))...
-    rewrite distribute_l, U. ring.
-   apply equal_by_zero_sum...
-  Qed.
-  
+
+  Instance: NoZeroDivisors Int.
+  Proof. intros ? [? [? [? d]]]. destruct (zero_product _ _ d); intuition. Qed.
+
+  Global Instance: IntegralDomain Int.
+
 End contents.
 
 Section preservation. Context `{Integers A} `{Integers B} (f: A → B) `{!Ring_Morphism f}.

@@ -35,7 +35,8 @@ Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
 Class CatComp O `{Arrows O} := comp: Π {x y z}, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
 Class Order A := precedes: relation A.
 Class RalgebraAction A B := ralgebra_action: A → B → B.
-
+Class RingMultInverse {R} (x: R): Type := ring_mult_inverse: R.
+Implicit Arguments ring_mult_inverse [[R] [RingMultInverse]].
 Implicit Arguments cat_id [[O] [H] [CatId] [x]].
 Implicit Arguments decide [[Decision]].
 
@@ -57,6 +58,7 @@ Infix "*" := ring_mult.
 Notation "- x" := (group_inv x).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
 Infix "<=" := precedes.
+Notation "x ⁻¹" := (ring_mult_inverse x) (at level 30).
 Infix "◎" := comp (at level 40, left associativity).
   (* Taking over ∘ is just a little too zealous at this point. With our current
    approach, it would require changing all (nondependent) function types A → B
@@ -95,6 +97,18 @@ Class ZeroProduct A `{Equiv A} `{!RingMult A} `{!RingZero A}: Prop :=
   zero_product: `(x * y = 0 → x = 0 ∨ y = 0).
 Class ZeroNeOne A `{Equiv A} `{!RingOne A} `{!RingZero A}: Prop :=
   zero_ne_one: 0 ≠ 1.
+    (* todo: this is silly *)
+
+Class ZeroDivisor {R} `{Equiv R} `{RingZero R} `{RingMult R} (x: R): Prop
+  := zero_divisor: x ≠ 0 ∧ ∃ y, y ≠ 0 ∧ x * y = 0.
+
+Class NoZeroDivisors R `{Equiv R} `{RingZero R} `{RingMult R}: Prop
+  := no_zero_divisors x: ¬ ZeroDivisor x.
+
+Class RingUnit {R} `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInverse x}: Prop
+  := ring_unit_mult_inverse: x * x⁻¹ = 1.
+
+
 
 Instance Injective_proper `{ea: Equiv A} `{eb: Equiv B} `{!Equivalence eb}:
   Proper (pointwise_relation A eb ==> iff) (@Injective A ea B eb).

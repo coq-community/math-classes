@@ -4,7 +4,7 @@ Require Import
   Ring.
 Require Import
   Program Morphisms
-  abstract_algebra.
+  abstract_algebra canonical_names.
 
 Section group_props. Context `{Group}.
 
@@ -136,23 +136,30 @@ Section ring_props. Context `{Ring R}.
    rewrite commutativity, E. ring.
   Qed.
 
-  Class RingMultInverse (x: R): Type := ring_mult_inverse: R.
-
-  Implicit Arguments ring_mult_inverse [[RingMultInverse]].
-
-  Class RingUnit (x: R) `{RingMultInverse x}: Prop
-    := ring_unit_mult_inverse: x * ring_mult_inverse x = 1.
-
-  Definition divides_zero (x: R): Prop := ∃ y, y ≠ 0 ∧ x * y = 0.
-
-  Lemma units_dont_divide_zero `{RingUnit x}: ¬ divides_zero x.
+  Lemma units_dont_divide_zero (x: R) `{!RingMultInverse x} `{!RingUnit x}: ¬ ZeroDivisor x.
+    (* todo: we don't want to have to mention RingMultInverse *)
   Proof with try ring.
-   intros [z [z_nonzero xz_zero]].
+   intros [x_nonzero [z [z_nonzero xz_zero]]].
    apply z_nonzero.
    transitivity (1 * z)...
    rewrite <- ring_unit_mult_inverse.
    transitivity (x * z * ring_mult_inverse x)...
    rewrite xz_zero...
+  Qed.
+
+  Lemma mult_ne_zero `{!NoZeroDivisors R}: Π (x y: R), x ≠ 0 → y ≠ 0 → x * y ≠ 0.
+  Proof. repeat intro. apply (no_zero_divisors x). split; eauto. Qed.
+
+  Global Instance mult_injective `{!NoZeroDivisors R} `{Π x y, Stable (x = y)} (x: R):
+    x ≠ 0 → Injective (ring_mult x).
+      (* this is the cancellation law in disguise *)
+  Proof with intuition.
+   intros x_nonzero y z E.
+   apply stable.
+   intro U.
+   apply (mult_ne_zero x (y +- z) x_nonzero).
+    intro. apply U. apply equal_by_zero_sum...
+   rewrite distribute_l, E. ring.
   Qed.
 
 End ring_props.
