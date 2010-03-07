@@ -63,11 +63,7 @@ Section contents.
 
   Global Instance: HasProducts Object.
 
-  Global Instance mono: Π (X Y: Object) (a: X ⟶ Y), @Injective X _ Y _ (@proj1_sig _ (@Setoid_Morphism _ _ _ _) a) → Mono a.
-  Proof. (* todo: why so ugly? *)
-   intros ? ? ? ? ? ? ? E ? ? U.
-   pose proof (E _ _ U).
-   firstorder.
-  Qed.
+  Global Instance mono (X Y: Object) (a: X ⟶ Y): Injective (` a) → Mono a.
+  Proof. firstorder. Qed.
 
 End contents.
