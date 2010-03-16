@@ -124,7 +124,7 @@ Implicit Arguments Var [[V]].
 Implicit Arguments Zero [[V]].
 Implicit Arguments Mult [[V]].
 
-
+(*
 Require Import monads canonical_names.
 
 Instance: MonadReturn Expr := fun _ => Var.
@@ -195,11 +195,7 @@ Admitted.
 
 
 Instance: Monad Expr.
- constructor; try apply _.
-
- intros.
- apply (@bind_proper A _ B).
-  
+  *)
 
 
 
