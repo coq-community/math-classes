@@ -35,3 +35,5 @@ ParseDepends('deps')
 Alias('coqide', Command(['dummy'], [], 'coqide ' + Rs_and_Is + ' &'))
 
 Default('implementations', 'theory', 'categories', 'orders', 'varieties')
+
+open('coqidescript', 'w').write('#!/bin/sh\ncoqide' + Rs_and_Is + '$@\n')
