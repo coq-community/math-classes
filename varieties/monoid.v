@@ -58,8 +58,8 @@ Section from_instance.
   Proof.
    inversion_clear l; simpl.
      apply associativity.
-    apply monoid_lunit.
-   apply monoid_runit.
+    apply left_identity.
+   apply right_identity.
   Qed.
 
   Global Instance: Variety theory (fun _ => A).

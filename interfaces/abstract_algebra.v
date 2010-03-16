@@ -5,67 +5,79 @@ Require Import
 Require Export
  canonical_names util.
 
-Class Setoid A {e: Equiv A}: Prop := setoid_eq:> Equivalence (@equiv A e).
+Class LeftIdentity {A} `{Equiv B} (op: A → B → B) (x: A): Prop := left_identity: Π y, op x y = y.
+Class RightIdentity `{Equiv A} {B} (op: A → B → A) (y: B): Prop := right_identity: Π x, op x y = x.
 
-Class SemiGroup A {e: Equiv A} {op: SemiGroupOp A}: Prop :=
-  { sg_setoid:> Setoid A
-  ; sg_ass:> Associative sg_op
-  ; sg_mor:> Proper (e ==> e ==> e)%signature sg_op }.
-
-Class Monoid A `{Equiv A} {op: SemiGroupOp A} {unit: MonoidUnit A}: Prop :=
-  { monoid_semigroup:> SemiGroup A
-  ; monoid_lunit: `(mon_unit & x = x)
-  ; monoid_runit: `(x & mon_unit = x) }.
-
-Class Group A {e: Equiv A} {op: SemiGroupOp A} {unit: MonoidUnit A} {inv: GroupInv A}: Prop :=
-  { group_monoid:> Monoid A
-  ; inv_proper:> Proper (e ==> e) inv
-  ; inv_l: `(- x & x = mon_unit)
-  ; inv_r: `(x & - x = mon_unit) }.
-
-Class AbGroup A `{Equiv A} {op unit inv}: Prop :=
-  { abgroup_group:> @Group A _ op unit inv
-  ; abgroup_commutative:> Commutative op }.
+Class LeftAbsorb `{Equiv A} {B} (op: A → B → A) (x: A): Prop := left_absorb: Π y, op x y = x.
+Class RightAbsorb {A} `{Equiv B} (op: A → B → B) (y: B): Prop := right_absorb: Π x, op x y = y.
+  (* hm, can we generate left/right instances from right/left+commutativity without causing loops? *)
 
 Section upper_classes.
 
-Context A {e: Equiv A} {plus: RingPlus A} {mult: RingMult A} {zero: RingZero A} {one: RingOne A}.
+  Context A {e: Equiv A}.
 
-Class SemiRing: Prop :=
-  { semiring_mult_monoid:> Monoid A (op:=mult) (unit:=one)
-  ; semiring_plus_monoid:> Monoid A (op:=plus) (unit:=zero)
-  ; semiring_plus_comm:> Commutative plus
-  ; semiring_mult_comm:> Commutative mult
-  ; semiring_distr:> Distribute mult plus
-  ; mult_0_l: `(0 * x = 0) }.
+  Class Setoid: Prop := setoid_eq:> Equivalence (@equiv A e).
 
-Context {inv: GroupInv A}.
+  Class SemiGroup {op: SemiGroupOp A}: Prop :=
+    { sg_setoid:> Setoid
+    ; sg_ass:> Associative sg_op
+    ; sg_mor:> Proper (e ==> e ==> e)%signature sg_op }.
 
-Class Ring: Prop :=
-  { ring_group:> AbGroup A (op:=plus) (unit:=zero)
-  ; ring_monoid:> Monoid A (op:=mult) (unit:=one)
-  ; ring_mult_comm:> Commutative mult
-  ; ring_dist:> Distribute mult plus }.
+  Class Monoid {op: SemiGroupOp A} {unit: MonoidUnit A}: Prop :=
+    { monoid_semigroup:> SemiGroup
+    ; monoid_left_id:> LeftIdentity sg_op mon_unit
+    ; monoid_right_id:> RightIdentity sg_op mon_unit }.
 
-  (* For now, we follow CoRN/ring_theory's example in having Ring and SemiRing
-   require commutative multiplication. *)
+  Class Group {op: SemiGroupOp A} {unit: MonoidUnit A} {inv: GroupInv A}: Prop :=
+    { group_monoid:> Monoid
+    ; inv_proper:> Proper (e ==> e) inv
+    ; inv_l: `(- x & x = mon_unit)
+    ; inv_r: `(x & - x = mon_unit) }.
 
-Class IntegralDomain: Prop :=
-  { intdom_ring:> Ring
-  ; intdom_nontrivial:> ZeroNeOne A
-  ; intdom_nozeroes:> NoZeroDivisors A }.
+  Class AbGroup {op unit inv}: Prop :=
+    { abgroup_group:> @Group op unit inv
+    ; abgroup_commutative:> Commutative op }.
 
-Class Field {mult_inv: MultInv A}: Prop :=
-  { field_ring:> Ring
-  ; field_0neq1:> ZeroNeOne A
-  ; mult_inv_proper:> Proper (sig_relation (=) _ ==> (=)) mult_inv
-  ; mult_inverse: `(` x * // x = 1) }.
+  Context {plus: RingPlus A} {mult: RingMult A} {zero: RingZero A} {one: RingOne A}.
+
+  Class SemiRing: Prop :=
+    { semiring_mult_monoid:> Monoid (op:=mult) (unit:=one)
+    ; semiring_plus_monoid:> Monoid (op:=plus) (unit:=zero)
+    ; semiring_plus_comm:> Commutative plus
+    ; semiring_mult_comm:> Commutative mult
+    ; semiring_distr:> Distribute mult plus
+    ; semiring_left_absorb:> LeftAbsorb ring_mult 0 }.
+
+  Context {inv: GroupInv A}.
+
+  Class Ring: Prop :=
+    { ring_group:> AbGroup (op:=plus) (unit:=zero)
+    ; ring_monoid:> Monoid (op:=mult) (unit:=one)
+    ; ring_mult_comm:> Commutative mult
+    ; ring_dist:> Distribute mult plus }.
+
+    (* For now, we follow CoRN/ring_theory's example in having Ring and SemiRing
+    require commutative multiplication. *)
+
+  Class IntegralDomain: Prop :=
+    { intdom_ring:> Ring
+    ; intdom_nontrivial:> ZeroNeOne A
+    ; intdom_nozeroes:> NoZeroDivisors A }.
+
+  Class Field {mult_inv: MultInv A}: Prop :=
+    { field_ring:> Ring
+    ; field_0neq1:> ZeroNeOne A
+    ; mult_inv_proper:> Proper (sig_relation (=) _ ==> (=)) mult_inv
+    ; mult_inverse: `(` x * // x = 1) }.
 
 End upper_classes.
 
-Implicit Arguments mult_0_l [[A] [e] [plus] [mult] [zero] [one] [SemiRing]].
+Implicit Arguments inv_proper [[A] [e] [op] [unit] [inv] [Group]].
+Implicit Arguments inv_l [[A] [e] [op] [unit] [inv] [Group]].
+Implicit Arguments inv_r [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments field_0neq1 [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv] [Field]].
 Implicit Arguments mult_inverse [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv0] [Field]].
+Implicit Arguments sg_mor [[A] [e] [op] [SemiGroup]].
 
 Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
   { equ:> Equivalence e
@@ -121,8 +133,6 @@ Class Category O `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatCo
 (* todo: use my comp everywhere *)
 
 Implicit Arguments comp_assoc [[O] [Arrows0] [H] [CatId0] [CatComp0] [Category] [w] [x] [y] [z]].
-
-(* Morphism classes: *)
 
 Section morphism_classes.
 

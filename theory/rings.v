@@ -6,15 +6,18 @@ Require Import
   Program Morphisms
   abstract_algebra canonical_names.
 
+Implicit Arguments inv_l [[A] [e] [op] [unit] [inv] [Group]].
+Implicit Arguments inv_r [[A] [e] [op] [unit] [inv] [Group]].
+
 Section group_props. Context `{Group}.
 
   Lemma inv_involutive x: - - x = x.
   Proof.
-   rewrite <- (monoid_lunit x) at 2.
+   rewrite <- (monoid_left_id _ x) at 2.
    rewrite <- (inv_l (- x)).
    rewrite <- associativity.
    rewrite inv_l.
-   rewrite monoid_runit.
+   rewrite right_identity.
    reflexivity.
   Qed.
 
@@ -22,43 +25,43 @@ Section group_props. Context `{Group}.
   Proof. intros x y E. rewrite <- (inv_involutive x), <- (inv_involutive y), E. reflexivity. Qed.
 
   Lemma inv_zero: - mon_unit = mon_unit.
-  Proof. rewrite <- (inv_l mon_unit) at 2. rewrite monoid_runit. reflexivity. Qed.
+  Proof. rewrite <- (inv_l mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
 
 End group_props.
 
 Lemma sg_inv_distr `{AbGroup} x y: - (x & y) = - x & - y.
 Proof.
- rewrite <- (monoid_lunit (- x & - y)).
+ rewrite <- (left_identity (- x & - y)).
  rewrite <- (inv_l (x & y)).
  rewrite <- associativity.
  rewrite <- associativity.
  rewrite (commutativity (- x) (- y)).
  rewrite (associativity y).
  rewrite inv_r.
- rewrite monoid_lunit.
+ rewrite left_identity.
  rewrite inv_r.
- rewrite monoid_runit.
+ rewrite right_identity.
  reflexivity.
 Qed.
 
 Section semiring_props. Context `{SemiRing R}.
 
-  Lemma plus_0_r x: x + 0 = x. Proof. intros. apply (monoid_runit x). Qed.
-  Lemma plus_0_l x: 0 + x = x. Proof. intros. apply (monoid_lunit x). Qed.
-  Lemma mult_1_l: Π a, 1 * a = a. Proof. intros. apply (monoid_lunit a). Qed.
-  Lemma mult_1_r: Π a, a * 1 = a. Proof. intros. apply (monoid_runit a). Qed.
+  Global Instance plus_0_r: RightIdentity ring_plus 0 := right_identity.
+  Global Instance plus_0_l: LeftIdentity ring_plus 0 := left_identity.
+  Global Instance mult_1_l: LeftIdentity ring_mult 1 := left_identity.
+  Global Instance mult_1_r: RightIdentity ring_mult 1 := right_identity.
 
-  Lemma mult_0_r (x: R): x * 0 = 0.
-  Proof. rewrite commutativity. apply mult_0_l. Qed.
+  Global Instance mult_0_r: RightAbsorb ring_mult 0.
+  Proof. intro. rewrite commutativity. apply left_absorb. Qed.
 
   Lemma stdlib_semiring_theory: Ring_theory.semi_ring_theory 0 1 ring_plus ring_mult equiv.
   Proof with try reflexivity.
    constructor; intros.
-          apply plus_0_l.
+          apply left_identity.
          apply commutativity.
         apply associativity.
-       apply mult_1_l.
-      apply mult_0_l.
+       apply left_identity.
+      apply left_absorb.
      apply commutativity.
     apply associativity.
    apply distribute_r.
@@ -87,10 +90,10 @@ Section ring_props. Context `{Ring R}.
   Lemma stdlib_ring_theory: Ring_theory.ring_theory 0 1 ring_plus ring_mult (λ x y => x + - y) group_inv equiv.
   Proof.
    constructor; intros.
-           apply (monoid_lunit x).
+           apply left_identity.
           apply commutativity.
          apply associativity.
-        apply (monoid_lunit x).
+        apply left_identity.
        apply commutativity.
       apply associativity.
      apply distribute_r.
@@ -100,8 +103,10 @@ Section ring_props. Context `{Ring R}.
 
   Add Ring R: stdlib_ring_theory.
 
-  Global Instance Ring_Semi: SemiRing R := { mult_0_l := _ }.
+  Instance: LeftAbsorb ring_mult 0.
   Proof. intro. ring. Qed.
+
+  Global Instance Ring_Semi: SemiRing R.
 
   (* Hm, are the following really worth having as lemmas? *)
 

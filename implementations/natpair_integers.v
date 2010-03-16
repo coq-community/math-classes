@@ -66,13 +66,13 @@ Proof.
  rewrite E, E'. ring.
 Qed.
 
-Let z_plus_0_l (x: Z): 0 + x = x. Proof. ring_on_nat. Qed.
-Let z_plus_0_r (x: Z): x + 0 = x. Proof. ring_on_nat. Qed.
+Let z_plus_0_l: LeftIdentity ring_plus (0:Z). Proof. intro. ring_on_nat. Qed.
+Let z_plus_0_r: RightIdentity ring_plus (0:Z). Proof. intro. ring_on_nat. Qed.
 Let z_plus_opp_l (x: Z): -x + x = 0. Proof. ring_on_nat. Qed.
 Let z_plus_opp_r (x: Z): x + -x = 0. Proof. ring_on_nat. Qed.
 
 Global Instance: SemiGroup Z (op:=z_plus).
-Global Instance: Monoid Z (op:=z_plus) (unit:=z_zero) := { monoid_lunit := z_plus_0_l; monoid_runit := z_plus_0_r }.
+Global Instance: Monoid Z (op:=z_plus) (unit:=z_zero).
 
 (* inv is nice: *)
 
@@ -106,11 +106,11 @@ Proof with auto.
  apply z_mult_equiv_compat_r...
 Qed.
 
-Let mult_1_l (x: Z): 1 * x = x. Proof. ring_on_nat. Qed.
-Let mult_1_r (x: Z): x * 1 = x. Proof. ring_on_nat. Qed.
+Let mult_1_l: LeftIdentity ring_mult (1:Z). Proof. intro. ring_on_nat. Qed.
+Let mult_1_r: RightIdentity ring_mult (1:Z). Proof. intro. ring_on_nat. Qed.
 
 Instance: SemiGroup _ (op:=z_mult).
-Instance: Monoid Z (op:=z_mult) (unit:=z_one) := { monoid_lunit := mult_1_l; monoid_runit := mult_1_r }.
+Instance: Monoid Z (op:=z_mult) (unit:=z_one).
 Global Instance: Ring Z.
 
 Add Ring Z: (stdlib_ring_theory Z).

@@ -2,7 +2,7 @@ Global Generalizable All Variables.
 Set Automatic Introduction.
 
 Require Import
- RelationClasses Relation_Definitions Morphisms Setoid.
+ RelationClasses Relation_Definitions Morphisms Setoid Program.
 Require Export Unicode.Utf8.
 
 (* Equality *)
@@ -110,10 +110,14 @@ Class RingUnit {R} `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInver
 
 
 
-Instance Injective_proper `{ea: Equiv A} `{eb: Equiv B} `{!Equivalence eb}:
-  Proper (pointwise_relation A eb ==> iff) (@Injective A ea B eb).
+Instance Injective_proper `{ea: Equiv A} `{eb: Equiv B} `{!Equivalence eb}: (* todo: use Setoid *)
+  Proper (pointwise_relation A eb ==> iff) (@Injective A ea B eb). (* todo: use (=) here *)
 Proof with intuition.
  intros x y E. unfold pointwise_relation in E.
  split; repeat intro. apply (injective x). do 2 rewrite E... 
  apply (injective y). do 2 rewrite <- E...
 Qed. (* Todo: Find a less awkward place for this. We probably need this for the other common properties, too. *)
+
+Instance Injective_comp `{Equiv A} `{Equiv B} `{Equiv C} (g: A → B) (f: B → C):
+  Injective f → Injective g → Injective (f ∘ g).
+Proof. firstorder. Qed.

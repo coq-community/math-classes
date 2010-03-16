@@ -14,6 +14,7 @@ Instance: RingZero BinInt.Z := BinInt.Z0.
 Instance: RingOne BinInt.Z := BinInt.Zpos BinPos.xH.
 Instance: RingMult BinInt.Z := BinInt.Zmult.
 Instance: GroupInv BinInt.Z := BinInt.Zopp.
+  (* some day we'd like to do this with [Existing Instance] *)
 
 (* propers: *)
 Instance: Proper (equiv ==> equiv ==> equiv) BinInt.Zplus.
@@ -30,15 +31,17 @@ Instance: Commutative BinInt.Zplus := BinInt.Zplus_comm.
 Instance: Commutative BinInt.Zmult := BinInt.Zmult_comm.
 Instance: Distribute BinInt.Zmult BinInt.Zplus :=
   { distribute_l := BinInt.Zmult_plus_distr_r; distribute_r := BinInt.Zmult_plus_distr_l }.
+Instance: LeftIdentity BinInt.Zplus 0 := BinInt.Zplus_0_l.
+Instance: RightIdentity BinInt.Zplus 0 := BinInt.Zplus_0_r.
+Instance: LeftIdentity BinInt.Zmult 1 := BinInt.Zmult_1_l.
+Instance: RightIdentity BinInt.Zmult 1 := BinInt.Zmult_1_r.
 
 (* structures: *)
 Instance: Setoid BinInt.Z.
 Instance: SemiGroup _ (op:=BinInt.Zplus).
 Instance: SemiGroup _ (op:=BinInt.Zmult).
-Instance: Monoid _ (op:=BinInt.Zplus) (unit:=BinInt.Z0)
-  := { monoid_lunit := BinInt.Zplus_0_l; monoid_runit := BinInt.Zplus_0_r }.
-Instance: Monoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH)
-  := { monoid_lunit := BinInt.Zmult_1_l; monoid_runit := BinInt.Zmult_1_r }.
+Instance: Monoid _ (op:=BinInt.Zplus) (unit:=BinInt.Z0).
+Instance: Monoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH).
 Instance: @Group _ _ (BinInt.Zplus) (BinInt.Z0) _
   := { inv_l := BinInt.Zplus_opp_l; inv_r := BinInt.Zplus_opp_r }.
 Instance: AbGroup BinInt.Z (op:=BinInt.Zplus) (unit:=BinInt.Z0).

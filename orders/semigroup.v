@@ -31,7 +31,7 @@ Proof. intros [z p]. exists (f z). rewrite <- preserves_sg_op. rewrite p. reflex
 Section monoid. Context `{Monoid M}. (* On monoids, sg_precedes is a preorder. *)
 
   Global Instance: Reflexive sg_precedes.
-  Proof. unfold sg_precedes. exists mon_unit. apply monoid_runit. Qed.
+  Proof. unfold sg_precedes. exists mon_unit. apply right_identity. Qed.
 
   Global Instance: PreOrder sg_precedes.
 

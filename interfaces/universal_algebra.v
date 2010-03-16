@@ -116,7 +116,7 @@ Inductive Signature: Type :=
 
 (* We now introduce additional things in order to let us eventually define equational theories and varieties. *)
 
-Section for_signature. Variable sign: Signature.
+Section for_signature. Variable sign: Signature. (* todo: rename: \sigma *)
 
   (* Let sorts := sorts sign.  -- cleaner but causes problems, test case presented to mattam *)
   Let OpType := OpType (sorts sign).
@@ -125,13 +125,12 @@ Section for_signature. Variable sign: Signature.
 
   Class AlgebraOps (A: sorts sign → Type) := algebra_op: Π o, op_type _ A (sign o).
 
-  Class Algebra
+  Class Algebra (* todo: rename \sigma-algebra *)
       (carriers: sorts sign → Type)
       {e: Π a, Equiv (carriers a)}
       `{AlgebraOps carriers}: Prop :=
     { algebra_setoids:> Π a, Setoid (carriers a)
-    ; algebra_propers:> Π o: sign, Proper equiv (algebra_op o)
-    }.
+    ; algebra_propers:> Π o: sign, Proper equiv (algebra_op o) }.
 
   (* As an aside: given two implementations in different realizations of the sorts, and a map between
    them for each sort, we can say what it means for that map to preserve the algebra's operations,
@@ -436,8 +435,8 @@ Record EquationalTheory :=
   { et_sig:> Signature
   ; et_laws:> EqEntailment et_sig → Prop }.
 
-Class Variety
-  (et: EquationalTheory)
+Class Variety (* todo: rename \tau-algebra *)
+  (et: EquationalTheory) (* todo: rename \tau *)
   (carriers: sorts et → Type)
   {e: Π a, Equiv (carriers a)}
   `{!AlgebraOps et carriers}: Prop :=

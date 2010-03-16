@@ -27,8 +27,8 @@ End initial_maps.
 
 Instance: Params (@integers_to_ring) 8.
 
-Class Integers A {e plus mult opp zero one} `{IntegersToRing A} :=
-  { integers_ring:> @Ring A e plus mult opp zero one
+Class Integers A {e plus mult zero one opp} `{IntegersToRing A} :=
+  { integers_ring:> @Ring A e plus mult zero one opp
   ; integers_to_ring_mor:> Π `{Ring B}, Ring_Morphism (integers_to_ring A B)
   ; integers_initial:> Initial (ring.object A) }.
 

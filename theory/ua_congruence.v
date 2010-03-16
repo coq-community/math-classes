@@ -119,9 +119,8 @@ Section contents. Variable et: Signature.
   (* This justifies the following definition of a congruence: *)
 
   Class Congruence: Prop :=
-    { congruence_proper:> Π s, Proper (equiv ==> equiv ==> iff) (e s)
-    ; congruence_quotient:> @Algebra et v e _
-    }.
+    { congruence_proper:> Π s: sorts et, Proper (equiv ==> equiv ==> iff) (e s)
+    ; congruence_quotient:> Algebra et v (e:=e) }.
 
   (* Todo: Show that congruences yield varieties, too. *)
 

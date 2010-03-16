@@ -17,10 +17,9 @@ Proof.
 Qed.
 
 Lemma to_semiring_unique' `{Naturals N} `{SemiRing SR} (f g: N → SR):
- SemiRing_Morphism f → SemiRing_Morphism g ->
-   Π x, f x = g x.
+ SemiRing_Morphism f → SemiRing_Morphism g → f = g.
 Proof.
- intros.
+ intros. intro.
  rewrite (to_semiring_unique _ f _).
  rewrite (to_semiring_unique _ g _).
  reflexivity.

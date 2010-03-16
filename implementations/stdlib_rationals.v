@@ -18,11 +18,14 @@ Instance: Commutative Qplus := Qplus_comm.
 Instance: Associative Qplus := Qplus_assoc.
 Instance: Associative Qmult := Qmult_assoc.
 Instance: Commutative Qmult := Qmult_comm.
+Instance: LeftIdentity Qplus 0 := Qplus_0_l.
+Instance: RightIdentity Qplus 0 := Qplus_0_r.
+Instance: LeftIdentity Qmult 1 := Qmult_1_l.
+Instance: RightIdentity Qmult 1 := Qmult_1_r.
 Instance: Transitive Qle := Qle_trans.
 Instance: Reflexive Qle := Qle_refl.
 Instance Qle_PreOrder: PreOrder Qle.
 Instance: AntiSymmetric Qle := Qle_antisym.
-Instance: PartialOrder Qle.
 
 Lemma Qplus_opp_l x: Qplus (-x) x = 0%Q.
 Proof. intros. rewrite commutativity. apply Qplus_opp_r. Qed.
@@ -30,11 +33,11 @@ Proof. intros. rewrite commutativity. apply Qplus_opp_r. Qed.
 (* division: *)
 
 Program Instance: MultInv Q := Qinv.
-
+(*
 Lemma Qmult_inv_r' x: proj1_sig x * mult_inv x = 1.
 Proof. destruct x. apply Qmult_inv_r. assumption. Qed.
-
-Instance: Proper (sig_relation equiv _ ==> equiv) mult_inv.
+*)
+Instance: Proper (sig_relation equiv _ ==> equiv) (_: MultInv Q).
 Proof. 
  unfold sig_relation. intros [x p] [y q]. simpl. intro E.
  change (/ x = / y)%Q. rewrite E. reflexivity.
@@ -44,14 +47,21 @@ Qed.
 Instance: Setoid Q.
 Instance: SemiGroup _ (op:=Qplus).
 Instance: SemiGroup _ (op:=Qmult).
-Instance: Monoid Q (op:=Qplus) (unit:=0%Q) := { monoid_lunit := Qplus_0_l; monoid_runit := Qplus_0_r }.
-Instance: Monoid Q (op:=Qmult) (unit:=1%Q) := { monoid_lunit := Qmult_1_l; monoid_runit := Qmult_1_r }.
+Instance: Monoid Q (op:=Qplus) (unit:=0%Q).
+Instance: Monoid Q (op:=Qmult) (unit:=1%Q).
+Instance: PartialOrder Qle.
 Instance: @Group Q q_equiv Qplus 0%Q Qopp := { inv_r := Qplus_opp_r; inv_l := Qplus_opp_l }.
 Instance: AbGroup Q (op:=Qplus) (unit:=0%Q).
 Instance: Distribute Qmult Qplus := { distribute_l := Qmult_plus_distr_r; distribute_r := Qmult_plus_distr_l }.
 Instance: Ring Q.
 Instance: ZeroNeOne Q. Proof. discriminate. Qed.
-Instance: Field Q := { mult_inverse := Qmult_inv_r' }.
+Instance: Field Q.
+Proof.
+ constructor; try apply _.
+ intros [A B].
+ apply Qmult_inv_r.
+ assumption.
+Qed.
 Instance: Order Q := Qle.
 
 Instance: RingOrder q_equiv Qplus Qmult 0%Q Qle.

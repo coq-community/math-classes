@@ -26,8 +26,13 @@ Instance: Distribute BinPos.Pmult BinPos.Pplus :=
 Instance: Setoid BinPos.positive.
 Instance: SemiGroup _ (op:=BinPos.Pplus).
 Instance: SemiGroup _ (op:=BinPos.Pmult).
-Instance: Monoid _ (op:=BinPos.Pmult) :=
-  { monoid_lunit := λ _ => @refl_equal _ _; monoid_runit := BinPos.Pmult_1_r }.
+
+Instance: LeftIdentity BinPos.Pmult (1%positive).
+Proof. repeat intro. reflexivity. Qed.
+
+Instance: RightIdentity BinPos.Pmult (1%positive) := BinPos.Pmult_1_r.
+
+Instance: Monoid _ (op:=BinPos.Pmult).
 
 (* misc: *)
 Instance positive_eq_dec: Π x y, Decision (x = y) := BinPos.positive_eq_dec.

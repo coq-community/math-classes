@@ -43,10 +43,10 @@ Section contents.
    apply (integers_initial _ a tt x).
   Qed.
 
-  Lemma integers_to_ring_unique' R `{Ring R} (f g: Int → R) {h: Ring_Morphism f} {u: Ring_Morphism g}:
-   Π x, f x = g x.
+  Lemma integers_to_ring_unique' R `{Ring R} (f g: Int → R) `{!Ring_Morphism f} `{!Ring_Morphism g}:
+    f = g.
   Proof.
-   intros.
+   intros. intro.
    rewrite (integers_to_ring_unique R f), (integers_to_ring_unique R g).
    reflexivity.
   Qed.
@@ -236,6 +236,14 @@ Hint Resolve opp_0.
   Proof. intros ? [? [? [? d]]]. destruct (zero_product _ _ d); intuition. Qed.
 
   Global Instance: IntegralDomain Int.
+
+  Lemma two_nonzero: 1+1 ≠ 0.
+  Proof.
+   intro E. apply zero_ne_one.
+   symmetry. apply eq_opp_self.
+   apply (injective (ring_plus 1)).
+   rewrite E. ring.
+  Qed.
 
 End contents.
 

@@ -28,13 +28,19 @@ Instance: Commutative plus := Plus.plus_comm.
 Instance: Commutative mult := Mult.mult_comm.
 Instance: Distribute mult plus :=
   { distribute_l := Mult.mult_plus_distr_l; distribute_r := Mult.mult_plus_distr_r }.
+Instance: LeftIdentity plus 0 := Plus.plus_0_l.
+Instance: RightIdentity plus 0 := Plus.plus_0_r.
+Instance: LeftIdentity mult 1 := Mult.mult_1_l.
+Instance: RightIdentity mult 1 := Mult.mult_1_r.
+Instance: LeftAbsorb mult 0 := Mult.mult_0_l.
 
+(* structures: *)
 Instance: Setoid nat.
 Instance: SemiGroup nat (op:=plus).
 Instance: SemiGroup nat (op:=mult).
-Instance: Monoid _ (op:=plus) (unit:=0%nat) := { monoid_lunit := Plus.plus_0_l; monoid_runit := Plus.plus_0_r }.
-Instance: Monoid _ (op:=mult) (unit:=1%nat) := { monoid_lunit := Mult.mult_1_l; monoid_runit := Mult.mult_1_r }.
-Instance nat_semiring: SemiRing nat := { mult_0_l := Mult.mult_0_l }.
+Instance: Monoid _ (op:=plus) (unit:=0%nat).
+Instance: Monoid _ (op:=mult) (unit:=1%nat).
+Instance nat_semiring: SemiRing nat.
 
 (* misc *)
 Global Instance: Π x y: nat, Decision (x = y) := Peano_dec.eq_nat_dec.

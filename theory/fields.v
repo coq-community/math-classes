@@ -3,7 +3,7 @@ Set Automatic Introduction.
 Require
   Field_theory.
 Require Import
-  Morphisms Ring Field
+  Morphisms Ring Program Field
   abstract_algebra theory.rings.
 
 Section dec_mult_inv.
@@ -24,10 +24,41 @@ Section dec_mult_inv.
 
 End dec_mult_inv.
 
-Section field_props. Context `{Field F} `{Π x y: F, Decision (x = y)}.
+Section field_props. Context `{Field F}.
 
   Lemma mult_inverse': Π x p, x * // exist _ x p = 1.
   Proof. intros. apply (mult_inverse (exist _ _ _)). Qed.
+
+  Instance: NoZeroDivisors F.
+  Proof.
+   intros x [x_nonzero [y [y_nonzero E]]].
+   apply x_nonzero.
+   rewrite <- mult_1_r. rewrite <- (mult_inverse' y y_nonzero).
+   rewrite associativity, E. apply left_absorb.
+  Qed.
+
+  Global Instance: IntegralDomain F.
+
+  Add Ring R: (stdlib_ring_theory F).
+
+  Lemma equal_quotients (a c: F) b d: a * ` d = c * ` b <-> a *// b = c *// d.
+  Proof with try ring.
+   split; intro E.
+    transitivity (1 * (a * // b))...
+    rewrite <- (mult_inverse d).
+    transitivity (// d * (a * `d) * // b)...
+    rewrite E.
+    transitivity (// d * c * (`b * // b))...
+    rewrite mult_inverse...
+   transitivity (a * `d * 1)...
+   rewrite <- (mult_inverse b).
+   transitivity (a * // b * `d * ` b)...
+   rewrite E.
+   transitivity (c * (`d * // d) * `b)...
+   rewrite mult_inverse...
+  Qed. (* todo: should be cleanable *)
+
+  Context `{Π x y: F, Decision (x = y)}.
 
   Definition stdlib_field_theory:
     Field_theory.field_theory 0 1 ring_plus ring_mult (λ x y => x + - y)
@@ -47,17 +78,10 @@ Section field_props. Context `{Field F} `{Π x y: F, Decision (x = y)}.
 
   Add Field F: stdlib_field_theory.
 
-  Lemma mult_reg_l x: x ≠ 0 → (Π y z: F, x * y = x * z → y = z).
+  Lemma dec_mult_inverse (x: F): x ≠ 0 → x * / x = 1.
   Proof.
-   intros E y z G.
-   rewrite <- mult_1_l.
-   rewrite <- (mult_inverse (exist _ x E)).
-   simpl.
-   rewrite (commutativity x).
-   rewrite <- associativity, G, associativity.
-   rewrite (commutativity _ x).
-   rewrite (mult_inverse (exist _ x E)).
-   ring.
+   unfold dec_mult_inv. destruct decide. intuition.
+   intros. apply (mult_inverse (exist _ x _)).
   Qed.
 
   Global Instance: ZeroProduct F.
@@ -65,13 +89,7 @@ Section field_props. Context `{Field F} `{Π x y: F, Decision (x = y)}.
    intros x y E.
    destruct (decide (x = 0)) as [? | P]. intuition.
    rewrite <- (mult_0_r x) in E.
-   right. apply (mult_reg_l x P _ _ E).
-  Qed.
-
-  Lemma dec_mult_inverse (x: F): x ≠ 0 → x * / x = 1.
-  Proof.
-   unfold dec_mult_inv. destruct decide. intuition.
-   intros. apply (mult_inverse (exist _ x _)).
+   right. apply (mult_injective x P _ _ E).
   Qed.
 
   Lemma inv_0: / 0 = 0.
@@ -79,8 +97,8 @@ Section field_props. Context `{Field F} `{Π x y: F, Decision (x = y)}.
 
   Lemma dec_mult_inv_distr (x y: F): / (x * y) = / x * / y.
   Proof.
-   destruct (decide (x = 0)) as [E|E]. rewrite E, mult_0_l, inv_0. ring.
-   destruct (decide (y = 0)) as [G|G]. rewrite G, mult_0_r, inv_0. ring.
+   destruct (decide (x = 0)) as [E|E]. rewrite E, left_absorb, inv_0. ring.
+   destruct (decide (y = 0)) as [G|G]. rewrite G, right_absorb, inv_0. ring.
    field. intuition.
   Qed.
 
