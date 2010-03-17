@@ -28,3 +28,5 @@ Directory structure:
 The reason we treat categories and varieties differently from other structures
 (like groups and rings) is that they are like meta-interfaces whose implementations
 are not concrete data structures and algorithms but are themselves abstract structures.
+
+To be able to distinguish the various arrows, we recommend using a variable width font.
