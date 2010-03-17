@@ -19,6 +19,9 @@ Notation "x ≠ y":= (~ equiv x y): type_scope.
 Infix "≡" := eq (at level 70, no associativity).
   (* Hm, we could define a very low priority Equiv instance for Leibniz equality.. *)
 
+Instance ext_eq (A B: Type) `(Equiv B): Equiv (A → B)
+  := λ (f g: A → B) => Π x, f x = g x.
+
 (* Other canonically named relations/operations/constants: *)
 Class Decision P := decide: sumbool P (~ P).
 Class SemiGroupOp A := sg_op: A → A → A.
@@ -78,10 +81,18 @@ Notation "/ x" := (dec_mult_inv x).
 Class Commutative `{Equiv B} `(m: A → A → B): Prop := commutativity: `(m x y = m y x).
 Class Associative `{Equiv A} (m: A → A → A): Prop := associativity: `(m x (m y z) = m (m x y) z).
 Class Injective `{ea: Equiv A} `{eb: Equiv B} (f: A → B): Prop := injective: `(f x = f y → x = y).
-Class Surjective {A} `{Equiv B} (f: A → B): Prop := surjective: Π x: B, exists y, f y = x.
-Class Bijective `{ea: Equiv A} `{eb: Equiv B} (f: A → B): Prop :=
+Class Surjective {A} `{Equiv B} (f: A → B): Type := surjective: Π x: B, sigT (λ y => f y = x).
+  (* Note: sigT rather than exist(!) *)
+Class Bijective `{ea: Equiv A} `{eb: Equiv B} (f: A → B): Type :=
   { bijective_injective:> Injective f
   ; bijective_surjective:> Surjective f }.
+
+Class Inv `(A → B): Type := inv: B → A.
+
+Class BijectiveInv `{ea: Equiv A} `{eb: Equiv B} (f: A → B) `{!Inv f}: Prop :=
+  { inv_l: inv ∘ f = id
+  ; inv_r: f ∘ inv = id}.
+
 Class AntiSymmetric `{ea: Equiv A} (R: relation A): Prop := antisymmetry: `(R x y → R y x → x = y).
 Class Distribute `{Equiv A} (f g: A → A → A): Prop :=
   { distribute_l: `(f a (g b c) = g (f a b) (f a c))

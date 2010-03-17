@@ -79,7 +79,7 @@ Global Instance: Monoid Z (op:=z_plus) (unit:=z_zero).
 Instance: Proper (z_equiv ==> z_equiv) z_inv.
 Proof. unfold z_equiv, z_inv. intros x y E. simpl. rewrite commutativity, <- E. ring. Qed.
 
-Global Instance: @Group Z _ (z_plus) (z_zero) _ := { inv_l := z_plus_opp_l; inv_r := z_plus_opp_r }.
+Global Instance: @Group Z _ (z_plus) (z_zero) _ := { ginv_l := z_plus_opp_l; ginv_r := z_plus_opp_r }.
 Global Instance: AbGroup Z (op:=z_plus) (unit:=z_zero).
 
 (* mult is nice: *)

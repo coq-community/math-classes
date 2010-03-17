@@ -114,4 +114,4 @@ Section field_props. Context `{Field F}.
 
 End field_props.
 
-Implicit Arguments stdlib_field_theory [[e] [plus0] [mult0] [inv] [zero] [one] [mult_inv0] [H] [H0]].
+Implicit Arguments stdlib_field_theory [[e] [plus0] [mult0] [inv0] [zero] [one] [mult_inv0] [H] [H0]].

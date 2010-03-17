@@ -5,18 +5,18 @@ Require Import
 Require Import
   Program Morphisms
   abstract_algebra canonical_names.
-
-Implicit Arguments inv_l [[A] [e] [op] [unit] [inv] [Group]].
+(*
+Implicit Arguments ginv_l [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments inv_r [[A] [e] [op] [unit] [inv] [Group]].
-
+*)
 Section group_props. Context `{Group}.
 
   Lemma inv_involutive x: - - x = x.
   Proof.
    rewrite <- (monoid_left_id _ x) at 2.
-   rewrite <- (inv_l (- x)).
+   rewrite <- (ginv_l (- x)).
    rewrite <- associativity.
-   rewrite inv_l.
+   rewrite ginv_l.
    rewrite right_identity.
    reflexivity.
   Qed.
@@ -25,21 +25,21 @@ Section group_props. Context `{Group}.
   Proof. intros x y E. rewrite <- (inv_involutive x), <- (inv_involutive y), E. reflexivity. Qed.
 
   Lemma inv_zero: - mon_unit = mon_unit.
-  Proof. rewrite <- (inv_l mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
+  Proof. rewrite <- (ginv_l mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
 
 End group_props.
 
 Lemma sg_inv_distr `{AbGroup} x y: - (x & y) = - x & - y.
 Proof.
  rewrite <- (left_identity (- x & - y)).
- rewrite <- (inv_l (x & y)).
+ rewrite <- (ginv_l (x & y)).
  rewrite <- associativity.
  rewrite <- associativity.
  rewrite (commutativity (- x) (- y)).
  rewrite (associativity y).
- rewrite inv_r.
+ rewrite ginv_r.
  rewrite left_identity.
- rewrite inv_r.
+ rewrite ginv_r.
  rewrite right_identity.
  reflexivity.
 Qed.
@@ -98,7 +98,7 @@ Section ring_props. Context `{Ring R}.
       apply associativity.
      apply distribute_r.
     reflexivity.
-   apply (inv_r x).
+   apply (ginv_r x).
   Qed.
 
   Add Ring R: stdlib_ring_theory.
@@ -169,7 +169,8 @@ Section ring_props. Context `{Ring R}.
 
 End ring_props.
 
-Implicit Arguments stdlib_ring_theory [[e] [plus0] [mult0] [inv] [zero] [one] [H]].
+Implicit Arguments stdlib_ring_theory [[e] [plus0] [mult0] [inv0] [zero] [one] [H]].
+  (* todo: we shouldn't have to say things like "plus0" here. *)
 
 Section ringmor_props. Context `{Ring_Morphism A B f}.
 

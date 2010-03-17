@@ -31,8 +31,8 @@ Section upper_classes.
   Class Group {op: SemiGroupOp A} {unit: MonoidUnit A} {inv: GroupInv A}: Prop :=
     { group_monoid:> Monoid
     ; inv_proper:> Proper (e ==> e) inv
-    ; inv_l: `(- x & x = mon_unit)
-    ; inv_r: `(x & - x = mon_unit) }.
+    ; ginv_l: `(- x & x = mon_unit)
+    ; ginv_r: `(x & - x = mon_unit) }.
 
   Class AbGroup {op unit inv}: Prop :=
     { abgroup_group:> @Group op unit inv
@@ -73,8 +73,8 @@ Section upper_classes.
 End upper_classes.
 
 Implicit Arguments inv_proper [[A] [e] [op] [unit] [inv] [Group]].
-Implicit Arguments inv_l [[A] [e] [op] [unit] [inv] [Group]].
-Implicit Arguments inv_r [[A] [e] [op] [unit] [inv] [Group]].
+Implicit Arguments ginv_l [[A] [e] [op] [unit] [inv] [Group]].
+Implicit Arguments ginv_r [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments field_0neq1 [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv] [Field]].
 Implicit Arguments mult_inverse [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv0] [Field]].
 Implicit Arguments sg_mor [[A] [e] [op] [SemiGroup]].

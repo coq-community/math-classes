@@ -50,7 +50,7 @@ Instance: SemiGroup _ (op:=Qmult).
 Instance: Monoid Q (op:=Qplus) (unit:=0%Q).
 Instance: Monoid Q (op:=Qmult) (unit:=1%Q).
 Instance: PartialOrder Qle.
-Instance: @Group Q q_equiv Qplus 0%Q Qopp := { inv_r := Qplus_opp_r; inv_l := Qplus_opp_l }.
+Instance: @Group Q q_equiv Qplus 0%Q Qopp := { ginv_r := Qplus_opp_r; ginv_l := Qplus_opp_l }.
 Instance: AbGroup Q (op:=Qplus) (unit:=0%Q).
 Instance: Distribute Qmult Qplus := { distribute_l := Qmult_plus_distr_r; distribute_r := Qmult_plus_distr_l }.
 Instance: Ring Q.
