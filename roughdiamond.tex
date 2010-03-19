@@ -1,4 +1,4 @@
-\documentclass[a4paper,10pt]{llncs}
+\documentclass{llncs}
 \usepackage{url}
 \usepackage{bbm}
 \usepackage[utf8x]{inputenc}
@@ -32,14 +32,15 @@ monoids? 2. Sharing of notations.
 Several solutions have been proposed for the Coq theorem prover%~\cite{Coq,BC04}
 : dependent
 records~\cite{DBLP:journals/jsc/GeuversPWZ02} (a.k.a.\ telescopes), packed classes~\cite{Packed} and
-occasionally modules. Although the latter option is quickly discarded%
+occasionally modules. Although the latter option is quickly discarded
 \footnote{Modules are not first class, but currently they seem to be superior for extraction
 purposes%~\cite{letouzey02}%
 .}, considering
 algebraic theories as `interfaces', as opposed to `modules', has been an important
 guiding principle~\cite{Packed}.
 
-In this fashion we implement\footnote{The sources are available at:~\url{http://www.eelis.net/research/math-classes/}}%
+In this fashion we implement\footnote{The sources are available
+at:~\url{http://www.eelis.net/research/math-classes/}}
  algebraic theories as type classes, not instances, thus addressing the
 challenges above; see Section~\ref{classes}. Type classes have recently entered Coq~\cite{DBLP:conf/tphol/SozeauO08}. In Coq
 type classes are \emph{first class} citizens based on dependent records. The presence of dependent types makes them even more
@@ -56,9 +57,12 @@ Coq's type classes are well integrated with setoid-rewriting~\cite{Setoid-rewrit
 % Would module like extraction be possible?}.
 
 We abstract from concrete algebra and formalize many-sorted universal algebra, including a construction of
-free $\Sigma$-algebras; Section~\ref{univ}. Finally, we are concerned with efficiency. So, we would like to replace data structures with more efficient ones. For instance, 
-Coq provides unary, binary and machine numbers. Hence, we use ad-hoc polymorphism with type classes to
-develop a unified library for them; see Section~\ref{modul}. The interfaces for $\N$, $\Z,\Q$ are the initial semiring, the initial ring and a field of fractions; see Section~\ref{interfaces}.
+free $\Sigma$-algebras; Section~\ref{univ}. We intend to use the current work as a basis for
+a library for computational analysis.  Thus we want to be able to replace data structures
+with more efficient ones. For instance, Coq provides unary, binary and machine numbers. We
+use ad-hoc polymorphism with type classes to develop a unified library for them. The interfaces for
+$\N$, $\Z,\Q$ are the initial semiring, the initial ring and a field of fractions; see
+Section~\ref{interfaces}.
 
 %Our contributions are:\footnote{The sources are available at:~\url{http://www.eelis.net/research/math-classes/}}%
 %\begin{itemize}\itemsep=0pt
@@ -131,10 +135,10 @@ After having implemented concrete algebraic structures, we generalized some of o
 by implementing many-sorted universal algebra. A formalization of universal algebra
 already exists in Coq~\cite{DBLP:conf/tphol/Capretta99}. We have conveniently redeveloped most of it
 using type classes, moreover we have added a categorical framework. For instance, we show that the
-term-algebra for a signature is initial. We defined equational theories and their varieties:
-the categories of their models. A quote function helps to translate a statement for an instance of
-a type class to a statement in the equational logic. We are currently pursuing quoting with
-unification~\cite{Hints} using type classes.
+term-algebra for a signature is initial. We defined equational theories and their categories of
+their models. A quote function helps to translate a statement for an instance of
+a type class to a statement in the equational logic. We have a prototype automatic quoting mechanism
+using type classes similar to that using unification hints~\cite{Hints} .
 
 We plan to include the first homomorphism theorem and perhaps the soundness theorem for equational
 logic
@@ -159,7 +163,7 @@ semiring structure, is assigned priority 10.
 \begin{code}
   Global Program Instance: NatDistance N | 10 := ...
 \end{code}
-\vspace*{-5ex}
+
 \section{Conclusions}
 Telescopes have been criticized~\cite{Packed} for the lack of multiple inheritance and
 the efficiency penalty of a long chain of coercion projections. Packed classes~\cite{Packed} provide
@@ -167,12 +171,13 @@ a solution to these problems. We provide an alternative solution. We have alread
 discussed multiple inheritance in Section~\ref{hierarchy}. Moreover, by exposing the
 carrier we avoid the chains of projections.
 
-Packed classes use canonical structures for the algebraic hierarchy. Both canonical structures and
+Packed classes use canonical structures for the algebraic hierarchy and a uniform notation. Both
+canonical structures and
 type classes may be seen as instances of hints in unification~\cite{Hints}. Some uses of canonical
 structures can be replaced by type class instances. The user manual (2.7.15) uses canonical
 structures to derive the setoid equality on the natural
-numbers in the following example |(S x)==(S y)|. We have conveniently reimplemented this with
-type classes with superior proof terms. Canonical structures give 
+numbers in the following example |(S x)==(S y)|. We have reimplemented this with
+type classes with similar proof terms. Canonical structures give
 \begin{code}
 @equiv(Build_Setoid nat (@eq nat)(@eq_equivalence nat))(S x)(S y)
 \end{code}
@@ -180,17 +185,12 @@ type classes with superior proof terms. Canonical structures give
 which includes an explicit proof that |(@eq nat)| is an equivalence,
 whereas we obtain |@equiv nat (@eq nat) (S x) (S y)|.
 
-According to |coqwc|, our development consists of 3103 lines of specifications and 707 lines of
-proofs. %targz
+According to |coqwc|, our development consists of 4479 lines of specifications and 722 lines of
+proofs.
 
-% \section{Other systems}
-% We will provide a fuller comparison with other systems at a later stage.
-% We specifically mention recent work on unification hints in Matita~\cite{Hints}. They however, do
-% not address the challenge of proofs in mathematical structures.
 \paragraph{Acknowledgements.}
 We would like to thank Matthieu Sozeau for discussions and quickly solving numerous small bugs and
-feature requests. %Jeremy,Thierry, Claudio, Georges?, Wouter
-%\enlargethispage{5mm}
+feature requests. 
 \bibliographystyle{plain}
 \bibliography{alg}
 \end{document}
