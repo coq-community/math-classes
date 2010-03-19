@@ -1,23 +1,28 @@
-\documentclass[a4paper,10pt, runningheads]{llncs}
+\documentclass[a4paper,10pt,runningheads]{llncs}
 \usepackage{url}
 \usepackage{bbm}
-\usepackage{ucs}
 \usepackage{amsmath}
-% \usepackage[utf8x,utf8]{inputenc}
+\usepackage[utf8x]{inputenx}
 \newcommand{\N}{\ensuremath{\mathbbm{N}}}
 \newcommand{\Z}{\ensuremath{\mathbbm{Z}}}
 \newcommand{\Q}{\ensuremath{\mathbbm{Q}}}
+%include polycode.fmt
 %include coq2tex.tex
 \arrayhs%i.e. no page breaks in code blocks
 \divide\abovedisplayskip 4
 \divide\belowdisplayskip 4
+\newcommand{\textPi}{\ensuremath\Pi}
+\newcommand{\textSigma}{\ensuremath\Sigma}
+\newcommand{\texttau}{\ensuremath\tau}
+% \newcommand{\textforall}{\ensuremath\forall}
 \begin{document}
 \title{DRAFT: The algebraic hierarchy in type theory using type classes}
 \author{Bas Spitters \and Eelis van der Weegen}
 \institute{Radboud University Nijmegen}
 \maketitle
 \begin{abstract}
-We propose generic design patterns to organize algebraic structures using type classes inside the
+We\footnote{\today} propose generic design patterns to organize algebraic structures using
+type classes inside the
 Coq system. We support multiple inheritance, sharing of notations and theories, and automated
 structure inference. A library for many-sorted universal algebra abstracts from the specific
 algebraic structures and aids the organization of the library. Category theory provides a further
@@ -92,17 +97,21 @@ Matita~\cite{asperti2007user}.
 \section{Preliminaries}
 \subsection{Coq type theory}
 The Coq proof assistant is based on the calculus of inductive
-constructions~\cite{CoquandHuet,CoquandPaulin}.\marginpar{More}
-This type theory lacks quotient types, as it would make type checking undecidable. Instead it
+constructions~\cite{CoquandHuet,CoquandPaulin}, a dependent type theory with (co)inductive types.
+We will not elaborate on this, but instead refer to~\cite{Coq,BC04}.
+
+The Coq type theory lacks quotient
+types, as it would make type checking undecidable. Instead it
 supports setoids (aka Bishop sets), a pair of a type and an equivalence
-relation~\cite{Bishop67,Hofmann,Capretta}. Recently, improved support has been added to the
-system~\cite{Setoid-rewrite}. Functions respecting these equivalence relations are called |Proper|.
+relation~\cite{Bishop67,Hofmann,Capretta}. Recently, improved support for setoid has been added to
+the system~\cite{Setoid-rewrite}. Functions respecting these equivalence relations are called
+|Proper|.
 As we will see in Section~\ref{univ} below this functionality can also be used to work with
 quotient algebras.
 
 Coq has two kinds of sorts |Prop| for propostions and |Type| for data types. Coq
-is scheduled to support proof irrelevance: every |p,q:P:Prop| are
-convertible in the future; see section~\ref{PI}.
+is scheduled to support proof irrelevance, every |p,q:P:Prop| are
+convertible, in the future; see section~\ref{PI}.
 
 % \subsection{Type classes}
 % Implementation in Ltac, Notation etc\\
@@ -110,6 +119,7 @@ convertible in the future; see section~\ref{PI}.
 % Unification hints
 
 \section{To bunde or not to bundle? (Or: What to bundle?)}
+We provide a rationale for our approach. We begin gently.
 
 How should we define reflexive, transitive, and symmetric relations? In a first attempt, we
 might define:
@@ -118,23 +128,24 @@ might define:
 \begin{code}
   Record ReflexiveRelation: Type :=
     { rr_carrier: Type
-    ; rr_rel: rr_carrier → rr_carrier → Prop
+    ; rr_rel: relation rr_carrier
     ; rr_proof: Π x, rr_rel x x }.
 \end{code}
 and similar for transitive and symmetric relations.
 
-With this approach, we run into problems when we try to define |EquivalenceRelation| in terms of
+With this approach, we run into problems when defining |EquivalenceRelation| in terms of
 |ReflexiveRelation| and its two siblings, because when posit three objects of type
 |ReflexiveRelation|, |TransitiveRelation|, and |SymmetricRelation|, respectively, we have to
-add equalities expressing that they talk about the same carrier and relation, and these equalities
-are a nightmare to work with (because the three carriers and relations won't be convertible).
-Technically, this leads to the research in manifest fields, the \emph{with} construction, to which
+add equalities expressing that they talk about the same carrier and relation. These equalities
+cause difficulties, because the three carriers and relations won't be convertible.
+Technically, this leads to the research in manifest fields, i.e.\ the \emph{with} construction, to
+which
 we return in Section~\ref{manifest}.
 
 As a first step we would define |ReflexiveRelation| as:
 \begin{code}
   Record ReflexiveRelation (carrier: Type): Type :=
-    { rr_rel: rr_carrier → rr_carrier → Prop
+    { rr_rel: relation rr_carrier
     ; rr_proof: Π x, rr_rel x x }.
 \end{code}
 
@@ -153,26 +164,27 @@ for the relation:
 A natural solution is to pull the relation out of |ReflexiveRelation| (and its siblings) as well:
 \begin{code}
   Record ReflexiveRelation (carrier: Type)
-                           (rel: carrier → carrier → Prop): Prop :=
+                           (rel: relation carrier): Prop :=
     { rr_proof: Π x, rr_rel x x }.
 \end{code}
 or equivalently:
 \begin{code}
   Definition ReflexiveRelation (carrier: Type)
-                               (rel: carrier → carrier → Prop): Prop :=
+                               (rel: relation carrier): Prop :=
     Π x, rr_rel x x.
 \end{code}
 This is how reflexivity is defined in the standard library, and this is entirely sensible. The
 change from |Type| to |Prop| reflects the fact that |ReflexiveRelation| is now strictly a property,
 proofs of which can be nicely kept opaque;%
 \footnote{Coq distinguishes between transparent and opague definitions. The former can be unfolded,
-whereas this is impossible for the latter.}
+whereas this is impossible for the latter. Since we never need to distinguish between two proofs of
+a propositions, Propositions can be Opague.}
 we will return to this issue in Section~\ref{PI}.
 We can now define |EquivalenceRelation| without awkward equalities:
 \begin{code}
   Record EquivalenceRelation: Type :=
     { er_carrier: Type
-    ; er_rel: er_carrier → er_carrier → Prop
+    ; er_rel: relation er_carrier
     ; er_refl: ReflexiveRelation er_carrier er_rel
     ; er_sym: SymmetricRelation er_carrier er_rel
     ; er_trans: TransitiveRelation er_trans er_rel }.
@@ -185,7 +197,7 @@ conclude that |EquivalenceRelation| should really be defined as:
 
 \begin{code}
 Record EquivalenceRelation (er_carrier: Type)
-                             (er_rel: er_carrier → er_carrier → Prop): Prop :=
+                             (er_rel: relation er_carrier): Prop :=
   { er_refl: ReflexiveRelation er_carrier er_rel
   ; er_sym: SymmetricRelation er_carrier er_rel
   ; er_trans: TransitiveRelation er_trans er_rel }.
@@ -205,9 +217,9 @@ relation. Then if we proceed to define |SemiRing| as a double |Monoid|, we face 
     ; plus_monoid: Monoid A 
     ; plus_comm: Commutative (mon_op plus_monoid)
     ; mult_comm: Commutative (mon_op mult_monoid)
-    ; mult_0_l: Π x: A, ?
+    ; mult_0_l: Π x: A, H
 \end{code}
-Which equality do we use in the expression ?, |mult_monoid|'s equality or |plus_monoid|'s?
+Do we use |mult_monoid|'s equality or |plus_monoid|'s equality in |H|?
 Again, for this definition to be usable at all, we would need to add an equality expressing that the
 two monoids contain the same equivalence relation. And again, the proper solution is to change
 Monoid and unbundle the relation. But here, we have a choice as to how much we unbundle exactly.
@@ -368,11 +380,6 @@ With it, we can write |perm| as follows:
 \end{code}
 Thus, we have reached the mathematical ideal we aimed for.
 
-Let us now stop and think to what extent this approach suffers from all the problems commonly
-associated with it. In particular, let us imagine what happens to our terms and contexts when we
-want to talk about nested structures such as polynomials over the ring of matrices over a
-given ring; see Section~\ref{interfaces}.
-
 \section{Putting it all together}\label{classes}
 Combining the ideas in the previous sections we end up with a formalization of algebraic
 structures where we use the structure as (implicit) parameters, but
@@ -413,9 +420,16 @@ projection paths may not be canonical.
 
 Coercion pullbacks~\cite{Hints} were introduced to address problems with multiple coercions paths,
 as in the definition of a semiring: a type with two monoid structures on it. We avoid some
-of these problems by explicitly specifying the fields. We emphasize that the semiring properties are automatically derived from the ring
-properties, although the properties of a semiring are not structurally included in the ring
-properties.
+of these problems by explicitly specifying the fields. We emphasize that the semiring properties are
+automatically derived from the ring properties, although the properties of a semiring are not
+structurally included in the ring properties.
+
+Let us now stop and think to what extent this approach suffers from all the problems commonly
+associated with it. In particular, let us imagine what happens to our terms and contexts when we
+want to talk about nested structures such as polynomials over the ring. For a concrete
+representation of the polynomials the context will just contain the context for an abstract ring.
+For abstract reasoning about polynomials the context will grow with abstract operations on
+polynomials. Consequently, the context will grow linearly, as opposed to exponentially.
 
 \subsection{Manifest fields}\label{manifest}
 
@@ -441,11 +455,29 @@ equational logic. We will come back to this in Section~\ref{quote}.
 
 % \subsection{Universal algebra continued}\label{univ2}
 
-We have developed basic universal algebra~\cite{meinke1993universal} upto the first homomorphism
-theorem.~\marginpar{Description of the work.}
-Discuss: the duplication of code which may have been avoided by universe
-polymorphism for |Fixpoint|s.\marginpar{universe polymorphism}
+We have developed basic multi-sorted universal algebra~\cite{meinke1993universal} upto the first
+homomorphism theorem. More precisely, we provide the following:
+\begin{itemize}
+ \item Definition of a signature Σ. Definition of a type (Σ,E). Σ-algebras and
+(Σ,$E$)-algebras
+ \item A forgetful functor from (Σ,$E$)-algebras via Σ-algebras to Sets
+ \item Products and subalgebras
+ \item The term algebra for a type $\tau$. This is an initial object in the category of
+$\tau$-algebras.
+\end{itemize}
 %perhaps the soundness theorem for equational logic?
+
+Coq provides different sorts. To simplify the discussion, we assume that there are only two sorts:
+|Prop| and |Type|. It occassionally happens that we want to prove a similar theorem for both sorts.
+To avoid code duplication, Coq provides universe polymorphism for inductive types.
+Unfortunately,
+definitions and fixpoints are not (yet?) polymorphic. To avoid code duplication we
+change some Fixpoints into
+Inductives. Concretely, the image $Im f:=\{b:B \mid \exists a. b=(f
+a)\}$ is informative (in |Type|) since we need the witness in the proof of the first homomorphism
+theorem.\marginpar{Does |relation| as a definition cause universe inconsistencies?}
+% theory/ua_subalgebraT.v
+% find . -iname "*.v" |xargs grep "niverse"
 
 In order to prove the first homophism theorem, we define a congruence.
 \begin{code}
@@ -454,19 +486,23 @@ Class Congruence: Prop :=
     ; congruence_quotient:> @Algebra et v e _
     }.
 \end{code}
-Alternatively, we could have state the compatibility of the relation |e| by stating that the
+Alternatively, we could have stated the compatibility of the relation |e| by stating that the
 relation as a set of pairs is a subalgebra in the product algebra. We prove that both approaches
-are equivalent.
+are equivalent. The former definition seems more natural in type theory. In set theory, a quotient
+is defined as a collection of equivalence classes. In type theory, a quotient is more naturally
+defined by changing the equality, while leaving the carrier unchanged.%
+\footnote{In Bishop's words~\cite[p.12]{Bishop/Bridges:1985}: The axiom of choice is used to extract
+elements from equivalence classes where they should never have been put in the first place.}
+ In this way we profit from
+the infrastructure for setoids: A congruence relation is coarser than the setoid relation, as
+indicated by the use of |Proper| above.
 
-A congruence relation is coarser than the setoid relation, as indicated by the use of |Proper|
-above. Since our theory is founded on a congruence, the initial setoid equality, the development of 
-congruences and quotients benefits from this.\marginpar{how}
-
+%varieties/closed_terms.v
 We define the forgetful functor from the category of $\tau$-algebras to the category of sets.
-We define the term algebra consisting of closed terms, terms with the empty type as set of
-variables. The term algebra is the free $\tau$-algebra and hence\marginpar{?}
-initial. Categorically: we have defined a left-adjoint to the forgetful functor. A formal proof
-connects the categorical and the algebraic definition.
+We define the term algebra consisting of closed terms, i.e.\ terms with the empty type as set of
+variables. The term algebra is the initial $\tau$-algebra. Categorically: we have defined a
+left-adjoint to the forgetful functor.\marginpar{Did we proof this?}
+A formal proof connects the categorical and the algebraic definition.
 One may expect that this term algebra could be useful to
 \emph{define}, say, the natural numbers as the term algebra for the theory of semiring. However, it
 seems difficult to prove decidability of equality, which requires a normalization procedure.
@@ -503,31 +539,35 @@ Using type classes, we provide a basic library for category theory: categories, 
 adjunctions, monads,\ldots We follow the usual type theoretical definition of a
 category~\cite{saibi1995constructive}.\marginpar{Update code}
 
-%format ◎ = "\circ"
+\newcommand{\rightarrowtext}{\ensuremath{\rightarrow}}
+\newcommand{\textocirc}{\ensuremath\circ}
 %interfaces/abstract_algebra.v
-\begin{code}
-Class Category O `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)}
-  `{!CatId O} `{!CatComp O}: Prop :=
-  { arrow_equiv:> Π x y: O, Setoid (x ⟶ y)
-  ; comp_proper:> Π x y z,
-      Proper (equiv ==> equiv ==> equiv)%signature (@comp _ _ _ x y z)
-  ; comp_assoc (w x y z: O) (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
-      c ◎ (b ◎ a) = (c ◎ b) ◎ a
-  ; id_l `(a: x ⟶ y): cat_id ◎ a = a
-  ; id_r `(a: x ⟶ y): a ◎ cat_id = a }.
-\end{code}
+
+CODE MISSING.
+% \begin{code}
+% Class Category O `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)}
+%   `{!CatId O} `{!CatComp O}: Prop :=
+%   { arrow_equiv:> Π x y: O, Setoid (x ⟶ y)
+%   ; comp_proper:> Π x y z,
+%       Proper (equiv ==> equiv ==> equiv)%signature (@comp _ _ _ x y z)
+%   ; comp_assoc (w x y z: O) (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
+%       c ◎ (b ◎ a) = (c ◎ b) ◎ a
+%   ; id_l `(a: x ⟶ y): cat_id ◎ a = a
+%   ; id_r `(a: x ⟶ y): a ◎ cat_id = a }.
+% \end{code}
 This is based on the 2-categorical idea that we have equality on arrows, but not on objects.
 Similarly, we have equality on natural transformations, but not on functors.
 
 %theory/categories.v
 Natural transformations are formalized as:
-\begin{code}
-  Context `{Category C} `{Category D}
-  `{!Functor (F: C → D) Fa} `{!Functor (G: C → D) Ga}.
-
-  Class NaturalTransformation (η: Π c, F c ⟶ G c): Prop :=
-    natural: Π (x y: C) (f: x ⟶ y), η y ◎ fmap F f = fmap G f ◎ η x.
-\end{code}
+CODE MISSING.
+% \begin{code}
+%   Context `{Category C} `{Category D}
+%   `{!Functor (F: C → D) Fa} `{!Functor (G: C → D) Ga}.
+% 
+%   Class NaturalTransformation (η: Π c, F c ⟶ G c): Prop :=
+%     natural: Π (x y: C) (f: x ⟶ y), η y ◎ fmap F f = fmap G f ◎ η x.
+% \end{code}
 
 Here |fmap F| explicitly refers to the arrow part of the functor |F|.
 In mathematics one would apply $F$ to both objects and arrows ($F x$, $F f$). However, this does
@@ -537,6 +577,9 @@ The proofs are short and follow the textbook easily.\marginpar{really?}
 
 We have defined the category of setoids, the category of categories, the dual of a category,
 products, and hence co-products and the category of $\tau$-algebras, for a given type $\tau$.
+
+Universe polymorphism allows us to define the category of categories. However, we need to avoid
+making |Relation| a |Definition|, since |Definitions| are not universe polymorphic.
 
 We provide the construction of the term-algebra for a type $\tau$ and show that it is
 initial in the category of $\tau$-algebras. We proceed to prove that this provides a left-adjoint
@@ -567,6 +610,13 @@ semiring structure, is assigned priority 10.
   Global Program Instance: NatDistance N | 10 := ...
 \end{code}
 
+Similarly, we use type classes to flexibly combine two representations of a dense set of the
+reals.
+Let |Q| be the rationals and |D| be the dyadic rationals, i.e.\ rationals where the denominator is
+a power of 2. Let |inj:D>->Q| be a coercion. Then we want to define heterogeneous multiplication
+as follows:
+
+
 %There is a slight problem when defining the forgetful functor from the category of
 %$\Sigma$-algebras to Sets. This problem is caused by our use of the category of all
 %categories\footnote{Perhaps we should have used higher categories for this.}.
@@ -575,7 +625,7 @@ semiring structure, is assigned priority 10.
 
 \section{Type class quoting}\label{quote}
 Unification hints~\cite{Hints} allow one to semi-automatically construct a quote
-function\footnote{Gonthier provides similar functionality using canonical structures}. However,
+function.\footnote{Gonthier provides similar functionality using canonical structures.} However,
 this feature is absent from Coq. Fortunately, type classes provide similar functionality as
 we will now show.
 
@@ -801,7 +851,18 @@ formation and introduction rule in pseudo-code for $k=2$:
 
 For our methodology to work we have to be able to transform the occuring record into a telescopic
 subset $\{ A \mid  B\}$. We moreover conjecture that the terms in |B| only depend on the
-variables in |A|, but not in |B| itself. However, we do not need this.
+variables in |A|, but not in |B| itself. However, we do not need this.\\
+
+We observed that we were naturally lead to the following methodology: Let φ be a statement in type
+theory, i.e.\ an alternation of Πs and Σs. By the axiom of choice, we first Skolemize to $Σ h. Πa.P$
+and then transfer the variable $h$ to the parameters. For example, consider surjectivity. This is
+skolemized to a surjection with a right inverse, i.e.\ a split epi. We then move the right inverse
+to the parameters.
+
+It is interesting to note that classical logic is conservative for purely universal statements.
+
+The addition of implicit Sigma types to Coq would change many things. Perhaps it would even allow us
+to pack the proofs together with the operations, but it is too early to tell.
 
 \subsection{Propositions as [ ]-Types}
 As originally concieved~\cite{ITT,CMCP}, Propositions are Types and we can extract information from
@@ -835,7 +896,8 @@ We conclude that unification hints, canonical structures and type classes all ap
 similar expressive powers. Canonical structures, being tied to the unifier, are more robust, but
 seem to require more inguinity. Type classes are easier to use. Unification hints, may be a
 good generalization, but are absent from Coq. We encourage their inclusion to the
-Coq system.
+Coq system.\marginpar{for instance what about control in
+proof/instance search?\\ or what about its efficiency?}
 
 An obvious topic for future research is the extension from equational logic to partial Horn
 logic~\cite{palmgren2007partial}. Another topic would be to fully, but practically, embrase the
