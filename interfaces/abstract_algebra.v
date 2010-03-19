@@ -1,3 +1,5 @@
+Set Automatic Introduction.
+
 Require
  Equivalence.
 Require Import
@@ -28,9 +30,13 @@ Section upper_classes.
     ; monoid_left_id:> LeftIdentity sg_op mon_unit
     ; monoid_right_id:> RightIdentity sg_op mon_unit }.
 
+  Class CommutativeMonoid {op unit}: Prop :=
+    { commonoid_mon:> @Monoid op unit
+    ; commonoid_commutative:> Commutative op }.
+
   Class Group {op: SemiGroupOp A} {unit: MonoidUnit A} {inv: GroupInv A}: Prop :=
     { group_monoid:> Monoid
-    ; inv_proper:> Proper (e ==> e) inv
+    ; inv_proper:> Proper (e ==> e) inv (* todo: use Setoid_Morphism *)
     ; ginv_l: `(- x & x = mon_unit)
     ; ginv_r: `(x & - x = mon_unit) }.
 
@@ -41,10 +47,8 @@ Section upper_classes.
   Context {plus: RingPlus A} {mult: RingMult A} {zero: RingZero A} {one: RingOne A}.
 
   Class SemiRing: Prop :=
-    { semiring_mult_monoid:> Monoid (op:=mult) (unit:=one)
-    ; semiring_plus_monoid:> Monoid (op:=plus) (unit:=zero)
-    ; semiring_plus_comm:> Commutative plus
-    ; semiring_mult_comm:> Commutative mult
+    { semiring_mult_monoid:> CommutativeMonoid (op:=mult) (unit:=one)
+    ; semiring_plus_monoid:> CommutativeMonoid (op:=plus) (unit:=zero)
     ; semiring_distr:> Distribute mult plus
     ; semiring_left_absorb:> LeftAbsorb ring_mult 0 }.
 
@@ -52,8 +56,7 @@ Section upper_classes.
 
   Class Ring: Prop :=
     { ring_group:> AbGroup (op:=plus) (unit:=zero)
-    ; ring_monoid:> Monoid (op:=mult) (unit:=one)
-    ; ring_mult_comm:> Commutative mult
+    ; ring_monoid:> CommutativeMonoid (op:=mult) (unit:=one)
     ; ring_dist:> Distribute mult plus }.
 
     (* For now, we follow CoRN/ring_theory's example in having Ring and SemiRing
@@ -139,14 +142,14 @@ Section morphism_classes.
   Context {A B: Type} `{Aeq: Equiv A} `{Beq: Equiv B}.
 
   Class Setoid_Morphism (f: A → B) :=
-    { setoidmod_a: Setoid A
-    ; setoidmod_b: Setoid B
+    { setoidmor_a: Setoid A
+    ; setoidmor_b: Setoid B
     ; sm_proper:> Proper (equiv ==> equiv) f }.
 
   Class SemiGroup_Morphism {Aop Bop} (f: A → B) :=
-    { a_sg: @SemiGroup A Aeq Aop
-    ; b_sg: @SemiGroup B Beq Bop
-    ; sg_mor_op_proper:> Setoid_Morphism f (* todo: rename *)
+    { sgmor_a: @SemiGroup A Aeq Aop
+    ; sgmor_b: @SemiGroup B Beq Bop
+    ; sgmor_setmor:> Setoid_Morphism f (* todo: rename *)
     ; preserves_sg_op: `(f (a & a') = f a & f a') }.
 
   Class Monoid_Morphism {Aunit Bunit Amult Bmult} (f: A → B) :=
@@ -179,3 +182,56 @@ End morphism_classes.
    that ultimately caused too much problems. *)
 
 (* Todo: We really introduce way too many names in the above, but Coq currently doesn't seem to support nameless class fields.  *)
+
+Section jections.
+
+  Context `{ea: Equiv A} `{eb: Equiv B} (f: A → B) `{!Inv f}.
+
+  Class Injective: Prop :=
+    { injective: `(f x = f y → x = y)
+    ; injective_mor: Setoid_Morphism f }.
+
+  Class Surjective: Prop :=
+    { surjective: f ∘ inv = id (* a.k.a. "split-epi" *)
+    ; surjective_mor: Setoid_Morphism f }.
+
+  Class Bijective: Prop :=
+    { bijective_injective:> Injective
+    ; bijective_surjective:> Surjective }.
+
+End jections.
+
+Implicit Arguments injective [[A] [ea] [B] [eb] [Injective]].
+
+Instance Setoid_Morphism_proper `{ea: Equiv A} `{eb: Equiv B}: Proper ((=) ==> iff) (@Setoid_Morphism A B _ _).
+Proof.
+ cut (Π (x y: A → B), x = y → Setoid_Morphism x → Setoid_Morphism y).
+  firstorder.
+ intros x y E [AS BS P].
+ constructor; try apply _. intros v w E'.
+ rewrite <- (E v), <- (E w), E'. reflexivity.
+Qed.
+
+Instance: Π A `{Setoid B}, Setoid (A -> B).
+Proof. constructor; repeat intro; firstorder. Qed.
+
+Instance Injective_proper `{ea: Equiv A} `{eb: Equiv B}: Proper ((=) ==> iff) (@Injective A ea B eb).
+Proof with intuition.
+ cut (Π (x y: A → B), x = y → Injective x → Injective y).
+  split; repeat intro.
+   apply H with x...
+  destruct (injective_mor y).
+  apply H with y...
+ repeat intro.
+ destruct (injective_mor x).
+ constructor.
+  repeat intro.
+  apply (injective x).
+  rewrite (H x0), (H y0)...
+ rewrite <- H...
+ constructor; try apply _.
+Qed. 
+
+Instance Injective_comp `{Equiv A} `{Equiv B} `{Equiv C} (g: A → B) (f: B → C):
+  Injective f → Injective g → Injective (f ∘ g).
+Proof. firstorder. Qed.

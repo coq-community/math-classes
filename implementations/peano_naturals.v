@@ -4,6 +4,7 @@ Set Automatic Introduction.
 
 Require Import
   theory.categories.
+
 Require Import
   Morphisms Ring
   abstract_algebra interfaces.naturals theory.rings.
@@ -40,6 +41,8 @@ Instance: SemiGroup nat (op:=plus).
 Instance: SemiGroup nat (op:=mult).
 Instance: Monoid _ (op:=plus) (unit:=0%nat).
 Instance: Monoid _ (op:=mult) (unit:=1%nat).
+Instance: CommutativeMonoid _ (op:=mult) (unit:=1%nat).
+Instance: CommutativeMonoid _ (op:=plus) (unit:=0%nat).
 Instance nat_semiring: SemiRing nat.
 
 (* misc *)
@@ -94,14 +97,15 @@ End for_another_semiring.
 Instance: Initial (semiring.object nat).
 Proof.
  intros y [x h] [] a. simpl in *.
+ pose proof (_: SemiRing (y tt)).
  pose proof (@universal_algebra.preserves semiring.theory _ _ _ _ _ _ _ h) as pr.
  induction a; simpl.
   symmetry. apply (pr semiring.zero).
  change (naturals_to_semiring nat (y tt) a + 1 = x tt (S a)).
  rewrite IHa. clear IHa.
- pose proof (pr semiring.plus 1 a). simpl in H. rewrite H. clear H.
+ pose proof (pr semiring.plus 1 a) as E. simpl in E. rewrite E. clear E.
  change (x tt a + 1 = x tt 1 + x tt a).
- pose proof (pr semiring.one). simpl in H. rewrite H.
+ pose proof (pr semiring.one) as E. simpl in E. rewrite E.
  apply commutativity.
 Qed. (* todo: these [pose]s are nasty *)
 

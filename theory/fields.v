@@ -89,7 +89,10 @@ Section field_props. Context `{Field F}.
    intros x y E.
    destruct (decide (x = 0)) as [? | P]. intuition.
    rewrite <- (mult_0_r x) in E.
-   right. apply (mult_injective x P _ _ E).
+   right.
+   pose proof (mult_injective x P).
+   apply (injective (ring_mult x)).
+   assumption.
   Qed.
 
   Lemma inv_0: / 0 = 0.

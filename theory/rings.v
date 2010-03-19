@@ -4,11 +4,8 @@ Require Import
   Ring.
 Require Import
   Program Morphisms
-  abstract_algebra canonical_names.
-(*
-Implicit Arguments ginv_l [[A] [e] [op] [unit] [inv] [Group]].
-Implicit Arguments inv_r [[A] [e] [op] [unit] [inv] [Group]].
-*)
+  abstract_algebra canonical_names theory.setoids.
+
 Section group_props. Context `{Group}.
 
   Lemma inv_involutive x: - - x = x.
@@ -22,7 +19,12 @@ Section group_props. Context `{Group}.
   Qed.
 
   Global Instance: Injective group_inv.
-  Proof. intros x y E. rewrite <- (inv_involutive x), <- (inv_involutive y), E. reflexivity. Qed.
+  Proof.
+   constructor.
+    intros x y E.
+    rewrite <- (inv_involutive x), <- (inv_involutive y), E. reflexivity.
+   constructor; apply _.
+  Qed.
 
   Lemma inv_zero: - mon_unit = mon_unit.
   Proof. rewrite <- (ginv_l mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
@@ -73,7 +75,6 @@ Implicit Arguments stdlib_semiring_theory [[e] [plus0] [mult0] [zero] [one] [H]]
 
 Section semiringmor_props. Context `{SemiRing_Morphism}.
 
-  Existing Instance a_sg.
   Lemma preserves_0: f 0 = 0.
   Proof. intros. apply (@preserves_mon_unit _ _ _ _ _ _ _ _ f _). Qed.
   Lemma preserves_1: f 1 = 1.
@@ -107,6 +108,7 @@ Section ring_props. Context `{Ring R}.
   Proof. intro. ring. Qed.
 
   Global Instance Ring_Semi: SemiRing R.
+  Proof. repeat (constructor; try apply _). Qed.
 
   (* Hm, are the following really worth having as lemmas? *)
 
@@ -127,7 +129,9 @@ Section ring_props. Context `{Ring R}.
 
   Global Instance: Π p: R, Injective (ring_plus p).
   Proof.
-   intros p x y E.
+   intros p.
+   constructor. 2: constructor; apply _.
+   intros x y E.
    rewrite <- plus_0_l.
    rewrite <- (plus_opp_l p).
    rewrite <- associativity.
@@ -159,7 +163,9 @@ Section ring_props. Context `{Ring R}.
     x ≠ 0 → Injective (ring_mult x).
       (* this is the cancellation law in disguise *)
   Proof with intuition.
-   intros x_nonzero y z E.
+   intros x_nonzero.
+   constructor. 2: constructor; apply _.
+   intros y z E.
    apply stable.
    intro U.
    apply (mult_ne_zero x (y +- z) x_nonzero).
@@ -196,15 +202,17 @@ Section morphism_composition.
   Global Instance compose_semiring_morphisms
     `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: SemiRing_Morphism (λ x => g (f x)).
   Proof with try reflexivity.
-   pose proof (semiringmor_a).
-   pose proof (semiringmor_b).
    pose proof (semiringmor_b: SemiRing C).
-   assert (Proper (equiv ==> equiv) (λ x: A => g (f x))). intros x y E. rewrite E...
+   pose proof semiringmor_b.
+   pose proof semiringmor_a.
+   assert (Proper (equiv ==> equiv) (λ x: A => g (f x))). fold (g ∘ f). apply _.
    repeat (constructor; try apply _); intros.
       do 2 rewrite preserves_sg_op...
-     do 2 rewrite preserves_0...
+     rewrite (@preserves_mon_unit A _ _ _ _ _ _ _ _ _).
+     apply (@preserves_mon_unit B C _ _ _ _ _ _ _ _).
     do 2 rewrite preserves_sg_op...
-   do 2 rewrite preserves_1...
+   rewrite (@preserves_mon_unit A _ _ _ _ _ _ _ _ _).
+   apply (@preserves_mon_unit B C _ _ _ _ _ _ _ _).
   Qed.
 
   Context `{!GroupInv A} `{!GroupInv B} `{!GroupInv C}.
@@ -215,11 +223,12 @@ Section morphism_composition.
   Global Instance compose_ring_morphisms
     `{!Ring_Morphism f} `{!Ring_Morphism g}: Ring_Morphism (λ x => g (f x)).
   Proof.
-   pose proof (ringmor_a).
-   pose proof (ringmor_b).
+   pose proof ringmor_b.
    pose proof (ringmor_b: Ring C).
-   repeat (constructor; try apply _).
-   intros. do 2 rewrite preserves_inv. reflexivity.
+   pose proof (ringmor_a).
+   assert (Proper (equiv ==> equiv) (λ x: A => g (f x))). fold (g ∘ f). apply _.
+   repeat (constructor; try apply _); intros.
+   do 2 rewrite preserves_inv. reflexivity.
   Qed.
 
 End morphism_composition.

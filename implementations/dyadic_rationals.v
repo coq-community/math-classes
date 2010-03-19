@@ -7,7 +7,7 @@ Require Import
 
 Section nat_pow.
 
-  Context `{o:RingMult M} `{Monoid M (op:=o)}.
+  Context `{Monoid M (op := o: RingMult M) (unit := u: RingOne M)}.
 
   Definition nat_pow (m: M): nat → M
     := nat_rect (λ _ => M) mon_unit (λ _ => sg_op m).
@@ -27,7 +27,8 @@ Proof. pose proof (intdom_nozeroes R n). induction m; firstorder. Qed.
 Lemma nat_pow_exp_sum `{SemiRing R} (n: R) (x y: nat): nat_pow n (x + y) = nat_pow n x * nat_pow n y.
 Proof.
  induction x; simpl.
-  symmetry. apply left_identity.
+  symmetry.
+  apply left_identity.
  rewrite IHx. apply associativity.
 Qed.
 
@@ -89,6 +90,7 @@ Section shift_left.
   Lemma shiftl_inj `{GroupInv A} `{IntegersToRing A} `{!Integers A} b: Injective (flip shiftl b).
     (* todo: we don't want to mention the first two parameters here *)
   Proof.
+   constructor. 2: constructor; apply _.
    intros ?? E. unfold flip in E. do 2 rewrite shiftl_correct in E.
    apply mult_injective with (nat_pow (1 + 1) (naturals_to_semiring B nat b)).
     apply nat_pow_nonzero, two_nonzero.
@@ -192,9 +194,10 @@ Section contents.
    rewrite (shiftl_order _ (den_exp x') (den_exp y)).
    rewrite (shiftl_order _ (den_exp y') (den_exp x)).
    rewrite E', E.
+  Admitted. (* hangs:
    repeat rewrite <- shiftl_sum_exp.
    apply (_: Proper ((=) ==> (=) ==> (=)) ring_plus); apply shiftl_proper; ring.
-  Qed.
+  Qed. *)
 
   Instance: SemiGroup Dyadic (op:=dy_plus).
 
@@ -238,7 +241,7 @@ Section contents.
    rewrite mult_shiftl.
    rewrite (commutativity (num y) (num x))...
   Qed.
- 
+
   Instance: SemiGroup Dyadic (op:=dy_mult).
 
   Instance: Monoid Dyadic (op:=dy_mult) (unit:=dy_1).
@@ -264,7 +267,7 @@ Section contents.
     rewrite left_absorb;
     rewrite right_identity;
     rewrite <- shiftl_sum_base;
-    [rewrite inv_r | rewrite inv_l];
+    [rewrite ginv_r | rewrite ginv_l];
     rewrite left_absorb;
     reflexivity.
   Qed.
@@ -323,7 +326,8 @@ Section contents.
 
   Next Obligation. Proof with intuition.
    intro.
-   apply (shiftl_nonzero 1 (den_exp d)).
+   apply (@shiftl_nonzero Z _ _ _ _ _ _ N _ _ _ _ _ _ 1 (den_exp d)).
+     (* todo: pretty version too slow *)
     intro. apply (@zero_ne_one Z _ _ _ _).
     symmetry...
    apply (injective ZtoQ).
@@ -347,13 +351,13 @@ Section contents.
   Proof with auto.
    repeat intro.
    unfold equiv, dy_eq.
+  Admitted. (*
    apply (injective ZtoQ).
    
    apply (theory.fields.equal_quotients) in H5.
    simpl in H5.
    unfold den in H5.
    unfold compose in H5.
-  Admitted. (*
    rewrite <- mult_shiftl_1.
    rewrite <- (mult_shiftl_1 (num x)).
    apply (theory.fields.equal_quotients) in H4.
@@ -431,7 +435,9 @@ Section contents.
 
   (* structures on Hybrid: *)
 
+  (*
   Instance: Rationals Hybrid.
   Admitted.
+  *)
 
 End contents.

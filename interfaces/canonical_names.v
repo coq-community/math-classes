@@ -80,19 +80,7 @@ Notation "/ x" := (dec_mult_inv x).
 (* Common properties: *)
 Class Commutative `{Equiv B} `(m: A → A → B): Prop := commutativity: `(m x y = m y x).
 Class Associative `{Equiv A} (m: A → A → A): Prop := associativity: `(m x (m y z) = m (m x y) z).
-Class Injective `{ea: Equiv A} `{eb: Equiv B} (f: A → B): Prop := injective: `(f x = f y → x = y).
-Class Surjective {A} `{Equiv B} (f: A → B): Type := surjective: Π x: B, sigT (λ y => f y = x).
-  (* Note: sigT rather than exist(!) *)
-Class Bijective `{ea: Equiv A} `{eb: Equiv B} (f: A → B): Type :=
-  { bijective_injective:> Injective f
-  ; bijective_surjective:> Surjective f }.
-
 Class Inv `(A → B): Type := inv: B → A.
-
-Class BijectiveInv `{ea: Equiv A} `{eb: Equiv B} (f: A → B) `{!Inv f}: Prop :=
-  { inv_l: inv ∘ f = id
-  ; inv_r: f ∘ inv = id}.
-
 Class AntiSymmetric `{ea: Equiv A} (R: relation A): Prop := antisymmetry: `(R x y → R y x → x = y).
 Class Distribute `{Equiv A} (f g: A → A → A): Prop :=
   { distribute_l: `(f a (g b c) = g (f a b) (f a c))
@@ -100,7 +88,6 @@ Class Distribute `{Equiv A} (f g: A → A → A): Prop :=
 Class HeteroSymmetric {A} {T: A → A → Type} (R: Π {x y}, T x y → T y x → Prop): Prop :=
   hetero_symmetric `(a: T x y) (b: T y x): R _ _ a b → R _ _ b a.
 
-Implicit Arguments injective [[A] [ea] [B] [eb] [Injective]].
 Implicit Arguments antisymmetry [[A] [ea] [AntiSymmetric]].
 
 (* Some things that hold in N, Z, Q, etc, and which we like to refer to by a common name: *)
@@ -118,17 +105,3 @@ Class NoZeroDivisors R `{Equiv R} `{RingZero R} `{RingMult R}: Prop
 
 Class RingUnit {R} `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInverse x}: Prop
   := ring_unit_mult_inverse: x * x⁻¹ = 1.
-
-
-
-Instance Injective_proper `{ea: Equiv A} `{eb: Equiv B} `{!Equivalence eb}: (* todo: use Setoid *)
-  Proper (pointwise_relation A eb ==> iff) (@Injective A ea B eb). (* todo: use (=) here *)
-Proof with intuition.
- intros x y E. unfold pointwise_relation in E.
- split; repeat intro. apply (injective x). do 2 rewrite E... 
- apply (injective y). do 2 rewrite <- E...
-Qed. (* Todo: Find a less awkward place for this. We probably need this for the other common properties, too. *)
-
-Instance Injective_comp `{Equiv A} `{Equiv B} `{Equiv C} (g: A → B) (f: B → C):
-  Injective f → Injective g → Injective (f ∘ g).
-Proof. firstorder. Qed.

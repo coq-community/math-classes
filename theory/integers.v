@@ -8,7 +8,7 @@ Require
  theory.naturals.
 Require Import
  RelationClasses Morphisms Ring Program
- interfaces.naturals abstract_algebra orders.semiring theory.rings natpair_integers.
+ interfaces.naturals abstract_algebra orders.semiring theory.rings natpair_integers canonical_names.
 
 Hint Immediate @neg_precedes_pos @preserves_0 @preserves_nonneg @zero_sr_precedes_nat.
 Hint Resolve @neg_precedes_pos @preserves_0 @preserves_nonneg @zero_sr_precedes_nat.
@@ -40,7 +40,7 @@ Section contents.
    intros. symmetry.
    pose proof (@ring.mor_from_sr_to_alg _ _ _ (ring.variety _) _ _ _ (ring.variety _) (λ _ => f) _).
    set (@variety.arrow ring.theory _ _ _ (ring.variety _) _ _ _ (ring.variety _) (λ _ => f) _).
-   apply (integers_initial _ a tt x).
+   exact (integers_initial _ a tt x).
   Qed.
 
   Lemma integers_to_ring_unique' R `{Ring R} (f g: Int → R) `{!Ring_Morphism f} `{!Ring_Morphism g}:
@@ -56,6 +56,7 @@ Section contents.
   Lemma int_to_ring_injective `{Ring A}  
    (f: A → Int) (g: Int → A) `{!Ring_Morphism f} `{!Ring_Morphism g}: Injective g.
   Proof.
+   constructor. 2: constructor; apply _.
    intros x y E.
    rewrite <- (integers_to_ring_unique' Int (λ v => f (g v)) id x).
    rewrite <- (integers_to_ring_unique' Int (λ v => f (g v)) id y).
@@ -76,12 +77,15 @@ Section contents.
 
   Global Instance naturals_to_integers_injective `{Naturals N}: Injective (naturals_to_semiring N Int).
   Proof.
-   intros x y E.
-   rewrite <- (plus_0_r x), <- (plus_0_r y).
-   change (NtoZ N x = NtoZ N y).
-   do 2 rewrite <- (NtoZ_uniq N).
-   do 2 rewrite <- (theory.naturals.to_semiring_unique (Z N) (λ x => integers_to_ring Int (Z N) (naturals_to_semiring N Int x))).
-   rewrite E. reflexivity.
+   constructor.
+    intros x y E.
+    rewrite <- (plus_0_r x), <- (plus_0_r y).
+    change (NtoZ N x = NtoZ N y).
+    pose proof (_: SemiRing_Morphism (NtoZ N)).
+    do 2 rewrite <- (NtoZ_uniq N).
+    do 2 rewrite <- (theory.naturals.to_semiring_unique (Z N) (λ x => integers_to_ring Int (Z N) (naturals_to_semiring N Int x))).
+    rewrite E. reflexivity.
+   apply _.
   Qed.
 
   Instance: AntiSymmetric integer_precedes.
@@ -194,6 +198,7 @@ Section contents.
     symmetry.
     apply (theory.naturals.to_semiring_unique Int (λ x => integers_to_ring _ _  (_ x))).
    rewrite <- (iso_ints (Z N) x), <- M.
+   pose proof (_: Ring_Morphism (integers_to_ring (Z N) Int)).
    rewrite preserves_inv. 
    apply inv_proper. symmetry.
    apply (theory.naturals.to_semiring_unique Int (λ x => integers_to_ring _ _ (_ x))).
@@ -300,7 +305,7 @@ Section more. Context `{Integers Int}.
    intros x y.
    rewrite <- (iso_ints (Z nat) x), <- (iso_ints (Z nat) y).
    destruct (total_order (integers_to_ring Int (Z nat) x) (integers_to_ring Int (Z nat) y));
-       [left | right]; apply preserve_sr_order...
+     [left | right]; apply (preserve_sr_order _)...
   Qed.
 
   Global Program Instance: Π x y: Int, Decision (x <= y) | 10 := λ x y =>
@@ -311,11 +316,11 @@ Section more. Context `{Integers Int}.
 
   Next Obligation.
    change (x <= y). rewrite <- (iso_ints (Z nat) x), <- (iso_ints (Z nat) y).
-   apply preserve_sr_order. apply _. assumption.
+   apply (preserve_sr_order _). assumption.
   Qed. 
 
   Next Obligation.
-   intro. apply E. apply preserve_sr_order. apply _. assumption.
+   intro. apply E. apply (preserve_sr_order _). assumption.
   Qed.
 
   Global Instance le_mult_compat_r (x: Int) (xnonneg: 0 <= x): Proper (integer_precedes ==> integer_precedes) (ring_mult x).

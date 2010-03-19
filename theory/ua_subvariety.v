@@ -53,6 +53,7 @@ Section contents.
      apply H1... (* separate pose needed due to Coq bug *)
     pose proof (@eval_proper et A _ _ _ nat (function (sorts et) y t1)).
     apply H1...
+    unfold heq in IHt2. (* todo: this wasn't needed in a previous Coq version *)
     rewrite IHt2.
     apply (@eval_proper et A _ _ _ nat (constant (sorts et) y))...
    unfold impl, algebra_op.
@@ -63,6 +64,10 @@ Section contents.
    induction (et o); simpl in *...
   Qed.
 
+  Lemma heq_eval_const vars {o} (t: T et (constant _ o)): ` (eval et vars t) = eval et (Pvars vars) t.
+  Proof. apply (heq_eval vars t). Qed.
+    (* todo: this specialization wasn't needed in a previous Coq version *)
+
   Lemma laws s: et_laws et s → (Π vars: Π a, nat → carrier P a, eval_stmt et vars s).
   Proof with intuition.
    intros.
@@ -70,11 +75,11 @@ Section contents.
    destruct s as [x [? [t t0]]].
    induction x as [A| [x1 [t1 t2]]]; simpl in *; intros.
     unfold equiv, util.sig_equiv, util.sig_relation.
-    rewrite (heq_eval vars t).
-    rewrite (heq_eval vars t0)...
+    rewrite (heq_eval_const vars t).
+    rewrite (heq_eval_const vars t0)...
    apply IHx, H1.
-   rewrite <- (heq_eval vars t1).
-   rewrite <- (heq_eval vars t2)...
+   rewrite <- (heq_eval_const vars t1).
+   rewrite <- (heq_eval_const vars t2)...
   Qed.
 
   (* Which gives us our variety: *)

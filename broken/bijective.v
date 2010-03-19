@@ -1,71 +1,35 @@
 Set Automatic Introduction.
 
 Require Import
-  Relation_Definitions Morphisms Setoid Program canonical_names Basics.
+  Relation_Definitions Morphisms Setoid Program abstract_algebra Basics.
 
-Section Bijective2wBijective.
+Section alt_injective.
 
-Context `{f:A→ B}`{Bijective _ _ f}.
+  Context `{Setoid A} `{Setoid B} `{f: A → B} `{!Inv f}.
 
-Instance naam: Inv f := fun b => projT1 (bijective_surjective b).
+  Global Instance: Bijective f → Setoid_Morphism (inv: B → A).
+  Proof with try tauto.
+   repeat intro.
+   constructor...
+   repeat intro.
+   apply (injective f).
+   change ((f ∘ inv) x = (f ∘ inv) y).
+   do 2 rewrite (surjective f _)...
+  Qed.
 
-Instance: BijectiveInv f.
- constructor.
-  intro.
-  change (projT1 (bijective_surjective (f x)) = x).
-  set (bijective_surjective (f x)).
-  destruct s. (* todo: this is silly *)
-  firstorder.
- intro.
- change (f (projT1 (bijective_surjective x)) = x).
- set (bijective_surjective x).
- destruct s. (* todo: this is silly *)
- firstorder.
-Qed.
+  Lemma back: Bijective f → inv ∘ f = id. (* a.k.a. "split-mono" *)
+  Proof. repeat intro. apply (injective f). exact (surjective f (f x)). Qed.
 
-End Bijective2wBijective.
+  Lemma forth: Setoid_Morphism f → Setoid_Morphism (inv: B → A) → inv ∘ f = id → Injective f.
+  Proof with try tauto.
+   intros ?? E.
+   constructor...
+   intros ?? E'.
+   rewrite <- (E x).
+   rewrite <- (E y).
+   unfold compose.
+   rewrite E'...
+   intuition.
+  Qed.
 
-Section andersom.
-
-Context `{f:A→ B}`{BijectiveInv _ _ f}.
-
-Instance: Bijective f.
- constructor.
-  repeat intro.
-  destruct H.
-  pose proof (inv_r (f x)) .
-  unfold id in H1.
-  rewrite <- H1 in H0.
-
-  simpl in H1.
-  Check (finv0 x).
-
-
-Require Export categories.
-(** We prove that the two definitions of adjunction are equivalent.*)
-
-Section Bijective2wBijective.
-Class SurjectiveT {A} `{Equiv B} (f: A → B): Type := surjective: Π x: B, sigT (λ y => f y = x).
-
-Class wBijective `{ea: Equiv A} `{eb: Equiv B} (f: A → B): Type :=
-  { wbijective_injective:> Injective f
-  ; wbijective_surjective:> SurjectiveT f }.
-
-Context `{f:A→ B}`{wBijective _ _ f}.
-Definition my_inverse: B → A.
-intro b.
-destruct (wbijective_surjective b) as [a _].
-exact a.
-Defined.
-
-
-(*
-Class Bijective' `{ea: Equiv A} `{eb: Equiv B} (f: A → B) (inv: B  → A): Prop :=
-  { finv: inv ∘  f = id
-  ; invf: f ∘  inv = id}.
-
-Implicit Arguments Bijective' [[inv]].
-*)
-
-
-End Bijective2wBijective.
+End alt_injective.

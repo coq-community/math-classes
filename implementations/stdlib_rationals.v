@@ -33,10 +33,7 @@ Proof. intros. rewrite commutativity. apply Qplus_opp_r. Qed.
 (* division: *)
 
 Program Instance: MultInv Q := Qinv.
-(*
-Lemma Qmult_inv_r' x: proj1_sig x * mult_inv x = 1.
-Proof. destruct x. apply Qmult_inv_r. assumption. Qed.
-*)
+
 Instance: Proper (sig_relation equiv _ ==> equiv) (_: MultInv Q).
 Proof. 
  unfold sig_relation. intros [x p] [y q]. simpl. intro E.
@@ -49,6 +46,7 @@ Instance: SemiGroup _ (op:=Qplus).
 Instance: SemiGroup _ (op:=Qmult).
 Instance: Monoid Q (op:=Qplus) (unit:=0%Q).
 Instance: Monoid Q (op:=Qmult) (unit:=1%Q).
+Instance: CommutativeMonoid Q (op:=Qmult) (unit:=1%Q).
 Instance: PartialOrder Qle.
 Instance: @Group Q q_equiv Qplus 0%Q Qopp := { ginv_r := Qplus_opp_r; ginv_l := Qplus_opp_l }.
 Instance: AbGroup Q (op:=Qplus) (unit:=0%Q).
@@ -56,12 +54,7 @@ Instance: Distribute Qmult Qplus := { distribute_l := Qmult_plus_distr_r; distri
 Instance: Ring Q.
 Instance: ZeroNeOne Q. Proof. discriminate. Qed.
 Instance: Field Q.
-Proof.
- constructor; try apply _.
- intros [A B].
- apply Qmult_inv_r.
- assumption.
-Qed.
+Proof. constructor; try apply _. intros []. apply Qmult_inv_r. Qed.
 Instance: Order Q := Qle.
 
 Instance: RingOrder q_equiv Qplus Qmult 0%Q Qle.
@@ -97,10 +90,27 @@ Instance: Group_Morphism inject_Z (Aunit:=0%Z) (Bunit:=0%Q) := { preserves_inv :
 Instance: Ring_Morphism inject_Z. 
 
 Instance: Injective inject_Z.
-Proof. intros x y. change (x * 1 = y * 1 → x = y). do 2 rewrite mult_1_r. intuition. Qed.
+Proof.
+ constructor. 2: apply _.
+ intros x y. change (x * 1 = y * 1 → x = y). do 2 rewrite mult_1_r. intuition.
+Qed.
 
-Instance ding: Surjective (λ p => inject_Z (fst p) * / inject_Z (snd p)).
-Proof. unfold dec_mult_inv. intros [num den]. exists (num, Zpos den). rewrite Qmake_Qdiv. reflexivity. Qed.
+Let inject p := inject_Z (fst p) * / inject_Z (snd p).
+
+Instance: Setoid_Morphism inject.
+Proof.
+ constructor; try apply _.
+ intros ?? E. unfold inject. rewrite E. reflexivity.
+Qed.
+
+Instance: Inv inject := λ x => (Qnum x, Zpos (Qden x)).
+
+Instance: Surjective (λ p => inject_Z (fst p) * / inject_Z (snd p)).
+Proof.
+ constructor. 2: apply _.
+ intros [num den]. unfold Basics.compose, id.
+ simpl. rewrite Qmake_Qdiv. reflexivity.
+Qed.
 
 Instance Qrat: Rationals Q.
 Proof alt_Build_Rationals _ _ inject_Z _ _.

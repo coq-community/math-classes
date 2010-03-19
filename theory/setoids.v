@@ -3,6 +3,23 @@ Set Automatic Introduction.
 Require Import
   Morphisms Setoid abstract_algebra Program.
 
+Section simple_product.
+
+  Context `{Setoid A} `{Setoid B}.
+
+  Global Instance: Equiv (A * B) := λ p q => fst p = fst q ∧ snd p = snd q.
+
+  Global Instance: Setoid (A * B).
+  Proof. firstorder. Qed.
+
+  Global Instance: Setoid_Morphism (@fst A B).
+  Proof. constructor; try apply _. firstorder. Qed.
+
+  Global Instance: Setoid_Morphism (@snd A B).
+  Proof. constructor; try apply _. firstorder. Qed.
+
+End simple_product.
+
 Section product.
 
   Context (I: Type) (c: I → Type) `{Π i, Equiv (c i)} `{Π i, Setoid (c i)}.

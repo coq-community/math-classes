@@ -42,6 +42,7 @@ Instance: SemiGroup _ (op:=BinInt.Zplus).
 Instance: SemiGroup _ (op:=BinInt.Zmult).
 Instance: Monoid _ (op:=BinInt.Zplus) (unit:=BinInt.Z0).
 Instance: Monoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH).
+Instance: CommutativeMonoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH).
 Instance: @Group _ _ (BinInt.Zplus) (BinInt.Z0) _
   := { ginv_l := BinInt.Zplus_opp_l; ginv_r := BinInt.Zplus_opp_r }.
 Instance: AbGroup BinInt.Z (op:=BinInt.Zplus) (unit:=BinInt.Z0).

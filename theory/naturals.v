@@ -39,16 +39,22 @@ Lemma morphisms_involutive `{Naturals A} `{Naturals B} (f: A → B) (g: B → A)
     Π a, f (g a) = a.
 Proof.
  intros.
- rewrite (to_semiring_unique _ _ _), (to_semiring_unique _ g _).
+ rewrite (to_semiring_unique _ g _).
+ rewrite (to_semiring_unique _ f _).
  apply (to_semiring_involutive _ _).
 Qed.
+
+Instance: Params (@natural_precedes) 8.
+Instance: Params (@precedes) 2.
 
 Lemma preserves_naturals_order_back `{Naturals A} `{Naturals B} (f: A → B) `{!SemiRing_Morphism f} (x y: A): f x <= f y → x <= y.
 Proof.
  intros.
+ pose proof (_: Proper ((=) ==> (=) ==> iff) precedes).
+ pose proof (naturals_to_semiring_mor B A _).
  rewrite <- (morphisms_involutive (naturals_to_semiring _ _) f y).
  rewrite <- (morphisms_involutive (naturals_to_semiring _ _) f x).
- apply (@preserves_sg_order B _ ring_plus _ A _ _ _ _ _).
+ apply preserves_sg_order. apply _.
  assumption.
 Qed.
 
@@ -63,6 +69,9 @@ Section contents.
 Context `{Naturals N}.
 
 Add Ring N: (stdlib_semiring_theory N).
+
+Let hint0 := naturals_to_semiring_mor N nat _.
+Let hint1 := naturals_to_semiring_mor nat N _.
 
 Section borrowed_from_nat.
 
@@ -82,7 +91,6 @@ Section borrowed_from_nat.
   Proof with auto.
    intros.
    rewrite <- (to_semiring_involutive _ nat n).
-   pose proof (naturals_to_semiring_mor nat _).
    set (m := naturals_to_semiring _ nat n). (* This [set] is suddenly needed in 12609... Todo: File a ticket. *)
    induction m.
     change (P (naturals_to_semiring nat _ (0:nat))).
@@ -119,19 +127,25 @@ Section borrowed_from_nat.
 
   Global Instance: Π x: N, Injective (ring_plus x).
   Proof.
-   intros u v w.
-   pose proof (from_nat_stmt (x' + y' === x' + z' -=> y' === z')
-     (λ _ d => match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
-   simpl in P.
-   apply P. intro. simpl. apply Plus.plus_reg_l.
+   intros u.
+   constructor.
+    intros v w.
+    pose proof (from_nat_stmt (x' + y' === x' + z' -=> y' === z')
+      (λ _ d => match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
+    simpl in P.
+    apply P. intro. simpl. apply Plus.plus_reg_l.
+   constructor; apply _.
   Qed.
 
-  Global Instance mult_injective: Π x: N, ~ x = 0 → Injective (ring_mult x).
+  Global Instance mult_injective: Π x: N, x ≠ 0 → Injective (ring_mult x).
   Proof.
-   intros u E v w.
-   pose proof (from_nat_stmt ((x' === 0 -=> Ext _ False) -=> x' * y' === x' * z' -=> y' === z')
-    (λ _ d => match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
-   apply P. intro. simpl. apply Mult_mult_reg_l. assumption.
+   intros u E.
+   constructor.
+    intros v w.
+    pose proof (from_nat_stmt ((x' === 0 -=> Ext _ False) -=> x' * y' === x' * z' -=> y' === z')
+     (λ _ d => match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
+    apply P. intro. simpl. apply Mult_mult_reg_l. assumption.
+   constructor; apply _.
   Qed.
 
   Global Instance: ZeroNeOne N.
@@ -179,7 +193,8 @@ End borrowed_from_nat.
     end.
 
   Next Obligation.
-   intros. apply (preserves_naturals_order (naturals_to_semiring N nat) x y).
+   intros.
+   apply (preserves_naturals_order (naturals_to_semiring N nat) x y).
    assumption. 
   Qed.
 

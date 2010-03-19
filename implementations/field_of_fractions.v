@@ -108,6 +108,8 @@ Instance: SemiGroup Frac (op:=frac_mult).
 Instance: Monoid Frac (op:=frac_mult) (unit:=frac_one).
 Proof. constructor; try apply _; ring_on_int. Qed.
 
+Instance: CommutativeMonoid Frac (op:=frac_mult) (unit:=frac_one).
+
 Instance: Ring Frac.
 
 (* inv is nice, giving us the field of fractions: *)
@@ -141,18 +143,29 @@ Proof.
 Qed.
 
 Global Instance: Injective inject.
-Proof. intros x y. unfold equiv, frac_equiv. simpl. do 2 rewrite mult_1_r. intuition. Qed.
+Proof. constructor. intros x y. unfold equiv, frac_equiv. simpl. do 2 rewrite mult_1_r. intuition. constructor; apply _. Qed.
 
-Global Instance: Surjective (λ p => inject (fst p) * / inject (snd p)).
+Let inject_frac := (λ p => inject (fst p) * / inject (snd p)).
+
+Global Instance: Inv inject_frac := λ x => (num x, den x).
+
+Global Instance: Surjective inject_frac.
 Proof.
- intros [n d P]. exists (n, d).
- unfold equiv, frac_equiv. simpl.
- ring_simplify.
- unfold dec_mult_inv. destruct decide.
-  exfalso. apply P.
-  unfold equiv in e0. simpl in e0. ring_simplify in e0.
-  assumption.
- simpl. ring.
+ constructor.
+  intros [n d P].
+  unfold Basics.compose, inject_frac, equiv, frac_equiv.
+  simpl.
+  ring_simplify.
+  unfold dec_mult_inv. destruct decide.
+   exfalso. apply P.
+   unfold equiv in e0. simpl in e0. ring_simplify in e0.
+   assumption.
+  simpl. ring.
+ constructor; try apply _.
+ intros ?? E.
+ unfold inject_frac.
+ rewrite E.
+ reflexivity.
 Qed.
 
 End contents.

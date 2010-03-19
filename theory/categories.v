@@ -25,6 +25,7 @@ Section adjunction.
     (F: X → A) `{!Functor F Fa} (* todo: we don't want to name Fa and Fg here *)
     (G: A → X) `{!Functor G Ga}
     (φ: Π {x a}, (F x ⟶ a) → (x ⟶ G a))
+    `{Π x a, Inv (φ x a)}
     `{Π x a, Bijective (φ x a)}.
 
   Implicit Arguments φ [[x] [a]].

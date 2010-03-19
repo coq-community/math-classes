@@ -111,6 +111,7 @@ Let mult_1_r: RightIdentity ring_mult (1:Z). Proof. intro. ring_on_nat. Qed.
 
 Instance: SemiGroup _ (op:=z_mult).
 Instance: Monoid Z (op:=z_mult) (unit:=z_one).
+Instance: CommutativeMonoid Z (op:=z_mult) (unit:=z_one).
 Global Instance: Ring Z.
 
 Add Ring Z: (stdlib_ring_theory Z).

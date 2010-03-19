@@ -84,7 +84,11 @@ Section subalgebras.
   (* Which is mono because proj is injective. *)
 
   Instance: Injective (proj i).
-  Proof. firstorder. Qed.
+  Proof.
+   constructor. firstorder.
+   constructor; try apply _.
+   firstorder.
+  Qed.
 
   Global Instance: Mono (algebra.arrow _ proj).
   Proof.

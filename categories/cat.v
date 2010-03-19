@@ -40,8 +40,6 @@ Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances.
 
 Section contents.
 
-  Instance hint (x y: Object) (a: x ⟶ y) p q: Setoid_Morphism (fmap a: (p ⟶ q) → _).
-
   Implicit Arguments map_obj [[x] [y]].
 
   Section more_arrows. Context (x y: Object).
@@ -70,8 +68,8 @@ Section contents.
      intros ???? E.
      pose proof (H _ _ _ _ E) as H0.
      destruct (x1 p), (x1 q). simpl in *.
-     rewrite E in H0 |- *.
      apply (arrows_between_isomorphic_objects _  _ _ _ _ _ _ _ _ _ u u0).
+     rewrite E in H0 |- *.
      assumption.
     Qed. (* todo: clean up *)
 
