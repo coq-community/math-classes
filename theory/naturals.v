@@ -204,25 +204,6 @@ End borrowed_from_nat.
    assumption. 
   Qed.
 
-  Global Program Instance: NatDistance N | 10 := λ (x y: N) => 
-    naturals_to_semiring _ N (proj1_sig (nat_distance (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y))).
-
-  Next Obligation.
-   intros.
-   destruct nat_distance. simpl.
-   destruct o; [left | right].
-    rewrite <- (to_semiring_involutive N nat y).
-    rewrite <- H0.
-    rewrite preserves_sg_op.
-    rewrite (to_semiring_involutive N nat).
-    reflexivity.
-   rewrite <- (to_semiring_involutive N nat x).
-   rewrite <- H0.
-   rewrite preserves_sg_op.
-   rewrite (to_semiring_involutive N nat).
-   reflexivity.
-  Qed.
-
   Global Program Instance: Π x y: N, Decision (x = y) | 10 :=
     λ x y =>
     match Peano_dec.eq_nat_dec (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y) with
@@ -261,6 +242,58 @@ End borrowed_from_nat.
     rewrite <- F at 2. ring.
    change (y * (x' + z + 0) = y * x').
    ring_simplify. rewrite (commutativity y z), A. ring.
+  Qed.
+
+  (* NatDistance instances are all equivalent, because their behavior is fully
+   determined by the specification. *)
+
+  Program Lemma nat_distance_unique_respectful {a b: NatDistance N}:
+    ((=) ==> (=) ==> (=))%signature a b.
+  Proof with intuition.
+   repeat intro.
+   destruct a, b.
+   simpl.
+   destruct o as [A | A], o0 as [B | B].
+      apply (injective (ring_plus x)).
+      rewrite A, H0, B...
+     destruct (zero_sum x1 x2).
+      apply (injective (ring_plus x)).
+      rewrite associativity, A, H1, B, H0. ring.
+     transitivity 0...
+    destruct (zero_sum x1 x2).
+     rewrite commutativity.
+     apply (injective (ring_plus y)).
+     rewrite associativity, B, <- H1, A, H0. ring.
+    transitivity 0...
+   apply (injective (ring_plus x0)).
+   rewrite A, H1, B...
+  Qed.
+
+  Lemma nat_distance_unique' {a b: NatDistance N} x: a x = b x.
+  Proof. intro. apply nat_distance_unique_respectful; reflexivity. Qed.
+
+  Global Instance nat_distance_proper `{!NatDistance N}: Proper ((=) ==> (=) ==> (=)) (λ (x y: N) => ` (nat_distance x y)).
+    (* Program *should* allow us to write plain nat_distance instead of the
+       above eta, like in nat_distance_unique_respectful. Matthieu confirms it's a bug. *)
+  Proof. apply nat_distance_unique_respectful. Qed.
+
+  Global Program Instance: NatDistance N | 10 := λ (x y: N) => 
+    naturals_to_semiring _ N (proj1_sig (nat_distance (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y))).
+      (* Removing the proj1_sig here results in an explosion of proof obligations. Todo: investigate. *)
+  Next Obligation.
+   intros.
+   destruct nat_distance. simpl.
+   destruct o; [left | right].
+    rewrite <- (to_semiring_involutive N nat y).
+    rewrite <- H0.
+    rewrite preserves_sg_op.
+    rewrite (to_semiring_involutive N nat).
+    reflexivity.
+   rewrite <- (to_semiring_involutive N nat x).
+   rewrite <- H0.
+   rewrite preserves_sg_op.
+   rewrite (to_semiring_involutive N nat).
+   reflexivity.
   Qed.
 
 End contents.
