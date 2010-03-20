@@ -131,6 +131,7 @@ Lemma quotient_variety
   (et: EquationalTheory) `{Variety et v}
   (e': Π s, relation (v s)) `{!Congruence et e'}
   (no_premises: Π s, et_laws et s → entailment_premises _ s ≡ nil): Variety et v (e:=e').
+    (* Todo: Can this no-premises condition be weakened? Does it occur in this form in the literature? *)
 Proof.
  constructor. apply _.
  intros l law vars.
