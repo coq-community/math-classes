@@ -122,9 +122,25 @@ Section contents. Variable et: Signature.
     { congruence_proper:> Π s: sorts et, Proper (equiv ==> equiv ==> iff) (e s)
     ; congruence_quotient:> Algebra et v (e:=e) }.
 
-  (* Todo: Show that congruences yield varieties, too. *)
-
 End contents.
+
+(* For an equational theory where none of the laws have
+ premises, a congruence yields a quotient variety, too: *)
+
+Lemma quotient_variety
+  (et: EquationalTheory) `{Variety et v}
+  (e': Π s, relation (v s)) `{!Congruence et e'}
+  (no_premises: Π s, et_laws et s → entailment_premises _ s ≡ nil): Variety et v (e:=e').
+Proof.
+ constructor. apply _.
+ intros l law vars.
+ pose proof (variety_laws l law vars) as E.
+ pose proof (no_premises l law).
+ destruct l as [prems [conc ?]]. simpl in *. subst. simpl in *.
+ unfold equiv. rewrite E.
+ pose proof (_: Equivalence (e' conc)).
+ reflexivity.
+Qed.
 
 Section in_domain.
 

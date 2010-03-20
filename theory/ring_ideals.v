@@ -8,7 +8,7 @@ Require varieties.ring.
 
 Section ideal_congruence. Context `{Ring R}.
 
-  Add Ring R: (@rings.stdlib_ring_theory R _ _ _ _ _ _ _).
+  Add Ring R: (rings.stdlib_ring_theory R).
 
   Context (P: R → Prop) `{!Proper (equiv ==> iff) P}.
 
@@ -88,6 +88,14 @@ Section ideal_congruence. Context `{Ring R}.
    repeat (constructor; try apply _); repeat intro; apply e_cong; try firstorder.
   Qed.
 
+  Instance: Ring R (e:=congruence).
+  Proof.
+   apply (@ring.struct_from_var_to_class (λ _ => R) (λ _ => congruence) hint).
+   pose proof (ring.variety R).
+   apply (quotient_variety ring.theory); try apply _.
+   intros ? []; intuition.
+  Qed.
+
 End ideal_congruence.
 
 Section kernel_is_ideal. Context `{Ring_Morphism A B f}.
@@ -95,8 +103,8 @@ Section kernel_is_ideal. Context `{Ring_Morphism A B f}.
   Let ringA := ringmor_a (f:=f).
   Let ringB := ringmor_b (f:=f).
 
-  Add Ring A : (@rings.stdlib_ring_theory A _ _ _ _ _ _ _).
-  Add Ring B : (@rings.stdlib_ring_theory B _ _ _ _ _ _ _).
+  Add Ring A: (rings.stdlib_ring_theory A).
+  Add Ring B: (rings.stdlib_ring_theory B).
 
   Definition kernel: A → Prop := (= 0) ∘ f.
 
