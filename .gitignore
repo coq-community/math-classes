@@ -3,3 +3,4 @@
 deps
 .sconsign.dblite
 coqidescript
+coqdoc

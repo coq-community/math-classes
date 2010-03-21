@@ -241,8 +241,6 @@ Section Lookup.
 
   Class Lookup {A} (x: Value) (f: Vars A) := { lookup: A; lookup_correct: f lookup = x }.
 
-Check @lookup.
-
   Global Implicit Arguments lookup [[A] [Lookup]].
 
   Context (x: Value) {A B} (va: Vars A) (vb: Vars B).
@@ -421,3 +419,5 @@ Goal Π x y, x * y = y * x.
  simpl quote.
  unfold map_var, monkey, sum_rect.
 Admitted.
+
+End with_vars.

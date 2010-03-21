@@ -9,25 +9,38 @@ while nodes:
   b = os.path.basename(node)
   if node.endswith('.v'):
     vs += [node]
-  if os.path.isdir(node):
+  if os.path.isdir(node) and node != "./broken":
     dirs += [node]
     nodes += glob.glob(node + '/*')
 
 Rs = ' -R interfaces interfaces -R theory theory -R orders orders -R varieties varieties -R categories categories '
-  # Todo: This doesn't scale. Find a better approach.
+  # Todo: This sucks. We'd like to use "-R . ''", but this doesn't work. See Coq bug 2263.
 Rs_and_Is = Rs + ' -I implementations -I misc '
 
 coqc = 'coqc ' + Rs_and_Is + ' $SOURCE'
 
 env = DefaultEnvironment(ENV = os.environ)
-env.Append(BUILDERS = {'Coq' : Builder(action = coqc, suffix = '.vo', src_suffix = '.v')})
 
-env.Command('doc', vs,
-  [Mkdir('doc'), 'coqdoc --no-lib-name -d $TARGET' + Rs + '$SOURCES'])
+def add_glob(target, source, env):
+  base, _ = os.path.splitext(str(target[0]))
+  target.append(base + ".glob")
+  return target, source
 
+env.Append(BUILDERS =
+  {'Coq' : Builder(
+    action = coqc,
+    suffix = '.vo',
+    src_suffix = '.v',
+    emitter = add_glob)})
+
+vos = globs = []
 for node in vs:
-  vo = env.Coq(node)
-  env.Clean(vo, node[:-2] + '.glob')
+  vo, glob = env.Coq(node)
+  vos += [vo]
+  globs += [glob]
+
+env.Command(env.Dir('coqdoc'), vs + vos + globs,
+  [Mkdir('coqdoc'), 'coqdoc -utf8 --no-lib-name -d $TARGET' + Rs + ' '.join(vs)])
 
 os.system('coqdep ' + Rs_and_Is + ' '.join(vs) + ' > deps')
 ParseDepends('deps')
@@ -36,4 +49,4 @@ Alias('coqide', Command(['dummy'], [], 'coqide ' + Rs_and_Is + ' &'))
 
 Default('implementations', 'theory', 'categories', 'orders', 'varieties')
 
-open('coqidescript', 'w').write('#!/bin/sh\ncoqide' + Rs_and_Is + '$@\n')
+open('coqidescript', 'w').write('#!/bin/sh\ncoqide' + Rs_and_Is + '$@ & 2> /dev/null\n')
