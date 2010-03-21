@@ -79,7 +79,7 @@ Section from_instance.
    apply distribute_r.
   Qed.
 
-  Instance variety: Variety theory (λ _ => A).
+  Instance variety: InVariety theory (λ _ => A).
   Proof. constructor. apply _. exact laws. Qed.
 
   Definition Object := variety.Object theory.
@@ -96,7 +96,7 @@ Section ops_from_alg_to_sr. Context `{AlgebraOps theory A}.
   Global Instance: RingOne (A tt) := algebra_op _ one.
 End ops_from_alg_to_sr.
 
-Lemma mor_from_sr_to_alg `{Variety theory A} `{Variety theory B}
+Lemma mor_from_sr_to_alg `{InVariety theory A} `{InVariety theory B}
   (f: Π u, A u → B u) `{!SemiRing_Morphism (f tt)}: HomoMorphism sig A B f.
 Proof.
  constructor.
@@ -110,7 +110,7 @@ Proof.
  change (Algebra theory B). apply _.
 Qed.
 
-Instance struct_from_var_to_class `{v: Variety theory A}: SemiRing (A tt).
+Instance struct_from_var_to_class `{v: InVariety theory A}: SemiRing (A tt).
 Proof with simpl; auto.
  repeat (constructor; try apply _); repeat intro.
                apply (variety_laws _ e_mult_assoc (λ s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end))...

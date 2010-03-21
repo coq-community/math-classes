@@ -48,7 +48,7 @@ Section from_instance.
 
   Context A `{Monoid A}.
 
-  Instance implementation: AlgebraOps sig (fun _ => A) :=
+  Instance implementation: AlgebraOps sig (λ _ => A) :=
     fun o => match o with mult => sg_op | one => mon_unit end.
 
   Global Instance: Algebra sig _.
@@ -62,10 +62,10 @@ Section from_instance.
    apply right_identity.
   Qed.
 
-  Global Instance: Variety theory (fun _ => A).
+  Global Instance: InVariety theory (λ _ => A).
   Proof. constructor. apply _. exact laws. Qed.
 
-  Definition object: Object := variety.object theory (fun _ => A).
+  Definition object: Object := variety.object theory (λ _ => A).
 
 End from_instance.
 

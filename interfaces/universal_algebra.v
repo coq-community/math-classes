@@ -116,21 +116,21 @@ Inductive Signature: Type :=
 
 (* We now introduce additional things in order to let us eventually define equational theories and varieties. *)
 
-Section for_signature. Variable sign: Signature. (* todo: rename: \sigma *)
+Section for_signature. Variable σ: Signature.
 
   (* Let sorts := sorts sign.  -- cleaner but causes problems, test case presented to mattam *)
-  Let OpType := OpType (sorts sign).
+  Let OpType := OpType (sorts σ).
 
   (* An implementation of a signature for a given realization of the sorts is simply a function (of the right type) for each operation: *)
 
-  Class AlgebraOps (A: sorts sign → Type) := algebra_op: Π o, op_type _ A (sign o).
+  Class AlgebraOps (A: sorts σ → Type) := algebra_op: Π o, op_type _ A (σ o).
 
-  Class Algebra (* todo: rename \sigma-algebra *)
-      (carriers: sorts sign → Type)
+  Class Algebra
+      (carriers: sorts σ → Type)
       {e: Π a, Equiv (carriers a)}
       `{AlgebraOps carriers}: Prop :=
     { algebra_setoids:> Π a, Setoid (carriers a)
-    ; algebra_propers:> Π o: sign, Proper equiv (algebra_op o) }.
+    ; algebra_propers:> Π o: σ, Proper equiv (algebra_op o) }.
 
   (* As an aside: given two implementations in different realizations of the sorts, and a map between
    them for each sort, we can say what it means for that map to preserve the algebra's operations,
@@ -138,7 +138,7 @@ Section for_signature. Variable sign: Signature. (* todo: rename: \sigma *)
 
   Section for_map.
 
-    Context (A B: sorts sign → Type)
+    Context (A B: sorts σ → Type)
       `{ea: Π a, Equiv (A a)} `{eb: Π a, Equiv (B a)}
       `{ai: AlgebraOps A} `{bi: AlgebraOps B}.
 
@@ -154,7 +154,7 @@ Section for_signature. Variable sign: Signature. (* todo: rename: \sigma *)
 
     Class HomoMorphism: Prop :=
       { homo_proper:> Π a, Setoid_Morphism (@f a)
-      ; preserves: Π (o: sign), Preservation (ai o) (bi o)
+      ; preserves: Π (o: σ), Preservation (ai o) (bi o)
       ; homo_source_algebra: Algebra A
       ; homo_target_algebra: Algebra B
       }.
@@ -226,13 +226,13 @@ Section for_signature. Variable sign: Signature. (* todo: rename: \sigma *)
        repeat intro.
        do 2 rewrite <- H.
        rewrite H0...
-      apply (Preservation_proper' x y H (sign o) (ai o) (bi o))...
+      apply (Preservation_proper' x y H (σ o) (ai o) (bi o))...
      repeat constructor...
       repeat intro.
       do 2 rewrite H.
       rewrite H0...
-     assert (Π (a : sorts sign) (x0 : A a), y a x0 = x a x0). symmetry. apply H.
-     apply (Preservation_proper' y x H0 (sign o) (ai o) (bi o))...
+     assert (Π (a : sorts σ) (x0 : A a), y a x0 = x a x0). symmetry. apply H.
+     apply (Preservation_proper' y x H0 (σ o) (ai o) (bi o))...
     Qed.
 
   End for_map.
@@ -242,7 +242,7 @@ Section for_signature. Variable sign: Signature. (* todo: rename: \sigma *)
   Proof with try apply _; intuition.
    constructor; intros...
    generalize (ao o).
-   induction (sign o); simpl...
+   induction (σ o); simpl...
    reflexivity.
   Qed.
 
@@ -256,7 +256,7 @@ Section for_signature. Variable sign: Signature. (* todo: rename: \sigma *)
    pose proof (homo_target_algebra _ _ f).
    constructor; intros...
    generalize (ao o) (bo o) (co o) (preserves _ _ g o) (preserves _ _ f o).
-   induction (sign o); simpl; intros; unfold compose.
+   induction (σ o); simpl; intros; unfold compose.
     rewrite H5...
    apply (IHo0 _ (o2 (g _ x)))...
   Qed.
@@ -264,9 +264,9 @@ Section for_signature. Variable sign: Signature. (* todo: rename: \sigma *)
   (* Proceeding on our way toward equational theories and varieties, we define terms: *)
 
   Inductive Term (V: Type): OpType → Type :=
-    | Var (v: V) (a: sorts sign): Term V (constant _ a)
+    | Var (v: V) (a: sorts σ): Term V (constant _ a)
     | App (t: OpType) y: Term V (function _ y t) → Term V (constant _ y) → Term V t
-    | Op (o: sign): Term V (sign o).
+    | Op (o: σ): Term V (σ o).
 
   Implicit Arguments Var [[V]].
 
@@ -353,12 +353,12 @@ Section for_signature. Variable sign: Signature. (* todo: rename: \sigma *)
 
   Section Vars.
 
-    Context (A: sorts sign → Type) (V: Type) `{e: Π a, Equiv (A a)} `{Π a, Equivalence (e a)}.
+    Context (A: sorts σ → Type) (V: Type) `{e: Π a, Equiv (A a)} `{Π a, Equivalence (e a)}.
 
     Definition Vars := Π a, V → A a.
 
     Global Instance: Equiv Vars :=
-     @pointwise_dependent_relation (sorts sign) (λ a => V → A a)
+     @pointwise_dependent_relation (sorts σ) (λ a => V → A a)
       (λ _ => pointwise_relation _ equiv).
 
     Global Instance: Equivalence (equiv: relation Vars).
@@ -435,15 +435,13 @@ Record EquationalTheory :=
   { et_sig:> Signature
   ; et_laws:> EqEntailment et_sig → Prop }.
 
-Class Variety (* todo: rename \tau-algebra *)
-  (et: EquationalTheory) (* todo: rename \tau *)
+Class InVariety
+  (et: EquationalTheory)
   (carriers: sorts et → Type)
   {e: Π a, Equiv (carriers a)}
   `{!AlgebraOps et carriers}: Prop :=
   { variety_algebra:> Algebra et carriers
-  ; variety_laws: Π s: EqEntailment et, et_laws et s → (Π vars: Π a, nat → carriers a,
-      @eval_stmt et carriers e _ vars s)
-  }.
+  ; variety_laws: Π s, et_laws et s → (Π vars, eval_stmt et vars s) }.
 
 Module op_type_notations.
   Global Infix "-=>" := (function _) (at level 95, right associativity).

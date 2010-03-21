@@ -64,7 +64,7 @@ Section varieties.
     (I: Type) (carriers: I → sorts et → Type)
     `(Π i s, Equiv (carriers i s))
     `(Π i, AlgebraOps et (carriers i))
-    `(Π i, Variety et (carriers i)).
+    `(Π i, InVariety et (carriers i)).
 
   Notation carrier := (carrier et I carriers).
   Let carrier_e := product_e et I carriers _.
@@ -165,7 +165,8 @@ Section varieties.
    apply nqe_always.
   Qed. (* todo: clean up! also, we shouldn't have to go through boring.. *)
 
-  Global Instance product_variety: @Variety et carrier carrier_e _.
+  Global Instance product_variety: InVariety et carrier (e:=carrier_e).
+  Proof.
    constructor. apply product_algebra. intro i. apply _.
    apply laws_hold.
   Qed.

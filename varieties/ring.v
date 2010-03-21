@@ -85,7 +85,7 @@ Section from_instance.
    apply theory.rings.plus_opp_l.
   Qed.
 
-  Instance variety: Variety theory (λ _ => A).
+  Instance variety: InVariety theory (λ _ => A).
   Proof. constructor. apply _. exact laws. Qed.
 
   Definition Object := variety.Object theory.
@@ -103,7 +103,7 @@ Section ops_from_alg_to_sr. Context `{AlgebraOps theory A}.
   Global Instance: GroupInv (A tt) := algebra_op _ opp.
 End ops_from_alg_to_sr.
 
-Lemma mor_from_sr_to_alg `{Variety theory A} `{Variety theory B}
+Lemma mor_from_sr_to_alg `{InVariety theory A} `{InVariety theory B}
   (f: Π u, A u → B u) `{!Ring_Morphism (f tt)}: HomoMorphism sig A B f.
 Proof.
  constructor.
@@ -118,7 +118,7 @@ Proof.
  change (Algebra theory B). apply _.
 Qed.
 
-Instance struct_from_var_to_class `{v: Variety theory A}: Ring (A tt).
+Instance struct_from_var_to_class `{v: InVariety theory A}: Ring (A tt).
 Proof with simpl; auto.
  repeat (constructor; try apply _); repeat intro.
                apply (variety_laws _ e_plus_assoc (λ s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end))...
@@ -146,7 +146,7 @@ Section morphism_from_ua.
 
   (* todo: Do we really need this? If so, how come we don't need it for semiring? *)
 
-  Context `{Variety theory R0} `{Variety theory R1} f `{!HomoMorphism sig R0 R1 f}.
+  Context `{InVariety theory R0} `{InVariety theory R1} f `{!HomoMorphism sig R0 R1 f}.
 
   Global Instance: RingPlus (R0 tt) := @universal_algebra.algebra_op sig R0 _ plus.
   Global Instance: RingMult (R0 tt) := @universal_algebra.algebra_op sig R0 _ mult.

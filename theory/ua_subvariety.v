@@ -8,7 +8,7 @@ also yield subvarieties (by showing that the laws still hold in the subalgebra).
 
 Section contents.
 
-  Context `{Variety et A} `{@ClosedSubset et A _ _ P}. (* todo: why so ugly? *)
+  Context `{InVariety et A} `{@ClosedSubset et A _ _ P}. (* todo: why so ugly? *)
 
   Definition Pvars (vars: Vars et (carrier P) nat): Vars et A nat
     := λ s n => ` (vars s n).
@@ -84,6 +84,6 @@ Section contents.
 
   (* Which gives us our variety: *)
 
-  Global Instance: Variety et (carrier P) := { variety_laws := laws }.
+  Global Instance: InVariety et (carrier P) := { variety_laws := laws }.
 
 End contents.

@@ -17,7 +17,7 @@ Section contents.
     { variety_carriers:> sorts et → Type
     ; variety_equiv: Π a, Equiv (variety_carriers a)
     ; variety_op: AlgebraOps et variety_carriers
-    ; variety_proof: Variety et variety_carriers
+    ; variety_proof: InVariety et variety_carriers
     }.
 
   Global Implicit Arguments object [[variety_equiv] [variety_op] [variety_proof]].
@@ -28,7 +28,7 @@ Section contents.
 
   Global Instance: Arrows Object := λ X Y: Object => sig (HomoMorphism et X Y).
 
-  Program Definition arrow `{Variety et A} `{Variety et B}
+  Program Definition arrow `{InVariety et A} `{InVariety et B}
     f `{!HomoMorphism et A B f}: object A ⟶ object B := f.
 
   Global Program Instance: CatId Object := λ _ _ => id.

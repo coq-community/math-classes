@@ -92,7 +92,7 @@ Section contents. Variable et: EquationalTheory.
 
   (* Hence, we have a variety: *)
 
-  Global Instance: Variety et ClosedTerm0.
+  Global Instance: InVariety et ClosedTerm0.
   Proof. constructor. apply _. intros. apply laws_hold. assumption. Qed.
 
   (* And hence, an object in the category: *)

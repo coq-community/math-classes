@@ -7,7 +7,7 @@ Require categories.variety.
 
 Section contents.
 
-  Context (et: EquationalTheory) `{Variety et A} `{Variety et B}
+  Context (et: EquationalTheory) `{InVariety et A} `{InVariety et B}
     `{!HomoMorphism et A B ab} `{!HomoMorphism et B A ba}
     (i: iso_arrows (variety.arrow et ab) (variety.arrow et ba)).
 
