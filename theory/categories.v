@@ -34,7 +34,20 @@ Section adjunction.
    { natural_left `(k: a ⟶ a'): `((fmap G k ◎) ∘ φ = @φ x _ ∘ (k ◎))
    ; natural_right `(h: x' ⟶ x):`((◎ h) ∘ @φ _ a = φ ∘ (◎ fmap F h)) }.
 
+  Context `{Adjunction}.
+
+   Lemma rad_l `{f:F x ⟶ a}`(k:a  ⟶ a'): φ (k ◎ f)= (fmap G k) ◎ φ f.
+     symmetry. apply natural_left.
+   Qed.
+
+  Lemma rad_r `{f:F x ⟶ a}`(h:x' ⟶ x): φ (f ◎ fmap F h) = φ f ◎ h.
+    symmetry.  apply (natural_right  h a).
+  Qed.
+
 End adjunction.
+
+Check @rad_l.
+Print rad_l.
 
 (* The more practical definition via universal morphisms: *)
 

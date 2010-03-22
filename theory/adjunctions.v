@@ -52,35 +52,42 @@ Context `{Category A} `{Category X}
     `{Π x a, Bijective (φ x a)}
     (φ_adj:Adjunction _ _ φ).
 
-Lemma rad_l `{f:F x ⟶ a}`(k:a  ⟶ a'): φ _ _ (k ◎ f)= (fmap G k) ◎ φ _ _ f.
-symmetry.
-apply  (@natural_left _ _ _ _ _ _ _ F _ G _ φ φ_adj _ _ k).
-(* TODO: simplify *)
-Qed.
+Implicit Arguments φ [[a] [x]].
 
-Lemma rad_r `{f:F x ⟶ a}`(h:x' ⟶ x): φ _ _ (f ◎ fmap F h) = φ _ _ f ◎ h.
-Admitted.
+(* Move to Utils *)
+Hint Unfold id compose:typeclass_instances.
 
 Definition η:id ⇛ G ∘ F:=
   (λ x:X => (@φ x (F x) (@cat_id A _ _ (F x)))).
 
-Implicit Arguments φ [[a] [x]].
+Instance: ∀ x y, Setoid_Morphism (@φ x y).
+ intros.
+ destruct (H4 x y).
+ destruct bijective_injective.
+ apply _.
+Qed.
 
-Hint Unfold id compose:typeclass_instances.
-Instance: (NaturalTransformation η).
-unfold NaturalTransformation. 
-(* MacLane p81 *)
-unfold η. intros x' x h.
-symmetry.
-setoid_replace (fmap (G ∘ F) h ◎ φ cat_id) with (φ (fmap F h ◎ cat_id)).
-
-Focus 2. symmetry. rewrite rad_l. cut (fmap G (fmap F h)=  fmap (G ∘ F) h).
-intro. rewrite H5. reflexivity. admit.
-setoid_replace (φ (fmap F h ◎ cat_id)) with (φ ( cat_id ◎ (fmap F h))).
-Focus 2. transitivity (φ (fmap F h)). assert ((fmap F h ◎ cat_id) = (fmap F h)) by apply id_r.
-(* rewrite H5. ??? f_equal ???*) admit. admit.
-setoid_replace (φ (cat_id ◎ fmap F h)) with (φ cat_id ◎ fmap id h) by apply rad_r.
+Instance: NaturalTransformation η.
+ unfold NaturalTransformation. 
+ (* MacLane p81 *)
+ unfold η. intros x' x h.
+ symmetry.
+ setoid_replace (fmap (G ∘ F) h ◎ φ cat_id) with (φ (fmap F h ◎ cat_id)).
+  Focus 2.
+  symmetry.
+  rewrite rad_l; [| apply _].
+  cut (fmap G (fmap F h)=  fmap (G ∘ F) h).
+   intro. rewrite H5. reflexivity.
+  symmetry.
+   (* apply preserves_comp. TODO: Prove for normal arrow in Sets *) admit.
+  setoid_replace (φ (fmap F h ◎ cat_id)) with (φ ( cat_id ◎ (fmap F h))).
+Focus 2. transitivity (φ (fmap F h)). 
+rewrite id_r.
+(* TODO: add Hint that bijective is a Steoid_Morphism. *)
 reflexivity.
+rewrite id_l. reflexivity.
+setoid_replace (φ (cat_id ◎ fmap F h)) with (φ cat_id ◎ fmap id h) by apply (rad_r F G).
+reflexivity. apply _.
 Qed.
 
 (**
@@ -91,3 +98,69 @@ GF h ∘ (φ (cat_id (F x')))=(φ (fmap F h∘ cat_id (F x')))
 
 Based on the naturality of φ.
 *)
+
+
+Lemma φarrows `(f:(F x)  ⟶ a):φ f = (fmap G f)  ◎ (η x).
+Proof with reflexivity.
+rewrite <- (id_r  f).
+(* TODO: Finish the proof by autorewrite *)
+rewrite  rad_l by apply _.
+rewrite id_r...
+Qed.
+
+Definition ϵ  : F ∘ G ⇛ id :=
+  (λ a:A => (@inv _  _ (@φ (G a) a) _ (@cat_id X _ _ (G a)))).
+
+(*
+Instance: ∀ x y, Setoid_Morphism (@inv _  _ (@φ x y)).
+ intros.
+ destruct (H4 x y).
+ destruct bijective_injective.
+ apply _.
+Qed.
+*)
+
+Instance: NaturalTransformation ϵ.
+ unfold NaturalTransformation. 
+ (* MacLane p82 *)
+ unfold ϵ. intros a' a k.
+ symmetry. 
+(* ETC ... Can we use the op-cat?? 
+
+ setoid_replace (fmap (G ∘ F) h ◎ φ cat_id) with (φ (fmap F h ◎ cat_id)).
+  Focus 2.
+  symmetry.
+  rewrite rad_l; [| apply _].
+  cut (fmap G (fmap F h)=  fmap (G ∘ F) h).
+   intro. rewrite H5. reflexivity.
+  symmetry.
+   (* apply preserves_comp. TODO: Prove for normal arrow in Sets *) admit.
+  setoid_replace (φ (fmap F h ◎ cat_id)) with (φ ( cat_id ◎ (fmap F h))).
+Focus 2. transitivity (φ (fmap F h)). 
+rewrite id_r.
+(* TODO: add Hint that bijective is a Steoid_Morphism. *)
+reflexivity.
+rewrite id_l. reflexivity.
+setoid_replace (φ (cat_id ◎ fmap F h)) with (φ cat_id ◎ fmap id h) by apply (rad_r F G).
+reflexivity. apply _.
+Qed.
+
+(**
+It is a natural transformation because:
+GF h ∘ (φ (cat_id (F x')))=(φ (fmap F h∘ cat_id (F x')))
+   = φ ( cat_id (F x) ∘ (fmap F h))
+   = φ ( cat_id (F x) ∘ h
+
+Based on the naturality of φ.
+*)
+
+
+Lemma φarrows `(f:(F x)  ⟶ a):φ f = (fmap G f)  ◎ (η x).
+Proof with reflexivity.
+rewrite <- (id_r  f).
+(* TODO: Finish the proof by autorewrite *)
+rewrite  rad_l by apply _.
+rewrite id_r...
+Qed.
+
+
