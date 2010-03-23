@@ -49,4 +49,4 @@ Alias('coqide', Command(['dummy'], [], 'coqide ' + Rs_and_Is + ' &'))
 
 Default('implementations', 'theory', 'categories', 'orders', 'varieties')
 
-open('coqidescript', 'w').write('#!/bin/sh\ncoqide' + Rs_and_Is + '$@ & 2> /dev/null\n')
+open('coqidescript', 'w').write('#!/bin/sh\ncoqide' + Rs_and_Is + '$@ \n')
