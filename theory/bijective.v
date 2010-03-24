@@ -4,23 +4,23 @@ Require Import
   Relation_Definitions Morphisms Setoid Program abstract_algebra Basics.
 
 Section alt_injective.
-
   Context `{Setoid A} `{Setoid B} `{f: A → B} `{!Inv f}.
-
-  Global Instance: Bijective f → Setoid_Morphism (inv: B → A).
+   (* Experimental Notation. If successful, then move *)
+  Notation "f ⁻¹" := (@inv _ _ f _) (at level 30).
+  Global Instance: Bijective f → Setoid_Morphism (f⁻¹: B → A).
   Proof with try tauto.
    repeat intro.
    constructor...
    repeat intro.
    apply (injective f).
-   change ((f ∘ inv) x = (f ∘ inv) y).
+   change ((f ∘ f ⁻¹) x = (f ∘ f ⁻¹) y).
    do 2 rewrite (surjective f _)...
   Qed.
 
-  Lemma back: Bijective f → inv ∘ f = id. (* a.k.a. "split-mono" *)
+  Lemma back: Bijective f → f ⁻¹ ∘ f = id. (* a.k.a. "split-mono" *)
   Proof. repeat intro. apply (injective f). exact (surjective f (f x)). Qed.
 
-  Lemma forth: Setoid_Morphism f → Setoid_Morphism (inv: B → A) → inv ∘ f = id → Injective f.
+  Lemma forth: Setoid_Morphism f → Setoid_Morphism (f ⁻¹: B → A) → f ⁻¹ ∘ f = id → Injective f.
   Proof with try tauto.
    intros ?? E.
    constructor...
@@ -30,6 +30,13 @@ Section alt_injective.
    unfold compose.
    rewrite E'...
    intuition.
+  Qed.
+
+  Global Instance invBij: (Bijective f) -> (@Bijective B e0 A e (f ⁻¹:B->A) f).
+  intro H1. constructor; (constructor; auto with typeclass_instances); destruct H1 as [[H1 ?][H2 _]].
+    intros; rewrite <- (H2 x), <- (H2 y); unfold compose; destruct injective_mor; auto.
+  intro. unfold compose, inv.
+  apply H1. apply H2.
   Qed.
 
 End alt_injective.
