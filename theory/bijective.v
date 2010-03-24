@@ -40,3 +40,19 @@ Section alt_injective.
   Qed.
 
 End alt_injective.
+
+Section more_bijective.
+  Context `{Setoid A} `{Setoid B} `{f: A → B} `{!Inv f}.
+  Notation "f ⁻¹" := (@inv _ _ f _) (at level 30).
+  Lemma back': Bijective f → f ∘ f ⁻¹ = id.
+  intro bij.
+  set (back (invBij bij)). admit. (* TODO *)
+  Qed.
+
+   Lemma cancel_left: forall t1 t2, f t1 = t2 -> t1 = f ⁻¹ t2.
+   Admitted.
+
+   Lemma cancel_left': forall t1 t2, f ⁻¹ t1 = t2 -> t1 = f t2.
+   Admitted.
+
+End more_bijective.
