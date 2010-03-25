@@ -10,25 +10,25 @@
 \divide\abovedisplayskip 4
 \divide\belowdisplayskip 4
 \begin{document}
-\title{Developing the algebraic hierarchy with type classes in Coq}
+\title{Developing the Algebraic Hierarchy with Type Classes in Coq}
 \author{Bas Spitters \and Eelis van der Weegen}
 \institute{Radboud University Nijmegen}
 \maketitle
 \begin{abstract}
-We present a new formalization of the algebraic hierarchy in Coq, exploiting its newly obtained type class implementation to make practical a solution formerly thought infeasible. Our approach addresses both traditional challenges as well as new ones resulting from our ambition to build upon this development a library of constructive analysis in which abstraction penalties inhibiting efficient computation are reduced to a bare minimum.
+We present a new formalization of the algebraic hierarchy in Coq, exploiting its new type class mechanism to make practical a solution formerly thought infeasible. Our approach addresses both traditional challenges as well as new ones resulting from our ambition to build upon this development a library of constructive analysis in which abstraction penalties inhibiting efficient computation are reduced to a bare minimum. To support mathematically sound abstract interfaces for $\N$, $\Z$, and $\Q$, our formalization includes portions of category theory and multisorted universal algebra.
 \end{abstract}
 
 \section{Introduction}
-The development of libraries for formalized mathematics presents many software engineering challenges ~\cite{C-corn,DBLP:conf/types/HaftmannW08} arising from the fact that it is far from obvious how the clean, idealized concepts from everyday mathematics should be represented using the facilitities provided by concrete theorem provers and their formalisms, in a way that is both mathematically faithful and convenient to work with.
+The development of libraries for formalized mathematics presents many software engineering challenges~\cite{C-corn,DBLP:conf/types/HaftmannW08}, because it is far from obvious how the clean, idealized concepts from everyday mathematics should be represented using the facilitities provided by concrete theorem provers and their formalisms, in a way that is both mathematically faithful and convenient to work with.
 
 For the algebraic hierarchy---a critical component in any library of formalized mathematics---these challenges include structure inference, handling of multiple inheritance, idiomatic use of notations, and convenient algebraic manipulation.
 
-Several solutions have been proposed for the Coq theorem prover: dependent records~\cite{DBLP:journals/jsc/GeuversPWZ02} (a.k.a. telescopes), packed classes~\cite{Packed}, and occasionally modules. We present a new approach based entirely on Coq's recently obtained type classes, and show how their features together with a key design pattern let us effectively address the challenges mentioned above.
+Several solutions have been proposed for the Coq theorem prover: dependent records~\cite{DBLP:journals/jsc/GeuversPWZ02} (a.k.a. telescopes), packed classes~\cite{Packed}, and occasionally modules. We present a new approach based entirely on Coq's new type class mechanism, and show how its features together with a key design pattern let us effectively address the challenges mentioned above.
 
 Since we intend to use this development as a basis for constructive analysis with practical certified exact real arithmetic, an additional objective and motivation in our design is to facilitate \emph{efficient} computation. In particular, we want to be able to effortlessly swap implementations of number representations. Doing this requires that we have clean abstract interfaces, and mathematics tells us what these should look like: we represent $\N$, $\Z$, and $\Q$ as \emph{interfaces} specifying an initial semiring, an initial ring, and a field of integral fractions, respectively.
 
 To express these elegantly and without duplication, our development\footnote{The sources are available
-at:~\url{http://www.eelis.net/research/math-classes/}} includes an integrated formalization of the basics of category theory and multi-sorted universal algebra, all expressed using type classes where appropriate.
+at:~\url{http://www.eelis.net/research/math-classes/}} includes an integrated formalization of parts of category theory and multi-sorted universal algebra, all expressed using type classes for optimum effect.
 
 % In
 % Coq, type classes have advantages over modules\footnote{
@@ -39,17 +39,11 @@ at:~\url{http://www.eelis.net/research/math-classes/}} includes an integrated fo
 % they are first class and extract~\cite{letouzey02} to Haskell\footnote{
 % Would module like extraction be possible?}.
 
-%Our contributions are:\footnote{The sources are available at:~\url{http://www.eelis.net/research/math-classes/}}%
-%\begin{itemize}\itemsep=0pt
-% \item The implementation of an algebraic hierarchy based on type classes, addressing the
-%issues raised above; see Section~\ref{classes}.
-% \item A formalization of many-sorted universal algebra in Coq, including a construction of
-%free $\Sigma$-algebras; Section~\ref{univ}.
-%\end{itemize}
+\section{The Type-Classified Algebraic Hierarchy}\label{classes}
 
-\section{Algebraic hierarchy using type classes}\label{classes}
-\vspace*{-2ex}
-We represent each structure in the algebraic hierarchy as a type class. In Coq, type classes and their instances are realized as record types (``dictionaries'') and registered constants of these types. This immediately leads to the familiar question of which components of the structure are to become parameters, and which are to become record(/class) fields. By far the most important design choice in our development is the decision to turn all \emph{structural} components (i.e. carriers, relations, and operations) into parameters, keeping only \emph{properties} as fields. Type classes defined this way are essentially predicates with automatically resolved proofs.
+Unlike Haskell's and Isabelle's second class type classes, Coq's type classes are first class: classes and their instances are realized as ordinary record types (``dictionaries'') and registered constants of these types.
+
+We represent each structure in the algebraic hierarchy as a type class. This immediately leads to the familiar question of which components of the structure are to become parameters of the class, and which are to become fields. By far the most important design choice in our development is the decision to turn all \emph{structural} components (i.e. carriers, relations, and operations) into parameters, keeping only \emph{properties} as fields. Type classes defined this way are essentially predicates with automatically resolved proofs.
 
 Conventional wisdom warns that while this approach is theoretically very flexible (as we will see momentarily), one risks extreme inconvenience both in having to declare and pass around all these structural components all the time, as well as in losing notations (because we no longer project named operations out of records).
 
@@ -73,31 +67,21 @@ The concrete Coq infrastructure (added specifically to support type classes) tha
 
 Having argued that the \emph{all-structure-as-parameters} approach \emph{can} be made practical, we enumerate some of the benefits that make it worthwhile.
 
-First, multiple inheritance becomes trivial: |SemiRing| inherits two |Monoid| structures on the same carrier and setoid relation, using ordinary named arguments (rather than dedicated extensions \cite{DBLP:conf/types/Luo08}) to achieve ``manifest fields''.
+First, multiple inheritance (a major headache/complication in current solutions) becomes trivial: |SemiRing| inherits two |Monoid| structures on the same carrier and setoid relation, using ordinary named arguments (rather than dedicated extensions~\cite{DBLP:conf/types/Luo08}) to achieve ``manifest fields''.
 
-Second, because our terms are small and independent and never refer to proofs, we are invulnerable to concerns about efficiency and ambiguity of projection paths (obviating the need for things like the proposed coercion pullbacks~\cite{Hints}).
+Second, because our terms are small and independent and never refer to proofs, we are invulnerable to concerns about efficiency and ambiguity of projection paths that plague existing solutions, obviating the need for extensions like the proposed coercion pullbacks~\cite{Hints}.
 
-Third, since our structural type classes are mere (proof-irrelevant) predicates, overlap between their instances is a non-issue. Together with the previous point, this gives us tremendous freedom to posit multiple structures on the same operations and relations, including ones derived implicitly via subclasses.
+Third, since our structural type classes are mere predicates, overlap between their instances---another worry with existing solutions---is a non-issue. Together with the previous point, this gives us tremendous freedom to posit multiple structures on the same operations and relations, including ones derived implicitly via subclasses: by simply declaring a |SemiRing| class instance showing that a ring is a semiring, results about semirings immediately apply implicitly to any known ring, without us having to explicitly encode this relation in the hierarchy definition itself, and without needing any projection or translation of carriers or operations.
 
-% Coercion pullbacks~\cite{Hints} were introduced to address problems with multiple coercions paths,
-% as in the definition of a semiring: a type with two monoid structures on it. We avoid some
-% of these problems by explicitly specifying the fields. We emphasize that the semiring properties are automatically derived from the ring
-% properties, although the properties of a semiring are not structurally included in the ring
-% properties.
+\section{Category Theory and Universal Algebra}\label{interfaces}\label{modul}
 
+Motivated originally by our desire to cleanly express interfaces for basic numeric data types such as $\N$ and $\Z$ in terms of their categorical characterization as initial objects in the categories of semirings and rings, respectively, we initially introduced only the very basics of category theory into our development, again using type classes where possible to achieve the same benefits mentioned before.
 
-\section{Universal algebra}\label{univ}
-After having implemented concrete algebraic structures, we generalized some of our constructions
-by implementing many-sorted universal algebra. A formalization of universal algebra
-already exists in Coq~\cite{DBLP:conf/tphol/Capretta99}. We have conveniently redeveloped most of it
-using type classes, moreover we have added a categorical framework. For instance, we show that the
-term-algebra for a signature is initial. We defined equational theories and their categories of
-their models. A quote function helps to translate a statement for an instance of
-a type class to a statement in the equational logic. We have a prototype automatic quoting mechanism
-using type classes similar to that using unification hints~\cite{Hints} .
+Realizing that much code duplication for the various algebraic structures in the hierarchy could be avoided by employing universal algebra constructions, we then proceeded to formalize some of the theory of multisorted universal algebra and equational theories, using it to automatically construct algebra/variety categories. We purposely did not try to use Capretta's existing Coq formalization ~\cite{DBLP:conf/tphol/Capretta99} of universal algebra for this, because an important goal for us is to find out exactly what level of elegance, convenience, and integration can be achieved using the state of the art technology offered by the Coq system (of which type classes are the most important instance).
 
-We plan to include the first homomorphism theorem and perhaps the soundness theorem for equational
-logic
+At the time of writing, our development includes a fully integrated formalization of a nontrivial portion of category theory and multisorted universal algebra, including various categories (e.g. the category |Cat| of categories, and generic algebra/variety categories which we instantiate to obtain the categories of monoids, semirings, and rings), functors (including automatically generated forgetful functors), natural transformations, adjunctions, initial models of varieties constructed from term algebras, transference of proofs between isomorphic models of varieties, subalgebras/subvarieties, universal congruences and quotients and products, the first homomorphism theorem, et cetera.
+
+There is an interesting interplay in our development between concrete algebraic structure type classes and their expressions on the one hand, and models of universal algebras and varieties instantiated with equational theories on the other. While occasionally a source of tension in that translation in either direction is not (yet) fully automatic, this duality also opens the door to the possibility of fully internalized implementations of generic tactics for algebraic manipulation, no longer requiring plugins. One missing piece in this puzzle is automatic quotation of concrete expressions into universal algebra expressions. We have already implemented a proof of concept showing that like unification hints~\cite{Hints}, type classes can be used to implement Ltac/OCaml-free quotation.
 
 %There is a slight problem when defining the forgetful functor from the category of
 %$\Sigma$-algebras to Sets. This problem is caused by our use of the category of all
@@ -105,44 +89,22 @@ logic
 %We conjecture that this problem disappears when Coq's universe polymorphism is extended to
 %definitions.
 
-\section{Interfaces using category theory}\label{interfaces}\label{modul}
-The current work was stimulated by our desire~\cite{Riemann} to move between several
-implementations in a flexible way. We use ad-hoc polymorphism to capture the natural
-numbers without referring to their actual implementation, we have
-characterized them as the initial object in the category of semirings and derived many of its
-properties from this interface. Unary, binary and machine numbers are
-instances of this interface, so we can directly apply these results to them.
-
-We encourage more efficient implementations by assigning the default implementation a
-low priority. For example, the distance function on the natural numbers, which is derived from its
-semiring structure, is assigned priority 10.
-\begin{code}
-  Global Program Instance: NatDistance N | 10 := ...
-\end{code}
+% We encourage more efficient implementations by assigning the default implementation a
+% low priority. For example, the distance function on the natural numbers, which is derived from its
+% semiring structure, is assigned priority 10.
+% \begin{code}
+%   Global Program Instance: NatDistance N | 10 := ...
+% \end{code}
+%
 
 \section{Conclusions}
-Telescopes have been criticized~\cite{Packed} for the lack of multiple inheritance and
-the efficiency penalty of a long chain of coercion projections. Packed classes~\cite{Packed} provide
-a solution to these problems. We provide an alternative solution. We have already
-discussed multiple inheritance in Section~\ref{hierarchy}. Moreover, by exposing the
-carrier we avoid the chains of projections.
 
-Packed classes use canonical structures for the algebraic hierarchy and a uniform notation. Both
-canonical structures and
-type classes may be seen as instances of hints in unification~\cite{Hints}. Some uses of canonical
-structures can be replaced by type class instances. The user manual (2.7.15) uses canonical
-structures to derive the setoid equality on the natural
-numbers in the following example |(S x)==(S y)|. We have reimplemented this with
-type classes with similar proof terms. Canonical structures give
-\begin{code}
-@equiv(Build_Setoid nat (@eq nat)(@eq_equivalence nat))(S x)(S y)
-\end{code}
+Our development (which according to \texttt{coqwc} consists of about 5K lines of specifications and 1K lines of proofs) shows that the first class type class implementation in Coq is already an extremely powerful piece of technology which enables new practical and elegant solutions to old problems.
 
-which includes an explicit proof that |(@eq nat)| is an equivalence,
-whereas we obtain |@equiv nat (@eq nat) (S x) (S y)|.
+In our work we push the type class implementation and the new generalized rewriting infrastructure~\cite{Setoid-rewrite} to their limits, revealing both innocent bugs as well as more serious issues (concerning both efficiency and functionality) that the Coq development team is already working on (for instance with the soon to be revealed new proof engine).
 
-According to |coqwc|, our development consists of 4479 lines of specifications and 722 lines of
-proofs.
+
+
 
 \paragraph{Acknowledgements.}
 We would like to thank Matthieu Sozeau for discussions and quickly solving numerous small bugs and
