@@ -46,9 +46,6 @@ Section adjunction.
 
 End adjunction.
 
-Check @rad_l.
-Print rad_l.
-
 (* The more practical definition via universal morphisms: *)
 
 Section alt_adjunction.

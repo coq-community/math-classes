@@ -189,11 +189,11 @@ Section jections.
 
   Class Injective: Prop :=
     { injective: `(f x = f y → x = y)
-    ; injective_mor: Setoid_Morphism f }.
+    ; injective_mor:> Setoid_Morphism f }.
 
   Class Surjective: Prop :=
     { surjective: f ∘ inv = id (* a.k.a. "split-epi" *)
-    ; surjective_mor: Setoid_Morphism f }.
+    ; surjective_mor:> Setoid_Morphism f }.
 
   Class Bijective: Prop :=
     { bijective_injective:> Injective
@@ -229,7 +229,6 @@ Proof with intuition.
   apply (injective x).
   rewrite (H x0), (H y0)...
  rewrite <- H...
- constructor; try apply _.
 Qed. 
 
 Instance Injective_comp `{Equiv A} `{Equiv B} `{Equiv C} (g: A → B) (f: B → C):

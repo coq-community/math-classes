@@ -29,21 +29,18 @@ Instance: ∀ x y, Setoid_Morphism (@φ x y).
 Qed.
 
 Instance eta: NaturalTransformation η.
- unfold NaturalTransformation. 
  (* MacLane p81 *)
  unfold η. intros x' x h.
  symmetry.
- setoid_replace (fmap (G ∘ F) h ◎ φ cat_id) with (φ (fmap F h ◎ cat_id)).
-  2: symmetry; rewrite rad_l; [| apply _].
-  Focus 2. cut (fmap G (fmap F h)=  fmap (G ∘ F) h).
-   (intro H5; rewrite H5; reflexivity).
-  symmetry.
+  setoid_replace (fmap (G ∘ F) h ◎ φ cat_id) with (φ (fmap F h ◎ cat_id)).
+  Focus 2.  symmetry; rewrite rad_l; [| apply _].
+   cut ( fmap (G ∘ F) h = fmap G (fmap F h)). (intro H5; rewrite H5; reflexivity).
    (* apply preserves_comp. TODO: Prove for normal arrow in Sets *) admit.
   setoid_replace (φ (fmap F h ◎ cat_id)) with (φ ( cat_id ◎ (fmap F h))) by
-(transitivity (φ (fmap F h)); [rewrite id_r;reflexivity|rewrite id_l; reflexivity]).
+  (transitivity (φ (fmap F h)); [rewrite id_r|rewrite id_l];reflexivity).
 (* TODO: add Hint that bijective is a Setoid_Morphism. *)
-setoid_replace (φ (cat_id ◎ fmap F h)) with (φ cat_id ◎ fmap id h) by apply (rad_r F G).
-reflexivity. apply _.
+  setoid_replace (φ (cat_id ◎ fmap F h)) with (φ cat_id ◎ fmap id h) by (apply (rad_r F G); apply _).
+reflexivity. 
 Qed.
 
 (**
@@ -76,10 +73,10 @@ fun v w f => func w v f.
 Implicit Arguments functor_op [[func]].
 
 Instance :Functor F functor_op.
-unfold e, functor_op, flipA, flip, CatId_instance_0, CatComp_instance_0, flip. constructor. intuition.
+unfold e, functor_op, flipA, flip, CatId_instance_0, CatComp_instance_0, flip. constructor; intuition.
       destruct (functor_morphism F b a); constructor; intuition.
-   intro a. set (preserves_id F a);intuition.
-  intros. unfold fmap. apply (@preserves_comp _ _ H1 _ _ _ _ H _ _ F);assumption.
+   set (preserves_id F a);intuition.
+  apply (@preserves_comp _ _ H1 _ _ _ _ H _ _ F);assumption.
 Qed.
 End opfunctor.
 
@@ -113,18 +110,28 @@ Instance op_adj:(@Adjunction _ _ _ _ _  _ _  _ (functor_op G _)  _ ( functor_op 
   destruct φ_adj. 
   constructor. 
     intros x x' k a h. set (g:=((φ x a ⁻¹) h)).
-   assert ((φ x' a) (CatComp0 (F x') (F x) a g (Fa x' x k)) = (CatComp1 x' x (G a) ((φ x a) g) k)) by
+   assert ((φ x' a) (comp g (Fa x' x k)) = (comp ((φ x a) g) k)) by
       (symmetry; apply natural_right).
-    unfold comp, compose, φinv, CatComp_instance_0, flip, flipA, flip, functor_op, fmap, e. 
-    revert H5. set (t1:=(CatComp0 (F x') (F x) a g (Fa x' x k))).
-    subst g. rewrite (back' (H4 x a) h). (* hangs on: intro r.  rewrite <- r *)
-    apply cancel_left. 
+    unfold compose, φinv, CatComp_instance_0, flip, flipA, flip, functor_op, fmap, e. 
+    revert H5. set (t1:=(comp g (Fa x' x k))).
+    subst g.
+    (* This is unpleasant *)
+    set (e:=back' (H4 x a) h). unfold compose, id in e.
+    revert e. set (t:=    φ x a ((φ x a ⁻¹) h)). intro. intro. 
+    assert (φ x' a t1 = (@comp X Arrows1 CatComp1 x' x (G a) h k)) by 
+    (rewrite H5, e; reflexivity). (* hangs on: intro r.  rewrite <- r *)
+    clear e H5. subst t t1. apply cancel_left; assumption.
   clear natural_right. intros a a' h x k. set (l:=((φ x a' ⁻¹) k)).
-  assert ((φ x a) (CatComp0 (F x) a' a h l) = (CatComp1 x (G a') (G a) (Ga a' a h) (φ x a' l))) by
+  assert ((φ x a) (CatComp0 (F x) a' a h l) = (comp (Ga a' a h) (φ x a' l))) by
       (symmetry; apply natural_left).
-  unfold comp, compose, φinv, CatComp_instance_0, flip, flipA, flip, functor_op, fmap, e. 
-  revert H5. set (t1:=(CatComp0 (F x) a' a h l)). unfold l.
-   rewrite (back' (H4 x a') k). apply cancel_left.
+  unfold φinv, CatComp_instance_0, flip, flipA, flip, functor_op, fmap, e. 
+  revert H5. set (t1:=(CatComp0 (F x) a' a h l)). subst l.
+   set (e:=back' (H4 x a') k). unfold compose, id in e.
+    revert e. set (t:= φ x a' ((φ x a' ⁻¹) k)). intro. intro. 
+    (* It seem that we need to spell this out *)
+    assert (φ x a t1 =  (@comp X Arrows1 CatComp1 x (G a') (G a) (Ga a' a h) k)).  rewrite H5. clear H5.
+    (* rewrite e. hangs :-(   *)      clear e. subst t t1. admit.
+ apply cancel_left;assumption.
 Qed.
 
 Definition ϵnat := (@eta X (@flipA X Arrows1) (@e X Arrows1 H1)

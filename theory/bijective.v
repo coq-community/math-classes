@@ -32,11 +32,14 @@ Section alt_injective.
    intuition.
   Qed.
 
-  Global Instance invBij: (Bijective f) -> (@Bijective B e0 A e (f ⁻¹:B->A) f).
-  intro H1. constructor; (constructor; auto with typeclass_instances); destruct H1 as [[H1 ?][H2 _]].
-    intros; rewrite <- (H2 x), <- (H2 y); unfold compose; destruct injective_mor; auto.
-  intro. unfold compose, inv.
-  apply H1. apply H2.
+  Global Instance invBij: Bijective f -> Bijective (f ⁻¹) (Inv0:=f).
+  Proof with intuition.
+   repeat (constructor; try apply _).
+    intros x y E.
+    rewrite <- (surjective f x), <- (surjective f y).
+    unfold compose. (* f_equal ?*)
+    rewrite E...
+   intro. apply (injective f), (surjective f).
   Qed.
 
 End alt_injective.
