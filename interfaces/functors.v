@@ -9,7 +9,9 @@ Section functor_class.
   Class Fmap: Type := fmap: Π {v w: C}, (v ⟶ w) → (map_obj v ⟶ map_obj w).
 
   Class Functor `(Fmap): Prop :=
-    { functor_morphism:> Π a b: C, Setoid_Morphism (@fmap _ a b)
+    { functor_from: Category C
+    ; functor_to: Category D
+    ; functor_morphism:> Π a b: C, Setoid_Morphism (@fmap _ a b)
     ; preserves_id: `(fmap (cat_id: a ⟶ a) = cat_id)
     ; preserves_comp `(f: y ⟶ z) `(g: x ⟶ y): fmap (f ◎ g) = fmap f ◎ fmap g }.
 
@@ -62,7 +64,7 @@ Section id_functor.
 
   Global Instance id_functor: Functor (id: C → C) _.
   Proof.
-   constructor; try reflexivity. intros.
+   constructor; try reflexivity; try apply _. intros.
    change (Setoid_Morphism (id: (a ⟶ b) → (a ⟶ b))).
    apply _.
   Qed.
@@ -72,14 +74,23 @@ End id_functor.
 Section compose_functors.
 
   Context
-    `{Category A} `{Category B} `{Category C}
+    A B C
+    `{!Arrows A} `{!Arrows B} `{!Arrows C}
+    `{!CatId A} `{!CatId B} `{!CatId C}
+    `{!CatComp A} `{!CatComp B} `{!CatComp C}
+    `{Π x y: A, Equiv (x ⟶ y)}
+    `{Π x y: B, Equiv (x ⟶ y)}
+    `{Π x y: C, Equiv (x ⟶ y)}
     `{!Functor (f: B → C) f'} `{!Functor (g: A → B) g'}.
 
   Global Instance comp_Fmap: Fmap (f ∘ g) := λ _ _ => fmap f ∘ fmap g.
 
   Global Instance compose_functors: Functor (f ∘ g) _.
   Proof with intuition; try apply _.
-   constructor; intros.
+   pose proof (functor_from g).
+   pose proof (functor_to g).
+   pose proof (functor_to f).
+   constructor; intros; try apply _.
      apply (@compose_setoid_morphisms _ _ _ _ _ _)...
      apply (@functor_morphism _ _ _ _ _ _ _ _ _ _ f _)...
      (* todo: this part really should be automatic *)

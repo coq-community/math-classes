@@ -48,7 +48,7 @@ Section contents.
   Program Definition project i: cat.object Object ⟶ ith_obj i :=
     cat.arrow (λ d => d i) (λ _ _ a => a i) _.
   Next Obligation. Proof. (* functorial *)
-   constructor; intros; try reflexivity.
+   constructor; intros; try reflexivity; try apply _.
    constructor; try apply _.
    intros ? ? E. apply E.
   Qed.
@@ -63,7 +63,7 @@ Section contents.
     Program Definition factor: C ⟶ product_object
       := cat.arrow (λ (c: C) i => X i c) (λ (x y: C) (c: x ⟶ y) i => fmap (X i) c) _.
     Next Obligation. Proof with try reflexivity; intuition. (* functorial *)
-     constructor; intros.
+     constructor; intros; try apply _.
        constructor; try apply _.
        intros ? ? E ?.
        change (fmap (X i) x = fmap (X i) y).

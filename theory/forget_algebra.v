@@ -23,7 +23,7 @@ Section contents.
 
   Global Instance forget: Functor object _.
   Proof with intuition.
-   constructor.
+   constructor; try apply _.
      constructor; try apply _.
      intros x y E i A B F. simpl in *.
      unfold id.

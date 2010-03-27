@@ -2,7 +2,7 @@ Set Automatic Introduction.
 
 Require Import
   Relation_Definitions Morphisms Setoid Program
-  abstract_algebra theory.categories.
+  abstract_algebra theory.categories interfaces.functors.
 
 Section contents.
 
@@ -16,6 +16,9 @@ Section contents.
 
   Global Instance: Π (x y: Object), Equivalence (e x y).
   Proof. intros. change (Equivalence (equiv: Equiv (A y x))). apply _. Qed.
+
+  Global Instance: Π (x y: Object), Setoid (x ⟶ y).
+  Proof. unfold Setoid. apply _. Qed.
 
   Instance: Π (x y z: Object), Proper (equiv ==> equiv ==> equiv) (@comp Object flipA _ x y z).
   Proof.
@@ -39,3 +42,27 @@ Section contents.
   Qed.
 
 End contents.
+
+Section functors.
+
+  (** Given a functor F: C → D, we have a functor F^op: C^op → D^op *)
+
+  Context {C D} F `{Functor C Ce D De F}.
+
+  Definition fmap_op: @Fmap _ flipA _ flipA F := fun v w => @fmap _ _ _ _ F _ w v.
+
+  Global Instance: Functor F fmap_op.
+  Proof with intuition.
+    unfold e, fmap_op, flipA, flip, CatId_instance_0, CatComp_instance_0, flip.
+    pose proof (functor_from F).
+    pose proof (functor_to F).
+    constructor; repeat intro.
+        apply cat.
+       apply cat.
+      destruct (functor_morphism F b a).
+      constructor...
+     set (preserves_id F a)...
+    apply (@preserves_comp _ _ Ce _ _ _ _ De _ _ F)...
+  Qed.
+
+End functors.
