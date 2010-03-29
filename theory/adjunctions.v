@@ -18,9 +18,9 @@ Section unit.
   (* Move to Utils *)
   Hint Unfold id compose:typeclass_instances.
 
-  Instance: Setoid_Morphism (@φ x y).
-  Proof. intros. destruct (H0 x y). apply _. Qed.
-
+  (* Waiting for the new proof engine ... *)
+  Let hint'''' x y: Injective (@φ x y) := _.
+  Let hint''''' x y: Setoid_Morphism (@φ x y) := injective_mor (@φ x y).
   Let hint := adjunction_left_functor F G (@φ).
   Let hint' := adjunction_right_functor F G (@φ).
   Let hint'' := functor_from G.
@@ -28,25 +28,22 @@ Section unit.
 
   Definition η: id ⇛ G ∘ F := λ x: X => @φ x (F x) cat_id.
 
-  Instance eta: NaturalTransformation η.
-  Proof.
+ Instance eta: NaturalTransformation η.
+ Proof with try reflexivity; try apply _. (* todo: latter should not be necessary *)
    (* MacLane p81 *)
-   unfold η. intros x' x h.
-   symmetry.
-   setoid_replace (fmap (G ∘ F) h ◎ φ cat_id) with (φ (fmap F h ◎ cat_id)).
-    Focus 2. (symmetry; rewrite rad_l; [| apply _]).
-   cut ( fmap (G ∘ F) h = fmap G (fmap F h)). (intro H5; rewrite H5; reflexivity).
-   (* apply preserves_comp. TODO: Prove for normal arrow in Sets *) admit.
-   setoid_replace (φ (fmap F h ◎ cat_id)) with (φ ( cat_id ◎ (fmap F h))) by
-    (transitivity (φ (fmap F h)); [rewrite id_r|rewrite id_l];reflexivity).
-    (* TODO: add Hint that bijective is a Setoid_Morphism. *)
-   setoid_replace (φ (cat_id ◎ fmap F h)) with (φ cat_id ◎ fmap id h) by (apply (rad_r F G); apply _).
-   reflexivity. 
-  Qed.
+  intros x' x h.
+  transitivity (φ (fmap F h ◎ cat_id)).
+   symmetry. transitivity (φ (cat_id ◎ fmap F h)).
+    transitivity (φ (fmap F h)); [rewrite id_r|rewrite id_l]...
+   transitivity (φ cat_id ◎ fmap id h)... 
+   apply (rad_r F G)...   (* the naturality of φ.*)
+  rewrite rad_l...                           (*the naturality of φ.*)
+ Qed.
 
   (**
   It is a natural transformation because:
-  GF h ∘ (φ (cat_id (F x')))=(φ (fmap F h∘ cat_id (F x')))
+  GF h ∘ (φ (cat_id (F x')))
+     = (φ (fmap F h∘ cat_id (F x')))
      = φ ( cat_id (F x) ∘ (fmap F h))
      = φ ( cat_id (F x) ∘ h
 
