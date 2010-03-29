@@ -34,7 +34,7 @@ Section unit.
    unfold η. intros x' x h.
    symmetry.
    setoid_replace (fmap (G ∘ F) h ◎ φ cat_id) with (φ (fmap F h ◎ cat_id)).
-    Focus 2. symmetry; rewrite rad_l; [| apply _].
+    Focus 2. (symmetry; rewrite rad_l; [| apply _]).
    cut ( fmap (G ∘ F) h = fmap G (fmap F h)). (intro H5; rewrite H5; reflexivity).
    (* apply preserves_comp. TODO: Prove for normal arrow in Sets *) admit.
    setoid_replace (φ (fmap F h ◎ cat_id)) with (φ ( cat_id ◎ (fmap F h))) by
@@ -96,24 +96,23 @@ Section counit.
   Instance: @Adjunction X _ _ _ _ A _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) (λ a x => (@φ x a)⁻¹ ). (* flip *)
   Proof with intuition; try reflexivity.
    destruct φ_adj. 
-   constructor. 
-      apply _.
-     apply _.
+   constructor; try apply _.
+    (* first law *)
     intros x x' k a h.
-    unfold compose.
     apply bijective.cancel_left...
     transitivity (φ x a ((φ x a ⁻¹) h) ◎ k).
-     symmetry. apply natural_right.
+     symmetry; apply natural_right.
+    (* Should be one rewrite *)
     pose proof (bijective.back' (H0 x a) h) as E.
     unfold compose, id in E.
     rewrite E...
+    (* second law *)
    intros a a' h x k.
-   unfold compose.
    apply bijective.cancel_left...
    change (a' ⟶ a) in h.
    change (φ x a (h ◎ ((φ x a' ⁻¹) k)) = Fmap1 a' a h ◎ k).
    transitivity (fmap G h ◎ φ x a' ((φ x a' ⁻¹) k)).
-    symmetry. apply natural_left.
+    symmetry; apply natural_left.
    apply comp_proper...
    apply bijective.back'...
   Qed.
@@ -122,7 +121,7 @@ Section counit.
     (@comp_Fmap _ _ A _ _ _ F (dual.fmap_op F) G (dual.fmap_op G))
     (@η X (@dual.flipA X Arrows1) _ A (@dual.flipA A Arrows0) G F (λ (a : A) (x : X) => φinv x a)).
   Proof.
-   apply (@eta _ _ _ _ _ _ _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) _ _ _ inverse); apply _.
+   apply (eta _ _ _ _ (dual.fmap_op G) _ (dual.fmap_op F) _ _ _ inverse); apply _.
   Qed.
 
 End counit.
