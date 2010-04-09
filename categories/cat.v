@@ -45,15 +45,15 @@ Section contents.
   Section more_arrows. Context (x y: Object).
 
     Global Program Instance e: Equiv (x ⟶ y) := λ a b =>
-      exists X: Π _, isoT _ _, Π (p q: x) (r r': p ⟶ q), r = r' →
-       fmap a r ◎ snd (X p) = snd (X q) ◎ fmap b r'.
+      exists X: Π _, isoT _ _, Π (p q: x) (r: p ⟶ q),
+       fmap a r ◎ snd (X p) = snd (X q) ◎ fmap b r.
 
     Let e_refl: Reflexive e.
     Proof.
      intro a.
      exists (λ v => refl_arrows (a v)).
-     intros ???? E. simpl.
-     rewrite E, id_l, id_r. reflexivity.
+     intros ???. simpl.
+     rewrite id_l, id_r. reflexivity.
     Qed.
 
     Program Let sym_arrows (a b: x → y) (v: x) (p: isoT (a v) (b v)): isoT (b v) (a v)
@@ -65,11 +65,10 @@ Section contents.
     Proof.
      intros ?? [x1 H].
      exists (λ v => sym_arrows _ _ _ (x1 v)). simpl.
-     intros ???? E.
-     pose proof (H _ _ _ _ E) as H0.
+     intros ???.
+     pose proof (H p q r).
      destruct (x1 p), (x1 q). simpl in *.
      apply (arrows_between_isomorphic_objects _  _ _ _ _ _ _ _ _ _ u u0).
-     rewrite E in H0 |- *.
      assumption.
     Qed. (* todo: clean up *)
 
@@ -88,9 +87,9 @@ Section contents.
     Proof.
      intros a b c [f H] [g H0].
      exists (λ v => trans_arrows _ _ _ _ (f v) (g v)).
-     simpl. intros ? ? ? ? U.
-     generalize (H _ _ _ _ U), (H0 _ _ _ _ U).
-     rewrite U. clear U H H0 r. intros E E'.
+     simpl. intros ? ? ?.
+     generalize (H p q r), (H0 p q r).
+     clear H H0. intros E E'.
      rewrite comp_assoc, E, <- comp_assoc, E', comp_assoc.
      reflexivity.
     Qed.
@@ -139,7 +138,6 @@ Section contents.
   Global Instance: Π x y z: Object, Proper (equiv ==> equiv ==> equiv) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof with try apply _.
    repeat intro.
-   unfold equiv.
    unfold e.
    destruct H.
    destruct H0.
@@ -147,21 +145,20 @@ Section contents.
    exists (proper_arrows x y z x0 y0 x1 y1 x2 x3).
    intros.
    simpl.
-   pose proof (H0 _ _ _ _ H1). clear H0.
+   pose proof (H0 p q r). clear H0.
    destruct (x3 p) as [[a a0] [e0 e1]], (x3 q) as [[a1 a2] [e2 e3]]. clear x3.
    simpl in *.
    change (
      fmap x0 (fmap x1 r) ◎ (fmap x0 a0 ◎ snd (` (x2 (y1 p)))) =
-     fmap x0 a2 ◎ snd (` (x2 (y1 q))) ◎ fmap y0 (fmap y1 r')).
-   rewrite H1 in H2 |- *. clear r H1.
-   pose proof (H (y1 p) (y1 q) (fmap y1 r') (fmap y1 r') (reflexivity _)). clear H.
+     fmap x0 a2 ◎ snd (` (x2 (y1 q))) ◎ fmap y0 (fmap y1 r)).
+   pose proof (H (y1 p) (y1 q) (fmap y1 r)). clear H.
    destruct (x2 (y1 p)) as [[a3 a4] [e4 e5]], (x2 (y1 q)) as [[a5 a6] [e6 e7]]. clear x2.
    simpl in *.
    rewrite <- comp_assoc, <- H0. clear H0.
-   apply transitivity with ((fmap x0 (fmap x1 r') ◎ fmap x0 a0) ◎ a4).
+   apply transitivity with ((fmap x0 (fmap x1 r) ◎ fmap x0 a0) ◎ a4).
     repeat rewrite comp_assoc. reflexivity.
    rewrite <- preserves_comp...
-   rewrite H2.
+   rewrite H1.
    rewrite comp_assoc.
    rewrite <- preserves_comp...
    reflexivity.
@@ -178,15 +175,15 @@ Section contents.
   Let id_l' (x y: Object) (a: x ⟶ y): cat_id ◎ a = a.
   Proof.
    exists (id_lr_arrows _ _ a).
-   intros ? ? ? ? E. simpl. unfold compose, id.
-   rewrite id_r, id_l, <- E. reflexivity.
+   intros ? ? ?. simpl. unfold compose, id.
+   rewrite id_r, id_l. reflexivity.
   Qed.
 
   Let id_r' (x y: Object) (a: x ⟶ y): a ◎ cat_id = a.
   Proof.
    exists (id_lr_arrows _ _ a).
-   intros ? ? ? ? E. simpl. unfold compose, id.
-   rewrite id_r, id_l, <- E. reflexivity.
+   intros ? ? ?. simpl. unfold compose, id.
+   rewrite id_r, id_l. reflexivity.
   Qed.
 
   Section comp_assoc.
@@ -200,9 +197,9 @@ Section contents.
     Lemma comp_assoc': c ◎ (b ◎ a) = (c ◎ b) ◎ a.
     Proof.
      exists comp_assoc_arrows.
-     simpl. intros ? ? ? ? E. unfold compose.
+     simpl. intros ? ? ?. unfold compose.
      repeat rewrite preserves_id; try apply _. (* todo: remove need for [try apply _] *)
-     rewrite id_l, id_r, E. reflexivity.
+     rewrite id_l, id_r. reflexivity.
     Qed.
 
   End comp_assoc.

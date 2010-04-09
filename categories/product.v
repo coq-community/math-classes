@@ -77,8 +77,8 @@ Section contents.
      split.
       intro.
       exists (λ v => refl_arrows (X i v)).
-      simpl. unfold compose. intros ? ? ? ? E.
-      rewrite id_r, id_l, E...
+      simpl. unfold compose. intros ? ? ?.
+      rewrite id_r, id_l...
      intros alt alt_factors.
      generalize (dependent_functional_choice I _ _ alt_factors). clear alt_factors.
      unfold isoT in *.
@@ -96,11 +96,11 @@ Section contents.
       change (fst (` (x i v)) ◎ snd (` (x i v)) = cat_id).
       destruct (x i v) as [? []]...
      exists (λ v => exist (uncurry iso_arrows) _ (Q v)).
-     intros p q r r' rr' i.
+     intros p q r i.
      simpl.
      unfold comp.
      unfold CatComp_instance_0. (* todo: no! *)
-     pose proof (H4 i p q r r' rr'). clear H4.
+     pose proof (H4 i p q r). clear H4.
      destruct (x i p) as [aa0 i0].
      destruct (x i q) as [a1a2 i1].
      simpl in *.
@@ -108,18 +108,19 @@ Section contents.
      unfold iso_arrows in *.
      destruct (cat.Functor_inst _ _ alt).
      simpl in *.
-     assert (fmap alt r = fmap alt r').
-      rewrite rr'...
+     assert (fmap alt r = fmap alt r).
+      intuition.
+     simpl in *.
      rewrite (H4 i). clear H4.
-     rewrite rr' in H5.
      unfold compose in x, aa0, a1a2.
      simpl in *.
      unfold fmap.
-     set (cat.Fmap_inst _ _ alt).
-     rewrite <- (id_l (f p q r' i ◎ fst aa0)).
-     transitivity ((fst a1a2 ◎ snd a1a2) ◎ (f p q r' i ◎ fst aa0)).
+     simpl.
+     set (cat.Fmap_inst _ _ alt) in |- *.
+     rewrite <- (id_l (f p q r i ◎ fst aa0)).
+     transitivity ((fst a1a2 ◎ snd a1a2) ◎ (f p q r i ◎ fst aa0)).
       apply comp_proper...
-     apply transitivity with (comp (fst a1a2) (comp (comp (snd a1a2) (cat.Fmap_inst _ _ alt p q r' i)) (fst aa0))).
+     apply transitivity with (comp (fst a1a2) (comp (comp (snd a1a2) (cat.Fmap_inst _ _ alt p q r i)) (fst aa0))).
       repeat rewrite comp_assoc...
      simpl.
      rewrite <- H5.
