@@ -3,7 +3,7 @@ Set Automatic Introduction.
 Require Import
   Ring.
 Require Import
-  Program Morphisms
+  Program Morphisms monoids
   abstract_algebra canonical_names theory.setoids.
 
 Section group_props. Context `{Group}.
@@ -67,6 +67,13 @@ Section semiring_props. Context `{SemiRing R}.
      apply commutativity.
     apply associativity.
    apply distribute_r.
+  Qed.
+
+  Global Instance: Monoid_Morphism (r *).
+  Proof.
+   repeat (constructor; try apply _).
+    apply distribute_l.
+   apply right_absorb.
   Qed.
 
 End semiring_props.
@@ -197,22 +204,14 @@ Section morphism_composition.
     (f: A → B) (g: B → C).
 
   Global Instance id_semiring_morphism `{!SemiRing A}: SemiRing_Morphism id.
-  Proof. repeat (constructor; try apply _); reflexivity. Qed.
 
   Global Instance compose_semiring_morphisms
     `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: SemiRing_Morphism (λ x => g (f x)).
-  Proof with try reflexivity.
-   pose proof (semiringmor_b: SemiRing C).
-   pose proof semiringmor_b.
-   pose proof semiringmor_a.
-   assert (Proper (equiv ==> equiv) (λ x: A => g (f x))). fold (g ∘ f). apply _.
-   repeat (constructor; try apply _); intros.
-      do 2 rewrite preserves_sg_op...
-     rewrite (@preserves_mon_unit A _ _ _ _ _ _ _ _ _).
-     apply (@preserves_mon_unit B C _ _ _ _ _ _ _ _).
-    do 2 rewrite preserves_sg_op...
-   rewrite (@preserves_mon_unit A _ _ _ _ _ _ _ _ _).
-   apply (@preserves_mon_unit B C _ _ _ _ _ _ _ _).
+  Proof.
+   fold (g ∘ f).
+   constructor; try apply _.
+    apply semiringmor_a.
+   apply semiringmor_b.
   Qed.
 
   Context `{!GroupInv A} `{!GroupInv B} `{!GroupInv C}.
@@ -226,7 +225,6 @@ Section morphism_composition.
    pose proof ringmor_b.
    pose proof (ringmor_b: Ring C).
    pose proof (ringmor_a).
-   assert (Proper (equiv ==> equiv) (λ x: A => g (f x))). fold (g ∘ f). apply _.
    repeat (constructor; try apply _); intros.
    do 2 rewrite preserves_inv. reflexivity.
   Qed.

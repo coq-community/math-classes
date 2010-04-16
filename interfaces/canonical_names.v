@@ -57,7 +57,12 @@ Notation "0" := ring_zero.
 Notation "1" := ring_one.
 Infix "&" := sg_op (at level 50, left associativity).
 Infix "+" := ring_plus.
+Notation "(+)" := ring_plus (only parsing).
+Notation "( x +)" := (ring_plus x) (only parsing).
+Notation "(+ x )" := (λ y => ring_plus y x) (only parsing).
 Infix "*" := ring_mult.
+Notation "( x *)" := (ring_mult x) (only parsing).
+  (* We don't add "(*)" and "(*x)" notations because they're too much like comments. *)
 Notation "- x" := (group_inv x).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
 Infix "<=" := precedes.

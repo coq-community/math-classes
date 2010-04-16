@@ -51,7 +51,7 @@ Section from_instance.
   Instance implementation: AlgebraOps sig (λ _ => A) :=
     fun o => match o with mult => sg_op | one => mon_unit end.
 
-  Global Instance: Algebra sig _.
+  Global Instance encode_algebra_and_ops: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
 
   Lemma laws e (l: Laws e) vars: eval_stmt sig vars e.
@@ -69,63 +69,75 @@ Section from_instance.
 
 End from_instance.
 
-(* Similarly, given a categorical object, we can make the corresponding class instances: *)
+Section decode_operations. Context `{AlgebraOps theory A}.
+  Global Instance: MonoidUnit (A tt) := algebra_op _ one.
+  Global Instance: SemiGroupOp (A tt) := algebra_op _ mult.
+End decode_operations.
 
-Section from_object. Variable o: variety.Object theory.
+Lemma encode_algebra_only `{!AlgebraOps theory A} `{Π u, Equiv (A u)} `{!Monoid (A tt)}: Algebra theory A .
+Proof.
+ constructor; intros []. apply _.
+  destruct Monoid0. destruct monoid_semigroup.
+  apply sg_mor.
+ destruct Monoid0. destruct monoid_semigroup.
+ unfold Proper. reflexivity.
+Qed. (* todo: clean up *)
 
-  Global Instance: SemiGroupOp (o tt) := algebra_op theory mult.
-  Global Instance: MonoidUnit (o tt) := algebra_op theory one.
+Ltac apply_simplified x := generalize x; simpl; intro HHH; apply HHH.
+  (* todo: this is another workaround around [apply] weakness *)
 
-  Global Instance from_object: Monoid (o tt).
-  Proof with simpl; auto.
-   repeat (constructor; try apply _); repeat intro; simpl; try auto.
-(*
-      apply (variety_laws theory _ _ e_mult_assoc (fun s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end))...
-     apply (variety_propers theory o mult)...
-    apply (variety_laws theory _ _ e_mult_1_l (fun s n => match s with tt => x end))...
-   apply (variety_laws theory _ _ e_mult_1_r (fun s n => match s with tt => x end))...
-  Qed. *)
-  Admitted.
-
-End from_object.
-
-(* Finally, we can also convert morphism instances and categorical arrows: *)
-(*
-Require Import categories.ua_variety.
-
-Program Definition arrow_from_morphism_from_instance_to_object
-  A `{Monoid A} (B: Variety theory) (f: A -> B tt) {fmor: Monoid_Morphism f}: Arrow theory (object A) B
-  := fun u => match u return A -> B u with tt => f end.
-Next Obligation.
- constructor. destruct a. apply _.
- destruct o; simpl. apply preserves_sg_op.
- change (f mon_unit == mon_unit).
- apply preserves_mon_unit.
+Global Instance decode_variety_and_ops `{InVariety theory A}: Monoid (A tt).
+Proof with simpl; auto.
+ pose proof (λ law lawgood x y z => variety_laws law lawgood (λ s n =>
+  match s with tt => match n with 0 => x | 1 => y | _ => z end end)) as laws.
+ constructor.
+   constructor.
+     apply _.
+    intro. apply_simplified (laws _ e_mult_assoc).
+   apply (algebra_propers theory mult)...
+  intro. apply_simplified (laws _ e_mult_1_l)...
+ intro. apply_simplified (laws _ e_mult_1_r)...
 Qed.
 
-Section morphism_from_ua.
+Lemma encode_morphism_only
+    (* not the ops, which we assume are already in encoded form *)
+  `{AlgebraOps theory A} `{Π u, Equiv (A u)}
+  `{AlgebraOps theory B} `{Π u, Equiv (B u)}
+  (f: Π u, A u → B u) `{!Monoid_Morphism (f tt)}: HomoMorphism sig A B f.
+Proof.
+ pose proof (monmor_a).
+ pose proof (monmor_b).
+ constructor.
+    intros []. apply _.
+   intros []; simpl.
+    apply preserves_sg_op.
+   apply (@preserves_mon_unit (A tt) (B tt) _ _ _ _ _ _ (f tt)).
+   apply _.
+  apply encode_algebra_only.
+ apply encode_algebra_only.
+Qed.
 
-  Context  `{e0: Equiv R0} {R1: unit -> Type} `{e1: forall u, Equiv (R1 u)} `{!Equivalence e0}
-    `{forall u, Equivalence (e1 u)}
-    `{@Implementation sig (fun _ => R0)} `{@Implementation sig R1}
-    (f: forall u, R0 -> R1 u)
-      `{!@HomoMorphism sig (fun _ => R0) R1 (fun _ => e0) e1 _ _ f}.
+Lemma decode_morphism_and_ops
+  `{InVariety theory x} `{InVariety theory y} `{!HomoMorphism theory x y f}:
+    Monoid_Morphism (f tt).
+Proof.
+ pose proof (homo_proper theory x y f tt).
+ constructor; try apply _.
+  constructor; try apply _.
+  apply (preserves theory x y f mult).
+ apply (preserves theory x y f one).
+Qed.
 
-  Global Instance: SemiGroupOp R0 := @universal_algebra.op sig (fun _ => R0) _ mult.
-  Global Instance: MonoidUnit R0 := @universal_algebra.op sig (fun _ => R0) _ one.
 
-  Global Instance: SemiGroupOp (R1 u) := fun u => match u with tt => universal_algebra.op sig mult end.
-  Global Instance: MonoidUnit (R1 u) := fun u => match u with tt => universal_algebra.op sig one end.
+Require categories.product forget_algebra forget_variety.
 
-  Lemma morphism_from_ua (sr0: Monoid R0) (sr1: Monoid (R1 tt)): forall u, Monoid_Morphism (f u).
-  Proof.
-   destruct u.
-   pose proof (@preserves sig (fun _ => _) R1 (fun _ => e0) e1 _ _ f _).
-   destruct H2.
-   repeat (constructor; try apply _).
-    apply (H3 mult).
-   apply (H3 one).
-  Qed.
+Definition forget: Object → setoid.Object :=
+  @product.project unit
+    (λ _ => setoid.Object)
+    (λ _ => _: Arrows setoid.Object) _
+    (λ _ => _: CatId setoid.Object)
+    (λ _ => _: CatComp setoid.Object) 
+    (λ _ => _: Category setoid.Object) tt
+     ∘ forget_algebra.object theory ∘ forget_variety.forget theory.
+  (* todo: too ugly *)
 
-End morphism_from_ua.
-*)
