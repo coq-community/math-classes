@@ -261,6 +261,37 @@ Section for_signature. Variable σ: Signature.
    apply (IHo0 _ (o2 (g _ x)))...
   Qed.
 
+  Lemma invert_homomorphism A B f
+    `{Π a, Equiv (A a)} `{Π a, Equiv (B a)}
+    {ao: AlgebraOps A} {bo: AlgebraOps B}
+    {fh: HomoMorphism A B f}
+    `{inv: Π a, Inv (f a)}:
+    (Π a, Bijective (f a)) →
+    HomoMorphism A B f → HomoMorphism B A inv.
+  Proof with try assumption; try apply _.
+   intros.
+   destruct H2.
+   constructor...
+    intro. apply (invert_setoid_morphism (f a))...
+   intro.
+   generalize (ao o) (bo o) (preserves _ _ f o)
+     (algebra_propers o: Proper equiv (ao o)) (algebra_propers o: Proper equiv (bo o)).
+   induction (σ o); simpl.
+    intros.
+    apply (injective (f a)).
+    pose proof (surjective (f a) o1).
+    transitivity o1...
+    symmetry...
+   intros P Q R S T x.
+   apply IHo0.
+     specialize (R (inv a x)).
+     pose proof (surjective (f a) x) as E.
+     rewrite E in R.
+     assumption.
+    apply S. reflexivity.
+   apply T. reflexivity.
+  Qed.
+
   (* Proceeding on our way toward equational theories and varieties, we define terms: *)
 
   Inductive Term (V: Type): OpType → Type :=
