@@ -4,3 +4,4 @@ deps
 .sconsign.dblite
 coqidescript
 coqdoc
+*.crashcoqide
