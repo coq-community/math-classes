@@ -39,8 +39,11 @@ for node in vs:
   vos += [vo]
   globs += [glob]
 
-env.Command(env.Dir('coqdoc'), vs + vos + globs,
-  [Mkdir('coqdoc'), 'coqdoc -utf8 --no-lib-name -d $TARGET' + Rs + ' '.join(vs)])
+env.Command(env.Dir('coqdoc'), vs + vos + globs + [File('tools/coqdoc.css.diff')],
+  [ Delete('coqdoc')
+  , Mkdir('coqdoc')
+  , 'coqdoc -utf8 --no-lib-name -d $TARGET' + Rs + ' '.join(vs)
+  , 'patch --backup $TARGET/coqdoc.css tools/coqdoc.css.diff'])
 
 os.system('coqdep ' + Rs_and_Is + ' '.join(vs) + ' > deps')
 ParseDepends('deps')
