@@ -4,7 +4,7 @@ Require
   theory.rings categories.variety.
 Require Import
   Program Morphisms
-  abstract_algebra universal_algebra.
+  abstract_algebra universal_algebra workaround_tactics.
 
 Inductive op := plus | mult | zero | one.
 
@@ -109,9 +109,6 @@ Proof.
   change (Algebra theory A). apply _.
  change (Algebra theory B). apply _.
 Qed. (* todo: these [change]s should not be necessary at all. [apply] is too weak. report bug. *)
-
-Ltac apply_simplified x := generalize x; simpl; intro HHH; apply HHH.
-  (* todo: this is another workaround around [apply] weakness *)
 
 Instance struct_from_var_to_class `{v: InVariety theory A}: SemiRing (A tt).
 Proof with simpl; auto.

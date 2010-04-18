@@ -2,7 +2,8 @@ Set Automatic Introduction.
 
 Require Import
   Morphisms Setoid Program List
-  abstract_algebra theory.categories util monads setoids.
+  abstract_algebra theory.categories util monads jections.
+Require setoids.
 
 Record Entailment (P: Type): Type := { entailment_premises: list P; entailment_conclusion: P }.
 
@@ -261,18 +262,20 @@ Section for_signature. Variable σ: Signature.
    apply (IHo0 _ (o2 (g _ x)))...
   Qed.
 
+Implicit Arguments inverse [[A] [B] [Inverse]].
+
   Lemma invert_homomorphism A B f
     `{Π a, Equiv (A a)} `{Π a, Equiv (B a)}
     {ao: AlgebraOps A} {bo: AlgebraOps B}
     {fh: HomoMorphism A B f}
-    `{inv: Π a, Inv (f a)}:
+    `{inv: Π a, Inverse (f a)}:
     (Π a, Bijective (f a)) →
     HomoMorphism A B f → HomoMorphism B A inv.
   Proof with try assumption; try apply _.
    intros.
    destruct H2.
    constructor...
-    intro. apply (invert_setoid_morphism (f a))...
+    intro. fold (inverse (f a)). apply _.
    intro.
    generalize (ao o) (bo o) (preserves _ _ f o)
      (algebra_propers o: Proper equiv (ao o)) (algebra_propers o: Proper equiv (bo o)).

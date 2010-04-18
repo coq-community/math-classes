@@ -147,7 +147,7 @@ Proof. constructor. intros x y. unfold equiv, frac_equiv. simpl. do 2 rewrite mu
 
 Let inject_frac := (λ p => inject (fst p) * / inject (snd p)).
 
-Global Instance: Inv inject_frac := λ x => (num x, den x).
+Global Instance: Inverse inject_frac := λ x => (num x, den x).
 
 Global Instance: Surjective inject_frac.
 Proof.

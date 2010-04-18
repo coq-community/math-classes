@@ -9,7 +9,7 @@ Set Automatic Introduction.
 Require
  theory.naturals.
 Require Import
- Morphisms Ring
+ Morphisms Ring Program
  abstract_algebra theory.categories theory.rings interfaces.naturals interfaces.integers orders.semiring.
 
 Section contents.
@@ -202,17 +202,17 @@ Section for_another_ring.
 
     Context (inject': Z → R) `{!Ring_Morphism inject'}.
 
-    Definition inject'_N (n: N): R := inject' (C n 0).
+    Definition inject'_N: N → R := inject' ∘ (λ n => C n 0).
 
     Instance: Proper (equiv ==> equiv) inject'_N.
     Proof. intros x y E. unfold inject'_N. rewrite E. reflexivity. Qed.
 
     Instance: SemiRing_Morphism inject'_N.
 
-    Lemma agree_on_nat: @equiv _ (pointwise_relation _ equiv) inject'_N n_to_sr.
-    Proof. intro. apply (@theory.naturals.to_semiring_unique N _ _ _ _ _ _ _ R _ _ _ _ _ _ inject'_N _ a). Qed.
+    Lemma agree_on_nat: inject'_N = n_to_sr.
+    Proof. intro x. apply (theory.naturals.to_semiring_unique _ inject'_N). Qed.
 
-    Lemma agree: @equiv _ (pointwise_relation _ equiv) (integers_to_ring Z R) inject'.
+    Lemma agree: integers_to_ring Z R = inject'.
     Proof.
      intros [pos0 neg0].
      rewrite split_into_nats.
@@ -232,7 +232,7 @@ End for_another_ring.
 Instance: Initial (ring.object Z).
 Proof.
  intros y [x h] []. simpl in *.
- apply agree, (@ring.morphism_from_ua _ _ _ (ring.variety Z)); apply _.
+ apply agree, (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
 Qed.
 
 Global Instance: Integers Z.

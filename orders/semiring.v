@@ -3,12 +3,12 @@ Set Automatic Introduction.
 Require
  theory.naturals.
 Require Import
- Relation_Definitions Morphisms Ring
- abstract_algebra interfaces.naturals theory.rings.
+ Relation_Definitions Morphisms Ring Program
+ abstract_algebra interfaces.naturals theory.rings workaround_tactics.
 
 Section sr_order. Context `{SemiRing R}.
 
-  Global Instance sr_precedes_proper: Proper (equiv ==> equiv ==> iff) sr_precedes.
+  Global Instance sr_precedes_proper: Proper ((=) ==> (=) ==> (=)) sr_precedes.
   Proof with assumption.
    intros x x' E y y' E'. unfold sr_precedes.
    split; intros [z p]; exists z.
@@ -25,21 +25,26 @@ Section sr_order. Context `{SemiRing R}.
   Qed.
 
   Global Instance: Reflexive sr_precedes.
-  Proof. unfold sr_precedes. exists 0. rewrite preserves_0. apply plus_0_r. Qed.
+  Proof.
+   unfold sr_precedes.
+   exists 0%nat.
+   posed_rewrite (@preserves_0 nat R _ _ _ _ _ _ _ _ _ _ (naturals_to_semiring nat R) _).
+   apply plus_0_r.
+  Qed.
 
   Global Instance: PreOrder sr_precedes.
 
   Definition sr_precedes_with N `{Naturals N} {x y: R}: sr_precedes x y → exists z: N, x + naturals_to_semiring N R z = y.
    intros [z E].
    exists (naturals_to_semiring nat N z).
-   rewrite (theory.naturals.to_semiring_unique R (λ x => naturals_to_semiring N R (naturals_to_semiring nat N x))).
+   posed_rewrite (theory.naturals.to_semiring_unique R (naturals_to_semiring N R ∘ naturals_to_semiring nat N) z).
    assumption.
   Qed.
 
   Definition sr_precedes_from N `{Naturals N} {x y: R} (z: N): x + naturals_to_semiring N R z = y → sr_precedes x y.
    intros.
    exists (naturals_to_semiring N nat z).
-   rewrite (theory.naturals.to_semiring_unique R (λ x => naturals_to_semiring nat R (naturals_to_semiring N nat x))).
+   posed_rewrite (theory.naturals.to_semiring_unique R (naturals_to_semiring nat R ∘ naturals_to_semiring N nat) z).
    assumption.
   Qed.
 
@@ -86,7 +91,7 @@ Section ring. Context `{Ring R}. (* extra sr_precedes properties that hold in ri
   Lemma zero_sr_precedes_nat `{Naturals N} (n: N): sr_precedes 0 (naturals_to_semiring N R n).
   Proof.
    exists (naturals_to_semiring N nat n).
-   rewrite (theory.naturals.to_semiring_unique R (λ x => naturals_to_semiring nat R (naturals_to_semiring N nat x))).
+   posed_rewrite (theory.naturals.to_semiring_unique R (naturals_to_semiring nat R ∘ naturals_to_semiring N nat) n).
    ring.
   Qed.
 

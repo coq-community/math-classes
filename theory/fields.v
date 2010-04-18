@@ -117,4 +117,44 @@ Section field_props. Context `{Field F}.
 
 End field_props.
 
-Implicit Arguments stdlib_field_theory [[e] [plus0] [mult0] [inv0] [zero] [one] [mult_inv0] [H] [H0]].
+Implicit Arguments stdlib_field_theory [[e] [plus0] [mult0] [inv] [zero] [one] [mult_inv0] [H] [H0]].
+
+Module from_stdlib_field_theory.
+ (* Without this module wrapping, the [Add Ring] below gives an error about some
+  internal name conflict. Todo: report. *)
+Section contents.
+
+  Context `{H: @field_theory F zero one pl mu mi op div rinv e}
+    `{!@Setoid F e}
+    `{!Proper (e ==> e ==> e) pl}
+    `{!Proper (e ==> e ==> e) mu}
+    `{!Proper (e ==> e) rinv}
+    `{!Proper (e ==> e) op}.
+
+  Add Field F: H.
+
+  Definition from_stdlib_field_theory: @Field F e pl mu zero one op (λ x => rinv (proj1_sig x)).
+  Proof.
+   repeat (constructor; try assumption); repeat intro
+   ; unfold equiv, mon_unit, sg_op, group_inv; try field.
+     destruct H.
+     apply F_1_neq_0.
+     symmetry.
+     assumption.
+    unfold sig_relation in H1.
+    simpl in *.
+    rewrite H1.
+    reflexivity.
+   destruct x.
+   simpl.
+   unfold mult_inv.
+   simpl.
+   destruct H.
+   unfold ring_mult.
+   assert (e (mu x (rinv x)) (mu (rinv x) x)) by ring.
+   rewrite H1.
+   auto.
+  Qed.
+
+End contents.
+End from_stdlib_field_theory.

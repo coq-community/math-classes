@@ -25,7 +25,7 @@ Section adjunction.
     (F: X → A) `{!Fmap F}
     (G: A → X) `{!Fmap G}
     (φ: Π {x a}, (F x ⟶ a) → (x ⟶ G a))
-    `{Π x a, Inv (φ x a)}
+    `{Π x a, Inverse (φ x a)}
     `{Π x a, Bijective (φ x a)}.
 
   Implicit Arguments φ [[x] [a]].

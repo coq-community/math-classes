@@ -183,16 +183,30 @@ End morphism_classes.
 
 (* Todo: We really introduce way too many names in the above, but Coq currently doesn't seem to support nameless class fields.  *)
 
+Implicit Arguments setoidmor_a [[A] [B] [Aeq] [Beq] [Setoid_Morphism]].
+Implicit Arguments setoidmor_b [[A] [B] [Aeq] [Beq] [Setoid_Morphism]].
+
+Implicit Arguments monmor_a [[A] [B] [Aeq] [Beq] [Aunit] [Bunit] [Amult] [Bmult] [Monoid_Morphism]].
+Implicit Arguments monmor_b [[A] [B] [Aeq] [Beq] [Aunit] [Bunit] [Amult] [Bmult] [Monoid_Morphism]].
+
+Implicit Arguments ringmor_a [[A] [B] [Aeq] [Beq]
+   [Aplus] [Amult] [Aopp] [Azero] [Aone] [Bplus] [Bmult] [Bopp] [Bzero] [Bone] [Ring_Morphism]].
+Implicit Arguments ringmor_b [[A] [B] [Aeq] [Beq]
+   [Aplus] [Amult] [Aopp] [Azero] [Aone] [Bplus] [Bmult] [Bopp] [Bzero] [Bone] [Ring_Morphism]].
+
+(* These are only necessary because for reasons unknown ot me the [f] argument is
+ made implicit by default. Waiting to hear from Matthieu about this. *)
+
 Section jections.
 
-  Context `{ea: Equiv A} `{eb: Equiv B} (f: A → B) `{!Inv f}.
+  Context `{ea: Equiv A} `{eb: Equiv B} (f: A → B) `{inv: !Inverse f}.
 
   Class Injective: Prop :=
     { injective: `(f x = f y → x = y)
     ; injective_mor:> Setoid_Morphism f }.
 
   Class Surjective: Prop :=
-    { surjective: f ∘ inv = id (* a.k.a. "split-epi" *)
+    { surjective: f ∘ inverse f = id (* a.k.a. "split-epi" *)
     ; surjective_mor:> Setoid_Morphism f }.
 
   Class Bijective: Prop :=
@@ -203,34 +217,3 @@ End jections.
 
 Implicit Arguments injective [[A] [ea] [B] [eb] [Injective]].
 
-Instance Setoid_Morphism_proper `{ea: Equiv A} `{eb: Equiv B}: Proper ((=) ==> iff) (@Setoid_Morphism A B _ _).
-Proof.
- cut (Π (x y: A → B), x = y → Setoid_Morphism x → Setoid_Morphism y).
-  firstorder.
- intros x y E [AS BS P].
- constructor; try apply _. intros v w E'.
- rewrite <- (E v), <- (E w), E'. reflexivity.
-Qed.
-
-Instance: Π A `{Setoid B}, Setoid (A -> B).
-Proof. constructor; repeat intro; firstorder. Qed.
-
-Instance Injective_proper `{ea: Equiv A} `{eb: Equiv B}: Proper ((=) ==> iff) (@Injective A ea B eb).
-Proof with intuition.
- cut (Π (x y: A → B), x = y → Injective x → Injective y).
-  split; repeat intro.
-   apply H with x...
-  destruct (injective_mor y).
-  apply H with y...
- repeat intro.
- destruct (injective_mor x).
- constructor.
-  repeat intro.
-  apply (injective x).
-  rewrite (H x0), (H y0)...
- rewrite <- H...
-Qed. 
-
-Instance Injective_comp `{Equiv A} `{Equiv B} `{Equiv C} (g: A → B) (f: B → C):
-  Injective f → Injective g → Injective (f ∘ g).
-Proof. firstorder. Qed.

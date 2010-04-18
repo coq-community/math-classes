@@ -1,9 +1,12 @@
+(* To be imported qualified. *)
+
 Set Automatic Introduction.
 
+Require
+  categories.variety categories.product forget_algebra forget_variety.
 Require Import
   Program Morphisms
-  abstract_algebra universal_algebra.
-Require categories.variety.
+  abstract_algebra universal_algebra workaround_tactics.
 
 Inductive op := mult | one.
 
@@ -12,14 +15,14 @@ Section sig.
   Import op_type_notations.
 
   Definition sig: Signature := Build_Signature unit op
-    (fun o => match o with
+    (λ o => match o with
       | mult => tt -=> tt -=> constant _ tt
       | one => constant _ tt
-      end)%nat.
+      end).
 
 End sig.
 
-Section theory.
+Section laws.
 
   Global Instance: SemiGroupOp (Term sig nat (constant _ tt)) :=
     fun x => App sig _ _ _ (App sig _ _ _ (Op sig nat mult) x).
@@ -36,55 +39,57 @@ Section theory.
     | e_mult_1_l: Laws (mon_unit & x === x)
     | e_mult_1_r: Laws (x & mon_unit === x).
 
-End theory.
+End laws.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
 Definition Object := variety.Object theory.
 
-(* Given a Monoid, we can make the corresponding Implementation, prove the laws, and
- construct the categorical object: *)
+Definition forget: Object → setoid.Object :=
+  @product.project unit
+    (λ _ => setoid.Object)
+    (λ _ => _: Arrows setoid.Object) _
+    (λ _ => _: CatId setoid.Object)
+    (λ _ => _: CatComp setoid.Object) 
+    (λ _ => _: Category setoid.Object) tt
+     ∘ forget_algebra.object theory ∘ forget_variety.forget theory.
+  (* todo: too ugly *)
 
-Section from_instance.
+(* Now follow a series of encoding/decoding functions to convert between the
+ specialized Monoid/Monoid_Morphism type classes and the universal
+ Algebra/InVariety/HomoMorphism type classes instantiated with the above
+ signature and theory. *)
+
+Instance encode_operations A `{!SemiGroupOp A} `{!MonoidUnit A}: AlgebraOps sig (λ _ => A) :=
+  λ o => match o with mult => sg_op | one => mon_unit end.
+
+Section decode_operations.
+  Context `{AlgebraOps theory A}.
+  Global Instance: MonoidUnit (A tt) := algebra_op _ one.
+  Global Instance: SemiGroupOp (A tt) := algebra_op _ mult.
+End decode_operations.
+
+Section encode_variety_and_ops.
 
   Context A `{Monoid A}.
-
-  Instance implementation: AlgebraOps sig (λ _ => A) :=
-    fun o => match o with mult => sg_op | one => mon_unit end.
 
   Global Instance encode_algebra_and_ops: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
 
-  Lemma laws e (l: Laws e) vars: eval_stmt sig vars e.
+  Global Instance encode_variety_and_ops: InVariety theory (λ _ => A).
   Proof.
-   inversion_clear l; simpl.
+   constructor. apply _.
+   intros ? [] ?; simpl.
      apply associativity.
     apply left_identity.
    apply right_identity.
   Qed.
 
-  Global Instance: InVariety theory (λ _ => A).
-  Proof. constructor. apply _. exact laws. Qed.
-
   Definition object: Object := variety.object theory (λ _ => A).
 
-End from_instance.
-
-Section decode_operations. Context `{AlgebraOps theory A}.
-  Global Instance: MonoidUnit (A tt) := algebra_op _ one.
-  Global Instance: SemiGroupOp (A tt) := algebra_op _ mult.
-End decode_operations.
+End encode_variety_and_ops.
 
 Lemma encode_algebra_only `{!AlgebraOps theory A} `{Π u, Equiv (A u)} `{!Monoid (A tt)}: Algebra theory A .
-Proof.
- constructor; intros []. apply _.
-  destruct Monoid0. destruct monoid_semigroup.
-  apply sg_mor.
- destruct Monoid0. destruct monoid_semigroup.
- unfold Proper. reflexivity.
-Qed. (* todo: clean up *)
-
-Ltac apply_simplified x := generalize x; simpl; intro HHH; apply HHH.
-  (* todo: this is another workaround around [apply] weakness *)
+Proof. constructor; intros []; simpl in *; try apply _. Qed.
 
 Global Instance decode_variety_and_ops `{InVariety theory A}: Monoid (A tt).
 Proof with simpl; auto.
@@ -100,13 +105,12 @@ Proof with simpl; auto.
 Qed.
 
 Lemma encode_morphism_only
-    (* not the ops, which we assume are already in encoded form *)
   `{AlgebraOps theory A} `{Π u, Equiv (A u)}
   `{AlgebraOps theory B} `{Π u, Equiv (B u)}
   (f: Π u, A u → B u) `{!Monoid_Morphism (f tt)}: HomoMorphism sig A B f.
 Proof.
- pose proof (monmor_a).
- pose proof (monmor_b).
+ pose proof (monmor_a (f tt)).
+ pose proof (monmor_b (f tt)).
  constructor.
     intros []. apply _.
    intros []; simpl.
@@ -116,6 +120,10 @@ Proof.
   apply encode_algebra_only.
  apply encode_algebra_only.
 Qed.
+
+Lemma encode_morphism_and_ops `{Monoid_Morphism A B f}:
+  @HomoMorphism sig (λ _ => A) (λ _ => B) _ _ ( _) ( _) (λ _ => f).
+Proof. intros. apply encode_morphism_only. assumption. Qed.
 
 Lemma decode_morphism_and_ops
   `{InVariety theory x} `{InVariety theory y} `{!HomoMorphism theory x y f}:
@@ -128,16 +136,37 @@ Proof.
  apply (preserves theory x y f one).
 Qed.
 
+(* Finally, we use these encoding/decoding functions to specialize some universal results: *)
 
-Require categories.product forget_algebra forget_variety.
+Section specialized.
 
-Definition forget: Object → setoid.Object :=
-  @product.project unit
-    (λ _ => setoid.Object)
-    (λ _ => _: Arrows setoid.Object) _
-    (λ _ => _: CatId setoid.Object)
-    (λ _ => _: CatComp setoid.Object) 
-    (λ _ => _: Category setoid.Object) tt
-     ∘ forget_algebra.object theory ∘ forget_variety.forget theory.
-  (* todo: too ugly *)
+  Context (A B C: Type)
+    `{!MonoidUnit A} `{!SemiGroupOp A} `{!Equiv A}
+    `{!MonoidUnit B} `{!SemiGroupOp B} `{!Equiv B}
+    `{!MonoidUnit C} `{!SemiGroupOp C} `{!Equiv C}
+    (f: A → B) (g: B → C).
 
+  Global Instance id_morphism `{!Monoid A}: Monoid_Morphism id.
+  Proof. repeat (constructor; try apply _); reflexivity. Qed.
+
+  Global Instance compose_morphisms
+    `{!Monoid_Morphism f} `{!Monoid_Morphism g}: Monoid_Morphism (g ∘ f).
+  Proof.
+   pose proof (encode_morphism_and_ops (f:=f)) as P.
+   pose proof (encode_morphism_and_ops (f:=g)) as Q.
+   pose proof (@universal_algebra.compose_homomorphisms theory _ _ _ _ _ _ _ _ _ _ _ P Q).
+   pose proof (monmor_a f). pose proof (monmor_b f). pose proof (monmor_b g).
+   apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ H).
+  Qed.
+
+  Global Instance: Π `{H: Monoid_Morphism A B f} `{!Inverse f},
+    Bijective f → Monoid_Morphism (inverse f).
+  Proof.
+   intros.
+   pose proof (encode_morphism_and_ops (f:=f)) as P.
+   pose proof (@universal_algebra.invert_homomorphism theory _ _ _ _ _ _ _ _ _ _ P) as Q.
+   destruct H.
+   apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ Q).
+  Qed.
+
+End specialized.

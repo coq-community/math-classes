@@ -1,10 +1,10 @@
 Set Automatic Introduction.
 
 Require Import
-  Ring.
-Require Import
-  Program Morphisms monoids
-  abstract_algebra canonical_names theory.setoids.
+  Ring Program Morphisms
+  abstract_algebra canonical_names.
+Require
+ theory.setoids varieties.monoid.
 
 Section group_props. Context `{Group}.
 
@@ -182,7 +182,7 @@ Section ring_props. Context `{Ring R}.
 
 End ring_props.
 
-Implicit Arguments stdlib_ring_theory [[e] [plus0] [mult0] [inv0] [zero] [one] [H]].
+Implicit Arguments stdlib_ring_theory [[e] [plus0] [mult0] [inv] [zero] [one] [H]].
   (* todo: we shouldn't have to say things like "plus0" here. *)
 
 Section ringmor_props. Context `{Ring_Morphism A B f}.
@@ -195,6 +195,29 @@ Section ringmor_props. Context `{Ring_Morphism A B f}.
 
 End ringmor_props.
 
+Module from_stdlib_ring_theory.
+ (* Without this module wrapping, the [Add Ring] below gives an error about some
+  internal name conflict. Todo: report. *)
+Section contents.
+
+  Context
+    `{H: @ring_theory R zero one pl mu mi op e}
+    `{!@Setoid R e}
+    `{!Proper (e ==> e ==> e) pl}
+    `{!Proper (e ==> e ==> e) mu}
+    `{!Proper (e ==> e) op}.
+
+  Add Ring R: H.
+
+  Definition from_stdlib_ring_theory: @Ring R e pl mu zero one op.
+  Proof.
+   repeat (constructor; try assumption); repeat intro
+   ; unfold equiv, mon_unit, sg_op, group_inv; ring.
+  Qed.
+
+End contents.
+End from_stdlib_ring_theory.
+
 Section morphism_composition.
 
   Context (A B C: Type)
@@ -206,7 +229,7 @@ Section morphism_composition.
   Global Instance id_semiring_morphism `{!SemiRing A}: SemiRing_Morphism id.
 
   Global Instance compose_semiring_morphisms
-    `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: SemiRing_Morphism (λ x => g (f x)).
+    `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: SemiRing_Morphism (g ∘ f).
   Proof.
    fold (g ∘ f).
    constructor; try apply _.
@@ -220,13 +243,14 @@ Section morphism_composition.
   Proof. repeat (constructor; try apply _); reflexivity. Qed.
 
   Global Instance compose_ring_morphisms
-    `{!Ring_Morphism f} `{!Ring_Morphism g}: Ring_Morphism (λ x => g (f x)).
+    `{!Ring_Morphism f} `{!Ring_Morphism g}: Ring_Morphism (g ∘ f).
   Proof.
-   pose proof ringmor_b.
-   pose proof (ringmor_b: Ring C).
-   pose proof (ringmor_a).
+   pose proof (ringmor_a f).
+   pose proof (ringmor_b f).
+   pose proof (ringmor_b g).
    repeat (constructor; try apply _); intros.
-   do 2 rewrite preserves_inv. reflexivity.
+   unfold compose.
+   do 2 rewrite preserves_opp. reflexivity.
   Qed.
 
 End morphism_composition.

@@ -85,7 +85,7 @@ Notation "/ x" := (dec_mult_inv x).
 (* Common properties: *)
 Class Commutative `{Equiv B} `(m: A → A → B): Prop := commutativity: `(m x y = m y x).
 Class Associative `{Equiv A} (m: A → A → A): Prop := associativity: `(m x (m y z) = m (m x y) z).
-Class Inv `(A → B): Type := inv: B → A.
+Class Inverse `(A → B): Type := inverse: B → A.
 Class AntiSymmetric `{ea: Equiv A} (R: relation A): Prop := antisymmetry: `(R x y → R y x → x = y).
 Class Distribute `{Equiv A} (f g: A → A → A): Prop :=
   { distribute_l: `(f a (g b c) = g (f a b) (f a c))
@@ -93,6 +93,7 @@ Class Distribute `{Equiv A} (f g: A → A → A): Prop :=
 Class HeteroSymmetric {A} {T: A → A → Type} (R: Π {x y}, T x y → T y x → Prop): Prop :=
   hetero_symmetric `(a: T x y) (b: T y x): R _ _ a b → R _ _ b a.
 
+Implicit Arguments inverse [[A] [B] [Inverse]].
 Implicit Arguments antisymmetry [[A] [ea] [AntiSymmetric]].
 
 (* Some things that hold in N, Z, Q, etc, and which we like to refer to by a common name: *)

@@ -1,10 +1,12 @@
+(* To be imported qualified. *)
+
 Set Automatic Introduction.
 
 Require
-  theory.rings categories.variety.
+  categories.variety theory.rings.
 Require Import
-  Program Morphisms
-  abstract_algebra universal_algebra.
+  Program Morphisms Ring
+  abstract_algebra universal_algebra workaround_tactics.
 
 Inductive op := plus | mult | zero | one | opp.
 
@@ -55,57 +57,76 @@ Section laws.
 End laws.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
+Definition Object := variety.Object theory.
 
-(* Given a Ring, we can make the corresponding Implementation, prove the laws, and
- construct the categorical object: *)
+(* Now follow a series of encoding/decoding functions to convert between the
+ specialized Ring/Ring_Morphism type classes and the universal
+ Algebra/InVariety/HomoMorphism type classes instantiated with the above
+ signature and theory. *)
 
-Section from_instance.
-
-  Context A `{Ring A}.
-
-  Instance implementation: AlgebraOps sig (λ _ => A) := λ o =>
-    match o with plus => ring_plus | mult => ring_mult | zero => 0 | one => 1 | opp => group_inv end.
-
-  Global Instance alg: Algebra sig _.
-  Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
-
-  Lemma laws e (l: Laws e) vars: eval_stmt sig vars e.
-  Proof.
-   inversion_clear l; simpl.
-             apply associativity.
-            apply commutativity.
-           apply theory.rings.plus_0_l.
-          apply associativity.
-         apply commutativity.
-        apply theory.rings.mult_1_l.
-       apply left_absorb.
-      apply distribute_l.
-     apply distribute_r.
-    apply theory.rings.plus_opp_r.
-   apply theory.rings.plus_opp_l.
-  Qed.
-
-  Instance variety: InVariety theory (λ _ => A).
-  Proof. constructor. apply _. exact laws. Qed.
-
-  Definition Object := variety.Object theory.
-  Definition object: Object := variety.object theory (λ _ => A).
- 
-End from_instance.
-
-(* Similarly, given a categorical object, we can make the corresponding class instances: *)
-
-Section ops_from_alg_to_sr. Context `{AlgebraOps theory A}.
+Section decode_operations. Context `{AlgebraOps theory A}.
   Global Instance: RingPlus (A tt) := algebra_op _ plus.
   Global Instance: RingMult (A tt) := algebra_op _ mult.
   Global Instance: RingZero (A tt) := algebra_op _ zero.
   Global Instance: RingOne (A tt) := algebra_op _ one.
   Global Instance: GroupInv (A tt) := algebra_op _ opp.
-End ops_from_alg_to_sr.
+End decode_operations.
 
-Lemma mor_from_sr_to_alg `{InVariety theory A} `{InVariety theory B}
+Section encode_with_ops.
+
+  Context A `{Ring A}.
+
+  Global Instance encode_operations: AlgebraOps sig (λ _ => A) := λ o =>
+    match o with plus => ring_plus | mult => ring_mult | zero => 0 | one => 1 | opp => group_inv end.
+
+  Global Instance encode_algebra_and_ops: Algebra sig _.
+  Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
+
+  Add Ring A: (rings.stdlib_ring_theory A).
+
+  Global Instance encode_variety_and_ops: InVariety theory (λ _ => A).
+  Proof. constructor. apply _. intros ? [] ?; simpl; unfold algebra_op; simpl; ring. Qed.
+
+  Definition object: Object := variety.object theory (λ _ => A).
+
+End encode_with_ops.
+
+Lemma encode_algebra_only `{!AlgebraOps theory A} `{Π u, Equiv (A u)} `{!Ring (A tt)}: Algebra sig A .
+Proof. constructor; intros []; simpl in *; try apply _. Qed.
+
+Global Instance decode_variety_and_ops `{InVariety theory A}: Ring (A tt).
+Proof with simpl; auto.
+ pose proof (λ law lawgood x y z => variety_laws law lawgood (λ s n =>
+  match s with tt => match n with 0 => x | 1 => y | _ => z end end)) as laws.
+ repeat (constructor; try apply _); repeat intro.
+               apply_simplified (laws _ e_plus_assoc).
+              apply (algebra_propers theory plus)...
+             apply_simplified (laws _ e_plus_0_l)...
+            transitivity (algebra_op sig plus (algebra_op sig zero) x).
+             apply_simplified (laws _ e_plus_comm)...
+            apply_simplified (laws _ e_plus_0_l)...
+           apply (algebra_propers theory opp)...
+          apply_simplified (laws _ e_plus_opp_l)...
+         apply_simplified (laws _ e_plus_opp_r)...
+        apply_simplified (laws _ e_plus_comm)...
+       apply_simplified (laws _ e_mult_assoc)...
+      apply (algebra_propers theory mult)...
+     apply_simplified (laws _ e_mult_1_l)...
+    transitivity (algebra_op sig mult (algebra_op sig one) x).
+     apply_simplified (laws _ e_mult_comm)...
+    apply_simplified (laws _ e_mult_1_l)...
+   apply_simplified (laws _ e_mult_comm)...
+  apply_simplified (laws _ e_distr)...
+ apply_simplified (laws _ e_distr_l)...
+Qed.
+
+Lemma encode_morphism_only
+  `{AlgebraOps theory A} `{Π u, Equiv (A u)}
+  `{AlgebraOps theory B} `{Π u, Equiv (B u)}
   (f: Π u, A u → B u) `{!Ring_Morphism (f tt)}: HomoMorphism sig A B f.
 Proof.
+ pose proof (ringmor_a (f tt)).
+ pose proof (ringmor_b (f tt)).
  constructor.
     intros []. apply _.
    intros []; simpl.
@@ -114,54 +135,42 @@ Proof.
      change (f tt 0 = 0). apply rings.preserves_0.
     change (f tt 1 = 1). apply rings.preserves_1.
    apply rings.preserves_opp.
-  change (Algebra theory A). apply _.
- change (Algebra theory B). apply _.
+  apply encode_algebra_only.
+ apply encode_algebra_only.
 Qed.
 
-Instance struct_from_var_to_class `{v: InVariety theory A}: Ring (A tt).
-Proof with simpl; auto.
- repeat (constructor; try apply _); repeat intro.
-               apply (variety_laws _ e_plus_assoc (λ s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end))...
-              apply (algebra_propers theory plus)...
-             apply (variety_laws _ e_plus_0_l (λ s n => match s with tt => y end))...
-            pose proof (variety_laws _ e_plus_comm (λ s n => match s with tt => match n with 0 => x | _ => algebra_op theory zero end end)).
-            simpl in H. rewrite H...
-            apply (variety_laws _ e_plus_0_l (λ s n => match s with tt => x end))...
-           apply (algebra_propers theory opp)...
-          apply (variety_laws _ e_plus_opp_l (λ s n => match s with tt => x end))...
-         apply (variety_laws _ e_plus_opp_r (λ s n => match s with tt => x end))...
-        apply (variety_laws _ e_plus_comm (λ s n => match s with tt => match n with 0 => x | _ => y end end))...
-       apply (variety_laws _ e_mult_assoc (λ s n => match s with tt => match n with 0 => x | 1 => y | _ => z end end))...
-      apply (algebra_propers theory mult)...
-     apply (variety_laws _ e_mult_1_l (λ s n => match s with tt => y end))...
-    pose proof (variety_laws _ e_mult_comm (λ s n => match s with tt => match n with 0 => x | _ => algebra_op theory one end end)).
-    simpl in H. rewrite H...
-    apply (variety_laws _ e_mult_1_l (λ s n => match s with tt => x end))...
-   apply (variety_laws _ e_mult_comm (λ s n => match s with tt => match n with 0 => x | _ => y end end))...
-  apply (variety_laws _ e_distr (λ s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end))...
- apply (variety_laws _ e_distr_l (λ s n => match s with tt => match n with 0 => a | 1 => b | _ => c end end))...
+Lemma encode_morphism_and_ops `{Ring_Morphism A B f}:
+  @HomoMorphism sig (λ _ => A) (λ _ => B) _ _ ( _) ( _) (λ _ => f).
+Proof. intros. apply encode_morphism_only. assumption. Qed.
+
+Lemma decode_morphism_and_ops
+  `{InVariety theory x} `{InVariety theory y} `{!HomoMorphism theory x y f}:
+    Ring_Morphism (f tt).
+Proof.
+ pose proof (homo_proper theory x y f tt).
+ pose proof (preserves theory x y f) as P.
+ repeat (constructor; try apply _)
+ ; [ apply (P plus) | apply (P zero) | apply (P opp) | apply (P mult) | apply (P one) ].
 Qed.
 
-Section morphism_from_ua.
+(* Finally, we use these encoding/decoding functions to specialize some universal results: *)
 
-  (* todo: Do we really need this? If so, how come we don't need it for semiring? *)
+Section specialized.
 
-  Context `{InVariety theory R0} `{InVariety theory R1} f `{!HomoMorphism sig R0 R1 f}.
+  Context (A B C: Type)
+    `{!RingPlus A} `{!RingMult A} `{!RingZero A} `{!RingOne A} `{!GroupInv A} `{!Equiv A}
+    `{!RingPlus B} `{!RingMult B} `{!RingZero B} `{!RingOne B} `{!GroupInv B} `{!Equiv B}
+    `{!RingPlus C} `{!RingMult C} `{!RingZero C} `{!RingOne C} `{!GroupInv C} `{!Equiv C}
+    (f: A → B) (g: B → C).
 
-  Global Instance: RingPlus (R0 tt) := @universal_algebra.algebra_op sig R0 _ plus.
-  Global Instance: RingMult (R0 tt) := @universal_algebra.algebra_op sig R0 _ mult.
-  Global Instance: RingZero (R0 tt) := @universal_algebra.algebra_op sig R0 _ zero.
-  Global Instance: RingOne (R0 tt) := @universal_algebra.algebra_op sig R0 _ one.
-  Global Instance: GroupInv (R0 tt) := @universal_algebra.algebra_op sig R0 _ opp.
-
-  Lemma morphism_from_ua: Ring_Morphism (f tt).
-   pose proof (@preserves sig R0 R1 _ _ _ _ f _).
-   repeat (constructor; try apply _).
-       apply (H1 plus).
-      apply (H1 zero).
-     apply (H1 opp).
-    apply (H1 mult).
-   apply (H1 one).
+  Global Instance: Π `{H: Ring_Morphism A B f} `{!Inverse f},
+    Bijective f → Ring_Morphism (inverse f).
+  Proof.
+   intros.
+   pose proof (encode_morphism_and_ops (f:=f)) as P.
+   pose proof (@universal_algebra.invert_homomorphism theory _ _ _ _ _ _ _ _ _ _ P) as Q.
+   destruct H.
+   apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ Q).
   Qed.
 
-End morphism_from_ua.
+End specialized.

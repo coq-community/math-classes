@@ -4,8 +4,8 @@ Require Import
  Morphisms List Program
  abstract_algebra theory.categories forget_algebra forget_variety theory.rings interfaces.functors.
 Require
- categories.setoid categories.product varieties.monoid categories.algebra setoids.
-Require categories.cat.
+ categories.setoid categories.product varieties.monoid categories.algebra.
+Require categories.cat theory.setoids.
 
 Module ua := universal_algebra.
 

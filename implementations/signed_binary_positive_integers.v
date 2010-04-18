@@ -166,10 +166,8 @@ Qed. (* todo: rename or get rid of *)
 
 Instance: Initial (ring.object Z).
 Proof.
- intros y [x h] [].
- simpl in *.
- apply same_morphism.
- apply (@ring.morphism_from_ua _ _ _ (ring.variety Z)); apply _.
+ intros y [x h] []. simpl in *.
+ apply same_morphism, (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
 Qed.
 
 Instance: Integers Z.

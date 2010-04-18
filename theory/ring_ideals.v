@@ -78,11 +78,11 @@ Section ideal_congruence. Context `{Ring R}.
    rewrite E. intuition.
   Qed.
 
-  Let hint := ring.implementation R.
+  Let hint := ring.encode_operations R.
 
   Instance: Congruence ring.sig (λ _ => congruence).
   Proof.
-   constructor. intro. apply _. apply ring.alg.
+   constructor. intro. apply _. apply ring.encode_algebra_and_ops.
    assert (Π x y, @equiv _ e x y → congruence x y) as e_cong.
      unfold congruence. intros ? ? E. rewrite E, plus_opp_r. intuition.
    repeat (constructor; try apply _); repeat intro; apply e_cong; try firstorder.
@@ -90,8 +90,8 @@ Section ideal_congruence. Context `{Ring R}.
 
   Instance: Ring R (e:=congruence).
   Proof.
-   apply (@ring.struct_from_var_to_class (λ _ => R) (λ _ => congruence) hint).
-   pose proof (ring.variety R).
+   apply (@ring.decode_variety_and_ops (λ _ => R) (λ _ => congruence) hint).
+   pose proof (ring.encode_variety_and_ops R).
    apply (quotient_variety ring.theory); try apply _.
    intros ? []; intuition.
   Qed.
@@ -100,8 +100,8 @@ End ideal_congruence.
 
 Section kernel_is_ideal. Context `{Ring_Morphism A B f}.
 
-  Let ringA := ringmor_a (f:=f).
-  Let ringB := ringmor_b (f:=f).
+  Let ringA := ringmor_a f.
+  Let ringB := ringmor_b f.
 
   Add Ring A: (rings.stdlib_ring_theory A).
   Add Ring B: (rings.stdlib_ring_theory B).

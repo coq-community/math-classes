@@ -1,12 +1,13 @@
 Set Automatic Introduction.
 
 Require Import
- Morphisms abstract_algebra theory.naturals theory.integers theory.fields
+ Morphisms Program
+ abstract_algebra theory.naturals theory.integers theory.fields theory.jections
  natpair_integers orders.field.
 
 Class Rationals A {e plus mult opp zero one mult_inv } `{Π x y: A, Decision (x = y)} {inj_inv}: Prop :=
   { rationals_field:> @Field A e plus mult opp zero one mult_inv
-  ; rationals_frac: Surjective (λ p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p)) (Inv0:=inj_inv)
+  ; rationals_frac: Surjective (λ p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p)) (inv:=inj_inv)
   ; rationals_embed_ints: Injective (integers_to_ring (Z nat) A) }.
 
 (* rational_embed_ints is not declared as a coercion because we prove a stronger result in a moment *)
@@ -17,10 +18,10 @@ Class Rationals A {e plus mult opp zero one mult_inv } `{Π x y: A, Decision (x 
 Section alt_Build_Rationals.
 
   Context A Int (inject: Int → A) `{Field A} {d: Π x y: A, Decision (x = y)}
-    `{Integers Int} `{!Ring_Morphism inject} `{!Inv (λ p => inject (fst p) * / inject (snd p))}.
+    `{Integers Int} `{!Ring_Morphism inject} `{!Inverse (λ p => inject (fst p) * / inject (snd p))}.
 
-  Global Instance: Inv (λ p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p)) :=
-    λ x => (integers_to_ring Int (Z nat) (fst (inv x)), integers_to_ring Int (Z nat) (snd (inv x))).
+  Global Instance: Inverse (λ p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p)) :=
+    λ x => (integers_to_ring Int (Z nat) (fst (inverse _ x)), integers_to_ring Int (Z nat) (snd (inverse _ x))).
 
   Lemma alt_Build_Rationals: Surjective (λ p => inject (fst p) * / inject (snd p)) → Injective inject → Rationals A.
   Proof with auto.
@@ -29,12 +30,12 @@ Section alt_Build_Rationals.
     constructor.
      intro x.
      unfold Basics.compose, id in *.
-     transitivity (inject (fst (inv x)) * / inject (snd (inv x))).
+     transitivity (inject (fst (inverse _ x)) * / inject (snd (inverse _ x))).
       2: apply sur.
      pose proof (integers_to_ring_unique' _
-       (λ x => integers_to_ring (Z nat) A (integers_to_ring Int (Z nat) x)) inject) as B.
-     pose proof (B (fst (inv x))). simpl in H3. rewrite H3.
-     pose proof (B (snd (inv x))). simpl in H4. rewrite H4.
+       (integers_to_ring (Z nat) A ∘ integers_to_ring Int (Z nat)) inject) as B.
+     pose proof (B (fst (inverse _ x))). simpl in H3. rewrite H3.
+     pose proof (B (snd (inverse _ x))). simpl in H4. rewrite H4.
      reflexivity.
     constructor; try apply _.
     repeat intro.
@@ -43,7 +44,8 @@ Section alt_Build_Rationals.
    constructor. 2: apply _.
    intros x y ?.
    apply (injective (integers_to_ring (Z nat) Int)), (injective inject).
-   do 2 rewrite (integers_to_ring_unique _ (λ v => inject (integers_to_ring (Z nat) Int v)))...
+   pose proof (integers_to_ring_unique _ (inject ∘ integers_to_ring (Z nat) Int)) as P.
+   unfold compose in P. do 2 rewrite P...
   Qed. (* todo: too long *)
 
 End alt_Build_Rationals.
@@ -73,8 +75,9 @@ Section sec. Context `{Rationals Q}.
    intros x y ?.
    apply (injective (naturals_to_semiring N (Z nat))).
    apply (injective (integers_to_ring (Z nat) Q)).
-   do 2 rewrite (theory.naturals.to_semiring_unique Q
-     (λ v => integers_to_ring (Z nat) Q (naturals_to_semiring N (Z nat) v)))...
+   pose proof (theory.naturals.to_semiring_unique Q
+     (integers_to_ring (Z nat) Q ∘ naturals_to_semiring N (Z nat))) as P.
+   unfold compose in P. do 2 rewrite P...
   Qed.
 
   Instance: OrdField Q.

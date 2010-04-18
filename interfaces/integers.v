@@ -18,9 +18,7 @@ Section initial_maps.
   Global Instance integer_initial_arrow: InitialArrow (ring.object Int).
    intro.
    exists (λ u => match u return Int → y u with tt => integers_to_ring (y tt) end).
-   abstract (simpl;
-    apply (@ring.mor_from_sr_to_alg (λ _ => Int) _ _ (ring.variety Int) _ _ _ _ _);
-    apply _).
+   abstract (apply ring.encode_morphism_only, _).
   Defined. (* for some reason [Program] isn't cooperating here. look into it *)
 
 End initial_maps.

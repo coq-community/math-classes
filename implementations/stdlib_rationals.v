@@ -1,5 +1,5 @@
 Require
-  signed_binary_positive_integers Field theory.fields.
+  signed_binary_positive_integers Field Qfield theory.fields.
 Require Import
   Ring Morphisms QArith_base
   abstract_algebra theory.rings interfaces.rationals canonical_names.
@@ -14,47 +14,19 @@ Instance: RingMult Q := Qmult.
 Program Instance: MultInv Q := Qinv.
 
 (* properties: *)
-Instance: Commutative Qplus := Qplus_comm.
-Instance: Associative Qplus := Qplus_assoc.
-Instance: Associative Qmult := Qmult_assoc.
-Instance: Commutative Qmult := Qmult_comm.
-Instance: LeftIdentity Qplus 0 := Qplus_0_l.
-Instance: RightIdentity Qplus 0 := Qplus_0_r.
-Instance: LeftIdentity Qmult 1 := Qmult_1_l.
-Instance: RightIdentity Qmult 1 := Qmult_1_r.
+
+Instance: Setoid Q.
+
+Instance: Field Q.
+Proof @theory.fields.from_stdlib_field_theory.from_stdlib_field_theory _ _ _ _ _ _ _ _ _ _ Qfield.Qsft _ _ _ _ _.
+
+(* order: *)
+
 Instance: Transitive Qle := Qle_trans.
 Instance: Reflexive Qle := Qle_refl.
 Instance Qle_PreOrder: PreOrder Qle.
 Instance: AntiSymmetric Qle := Qle_antisym.
-
-Lemma Qplus_opp_l x: Qplus (-x) x = 0%Q.
-Proof. intros. rewrite commutativity. apply Qplus_opp_r. Qed.
-
-(* division: *)
-
-Program Instance: MultInv Q := Qinv.
-
-Instance: Proper (sig_relation equiv _ ==> equiv) (_: MultInv Q).
-Proof. 
- unfold sig_relation. intros [x p] [y q]. simpl. intro E.
- change (/ x = / y)%Q. rewrite E. reflexivity.
-Qed.
-
-(* structures: *)
-Instance: Setoid Q.
-Instance: SemiGroup _ (op:=Qplus).
-Instance: SemiGroup _ (op:=Qmult).
-Instance: Monoid Q (op:=Qplus) (unit:=0%Q).
-Instance: Monoid Q (op:=Qmult) (unit:=1%Q).
-Instance: CommutativeMonoid Q (op:=Qmult) (unit:=1%Q).
 Instance: PartialOrder Qle.
-Instance: @Group Q q_equiv Qplus 0%Q Qopp := { ginv_r := Qplus_opp_r; ginv_l := Qplus_opp_l }.
-Instance: AbGroup Q (op:=Qplus) (unit:=0%Q).
-Instance: Distribute Qmult Qplus := { distribute_l := Qmult_plus_distr_r; distribute_r := Qmult_plus_distr_l }.
-Instance: Ring Q.
-Instance: ZeroNeOne Q. Proof. discriminate. Qed.
-Instance: Field Q.
-Proof. constructor; try apply _. intros []. apply Qmult_inv_r. Qed.
 Instance: Order Q := Qle.
 
 Instance: RingOrder q_equiv Qplus Qmult 0%Q Qle.
@@ -69,8 +41,6 @@ Instance: OrdField Q.
 
 (* misc: *)
 Instance: Π x y: Q, Decision (x = y) := Qeq_dec.
-
-Add Field Q: (theory.fields.stdlib_field_theory Q).
 
 Instance: Proper (equiv ==> equiv) inject_Z. Proof. intros x y H. rewrite H. reflexivity. Qed.
 
@@ -103,7 +73,7 @@ Proof.
  intros ?? E. unfold inject. rewrite E. reflexivity.
 Qed.
 
-Instance: Inv inject := λ x => (Qnum x, Zpos (Qden x)).
+Instance: Inverse inject := λ x => (Qnum x, Zpos (Qden x)).
 
 Instance: Surjective (λ p => inject_Z (fst p) * / inject_Z (snd p)).
 Proof.

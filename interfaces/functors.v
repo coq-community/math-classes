@@ -1,6 +1,7 @@
 Global Set Automatic Introduction. (* todo: do this in a more sensible place *)
 
-Require Import abstract_algebra canonical_names Program setoids.
+Require Import abstract_algebra canonical_names Program.
+Require setoids.
 
 Section functor_class.
 
@@ -91,7 +92,7 @@ Section compose_functors.
    pose proof (functor_to g).
    pose proof (functor_to f).
    constructor; intros; try apply _.
-     apply (@compose_setoid_morphisms _ _ _ _ _ _)...
+     apply (@setoids.compose_morphisms _ _ _ _ _ _)...
      apply (@functor_morphism _ _ _ _ _ _ _ _ _ _ f _)...
      (* todo: this part really should be automatic *)
     change (fmap f (fmap g (cat_id: a ⟶ a)) = cat_id).

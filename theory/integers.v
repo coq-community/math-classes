@@ -8,7 +8,8 @@ Require
  theory.naturals.
 Require Import
  RelationClasses Morphisms Ring Program
- interfaces.naturals abstract_algebra orders.semiring theory.rings natpair_integers canonical_names.
+ interfaces.naturals abstract_algebra orders.semiring theory.rings
+ natpair_integers canonical_names workaround_tactics.
 
 Hint Immediate @neg_precedes_pos @preserves_0 @preserves_nonneg @zero_sr_precedes_nat.
 Hint Resolve @neg_precedes_pos @preserves_0 @preserves_nonneg @zero_sr_precedes_nat.
@@ -38,8 +39,8 @@ Section contents.
    Π x, f x = integers_to_ring Int R x.
   Proof.
    intros. symmetry.
-   pose proof (@ring.mor_from_sr_to_alg _ _ _ (ring.variety _) _ _ _ (ring.variety _) (λ _ => f) _).
-   set (@variety.arrow ring.theory _ _ _ (ring.variety _) _ _ _ (ring.variety _) (λ _ => f) _).
+   pose proof (ring.encode_morphism_and_ops (f:=f)).
+   set (@variety.arrow ring.theory _ _ _ (ring.encode_variety_and_ops _) _ _ _ (ring.encode_variety_and_ops _) (λ _ => f) _).
    exact (integers_initial _ a tt x).
   Qed.
 
@@ -58,9 +59,9 @@ Section contents.
   Proof.
    constructor. 2: constructor; apply _.
    intros x y E.
-   rewrite <- (integers_to_ring_unique' Int (λ v => f (g v)) id x).
-   rewrite <- (integers_to_ring_unique' Int (λ v => f (g v)) id y).
-   rewrite E. reflexivity.
+   rewrite <- (integers_to_ring_unique' Int (f ∘ g) id x).
+   rewrite <- (integers_to_ring_unique' Int (f ∘ g) id y).
+   unfold compose. rewrite E. reflexivity.
   Qed.
 
   Global Instance int_to_int_injective `{Integers B} (f: Int → B) `{!Ring_Morphism f}: Injective f.
@@ -77,15 +78,14 @@ Section contents.
 
   Global Instance naturals_to_integers_injective `{Naturals N}: Injective (naturals_to_semiring N Int).
   Proof.
-   constructor.
-    intros x y E.
-    rewrite <- (plus_0_r x), <- (plus_0_r y).
-    change (NtoZ N x = NtoZ N y).
-    pose proof (_: SemiRing_Morphism (NtoZ N)).
-    do 2 rewrite <- (NtoZ_uniq N).
-    do 2 rewrite <- (theory.naturals.to_semiring_unique (Z N) (λ x => integers_to_ring Int (Z N) (naturals_to_semiring N Int x))).
-    rewrite E. reflexivity.
-   apply _.
+   constructor; try apply _.
+   intros x y E.
+   rewrite <- (plus_0_r x), <- (plus_0_r y).
+   change (NtoZ N x = NtoZ N y).
+   pose proof (_: SemiRing_Morphism (NtoZ N)).
+   do 2 rewrite <- (NtoZ_uniq N).
+   do 2 rewrite <- (theory.naturals.to_semiring_unique (Z N) (integers_to_ring Int (Z N) ∘ naturals_to_semiring N Int)).
+   unfold compose. rewrite E. reflexivity.
   Qed.
 
   Instance: AntiSymmetric integer_precedes.
@@ -165,13 +165,12 @@ Section contents.
     destruct (neg_is_pos _ _ A) as [B C]. rewrite B, C...
    apply (injective group_inv)...
   Qed.
-  
+
   Lemma abs_nat' `{Naturals N} `{Naturals N'} `{!IntAbs Int N} (n: N'): int_abs' Int N (naturals_to_semiring N' Int n) = naturals_to_semiring N' N n.
   Proof with eauto.
    unfold int_abs'. destruct int_abs. simpl.
    apply (injective (naturals_to_semiring N Int)).
-   pose proof (theory.naturals.to_semiring_unique Int (λ x => naturals_to_semiring N Int (naturals_to_semiring N' N x)) n) as A.
-   rewrite A. (* todo: the separate pose is due to a Coq bug *)
+   posed_rewrite (theory.naturals.to_semiring_unique Int (naturals_to_semiring N Int ∘ naturals_to_semiring N' N) n).
    destruct o...
    apply (antisymmetry integer_precedes).
     apply <- precedes_flip. rewrite H3...
@@ -196,16 +195,17 @@ Section contents.
    destruct int_abs as [x0 [M | M]]; simpl; [left | right].
     rewrite <- (iso_ints (Z N) x), <- M.
     symmetry.
-    apply (theory.naturals.to_semiring_unique Int (λ x => integers_to_ring _ _  (_ x))).
+    apply_simplified (theory.naturals.to_semiring_unique Int (integers_to_ring (Z N) Int ∘ naturals_to_semiring N (Z N))).
    rewrite <- (iso_ints (Z N) x), <- M.
    pose proof (_: Ring_Morphism (integers_to_ring (Z N) Int)).
    rewrite preserves_inv. 
    apply inv_proper. symmetry.
-   apply (theory.naturals.to_semiring_unique Int (λ x => integers_to_ring _ _ (_ x))).
+   apply_simplified (theory.naturals.to_semiring_unique Int (integers_to_ring (Z N) Int ∘ naturals_to_semiring N (Z N))).
   Qed.
 
 Hint Immediate zero_sr_precedes_nat opp_0 inv_involutive.
 Hint Resolve opp_0.
+  (* todo: move *)
 
   Lemma eq_opp_self (z: Int) (E: z = -z): z = 0.
   Proof with auto.
