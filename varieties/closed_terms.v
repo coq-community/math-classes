@@ -33,10 +33,10 @@ Section contents. Variable et: EquationalTheory.
     | e_refl o: Reflexive (e o)
     | e_trans o: Transitive (e o)
     | e_sym o: Symmetric (e o)
-    | e_sub o h x y a b: e _ x y → e _ a b → e _ (App _ _ h o x a) (App _ _ h o y b) 
+    | e_sub o h: Proper ((=) ==> (=) ==> (=)) (App _ _ h o)
     | e_law (s: EqEntailment et): et_laws et s → (Π (v: Vars et ClosedTerm0 nat),
-      (Π x, In x (entailment_premises _ s) → e _ (eval et v (fst (projT2 x))) (eval et v (snd (projT2 x)))) →
-        e _ (eval et v (fst (projT2 (entailment_conclusion _ s)))) (eval et v (snd (projT2 (entailment_conclusion _ s))))).
+      (Π x, In x (entailment_premises _ s) → eval et v (fst (projT2 x)) = eval et v (snd (projT2 x))) →
+        eval et v (fst (projT2 (entailment_conclusion _ s))) = eval et v (snd (projT2 (entailment_conclusion _ s)))).
 
   Existing Instance e.
   Existing Instance e_refl.
@@ -152,7 +152,7 @@ Section contents. Variable et: EquationalTheory.
          apply IHx1...
         apply (@algebra_propers et other _ _ _ o).
        transitivity (eval_in_other y)...
-      apply IHe1...
+      apply IHe...
      unfold Vars in v.
      pose proof (@variety_laws et other _ _ _ s H (λ a n => eval_in_other (v a n))) as Q.
      clear H.
