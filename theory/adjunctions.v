@@ -4,13 +4,14 @@ Set Automatic Introduction.
 
 Require Import
   Relation_Definitions Morphisms Setoid Program
-  abstract_algebra setoids functors categories.
+  abstract_algebra setoids functors categories
+  workaround_tactics.
 
 Section unit.
 
   Context
     `(φ_adj: Adjunction A e X (F:=F) (G:=G) (φ:=φ))
-    `{Π x a, Inv (φ x a)}
+    `{Π x a, Inverse (φ x a)}
     `{Π x a, Bijective (φ x a)}.
 
   Implicit Arguments φ [[a] [x]].
@@ -61,13 +62,13 @@ Section unit.
 
 End unit.
 
-Require categories.dual bijective.
+Require categories.dual jections.
 
 Section counit.
 
   Context
     `(φ_adj: Adjunction A e X (F:=F) (G:=G) (φ:=φ))
-    `{Π x a, Inv (φ x a)}
+    `{Π x a, Inverse (φ x a)}
     `{Π x a, Bijective (φ x a)}.
 
   Let hint := adjunction_left_functor F G (@φ).
@@ -75,20 +76,16 @@ Section counit.
   Let hint'' := functor_from G.
   Let hint''' := functor_to G.
 
-  Notation "f ⁻¹" := (@inv _ _ f _) (at level 30).
+  Notation "f ⁻¹" := (inverse f) (at level 30).
 
   Definition φinv x a := (@φ x a)⁻¹.
 
   (** And an adjunction *)
 
-  Definition inverse0: ∀x a, Inv (φinv a x) := λ a x => φ x a. 
+  Definition inverse0: ∀x a, Inverse (φinv a x) := λ a x => φ x a. 
 
   Lemma inverse: Π (x: A) (a : X), @Bijective _ (dual.e _ _) _ (dual.e _ _) (φinv a x) (inverse0 x a).
-  Proof.
-   intros a x. unfold φinv, dual.e, inverse0.
-   apply bijective.invBij.
-   apply _.
-  Qed.
+  Proof. intros a x. unfold φinv. apply _. Qed.
 
   Instance: @Adjunction X _ _ _ _ A _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) (λ a x => (@φ x a)⁻¹ ). (* flip *)
   Proof with intuition; try reflexivity.
@@ -96,29 +93,27 @@ Section counit.
    constructor; try apply _.
     (* first law *)
     intros x x' k a h.
-    apply bijective.cancel_left...
+    apply jections.cancel_left...
     transitivity (φ x a ((φ x a ⁻¹) h) ◎ k).
      symmetry; apply natural_right.
-    (* Should be one rewrite *)
-    pose proof (bijective.back' (H0 x a) h) as E.
-    unfold compose, id in E.
-    rewrite E...
+    posed_rewrite (surjective (φ x a) h)...
     (* second law *)
    intros a a' h x k.
-   apply bijective.cancel_left...
+   apply jections.cancel_left...
    change (a' ⟶ a) in h.
    change (φ x a (h ◎ ((φ x a' ⁻¹) k)) = Fmap1 a' a h ◎ k).
    transitivity (fmap G h ◎ φ x a' ((φ x a' ⁻¹) k)).
     symmetry; apply natural_left.
    apply comp_proper...
-   apply bijective.back'...
+   apply surjective...
   Qed.
 
   Definition ϵnat: @NaturalTransformation _ _ _ _ _ _ _ _ (F ∘ G)
     (@comp_Fmap _ _ A _ _ _ F (dual.fmap_op F) G (dual.fmap_op G))
     (@η X (@dual.flipA X Arrows1) _ A (@dual.flipA A Arrows0) G F (λ (a : A) (x : X) => φinv x a)).
   Proof.
-   apply (eta _ _ _ _ (dual.fmap_op G) _ (dual.fmap_op F) _ _ _ inverse); apply _.
+   apply (@eta X _ _ _ _ A _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) (λ a x => (@φ x a)⁻¹ )) with
+     (λ a x => @φ x a); intros; apply _.
   Qed.
 
 End counit.
