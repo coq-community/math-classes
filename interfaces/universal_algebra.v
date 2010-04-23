@@ -2,7 +2,7 @@ Set Automatic Introduction.
 
 Require Import
   Morphisms Setoid Program List
-  abstract_algebra theory.categories util monads jections.
+  abstract_algebra util jections.
 Require setoids.
 
 Record Entailment (P: Type): Type := { entailment_premises: list P; entailment_conclusion: P }.
