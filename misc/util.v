@@ -48,3 +48,19 @@ Class Stable P := { stable: DN P → P }.
 
 Instance: Π P, Decision P → Stable P.
 Proof. firstorder. Qed.
+
+Section obvious.
+
+  Class Obvious (T: Type) := obvious: T.
+
+  Context (A B C: Type).
+
+  Global Instance: Obvious (A → A) := id.
+  Global Instance: Obvious (False → A) := False_rect _.
+  Global Instance: Obvious (A → A + B) := inl.
+  Global Instance: Obvious (A → B + A) := inr.
+  Global Instance obvious_sum_src  `{Obvious (A → C)} `{Obvious (B → C)}: Obvious (A+B → C). repeat intro. intuition. Defined.
+  Global Instance obvious_sum_dst_l `{Obvious (A → B)}: Obvious (A → B+C). repeat intro. intuition. Defined.
+  Global Instance obvious_sum_dst_r `{Obvious (A → B)}: Obvious (A → C+B). repeat intro. intuition. Defined.
+
+End obvious.

@@ -2,7 +2,7 @@ Set Automatic Introduction.
 
 Require Import
   RelationClasses Relation_Definitions List Morphisms
-  universal_algebra canonical_names ua_subalgebraT util.
+  universal_algebra ua_homomorphisms canonical_names ua_subalgebraT util.
 Require Import Program.
 Require ua_products.
 
@@ -74,7 +74,6 @@ Section contents. Variable et: Signature.
     intro.
     unfold f.
     apply algebra_propers.
-    apply _.
    assert (lifted_e _ (f true) (f false)). unfold f.
     unfold lifted_e.
     destruct H0.
@@ -97,8 +96,8 @@ Section contents. Variable et: Signature.
    simpl.
    unfold ua_products.product_ops.
    intro.
-   change (lifted_e _ (algebra_op et o) (algebra_op et o)).
-   set (f := λ _: bool => algebra_op et o) in *.
+   change (lifted_e _ (algebra_op o) (algebra_op o)).
+   set (f := λ _: bool => algebra_op o) in *.
    assert (Π b, lifted_normal _ (f b) (f b)). intros.
     subst f. simpl.
     apply algebra_propers...
@@ -190,7 +189,7 @@ Section first_iso.
    pose proof (H3 y0). clear H3.
    pose proof (H4 x0).
    pose proof (H4 y0). clear H4.
-   apply (IHo0 (x x0) (x' (f a x0)) (y y0) (y' (f a y0)) H7 H9).
+   apply (IHo0 (x x0) (x' (f _ x0)) (y y0) (y' (f _ y0)) H7 H9).
    apply H5.
    assumption.
   Qed.
@@ -229,7 +228,7 @@ Section first_iso.
    induction (sign o); simpl; intros.
     exists o1...
    destruct X.
-   apply (@op_closed_proper sign B _ _ _ image image_proper _ (o1 z) (o1 (f a x))).
+   apply (@op_closed_proper sign B _ _ _ image image_proper _ (o1 z) (o1 (f _ x))).
     apply H3...
    apply IHo0 with (o2 x)...
    apply _.
@@ -252,7 +251,7 @@ Section first_iso.
    generalize (H o) (H1 o) (preserves sign A B f o)
      (_: Proper equiv (H o)) (_: Proper equiv (H1 o)).
    induction (sign o); simpl; intros ? ? ? ? ?.
-    intros [? E]. change (f a x = f a o0). rewrite E...
+    intros [? E]. change (f _ x = f _ o0). rewrite E...
    intros ? [x [? E]]. apply IHo0... simpl in *. rewrite <- E...
   Defined.
 

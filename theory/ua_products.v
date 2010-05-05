@@ -2,7 +2,7 @@ Set Automatic Introduction.
 
 Require Import
   Morphisms Setoid abstract_algebra Program
-  universal_algebra theory.categories.
+  universal_algebra ua_homomorphisms theory.categories.
 Require setoids.
 
 Section algebras.
@@ -15,10 +15,10 @@ Section algebras.
 
   Definition carrier: sorts sig → Type := λ sort => Π i: I, carriers i sort.
 
-  Fixpoint rec_impl o: (Π i, op_type (sorts sig) (carriers i) o) → op_type (sorts sig) carrier o :=
-    match o return (Π i, op_type (sorts sig) (carriers i) o) → op_type (sorts sig) carrier o with
-    | constant _ => id
-    | function _ g => λ X X0 => rec_impl g (λ i => X i (X0 i))
+  Fixpoint rec_impl o: (Π i, op_type (carriers i) o) → op_type carrier o :=
+    match o return (Π i, op_type (carriers i) o) → op_type carrier o with
+    | ne_list.one _ => id
+    | ne_list.cons _ g => λ X X0 => rec_impl g (λ i => X i (X0 i))
     end.
 
   Instance rec_impl_proper: Π o, Proper (equiv ==> equiv) (rec_impl o).
@@ -28,16 +28,16 @@ Section algebras.
    intros. intro. apply Y. change (x0 i = y0 i)...
   Qed.
 
-  Global Instance product_ops: AlgebraOps sig carrier := λ o => rec_impl (sig o) (λ i => algebra_op sig o).
+  Global Instance product_ops: AlgebraOps sig carrier := λ o => rec_impl (sig o) (λ i => algebra_op o).
 
-  Instance: Π o: sig, Proper equiv (algebra_op sig o: op_type (sorts sig) carrier (sig o)).
+  Instance: Π o: sig, Proper equiv (algebra_op o: op_type carrier (sig o)).
   Proof. intro. apply rec_impl_proper. intro. apply (algebra_propers _). Qed.
 
   Instance product_e sort: Equiv (carrier sort) := equiv. (* hint; shouldn't be needed *)
 
   Global Instance product_algebra: Algebra sig carrier.
 
-  Lemma preservation i o: Preservation sig carrier (carriers i) (λ _ v => v i) (algebra_op sig o) (algebra_op sig o).
+  Lemma preservation i o: Preservation sig carrier (carriers i) (λ _ v => v i) (algebra_op o) (algebra_op o).
    unfold product_ops, algebra_op.
    set (select_op := λ i0 : I => H0 i0 o).
    replace (H0 i o) with (select_op i) by reflexivity.
@@ -69,10 +69,10 @@ Section varieties.
   Notation carrier := (carrier et I carriers).
   Let carrier_e := product_e et I carriers _.
 
-  Fixpoint nqe {t}: op_type (sorts et) carrier t → (Π i, op_type _ (carriers i) t) → Prop :=
+  Fixpoint nqe {t}: op_type carrier t → (Π i, op_type (carriers i) t) → Prop :=
    match t with
-   | constant x => λ f g => Π i, f i = g i
-   | function _ _ => λ f g => Π tuple, nqe (f tuple) (λ i => g i (tuple i))
+   | ne_list.one _ => λ f g => Π i, f i = g i
+   | ne_list.cons _ _ => λ f g => Π tuple, nqe (f tuple) (λ i => g i (tuple i))
    end. (* todo: rename *)
 
   Instance nqe_proper t: Proper (equiv ==> (λ x y => Π i, x i = y i) ==> iff) (@nqe t).
@@ -118,8 +118,8 @@ Section varieties.
   Qed.
 
   Lemma component_equality_to_product t
-    (A A': op_type _ carrier t)
-    (B B': Π i, op_type _ (carriers i) t):
+    (A A': op_type carrier t)
+    (B B': Π i, op_type (carriers i) t):
     (Π i, B i = B' i) → nqe A B → nqe A' B' → A = A'.
   Proof with auto.
    induction t; simpl in *; intros BE ABE ABE'.

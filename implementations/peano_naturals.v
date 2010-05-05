@@ -5,6 +5,8 @@ Set Automatic Introduction.
 Require Import
   theory.categories.
 
+Require ua_homomorphisms.
+
 Require Import
   Morphisms Ring
   abstract_algebra interfaces.naturals theory.rings.
@@ -98,7 +100,7 @@ Instance: Initial (semiring.object nat).
 Proof.
  intros y [x h] [] a. simpl in *.
  pose proof (_: SemiRing (y tt)).
- pose proof (@universal_algebra.preserves semiring.theory _ _ _ _ _ _ _ h) as pr.
+ pose proof (@ua_homomorphisms.preserves semiring.theory _ _ _ _ _ _ _ h) as pr.
  induction a; simpl.
   symmetry. apply (pr semiring.zero).
  change (naturals_to_semiring nat (y tt) a + 1 = x tt (S a)).

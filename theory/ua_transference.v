@@ -1,7 +1,7 @@
 Require Import
   Morphisms Setoid Program
-  abstract_algebra universal_algebra canonical_names
-  theory.categories.
+  abstract_algebra universal_algebra ua_homomorphisms
+  canonical_names theory.categories ua_mapped_operations.
 
 Require categories.variety.
 
@@ -32,7 +32,7 @@ Section contents.
   Proof with auto; try reflexivity.
    induction t; simpl in *; intros...
     set (eval et (λ (a: sorts et) (i : nat) => ba (v a i)) t2).
-    pose proof (@epA nat (function (sorts et) y t1) (λ a i => ba (v a i))
+    pose proof (@epA nat (ne_list.cons y t1) (λ a i => ba (v a i))
          (λ a i => ba (v a i)) (reflexivity _) t2 t2 (reflexivity _)
          : Proper (equiv ==> op_type_equiv (sorts et) A t1)%signature o).
     rewrite (IHt2 v).

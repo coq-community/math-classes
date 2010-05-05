@@ -2,7 +2,7 @@ Set Automatic Introduction.
 
 Require Import
   RelationClasses Morphisms Program
-  universal_algebra canonical_names theory.categories abstract_algebra.
+  universal_algebra ua_homomorphisms canonical_names theory.categories abstract_algebra.
 Require
   categories.algebra forget_algebra.
 
@@ -12,10 +12,10 @@ Section subalgebras.
 
   (* We begin by describing what it means for P to be a proper closed subset: *)
 
-  Fixpoint op_closed {o: OpType (sorts sign)}: op_type (sorts sign) A o → Prop :=
+  Fixpoint op_closed {o: OpType (sorts sign)}: op_type A o → Prop :=
     match o with
-    | constant x => P x
-    | function x y => λ d => Π z, P _ z → op_closed (d z)
+    | ne_list.one x => P x
+    | ne_list.cons _ _ => λ d => Π z, P _ z → op_closed (d z)
     end.
 
   Global Instance op_closed_proper: Π `{Π s, Proper (equiv ==> iff) (P s)} o, Proper (equiv ==> iff) (@op_closed o).
@@ -29,7 +29,7 @@ Section subalgebras.
 
   Class ClosedSubset: Prop :=
     { subset_proper:> Π s, Proper (equiv ==> iff) (P s)
-    ; subset_closed: Π o, op_closed (algebra_op sign o) }.
+    ; subset_closed: Π o, op_closed (algebra_op o) }.
 
   (* Now suppose P is closed in this way. *)
 
@@ -43,17 +43,17 @@ Section subalgebras.
 
   (* We can implement closed operations in the new algebra: *)
 
-  Program Fixpoint close_op {d}: Π (o: op_type (sorts sign) A d), op_closed o → op_type (sorts sign) carrier d :=
+  Program Fixpoint close_op {d}: Π (o: op_type A d), op_closed o → op_type carrier d :=
     match d with
-    | constant _ => λ o c => exist _ o (c)
-    | function x y => λ o c X => close_op (o X) (c X (proj2_sig X))
+    | ne_list.one _ => λ o c => exist _ o (c)
+    | ne_list.cons _ _ => λ o c X => close_op (o X) (c X (proj2_sig X))
     end.
 
-  Global Instance impl: AlgebraOps sign carrier := λ o => close_op (algebra_op sign o) (subset_closed o).
+  Global Instance impl: AlgebraOps sign carrier := λ o => close_op (algebra_op o) (subset_closed o).
 
   (* By showing that these ops are proper, we get our new algebra: *)
 
-  Definition close_op_proper d (o0 o1: op_type (sorts sign) A d)
+  Definition close_op_proper d (o0 o1: op_type A d)
     (P: op_closed o0) (Q: op_closed o1): o0 = o1 → close_op o0 P = close_op o1 Q.
   Proof with intuition.
    induction d; simpl in *...
@@ -62,7 +62,7 @@ Section subalgebras.
   Qed.
 
   Global Instance subalgebra: Algebra sign carrier.
-  Proof. constructor. apply _. intro. apply close_op_proper, algebra_propers, _. Qed.
+  Proof. constructor. apply _. intro. apply close_op_proper, algebra_propers. Qed.
 
   (* And we have the obvious projection morphism: *)
 

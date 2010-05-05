@@ -6,27 +6,18 @@ Require
   categories.variety categories.product forget_algebra forget_variety.
 Require Import
   Program Morphisms
-  abstract_algebra universal_algebra workaround_tactics.
+  abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
 
 Inductive op := mult | one.
 
-Section sig.
-
-  Import op_type_notations.
-
-  Definition sig: Signature := Build_Signature unit op
-    (λ o => match o with
-      | mult => tt -=> tt -=> constant _ tt
-      | one => constant _ tt
-      end).
-
-End sig.
+Definition sig: Signature := single_sorted_signature
+  (λ o => match o with one => O | mult => 2 end).
 
 Section laws.
 
-  Global Instance: SemiGroupOp (Term sig nat (constant _ tt)) :=
+  Global Instance: SemiGroupOp (Term0 sig nat tt) :=
     fun x => App sig _ _ _ (App sig _ _ _ (Op sig nat mult) x).
-  Global Instance: MonoidUnit (Term sig nat (constant _ tt)) := Op sig nat one.
+  Global Instance: MonoidUnit (Term0 sig nat tt) := Op sig nat one.
 
   Local Notation x := (Var sig nat 0%nat tt).
   Local Notation y := (Var sig nat 1%nat tt).
@@ -60,12 +51,12 @@ Definition forget: Object → setoid.Object :=
  signature and theory. *)
 
 Instance encode_operations A `{!SemiGroupOp A} `{!MonoidUnit A}: AlgebraOps sig (λ _ => A) :=
-  λ o => match o with mult => sg_op | one => mon_unit end.
+  λ o => match o with mult => sg_op | one => mon_unit: A end.
 
 Section decode_operations.
   Context `{AlgebraOps theory A}.
-  Global Instance: MonoidUnit (A tt) := algebra_op _ one.
-  Global Instance: SemiGroupOp (A tt) := algebra_op _ mult.
+  Global Instance: MonoidUnit (A tt) := algebra_op one.
+  Global Instance: SemiGroupOp (A tt) := algebra_op mult.
 End decode_operations.
 
 Section encode_variety_and_ops.
@@ -78,7 +69,7 @@ Section encode_variety_and_ops.
   Global Instance encode_variety_and_ops: InVariety theory (λ _ => A).
   Proof.
    constructor. apply _.
-   intros ? [] ?; simpl.
+   intros ? [] ?; simpl; unfold algebra_op; simpl.
      apply associativity.
     apply left_identity.
    apply right_identity.
@@ -99,7 +90,7 @@ Proof with simpl; auto.
    constructor.
      apply _.
     intro. apply_simplified (laws _ e_mult_assoc).
-   apply (algebra_propers theory mult)...
+   apply (algebra_propers mult)...
   intro. apply_simplified (laws _ e_mult_1_l)...
  intro. apply_simplified (laws _ e_mult_1_r)...
 Qed.
@@ -154,7 +145,7 @@ Section specialized.
   Proof.
    pose proof (encode_morphism_and_ops (f:=f)) as P.
    pose proof (encode_morphism_and_ops (f:=g)) as Q.
-   pose proof (@universal_algebra.compose_homomorphisms theory _ _ _ _ _ _ _ _ _ _ _ P Q).
+   pose proof (@compose_homomorphisms theory _ _ _ _ _ _ _ _ _ _ _ P Q).
    pose proof (monmor_a f). pose proof (monmor_b f). pose proof (monmor_b g).
    apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ H).
   Qed.
@@ -164,7 +155,7 @@ Section specialized.
   Proof.
    intros.
    pose proof (encode_morphism_and_ops (f:=f)) as P.
-   pose proof (@universal_algebra.invert_homomorphism theory _ _ _ _ _ _ _ _ _ _ P) as Q.
+   pose proof (@invert_homomorphism theory _ _ _ _ _ _ _ _ _ _ P) as Q.
    destruct H.
    apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ Q).
   Qed.

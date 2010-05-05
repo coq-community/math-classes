@@ -1,337 +1,69 @@
 Set Automatic Introduction.
 
+Require
+  setoids ne_list.
 Require Import
   Morphisms Setoid Program List
   abstract_algebra util jections.
-Require setoids.
-
-Record Entailment (P: Type): Type := { entailment_premises: list P; entailment_conclusion: P }.
-
-Section with_sorts. Variable Sorts: Set.
-
-  (* For single-sorted algebras, Sorts will typically be unit. *)
-
-  (* OpType describes the type of an operation in an algebra. Note that higher order function types are excluded: *)
-
-  Inductive OpType: Set :=
-    | constant (a: Sorts)
-    | function (a: Sorts) (g: OpType).
-
-  Section with_sort_realizations. Variable Sort: Sorts → Type.
-
-    (* Given a Type for each sort, we can map the operation type descriptions to real function types: *)
-
-    Fixpoint op_type (o: OpType): Type :=
-      match o with
-      | constant a => Sort a
-      | function a g => Sort a → op_type g
-      end.
-
-    (* We use extensional equivalence for such generated function types: *)
-
-    Context `{e: Π s, Equiv (Sort s)}.
-
-    Fixpoint op_type_equiv o: Equiv (op_type o) :=
-      match o with
-      | constant A => e A
-      | function A g => (e A ==> op_type_equiv g)%signature
-      end.
-
-    Global Existing Instance op_type_equiv. (* There's no [Global Instance Fixpoint]. *)
-
-    Global Instance sig_type_sym `{Π s, Symmetric (e s)}: Symmetric (op_type_equiv o).
-    Proof. induction o; simpl; firstorder. Qed.
-    
-    (* We need either reflexivity or symmetry of e in order to get transitivity of op_type_equiv: *)
-
-    Global Instance sig_type_trans `{Π s, Reflexive (e s)} `{Π s, Transitive (e s)}: Transitive (op_type_equiv o).
-    Proof. induction o; simpl; firstorder. Qed.
-
-    Global Instance sig_type_trans' `{Π s, Symmetric (e s)} `{Π s, Transitive (e s)}: Transitive (op_type_equiv o).
-    Proof with auto.
-     induction o; simpl...
-     intros x y ? ? H2 x0 y0 ?.
-     transitivity (y y0)...
-     apply H2.
-     transitivity x0; [symmetry |]...
-    Qed.
-
-      (* This is the closest i've been able to get to reflexivity thus far: *)
-    Lemma sig_type_refl `{Π a, Reflexive (e a)} (o: OpType) a (x: op_type (function a o)) y:
-      Proper equiv x → op_type_equiv o (x y) (x y).
-    Proof. intro H0. apply H0. reflexivity. Qed.
-
-(*
-    Lemma sig_type_refl' (o: OpType) a (x: op_type (function a o)):
-      Proper equiv x → op_type_equiv _ x x.
-    Proof. intro H0. apply H0. Qed.
-*)
-
-  End with_sort_realizations.
-
-  Section map_op.
-
-    (* Given maps between two realizations of the sorts, there are maps between the corresponding op_types*)
-
-    Context {A B: Sorts → Type}
-      `{Π a, Equiv (A a)} `{Π a, Equiv (B a)}
-      (ab: Π a, A a → B a)
-      (ba: Π a, B a → A a)
-      `{Π a, Proper (equiv ==> equiv) (ab a)}
-      `{Π a, Proper (equiv ==> equiv) (ba a)}.
-
-    Fixpoint map_op {o: OpType}: op_type A o → op_type B o :=
-      match o return op_type A o → op_type B o with
-      | constant u => ab u
-      | function _ _ => λ x y => map_op (x (ba _ y))
-      end.
-
-    Global Instance map_op_proper o: Proper (op_type_equiv A o ==> op_type_equiv B o) (@map_op o).
-    Proof. induction o; simpl; firstorder. Qed.
-      (* todo: can't we make this nameless? *)
-
-  End map_op.
-
-  (* If the maps between the sorts are eachother's inverse, then so are the two generated op_type maps: *)
-
-  Context {A B: Sorts → Type} {e: Π a, Equiv (B a)} `{Π b, Equivalence (e b)} 
-   (ab: Π a, A a → B a) (ba: Π a, B a → A a) 
-   `(iso: Π a (x: B a), ab a (ba a x) = x).
-
-  Lemma map_iso o (x: op_type B o) (xproper: Proper equiv x): map_op ab ba (map_op ba ab x) = x.
-  Proof with auto; try reflexivity.
-   induction o; simpl; intros...
-   intros x0 y H0.
-   change (map_op ab ba (map_op ba ab (x (ab a (ba a x0)))) = x y).
-   transitivity (x (ab a (ba a x0))).
-    apply IHo, xproper...
-   apply xproper. rewrite iso, H0...
-  Qed.
-
-End with_sorts.
-
-Inductive Signature: Type :=
-  { sorts: Set
-  ; operation:> Set
-  ; operation_type:> operation → OpType sorts }.
-
-(* We now introduce additional things in order to let us eventually define equational theories and varieties. *)
+Require Export
+  ua_basic.
 
 Section for_signature. Variable σ: Signature.
 
-  (* Let sorts := sorts sign.  -- cleaner but causes problems, test case presented to mattam *)
-  Let OpType := OpType (sorts σ).
-
-  (* An implementation of a signature for a given realization of the sorts is simply a function (of the right type) for each operation: *)
-
-  Class AlgebraOps (A: sorts σ → Type) := algebra_op: Π o, op_type _ A (σ o).
-
-  Class Algebra
-      (carriers: sorts σ → Type)
-      {e: Π a, Equiv (carriers a)}
-      `{AlgebraOps carriers}: Prop :=
-    { algebra_setoids:> Π a, Setoid (carriers a)
-    ; algebra_propers:> Π o: σ, Proper equiv (algebra_op o) }.
-
-  (* As an aside: given two implementations in different realizations of the sorts, and a map between
-   them for each sort, we can say what it means for that map to preserve the algebra's operations,
-   i.e. what it takes for it to be a homomorphism: *)
-
-  Section for_map.
-
-    Context (A B: sorts σ → Type)
-      `{ea: Π a, Equiv (A a)} `{eb: Π a, Equiv (B a)}
-      `{ai: AlgebraOps A} `{bi: AlgebraOps B}.
-
-    Section with_f. Context (f: Π a, A a → B a).
-
-    Implicit Arguments f [[a]].
-
-    Fixpoint Preservation {n: OpType}: op_type _ A n → op_type _ B n → Prop :=
-      match n with
-      | constant d => λ o o' => f o = o'
-      | function x y => λ o o' => Π x, Preservation (o x) (o' (f x))
-      end.
-
-    Class HomoMorphism: Prop :=
-      { homo_proper:> Π a, Setoid_Morphism (@f a)
-      ; preserves: Π (o: σ), Preservation (ai o) (bi o)
-      ; homo_source_algebra: Algebra A
-      ; homo_target_algebra: Algebra B
-      }.
-
-    Context `{Π i, Equivalence (ea i)} `{Π i, Equivalence (eb i)} `{Π a, Setoid_Morphism (@f a)}.
-
-    Global Instance Preservation_proper n:
-      Proper (op_type_equiv _ _ _ ==> op_type_equiv _ B n ==> iff) (@Preservation n).
-        (* todo: use equiv in the signature and see why things break *)
-    Proof with auto.
-     induction n; simpl; intros x y E x' y' E'.
-      split; intro F. rewrite <- E, <- E'... rewrite E, E'...
-     split; simpl; intros; apply (IHn _ _ (E _ _ (reflexivity _)) _ _ (E' _ _ (reflexivity _)))...
-    Qed.
-
-    Global Instance Preservation_proper'' n:
-      Proper (eq ==> op_type_equiv _ B n ==> iff) (@Preservation n).
-        (* todo: use equiv in the signature and see why things break *)
-    Proof with auto.
-     induction n; simpl; intros x y E x' y' E'.
-      split; intro F. rewrite <- E, <- E'... rewrite E, E'...
-     split; simpl; intros.
-      subst.
-      apply (IHn (y x0) (y x0) eq_refl (y' (f x0)) (x' (f x0)) ).
-       symmetry.
-       apply E'.
-       reflexivity.
-      apply H2.
-     subst.
-     apply (IHn (y x0) (y x0) eq_refl (y' (f x0)) (x' (f x0)) ).
-      symmetry.
-      apply E'.
-      reflexivity.
-     apply H2.
-    Qed. (* todo: evil, get rid of *)
-
-    End with_f.
-
-    Lemma Preservation_proper' (f g: Π a, A a → B a)
-     `{Π i, Equivalence (ea i)} `{Π i, Equivalence (eb i)} `{Π a, Setoid_Morphism (@f a)}:
-      (Π a (x: A a), f a x = g a x) → (Π (n: OpType) x y, Proper equiv x → Proper equiv y →
-        @Preservation f n x y →
-        @Preservation g n x y).
-    Proof.
-     induction n.
-      simpl.
-      intros.
-      rewrite <- H5.
-      symmetry.
-      intuition.
-     simpl.
-     intros.
-     apply IHn.
-       apply H3. reflexivity.
-      apply H4. reflexivity.
-     assert (y (g a x0) = y (f a x0)).
-      apply H4.
-      symmetry.
-      apply H2.
-     apply (Preservation_proper'' f n (x x0) (x x0) eq_refl _ _ H6).
-     apply H5.
-    Qed.
-
-    Lemma HomoMorphism_Proper: Proper ((λ f g => Π a x, f a x = g a x) ==> iff) HomoMorphism.
-      (* todo: use pointwise_thingy *)
-    Proof with try apply _; intuition.
-     constructor; intros [? ? ? ?]; simpl in *.
-      repeat constructor...
-       repeat intro.
-       do 2 rewrite <- H.
-       rewrite H0...
-      apply (Preservation_proper' x y H (σ o) (ai o) (bi o))...
-     repeat constructor...
-      repeat intro.
-      do 2 rewrite H.
-      rewrite H0...
-     assert (Π (a : sorts σ) (x0 : A a), y a x0 = x a x0). symmetry. apply H.
-     apply (Preservation_proper' y x H0 (σ o) (ai o) (bi o))...
-    Qed.
-
-  End for_map.
-
-  Global Instance id_homomorphism A
-    `{Π a, Equiv (A a)} {ao: AlgebraOps A} `{!Algebra A}: HomoMorphism _ _ (λ _ => id).
-  Proof with try apply _; intuition.
-   constructor; intros...
-   generalize (ao o).
-   induction (σ o); simpl...
-   reflexivity.
-  Qed.
-
-  Global Instance compose_homomorphisms A B C f g
-    `{Π a, Equiv (A a)} `{Π a, Equiv (B a)} `{Π a, Equiv (C a)}
-    {ao: AlgebraOps A} {bo: AlgebraOps B} {co: AlgebraOps C}
-    {gh: HomoMorphism A B g} {fh: HomoMorphism B C f}: HomoMorphism A C (λ a => f a ∘ g a).
-  Proof with try apply _; auto.
-   pose proof (homo_source_algebra _ _ g).
-   pose proof (homo_target_algebra _ _ g).
-   pose proof (homo_target_algebra _ _ f).
-   constructor; intros...
-   generalize (ao o) (bo o) (co o) (preserves _ _ g o) (preserves _ _ f o).
-   induction (σ o); simpl; intros; unfold compose.
-    rewrite H5...
-   apply (IHo0 _ (o2 (g _ x)))...
-  Qed.
-
-Implicit Arguments inverse [[A] [B] [Inverse]].
-
-  Lemma invert_homomorphism A B f
-    `{Π a, Equiv (A a)} `{Π a, Equiv (B a)}
-    {ao: AlgebraOps A} {bo: AlgebraOps B}
-    {fh: HomoMorphism A B f}
-    `{inv: Π a, Inverse (f a)}:
-    (Π a, Bijective (f a)) →
-    HomoMorphism A B f → HomoMorphism B A inv.
-  Proof with try assumption; try apply _.
-   intros.
-   destruct H2.
-   constructor...
-    intro. fold (inverse (f a)). apply _.
-   intro.
-   generalize (ao o) (bo o) (preserves _ _ f o)
-     (algebra_propers o: Proper equiv (ao o)) (algebra_propers o: Proper equiv (bo o)).
-   induction (σ o); simpl.
-    intros.
-    apply (injective (f a)).
-    pose proof (surjective (f a) o1).
-    transitivity o1...
-    symmetry...
-   intros P Q R S T x.
-   apply IHo0.
-     specialize (R (inv a x)).
-     pose proof (surjective (f a) x) as E.
-     rewrite E in R.
-     assumption.
-    apply S. reflexivity.
-   apply T. reflexivity.
-  Qed.
-
-  (* Proceeding on our way toward equational theories and varieties, we define terms: *)
+  Notation OpType := (OpType (sorts σ)).
 
   Inductive Term (V: Type): OpType → Type :=
-    | Var (v: V) (a: sorts σ): Term V (constant _ a)
-    | App (t: OpType) y: Term V (function _ y t) → Term V (constant _ y) → Term V t
-    | Op (o: σ): Term V (σ o).
+    | Var: V → (Π a, Term V (ne_list.one a))
+    | App t y: Term V (ne_list.cons y t) → Term V (ne_list.one y) → Term V t
+    | Op o: Term V (σ o).
 
   Implicit Arguments Var [[V]].
 
-  (* Term has OpType as an index, which means we can have terms with function
-   types (no surprise there). However, often we want to prove properties that only speak of
-   terms of arity 0 (that is, terms of type [Term (constant _ sort)] for some sort): *)
+  Fixpoint map_var `(f: V → W) `(t: Term V o): Term W o :=
+    match t in Term _ o return Term W o with
+    | Var v s => Var (f v) s
+    | App _ _ x y => App _ _ _ (map_var f x) (map_var f y)
+    | Op s => Op _ s
+    end.
 
-  Definition Term0 v sort := Term v (constant _ sort).
+  (* Term has OpType as an index, which means we can have terms with function
+   types (no surprise there). However, often we want to prove properties that only speak
+   of nullary terms: *)
+
+  Definition Term0 v sort := Term v (ne_list.one sort).
 
   Section applications_ind.
 
-    Context (V: Type) (P: Π a, Term0 V a → Prop).
+    Context V (P: Π {a}, Term0 V a → Type).
 
-    (* To be able to prove such a P by induction, we must first transform it into a statement
-     about terms of all arities. Roughly speaking, we do this by saying
-     [Π x0...xN, P (App (... (App f x0) ...) xN)] for a term f of arity N. *)
+    Implicit Arguments P [[a]].
 
-    Fixpoint applications {ot}: Term V ot → Prop :=
+    (* Proving such properties for nullary terms directly using Term's induction principle is
+    problematic because it requires a property over terms of /any/ arity. Hence, we must first
+     transform P into a statement about terms of all arities. Roughly speaking, we do this by
+     saying [Π x0...xN, P (App (... (App f x0) ...) xN)] for a term f of arity N. *)
+
+    Fixpoint applications {ot}: Term V ot → Type :=
       match ot with
-      | constant x => P x
-      | function x y => λ z => Π v, P _ v → applications (App V _ _ z v)
+      | ne_list.one x => @P x
+      | ne_list.cons x y => λ z => Π v, P v → applications (App V _ _ z v)
       end.
 
     (* To prove P/applications by induction, we can then use: *)
 
-    Lemma applications_ind:
-      (Π o a t t', P a t → applications t' → applications (App _ o a t' t)) →
-      (Π v a, P _ (Var v a)) →
+    Lemma applications_rect:
+      (Π v a, P (Var v a)) →
       (Π o, applications (Op _ o)) →
-      (Π a t, P a t).
-    Proof with intuition. intros. cut (applications t)... induction t; simpl... Qed.
+      (Π a (t: Term0 V a), P t).
+    Proof.
+     intros X0 X1 ??.
+     cut (applications t).
+      intros. assumption.
+     induction t; simpl.
+       apply X0.
+      apply IHt1; exact IHt2.
+     apply X1.
+    Defined. (* todo: write as term *)
 
   End applications_ind.
 
@@ -345,13 +77,15 @@ Implicit Arguments inverse [[A] [B] [Inverse]].
   Definition T0 := Term0 nat.
 
   Definition Identity t := prod (T t) (T t).
-  Definition Identity0 sort := Identity (constant _ sort).
+  Definition Identity0 sort := Identity (ne_list.one sort).
     (* While Identity0 is the one we usually have in mind, the generalized version for arbitrary op_types
      is required to make induction proofs work. *)
 
-  Definition mkIdentity0 {sort}: T (constant _ sort) → T (constant _ sort) → Identity0 sort := pair.
+  Definition mkIdentity0 {sort}: T (ne_list.one sort) → T (ne_list.one sort) → Identity0 sort := pair.
 
   (* The laws in an equational theory will be entailments of identities for any of the sorts: *)
+
+  Record Entailment (P: Type): Type := { entailment_premises: list P; entailment_conclusion: P }.
 
   Definition EqEntailment := Entailment (sigT Identity0).
 
@@ -403,7 +137,7 @@ Implicit Arguments inverse [[A] [B] [Inverse]].
 
   (* Given an assignment mapping variables to closed terms, we can close open terms: *)
 
-  Fixpoint close {V} {o} (v: Vars (λ x => Term False (constant _ x)) V) (t: Term V o): Term False o :=
+  Fixpoint close {V} {o} (v: Vars (λ x => Term False (ne_list.one x)) V) (t: Term V o): Term False o :=
     match t in Term _ o return Term False o with
     | Var x y => v y x
     | App x y z r => App _ x y (close v z) (close v r)
@@ -412,10 +146,10 @@ Implicit Arguments inverse [[A] [B] [Inverse]].
 
   Section eval.
 
-    Context `{Algebra A}.
+    Context `{Algebra σ A}.
 
-    Fixpoint eval {V} {n: OpType} (vars: Vars A V) (t: Term V n) {struct t}: op_type _ A n :=
-      match t in Term _ n return op_type _ A n with
+    Fixpoint eval {V} {n: OpType} (vars: Vars A V) (t: Term V n) {struct t}: op_type A n :=
+      match t with
       | Var v a => vars a v
       | Op o => algebra_op o
       | App n a f p => eval vars f (eval vars p)
@@ -430,6 +164,58 @@ Implicit Arguments inverse [[A] [B] [Inverse]].
       apply IHa1...
      simpl.
      apply algebra_propers.
+    Qed.
+
+    Global Instance eval_strong_proper {V} (n: OpType):
+      Proper ((pointwise_dependent_relation (sorts σ) _
+        (λ _ => pointwise_relation V eq)) ==> eq ==> eq) (@eval V n).
+    Proof with auto.
+     intros x y E a _ [].
+     unfold pointwise_dependent_relation in E.
+     unfold pointwise_relation in E.
+     induction a; simpl.
+       apply E...
+      congruence.
+     reflexivity.
+    Qed.
+
+    Hint Extern 4 (Equiv (Term _ _)) => exact eq: typeclass_instances.
+    Hint Extern 4 (Equiv (Term0 _ _)) => exact eq: typeclass_instances.
+
+    Instance: Π V n v, Setoid_Morphism (@eval V (ne_list.one n) v).
+    Proof.
+     constructor; try apply _.
+      unfold Setoid. apply _.
+     destruct H0. apply _.
+    Qed.
+
+    Fixpoint app_tree {V} {o}: Term V o → op_type (Term0 V) o :=
+      match o with
+      | ne_list.one _ => id
+      | ne_list.cons _ _ => λ x y => app_tree (App _ _ _ x y)
+      end.
+(*
+    Instance: AlgebraOps σ (Term0 V) := λ _ x => app_tree (Op _ x).
+      (* todo: these two are now duplicate with open_terms *)
+
+    Instance: Algebra σ (Term0 V).
+    Proof.
+     constructor.
+      intro. unfold Setoid. apply _.
+     intro.
+     change (Proper equiv (app_tree (Op V o))).
+     generalize (Op V o).
+     induction (operation_type σ o). reflexivity.
+     simpl. repeat intro. subst. apply IHo0.
+    Qed.
+*)
+    Lemma eval_map_var `(f: V -> W) v s (t: Term V s):
+      eval v (map_var f t) ≡ eval (λ s => v s ∘ f) t.
+    Proof.
+     induction t; simpl.
+       reflexivity.
+      congruence.
+     reflexivity.
     Qed.
 
     Definition eval_stmt (vars: Vars A nat): Statement → Prop :=
@@ -478,8 +264,8 @@ Class InVariety
   ; variety_laws: Π s, et_laws et s → (Π vars, eval_stmt et vars s) }.
 
 Module op_type_notations.
-  Global Infix "-=>" := (function _) (at level 95, right associativity).
-End op_type_notations.
+  Global Infix "-=>" := (ne_list.cons) (at level 95, right associativity).
+End op_type_notations. (* todo: get rid of *)
 
 Module notations.
   Global Infix "===" := (mkIdentity0 _) (at level 70, no associativity).

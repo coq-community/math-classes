@@ -10,7 +10,7 @@ Section contents.
 
   (* The monad's type constructor: *)
 
-  Definition M (T: Type): Type := Term sign T (constant _ tt).
+  Definition M (T: Type): Type := Term sign T (ne_list.one tt).
 
   (* We first define equality for arbitrary arities, and then instantiate for constants. *)
 
@@ -39,7 +39,7 @@ Section contents.
       geneq x y → geneq y z → geneq x z.
     Proof with simpl in *; intuition.
      induction x; simpl.
-       destruct y, z... transitivity v0...
+       destruct y, z... transitivity a0...
       destruct y0...
       destruct z... eauto. eauto.
      destruct y, z...
@@ -91,7 +91,7 @@ Section contents.
    revert s' y H.
    induction x.
      destruct y... simpl in *.
-     destruct a, a0. apply E'...
+     destruct a, a1. apply E'...
     simpl in *. destruct y... destruct y...
     simpl in *... destruct y...
   Qed.

@@ -7,7 +7,7 @@ factor out the commonality.
 
 Set Automatic Introduction.
 
-Require Import Morphisms abstract_algebra Program universal_algebra.
+Require Import Morphisms abstract_algebra Program universal_algebra ua_homomorphisms.
 
 Section contents.
 

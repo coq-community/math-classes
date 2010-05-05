@@ -6,34 +6,22 @@ Require
   categories.variety theory.rings.
 Require Import
   Program Morphisms Ring
-  abstract_algebra universal_algebra workaround_tactics.
+  abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
 
 Inductive op := plus | mult | zero | one | opp.
 
-Section sig.
-
-  Import op_type_notations.
-
-  Definition sig: Signature := Build_Signature unit op
-    (λ o => match o with
-      | plus => tt -=> tt -=> constant _ tt
-      | mult => tt -=> tt -=> constant _ tt
-      | zero => constant _ tt
-      | one => constant _ tt
-      | opp => tt -=> constant _ tt
-      end)%nat.
-
-End sig.
+Definition sig: Signature := single_sorted_signature
+  (λ o => match o with zero | one => O | opp => 1%nat | plus | mult => 2 end).
 
 Section laws.
 
-  Global Instance: RingPlus (Term sig nat (constant _ tt)) :=
+  Global Instance: RingPlus (Term0 sig nat tt) :=
     λ x => App sig _ _ _ (App sig _ _ _ (Op sig _ plus) x).
-  Global Instance: RingMult (Term sig nat (constant _ tt)) :=
+  Global Instance: RingMult (Term0 sig nat tt) :=
     λ x => App sig _ _ _ (App sig _ _ _ (Op sig _ mult) x).
-  Global Instance: RingZero (Term sig nat (constant _ tt)) := Op sig _ zero.
-  Global Instance: RingOne (Term sig nat (constant _ tt)) := Op sig _ one.
-  Global Instance: GroupInv (Term sig nat (constant _ tt)) := App sig _ _ _ (Op sig _ opp).
+  Global Instance: RingZero (Term0 sig nat tt) := Op sig _ zero.
+  Global Instance: RingOne (Term0 sig nat tt) := Op sig _ one.
+  Global Instance: GroupInv (Term0 sig nat tt) := App sig _ _ _ (Op sig _ opp).
 
   Local Notation x := (Var sig nat 0%nat tt).
   Local Notation y := (Var sig nat 1%nat tt).
@@ -65,11 +53,11 @@ Definition Object := variety.Object theory.
  signature and theory. *)
 
 Section decode_operations. Context `{AlgebraOps theory A}.
-  Global Instance: RingPlus (A tt) := algebra_op _ plus.
-  Global Instance: RingMult (A tt) := algebra_op _ mult.
-  Global Instance: RingZero (A tt) := algebra_op _ zero.
-  Global Instance: RingOne (A tt) := algebra_op _ one.
-  Global Instance: GroupInv (A tt) := algebra_op _ opp.
+  Global Instance: RingPlus (A tt) := algebra_op plus.
+  Global Instance: RingMult (A tt) := algebra_op mult.
+  Global Instance: RingZero (A tt) := algebra_op zero.
+  Global Instance: RingOne (A tt) := algebra_op one.
+  Global Instance: GroupInv (A tt) := algebra_op opp.
 End decode_operations.
 
 Section encode_with_ops.
@@ -77,7 +65,7 @@ Section encode_with_ops.
   Context A `{Ring A}.
 
   Global Instance encode_operations: AlgebraOps sig (λ _ => A) := λ o =>
-    match o with plus => ring_plus | mult => ring_mult | zero => 0 | one => 1 | opp => group_inv end.
+    match o with plus => ring_plus | mult => ring_mult | zero => 0:A | one => 1:A | opp => group_inv end.
 
   Global Instance encode_algebra_and_ops: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
@@ -100,19 +88,19 @@ Proof with simpl; auto.
   match s with tt => match n with 0 => x | 1 => y | _ => z end end)) as laws.
  repeat (constructor; try apply _); repeat intro.
                apply_simplified (laws _ e_plus_assoc).
-              apply (algebra_propers theory plus)...
+              apply (algebra_propers plus)...
              apply_simplified (laws _ e_plus_0_l)...
-            transitivity (algebra_op sig plus (algebra_op sig zero) x).
+            transitivity (algebra_op plus (algebra_op zero) x).
              apply_simplified (laws _ e_plus_comm)...
             apply_simplified (laws _ e_plus_0_l)...
-           apply (algebra_propers theory opp)...
+           apply (algebra_propers opp)...
           apply_simplified (laws _ e_plus_opp_l)...
          apply_simplified (laws _ e_plus_opp_r)...
         apply_simplified (laws _ e_plus_comm)...
        apply_simplified (laws _ e_mult_assoc)...
-      apply (algebra_propers theory mult)...
+      apply (algebra_propers mult)...
      apply_simplified (laws _ e_mult_1_l)...
-    transitivity (algebra_op sig mult (algebra_op sig one) x).
+    transitivity (algebra_op mult (algebra_op one) x).
      apply_simplified (laws _ e_mult_comm)...
     apply_simplified (laws _ e_mult_1_l)...
    apply_simplified (laws _ e_mult_comm)...
@@ -168,7 +156,7 @@ Section specialized.
   Proof.
    intros.
    pose proof (encode_morphism_and_ops (f:=f)) as P.
-   pose proof (@universal_algebra.invert_homomorphism theory _ _ _ _ _ _ _ _ _ _ P) as Q.
+   pose proof (@invert_homomorphism theory _ _ _ _ _ _ _ _ _ _ P) as Q.
    destruct H.
    apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ Q).
   Qed.

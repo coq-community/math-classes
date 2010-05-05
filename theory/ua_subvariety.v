@@ -16,10 +16,10 @@ Section contents.
   (* To prove that the laws still hold in the subalgebra, we first prove that evaluation in it
    is the same as evaluation in the original: *)
 
-  Program Fixpoint heq {o}: op_type (sorts et) (carrier P) o → op_type (sorts et) A o → Prop :=
+  Program Fixpoint heq {o}: op_type (carrier P) o → op_type A o → Prop :=
     match o with
-    | constant x => λ a b => `a = b
-    | function x y => λ a b => Π u, heq (a u) (b u)
+    | ne_list.one _ => λ a b => `a = b
+    | ne_list.cons _ _ => λ a b => Π u, heq (a u) (b u)
     end.
 
   Instance heq_proper: Proper (equiv ==> equiv ==> iff) (@heq o).
@@ -49,13 +49,13 @@ Section contents.
     simpl in IHt1.
     generalize (IHt1 (eval et vars t3)). clear IHt1.
     apply heq_proper.
-     pose proof (@eval_proper et (carrier P) _ _ _ nat (function (sorts et) y t1)).
+     pose proof (@eval_proper et (carrier P) _ _ _ nat (ne_list.cons y t1)).
      apply H1... (* separate pose needed due to Coq bug *)
-    pose proof (@eval_proper et A _ _ _ nat (function (sorts et) y t1)).
+    pose proof (@eval_proper et A _ _ _ nat (ne_list.cons y t1)).
     apply H1...
     unfold heq in IHt2. (* todo: this wasn't needed in a previous Coq version *)
     rewrite IHt2.
-    apply (@eval_proper et A _ _ _ nat (constant (sorts et) y))...
+    apply (@eval_proper et A _ _ _ nat (ne_list.one y))...
    unfold impl, algebra_op.
    generalize (subset_closed P o).
    unfold algebra_op.
@@ -64,7 +64,7 @@ Section contents.
    induction (et o); simpl in *...
   Qed.
 
-  Lemma heq_eval_const vars {o} (t: T et (constant _ o)): ` (eval et vars t) = eval et (Pvars vars) t.
+  Lemma heq_eval_const vars {o} (t: T et (ne_list.one o)): ` (eval et vars t) = eval et (Pvars vars) t.
   Proof. apply (heq_eval vars t). Qed.
     (* todo: this specialization wasn't needed in a previous Coq version *)
 

@@ -2,27 +2,26 @@ Set Automatic Introduction.
 
 Require Import
   RelationClasses Relation_Definitions List Morphisms
-  universal_algebra abstract_algebra canonical_names
+  universal_algebra ua_homomorphisms
+  abstract_algebra canonical_names
   theory.categories.
 Require categories.variety.
 
 Section contents. Variable et: EquationalTheory.
-
-  Let op_type := op_type (sorts et).
 
   (* The initial object will consists of arity-0 terms with a congruence incorporating the variety's laws.
    For this we simply take universal_algebra's Term type, but exclude variables by taking False
    as the variable index type: *)
 
   Let ClosedTerm := (Term et False).
-  Let ClosedTerm0 a := ClosedTerm (constant _ a).
+  Let ClosedTerm0 a := ClosedTerm (ne_list.one a).
 
   (* Operations are implemented as App-tree builders, so that [o a b] yields [App (App (Op o) a) b]. *)
 
   Fixpoint app_tree {o}: ClosedTerm o → op_type ClosedTerm0 o :=
     match o with
-    | constant _ => id
-    | function _ _ => λ x y => app_tree (App _ _ _ _ x y)
+    | ne_list.one _ => id
+    | ne_list.cons _ _ => λ x y => app_tree (App _ _ _ _ x y)
     end.
 
   Instance: AlgebraOps et ClosedTerm0 := λ x => app_tree (Op _ _ x).
@@ -48,7 +47,7 @@ Section contents. Variable et: EquationalTheory.
 
   (* .. and then take the specialization at arity 0 for Term0: *)
 
-  Instance: Π a, Equiv (ClosedTerm0 a) := λ a => e (constant _ a).
+  Instance: Π a, Equiv (ClosedTerm0 a) := λ a => e (ne_list.one a).
 
   Instance: Π a, Setoid (ClosedTerm0 a).
   Proof. intro. unfold Setoid. apply _. Qed.
@@ -134,7 +133,7 @@ Section contents. Variable et: EquationalTheory.
     Lemma eval_is_close V x v (t: Term0 et V x): eval et v t ≡ close _ v t.
     Proof with auto; try reflexivity.
      pattern x, t.
-     apply applications_ind; simpl...
+     apply applications_rect; simpl...
      intro.
      cut (@equiv _ (structural_eq _) (app_tree (close _ v (Op et _ o))) (eval et v (Op et _ o)))...
      generalize (Op et V o).
@@ -167,7 +166,7 @@ Section contents. Variable et: EquationalTheory.
      do 2 rewrite <- eval_is_close...
     Qed.
 
-    Instance: Π a, Setoid_Morphism (@eval_in_other (constant _ a)).
+    Instance: Π a, Setoid_Morphism (@eval_in_other (ne_list.one a)).
     Proof. constructor; simpl; try apply _. Qed.
 
     (* Furthermore, we can show preservation of operations, giving us a homomorphism (and an arrow): *)
@@ -177,7 +176,7 @@ Section contents. Variable et: EquationalTheory.
      constructor; try apply _.
      intro.
      change (Preservation et ClosedTerm0 other (λ _ => eval_in_other) (app_tree (Op _ _ o)) (variety.variety_op _ other o)).
-     generalize (algebra_propers et o  : eval_in_other (Op _ _ o) = variety.variety_op _ other o).
+     generalize (algebra_propers o  : eval_in_other (Op _ _ o) = variety.variety_op _ other o).
      generalize (Op _ False o) (variety.variety_op et other o).
      induction (et o)...
      simpl. intro. apply IHo0, H.
@@ -193,22 +192,20 @@ Section contents. Variable et: EquationalTheory.
      intros [x h] b a.
      simpl in *.
      pattern b, a.
-     apply applications_ind...
-     intros.
+     apply applications_rect...
      pose proof (@preserves et ClosedTerm0 other _ _ _ _ x h o).
      change (Preservation et ClosedTerm0 other x (app_tree (Op _ _ o)) (@eval_in_other _ (Op _ _ o))) in H.
      revert H.
      generalize (Op _ False o).
      induction (et o); simpl...
-     intros.
      apply IHo0.
      simpl in *.
-     assert (app_tree (App _ _ o0 a0 t v) = app_tree (App _ _ o0 a0 t v)).
+     assert (app_tree (App _ _ o0 t t0 v) = app_tree (App _ _ o0 t t0 v)).
       apply app_tree_proper...
      apply (@Preservation_proper et ClosedTerm0 other _ _ x _ _ _ o0
-      (app_tree (App _ _ o0 a0 t v)) (app_tree (App _ _ o0 a0 t v)) H1
-      (eval_in_other t (eval_in_other v)) (eval_in_other t (x a0 v)))...
-     pose proof (@prep_proper _ t t (reflexivity _))... (* todo: why doesn't rewrite work here? *)
+      (app_tree (App _ _ o0 t t0 v)) (app_tree (App _ _ o0 t t0 v)) H1
+      (eval_in_other t0 (eval_in_other v)) (eval_in_other t0 (x t v)))...
+     pose proof (@prep_proper _ t0 t0 (reflexivity _))... (* todo: why doesn't rewrite work here? *)
     Qed. (* todo: needs further cleanup *)
 
   End for_another_object.

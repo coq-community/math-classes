@@ -4,7 +4,7 @@ Require
   theory.rings categories.variety.
 Require Import
   Program Morphisms
-  abstract_algebra universal_algebra.
+  abstract_algebra universal_algebra ua_homomorphisms.
 
 Definition op := False.
 

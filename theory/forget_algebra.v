@@ -3,7 +3,8 @@
 This functor should nicely compose with the one forgetting variety laws. *)
 
 Require Import
-  Morphisms Setoid abstract_algebra universal_algebra interfaces.functors theory.categories.
+  Morphisms Setoid abstract_algebra universal_algebra interfaces.functors
+  ua_homomorphisms theory.categories.
 Require
   categories.setoid categories.product categories.algebra.
 

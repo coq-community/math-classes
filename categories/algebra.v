@@ -3,7 +3,7 @@
 Set Automatic Introduction.
 
 Require Import
-  Morphisms Setoid abstract_algebra Program universal_algebra theory.categories.
+  Morphisms Setoid abstract_algebra Program universal_algebra ua_homomorphisms theory.categories.
 Require
   categories.setoid categories.product.
 

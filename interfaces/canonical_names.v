@@ -77,6 +77,8 @@ Notation "( f ◎)" := (comp f) (only parsing).
 Notation "(◎ f )" := (λ g => comp g f) (only parsing).
   (* Haskell style! *)
 
+Notation "(→)" := (λ x y => x → y).
+
 Program Definition dec_mult_inv `{e: Equiv A} `{RingZero A} `{!MultInv A}
   `{Π x y: A, Decision (equiv x y)} (x: A): A := if decide (equiv x 0) then 0 else // x.
 

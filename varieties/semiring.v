@@ -4,32 +4,21 @@ Require
   theory.rings categories.variety.
 Require Import
   Program Morphisms
-  abstract_algebra universal_algebra workaround_tactics.
+  abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
 
 Inductive op := plus | mult | zero | one.
 
-Section sig.
-
-  Import op_type_notations.
-
-  Definition sig: Signature := Build_Signature unit op (* todo: rename sigma *)
-    (λ o => match o with
-      | plus => tt -=> tt -=> constant _ tt
-      | mult => tt -=> tt -=> constant _ tt
-      | zero => constant _ tt
-      | one => constant _ tt
-      end)%nat.
-
-End sig.
+Definition sig: Signature := single_sorted_signature
+  (λ o => match o with zero | one => O | plus | mult => 2 end).
 
 Section laws.
 
-  Global Instance: RingPlus (Term sig nat (constant _ tt)) :=
+  Global Instance: RingPlus (Term0 sig nat tt) :=
     λ x => App sig _ _ _ (App sig _ _ _ (Op sig _ plus) x).
-  Global Instance: RingMult (Term sig nat (constant _ tt)) :=
+  Global Instance: RingMult (Term0 sig nat tt) :=
     λ x => App sig _ _ _ (App sig _ _ _ (Op sig _ mult) x).
-  Global Instance: RingZero (Term sig nat (constant _ tt)) := Op sig _ zero.
-  Global Instance: RingOne (Term sig nat (constant _ tt)) := Op sig _ one.
+  Global Instance: RingZero (Term0 sig nat tt) := Op sig _ zero.
+  Global Instance: RingOne (Term0 sig nat tt) := Op sig _ one.
 
   Local Notation x := (Var sig _ 0%nat tt).
   Local Notation y := (Var sig _ 1%nat tt).
@@ -60,7 +49,7 @@ Section from_instance.
   Context A `{SemiRing A}.
 
   Instance implementation: AlgebraOps sig (λ _ => A) := λ o =>
-    match o with plus => ring_plus | mult => ring_mult | zero => 0 | one => 1 end.
+    match o with plus => ring_plus | mult => ring_mult | zero => 0: A | one => 1:A end.
 
   Global Instance: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
@@ -74,6 +63,7 @@ Section from_instance.
         apply associativity.
        apply commutativity.
       apply theory.rings.mult_1_l.
+     unfold algebra_op. simpl.
      apply left_absorb.
     apply distribute_l.
    apply distribute_r.
@@ -90,10 +80,10 @@ End from_instance.
 (* Similarly, given a categorical object, we can make the corresponding class instances: *)
 
 Section ops_from_alg_to_sr. Context `{AlgebraOps theory A}.
-  Global Instance: RingPlus (A tt) := algebra_op _ plus.
-  Global Instance: RingMult (A tt) := algebra_op _ mult.
-  Global Instance: RingZero (A tt) := algebra_op _ zero.
-  Global Instance: RingOne (A tt) := algebra_op _ one.
+  Global Instance: RingPlus (A tt) := algebra_op plus.
+  Global Instance: RingMult (A tt) := algebra_op mult.
+  Global Instance: RingZero (A tt) := algebra_op zero.
+  Global Instance: RingOne (A tt) := algebra_op one.
 End ops_from_alg_to_sr.
 
 Lemma mor_from_sr_to_alg `{InVariety theory A} `{InVariety theory B}
@@ -116,16 +106,16 @@ Proof with simpl; auto.
    match s with tt => match n with 0 => x | 1 => y | _ => z end end)).
  repeat (constructor; try apply _); repeat intro.
              apply_simplified (H _ e_mult_assoc).
-            apply (algebra_propers theory mult)...
+            apply (algebra_propers mult)...
            apply_simplified (H _ e_mult_1_l)...
-          transitivity (algebra_op sig mult (algebra_op sig one) x).
+          transitivity (algebra_op mult (algebra_op one) x).
            apply_simplified (H _ e_mult_comm)...
           apply_simplified (H _ e_mult_1_l)...
          apply_simplified (H _ e_mult_comm)...
         apply_simplified (H _ e_plus_assoc)...
-       apply (algebra_propers theory plus)...
+       apply (algebra_propers plus)...
       apply_simplified (H _ e_plus_0_l)...
-     transitivity (algebra_op sig plus (algebra_op sig zero) x).
+     transitivity (algebra_op plus (algebra_op zero) x).
       apply_simplified (H _ e_plus_comm)...
      apply_simplified (H _ e_plus_0_l)...
     apply_simplified (H _ e_plus_comm)...

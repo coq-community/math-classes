@@ -17,19 +17,17 @@ Section contents.
 
   Let et := Build_EquationalTheory sig laws.
 
-  Let op_type := op_type (sorts et).
-
   Context `{Setoid A}.
 
   Notation OpenTerm := (Term et A). (* Using a Let brings out Coq bug #2299. *)
-  Definition OpenTerm0 a := OpenTerm (constant _ a).
+  Definition OpenTerm0 a := OpenTerm (ne_list.one a).
 
   (* Operations are implemented as App-tree builders, so that [o a b] yields [App (App (Op o) a) b]. *)
 
   Fixpoint app_tree {o}: OpenTerm o → op_type OpenTerm0 o :=
     match o with
-    | constant _ => id
-    | function _ _ => λ x y => app_tree (App _ _ _ _ x y)
+    | ne_list.one _ => id
+    | ne_list.cons _ _ => λ x y => app_tree (App _ _ _ _ x y)
     end.
 
   Instance: AlgebraOps et OpenTerm0 := λ x => app_tree (Op _ _ x).
@@ -56,7 +54,7 @@ Section contents.
 
   (* .. and then take the specialization at arity 0 for Term0: *)
 
-  Instance: Π a, Equiv (OpenTerm0 a) := λ a => ee (constant _ a).
+  Instance: Π a, Equiv (OpenTerm0 a) := λ a => ee (ne_list.one a).
 
   Instance: Π a, Setoid (OpenTerm0 a).
   Proof. intro. unfold Setoid, OpenTerm0. apply _. Qed.
