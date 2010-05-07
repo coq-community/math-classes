@@ -124,15 +124,13 @@ This would solve the problem for the carrier, but \lstinline|EquivalenceRelation
 
 A natural solution is to pull the relation out of \lstinline|ReflexiveRelation| (and its siblings) as well:
 \begin{lstlisting}
-  Record ReflexiveRelation (carrier: Type)
-                           (rel: relation carrier): Prop :=
+  Record ReflexiveRelation (carrier: Type) (rel: relation carrier): Prop :=
     { rr_proof: $\Pi$ x, rr_rel x x }.
 \end{lstlisting}
 
 or equivalently:
 \begin{lstlisting}
-  Definition ReflexiveRelation (carrier: Type)
-                               (rel: relation carrier): Prop :=
+  Definition ReflexiveRelation (carrier: Type) (rel: relation carrier): Prop :=
     $\Pi$ x, rr_rel x x.
 \end{lstlisting}
 
@@ -141,7 +139,7 @@ change from \lstinline|Type| to \lstinline|Prop| reflects the fact that \lstinli
 proofs of which can be nicely kept opaque;%
 \footnote{Coq distinguishes between transparent and opaque definitions. The former can be unfolded,
 whereas this is impossible for the latter. Since we never need to distinguish between two proofs of
-a propositions, Propositions can be Opaque.}
+a propositions, propositions can be opaque.}
 we will return to this issue in Section~\ref{PI}.
 We can now define \lstinline|EquivalenceRelation| without awkward equalities:
 \begin{lstlisting}
@@ -263,7 +261,7 @@ us avoid these problems.
 \section{Managing unbundled structure with type classes}
 
 So far, we have only looked at the definitions of the structures themselves, and have not yet
-considered the perspective of someone trying to prove some theorems about these abstract structures.
+considered their use when proving theorems about these structures.
 We would like to approximate the common mathematical vernacular, where one
 simply says:
 
@@ -295,17 +293,14 @@ We simply follow suit:
   Infix "&" := sg_op (at level 50, left associativity).
 \end{lstlisting}
 
-We choose to use \lstinline|&| here and reserve the notation \lstinline|*| for ring multiplication.
-
-We use = for setoid equality, since Leibniz equality seems less important for the formalization of
-mathematics. More precisely, setoid equality is the basic concept. In special case, one can prove
+We choose to use \lstinline|&| here and reserve the notation \lstinline|*| for ring multiplication. We use = for setoid equality, since Leibniz equality seems less important for the formalization of
+mathematics. More precisely, setoid equality is the basic concept. In some special cases, one can prove
 that setoid equality coincides with Leibniz equality.
-
+%Listings don't seem to work will with footnotes.
 We would have like to use a haskell style definition
 \begin{lstlisting}
 Class Equiv A := (=): relation A.
 \end{lstlisting}
-
 Unfortunately, currently this is not supported in Coq.
 
 These single-field type classes are given special treatment in that they are not translated into
@@ -321,7 +316,7 @@ Lemma perm A eq op (P: SemiGroup A eq op) x y z:
 We call these type classes \emph{operational type classes}. We note that operational type classes
 allow us to avoid Coq's notation \lstinline|scope| mechanism.
 
-It is important to point out that although the expression now \emph{looks} like it is bound to some
+Although the expression now \emph{looks} like it is bound to some
 specific semigroup structure (which with traditional approaches would imply projections from bundles
 and/or reference to proofs), it is really only referring near-directly to the actual operations
 involved, with the semigroup proof existing only as opaque `knowledge about the operations' which we
@@ -364,20 +359,20 @@ Class SemiRing A {e: Equiv A}{plus: RingPlus A}{mult: RingMult A}
 \end{lstlisting}
 
 where e.g.\ \lstinline|RingPlus| is the operation class for the semigroup operator.
-The notation \lstinline|:>| makes \lstinline|semiring_mult_monoid| a coercion: when asked for a monoid it suffices to
+The notation \lstinline|:>| makes \lstinline|semiring_mult_monoid| a subclass: when asked for a monoid it suffices to
 provide a ring.
 
 Having argued that the \emph{all-structure-as-parameters} approach \emph{can} be made practical, we enumerate some of the benefits that make it worthwhile.
 
-First, multiple inheritance becomes trivial: |SemiRing| inherits two |Monoid| structures on the same carrier and setoid relation, using ordinary named arguments to achieve ``manifest fields''; see section~\ref{manifest}.
+First, multiple inheritance becomes trivial: \lstinline|SemiRing| inherits two \lstinline|Monoid| structures on the same carrier and setoid relation, using ordinary named arguments to achieve ``manifest fields''; see section~\ref{manifest}.
 
 Second, because our terms are small and independent and never refer to proofs, we are invulnerable to concerns about efficiency and ambiguity of projection paths that plague existing solutions, obviating the need for extensions like the proposed coercion pullbacks~\cite{Hints}.
 
-Third, since our structural type classes are mere predicates, overlap between their instances is a non-issue. Together with the previous point, this gives us tremendous freedom to posit multiple structures on the same operations and relations, including ones derived implicitly via subclasses: by simply declaring a |SemiRing| class instance showing that a ring is a semiring, results about semirings immediately apply implicitly to any known ring, without us having to explicitly encode this relation in the hierarchy definition itself, and without needing any projection or translation of carriers or operations.
+Third, since our structural type classes are mere predicates, overlap between their instances is a non-issue. Together with the previous point, this gives us tremendous freedom to posit multiple structures on the same operations and relations, including ones derived implicitly via subclasses: by simply declaring a \lstinline|SemiRing| class instance showing that a ring is a semiring, results about semirings immediately apply implicitly to any known ring, without us having to explicitly encode this relation in the hierarchy definition itself, and without needing any projection or translation of carriers or operations.
 
 Fourth, \emph{Structure-as-parameters} helps setoid-rewriting: type class resolution
 can find the equivalence relation in the context.\footnote{
-A similar style should be possible for, say, the |Ring| tactic, instead of
+A similar style should be possible for, say, the \lstinline|Ring| tactic, instead of
 declaring the ring structure by a separate command, we would rely on type class resolution to find it.}
 We note that \lstinline|op| does not depend on the proof that \lstinline|e| is an equivalence. As explained above we use Coq's implicit quantification (\lstinline|`{}|) to avoid having to write all the parameters when \emph{stating} a theorem and Coq's maximally inserted implicit arguments to find the parameters when \emph{applying} a theorem. Both features are new in Coq and stem from the type class implementation.
 
