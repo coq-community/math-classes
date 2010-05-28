@@ -1,3 +1,7 @@
 processed.tex
 *.pdf
 tmp.*
+jar.aux
+jar.blg
+jar.log
+jar.bbl
