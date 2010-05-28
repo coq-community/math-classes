@@ -1,10 +1,8 @@
 \documentclass[a4paper,10pt,runningheads]{llncs}
-\usepackage{listings}
-% The package listingsutf8 supports utf8 for \lstinputlisting
-% However, we do not want to put all our code snippets in separate files.
 \usepackage{url}
 \usepackage{bbm}
 \usepackage{amsmath}
+\usepackage{upgreek}
 \usepackage[mathletters]{ucs}
 \usepackage[utf8x]{inputenx}
 \usepackage{comment}
@@ -12,13 +10,43 @@
 \newcommand{\Z}{\ensuremath{\mathbbm{Z}}}
 \newcommand{\Q}{\ensuremath{\mathbbm{Q}}}
 \usepackage{color}
+
 \definecolor{dkblue}{rgb}{0,0.1,0.5}
 \definecolor{lightblue}{rgb}{0,0.5,0.5}
 \definecolor{dkgreen}{rgb}{0,0.4,0}
 \definecolor{dk2green}{rgb}{0.4,0,0}
 \definecolor{dkviolet}{rgb}{0.6,0,0.8}
+
+% listings:
+
+\usepackage{listings}
+  % The package listingsutf8 supports utf8 for \lstinputlisting
+  % However, we do not want to put all our code snippets in separate files.
+
 \def\lstlanguagefiles{defManSSR.tex}
 \lstset{language=SSR}
+\lstset{literate=
+  % symbols that actually occur as unicode in our source:
+  {λ}{{$\uplambda\ $}}1
+  {∃}{{$\exists$}}1
+  {→}{{$\to\ $}}1
+  {≠}{{$\ne\ $}}1
+  {¬}{{$\neg\ $}}1
+  {⟶}{{$\longrightarrow\ $}}1
+  {∧}{{$\land$}}1
+  {∀}{{$\forall$}}1
+  {Π}{{$\Uppi\ $}}1
+  {η}{{$\upeta$}}1
+  {⊓}{{$\sqcap$}}1
+  {∘}{{$\circ\ $}}1
+  {◎}{{$\odot\ $}}1
+  % things we can't make pretty in the actual source, but can make pretty here!:
+  {=>}{{$\,\Rightarrow\ $}}1
+  {==>}{{$\Rightarrow\ $}}1
+  {<-}{{$\leftarrow\ $}}1
+}
+
+
 \begin{document}
 \title{The algebraic hierarchy in type theory using type classes}
 \author{Bas Spitters \and Eelis van der Weegen}
@@ -82,17 +110,14 @@ convertible, in the future; see section~\ref{PI}.
 \section{To bundle or not to bundle? (Or: What to bundle?)}\label{bundle}
 We provide a rationale for our approach. We begin gently.
 
-How should we define reflexive, transitive, and symmetric relations? In a first attempt, we
-might define:
-% \lstinputlisting[language=SSR,inputencoding=utf8/latin1]{ReflexiveRelation.v}
-
+How should we define reflexive, transitive, and symmetric relations? In a first attempt, we might define:
 \begin{lstlisting}
   Record ReflexiveRelation: Type :=
     { rr_carrier: Type
     ; rr_rel: relation rr_carrier
-    ; rr_proof: $\Pi$ x, rr_rel x x }.
+    ; rr_proof: Π x, rr_rel x x }.
 \end{lstlisting}
-
+ 
 and similar for transitive and symmetric relations.
 
 With this approach, we run into problems when defining \lstinline|EquivalenceRelation| in terms of
@@ -107,7 +132,7 @@ As a first step we would define \lstinline|ReflexiveRelation| as:
 \begin{lstlisting}
   Record ReflexiveRelation (carrier: Type): Type :=
     { rr_rel: relation rr_carrier
-    ; rr_proof: $\Pi$ x, rr_rel x x }.
+    ; rr_proof: Π x, rr_rel x x }.
 \end{lstlisting}
 
 This would solve the problem for the carrier, but \lstinline|EquivalenceRelation| would still need equalities for the relation:
@@ -125,13 +150,13 @@ This would solve the problem for the carrier, but \lstinline|EquivalenceRelation
 A natural solution is to pull the relation out of \lstinline|ReflexiveRelation| (and its siblings) as well:
 \begin{lstlisting}
   Record ReflexiveRelation (carrier: Type) (rel: relation carrier): Prop :=
-    { rr_proof: $\Pi$ x, rr_rel x x }.
+    { rr_proof: Π x, rr_rel x x }.
 \end{lstlisting}
 
 or equivalently:
 \begin{lstlisting}
   Definition ReflexiveRelation (carrier: Type) (rel: relation carrier): Prop :=
-    $\Pi$ x, rr_rel x x.
+    Π x, rr_rel x x.
 \end{lstlisting}
 
 This is how reflexivity is defined in the standard library, and this is entirely sensible. The
@@ -180,7 +205,7 @@ relation. Then if we proceed to define \lstinline|SemiRing| as a double \lstinli
     ; plus_monoid: Monoid A 
     ; plus_comm: Commutative (mon_op plus_monoid)
     ; mult_comm: Commutative (mon_op mult_monoid)
-    ; mult_0_l: $\Pi$ x: A, H
+    ; mult_0_l: Π x: A, H
 \end{lstlisting}
 
 Do we use \lstinline|mult_monoid|'s equality or \lstinline|plus_monoid|'s equality in \lstinline|H|?
@@ -355,7 +380,7 @@ Class SemiRing A {e: Equiv A}{plus: RingPlus A}{mult: RingMult A}
   ; semiring_plus_comm:> Commutative plus
   ; semiring_mult_comm:> Commutative mult
   ; semiring_distr:> Distribute mult plus
-  ; mult_0_l: forall x, 0 * x == 0 }.
+  ; mult_0_l: Π x, 0 * x = 0 }.
 \end{lstlisting}
 
 where e.g.\ \lstinline|RingPlus| is the operation class for the semigroup operator.
@@ -429,7 +454,7 @@ If $A$ and $B$ are algebras, and $f$ is a homomorphism from $A$ to $B$, then the
 We define congruence:
 \begin{lstlisting}
 Class Congruence: Prop :=
-    { congruence_proper:> $\Pi$ s, Proper (equiv ==> equiv ==> iff) (e s)
+    { congruence_proper:> Π s, Proper (equiv ==> equiv ==> iff) (e s)
     ; congruence_quotient:> @Algebra et v e _
     }.
 \end{lstlisting}
@@ -459,16 +484,15 @@ category~\cite{saibi1995constructive}.
 %interfaces/abstract_algebra.v
 
 \begin{lstlisting}
-Class Category O`{!Arrows O}`{$\Pi$ x y:O, Equiv(x $\to$ y)}
-                `{!CatId O}`{!CatComp O}:Prop :=
-  { arrow_equiv:> $\Pi$ x y, Setoid (x $\to$ y)
-  ; comp_proper:> $\Pi$ x y z,
-    Proper (equiv $\Rightarrow$ equiv $\Rightarrow$ equiv)%signature
-    (comp: (y $\to$ z) $\to$ (x$\to$ y) $\to$ x $\to$ z)
-  ; comp_assoc w x y z (a: w $\to$ x) (b: x $\to$ y) (c: y $\to$ z):
-      c $\circ$ (b $\circ$ a) = (c $\circ$ b) $\circ$ a
-  ; id_l `(a: x $\to$ y): cat_id $\circ$ a = a
-  ; id_r `(a: x $\to$ y): a $\circ$ cat_id = a }.
+Class Category O `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)}
+    `{!CatId O} `{!CatComp O}: Prop :=
+  { arrow_equiv:> Π x y, Setoid (x ⟶ y)
+  ; comp_proper:> Π x y z,
+    Proper (equiv ==> equiv ==> equiv) comp
+  ; comp_assoc w x y z (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
+      c ◎ (b ◎ a) = (c ◎ b) ◎ a
+  ; id_l `(a: x ⟶ y): cat_id ◎ a = a
+  ; id_r `(a: x ⟶ y): a ◎ cat_id = a }.
 \end{lstlisting}
 
 This is based on the 2-categorical idea that we have equality on arrows, but not on objects.
@@ -478,11 +502,12 @@ Similarly, we have equality on natural transformations, but not on functors.
 Natural transformations are formalized as:
 \begin{lstlisting}
    Context `{Category C} `{Category D}
-   `{!Functor (F: C $\to$ D) Fa} `{!Functor (G: C $\to$ D) Ga}.
-   Class NaturalTransformation ($\eta$: $\Pi$ c, F c $\to$ G c): Prop :=
-     natural: $\Pi$ (x y: C) (f: x $\to$ y), $\eta$ y $\circ$ fmap F f = fmap G f $\circ \eta$ x.
+   `{!Functor (F: C ⟶ D) Fa} `{!Functor (G: C ⟶ D) Ga}.
+   Class NaturalTransformation (η: Π c, F c ⟶ G c): Prop :=
+     natural: Π (x y: C) (f: x ⟶ y), η$$ y ∘ fmap F f = fmap G f ∘ η$$ x.
 \end{lstlisting}
-
+  % Todo: Having to add "$$" to get whitespace is awful. we can't add "\ " in η's literate-replacement though, because then we also get space before the colon in "η: t".
+ 
 Here \lstinline|fmap F| explicitly refers to the arrow part of the functor \lstinline|F|.
 In mathematics one would apply $F$ to both objects and arrows ($F x$, $F f$). However, this does
 not seem to fit with type theory as the type of \lstinline|fmap F| depends on the object part of
@@ -580,7 +605,7 @@ assignment:\footnote{Categorically: \lstinline|nat| is
 an \lstinline|Expr|-algebra and \lstinline|eval| is \lstinline|map vars| composed with the algebra map.}
 \begin{lstlisting}
 Definition Value := nat.
-Definition Vars V := V -> Value.
+Definition Vars V := V → Value.
 
 Fixpoint eval {V} (vs: Vars V) (e: Expr V): Value :=
   match e with
@@ -595,7 +620,7 @@ Fixpoint eval {V} (vs: Vars V) (e: Expr V): Value :=
 The \lstinline|Expr| monad, i.e.\ the free \lstinline|Expr|-algebra monad\footnote{on the category of \lstinline|Type|s with extensional functions.%\marginpar{Proof in classquote}
 }, provides a bind operation which describes the arrows in the Kleisli category. Concretely,
 \begin{lstlisting}
-Fixpoint bind {V W} (f: V -> Expr W) (e: Expr V): Expr W :=
+Fixpoint bind {V W} (f: V → Expr W) (e: Expr V): Expr W :=
   match e with
   | Zero => Zero
   | Mult a b => Mult (bind f a) (bind f b)
@@ -611,9 +636,9 @@ Fixpoint bind {V W} (f: V -> Expr W) (e: Expr V): Expr W :=
 %
 \begin{lstlisting}
 Definition novars: Vars False := False_rect _.
-Definition singlevar (x: Value): Vars unit := fun _ => x.
+Definition singlevar (x: Value): Vars unit := λ _ => x.
 Definition merge {A B} (a: Vars A) (b: Vars B): Vars (A+B) :=
-  fun i => if i then a j else b j.
+  λ i => if i then a j else b j.
 \end{lstlisting}
 
 
@@ -639,7 +664,7 @@ access it by indexing the merged heap (and vice versa)
 
 If the heap is just a singlevar, we can easily index it.
 \begin{lstlisting}
-  Global Program Instance: Lookup x (singlevar x) := { lookup := tt }.
+Global Program Instance: Lookup x (singlevar x) := { lookup := tt }.
 \end{lstlisting}
 
 
@@ -648,8 +673,8 @@ If the heap is just a singlevar, we can easily index it.
 This reindexing function is the the \lstinline|map| of the \lstinline|Expr|-monad.
 
 \begin{lstlisting}
-Definition map_var {V W: Type} (f: V -> W):
-    Expr V -> Expr W :=
+Definition map_var {V W: Type} (f: V → W):
+    Expr V → Expr W :=
   fix F (e: Expr V): Expr W :=
     match e with
     | Mult a b => Mult (F a) (F b)
@@ -722,7 +747,7 @@ Global Program Instance quote_new_var V (v: Vars V) x:
 We have defined a light-weight quoting function. The following code turns the goal into \lstinline|(eval variable_pack quote)|.
 Here \lstinline|eval_quote'| is a modification of \lstinline|eval_quote| which works in the empty context:
 \begin{lstlisting}
-Goal forall x y (P: Value $\to$ Prop), P ((x * y) * (x * 0)).
+Goal Π x y (P: Value $\to$ Prop), P ((x * y) * (x * 0)).
   intros. rewrite <- (eval_quote' _).
 \end{lstlisting}
 
