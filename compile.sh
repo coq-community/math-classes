@@ -1,7 +1,7 @@
 #!/bin/sh
 
-lhs2TeX --agda< $1.tex > processed.tex
-cp processed.tex tmp.tex
+cp jar.tex tmp.tex
+dot -Tpdf hierarchy.dot > hierarchy.pdf
 
 set -e
 pdflatex tmp.tex
@@ -9,5 +9,5 @@ bibtex tmp
 pdflatex tmp.tex
 bibtex tmp
 pdflatex tmp.tex
-cat tmp.pdf > $1.pdf
+cat tmp.pdf > jar.pdf
 rm tmp.*
