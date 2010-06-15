@@ -67,7 +67,7 @@
 \date{today}
 \maketitle
 \begin{abstract}
-We present a new formalization of the algebraic hierarchy in Coq, exploiting its new type class mechanism to make practical a solution formerly thought infeasible. Our approach addresses both traditional challenges as well as new ones resulting from our ambition to build upon this development a library of constructive analysis in which abstraction penalties inhibiting efficient computation are reduced to a bare minimum. To support mathematically sound abstract interfaces for $\N$, $\Z$, and $\Q$, our formalization includes portions of category theory and multisorted universal algebra.
+We present a new formalization of the algebraic hierarchy in Coq, exploiting its new type class mechanism to make practical a solution formerly thought infeasible. Our approach addresses both traditional challenges as well as new ones resulting from our ambition to build upon this development a library of constructive analysis in which abstraction penalties inhibiting efficient computation are reduced to a minimum. To support mathematically sound abstract interfaces for $\N$, $\Z$, and $\Q$, our formalization includes portions of category theory and multisorted universal algebra.
 Algebra flourishes by the interplay between syntax and semantics. The Prolog-like
 abilities of type class unification allow us to conveniently define a quote function thus facilitating the use of reflective techniques.
   % todo: handle.
@@ -149,7 +149,7 @@ constructions~\cite{CoquandHuet,CoquandPaulin}, a dependent type theory with (co
 
 Propositions in Coq are types, which themselves have types called \emph{sorts}. Coq features a distinguished sort called \lstinline|Prop| that one may voluntarily choose to use as the sort of types representing propositions. The distinguishing feature of the \lstinline|Prop| sort is that Coq will not permit terms of non-\lstinline|Prop| types to depend on the values of inhabitants of \lstinline|Prop| types (i.e. proof terms).
 
-Adopting this regime of discrimination establishes a weak form of proof irrelevance, in that changing a proof can never affect the result of value computations. On a very practical level, this lets the extraction mechanism safely erase all \lstinline|Prop| components when extracting certified programs to OCaml or Haskell.
+Adopting this regime of discrimination establishes a weak form of proof irrelevance, in that changing a proof can never affect the result of value computations. On a very practical level, this lets Coq safely erase all \lstinline|Prop| components when extracting certified programs to OCaml or Haskell.
 
 A stronger notion of proof irrelevance in which any two inhabitants of a \lstinline|Prop| type are made \emph{convertible} is planned for a future Coq version.
 
@@ -226,7 +226,7 @@ Unfortunately, despite its apparent virtues, the bundled representation introduc
 
 In our example, lack of sharing support rears its head as soon as we try to define \lstinline|EquivalenceRelation| in terms of \lstinline|ReflexiveRelation| and its hypothetical siblings bundling symmetric and transitive relations. There, we would need some way to make sure that when we ``inherit'' \lstinline|ReflexiveRelation|, \lstinline|SymmetricRelation|, and \lstinline|TransitiveRelation| by adding them as fields in our bundled record, they all refer to the same carrier and relation. Adding additional fields stating equalities between the three bundled carriers and relations is neither easily accomplished (because one would need to work with heterogenous equality) nor would it permit natural use of the resulting structure (because one would constantly have to rewrite things back and forth).
 
-Manifest fields \ref{manifestrecords} have been proposed and implemented in the Matita system to address exactly this problem. We hope to convince the reader that type system extensions of this nature, designed to mitigate particular symptoms of the bundled approach, are less elegant than a solution that avoids the problem altogether by using predicate-like type classes in place of bundled records.
+Manifest fields~\ref{manifestrecords} have been proposed and implemented in the Matita system to address exactly this problem. We hope to convince the reader that type system extensions of this nature, designed to mitigate particular symptoms of the bundled approach, are less elegant than a solution that avoids the problem altogether by using predicate-like type classes in place of bundled records.
 
 If we revert back to the predicate formulation of reflexive (et. al) relations, we \emph{could} still define \lstinline|EquivalenceRelation| in a bundled fashion without the need for equalities:
 \begin{lstlisting}
@@ -730,8 +730,8 @@ Fixpoint eval {V} (vs: Vars V) (e: Expr V): Value :=
 
 %Monads are trees with grafting~\cite{MonadsGrafting}: the tree monad
 %$TX:=1+T^2X$, may be seen as the prototypical monad. 
-The \lstinline|Expr| monad, i.e.\ the free \lstinline|Expr|-algebra monad\footnote{on the category of \lstinline|Type|s with extensional functions.%\marginpar{Proof in classquote}
-}, provides a bind operation which describes the arrows in the Kleisli category. Concretely,
+The \lstinline|Expr| monad, i.e.\ the free \lstinline|Expr|-algebra monad on the category of \lstinline|Type|s with extensional functions%\marginpar{Proof in classquote}
+, provides a bind operation which describes the arrows in the Kleisli category. Concretely,
 \begin{lstlisting}
 Fixpoint bind {V W} (f: V → Expr W) (e: Expr V): Expr W :=
   match e with
