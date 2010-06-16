@@ -94,10 +94,6 @@ interfaces for abstract structures. In section \ref{predicateclasses} we show ho
 
  %Having derived some principles concerning bundling, we then proceed to show (in section \ref{managing}) how type classes may be employed to adopt these principles without compromising ease of use. Next, in section \ref{hierarchy}, we introduce a number of additional conventions that let us complete a consistent idiom for interfaces to algebraic structures. With this in place, we continue with a discussion of
 
-%to the 
-
-
-
 % outline:
 % 
 % - preliminaries
@@ -171,11 +167,14 @@ In Haskell and Isabelle, type classes and their instances are second class, in t
 Thus, type classes in Coq are realized by relatively minor syntactic aids that bring together existing facilities of the theory and the system into a coherent idiom, rather than by introduction of a new category of qualitatively different definitions with their own dedicated semantics.
 
 
+% BS: put back
 % The Coq type theory lacks quotient
 % types, as it would make type checking undecidable. % todo: reference
 % Instead it supports setoids (aka Bishop sets), a pair of a type and an equivalence relation~\cite{Bishop67,Hofmann,Capretta}. Recently, improved support for setoids has been added to the system~\cite{Setoid-rewrite}. Functions respecting these equivalence relations are called \lstinline|Proper|.
 % As we will see in Section~\ref{univ} below this functionality can also be used to work with
 % quotient algebras.
+
+
 
 
 % \section{The Type-Classified Algebraic Hierarchy}\label{classes}
