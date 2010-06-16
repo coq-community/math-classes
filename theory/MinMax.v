@@ -21,9 +21,9 @@ Section contents.
   Lemma max_idem x: max x x = x.
   Proof. intros. unfold max, sort. destruct decide; reflexivity. Qed.
 
-  Global Instance max_proper `{!Proper (equiv ==> equiv ==> iff) precedes}: Proper (equiv ==> equiv ==> equiv) max.
+  Global Instance max_proper `{p: !Proper (equiv ==> equiv ==> iff) precedes}: Proper (equiv ==> equiv ==> equiv) max.
   Proof with assumption.
-   intros p x y E x' y' E'.
+   intros x y E x' y' E'.
    unfold max, sort.
    do 2 destruct decide; simpl.
       firstorder. 

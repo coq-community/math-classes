@@ -54,11 +54,11 @@ Section subalgebras.
   (* By showing that these ops are proper, we get our new algebra: *)
 
   Definition close_op_proper d (o0 o1: op_type A d)
-    (P: op_closed o0) (Q: op_closed o1): o0 = o1 → close_op o0 P = close_op o1 Q.
+    (P': op_closed o0) (Q: op_closed o1): o0 = o1 → close_op o0 P' = close_op o1 Q.
   Proof with intuition.
    induction d; simpl in *...
    intros [x p] [y q] U.
-   apply (IHd _ _ (P0 x p) (Q y q)), H2...
+   apply (IHd _ _ (P' x p) (Q y q)), H2...
   Qed.
 
   Global Instance subalgebra: Algebra sign carrier.

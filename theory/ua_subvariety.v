@@ -50,7 +50,7 @@ Section contents.
     generalize (IHt1 (eval et vars t3)). clear IHt1.
     apply heq_proper.
      pose proof (@eval_proper et (carrier P) _ _ _ nat (ne_list.cons y t1)).
-     apply H1... (* separate pose needed due to Coq bug *)
+     apply H1; try intro...
     pose proof (@eval_proper et A _ _ _ nat (ne_list.cons y t1)).
     apply H1...
     unfold heq in IHt2. (* todo: this wasn't needed in a previous Coq version *)

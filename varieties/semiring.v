@@ -54,7 +54,7 @@ Section from_instance.
   Global Instance: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
 
-  Lemma laws e (l: Laws e) vars: eval_stmt sig vars e.
+  Lemma laws en (l: Laws en) vars: eval_stmt sig vars en.
   Proof.
    inversion_clear l; simpl.
            apply associativity.
