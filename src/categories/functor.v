@@ -43,6 +43,7 @@ Section contents.
   Global Existing Instance NaturalTransformation_inst.
 
   Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances.
+  Global Instance: Arrows Object := Arrow.
 
   Section arrow_setoid. Context (F G: Object).
 
