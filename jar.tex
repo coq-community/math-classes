@@ -88,8 +88,7 @@ at:~\url{http://www.eelis.net/research/math-classes/}} includes an integrated fo
 % ideally should be more or less readable by Haskell person. that would be neat. so that's what the preliminaries should prepare for.
 
 \paragraph{Outline}
-In section \ref{preliminaries} we briefly describe the Coq system and some of its facilities that are of particular interest to us (most notably its implementation of type classes). Then, in section \ref{bundling}, we give a very concrete introduction to the issue of \emph{bundling}, arguably the biggest design dimension when building 
-interfaces for abstract structures. In section \ref{predicateclasses} we show how type classes can make the use of ``unbundled'' purely predicate based interfaces for abstract structures practical. Next, in section \ref{hierarchy}, we discuss our algebraic hierarchy implemented using such predicate classes. 
+In section~\ref{preliminaries} we briefly describe the Coq system and some of its facilities that are of particular interest to us (most notably its implementation of type classes). Then, in section~\ref{bundling}, we give a very concrete introduction to the issue of \emph{bundling}, arguably the biggest design dimension when building interfaces for abstract structures. In section~\ref{predicateclasses} we show how type classes can make the use of ``unbundled'' purely predicate based interfaces for abstract structures practical. Next, in section~\ref{hierarchy}, we discuss our algebraic hierarchy implemented using such predicate classes.
 
 
  %Having derived some principles concerning bundling, we then proceed to show (in section \ref{managing}) how type classes may be employed to adopt these principles without compromising ease of use. Next, in section \ref{hierarchy}, we introduce a number of additional conventions that let us complete a consistent idiom for interfaces to algebraic structures. With this in place, we continue with a discussion of
@@ -152,11 +151,11 @@ A stronger notion of proof irrelevance in which any two inhabitants of a \lstinl
 
 \paragraph{Equality, setoids, and rewriting}
 
-The ``native'' notion of equality in Coq is that of terms being convertible, which in this context constitutes Leibniz equality, naturally propositionalized by an inductive type family \lstinline|eq| with a single constructor \lstinline|eq_refl| of type \lstinline|Π (T: Type) (x: T), x ≡ x|, where ``\lstinline|a ≡ b|'' is notation for \lstinline|eq T a b|. Here  we diverge from Coq tradition and reserve ``\lstinline|=|'' for setoid equality, as this is the equality we will be working with most of the time. Importantly, since convertibility is a congruence, a proof of \lstinline|a ≡ b| lets us substitute \lstinline|b| for \lstinline|a| anywhere inside a term without further conditions.
+The ``native'' notion of equality in Coq is that of terms being convertible, which in this context constitutes Leibniz equality, naturally propositionalized by an inductive type family \lstinline|eq| with a single constructor \lstinline|eq_refl| of type \lstinline|Π (T: Type) (x: T), x ≡ x|, where ``\lstinline|a ≡ b|'' is notation for \lstinline|eq T a b|. Here we diverge from Coq tradition and reserve ``\lstinline|=|'' for setoid equality, as this is the equality we will be working with most of the time. Importantly, since convertibility is a congruence, a proof of \lstinline|a ≡ b| lets us substitute \lstinline|b| for \lstinline|a| anywhere inside a term without further conditions.
 
 We mention this explicitly only because rewriting \emph{does} give rise to conditions when we depart from Leibniz equality and introduce equivalence relations representing abstractions over common representations of the same conceptual object (for instance when identifying formal fractions of integers representing the same ratio). Rewriting a subterm using such an equality is permitted only if the subterm is an argument of a function that has been proven to \emph{respect} the equality. Such a function is called \emph{proper}, and propriety must be proved for each function in whose arguments we wish to enable rewriting.
 
-Effectively keeping track of, resolving, and combining proofs of equivalence-ness and propriety when the user attempts to substitute a given (sub)term using a given equality, requires nontrivial infrastructure and support from the system. The Coq implementation of these mechanisms was largely rewritten in 200? by Matthieu Sozeau \ref{rewriting}. (todo: say that it's now much better than before)
+Effectively keeping track of, resolving, and combining proofs of equivalence-ness and propriety when the user attempts to substitute a given (sub)term using a given equality, requires nontrivial infrastructure and support from the system. The Coq implementation of these mechanisms was largely rewritten in 200? by Matthieu Sozeau~\ref{rewriting}. (todo: say that it's now much better than before)
 
 \paragraph{Type classes}
 
@@ -309,7 +308,7 @@ The observant reader may wonder whether it might be beneficial to go one step fu
 
 \section{Predicate classes}
 
-We will tackle the problems associated with the structure predicates approach one by one, starting with those encountered during theorem \emph{application}. Suppose we have defined \lstinline|SemiGroup| as a structure predicate as follows \footnote{Note that defining \lstinline|SemiGroup| as a record instead of a straight conjunction does not make it any less of a predicate. The record form is simply more convenient in that it immediately gives us named projections for laws and substructures.}:
+We will tackle the problems associated with the structure predicates approach one by one, starting with those encountered during theorem \emph{application}. Suppose we have defined \lstinline|SemiGroup| as a structure predicate as follows\footnote{Note that defining \lstinline|SemiGroup| as a record instead of a straight conjunction does not make it any less of a predicate. The record form is simply more convenient in that it immediately gives us named projections for laws and substructures.}:
 \begin{lstlisting}
   Record SemiGroup (G: Type) (e: relation G) (op: G → G → G): Prop :=
     { sg_setoid: Equivalence e
@@ -405,7 +404,7 @@ All of \lstinline|Equiv|, \lstinline|RingPlus|, \lstinline|RingMult|, \lstinline
 
 Let us briefly highlight some additional aspects of this style of structure definition in more detail.
 
-Fields declared with \lstinline|:>| are registered as hints for instance resolution, so that in any context where \lstinline|(A, =, +, 0, *, 1)| is known to be a \lstinline|SemiRing|, \lstinline|(A, =, +, 0)| and \lstinline|(A, =, *, 1)| are automatically known to be \lstinline|CommutativeMonoid|s (and so on, transitively, because instance resolution is recursive). In our hierarchy, these fields by themselves establish the inheritance diagram in Figure \ref{inheritancediagram}. % todo: for some reason the figure number reference is wrong here..
+Fields declared with \lstinline|:>| are registered as hints for instance resolution, so that in any context where \lstinline|(A, =, +, 0, *, 1)| is known to be a \lstinline|SemiRing|, \lstinline|(A, =, +, 0)| and \lstinline|(A, =, *, 1)| are automatically known to be \lstinline|CommutativeMonoid|s (and so on, transitively, because instance resolution is recursive). In our hierarchy, these ``substructures'' by themselves establish the inheritance diagram in Figure~\ref{inheritancediagram}. % todo: for some reason the figure number reference is wrong here..
 
 \begin{figure}
 \label{inheritancediagram}
@@ -550,7 +549,7 @@ Unfortunately, there is actually one annoying wrinkle here, which will also expl
 
 What we really want these fields to express is ``\emph{if} in a certain context we know something to be a functor, \emph{then} realize that the source and target are categories''. However, the current instance resolution implementation does not support this style of exclusively-forward implications, and only supports backward implications: had we registered \lstinline|functor_to| and \lstinline|functor_from| as instance resolution hints, we would in fact be saying ``\emph{if} trying to establish that something is a category, \emph{then} you might try finding a functor to or from it'', which quickly degenerates into a wild goose chase.
 
-We will say more about this unfortunate limitation of the current type class implementation in section \ref{wishlist}.
+We will say more about this unfortunate limitation of the current type class implementation in section~\ref{wishlist}.
 
 Finally, we ought to say a few words about our use of \lstinline|fmap|. The usual mathematical notational convention for functor application is to use the name of the functor to refer to both its object map and its arrow map, relying on additional conventions regarding object/arrow names for disambiguation (i.e. ``\lstinline|F x|'' and ``\lstinline|F f|'' map an object and an arrow, respectively, because ``\lstinline|x|'' and ``\lstinline|f|'' are conventional names for objects and arrows, respectively.
 
