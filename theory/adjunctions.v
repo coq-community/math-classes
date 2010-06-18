@@ -101,7 +101,7 @@ Section counit.
    intros a a' h x k.
    apply jections.cancel_left...
    change (a' ⟶ a) in h.
-   change (φ x a (h ◎ ((φ x a' ⁻¹) k)) = Fmap1 a' a h ◎ k).
+   change (φ x a (h ◎ ((φ x a' ⁻¹) k)) = G' a' a h ◎ k).
    transitivity (fmap G h ◎ φ x a' ((φ x a' ⁻¹) k)).
     symmetry; apply natural_left.
    apply comp_proper...

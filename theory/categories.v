@@ -22,8 +22,8 @@ End natural_transformation.
 Section adjunction.
 
   Context `{Category A} `{Category X}
-    (F: X → A) `{!Fmap F}
-    (G: A → X) `{!Fmap G}
+    F `{!Functor (F: X → A) F'}
+    G `{!Functor (G: A → X) G'}
     (φ: Π {x a}, (F x ⟶ a) → (x ⟶ G a))
     `{Π x a, Inverse (φ x a)}
     `{Π x a, Bijective (φ x a)}.
