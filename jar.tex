@@ -817,14 +817,31 @@ Without the \lstinline|Decision| parameter \lstinline|calculate_things| would be
 
 Other operations on natural numbers that are sensible choices for specialization are subtraction, distance, division/multiplication by 2, etc.
 
-\subsection{Integers and rationals}
+\subsection{Integers, rationals, and polynomials}
 
+The abstract interface for integers is completely analogous to the one for natural numbers:
+\begin{lstlisting}
+  Class Integers A {e plus mult zero one opp} `{IntegersToRing A} :=
+    { integers_ring:> @Ring A e plus mult zero one opp
+    ; integers_to_ring_mor:> Π `{Ring B}, Ring_Morphism (integers_to_ring A B)
+    ; integers_initial:> Initial (ring.object A) }.
+\end{lstlisting}
 
+The rationals are characterized as a decidable field with an injective ring morphism from a canonical implementation of the integers and for which division of such integers is surjective:
+\begin{lstlisting}
+  Class Rationals A {e plus mult opp zero one mult_inv } `{Π x y: A, Decision (x = y)} {inj_inv}: Prop :=
+    { rationals_field:> @Field A e plus mult opp zero one mult_inv
+    ; rationals_frac: Surjective (λ p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p)) (inv:=inj_inv)
+    ; rationals_embed_ints: Injective (integers_to_ring (Z nat) A) }.
+\end{lstlisting}
+Here, \lstinline|Z| is an \lstinling|Integers| implementation paramerized by a \lstinline|Naturals| implementation, for which we just take \lstinline|nat|. The choice of \lstinline|Z nat| here is immaterial; we could have picked any other (or even an explicitly arbitrary) implementation of \lstinilne|Integers|, but doing so would provide no benefit.
+  % todo: hm, this Z is poorly named. it's really natpair_integers.Z
+  % todo: say a few words about how we handle division by zero?
 
+In our development we prove thas the standard library's default rationals do indeed implement \lstinline|Rationals|, as do implementations of the \lstinline|QType| module interface. While the latter is rather ad-hoc from a theoretical perspective, it is nevertheless of great practical interest because it is used for the very efficient \lstinline|BigQ| rationals based on machine integers~\cite{something}. Hence, theory and programs developed on our \lstinline|Rationals| interface applies and can make immediate use of these efficient rationals. As stated earlier, we plan to rebase the computable real number implementation in CoRN on this interface, precisely so that it may be instantiated with efficient implementations like these.
 
+We also plan to do the exact same thing for polynomials, which can be abstractly specified as a free commutative algebra, and for which diverse implementations exist (coefficient lists, Bernstein polynomials, etc.).
 
-
-% The concrete implementation we use are just the Peano naturals \lstinline|nat|. Showing that \lstinline|nat| with its arithmetic operations and Leibniz equality form a \lstinline|SemiRing| is entirely routine, as is defining a map to an arbitrary other semiring and showing that this map is unique as a \lstinline|SemiRing_Morphism|, so that we get initiality.
 
 %integers all the same:
 
