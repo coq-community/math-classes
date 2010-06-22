@@ -790,9 +790,11 @@ In order to use this with \lstinline|Initial|, we define an additional conversio
 
 With these instances in place, we can now define the improved natural numbers specification:
 \begin{lstlisting}
-  Class Naturals A {e plus mult zero one} `{!NaturalsToSemiRing A} :=
-    { naturals_ring:> @SemiRing A e plus mult zero one
-    ; naturals_to_semiring_mor:> Π `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
+  Context `{SemiRing A} `{!NaturalsToSemiRing A}.
+  Class Naturals: Prop :=
+    { naturals_ring:> SemiRing A
+    ; naturals_to_semiring_mor:> Π `{SemiRing B},
+        SemiRing_Morphism (naturals_to_semiring A B)
     ; naturals_initial:> Initial (bundle_semiring A) }.
 \end{lstlisting}
 Basing theory and programs on this abstract interface instead of on specific implementation (such as the ubiquitous Peano naturals \lstinline|nat| in the Coq standard library) is not only cleaner mathematically, but also facilitates easy swapping between implementations. And this benefit is far from theoretical, as diverse and non-contrived representations of the natural numbers are abound (unary, binary, factor multisets, arrays of native machine words, etc.).
@@ -821,22 +823,29 @@ Other operations on natural numbers that are sensible choices for specialization
 
 The abstract interface for integers is completely analogous to the one for natural numbers:
 \begin{lstlisting}
-  Class Integers A {e plus mult zero one opp} `{IntegersToRing A} :=
-    { integers_ring:> @Ring A e plus mult zero one opp
-    ; integers_to_ring_mor:> Π `{Ring B}, Ring_Morphism (integers_to_ring A B)
+  Context `{Ring A} `{IntegersToRing A}.
+  Class Integers: Prop :=
+    { integers_ring:> Ring A
+    ; integers_to_ring_mor:> Π `{Ring B},
+        Ring_Morphism (integers_to_ring A B)
     ; integers_initial:> Initial (ring.object A) }.
 \end{lstlisting}
 
 The rationals are characterized as a decidable field with an injective ring morphism from a canonical implementation of the integers and for which division of such integers is surjective:
 \begin{lstlisting}
-  Class Rationals A {e plus mult opp zero one mult_inv } `{Π x y: A, Decision (x = y)} {inj_inv}: Prop :=
-    { rationals_field:> @Field A e plus mult opp zero one mult_inv
-    ; rationals_frac: Surjective (λ p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p)) (inv:=inj_inv)
+  Context `{Field A} `{Π x y: A, Decision (x = y)} {inj_inv}.
+  Class Rationals: Prop :=
+    { rationals_field:> Field A
+    ; rationals_frac: Surjective
+        (λ p => integers_to_ring (Z nat) A (fst p) *
+          / integers_to_ring (Z nat) A (snd p)) (inv:=inj_inv)
     ; rationals_embed_ints: Injective (integers_to_ring (Z nat) A) }.
 \end{lstlisting}
-Here, \lstinline|Z| is an \lstinling|Integers| implementation paramerized by a \lstinline|Naturals| implementation, for which we just take \lstinline|nat|. The choice of \lstinline|Z nat| here is immaterial; we could have picked any other (or even an explicitly arbitrary) implementation of \lstinilne|Integers|, but doing so would provide no benefit.
+Here, \lstinline|Z| is an \lstinline|Integers| implementation paramerized by a \lstinline|Naturals| implementation, for which we just take \lstinline|nat|. The choice of \lstinline|Z nat| here is immaterial; we could have picked any other (or even an explicitly arbitrary) implementation of \lstinline|Integers|, but doing so would provide no benefit.
   % todo: hm, this Z is poorly named. it's really natpair_integers.Z
   % todo: say a few words about how we handle division by zero?
+
+% todo: say a word about section variable/context discharging, because we use it everywhere.
 
 In our development we prove thas the standard library's default rationals do indeed implement \lstinline|Rationals|, as do implementations of the \lstinline|QType| module interface. While the latter is rather ad-hoc from a theoretical perspective, it is nevertheless of great practical interest because it is used for the very efficient \lstinline|BigQ| rationals based on machine integers~\cite{something}. Hence, theory and programs developed on our \lstinline|Rationals| interface applies and can make immediate use of these efficient rationals. As stated earlier, we plan to rebase the computable real number implementation in CoRN on this interface, precisely so that it may be instantiated with efficient implementations like these.
 
