@@ -40,6 +40,7 @@
 \lstset{literate=
   % symbols that actually occur as unicode in our source:
   {λ}{{$\uplambda\ $}}1
+  {σ}{{$\upsigma\ $}}1
   {∃}{{$\exists$}}1
   {→}{{$\to\ $}}1
   {≠}{{$\ne\ $}}1
@@ -57,6 +58,7 @@
   {=>}{{$\,\Rightarrow\ $}}1
   {==>}{{$\Rightarrow\ $}}1
   {<-}{{$\leftarrow\ $}}1
+  {~}{{$\sim\ $}}1
 }
 
 
@@ -433,10 +435,33 @@ Since \lstinline|CommutativeMonoid| indirectly includes a \lstinline|SemiGroup| 
 % it is /never/ a problem to know a fact twice.
 % multiple proofs of equality, and even of semigroup-ness (since both Monoid), but that's simply not a problem, since none of our terms ever refers to such proofs. We have found that this rather strict separation of operations and proofs of properties about them (resolved by instance resolution) provides a very pleasing environment to work in, without any need for hacks.
 
-The reader will note that we use names for properties like distributivity and absorption. Indeed, these are type classes as well (which is why we declare them with \lstinline|:>|). It has been our experience that almost any generic property worth naming is worth representing as a type class, so that its proofs will be resolved as instances behind the scenes whenever possible. Doing this consistently minimizes administrative noise in the code, bringing us closer to ordinary mathematical vernacular. Indeed, we believe that type classes are an elegant and apt formalization of the seemingly casual manner in which ordinary mathematical presentation assumes implicit administration and use of a ``database'' of structural properties previously proved, much more so than existing solutions using, for instance, canonical structures.
+The reader will note that we use names for properties like distributivity and absorption. Indeed, these are type classes as well (which is why we declare them with \lstinline|:>|). It has been our experience that almost any generic predicate worth naming is worth representing as a predicate type class, so that its proofs will be resolved as instances behind the scenes whenever possible. Doing this consistently minimizes administrative noise in the code, bringing us closer to ordinary mathematical vernacular. Indeed, we believe that type classes are an elegant and apt formalization of the seemingly casual manner in which ordinary mathematical presentation assumes implicit administration and use of a ``database'' of properties previously proved. Much more so than the existing canonical structures facility, because canonical structures can only be used with bundled representations, which we argued against in section~\ref{bundling}.
+
+The hierarchy of predicate classes for the abstract structures themselves is mirrored by a hierarchy of predicate classes for morphisms. For instance:
+\begin{lstlisting}
+  Context `{Monoid A} `{Monoid B}.
+
+  Class Monoid_Morphism (f: A → B) :=
+    { monmor_from: Monoid A
+    ; monmor_to: Monoid B
+    ; monmor_sgmor:> SemiGroup_Morphism f
+    ; preserves_mon_unit: f mon_unit = mon_unit }.
+\end{lstlisting}
+
+Some clarification is in order to explain the role of the \lstinline|Context| declaration of the two monoids. While it may look we are parameterizing \lstinline|Monoid_Morphism| on monoid-ness proofs (which would be a gross violation of our idiom), in fact it is only parameterized on the monoid \emph{components} declared through implicit generalization of the \lstinline|Monoid| declarations, because it only refers to those. Here, we use declarations of predicate class parameters merely as convenient shorthands to declare their components.
+
+Notice that \lstinline|f| is \emph{not} made into an operational type class. The reason for this is that the role of \lstinline|f| is analogous to the carrier type in the previous predicate class definitions, in that it serves as the primary identification for the structure, and should therefore not be inferred.
+
+The \lstinline|monmor_to| and \lstinline|monmor_from| fields are not an absolute necessity, but eliminate the need for theorems to declare \lstinline|Monoid| parameters when they already declare \lstinline|Monoid_Morphism| parameters. This is an instance where we can freely posit structural properties without worrying about potential problems when such information turns out to be redundant in contexts where the source and target of the morphism are already known to be \lstinline|Monoid|s.
+
+Unfortunately, there is actually one annoying wrinkle here, which will also explain why, as the observant reader will have noticed, we do not register these two fields as instance resolution hints (by declaring them with \lstinline|:>|). What we really want these fields to express is ``\emph{if} in a certain context we know something to be a \lstinline|Monoid_Morphism|, \emph{then} realize that the source and target are \lstinline|Monoid|s''. However, the current instance resolution implementation does not support this style of \emph{forward} reasoning, and only supports \emph{backward} reasoning: had we registered \lstinline|monmor_to| and \lstinline|monmor_from| as instance resolution hints, we would in fact be saying ``\emph{if} trying to establish that something is a \lstinline|Monoid|, \emph{then} try finding a \lstinline|Monoid_Morphism| to or from it'', which quickly degenerates into a wild goose chase. We will return to this point in section~\ref{conclusion}. % todo: do this
 
 
-% Unfortunately, aggressive . More on taht in section bla
+% : with predicate classes we can essentially pose queries of the form ``do I already know that proposition P holds?'', whereas canonical structures
+% ``do I already have a composite structure X of which Y is a specific component?
+% 
+% arbitrary predicates, based on associating particular 
+
 
 % Having argued that the \emph{all-structure-as-parameters} approach \emph{can} be made practical, we enumerate some of the benefits that make it worthwhile.
 % 
@@ -508,18 +533,16 @@ Class Category (O: Type) `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)}
   ; id_r `(a: x ⟶ y): a ◎ cat_id = a }.
 \end{lstlisting}
 This definition is based on the 2-categorical idea of having equality only on arrows, not on objects.
-Similarly, we will have equality on natural transformations, but not on functors. % todo: ORLY?
+%Similarly, we will have equality on natural transformations, but not on functors. % todo: ORLY?
 
 Initiality, too, is defined by a combination of an operational and a predicate class:
-
 \begin{lstlisting}
   Context `{Category X}.
-  Class InitialArrow (x: X): Type := initial_arrow: Π y, x ⟶ y.
-  Class Initial (x: X) `{InitialArrow x}: Prop :=
+  Class InitialArrows (x: X): Type := initial_arrow: Π y, x ⟶ y.
+  Class Initial (x: X) `{InitialArrows x}: Prop :=
     initial_arrow_unique: Π y (a: x ⟶ y), a = initial_arrow y.
 \end{lstlisting}
-
-Having \lstinline|InitialArrow| as a type class means that we can always simply say \lstinline|initial_arrow y| whenever \lstinline|y| is known to be an object in a category known to have an initial object (where ``known to'' refers to the instances available to instance resolution).
+The operational class \lstinline|InitialArrows| designates the arrows that originate from an initial object \lstinline|x| by virtue of it being initial. The \lstinline|Initial| class itself further requires these ``initial arrows'' to be unique. Having \lstinline|InitialArrows| as a type class means that we can always simply say \lstinline|initial_arrow y| whenever \lstinline|y| is known to be an object in a category known to have an initial object (where ``known to'' should be read as ``can be determined by instance resolution'').
 
 Strictly speaking the above is all we need in order to continue with the story line leading up to the numerical interfaces, but just to give a further taste of what category theory with this setup looks like in practice, we briefly mention a few more definitions and theorems.
 
@@ -537,45 +560,26 @@ In our definition of functors we see the by now familiar refrain once more:
     ; functor_to: Category D
     ; functor_morphism:> Π a b: C, Setoid_Morphism (@fmap _ a b)
     ; preserves_id: `(fmap (cat_id: a ⟶ a) = cat_id)
-    ; preserves_comp `(f: y ⟶ z) `(g: x ⟶ y): fmap (f ◎ g) = fmap f ◎ fmap g }.
+    ; preserves_comp `(f: y ⟶ z) `(g: x ⟶ y):
+      fmap (f ◎ g) = fmap f ◎ fmap g }.
 \end{lstlisting}
-Some clarification is in order to explain the role of the \lstinline|Context| declaration of the two categories. While it may look we are parameterizing both \lstinline|Fmap| and \lstinline|Functor| on proofs (which would be a gross violation of our idiom), in fact they depend and are parameterized only on the \emph{components} declared through implicit generalization of the \lstinline|Category| declarations. Indeed, we use the latter strictly as a convenient way to declare the former.
-
-Notice that \lstinline|map_obj| is \emph{not} made into an operational type class. The reason for this is that \lstinline|map_obj| is analogous to the carrier type in earlier structure predicate class definitions, in that it serves as the primary identification for the structure, and should therefore not be inferred.
-
-The \lstinline|functor_to| and \lstinline|functor_from| fields in \lstinline|Functor| are not an absolute necessity, but eliminate the need for theorems to declare \lstinline|Category| parameters when they already declare \lstinline|Functor|s between them. This is an instance where we can freely posit structural properties without worrying about potential problems when such information turns out to be redundant in contexts where the source and target of the functor are already known to be \lstinline|Category|'s.
-
-Unfortunately, there is actually one annoying wrinkle here, which will also explain why, as the observant reader will have noticed, we do not register them as instance resolution hints (by declaring them with \lstinline|:>|).
-
-What we really want these fields to express is ``\emph{if} in a certain context we know something to be a functor, \emph{then} realize that the source and target are categories''. However, the current instance resolution implementation does not support this style of exclusively-forward implications, and only supports backward implications: had we registered \lstinline|functor_to| and \lstinline|functor_from| as instance resolution hints, we would in fact be saying ``\emph{if} trying to establish that something is a category, \emph{then} you might try finding a functor to or from it'', which quickly degenerates into a wild goose chase.
-
-We will say more about this unfortunate limitation of the current type class implementation in section~\ref{wishlist}.
-
-Finally, we ought to say a few words about our use of \lstinline|fmap|. The usual mathematical notational convention for functor application is to use the name of the functor to refer to both its object map and its arrow map, relying on additional conventions regarding object/arrow names for disambiguation (i.e. ``\lstinline|F x|'' and ``\lstinline|F f|'' map an object and an arrow, respectively, because ``\lstinline|x|'' and ``\lstinline|f|'' are conventional names for objects and arrows, respectively.
+We ought to say a few words about our use of \lstinline|fmap|. The usual mathematical notational convention for functor application is to use the name of the functor to refer to both its object map and its arrow map, relying on additional conventions regarding object/arrow names for disambiguation (i.e. ``\lstinline|F x|'' and ``\lstinline|F f|'' map an object and an arrow, respectively, because ``\lstinline|x|'' and ``\lstinline|f|'' are conventional names for objects and arrows, respectively.
 
 In Coq, for a term \lstinline|F| to function as though it had two different types simultaneously (namely the object map and the arrow map), there must either (1) be coercions from the type of F to either function, or (2) F must be (coercible to) a single function that is able to consume both object and arrow arguments. In addition to not being supported by Coq, option (1) would violate our policy of leaving components unbundled. For (2), if it could be made to work at all (which is not clear at all), F would need a pretty egregious type considering that arrow types are indexed by objects, and that the type of the arrow map (namely ``\lstinline|Π x y, (x ⟶ y) → (F x ⟶ F y)|'') must refer to the object map.
 
-We feel that these issues are not limitations of the Coq system, but merely reflect the fact that notationally identifying these two different and interdependent maps is an abuse of notation that by its very nature is ill-suited to a formal development where software engineering concerns apply. Hence, we do not adopt this practice, and use ``\lstinline|fmap F|'' (name taken from the Haskell standard library) to refer to the arrow map of a functor \lstinline|F|.
+We feel that these issues are not limitations of the Coq system, but merely reflect the fact that notationally identifying these two distinct and interdependent maps is an abuse of notation of sufficient severety to make it ill-suited to a formal development where software engineering concerns apply. Hence, we do not adopt this practice, and use ``\lstinline|fmap F|'' (name taken from the Haskell standard library) to refer to the arrow map of a functor \lstinline|F|.
 
 
 \subsection{Natural transformations}
-blabla, routine.
-
-
-%theory/categories.v
 Natural transformations are formalized as:
 \begin{lstlisting}
    Context `{Category C} `{Category D}
-   `{!Functor (F: C ⟶ D) Fa} `{!Functor (G: C ⟶ D) Ga}.
+   `{!Functor (F: C → D) Fa} `{!Functor (G: C → D) Ga}.
    Class NaturalTransformation (η: Π c, F c ⟶ G c): Prop :=
      natural: Π (x y: C) (f: x ⟶ y), η$$ y ∘ fmap F f = fmap G f ∘ η$$ x.
 \end{lstlisting}
   % Todo: Having to add "$$" to get whitespace is awful. we can't add "\ " in η's literate-replacement though, because then we also get space before the colon in "η: t".
  
-Here \lstinline|fmap F| explicitly refers to the arrow part of the functor \lstinline|F|.
-In mathematics one would apply $F$ to both objects and arrows ($F x$, $F f$). However, this does
-not seem to fit with type theory as the type of \lstinline|fmap F| depends on the object part of
-\lstinline|F|.
 
 We have defined the category of setoids, the dual of a category, products, and hence co-products. 
 We prove that two definitions of adjunction are equivalent. The proofs are concise and follow the textbooks.
@@ -583,52 +587,234 @@ We prove that two definitions of adjunction are equivalent. The proofs are conci
 The usual size problems in the definition of the category of categories can be avoided by using universe polymorphism. 
 However, we need to avoid making \lstinline|Relation| a \lstinline|Definition|, since \lstinline|Definitions| are not (yet?) universe polymorphic.
 
-
 \subsection{Adjunctions}
-blabla, example of nontrivial theorem. nice stress-test, worked out mostly fine.
 
+Adjunctions can be defined in different ways. A nice symmetric definition is the following:
 
+\begin{lstlisting}
+  Context `{Category A} `{Category X}
+    F `{!Functor (F: X → A) F'}
+    G `{!Functor (G: A → X) G'}
+    (φ: Π {x a}, (F x ⟶ a) → (x ⟶ G a))
+    `{Π x a, Inverse (φ x a)}
+    `{Π x a, Bijective (φ x a)}.
+
+  Class Adjunction: Prop :=
+   { adjunction_left_functor: Functor F _
+   ; adjunction_right_functor: Functor G _
+   ; natural_left `(k: a ⟶ a'): `((fmap G k ◎) ∘ φ = @φ x _ ∘ (k ◎))
+   ; natural_right `(h: x' ⟶ x):`((◎ h) ∘ @φ _ a = φ ∘ (◎ fmap F h)) }.
+\end{lstlisting}
+
+blabla, alternative definition, equivalence theorem nice stress test, preliminary results promising except for rewriting/instance-resolution efficiency.
 
 \section{Universal algebra}\label{univ}
 
+To specify the natural numbers and the integers as initial objects in the categories of semirings and rings, respectively, definitions of these categories are needed. While one could define both of them ``manually'', greater economy can be achieved by recognizing that both semirings and rings can be defined by equational theories, \emph{varieties} (that is, categories consisting of models for a fixed theory, with homomorphisms between them) of which can be defined generically.
 
+To this end, we have formalized some of the theory of multisorted universal algebra and equational theories. We chose not to revive existing old (and somewhat stale) formalizations ~\cite{DBLP:conf/tphol/Capretta99,dominguez2008formalizing} of universal algebra, because an important aim for us has been to find out what level of elegance, convenience, and integration can be achieved by leveraging the state of the art in Coq facilities (of which type classes are the most important example).
 
+\subsection{Signatures and algebras}
 
-Motivated originally by our desire to cleanly express interfaces for basic numeric data types such as $\N$ and $\Z$ in terms of their categorical characterization as initial objects in the categories of semirings and rings, respectively, we initially introduced only the very basics of category theory into our development, again using type classes where possible to achieve the same benefits mentioned before.
+A multisorted signature enumerates sorts, operations, and specifies the ``types'' of the operations as non-empty lists of sorts, where the final element denotes the result type:
+\begin{lstlisting}
+  Inductive Signature: Type :=
+    { sorts: Set
+    ; operation:> Set
+    ; operation_type:> operation → ne_list sorts }.
+\end{lstlisting}
+Given an interpretation of the sorts (mapping each symbolic sort to a carrier), an interpretation for the operations is easily written as an operational type class:
+\begin{lstlisting}
+  Variables (σ: Signature) (carriers: sorts σ → Type).
 
-Realizing that much code duplication for the various algebraic structures in the hierarchy could be avoided by employing universal algebra constructions, we then proceeded to formalize some of the theory of multisorted universal algebra and equational theories, using it to automatically construct varieties of algebras. We avoided existing formalizations~\cite{DBLP:conf/tphol/Capretta99,dominguez2008formalizing} of universal algebra, because we aimed to find out what level of elegance, convenience, and integration can be achieved using the state of the art technology (of which type classes are the most important instance).
+  Definition op_type: ne_list (sorts σ) → Type := fold (→) ∘ map carrier.
 
-At the time of writing, our development includes a fully integrated formalization of a nontrivial portion of category theory and multisorted universal algebra, including various categories (e.g.\ the category \lstinline|Cat| of categories, and finitary algebraic categories  defined by a theory which we instantiate to obtain the categories of monoids, semirings, and rings), functors (including automatically generated forgetful functors), natural transformations, adjunctions, initial models of equational theories constructed from term algebras, transference of proofs between isomorphic models of equational theories, subalgebras, congruences, quotients, products, and the first homomorphism theorem~\cite{meinke1993universal}.
+  Class AlgebraOps (σ: Signature) (carriers: sorts σ → Type)
+    := algebra_op: Π o: operation σ, op_type carriers (σ o).
+\end{lstlisting}
+Because our carriers will normally be equipped with a setoid equality, we further define the predicate class \lstinline|Algebra|, stating that each of the operations respects the setoid equality on the carriers:
+\begin{lstlisting}
+  Class Algebra `{Π a, Equiv (carriers a)} `{AlgebraOps σ carriers}: Prop :=
+      { algebra_setoids:> Π a, Setoid (carriers a)
+      ; algebra_propers:> Π o: σ, Proper (=) (algebra_op o) }.
+\end{lstlisting}
+The \lstinline|(=)| referred to in \lstinline|algebra_propers| is an |Equiv| instance expressing setoid-respecting extensionality for the function types generated by \lstinline|op_type|.
 
-We consider the first homomorphism theorem in more detail:
+We do not unbundle \lstinline|Signature| because it represents a triple that will always be specifically constructed for subsequent use with the universal algebra facilities. We have no ambition to recognize signature triples ``in the wild'', nor will we ever talk about multiple signatures sharing sort- or operation enumerations.
+
+\subsection{Equational theories and varieties}
+\label{varieties}
+
+Algebras are insufficient to characterize structures such as semirings and rings. For that, we need equational theories, consisting of a signature together with laws (represented by a predicate over equality entailments):
+\begin{lstlisting}
+Record EquationalTheory :=
+  { et_sig:> Signature
+  ; et_laws:> EqEntailment et_sig → Prop }.
+\end{lstlisting}
+An \lstinline|EqEntailment| consists of premises and a conclusion represented by an inductively defined statement grammar, which in turn uses an inductively defined term grammar. A detailed discussion of these definitions and the theory developed for them is beyond the scope of this paper, 
+
+We now introduce a predicate class designating algebras that satisfy the laws of an equational theory:
+\begin{lstlisting}
+Class InVariety
+  (et: EquationalTheory) (carriers: sorts et → Type)
+  {e: Π a, Equiv (carriers a)} `{!AlgebraOps et carriers}: Prop :=
+  { variety_algebra:> Algebra et carriers
+  ; variety_laws: Π s, et_laws et s → (Π vars, eval_stmt et vars s) }.
+\end{lstlisting}
+
+What remains is to show that carriers+\lstinline|Equivs|+\lstinline|AlgebraOps| satisfying \lstinline|InVariety| for a given \lstinline|EquationalTheory| do indeed form a \lstinline|Category| (the ``variety''). Since we need a type for the objects in the |Category|, at this point we have no choice but to bundle components and proof together in a record:
+\begin{lstlisting}
+  Variable et: EquationalTheory.
+
+  Record ObjectInVariety: Type := object_in_variety
+    { variety_carriers:> sorts et → Type
+    ; variety_equiv: Π a, Equiv (variety_carriers a)
+    ; variety_op: AlgebraOps et variety_carriers
+    ; variety_proof: InVariety et variety_carriers }.
+\end{lstlisting}
+The arrows will be homomorphisms, which are also defined generically for any equational theory:
+
+\begin{lstlisting}
+  Instance: Arrows Object := λ X Y: Object => sig (HomoMorphism et X Y).
+\end{lstlisting}
+
+The instance definitions for identity arrows, arrow composition, arrow setoid equality, and composition propriety, are all trivial, as is the final \lstinline|Category| instance:
+\begin{lstlisting}
+  Instance: Category ObjectInVariety.
+\end{lstlisting}
+
+In addition to this ``variety'' category, we also have categories of lawless algebras, as well as forgetful functors from the former to the latter, and from the latter to the category of setoids.
+
+\subsection{The first homomorphism theorem}
+
+To give a further taste of what universal algebra in our development looks like, we consider the definitions involved in the first homomorphism theorem in more detail:
 \begin{theorem}[First homomorphism theorem]
 If $A$ and $B$ are algebras, and $f$ is a homomorphism from $A$ to $B$, then the equivalence relation defined by $a\sim b$ if and only if $f(a)=f(b)$ is a congruence on $A$, and the algebra $A/\sim$ is isomorphic to the image of $f$, which is a subalgebra of B.
 \end{theorem}
 
-% theory/ua_subalgebraT.v
-% find . -iname "*.v" |xargs grep "niverse"
-We define congruence:
+A set of relations \lstinline|e| (one for each sort) is a congruence for an existing algebra if (1) \lstinline|e| respects that algebra's existing setoid equality, and (2) the operations with \lstinline|e| again form an algebra (namely the quotient algebra):
 \begin{lstlisting}
-Class Congruence: Prop :=
+Context `{Algebra σ A}.
+Class Congruence (e: Π s: sorts σ, relation (v s)): Prop :=
     { congruence_proper:> Π s, Proper (equiv ==> equiv ==> iff) (e s)
-    ; congruence_quotient:> @Algebra et v e _
-    }.
+    ; congruence_quotient:> @Algebra et v e _ }.
+\end{lstlisting}
+We have proved that this natural and economical type-theoretic formulation that leverages our systematic integration of setoid equality is equivalent to the traditional definition of congruences as relations that, represented as sets of pairs, form a subalgebra of the product algebra.
+
+For the homomorphism theorem, we begin by declaring our dramatis personae:
+\begin{lstlisting}
+  Context `{Algebra σ A} `{Algebra σ B} `{!HomoMorphism σ A B f}.
+\end{lstlisting}
+With \lstinline|~| defined as described, the first part of the proof is simply the definition of the following instance:
+\begin{lstlisting}
+   Instance co: Congruence σ (~).
 \end{lstlisting}
 
-In set theory, a quotient is defined as a collection of equivalence classes. In type theory, a quotient is more naturally
-defined by changing the equality, while leaving the carrier unchanged.%
-\footnote{In Bishop's words~\cite[p.12]{Bishop/Bridges:1985}: The axiom of choice is used to extract
-elements from equivalence classes where they should never have been put in the first place.}
- In this way we profit from the infrastructure for setoids: A congruence relation is coarser than the setoid relation, as indicated by the use of \lstinline|Proper| above.
+For the second part, we describe the image of \lstinline|f| as a predicate over \lstinline|B|, and show that it is closed under the operations of the algebra: 
+\begin{lstlisting}
+  Definition image s (b: B s): Type := sigT (λ a => f s a = b).
 
-Alternatively, we could have stated the compatibility of the relation \lstinline|e| by stating that the
-relation as a set of pairs is a subalgebra in the product algebra. We have proved that both approaches
-are equivalent. As said, the present definition seems natural in type theory. 
+  Instance: ClosedSubset image.
+\end{lstlisting}
+\lstinline|sigT| represents a \lstinline|Type|-sorted existential. \lstinline|ClosedSubset| is defined elsewhere as:
+\begin{lstlisting}
+  Context `{Algebra σ A} (P: Π s, A s → Type).
+  Class ClosedSubset: Type :=
+    { subset_proper: Π s x x', x = x' → iffT (P s x) (P s x')
+    ; subset_closed: Π o, op_closed (algebra_op o) }.
+\end{lstlisting}
+\lstinline|op_closed| is defined by recursion over the symbolic operation types.
 
-Coq provides different sorts. To simplify the discussion, we assume that there are only two sorts:
-\lstinline|Prop|, for propositions, and \lstinline|Type|, for data types. A subalgebra is defined by a predicate on the algebra, that is a map \lstinline|A->Prop|. However, the image $Im f:=\{b:B \mid \exists a. b=(f a)\}$ is informative (in \lstinline|Type|) as it includes a witness for the existential. This witness is needed to map $b\in Im f$ to one of its pre-images in $A$. We thus need two flavors of subalgebras, one \lstinline|Prop|-valued an one \lstinline|Type|-valued; see also~\cite{coquand-towards}. Coq provides universe polymorphism for inductive types to avoid code duplication in such cases. Unfortunately, definitions and fixpoints are not (yet?) polymorphic. Hence we had to resort to changing some Fixpoints into Inductives.
+The reason we define \lstinline|image| and \lstinline|ClosedSubset| in \lstinline|Type| rather than \lstinline|Prop| is that since the final goal of the proof is to establish an isomorphism in the category of σ-algebras (where arrows are algebra homomorphisms), we will eventually need to map elements in the subalgebra defined by \lstinline|image| back to their pre-image in \lstinline|A|.
 
-Having discussed the first homomorphism theorem we now turn to category theory which helps to organize our development of universal algebra. 
+However, there are contexts (in other proofs) where \lstinline|Prop|-sorted construction of subalgebras really \emph{is} appropriate. Unfortunately, Coq's universe polymorphism is not yet up to the task of letting us use a single set of definitions to handle both cases. In particular, there is no universe polymorphism for definitions (as opposed to inductive definitions) yet. We will return to this point later. In our development, we have two sets of definitions, one for \lstinline|Prop| and one for \lstinline|Type|, resulting in about a hundred lines of duplication.
+
+For the main theorem, we now bundle the quotient algebra and the subalgebra into records akin to \lstinline|ObjectInVariety| from section~\ref{varieties}:
+\begin{lstlisting}
+  Definition quot_obj: algebra.Object σ := algebra.object σ A (algebra_equiv:=(~)).
+  Definition subobject: algebra.Object σ := algebra.object σ (ua_subalgebraT.carrier image).
+\end{lstlisting}
+Here, \lstinline|algebra| is the module defining the bundled algebra record \lstinline|Object| with constructor \lstinline|object|. \lstinline|ua_subalgebraT| is the module for constructing subalgebras.
+
+Finally, we define a pair of arrows between the two and show that these arrows form an isomorphism:
+\begin{lstlisting}
+   Program Definition back: subobject ⟶ quot_obj
+    := λ _ X => projT1 (projT2 X).
+
+  Program Definition forth: quot_obj ⟶ subobject
+    := λ a X => existT _ (f a X) (existT _ X (reflexivity _)).
+
+  Theorem first_iso: iso_arrows back forth.
+\end{lstlisting}
+The \lstinline|Program| command generates proof obligations (not shown) expressing that these two arrows are indeed homomorphisms. The theorem itself is trivial.
+
+% \footnote{In Bishop's words~\cite[p.12]{Bishop/Bridges:1985}: The axiom of choice is used to extract
+%elements from equivalence classes where they should never have been put in the first place.}
+
+\section{Numerical interfaces}
+
+\lstinline|EquationalTheory|'s for semirings and rings are easy to define, and so from section~\ref{varieties} we get corresponding categories in which we can postulate initial objects:
+\begin{lstlisting}
+  Class Naturals (A: ObjectInVariety semiring_theory) `{!InitialArrow A}: Prop :=
+    { naturals_initial:> Initial A }.
+\end{lstlisting}
+While succinct, this definition is not a satisfactory abstraction because the use of \lstinline|ObjectInVariety| for the type of the \lstinline|A| component ``leaks'' the fact that we used this one particular universal algebraic construction of the category, which is just an implementation choice. Furthermore, this definition needs an additional layer of class instances to relate it to the \lstinline|SemiRing| class from our algebraic hierarchy.
+
+What we \emph{really} want to say is that an implementation of the natural numbers ought to be an a-priori \lstinline|SemiRing| that, when \emph{bundled} into an \lstinline|ObjectInVariety semiring_theory|, is initial in said category. This is a typical example where conversion functions between concrete classes such as \lstinline|SemiRing| and instantiations of more abstract classes such as \lstinline|InVariety| and \lstinline|Category| are required in our development in order to leverage and apply concepts and theory defined for the latter to the former. While sometimes a source of some tension in that these conversions are not yet applied completely transparently whenever needed, the ability to move between ``down to earth'' and ``high in the sky'' perspectives on the same abstract structures has proved invaluable in our development, and we will give more examples of this in a moment.
+
+Taking these conversion functions for granted, we will also need a ``down-to-earth'' representation of the initiality arrows if we are to give a \lstinline|SemiRing|-based definition of the interface for natural numbers. Once again, we introduce an operational type class to represent this particular component:
+\begin{lstlisting}
+  Class NaturalsToSemiRing (A: Type) :=
+    naturals_to_semiring: Π B `{RingMult B} `{RingPlus B} `{RingOne B} `{RingZero B}, A → B.
+\end{lstlisting}
+In order to use this with \lstinline|Initial|, we define an additional conversion instance that takes a \lstinline|NaturalsToSemiRing| along with a proof showing that it yields \lstinline|SemiRing_Morphism|s, and builds an \lstinline|InitialArrow| instance out of it invoking another conversion function that translates concrete \lstinline|SemiRing_Morphism| proofs into univeral algebra \lstinline|Homomorphism|s instantiated with the semiring signature, which make up the arrows in the category.
+
+With these instances in place, we can now define the improved natural numbers specification:
+\begin{lstlisting}
+  Class Naturals A {e plus mult zero one} `{!NaturalsToSemiRing A} :=
+    { naturals_ring:> @SemiRing A e plus mult zero one
+    ; naturals_to_semiring_mor:> Π `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
+    ; naturals_initial:> Initial (bundle_semiring A) }.
+\end{lstlisting}
+Basing theory and programs on this abstract interface instead of on specific implementation (such as the ubiquitous Peano naturals \lstinline|nat| in the Coq standard library) is not only cleaner mathematically, but also facilitates easy swapping between implementations. And this benefit is far from theoretical, as diverse and non-contrived representations of the natural numbers are abound (think unary, binary, factor multisets,
+arrays of native machine words, etc.).
+
+Some theory and programs about naturals are more easily (or can only be) proved (resp. defined) for concrete implementations and then ``lifted'' to the abstract interface. For relatively simple things like decidability of equality, all that is needed to make this lifting easy is a handful of simple lemmas translating the initiality property back into statements saying that \lstinline|naturals_to_semiring| is extensionally equal to other semiring morphisms and involutive between \lstinline|Naturals| implementations. For the example of decidability, these let us define decidability for an arbitrary \lstinline|Naturals| implementation simply by mapping to the \lstinline|nat| implementation using \lstinline|naturals_to_semiring|, deciding equality there, and reflecting the equality or inequality proof back to the abstract implementation using involutivity of \lstinline|naturals_to_semiring|.
+
+For more complex properties such as injectivity of partially applied addition and multiplication, we take a longer detour. As part of our universal algebra theory, we have proved that proofs of statements in the language of an equational theory can be transferred between isomorphic implementations. Combined with the trivially proved property that any two initial objects in a category are isomorphic, this lets us tranfer proofs of such statements between implementations of \lstinline|Naturals|, requiring only that we reflect the concrete statement (expressed in terms of the operational type classes) to a symbolic representation in the equational theory of semirings. We intend to eventually make this reflection completely automatic using type class based quotation techniques along the lines of those described in~\ref{quoting}.
+
+Thanks to our close integration of universal algebra we can actually obtain a \lstinline|Naturals| implementation completely automatically, by invoking a generic construction of initial models built from the closed term algebra for the signature along with a setoid equality expressing the congruence closure of the identities in the equational theory. However, this implementation is very useful neither in terms of efficiency, nor as a canonical implementation (to be used as the basis for theory and programs that are then subsequently lifted), because for example deciding equality for the aforementioned setoid equality is far harder than for, say, \lstinline|nat|, because it requires a normalization procedure.
+
+
+\subsection{Specialization}
+
+The generic \lstinline|Decision| instance for \lstinline|Naturals| equality implemented by mapping to \lstinline|nat| will typically be far less efficient than a specialized implementation for a particular representation of the natural numbers. Fortunately, with Coq's type classes it is no problem for instances overlapping in this way to co-exist, and we can even deprioritize the generic instance so that instance resolution will always pick the specialization when the representation is known.
+
+To permit a \emph{generic} function operating on naturals to take advantage of specialized operations, we simply introduce an additional instance parameter:
+\begin{lstlisting}
+Definition calculate_things `{Naturals N} `{!forall n m: N, Decision (n = m)}
+  (a b: nat): ... := ... decide (a = b) ... .
+\end{lstlisting}
+Without the \lstinline|Decision| parameter \lstinline|calculate_things| would be equally correct, but could be less efficient. Thus, by this scheme one can start by writing correct-but-possibly-inefficient programs that make use of generic operation instances, and then selectively improve efficiency of key algorithms simply by adding additional operational type class instance parameters where profiling shows it to make a significant difference, without changing their definition body.
+
+Other operations on natural numbers that are sensible choices for specialization are subtraction, distance, division/multiplication by 2, etc.
+
+\subsection{Integers and rationals}
+
+
+
+
+
+
+% The concrete implementation we use are just the Peano naturals \lstinline|nat|. Showing that \lstinline|nat| with its arithmetic operations and Leibniz equality form a \lstinline|SemiRing| is entirely routine, as is defining a map to an arbitrary other semiring and showing that this map is unique as a \lstinline|SemiRing_Morphism|, so that we get initiality.
+
+%integers all the same:
+
+% At the time of writing, our development includes a fully integrated formalization of a nontrivial portion of category theory and multisorted universal algebra, including various categories (e.g.\ the category \lstinline|Cat| of categories, and finitary algebraic categories  defined by a theory which we instantiate to obtain the categories of monoids, semirings, and rings), functors (including automatically generated forgetful functors), natural transformations, adjunctions, initial models of equational theories constructed from term algebras, transference of proofs between isomorphic models of equational theories, subalgebras, congruences, quotients, products, and the first homomorphism theorem~\cite{meinke1993universal}.
+
+EELIS UP TO HERE
+
+
 
 \subsection{Categorical universal algebra}
 Having discussed category theory, we now turn to its application to universal algebra.
@@ -636,10 +822,6 @@ Having discussed category theory, we now turn to its application to universal al
 %varieties/closed_terms.v
 We define the forgetful functor $U$ from the category of τ-algebras to the category of sets and its left-adjoint $F$: the term algebra consisting of closed terms, i.e.\ terms with the empty type as set of variables. This term algebra is the initial τ-algebra. Every adjunction defines a monad by composition of the functors $U$ and $F$. We will use the resulting expression monad in Section~\ref{quote} below.
 
-
-One may hope that this term algebra could be useful to \emph{define} inductive data types, say, to define the natural numbers 
-as the term algebra for the theory of semirings. However, it seems difficult to prove decidability of equality, 
-as this requires a normalization procedure.
 
 %The product of two $\tau$-algebras is their categorical product.
 
