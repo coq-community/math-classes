@@ -27,7 +27,6 @@
   % what to say about terms referring on proofs?
   % cite that other type class based development in the context of the alternative bundling schemes.
   % maybe have a chapter called "interfaces are primary, not implementations" (also involve polynomials)
-  % say this somewhere: \footnote{For an interesting (if fairly restrictive) alternative design in which unicity of term representations \emph{is} required for all objects, see the algebraic hierarchy in the ssreflect\cite{ssreflect} standard library.}
 
 % listings:
 
@@ -145,6 +144,8 @@ We mention this explicitly only because rewriting \emph{does} give rise to condi
 Because the Coq type theory lacks ``real'' quotient types (as it would make type checking undecidable), the conventional way of working with abstract structures in Coq is to always start with \emph{setoids} (aka Bishop sets): types equipped with an equivalence relation~\cite{Bishop67,Hofmann,Capretta}. As we will see in section ~\ref{univ}, this way of working by nature lends itself well to particularly simple definitions of notions such as quotient algebras.
 
 Effectively keeping track of, resolving, and combining proofs of equivalence-ness and propriety when the user attempts to substitute a given (sub)term using a given equality, is known as ``setoid rewriting'', and requires nontrivial infrastructure and support from the system. The Coq implementation of these mechanisms was largely rewritten in 200? by Matthieu Sozeau~\cite{Setoid-rewrite} to make it more flexible and to replace the old special-purpose setoid/morphism registration command with a clean type class based interface.
+
+For an interesting (if fairly restrictive) alternative approach based on the idea of requiring unicity of representation for all objects so that Leibniz equality is always applicable, see the algebraic hierarchy part of the ssreflect\cite{ssreflect} libraries.
 
 \paragraph{Type classes}
 
