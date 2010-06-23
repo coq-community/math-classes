@@ -414,7 +414,7 @@ Fields declared with \lstinline|:>| are registered as hints for instance resolut
 \caption{Inheritance relations established by \lstinline|:>| fields.}
 \end{figure}
 
-% note: we don't mention "super classes" because by Matthieu's terminology only parameters-of-class-type are "super classes", and for those that means only the operational classes, which we certainly don't think of as being part of the hierarchy.
+% note: we don't mention "super classes" because by Matthieu's terminology only parameters-of-class-type are "super classes", and for us that means only the operational classes, which we certainly don't think of as being part of the hierarchy. Matthieu calls fields of class type declared with ":>" substructures.
 
 However, we can easily add additional inheritance relations by declaring corresponding class instances. For instance, while our \lstinline|Ring| class does not have a \lstinline|SemiRing| field, the following instance declaration has the exact same effect for the purposes of instance resolution (at least once proved, which is trivial):
 \begin{lstlisting}
@@ -506,7 +506,6 @@ These parts were originally motivated by our desire to cleanly express interface
 \section{Category theory}\label{cat}
 
 Following our idiom, we introduce operational type classes for the \emph{components} of a category:
-
 \begin{lstlisting}
 Class Arrows (O: Type): Type := Arrow: O → O → Type.
 Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
@@ -520,7 +519,6 @@ Infix "◎" := comp (at level 40, left associativity).
 
 With these in place, our type class for categories follows the usual type-theoretical definition of a
 category~\cite{saibi1995constructive}:
-
 \begin{lstlisting}
 Class Category (O: Type) `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)}
     `{!CatId O} `{!CatComp O}: Prop :=
@@ -568,7 +566,6 @@ In Coq, for a term \lstinline|F| to function as though it had two different type
 
 We feel that these issues are not limitations of the Coq system, but merely reflect the fact that notationally identifying these two distinct and interdependent maps is an abuse of notation of sufficient severety to make it ill-suited to a formal development where software engineering concerns apply. Hence, we do not adopt this practice, and use ``\lstinline|fmap F|'' (name taken from the Haskell standard library) to refer to the arrow map of a functor \lstinline|F|.
 
-
 \subsection{Natural transformations}
 Natural transformations are formalized as:
 \begin{lstlisting}
@@ -578,7 +575,6 @@ Natural transformations are formalized as:
      natural: Π (x y: C) (f: x ⟶ y), η$$ y ∘ fmap F f = fmap G f ∘ η$$ x.
 \end{lstlisting}
   % Todo: Having to add "$$" to get whitespace is awful. we can't add "\ " in η's literate-replacement though, because then we also get space before the colon in "η: t".
- 
 
 We have defined the category of setoids, the dual of a category, products, and hence co-products. 
 We prove that two definitions of adjunction are equivalent. The proofs are concise and follow the textbooks.
@@ -687,7 +683,7 @@ In addition to this ``variety'' category, we also have categories of lawless alg
 \subsection{The first homomorphism theorem}
 \label{homothm}
 
-To give a further taste of what universal algebra in our development looks like, we consider the definitions involved in the first homomorphism theorem in more detail:
+To give a further taste of what universal algebra in our development looks like, we consider the definitions involved in the first homomorphism theorem~\cite{meinke1993universal} in more detail:
 \begin{theorem}[First homomorphism theorem]
 If $A$ and $B$ are algebras, and $f$ is a homomorphism from $A$ to $B$, then the equivalence relation defined by $a\sim b$ if and only if $f(a)=f(b)$ is a congruence on $A$, and the algebra $A/\sim$ is isomorphic to the image of $f$, which is a subalgebra of B.
 \end{theorem}
@@ -843,14 +839,13 @@ We also plan to do the exact same thing for polynomials, which can be abstractly
 % A Bernstein polynomial is a linear combination of these basic polynomials. Bernstein polynomials
 % have been used for efficient computations inside the Coq system~\cite{ZumkellerPhD}.
 
-% Eelis: TODO: process: At the time of writing, our development includes a fully integrated formalization of a nontrivial portion of category theory and multisorted universal algebra, including various categories (e.g.\ the category \lstinline|Cat| of categories, and finitary algebraic categories  defined by a theory which we instantiate to obtain the categories of monoids, semirings, and rings), functors (including automatically generated forgetful functors), natural transformations, adjunctions, initial models of equational theories constructed from term algebras, transference of proofs between isomorphic models of equational theories, subalgebras, congruences, quotients, products, and the first homomorphism theorem~\cite{meinke1993universal}.
+% Eelis: TODO: process: At the time of writing, our development includes a fully integrated formalization of a nontrivial portion of category theory and multisorted universal algebra, including various categories (e.g.\ the category \lstinline|Cat| of categories, and finitary algebraic categories  defined by a theory which we instantiate to obtain the categories of monoids, semirings, and rings), products
 
 
 %\subsection{Categorical universal algebra}
 
 % We define the forgetful functor $U$ from the category of τ-algebras to the category of sets and its left-adjoint $F$: the term algebra consisting of closed terms, i.e.\ terms with the empty type as set of variables. This term algebra is the initial τ-algebra. Every adjunction defines a monad by composition of the functors $U$ and $F$. We will use the resulting expression monad in Section~\ref{quote} below.
 % Eelis: oh?
-
 
 %The product of two $\tau$-algebras is their categorical product.
 % 
@@ -882,33 +877,32 @@ We also plan to do the exact same thing for polynomials, which can be abstractly
 % the lines before.
 % 
 % This interplay between concrete algebraic structure and their expressions on the one hand, and models of equational theories on the other is occasionally a source of tension (in that translation in either direction is not yet fully automatic). However, it opens the door to the possibility of fully internalized implementations of generic tactics for algebraic manipulation, no longer requiring plugins. We come back to this when we describe automatic quotation of concrete expressions into universal algebra expressions; see Section~\ref{quote}.
-% 
-% 
 
 
 
-\section{Type class quoting}\label{quote}
-Unification hints~\cite{Hints} allow one to semi-automatically construct a quote
-function.\footnote{Gonthier provides similar functionality using canonical structures.} This feature is absent from Coq. Fortunately, type classes provide similar functionality as we will now show.
+\section{Quoting with type classes}\label{quote}
 
-We define a term language for monoids
+A common need when interfacing generic theory and utilities developed for algebraic structures (such as normalization procedures) with concrete instances of these structures is to take a concrete expression or statement in a model of a particular algebraic structure, and translate it to a symbolic expression or statement in the language of the algebra's signature, so that its structure can be inspected.
+
+Traditionally, proof assistants such as Coq have provided sophisticated tactics or built-in commands to support this ``quoting''. In~\cite{Hints}, TODO et. al. show that unification hints, a very general way of facilitating user-defined extensions to term and type inference, can be used to semi-automatically build quote functions without dropping to a meta-level.\footnote{Gonthier provides similar functionality using ingenious use of canonical structures.} This feature is absent from Coq, but fortunately type classes let us do very much the same thing, as we will now show.
+
+For ease of presentation we show only a proof of concept for a very concrete language. We are currently working to integrate this technique with our existing universal algebra infrastructure, in particular its data types for algebraic terms.%  Preliminary results in this area (such as a simple monoid normalization tactic) suggest yada.
+
+For the present example, we define a term language for monoids
 \begin{lstlisting}
-Inductive Expr (V: Type) := Mult (a b: Expr V) | Zero | Var (v: V).
+Inductive Expr (V: Type) := Mult (a b: Expr V) | One | Var (v: V).
 \end{lstlisting}
 
-The expression type is parametrized over the set of variable indices. Hence, we diverge from~\cite{Hints}, 
-which uses \lstinline|nat| for variables thereby introducing bound problems and dummy variables.
+The expression type is parametrized over the set of variable indices. Hence, we diverge from~\cite{Hints}, which uses \lstinline|nat| for variables, thereby introducing bound problems and a need for dummy variables.
 
- An expression is only meaningful in the context of a variable
-assignment:\footnote{Categorically: \lstinline|nat| is
-an \lstinline|Expr|-algebra and \lstinline|eval| is \lstinline|map vars| composed with the algebra map.}
+An expression is only meaningful in the context of a variable assignment:\footnote{Categorically: \lstinline|nat| is an \lstinline|Expr|-algebra and \lstinline|eval| is \lstinline|map vars| composed with the algebra map.}
 \begin{lstlisting}
 Definition Value := nat.
 Definition Vars V := V → Value.
 
 Fixpoint eval {V} (vs: Vars V) (e: Expr V): Value :=
   match e with
-  | Zero => 0
+  | One => 1
   | Mult a b => eval vs a * eval vs b
   | Var v => vs v
   end.
@@ -1050,7 +1044,7 @@ Goal Π x y (P: Value $\to$ Prop), P ((x * y) * (x * 0)).
   intros. rewrite <- (eval_quote' _).
 \end{lstlisting}
 
-We have used this technique to implement a tactic to normalize monoid expressions.
+We have used this technique to implement a tactic to normalize monoid expressions, and plan to extend yada yada.
 %It would be interesting to use this technique to implement the \lstinline|congruence| tactic, which implements
 %the congruence closure algorithm~\cite{corbineau2007deciding}. One would naturally obtain a tactic
 %which moreover works on setoid equalities.
