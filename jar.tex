@@ -95,38 +95,7 @@ In section~\ref{preliminaries} we briefly describe the Coq system and some of it
 
  %Having derived some principles concerning bundling, we then proceed to show (in section \ref{managing}) how type classes may be employed to adopt these principles without compromising ease of use. Next, in section \ref{hierarchy}, we introduce a number of additional conventions that let us complete a consistent idiom for interfaces to algebraic structures. With this in place, we continue with a discussion of
 
-% outline:
-% 
-% - preliminaries
-%     -> coq (couple of sentences about programming in a combined framework with logic)
-%     -> type classes
-% - on bundling
-%     -> introduce problem
-%     -> naive solution
-%     -> etc
-%     -> "we first begin by showing how unbundling is in some sense the "right" way to do things"
-%     in doing this, however, we will find that doing things this way is somewhat painful
-%     -> derived principles
-% - Managing unbundled structure with type classes
-%     -> painful if flexible, which is why not done before
-%     -> with type classes, managable.
-% 
-% - toward the algebraic hierarchy
-% 
-%   leaving things unbundled is one thing, but we need more for the alg. hierarchy. suppose we define a class for semigroups based on yada.
-%   -> operational type classes (parameterized over a single operation = constant), structural type classes (parameterized over all the components that make up the structure).
-% 
-% - advantages
-% 
-% - numeric classes
-% 
-% - cat.theory
-% 
-% - univ. alg.
-% 
-% - quoting
 
-%todo: have a word somewhere about "super classes"
 
 In this paper we focus on the Coq proof assistant. We conjecture that the methods can be transferred
 to any type theory based proof assistant supporting type classes such as
@@ -144,12 +113,28 @@ constructions~\cite{CoquandHuet,CoquandPaulin}, a dependent type theory with (co
 
 \paragraph{Types and propositions}
 
-Propositions in Coq are types, which themselves have types called \emph{sorts}. Coq features a distinguished sort called \lstinline|Prop| that one may voluntarily choose to use as the sort of types representing propositions. The distinguishing feature of the \lstinline|Prop| sort is that Coq will not permit terms of non-\lstinline|Prop| types to depend on the values of inhabitants of \lstinline|Prop| types (i.e. proof terms).
+Propositions in Coq are types~\cite{ITT,CMCP}, which themselves have types called \emph{sorts}. Coq features a distinguished sort called \lstinline|Prop| that one may voluntarily choose to use as the sort for types representing propositions. The distinguishing feature of the \lstinline|Prop| sort is that Coq will not permit terms of non-\lstinline|Prop| types to depend on the values of inhabitants of \lstinline|Prop| types (i.e. proof terms).
+
+% As originally conceived~\cite{ITT,CMCP}, Propositions are Types and we can extract information from
+% them. Often we do \emph{not} want functions to depend on proofs. In Coq, this is the paradigmatic way of working. We are forbidden to extract information from proofs of \lstinline|Prop|s. Especially with the aid of the Program machinery, this allows us to flexibly work with simply typed program and their Hoare style correctness proofs.
 
 Adopting this regime of discrimination establishes a weak form of proof irrelevance, in that changing a proof can never affect the result of value computations. On a very practical level, this lets Coq safely erase all \lstinline|Prop| components when extracting certified programs to OCaml or Haskell.
 
 A stronger notion of proof irrelevance in which any two inhabitants of a \lstinline|Prop| type are made \emph{convertible} is planned for a future Coq version.
+% todo: process?:
+%One may be tempted to propose Propositions as [ ]-types~\cite{awodey2004propositions}. Here the
+%construction $[P]:=\{\top\mid p:P\}$ squashes all the information about how we proved $P$. In Coq,
+%the [ ]-types are isomorphic to the type of sort \lstinline|Prop|. However,
+%there are places where we needed proof \emph{relevance}; e.g.\ in the proof of the first isomorphism
+%theorem above.In practice, manual dead-code analysis seems useful. Making Harrop formulas proof
+%irrelevant seems to be a good first approximation~\cite{lcf:spi:03}. However, a further refinement
+%of Propositions as types seems necessary.
+% Making Harrop formulas proof irrelevant seems to be a good first approximation~\cite{lcf:spi:03}. An orthogonal and further reaching proposal is to replace the Coq type theory with the Calculus of implicit constructions with implicit Σ-types~\cite{miquel2001implicit,barras2008implicit,Bernardo}. 
 
+Occasionally there is some ambiguity as to whether a certain piece of information (such as a witness to an existential statement) is strictly ``proof matter'' (and thus belongs in the \lstinline|Prop| sort) or actually of further computational interest (and thus does \emph{not} belong to the \lstinline|Prop| sort). We will see one such case when we discuss the first homomorphism theorem in section \ref{homothm}. Coq provides a modest level of \emph{universe-polymorphism} so that we may avoid duplication when trying to support \lstinline|Prop|-sorted and non-\lstinline|Prop|-sorted content with a single set of definitions.
+
+% However, we would also like to use Coq as a dependently typed programming language. This requires a hybrid approach, were we put informative propositions in \lstinline|Type| and non-informative ones in \lstinline|Prop|. 
+% Eelis: I don't see the logic here.
 
 \paragraph{Equality, setoids, and rewriting}
 
@@ -157,7 +142,9 @@ The ``native'' notion of equality in Coq is that of terms being convertible, whi
 
 We mention this explicitly only because rewriting \emph{does} give rise to conditions when we depart from Leibniz equality and introduce equivalence relations representing abstractions over common representations of the same conceptual object (for instance when identifying formal fractions of integers representing the same ratio). Rewriting a subterm using such an equality is permitted only if the subterm is an argument of a function that has been proven to \emph{respect} the equality. Such a function is called \emph{proper}, and propriety must be proved for each function in whose arguments we wish to enable rewriting.
 
-Effectively keeping track of, resolving, and combining proofs of equivalence-ness and propriety when the user attempts to substitute a given (sub)term using a given equality, requires nontrivial infrastructure and support from the system. The Coq implementation of these mechanisms was largely rewritten in 200? by Matthieu Sozeau~\ref{rewriting}. (todo: say that it's now much better than before)
+Because the Coq type theory lacks ``real'' quotient types (as it would make type checking undecidable), the conventional way of working with abstract structures in Coq is to always start with \emph{setoids} (aka Bishop sets): types equipped with an equivalence relation~\cite{Bishop67,Hofmann,Capretta}. As we will see in section ~\ref{univ}, this way of working by nature lends itself well to particularly simple definitions of notions such as quotient algebras.
+
+Effectively keeping track of, resolving, and combining proofs of equivalence-ness and propriety when the user attempts to substitute a given (sub)term using a given equality, is known as ``setoid rewriting'', and requires nontrivial infrastructure and support from the system. The Coq implementation of these mechanisms was largely rewritten in 200? by Matthieu Sozeau~\cite{Setoid-rewrite} to make it more flexible and to replace the old special-purpose setoid/morphism registration command with a clean type class based interface.
 
 \paragraph{Type classes}
 
@@ -167,13 +154,6 @@ In Haskell and Isabelle, type classes and their instances are second class, in t
 
 Thus, type classes in Coq are realized by relatively minor syntactic aids that bring together existing facilities of the theory and the system into a coherent idiom, rather than by introduction of a new category of qualitatively different definitions with their own dedicated semantics.
 
-
-% BS: put back
-% The Coq type theory lacks quotient
-% types, as it would make type checking undecidable. % todo: reference
-% Instead it supports setoids (aka Bishop sets), a pair of a type and an equivalence relation~\cite{Bishop67,Hofmann,Capretta}. Recently, improved support for setoids has been added to the system~\cite{Setoid-rewrite}. Functions respecting these equivalence relations are called \lstinline|Proper|.
-% As we will see in Section~\ref{univ} below this functionality can also be used to work with
-% quotient algebras.
 
 
 
@@ -323,6 +303,8 @@ Next, we turn to problems concerning theorem \emph{declaration}. As a reference 
 \begin{quote}
 Theorem L: For $x, y, z$ in a semigroup $G$, $x * y * z = z * y * x$.
 \end{quote}
+% todo: better example
+
 Without further support from the system, this would have to be written as
 \begin{lstlisting}
   Theorem L G e op {P: SemiGroup G e op}:
@@ -431,6 +413,8 @@ Fields declared with \lstinline|:>| are registered as hints for instance resolut
 \caption{Inheritance relations established by \lstinline|:>| fields.}
 \end{figure}
 
+% note: we don't mention "super classes" because by Matthieu's terminology only parameters-of-class-type are "super classes", and for those that means only the operational classes, which we certainly don't think of as being part of the hierarchy.
+
 However, we can easily add additional inheritance relations by declaring corresponding class instances. For instance, while our \lstinline|Ring| class does not have a \lstinline|SemiRing| field, the following instance declaration has the exact same effect for the purposes of instance resolution (at least once proved, which is trivial):
 \begin{lstlisting}
   Instance ring_as_semiring `{Ring R}: SemiRing R.
@@ -470,7 +454,7 @@ Notice that \lstinline|f| is \emph{not} made into an operational type class. The
 
 The \lstinline|monmor_to| and \lstinline|monmor_from| fields are not an absolute necessity, but eliminate the need for theorems to declare \lstinline|Monoid| parameters when they already declare \lstinline|Monoid_Morphism| parameters. This is an instance where we can freely posit structural properties without worrying about potential problems when such information turns out to be redundant in contexts where the source and target of the morphism are already known to be \lstinline|Monoid|s.
 
-Unfortunately, there is actually one annoying wrinkle here, which will also explain why, as the observant reader will have noticed, we do not register these two fields as instance resolution hints (by declaring them with \lstinline|:>|). What we really want these fields to express is ``\emph{if} in a certain context we know something to be a \lstinline|Monoid_Morphism|, \emph{then} realize that the source and target are \lstinline|Monoid|s''. However, the current instance resolution implementation does not support this style of \emph{forward} reasoning, and only supports \emph{backward} reasoning: had we registered \lstinline|monmor_to| and \lstinline|monmor_from| as instance resolution hints, we would in fact be saying ``\emph{if} trying to establish that something is a \lstinline|Monoid|, \emph{then} try finding a \lstinline|Monoid_Morphism| to or from it'', which quickly degenerates into a wild goose chase. We will return to this point in section~\ref{conclusion}. % todo: do this
+Unfortunately, there is actually one annoying wrinkle here, which will also explain why, as the observant reader will have noticed, we do not register these two fields as instance resolution hints (by declaring them with \lstinline|:>|). What we really want these fields to express is ``\emph{if} in a certain context we know something to be a \lstinline|Monoid_Morphism|, \emph{then} realize that the source and target are \lstinline|Monoid|s''. However, the current instance resolution implementation has little support for this style of \emph{forward} reasoning, and is really primarily oriented on \emph{backward} reasoning: had we registered \lstinline|monmor_to| and \lstinline|monmor_from| as instance resolution hints, we would in fact be saying ``\emph{if} trying to establish that something is a \lstinline|Monoid|, \emph{then} try finding a \lstinline|Monoid_Morphism| to or from it'', which quickly degenerates into a wild goose chase. We will return to this point in section~\ref{conclusion}. % todo: do this
 
 
 % : with predicate classes we can essentially pose queries of the form ``do I already know that proposition P holds?'', whereas canonical structures
@@ -482,9 +466,7 @@ Unfortunately, there is actually one annoying wrinkle here, which will also expl
 % Having argued that the \emph{all-structure-as-parameters} approach \emph{can} be made practical, we enumerate some of the benefits that make it worthwhile.
 % 
 % First, multiple inheritance becomes trivial: \lstinline|SemiRing| inherits two \lstinline|Monoid| structures on the same carrier and setoid relation, using ordinary named arguments to achieve ``manifest fields''; see section~\ref{manifest}.
-% 
-% Second, because our terms are small and independent and never refer to proofs, we are invulnerable to concerns about efficiency and ambiguity of projection paths that plague existing solutions, obviating the need for extensions like the proposed coercion pullbacks~\cite{Hints}.
-% 
+
 % Third, since our structural type classes are mere predicates, overlap between their instances is a non-issue. Together with the previous point, this gives us tremendous freedom to posit multiple structures on the same operations and relations, including ones derived implicitly via subclasses: by simply declaring a \lstinline|SemiRing| class instance showing that a ring is a semiring, results about semirings immediately apply implicitly to any known ring, without us having to explicitly encode this relation in the hierarchy definition itself, and without needing any projection or translation of carriers or operations.
 % 
 % Fourth, \emph{Structure-as-parameters} helps setoid-rewriting: type class resolution
@@ -702,6 +684,7 @@ The instance definitions for identity arrows, arrow composition, arrow setoid eq
 In addition to this ``variety'' category, we also have categories of lawless algebras, as well as forgetful functors from the former to the latter, and from the latter to the category of setoids.
 
 \subsection{The first homomorphism theorem}
+\label{homothm}
 
 To give a further taste of what universal algebra in our development looks like, we consider the definitions involved in the first homomorphism theorem in more detail:
 \begin{theorem}[First homomorphism theorem]
@@ -807,8 +790,7 @@ Thanks to our close integration of universal algebra we can actually obtain a \l
 
 \subsection{Specialization}
 
-% todo: decision
-The generic \lstinline|Decision| instance for \lstinline|Naturals| equality implemented by mapping to \lstinline|nat| will typically be far less efficient than a specialized implementation for a particular representation of the natural numbers. Fortunately, with Coq's type classes it is no problem for instances overlapping in this way to co-exist, and we can even deprioritize the generic instance so that instance resolution will always pick the specialization when the representation is known.
+The generic \lstinline|Decision| instance for \lstinline|Naturals| equality implemented by mapping to \lstinline|nat| will typically be far less efficient than a specialized implementation for a particular representation of the natural numbers. Fortunately, with Coq's type classes it is no problem for instances overlapping in this way to co-exist, and we can even deprioritize the generic instance (using a numeric priority annotation) so that instance resolution will always pick the specialization when the representation is known.
 
 To permit a \emph{generic} function operating on naturals to take advantage of specialized operations, we simply introduce an additional instance parameter:
 \begin{lstlisting}
@@ -851,79 +833,58 @@ In our development we prove thas the standard library's default rationals do ind
 
 We also plan to do the exact same thing for polynomials, which can be abstractly specified as a free commutative algebra, and for which diverse implementations exist (coefficient lists, Bernstein polynomials, etc.).
 
+% Eelis: and when we do, we can write something like:
+% Given a ring $R$, the $R$-algebra $R[X]$ of polynomials, is the free $R$-algebra on a set $X$.
+% We provide two implementations of polynomials: the
+% standard representation using lists of coefficients and the Bernstein representation. A Bernstein
+% basis polynomial is one of the form:
+% \[b_{\nu,n}(x) = {n \choose \nu} x^{\nu} \left( 1 - x \right)^{n - \nu}, \quad \nu = 0, \ldots, n.\]
+% A Bernstein polynomial is a linear combination of these basic polynomials. Bernstein polynomials
+% have been used for efficient computations inside the Coq system~\cite{ZumkellerPhD}.
 
-%integers all the same:
-
-% At the time of writing, our development includes a fully integrated formalization of a nontrivial portion of category theory and multisorted universal algebra, including various categories (e.g.\ the category \lstinline|Cat| of categories, and finitary algebraic categories  defined by a theory which we instantiate to obtain the categories of monoids, semirings, and rings), functors (including automatically generated forgetful functors), natural transformations, adjunctions, initial models of equational theories constructed from term algebras, transference of proofs between isomorphic models of equational theories, subalgebras, congruences, quotients, products, and the first homomorphism theorem~\cite{meinke1993universal}.
-
-EELIS UP TO HERE
+% Eelis: TODO: process: At the time of writing, our development includes a fully integrated formalization of a nontrivial portion of category theory and multisorted universal algebra, including various categories (e.g.\ the category \lstinline|Cat| of categories, and finitary algebraic categories  defined by a theory which we instantiate to obtain the categories of monoids, semirings, and rings), functors (including automatically generated forgetful functors), natural transformations, adjunctions, initial models of equational theories constructed from term algebras, transference of proofs between isomorphic models of equational theories, subalgebras, congruences, quotients, products, and the first homomorphism theorem~\cite{meinke1993universal}.
 
 
+%\subsection{Categorical universal algebra}
 
-\subsection{Categorical universal algebra}
-Having discussed category theory, we now turn to its application to universal algebra.
-
-%varieties/closed_terms.v
-We define the forgetful functor $U$ from the category of τ-algebras to the category of sets and its left-adjoint $F$: the term algebra consisting of closed terms, i.e.\ terms with the empty type as set of variables. This term algebra is the initial τ-algebra. Every adjunction defines a monad by composition of the functors $U$ and $F$. We will use the resulting expression monad in Section~\ref{quote} below.
+% We define the forgetful functor $U$ from the category of τ-algebras to the category of sets and its left-adjoint $F$: the term algebra consisting of closed terms, i.e.\ terms with the empty type as set of variables. This term algebra is the initial τ-algebra. Every adjunction defines a monad by composition of the functors $U$ and $F$. We will use the resulting expression monad in Section~\ref{quote} below.
+% Eelis: oh?
 
 
 %The product of two $\tau$-algebras is their categorical product.
+% 
+% \begin{comment}
+% Given a sub\emph{set} of an algebra, we define the sub\emph{algebra} generated by it.
+% An interesting fact to mention is the use of the following heterogeneous equality between
+% elements of the algebra and of the subalgebra, i.e.\ terms of different types may be equal.
+% \begin{lstlisting}
+%   Fixpoint heq {o}: op_type carrier o -> op_type v o -> Prop :=
+%     match o with
+%     | constant x => fun a b => `a == b
+%     | function x y => fun a b => forall u, heq (a u) (b (`u))
+%     end.
+% \end{lstlisting}
+% \end{comment}
+% 
+% We connect the abstract theory to the concrete theory. Concretely, let $\tau_m$ be the theory
+% of monoids. Given a (concrete) monoid, we can construct the corresponding $\tau_m$-algebra. 
+% Conversely, given a $\tau_m$-algebra, we construct an instance of the \lstinline|Monoid| type class.
+% %varieties/monoid.v
+% \begin{lstlisting}
+% Variable o: variety.Object theory.
+% Global Instance: SemiGroupOp (o tt) := algebra_op theory mult.
+% Global Instance: MonoidUnit (o tt) := algebra_op theory one.
+% Global Instance from_object: Monoid (o tt).
+% \end{lstlisting}
+% 
+% In the last line, instance resolution `automatically' finds the operation and the unit specified in
+% the lines before.
+% 
+% This interplay between concrete algebraic structure and their expressions on the one hand, and models of equational theories on the other is occasionally a source of tension (in that translation in either direction is not yet fully automatic). However, it opens the door to the possibility of fully internalized implementations of generic tactics for algebraic manipulation, no longer requiring plugins. We come back to this when we describe automatic quotation of concrete expressions into universal algebra expressions; see Section~\ref{quote}.
+% 
+% 
 
-\begin{comment}
-Given a sub\emph{set} of an algebra, we define the sub\emph{algebra} generated by it.
-An interesting fact to mention is the use of the following heterogeneous equality between
-elements of the algebra and of the subalgebra, i.e.\ terms of different types may be equal.
-\begin{lstlisting}
-  Fixpoint heq {o}: op_type carrier o -> op_type v o -> Prop :=
-    match o with
-    | constant x => fun a b => `a == b
-    | function x y => fun a b => forall u, heq (a u) (b (`u))
-    end.
-\end{lstlisting}
-\end{comment}
 
-We connect the abstract theory to the concrete theory. Concretely, let $\tau_m$ be the theory
-of monoids. Given a (concrete) monoid, we can construct the corresponding $\tau_m$-algebra. 
-Conversely, given a $\tau_m$-algebra, we construct an instance of the \lstinline|Monoid| type class.
-%varieties/monoid.v
-\begin{lstlisting}
-Variable o: variety.Object theory.
-Global Instance: SemiGroupOp (o tt) := algebra_op theory mult.
-Global Instance: MonoidUnit (o tt) := algebra_op theory one.
-Global Instance from_object: Monoid (o tt).
-\end{lstlisting}
-
-In the last line, instance resolution `automatically' finds the operation and the unit specified in
-the lines before.
-
-This interplay between concrete algebraic structure and their expressions on the one hand, and models of equational theories on the other is occasionally a source of tension (in that translation in either direction is not yet fully automatic). However, it opens the door to the possibility of fully internalized implementations of generic tactics for algebraic manipulation, no longer requiring plugins. We come back to this when we describe automatic quotation of concrete expressions into universal algebra expressions; see Section~\ref{quote}.
-
-
-\section{Interfaces using category theory}\label{interfaces}\label{modul}
-We have characterized the naturals as the initial object in the category of semirings and derived
-many of their properties from this interface. Unary, binary and machine numbers are
-instances of this interface, so we can directly apply these results to all these instances.
-Similarly, the integers are the initial ring. The rationals are the field of fractions of the
-integers. 
-Given a ring $R$, the $R$-algebra $R[X]$ of polynomials, is the free $R$-algebra on a set $X$.
-We provide two implementations of polynomials: the
-standard representation using lists of coefficients and the Bernstein representation. A Bernstein
-basis polynomial is one of the form:
-\[b_{\nu,n}(x) = {n \choose \nu} x^{\nu} \left( 1 - x \right)^{n - \nu}, \quad \nu = 0, \ldots, n.\]
-A Bernstein polynomial is a linear combination of these basic polynomials. Bernstein polynomials
-have been used for efficient computations inside the Coq system~\cite{ZumkellerPhD}.
-
-We encourage more efficient implementations by assigning the default implementation a
-low priority. For example, the distance function on the natural numbers, which is derived from its
-semiring structure, is assigned priority 10.
-\begin{lstlisting}
-  Global Program Instance: NatDistance N | 10 := ...
-\end{lstlisting}
-
-In future work we aim to base our development of the reals
-on an abstract dense set, allowing us to use the efficient dyadic
-rationals~\cite{boldo2009combining} as a base for exact real number computation in
-Coq~\cite{Riemann,Oconnor:real}. The use of category theory has been important in these developments.
 
 \section{Type class quoting}\label{quote}
 Unification hints~\cite{Hints} allow one to semi-automatically construct a quote
@@ -1093,19 +1054,6 @@ We have used this technique to implement a tactic to normalize monoid expression
 %the congruence closure algorithm~\cite{corbineau2007deciding}. One would naturally obtain a tactic
 %which moreover works on setoid equalities.
 
-\section{Canonical structures}\label{canonical}
-Packed classes use canonical structures for the algebraic hierarchy. Both canonical structures and
-type classes may be seen as instances of hints in unification~\cite{Hints}. Some uses of canonical
-structures can be replaced by type class instances. The user manual (2.7.15) uses canonical
-structures to derive the setoid equality on the natural
-numbers in the following example \lstinline|(S x)==(S y)|. In this case type classes provide similar proof
-terms. Canonical structures give
-\begin{lstlisting}
-@equiv(Build_Setoid nat (@eq nat)(@eq_equivalence nat))(S x)(S y)
-\end{lstlisting}
-
-which includes an explicit proof that \lstinline|(@eq nat)| is an equivalence,
-whereas we obtain \lstinline|@equiv nat (@eq nat) (S x) (S y)|.
 
 \subsection{Big operators}
 Canonical structures have been used to provide a uniform treatment~\cite{bertot2008canonical} of big
@@ -1163,59 +1111,53 @@ theory, i.e.\ an alternation of $\Pi$s and $\Sigma$s. By the type theoretic axio
 The addition of implicit Σ-types to Coq would change many things. Perhaps it would even allow us
 to pack the proofs together with the operations, but it is too early to tell.
 
-\subsection{Propositions as Types}
-As originally conceived~\cite{ITT,CMCP}, Propositions are Types and we can extract information from
-them. Often we do \emph{not} want functions to depend on proofs. In Coq, this is the paradigmatic way of working. We are forbidden to extract information from proofs of \lstinline|Prop|s. Especially with the aid of the Program machinery, this allows us to flexibly work with simply typed program and their Hoare style correctness proofs. However, we would also like to use Coq as a dependently typed programming language. This requires a hybrid approach, were we put informative propositions in \lstinline|Type| and non-informative ones in \lstinline|Prop|. Making Harrop formulas proof irrelevant seems to be a good first approximation~\cite{lcf:spi:03}. An orthogonal and further reaching proposal is to replace the Coq type theory with the Calculus of implicit constructions with implicit
-Σ-types~\cite{miquel2001implicit,barras2008implicit,Bernardo}. 
-
-%One may be tempted to propose Propositions as [ ]-types~\cite{awodey2004propositions}. Here the
-%construction $[P]:=\{\top\mid p:P\}$ squashes all the information about how we proved $P$. In Coq,
-%the [ ]-types are isomorphic to the type of sort \lstinline|Prop|. However,
-%there are places where we needed proof \emph{relevance}; e.g.\ in the proof of the first isomorphism
-%theorem above.In practice, manual dead-code analysis seems useful. Making Harrop formulas proof
-%irrelevant seems to be a good first approximation~\cite{lcf:spi:03}. However, a further refinement
-%of Propositions as types seems necessary.
-
-\section{Coq wishlist}
-% todo: maybe merge with conclusions and add "and future work"
-
-While we have already found the predicate-class-based style of formalization to work very well for our development thus far, and believe it has the potential to be \emph{the} modern solution to this problem, in our work we have encountered a number of limitations in the Coq implementation of key features of the tool, that keep us from making an unconditional recommendation for universal adoption of these techniques.
-
-\paragraph{Universe-polymorphic definitions}
-Coq has supported universe-polymorphism for parameterized inductive definitions (different instantiations of which are automatically of the lowest possible sort taking into account the universe level constraints on the arguments) for some time. However, the same functionality has not been available for \emph{definitions}, primarily because of efficiency concerns. In our development, bla bla misery and drama when doing this and that. In response to our inquiries about this issue, the Coq development team has agreed to implement ``opt-in'' universe polymorphism, where only expressly annotated definitions are made universe-polymorphic. This should solve our problems.
-
-\paragraph{Implicit generalization}
-
-The current syntax for implicit generalization 
-%current syntax very subtle. various combinations of `, class-ness, {} vs (), ! or no !, make _ mean different things. Worse, one strategy of ``infer if possible, generalize otherwise'' is not supported while it seems like a very commonly needed thing. The Coq development team recognizes this as a legitimate problem, but fears the implementation might not be straightforward, and as of this writing we are not aware of plans to address this. That said, a new proof engine has recently, whcih might make this more attainable. Fortunately, not that big a problem. Just a remaining source of the occasional uglyness in declarations.
-
-\paragraph{Instance resolution efficiency} ...
-
-The current implementation is in some sense only a prototype.
-
-Backward
-
-Forward
-
-It seems likely that known techniques from established resolution engines can be reused to significantly increase performance.
-
-
-In reply to our inquiries about these issues the Coq development team has agreed that these are legitimate concerns and wishes, and indicated that they are committed to addressing them.
-
-
-
+% 
+% \section{Coq wishlist}
+% % todo: maybe merge with conclusions and add "and future work"
+% 
+% \paragraph{Universe-polymorphic definitions}
+% Coq has supported universe-polymorphism for parameterized inductive definitions (different instantiations of which are automatically of the lowest possible sort taking into account the universe level constraints on the arguments) for some time. However, the same functionality has not been available for \emph{definitions}, primarily because of efficiency concerns. In our development, bla bla misery and drama when doing this and that. In response to our inquiries about this issue, the Coq development team has agreed to implement ``opt-in'' universe polymorphism, where only expressly annotated definitions are made universe-polymorphic. This should solve our problems.
+% 
+% \paragraph{Implicit generalization}
+% 
+% The current syntax for implicit generalization 
+% %current syntax very subtle. various combinations of `, class-ness, {} vs (), ! or no !, make _ mean different things. Worse, one strategy of ``infer if possible, generalize otherwise'' is not supported while it seems like a very commonly needed thing. The Coq development team recognizes this as a legitimate problem, but fears the implementation might not be straightforward, and as of this writing we are not aware of plans to address this. That said, a new proof engine has recently, whcih might make this more attainable. Fortunately, not that big a problem. Just a remaining source of the occasional uglyness in declarations.
+% 
 
 
 \section{Conclusions}
-Telescopes have been criticized~\cite{Packed} for the lack of multiple inheritance and
-the efficiency penalty of a long chain of coercion projections. Packed classes~\cite{Packed} provide
-a solution to these problems. We have provided an alternative solution based on type classes. 
 
-We conclude that unification hints, canonical structures and type classes all appear to have
-similar expressive power. Canonical structures, being tied to the unifier, are more robust, but
-seem to require more ingenuity. Type classes are easier to use. Unification hints, may be a
-good generalization, but are absent from Coq. We encourage their inclusion to the
-Coq system.
+While bundling operational and propositional components of abstract structures into records may seem natural at first, doing so actually introduces many serious problems. Keeping things unbundled avoids these problems and is more flexible in theory, and now with type classes finally also in practice, or so we hope to have demonstrated.
+
+%Telescopes have been criticized~\cite{Packed} for the lack of multiple inheritance and
+%the efficiency penalty of a long chain of coercion projections. Packed classes~\cite{Packed} provide
+%a solution to these problems. We have provided an alternative solution based on type classes. 
+
+It has been suggested that canonical structures are more robust (in the sense of being much more restricted and internally closed compared to the comparatively wild and open-ended proof search used for instance resolution). However, in addition to the unfortunate fact that the restrictions force one into bundled representations, a second consequence is that using them for anything beyond basic use cases requires significant ingenuity, whereas type classes are fairly easy and straightforward to use.
+
+% \section{Canonical structures}\label{canonical}
+% Packed classes use canonical structures for the algebraic hierarchy. Both canonical structures and
+% type classes may be seen as instances of hints in unification~\cite{Hints}. Some uses of canonical
+% structures can be replaced by type class instances. The user manual (2.7.15) uses canonical
+% structures to derive the setoid equality on the natural
+% numbers in the following example \lstinline|(S x)==(S y)|. In this case type classes provide similar proof
+% terms. Canonical structures give
+% \begin{lstlisting}
+% @equiv(Build_Setoid nat (@eq nat)(@eq_equivalence nat))(S x)(S y)
+% \end{lstlisting}
+% which includes an explicit proof that \lstinline|(@eq nat)| is an equivalence,
+% whereas we obtain \lstinline|@equiv nat (@eq nat) (S x) (S y)|.
+
+Unification hints are a more general mechanism than type classes, and could provide a more precise account of the interaction between implicit argument inference and proof search. Perhaps, then, a fruitful approach could be to use unification hints as the underlying mechanism with type classes as an end-user interface encapsulating a particularly convenient idiom for using them.
+% We encourage their inclusion to the Coq system. -- Eelis: not quite ready to go there yet
+
+The only real pending concern that keeps us from making an unequivocal endorsement of type classes as a versatile, expressive, and elegant means of organizing proof developments, is instance resolution efficiency. In more complex parts of our development we are now experiencing increasingly serious efficiency problems, despite having already made sacrifices by artifically inhibiting many natural class instances in order not to further strain instance resolution.
+
+%While we have already found the predicate-class-based style of formalization to work very well for our development thus far, and believe it has the potential to be \emph{the} modern solution to this problem, in our work we have encountered a number of limitations in the Coq implementation of key features of the tool, that keep us from making an unconditional recommendation for universal adoption of these techniques.
+
+Fortunately, the Coq development team recognizes that this is a real problem, and furthermore agrees that there is plenty of potential for improvement of the current implementation, potentially borrowing techniques from the vast literature on efficient implementation of Prolog-style resolution (which the hint-based proof search used for instance resolution greatly resembles).
+
+We are currently in the process of retrofitting the rationals interface into CoRN. In future work we aim to base our development of its reals on an abstract dense set, allowing us to use the efficient dyadic rationals~\cite{boldo2009combining} as a base for exact real number computation in Coq~\cite{Riemann,Oconnor:real}. The use of category theory has been important in these developments.
 
 An obvious topic for future research is the extension from equational logic to partial Horn
 logic~\cite{palmgren2007partial}. Another topic would be to fully, but practically, embrace the
