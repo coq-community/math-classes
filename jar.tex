@@ -3,6 +3,7 @@
 \usepackage{url}
 \usepackage{bbm}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{upgreek}
 \usepackage[mathletters]{ucs}
 \usepackage[utf8x]{inputenx}
@@ -25,7 +26,6 @@
 %   don't discuss difference between maximally-inserted and non-maximally-inserted implicit arguments.
 
 % todo:
-  % what to say about terms referring on proofs?
   % cite that other type class based development in the context of the alternative bundling schemes.
   % maybe have a chapter called "interfaces are primary, not implementations" (also involve polynomials)
 
@@ -40,19 +40,22 @@
 \lstset{literate=
   % symbols that actually occur as unicode in our source:
   {λ}{{$\uplambda\ $}}1
-  {σ}{{$\upsigma\ $}}1
+  {σ}{{$\upsigma$}}1
+  {η}{{$\upeta$}}1
+  {φ}{{$\upphi$}}1
   {∃}{{$\exists$}}1
   {→}{{$\to\ $}}1
   {≠}{{$\ne\ $}}1
   {¬}{{$\neg\ $}}1
   {⟶}{{$\longrightarrow\ $}}1
+  {⇛}{{$\Rrightarrow\ $}}1
   {∧}{{$\land$}}1
   {∀}{{$\forall$}}1
-  {Π}{{$\Uppi\ $}}1
+  {Π}{{$\Uppi$}}1
   {η}{{$\upeta$}}1
   {⊓}{{$\sqcap$}}1
   {∘}{{$\circ\ $}}1
-  {◎}{{$\odot\ $}}1
+  {◎}{{$\odot$}}1
   { ≡ }{{$\equiv\ $}}1
   % things we can't make pretty in the actual source, but can make pretty here!:
   {=>}{{$\,\Rightarrow\ $}}1
@@ -567,42 +570,47 @@ In Coq, for a term \lstinline|F| to function as though it had two different type
 
 We feel that these issues are not limitations of the Coq system, but merely reflect the fact that notationally identifying these two distinct and interdependent maps is an abuse of notation of sufficient severety to make it ill-suited to a formal development where software engineering concerns apply. Hence, we do not adopt this practice, and use ``\lstinline|fmap F|'' (name taken from the Haskell standard library) to refer to the arrow map of a functor \lstinline|F|.
 
-\subsection{Natural transformations}
-Natural transformations are formalized as:
+\subsection{Natural transformations and adjunctions}
+
+We introduce a convenient notation for the type of the computational content of a natural transformation between two functors:
 \begin{lstlisting}
-   Context `{Category C} `{Category D}
-   `{!Functor (F: C → D) Fa} `{!Functor (G: C → D) Ga}.
-   Class NaturalTransformation (η: Π c, F c ⟶ G c): Prop :=
-     natural: Π (x y: C) (f: x ⟶ y), η$$ y ∘ fmap F f = fmap G f ∘ η$$ x.
+  Notation "F ⇛ G" := (Π x, F x ⟶ G x).
+\end{lstlisting}
+Now assume the following context:
+\begin{lstlisting}
+  Context `{Category C} `{Category D}
+    `{Functor (F: C → D)} `{Functor (G: D → C)}.
+\end{lstlisting}
+The naturality property is easy to write:
+\begin{lstlisting}
+  Class NaturalTransformation (η: F ⇛ G): Prop :=
+    { naturaltrans_from: Functor F
+    ; naturaltrans_to: Functor G
+    ; natural: Π `(f: x ⟶ y), η$$ y ◎$$ fmap F f = fmap G f ◎$$ η$$ x }.
 \end{lstlisting}
   % Todo: Having to add "$$" to get whitespace is awful. we can't add "\ " in η's literate-replacement though, because then we also get space before the colon in "η: t".
 
-We have defined the category of setoids, the dual of a category, products, and hence co-products. 
-We prove that two definitions of adjunction are equivalent. The proofs are concise and follow the textbooks.
+% We have defined the category of setoids, the dual of a category, products, and hence co-products. 
 
-The usual size problems in the definition of the category of categories can be avoided by using universe polymorphism. 
-However, we need to avoid making \lstinline|Relation| a \lstinline|Definition|, since \lstinline|Definitions| are not (yet?) universe polymorphic.
-
-\subsection{Adjunctions}
+% The usual size problems in the definition of the category of categories can be avoided by using universe polymorphism. 
+% However, we need to avoid making \lstinline|Relation| a \lstinline|Definition|, since \lstinline|Definitions| are not (yet?) universe polymorphic.
 
 Adjunctions can be defined in different ways. A nice symmetric definition is the following:
-
 \begin{lstlisting}
-  Context `{Category A} `{Category X}
-    F `{!Functor (F: X → A) F'}
-    G `{!Functor (G: A → X) G'}
-    (φ: Π {x a}, (F x ⟶ a) → (x ⟶ G a))
-    `{Π x a, Inverse (φ x a)}
-    `{Π x a, Bijective (φ x a)}.
-
-  Class Adjunction: Prop :=
-   { adjunction_left_functor: Functor F _
-   ; adjunction_right_functor: Functor G _
-   ; natural_left `(k: a ⟶ a'): `((fmap G k ◎) ∘ φ = @φ x _ ∘ (k ◎))
-   ; natural_right `(h: x' ⟶ x):`((◎ h) ∘ @φ _ a = φ ∘ (◎ fmap F h)) }.
+  Class Adjunction (φ: Π `(F c ⟶ d), (c ⟶ G d)): Prop :=
+    { adjunction_left_functor: Functor F _
+    ; adjunction_right_functor: Functor G _
+    ; natural_left `(f: d ⟶ d') c: (fmap G f ◎) ∘ φ$$ = φ (c:=c) ∘ (f ◎)
+    ; natural_right `(f: c' ⟶ c) d: (◎ f) ∘ φ (d:=d) = φ$$ ∘ (◎ fmap F f) }.
 \end{lstlisting}
-
-blabla, alternative definition, equivalence theorem nice stress test, preliminary results promising except for rewriting/instance-resolution efficiency.
+An alternative definition is the following:
+\begin{lstlisting}
+  Class AltAdjunction (η: id ⇛ G ∘ F) (φ: Π `(f: c ⟶ G d), F c ⟶ d): Prop :=
+    { alt_adjunction_natural_unit: NaturalTransformation η
+    ; alt_adjunction_factor: Π `(f: c ⟶ G d),
+        is_sole ((f =) ∘ (◎ η$$ c) ∘ fmap G) (φ f) }.
+\end{lstlisting}
+Formalizing the (nontrivial) proof that these two definitions are equivalent provides a nice test for our definitions. Preliminary results indicate that we can very concisely and closely follow the textbook proof. % todo: ref?
 
 \section{Universal algebra}\label{univ}
 
@@ -630,7 +638,7 @@ Given an interpretation of the sorts (mapping each symbolic sort to a carrier), 
 \end{lstlisting}
 Because our carriers will normally be equipped with a setoid equality, we further define the predicate class \lstinline|Algebra|, stating that each of the operations respects the setoid equality on the carriers:
 \begin{lstlisting}
-  Class Algebra `{Π a, Equiv (carriers a)} `{AlgebraOps σ carriers}: Prop :=
+  Class Algebra `{Π a, Equiv (carriers a)} `{AlgebraOps σ$$ carriers}: Prop :=
       { algebra_setoids:> Π a, Setoid (carriers a)
       ; algebra_propers:> Π o: σ, Proper (=) (algebra_op o) }.
 \end{lstlisting}
@@ -691,7 +699,7 @@ If $A$ and $B$ are algebras, and $f$ is a homomorphism from $A$ to $B$, then the
 
 A set of relations \lstinline|e| (one for each sort) is a congruence for an existing algebra if (1) \lstinline|e| respects that algebra's existing setoid equality, and (2) the operations with \lstinline|e| again form an algebra (namely the quotient algebra):
 \begin{lstlisting}
-Context `{Algebra σ A}.
+Context `{Algebra σ$$ A}.
 Class Congruence (e: Π s: sorts σ, relation (v s)): Prop :=
     { congruence_proper:> Π s, Proper (equiv ==> equiv ==> iff) (e s)
     ; congruence_quotient:> @Algebra et v e _ }.
@@ -700,22 +708,22 @@ We have proved that this natural and economical type-theoretic formulation that 
 
 For the homomorphism theorem, we begin by declaring our dramatis personae:
 \begin{lstlisting}
-  Context `{Algebra σ A} `{Algebra σ B} `{!HomoMorphism σ A B f}.
+  Context `{Algebra σ$$ A} `{Algebra σ$$ B} `{!HomoMorphism σ$$ A B f}.
 \end{lstlisting}
 With \lstinline|~| defined as described, the first part of the proof is simply the definition of the following instance:
 \begin{lstlisting}
-   Instance co: Congruence σ (~).
+   Instance co: Congruence σ$$ (~).
 \end{lstlisting}
 
 For the second part, we describe the image of \lstinline|f| as a predicate over \lstinline|B|, and show that it is closed under the operations of the algebra: 
 \begin{lstlisting}
-  Definition image s (b: B s): Type := sigT (λ a => f s a = b).
+  Definition image s (b: B s): Type := sigT (λa => f s a = b).
 
   Instance: ClosedSubset image.
 \end{lstlisting}
 \lstinline|sigT| represents a \lstinline|Type|-sorted existential. \lstinline|ClosedSubset| is defined elsewhere as:
 \begin{lstlisting}
-  Context `{Algebra σ A} (P: Π s, A s → Type).
+  Context `{Algebra σ$$ A} (P: Π s, A s → Type).
   Class ClosedSubset: Type :=
     { subset_proper: Π s x x', x = x' → iffT (P s x) (P s x')
     ; subset_closed: Π o, op_closed (algebra_op o) }.
@@ -730,7 +738,7 @@ For the main theorem, we now bundle the quotient algebra and the subalgebra into
 \begin{lstlisting}
   Definition quot_obj: algebra.Object σ :=
     algebra.object σ A (algebra_equiv:=(~)).
-  Definition subobject: algebra.Object σ :=
+  Definition subobject: algebra.Object σ$$ :=
     algebra.object σ (ua_subalgebraT.carrier image).
 \end{lstlisting}
 Here, \lstinline|algebra| is the module defining the bundled algebra record \lstinline|Object| with constructor \lstinline|object|. The module \lstinline|ua_subalgebraT| constructs subalgebras.
@@ -889,14 +897,14 @@ Traditionally, proof assistants such as Coq have provided sophisticated tactics 
 
 For ease of presentation we show only a proof of concept for a very concrete language. We are currently working to integrate this technique with our existing universal algebra infrastructure, in particular its data types for algebraic terms.%  Preliminary results in this area (such as a simple monoid normalization tactic) suggest yada.
 
-For the present example, we define a term language for monoids
+For the present example, we define an ad-hoc term language for monoids
 \begin{lstlisting}
 Inductive Expr (V: Type) := Mult (a b: Expr V) | One | Var (v: V).
 \end{lstlisting}
-
 The expression type is parametrized over the set of variable indices. Hence, we diverge from~\cite{Hints}, which uses \lstinline|nat| for variables, thereby introducing bound problems and a need for dummy variables.
 
-An expression is only meaningful in the context of a variable assignment:\footnote{Categorically: \lstinline|nat| is an \lstinline|Expr|-algebra and \lstinline|eval| is \lstinline|map vars| composed with the algebra map.}
+Suppose now that we want to quote \lstinline|nat| expressions built from 1 and multiplication. To describe the relation we want the symbolic expression to have to the original expression, we first define how symbolic expressions evaluate to values (given a variable assignment):
+%An expression is only meaningful in the context of a variable assignment:\footnote{Categorically: \lstinline|nat| is an \lstinline|Expr|-algebra and \lstinline|eval| is \lstinline|map vars| composed with the algebra map.}
 \begin{lstlisting}
 Definition Value := nat.
 Definition Vars V := V → Value.
@@ -911,139 +919,107 @@ Fixpoint eval {V} (vs: Vars V) (e: Expr V): Value :=
 
 %Monads are trees with grafting~\cite{MonadsGrafting}: the tree monad
 %$TX:=1+T^2X$, may be seen as the prototypical monad. 
-The \lstinline|Expr| monad, i.e.\ the free \lstinline|Expr|-algebra monad on the category of \lstinline|Type|s with extensional functions%\marginpar{Proof in classquote}
-, provides a bind operation which describes the arrows in the Kleisli category. Concretely,
-\begin{lstlisting}
-Fixpoint bind {V W} (f: V → Expr W) (e: Expr V): Expr W :=
-  match e with
-  | Zero => Zero
-  | Mult a b => Mult (bind f a) (bind f b)
-  | Var v => vs v
-  end.
-\end{lstlisting}
-
+% The \lstinline|Expr| monad, i.e.\ the free \lstinline|Expr|-algebra monad on the category of \lstinline|Type|s with extensional functions%\marginpar{Proof in classquote}
+% , provides a bind operation which describes the arrows in the Kleisli category. Concretely,
+% \begin{lstlisting}
+% Fixpoint bind {V W} (f: V → Expr W) (e: Expr V): Expr W :=
+%   match e with
+%   | Zero => Zero
+%   | Mult a b => Mult (bind f a) (bind f b)
+%   | Var v => vs v
+%   end.
+% \end{lstlisting}
+% Eelis: above commented out because we never actually use it, and it's really not pertinent to the discussion.
 
 % We have shown that |Expr|, i.e.\ |bind| together with |Var|, is a monad on the category of Types
 % with extensional functions between them~\marginpar{Really?}.
 
-\noindent We define some simple combinators for variable packs:
-%
+We can now state our goal: given an expression of type \lstinline|nat|, we seek to construct an \lstinline|Expr V| for some appropriate \lstinline|V| along with a variable assignment, such that evaluation of the latter yields the former. Because we will be doing this incrementally, we introduce a few simple variable ``heap combinators'':
 \begin{lstlisting}
 Definition novars: Vars False := False_rect _.
 Definition singlevar (x: Value): Vars unit := λ _ => x.
 Definition merge {A B} (a: Vars A) (b: Vars B): Vars (A+B) :=
   λ i => if i then a j else b j.
 \end{lstlisting}
+These last two combinators are the `constructors' of an implicitly defined subset of Gallina terms, representing heaps, for which we will implement syntactic lookup with type classes in a moment. The heap can also be defined explicitly, with no essential change in the code.
 
-
-\noindent These last two combinators are the `constructors' of an implicitly defined subset of
- Galina terms, representing heaps, for which we implement syntactic lookup with type classes.
-The heap can also be defined explicitly, with no essential change in the code.
-Given a heap and value, \lstinline|Lookup| instances give the value's index in the heap:
-% \marginpar{A
-% canonical structures approach would allow us to do this in Coq?}
+With these, we can define the primary ingredient, the \lstinline|Quote| class:
 \begin{lstlisting}
-  Class Lookup {A} (x: Value) (f: Vars A) :=
-    { lookup: A; lookup_correct: f lookup = x }.
-\end{lstlisting}
-
-% Context (x: Value) {A B} (va: Vars A) (vb: Vars B).
-
-If the heap is a merge of two heaps and we can find the value's index in the left heap, we can
-access it by indexing the merged heap (and vice versa)
-\begin{lstlisting}
-  Global Instance lookup_left `{!Lookup x va}: Lookup x (merge va vb)
-    := { lookup := inl (lookup x va) }.
-\end{lstlisting}
-
-If the heap is just a singlevar, we can easily index it.
-\begin{lstlisting}
-Global Program Instance: Lookup x (singlevar x) := { lookup := tt }.
-\end{lstlisting}
-
-
-%One useful operation we need before we get to Quote relates to variables and expression evaluation. 
- As its name suggests, \lstinline|map_var| maps an expression's variable indices.
-This reindexing function is the the \lstinline|map| of the \lstinline|Expr|-monad.
-
-\begin{lstlisting}
-Definition map_var {V W: Type} (f: V → W):
-    Expr V → Expr W :=
-  fix F (e: Expr V): Expr W :=
-    match e with
-    | Mult a b => Mult (F a) (F b)
-    | Zero => Zero
-    | Var v => Var (f v)
-    end.
-\end{lstlisting}
-
-In \lstinline|Quote| below, the idea is that \lstinline|V, l|, and \lstinline|n| are all input variables, while \lstinline|V'| and \lstinline|r| are
-output variables (in the sense that we will rely on unification to generate them). \lstinline|V| and \lstinline|l|
-represent the current heap, \lstinline|n| represents the value we want to quote, and \lstinline|V'| and \lstinline|r'| represent
-the heap of newly encountered variables during the quotation.
-  This explains the type of quote: it is an expression that refers either to variables from
-the old heap, or to newly encountered variables. Finally, \lstinline|eval_quote| is the usual correctness property, which now merges the two heaps.
-
-\begin{lstlisting}
-  Class Quote {V} (l: Vars V) (n: Value) {V'} (r: Vars V') :=
+  Class Quote {V} (l: Vars V) (n: Value) {V'} (r: Vars V'): Type :=
     { quote: Expr (V + V')
     ; eval_quote: @eval (V+V') (merge l r) quote = n }.
 \end{lstlisting}
+We can think of \lstinline|Quote| as the type for a family of Prolog-like syntax-directed resolution functions, which will take as input \lstinline|V| and \lstinline|l| representing previously encountered holes (opaque subexpressions that could not be destructured further) and their values, along with a concrete term \lstinline|n| to be quoted. Their ``output'' will consist not only of the fields in the class, but also of \lstinline|V'| and \lstinline|r| representing additional holes and their values. Hence, a type class constraint of the form \lstinline|Quote x y z| should be read as ``quoting y with existing heap x generates new heap z''.
 
-
-Our first instance for \lstinline|Zero| is easy. The `novars' in the result type reflects the fact that no
-new variables are encountered.
+The \lstinline|Quote| instance for 1 illustrates the basic idea:
 \begin{lstlisting}
-  Global Program Instance quote_zero V (v: Vars V):
-    Quote v 0 novars := { quote := Zero }.
+  Instance quote_one V (v: Vars V): Quote v 1 novars := { quote := One }.
+\end{lstlisting}
+The expression ``1'' can be quoted in any context \lstinline|(V, v)|, introduces no new variables, and the symbolic term representing it is just \lstinline|One|. (The \lstinline|eval_quote| field is turned into a trivial proof obligation.)
+
+The \lstinline|Quote| instance for multiplication is a little more subtle, but really only does a bit of heap juggling:
+\begin{lstlisting}
+  Instance quote_mult V (v: Vars V) n V' (v': Vars V') m V'' (v'': Vars V'')
+    `{!Quote v n v'} `{!Quote (merge v v') m v''}: Quote v (n * m) (merge v' v'') :=
+      { quote := Mult (map_var shift (quote n)) (map_var sum_assoc (quote m)) }.
 \end{lstlisting}
 
-
-The instance for multiplication is a bit more complex. The first line consists of
- variable declarations. The second line is important. `Quote x y z' must be read as
- `quoting y with existing heap x generates new heap z', so the second line basically just
-shuffles heaps around.
- The third line contains some \lstinline|map_var|'s because the heap shuffling must be
-reflected in the variable indices, but apart from that it is just constructing a \lstinline|Mult| term with
-quoted subterms.
-
+These two instances specify how 1 and multiplications are to be quoted, but what about other expressions? For these, we want to distinguish two kinds: expressions we have seen before, and those we have not. To make this distinction, we need to be able to look up expressions in variable heaps to see if they're already there. Importantly, we must do this not by really comparing the values they evaluate to, but by actually browsing the term denoting the variable heap (that is, a composition from \lstinline|novars|, \lstinline|singlevar|, and \lstinline|merge|). This, too, is a job for a type class:
 \begin{lstlisting}
-Global Program Instance quote_mult V (v: Vars V)
-  n V' (v': Vars V') m V'' (v'': Vars V'')
-  `{!Quote v n v'} `{!Quote (merge v v') m v''}:
-  Quote v (n * m) (merge v' v'') :=
-  { quote := Mult (map_var bla (quote n)) (map_var sum_assoc (quote m)) }.
+  Class Lookup {A} (x: Value) (v: Vars A) := { key: A; key_correct: v key = x }.
+\end{lstlisting}
+Our first \lstinline|Lookup| instance states that \lstinline|x| can be looked up in \lstinline|singlevar x|:
+\begin{lstlisting}
+  Instance singlevar_lookup (x: Value): Lookup x (singlevar x) := { key := tt }.
+\end{lstlisting}
+Next (and last), if an expression can be looked up in a pack, then it can also be looked up when that pack is merged with another pack:
+\begin{lstlisting}
+  Context (x: Value) {A B} (va: Vars A) (vb: Vars B).
+
+  Instance lookup_left `{!Lookup x va}: Lookup x (merge va vb)
+    := { key := inl (key x va) }.
+
+  Instance lookup_right `{!Lookup x vb}: Lookup x (merge va vb)
+    := { key := inr (key x vb) }.
 \end{lstlisting}
 
-The instance where we recognize values that are already in the heap is expressed by the Lookup requirement, which will only be fulfilled if the Lookup instances defined above can find the value in the heap. The novars in the \lstinline|Quote v x novars| result
-   reflects that this quotation does not generate new variables.
-
+With \lstinline|Lookup|, we can now define a \lstinline|Quote| instance for previously encountered expressions:
 \begin{lstlisting}
-Global Program Instance quote_old_var
-  V (v: Vars V) x {i: Lookup x v}:
-  Quote v x novars | 8 := { quote := Var (inl (lookup x v)) }.
+  Instance quote_old_var V (v: Vars V) x {Lookup x v}:
+    Quote v x novars | 8 := { quote := Var (inl (key x v)) }.
 \end{lstlisting}
 
+If none of the \lstinline|Quote| instances defined so far apply, the term in question is a newly encountered hole. For this case we define a catch-all instance with a low priority, which yields a singleton heap containing the expression:
+\begin{lstlisting}
+  Instance quote_new_var V (v: Vars V) x: Quote v x (singlevar x) | 9
+    := { quote := Var (inr tt) }.
+\end{lstlisting}
+And with that, we can start quoting:
+\begin{lstlisting}
+Goal Π x y (P: Value → Prop), P ((x * y) * (x * 1)).
+  intros.
+  rewrite <- eval_quote.
+\end{lstlisting}
+The \lstinline|rewrite| rewrites the goal to (something that reduces to):
+\begin{lstlisting}
+  P (eval
+     (merge novars
+        (merge (merge (singlevar x) (singlevar y)) (merge novars novars)))
+     (Mult (Mult (Var (inr (inl (inl ())))) (Var (inr (inl (inr ())))))
+        (Mult (Var (inr (inl (inl ())))) One)))
+\end{lstlisting}
 
-\noindent Finally, the instance for new variables. We give this a lower priority so that it is only
-used if Lookup fails. The \lstinline|8| in the previous example is a random number less than \lstinline|9| below. 
+Using a small additional utility lemma we can also easily quote equalities into \lstinline|eval p e = eval p' e'| form with a shared variable pack (so that identical expressions on both sides of the equation don't end up as different variables).
+
+Notice that we have not made any use of \lstinline|Ltac|, Coq's tactic language. Instead, we have used instance resolution as a unification-based programming language to steer the unifier into inferring the symbolic quotation.
+
 %A similar method is used in Coq's notation mechanism.
 % We recommend a change in
 % implementation supporting an agda style precedence relation which is only restricted to be a
 % directed acyclic graph~\cite{danielsson2009parsing}.
 
-\begin{lstlisting}
-Global Program Instance quote_new_var V (v: Vars V) x:
-  Quote v x (singlevar x) | 9 := { quote := Var (inr tt) }.
-\end{lstlisting}
 
 
-We have defined a light-weight quoting function. The following code turns the goal into \lstinline|(eval variable_pack quote)|.
-Here \lstinline|eval_quote'| is a modification of \lstinline|eval_quote| which works in the empty context:
-\begin{lstlisting}
-Goal Π x y (P: Value $\to$ Prop), P ((x * y) * (x * 0)).
-  intros. rewrite <- (eval_quote' _).
-\end{lstlisting}
 
 We have used this technique to implement a tactic to normalize monoid expressions, and plan to extend yada yada.
 %It would be interesting to use this technique to implement the \lstinline|congruence| tactic, which implements
@@ -1051,7 +1027,7 @@ We have used this technique to implement a tactic to normalize monoid expression
 %which moreover works on setoid equalities.
 
 
-\subsection{Big operators}
+\section{Big operators}
 Canonical structures have been used to provide a uniform treatment~\cite{bertot2008canonical} of big
 operators (like $\Pi,\sum, \max$). These operators extend a pair of a binary and a 0-ary operation
 to an $n$-ary operation for any $n$. Categorically, one considers the algebra maps from non-empty
