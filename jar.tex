@@ -28,6 +28,7 @@
 % todo:
   % cite that other type class based development in the context of the alternative bundling schemes.
   % maybe have a chapter called "interfaces are primary, not implementations" (also involve polynomials)
+  % mention that we use same RingPlus/RingMult operational type classes (with notation) in SemiRing/Ring.
 
 % listings:
 
@@ -308,14 +309,14 @@ Next, we turn to problems concerning theorem \emph{declaration}. As a reference 
 \begin{quote}
 Theorem L: For $x, y, z$ in a semigroup $G$, $x * y * z = z * y * x$.
 \end{quote}
-% todo: better example
+(Please forgive the admittedly silly statement; we are presently concerned only with the syntax.)
 
 Without further support from the system, this would have to be written as
 \begin{lstlisting}
   Theorem L G e op {P: SemiGroup G e op}:
     Π x y z, e (op (op x y) z) (op (op z y) x).
 \end{lstlisting}
-(The curly brackets mark \lstinline|P| as an implicit argument.) Because \lstinline|e| and \lstinline{op} are freshly introduced local names, we cannot bind notations to them prior to this theorem. Hence, if we want notations, what we really need are canonical names for these components. This is easily accomplished with single-field type classes containing one component each, which we will call \emph{operational type classes}\footnote{These single-field type classes are used in the same way in the \lstinline|Clean| standard library \cite{something}.}:
+(The curly brackets mark \lstinline|P| as an implicit argument.) Because \lstinline|e| and \lstinline{op} are freshly introduced local names, we cannot bind notations to them prior to this theorem. Hence, if we want notations, what we really need are canonical names for these components. This is easily accomplished with single-field type classes containing one component each, which we will call \emph{operational type classes}\footnote{These single-field type classes are used in the same way in the \lstinline|Clean| standard library~\cite{clean}.}:
 \begin{lstlisting}
   Class Equiv A := equiv: relation A.
   Class SemiGroupOp A := sg_op: A $\to$ A $\to$ A.
@@ -389,9 +390,9 @@ Here, \lstinline|sumbool| is just the (informative) sum of proofs.
 
 With \lstinline|Decision| as a type class, we can very easily define composite deciders for things like conjunctions and quantifications over (finite) domains:
 \begin{lstlisting}
-  Instance decide_conj `{Decision P} `{Decision Q}: Decision (P ∧ Q).
+  Instance decide_conj `{Decision P} `{Decision Q}: Decision (P ∧$$ Q).
 \end{lstlisting}
-With these in place, we can just say \lstinline|decide (x = y ∧ p = q)| and let instance resolution automatically compose a decision procedure that can decide the specified proposition. This style of syntax-directed implicit composition of algorithms is very convenient and highly expressive.
+With these in place, we can just say \lstinline|decide (x = y ∧$ $ p = q)| and let instance resolution automatically compose a decision procedure that can decide the specified proposition. This style of syntax-directed implicit composition of algorithms is very convenient and highly expressive.
 
 \section{The algebraic hierarchy}\label{classes}
 
@@ -425,7 +426,7 @@ However, we can easily add additional inheritance relations by declaring corresp
   Instance ring_as_semiring `{Ring R}: SemiRing R.
 \end{lstlisting}
 
-Thus, axiomatic structural properties and inheritance have precisely the same status as separately proved structural properties and inheritance, reflecting natural mathematical ideology. Again, contrast this with bundled approaches, where axiomatic inheritance relations determine projection paths, and where additional inheritance relations lead to additional and ambiguous projection paths for the same operations.
+Thus, axiomatic structural properties and inheritance have precisely the same status as separately proved structural properties and inheritance, reflecting natural mathematical ideology. Again, contrast this with bundled approaches, where axiomatic inheritance relations determine projection paths, and where additional inheritance relations require rebundling and lead to additional and ambiguous projection paths for the same operations.
 
 % todo: problem with ambiguous projection paths: quoting will not notice convertability.
 
@@ -939,7 +940,7 @@ We can now state our goal: given an expression of type \lstinline|nat|, we seek 
 Definition novars: Vars False := False_rect _.
 Definition singlevar (x: Value): Vars unit := λ _ => x.
 Definition merge {A B} (a: Vars A) (b: Vars B): Vars (A+B) :=
-  λ i => if i then a j else b j.
+  λ i => match i with inl j => a j | inr j => b j end.
 \end{lstlisting}
 These last two combinators are the `constructors' of an implicitly defined subset of Gallina terms, representing heaps, for which we will implement syntactic lookup with type classes in a moment. The heap can also be defined explicitly, with no essential change in the code.
 
@@ -947,7 +948,7 @@ With these, we can define the primary ingredient, the \lstinline|Quote| class:
 \begin{lstlisting}
   Class Quote {V} (l: Vars V) (n: Value) {V'} (r: Vars V'): Type :=
     { quote: Expr (V + V')
-    ; eval_quote: @eval (V+V') (merge l r) quote = n }.
+    ; eval_quote: eval (merge l r) quote = n }.
 \end{lstlisting}
 We can think of \lstinline|Quote| as the type for a family of Prolog-like syntax-directed resolution functions, which will take as input \lstinline|V| and \lstinline|l| representing previously encountered holes (opaque subexpressions that could not be destructured further) and their values, along with a concrete term \lstinline|n| to be quoted. Their ``output'' will consist not only of the fields in the class, but also of \lstinline|V'| and \lstinline|r| representing additional holes and their values. Hence, a type class constraint of the form \lstinline|Quote x y z| should be read as ``quoting y with existing heap x generates new heap z''.
 
@@ -1017,9 +1018,6 @@ Notice that we have not made any use of \lstinline|Ltac|, Coq's tactic language.
 % We recommend a change in
 % implementation supporting an agda style precedence relation which is only restricted to be a
 % directed acyclic graph~\cite{danielsson2009parsing}.
-
-
-
 
 We have used this technique to implement a tactic to normalize monoid expressions, and plan to extend yada yada.
 %It would be interesting to use this technique to implement the \lstinline|congruence| tactic, which implements
@@ -1098,8 +1096,9 @@ to pack the proofs together with the operations, but it is too early to tell.
 
 
 \section{Conclusions}
+\label{conclusion}
 
-While bundling operational and propositional components of abstract structures into records may seem natural at first, doing so actually introduces many serious problems. Keeping things unbundled avoids these problems and is more flexible in theory, and now with type classes finally also in practice, or so we hope to have demonstrated.
+While bundling operational and propositional components of abstract structures into records may seem natural at first, doing so actually introduces many serious problems. Keeping things unbundled avoids these problems and is more flexible in theory, and now with type classes finally also in practice---or so we hope to have demonstrated.
 
 %Telescopes have been criticized~\cite{Packed} for the lack of multiple inheritance and
 %the efficiency penalty of a long chain of coercion projections. Packed classes~\cite{Packed} provide
@@ -1120,7 +1119,7 @@ It has been suggested that canonical structures are more robust (in the sense of
 % which includes an explicit proof that \lstinline|(@eq nat)| is an equivalence,
 % whereas we obtain \lstinline|@equiv nat (@eq nat) (S x) (S y)|.
 
-Unification hints are a more general mechanism than type classes, and could provide a more precise account of the interaction between implicit argument inference and proof search. Perhaps, then, a fruitful approach could be to use unification hints as the underlying mechanism with type classes as an end-user interface encapsulating a particularly convenient idiom for using them.
+Unification hints are a more general mechanism than type classes, and could provide a more precise account of the interaction between implicit argument inference and proof search. Perhaps a fruitful approach could be to use unification hints as the underlying mechanism with type classes as an end-user interface encapsulating a particularly convenient idiom for using them.
 % We encourage their inclusion to the Coq system. -- Eelis: not quite ready to go there yet
 
 The only real pending concern that keeps us from making an unequivocal endorsement of type classes as a versatile, expressive, and elegant means of organizing proof developments, is instance resolution efficiency. In more complex parts of our development we are now experiencing increasingly serious efficiency problems, despite having already made sacrifices by artifically inhibiting many natural class instances in order not to further strain instance resolution.
