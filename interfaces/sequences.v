@@ -29,7 +29,7 @@ Class PoshSequence
    (free: setoid.Object → monoid.Object) `{!Fmap free}
    (inject: id ⇛ monoid.forget ∘ free)
    (extend: `((x ⟶ monoid.forget y) → (free x ⟶ y))): Prop :=
-   { sequence_adjunction: AltAdjunction inject extend
+   { sequence_adjunction: AltAdjunction _ _ inject extend
    ; extend_morphism: `(Setoid_Morphism (extend x y)) }.
      (* todo: how come extend_proper isn't part of AltAdjunction? *)
 

@@ -12,8 +12,8 @@ Section natural_transformation.
 
   Context `{Category C} `{Category D} `{!Functor (F: C → D) Fa} `{!Functor (G: C → D) Ga}.
 
-  Class NaturalTransformation (η: Π c, F c ⟶ G c): Prop :=
-    natural: Π (x y: C) (f: x ⟶ y), η y ◎ fmap F f = fmap G f ◎ η x.
+  Class NaturalTransformation (η: F ⇛ G): Prop :=
+    natural: Π `(f: x ⟶ y), η y ◎ fmap F f = fmap G f ◎ η x.
 
 End natural_transformation.
 
@@ -21,47 +21,48 @@ End natural_transformation.
 
 Section adjunction.
 
-  Context `{Category A} `{Category X}
-    F `{!Functor (F: X → A) F'}
-    G `{!Functor (G: A → X) G'}
-    (φ: Π {x a}, (F x ⟶ a) → (x ⟶ G a))
-    `{Π x a, Inverse (φ x a)}
-    `{Π x a, Bijective (φ x a)}.
+  Context `{Category C} `{Category D}
+    F `{!Functor (F: C → D) F'}
+    G `{!Functor (G: D → C) G'}.
 
-  Implicit Arguments φ [[x] [a]].
+  Section symmetric.
 
-  Class Adjunction: Prop :=
-   { adjunction_left_functor: Functor F _
-   ; adjunction_right_functor: Functor G _
-   ; natural_left `(k: a ⟶ a'): `((fmap G k ◎) ∘ φ = @φ x _ ∘ (k ◎))
-   ; natural_right `(h: x' ⟶ x):`((◎ h) ∘ @φ _ a = φ ∘ (◎ fmap F h)) }.
+    Context (φ: Π `(F c ⟶ d), (c ⟶ G d)).
 
-  Context `{Adjunction}.
+    Implicit Arguments φ [[c] [d]].
 
-   Lemma rad_l `{f:F x ⟶ a}`(k:a  ⟶ a'): φ (k ◎ f)= (fmap G k) ◎ φ f.
-   Proof. symmetry. apply natural_left. Qed.
+    Class Adjunction: Prop :=
+     { adjunction_left_functor: Functor F _
+     ; adjunction_right_functor: Functor G _
+     ; natural_left `(f: d ⟶ d') c: (fmap G f ◎) ∘ φ = φ (c:=c) ∘ (f ◎)
+     ; natural_right `(f: c' ⟶ c) d: (◎ f) ∘ φ (d:=d) = φ ∘ (◎ fmap F f) }.
 
-  Lemma rad_r `{f:F x ⟶ a}`(h:x' ⟶ x): φ (f ◎ fmap F h) = φ f ◎ h.
-  Proof. symmetry. apply (natural_right h). Qed.
+    Context `{Adjunction}.
+
+    Lemma rad_l `{f:F x ⟶ a}`(k:a  ⟶ a'): φ (k ◎ f)= (fmap G k) ◎ φ f.
+    Proof. symmetry. apply natural_left. Qed.
+
+    Lemma rad_r `{f:F x ⟶ a}`(h:x' ⟶ x): φ (f ◎ fmap F h) = φ f ◎ h.
+    Proof. symmetry. apply (natural_right h). Qed.
+
+  End symmetric.
+
+  (* The more practical definition via universal morphisms: *)
+
+  Section alt.
+
+    Context (η: id ⇛ G ∘ F) (φ: Π `(f: c ⟶ G d), F c ⟶ d).
+
+    Implicit Arguments φ [[c] [d]].
+
+    Class AltAdjunction: Prop :=
+     { alt_adjunction_natural_unit: NaturalTransformation η
+     ; alt_adjunction_factor: Π c d (f: c ⟶ G d),
+         is_sole ((f =) ∘ (◎ η c) ∘ fmap G) (φ f) }.
+
+  End alt.
 
 End adjunction.
-
-(* The more practical definition via universal morphisms: *)
-
-Section alt_adjunction.
-
-  Context `{Category C} `{Category D}
-    `{!Functor (F: C → D) F'} (* todo: we don't want to name F' and F' here *)
-    `{!Functor (G: D → C) G'}
-    (η: id ⇛ G ∘ F) `{!NaturalTransformation η}
-    (φ: Π (x: C) (y: D) (f: x ⟶ G y), F x ⟶ y).
-
-  Class AltAdjunction: Prop :=
-   { alt_adjunction_natural_unit: NaturalTransformation η (* todo: really necessary? *)
-   ; alt_adjunction_factor: Π (x: C) (y: D) (f: x ⟶ G y),
-       is_sole ((f =) ∘ (◎ η x) ∘ fmap G) (φ x y f) }.
-
-End alt_adjunction.
 
 Section contents.
 
@@ -254,9 +255,9 @@ Lemma freedom_as_adjunction
   `{!Functor (freeF: Base → Extra) free_arr}
   (eta: id ⇛ forget ∘ freeF)
   (phi: Π x y, (x ⟶ forget y) → (freeF x ⟶ y))
-  `{!AltAdjunction eta phi}:
+  `{!AltAdjunction freeF forget eta phi}:
     Π b, proves_free forget b (eta b) (phi b).
-Proof. exact (alt_adjunction_factor _ _). Qed.
+Proof. exact (alt_adjunction_factor _ _ _ _). Qed.
 
 Implicit Arguments Producer [].
 Implicit Arguments HasProducts [[Arrows0] [H] [CatComp0] [H1] [H2] [H3]]. (* todo: rename args *)
