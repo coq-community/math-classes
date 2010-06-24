@@ -1,3 +1,4 @@
+% \documentclass{mscs}
 \documentclass[a4paper,10pt,runningheads]{llncs}
 \usepackage{url}
 \usepackage{bbm}
@@ -66,7 +67,7 @@
 
 \begin{document}
 \title{The algebraic hierarchy in type theory using type classes}
-\author{Bas Spitters \and Eelis van der Weegen}
+\author{Bas Spitters \and Eelis van der Weegen} % For MSCS \\ Radboud University Nijmegen}
 \institute{Radboud University Nijmegen}
 \date{today}
 \maketitle
@@ -138,7 +139,7 @@ Occasionally there is some ambiguity as to whether a certain piece of informatio
 % However, we would also like to use Coq as a dependently typed programming language. This requires a hybrid approach, were we put informative propositions in \lstinline|Type| and non-informative ones in \lstinline|Prop|. 
 % Eelis: I don't see the logic here.
 
-\paragraph{Equality, setoids, and rewriting}
+% \paragraph{Equality, setoids, and rewriting}
 
 The ``native'' notion of equality in Coq is that of terms being convertible, which in this context constitutes Leibniz equality, naturally propositionalized by an inductive type family \lstinline|eq| with a single constructor \lstinline|eq_refl| of type \lstinline|Π (T: Type) (x: T), x ≡ x|, where ``\lstinline|a ≡ b|'' is notation for \lstinline|eq T a b|. Here we diverge from Coq tradition and reserve ``\lstinline|=|'' for setoid equality, as this is the equality we will be working with most of the time. Importantly, since convertibility is a congruence, a proof of \lstinline|a ≡ b| lets us substitute \lstinline|b| for \lstinline|a| anywhere inside a term without further conditions.
 
@@ -1158,6 +1159,7 @@ sharpen our understanding of the relation with Canonical Structures and with Uni
 
 This work has been partially funded by the FORMATH project, nr.\ 243847, of the FET program within the 7th Framework program of the European Commission.
 %Jeremy, Thierry
+% MSCS recommends harvard, but does not specify which bst file to use.
 \bibliographystyle{plain}
 \bibliography{alg}
 \end{document}
