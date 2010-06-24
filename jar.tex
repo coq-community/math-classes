@@ -413,10 +413,10 @@ Let us briefly highlight some additional aspects of this style of structure defi
 Fields declared with \lstinline|:>| are registered as hints for instance resolution, so that in any context where \lstinline|(A, =, +, 0, *, 1)| is known to be a \lstinline|SemiRing|, \lstinline|(A, =, +, 0)| and \lstinline|(A, =, *, 1)| are automatically known to be \lstinline|CommutativeMonoid|s (and so on, transitively, because instance resolution is recursive). In our hierarchy, these ``substructures'' by themselves establish the inheritance diagram in Figure~\ref{inheritancediagram}. % todo: for some reason the figure number reference is wrong here..
 
 \begin{figure}
-\label{inheritancediagram}
 \centering
 \includegraphics{hierarchy.pdf}
 \caption{Inheritance relations established by \lstinline|:>| fields.}
+\label{inheritancediagram}
 \end{figure}
 
 % note: we don't mention "super classes" because by Matthieu's terminology only parameters-of-class-type are "super classes", and for us that means only the operational classes, which we certainly don't think of as being part of the hierarchy. Matthieu calls fields of class type declared with ":>" substructures.
