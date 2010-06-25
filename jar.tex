@@ -74,8 +74,7 @@
 \maketitle
 \begin{abstract}
 We present a new formalization of the algebraic hierarchy in Coq, exploiting its new type class mechanism to make practical a solution formerly thought infeasible. Our approach addresses both traditional challenges as well as new ones resulting from our ambition to build upon this development a library of constructive analysis in which abstraction penalties inhibiting efficient computation are reduced to a minimum. To support mathematically sound abstract interfaces for $\N$, $\Z$, and $\Q$, our formalization includes portions of category theory and multisorted universal algebra.
-Algebra flourishes by the interplay between syntax and semantics. The Prolog-like
-abilities of type class unification allow us to conveniently define a quote function thus facilitating the use of reflective techniques.
+Algebra flourishes by the interplay between syntax and semantics. The Prolog-like abilities of type class unification allow us to conveniently define a quote function thus facilitating the use of reflective techniques.\marginpar{Do TODOs}
   % todo: handle.
 \end{abstract}
 
@@ -94,7 +93,7 @@ at:~\url{http://www.eelis.net/research/math-classes/}} includes an integrated fo
 % ideally should be more or less readable by Haskell person. that would be neat. so that's what the preliminaries should prepare for.
 
 \paragraph{Outline}
-In section~\ref{preliminaries} we briefly describe the Coq system and some of its facilities that are of particular interest to us (most notably its implementation of type classes). Then, in section~\ref{bundling}, we give a very concrete introduction to the issue of \emph{bundling}, arguably the biggest design dimension when building interfaces for abstract structures. In section~\ref{predicateclasses} we show how type classes can make the use of ``unbundled'' purely predicate based interfaces for abstract structures practical. Next, in section~\ref{hierarchy}, we discuss our algebraic hierarchy implemented using such predicate classes.
+In section~\ref{preliminaries} we briefly describe the Coq system and some of its facilities that are of particular interest to us (most notably its implementation of type classes). Then, in section~\ref{bundling}, we give a very concrete introduction to the issue of \emph{bundling}, arguably the biggest design dimension when building interfaces for abstract structures. In section~\ref{predicateclasses} we show how type classes can make the use of ``unbundled'' purely predicate based interfaces for abstract structures practical. Next, in section~\ref{classes}, we discuss our algebraic hierarchy implemented using such predicate classes.
 
 
  %Having derived some principles concerning bundling, we then proceed to show (in section \ref{managing}) how type classes may be employed to adopt these principles without compromising ease of use. Next, in section \ref{hierarchy}, we introduce a number of additional conventions that let us complete a consistent idiom for interfaces to algebraic structures. With this in place, we continue with a discussion of
@@ -150,7 +149,7 @@ Because the Coq type theory lacks ``real'' quotient types (as it would make type
 
 Effectively keeping track of, resolving, and combining proofs of equivalence-ness and propriety when the user attempts to substitute a given (sub)term using a given equality, is known as ``setoid rewriting'', and requires nontrivial infrastructure and support from the system. The Coq implementation of these mechanisms was largely rewritten in 200? by Matthieu Sozeau~\cite{Setoid-rewrite} to make it more flexible and to replace the old special-purpose setoid/morphism registration command with a clean type class based interface.
 
-For an interesting (if fairly restrictive) alternative approach based on the idea of requiring unicity of representation for all objects so that Leibniz equality is always applicable, see the algebraic hierarchy part of the ssreflect\cite{ssreflect} libraries.
+For an interesting (if fairly restrictive) alternative approach based on the idea of requiring unicity of representation for all objects so that Leibniz equality is always applicable, see the algebraic hierarchy part of the ssreflect~\cite{Packed} libraries.
 
 \paragraph{Type classes}
 
@@ -175,13 +174,6 @@ Thus, type classes in Coq are realized by relatively minor syntactic aids that b
 % unification; see section~\ref{quote}. In section~\ref{canonical}, we end with a short comparison
 % between type classes and canonical structures.
 
-
-
-% \subsection{Type classes}
-% Implementation in Ltac, Notation etc\\
-% Coercions\\
-% Unification hints
-
 \section{Bundling is bad}\label{bundling}
 
 Algebraic structures are expressed in terms of a number of carriers, a number of operations and relations on these carriers, and a number of laws that the operations and relations satisfy. In a system like Coq, we have different options when it comes to representing the grouping of these components. On one end of the spectrum, we can simply define the (conjunction of) laws as an $n$-ary predicate over $n$ components, forgoing explicit grouping altogether. For instance, for the mundane example of a reflexive relation, we could use:
@@ -191,13 +183,11 @@ Algebraic structures are expressed in terms of a number of carriers, a number of
 \end{lstlisting}
 The curly brackets used for \lstinline|A| mark it as an implicit argument.
 
-Higher structures, too, can all be expressed as predicates (expressing laws) over a number of carriers, relations, and operations. While optimally flexible in principle, in practice \emph{naive} adoption of this approach (i.e. without using type classes) leads to substantial inconveniences in actual use: when \emph{stating} theorems about abstract instances of such structures, one must enumerate all components along with the structure (predicate) of interest. And when \emph{applying} such theorems, one must either enumerate any non-inferrable components, or let the system spawn awkward metavariables to be resolved at a later time. Importantly, this also hinders proof search for proofs of the structure predicates, making any nontrivial use of theorems a laborious experience. Finally, the lack of \emph{canonical names} for particular components of abstract structures makes it impossible to associate idiomatic notations with them.
+Higher structures, too, can all be expressed as predicates (expressing laws) over a number of carriers, relations, and operations. While optimally flexible in principle, in practice \emph{naive} adoption of this approach (i.e.\ without using type classes) leads to substantial inconveniences in actual use: when \emph{stating} theorems about abstract instances of such structures, one must enumerate all components along with the structure (predicate) of interest. And when \emph{applying} such theorems, one must either enumerate any non-inferrable components, or let the system spawn awkward metavariables to be resolved at a later time. Importantly, this also hinders proof search for proofs of the structure predicates, making any nontrivial use of theorems a laborious experience. Finally, the lack of \emph{canonical names} for particular components of abstract structures makes it impossible to associate idiomatic notations with them.\marginpar{something about opacity?}
 
 % hm, i used to have paragraphs here about how it would be unclear how this approach could support structure inference and structure inheritance, but those are actually pretty straightforward using ordinary proof search.
 
-% hm, say something about opacity
-
-In the absence of type classes, these are all very real problems, and for this reason the two biggest formalizations of abstract algebraic structures in Coq today (namely CoRN\ref{corn} and Ssreflect\ref{ssreflect}), both use \emph{bundled} representation schemes, using records with one or more of the components as fields instead of parameters. For reflexive relations, the following is a fully bundled representation---the other end of the spectrum:
+In the absence of type classes, these are all very real problems, and for this reason the two biggest formalizations of abstract algebraic structures in Coq today (namely CoRN\ref{C-corn} and Ssreflect\ref{Packed}), both use \emph{bundled} representation schemes, using records with one or more of the components as fields instead of parameters. For reflexive relations, the following is a fully bundled representation---the other end of the spectrum:
 \begin{lstlisting}
   Record ReflexiveRelation: Type :=
     { rr_carrier: Type
@@ -212,7 +202,7 @@ Unfortunately, despite its apparent virtues, the bundled representation introduc
 
 In our example, lack of sharing support rears its head as soon as we try to define \lstinline|EquivalenceRelation| in terms of \lstinline|ReflexiveRelation| and its hypothetical siblings bundling symmetric and transitive relations. There, we would need some way to make sure that when we ``inherit'' \lstinline|ReflexiveRelation|, \lstinline|SymmetricRelation|, and \lstinline|TransitiveRelation| by adding them as fields in our bundled record, they all refer to the same carrier and relation. Adding additional fields stating equalities between the three bundled carriers and relations is neither easily accomplished (because one would need to work with heterogenous equality) nor would it permit natural use of the resulting structure (because one would constantly have to rewrite things back and forth).
 
-Manifest fields~\ref{manifestrecords} have been proposed and implemented in the Matita system to address exactly this problem. We hope to convince the reader that type system extensions of this nature, designed to mitigate particular symptoms of the bundled approach, are less elegant than a solution that avoids the problem altogether by using predicate-like type classes in place of bundled records.
+Manifest fields~\ref{DBLP:conf/types/Luo08} have been proposed and implemented in the Matita system to address exactly this problem. We hope to convince the reader that type system extensions of this nature, designed to mitigate particular symptoms of the bundled approach, are less elegant than a solution that avoids the problem altogether by using predicate-like type classes in place of bundled records.
 
 If we revert back to the predicate formulation of relations, we \emph{could} still define \lstinline|EquivalenceRelation| in a bundled fashion without the need for equalities:
 \begin{lstlisting}
@@ -294,7 +284,7 @@ The observant reader may wonder whether it might be beneficial to go one step fu
 % (as opposed to a `structural' type class we might use in place of the records shown thus far), lets
 % us avoid these problems.
 
-\section{Predicate classes and operational classes}
+\section{Predicate classes and operational classes}\label{predicateclasses}
 
 We will tackle the problems associated with the structure predicates approach one by one, starting with those encountered during theorem \emph{application}. Suppose we have defined \lstinline|SemiGroup| as a structure predicate as follows\footnote{Note that defining \lstinline|SemiGroup| as a record instead of a straight conjunction does not make it any less of a predicate. The record form is simply more convenient in that it immediately gives us named projections for laws and substructures.}:
 \begin{lstlisting}
@@ -428,7 +418,7 @@ However, we can easily add additional inheritance relations by declaring corresp
 
 Thus, axiomatic structural properties and inheritance have precisely the same status as separately proved structural properties and inheritance, reflecting natural mathematical ideology. Again, contrast this with bundled approaches, where axiomatic inheritance relations determine projection paths, and where additional inheritance relations require rebundling and lead to additional and ambiguous projection paths for the same operations.
 
-% todo: problem with ambiguous projection paths: quoting will not notice convertability.
+% todo: problem with ambiguous projection paths: quoting will not notice convertibility.
 
 The declarations of the two inherited \lstinline|CommutativeMonoid| structures nicely illustrate how predicate classes naturally support not just multiple inheritance, but \emph{overlapping} multiple inheritance, where the inherited structures may share components (in this case carrier and equivalence relation). The carrier \lstinline|A|, being an explicit argument, is specified as normal. The equivalence relation, being an implicit argument of class type, is resolved automatically to \lstinline|e| and passed. The binary operation and constant would normally be automatically resolved and passed as well, but we override the inference mechanism locally using Coq's existing named argument facility (which is only syntactic sugar of the most superficial kind) in order to specify the correct pairings. 
 Again, contrast this with type system extensions such as Matita's manifest records, which are required to make this work when the records bundle components such as \lstinline|op| and \lstinline{unit} as \emph{fields} instead of parameters.
@@ -776,7 +766,7 @@ Taking these conversion functions for granted, we will also need a ``down-to-ear
     naturals_to_semiring: Π B `{RingMult B} `{RingPlus B} `{RingOne B}
       `{RingZero B}, A → B.
 \end{lstlisting}
-In order to use this with \lstinline|Initial|, we define an additional conversion instance that takes a \lstinline|NaturalsToSemiRing| along with a proof showing that it yields \lstinline|SemiRing_Morphism|s, and builds an \lstinline|InitialArrow| instance out of it invoking another conversion function that translates concrete \lstinline|SemiRing_Morphism| proofs into univeral algebra \lstinline|Homomorphism|s instantiated with the semiring signature, which make up the arrows in the category.
+In order to use this with \lstinline|Initial|, we define an additional conversion instance that takes a \lstinline|NaturalsToSemiRing| along with a proof showing that it yields \lstinline|SemiRing_Morphism|s, and builds an \lstinline|InitialArrow| instance out of it invoking another conversion function that translates concrete \lstinline|SemiRing_Morphism| proofs into univeral algebra \lstinline|Homomorphism|s instantiated with the semiring signature, which make up the arrows in the category.\marginpar{Zin te lang}
 
 With these instances in place, we can now define the improved natural numbers specification:
 \begin{lstlisting}
@@ -787,17 +777,17 @@ With these instances in place, we can now define the improved natural numbers sp
         SemiRing_Morphism (naturals_to_semiring A B)
     ; naturals_initial:> Initial (bundle_semiring A) }.
 \end{lstlisting}
-Basing theory and programs on this abstract interface instead of on specific implementation (such as the ubiquitous Peano naturals \lstinline|nat| in the Coq standard library) is not only cleaner mathematically, but also facilitates easy swapping between implementations. And this benefit is far from theoretical, as diverse and non-contrived representations of the natural numbers are abound (unary, binary, factor multisets, arrays of native machine words, etc.).
+Basing theory and programs on this abstract interface instead of on specific implementation (such as the ubiquitous Peano naturals \lstinline|nat| in the Coq standard library) is not only cleaner mathematically, but also facilitates easy swapping between implementations. And this benefit is far from theoretical, as diverse representations of the natural numbers are abound; for instance, unary, binary, factor multisets, arrays of native machine words.
 
-Some theory and programs about naturals are more easily (or can only be) proved (resp. defined) for concrete implementations and then ``lifted'' to the abstract interface. For relatively simple things like decidability of equality, all that is needed to make this lifting easy is a handful of simple lemmas translating the initiality property back into statements saying that \lstinline|naturals_to_semiring| is extensionally equal to other semiring morphisms and involutive between \lstinline|Naturals| implementations. For the example of decidability, these let us define decidability for an arbitrary \lstinline|Naturals| implementation simply by mapping to the \lstinline|nat| implementation using \lstinline|naturals_to_semiring|, deciding equality there, and reflecting the equality or inequality proof back to the abstract implementation using involutivity of \lstinline|naturals_to_semiring|.
+Some theory and programs about naturals are more easily proved, respectively defined, for concrete implementations and then ``lifted'' to the abstract interface. For relatively simple things like decidability of equality, all that is needed to make this lifting easy is a handful of simple lemmas translating the initiality property back into statements saying that \lstinline|naturals_to_semiring| is extensionally equal to other semiring morphisms and involutive between \lstinline|Naturals| implementations. For the example of decidability, these let us define decidability for an arbitrary \lstinline|Naturals| implementation simply by mapping to the \lstinline|nat| implementation using \lstinline|naturals_to_semiring|, deciding equality there, and reflecting the equality or inequality proof back to the abstract implementation using involutivity of \lstinline|naturals_to_semiring|.\marginpar{Word: Involutive?}
 
-For more complex properties such as injectivity of partially applied addition and multiplication, we take a longer detour. As part of our universal algebra theory, we have proved that proofs of statements in the language of an equational theory can be transferred between isomorphic implementations. Combined with the trivially proved property that any two initial objects in a category are isomorphic, this lets us tranfer proofs of such statements between implementations of \lstinline|Naturals|, requiring only that we reflect the concrete statement (expressed in terms of the operational type classes) to a symbolic statement in the language of semirings. We intend to eventually make this reflection completely automatic using type class based quotation techniques along the lines of those described in~\ref{quoting}.
+For more complex properties such as injectivity of partially applied addition and multiplication, we take a longer detour. As part of our universal algebra theory, we have proved that proofs of statements in the language of an equational theory can be transferred between isomorphic implementations. Combined with the trivially proved property that any two initial objects in a category are isomorphic, this lets us tranfer proofs of such statements between implementations of \lstinline|Naturals|, requiring only that we reflect the concrete statement (expressed in terms of the operational type classes) to a symbolic statement in the language of semirings. We intend to eventually make this reflection completely automatic using type class based quotation techniques along the lines of those described in Section~\ref{quote}.
 
-Thanks to our close integration of universal algebra we can actually obtain a \lstinline|Naturals| implementation completely automatically, by invoking a generic construction of initial models built from the closed term algebra for the signature along with a setoid equality expressing the congruence closure of the identities in the equational theory. However, this implementation is very useful neither in terms of efficiency, nor as a canonical implementation (to be used as the basis for theory and programs that are then subsequently lifted), because for example deciding equality for the aforementioned setoid equality is far harder than for, say, \lstinline|nat| (because it requires a normalization procedure).
+Thanks to our close integration of universal algebra we can actually obtain a \lstinline|Naturals| implementation completely automatically, by invoking a generic construction of initial models built from the closed term algebra for the signature along with a setoid equality expressing the congruence closure of the identities in the equational theory. However, this implementation is not very useful, neither in terms of efficiency, nor as a canonical implementation (to be used as the basis for theory and programs that are then subsequently lifted). For example, defining a normalization procedure to decide the aforementioned setoid equality is far harder than deciding equality for, say, \lstinline|nat|.
 
 \subsection{Specialization}
 
-The generic \lstinline|Decision| instance for \lstinline|Naturals| equality implemented by mapping to \lstinline|nat| will typically be far less efficient than a specialized implementation for a particular representation of the natural numbers. Fortunately, with Coq's type classes it is no problem for instances overlapping in this way to co-exist, and we can even deprioritize the generic instance (using a numeric priority annotation) so that instance resolution will always pick the specialization when the representation is known.
+The generic \lstinline|Decision| instance for \lstinline|Naturals| equality implemented by mapping to \lstinline|nat| will typically be far less efficient than a specialized implementation for a particular representation of the natural numbers. Fortunately, with Coq's type classes it is no problem for instances overlapping in this way to co-exist. We can even deprioritize the generic instance so that instance resolution will always pick the specialization when the representation is known.
 
 To permit a \emph{generic} function operating on naturals to take advantage of specialized operations, we simply introduce an additional instance parameter:
 \begin{lstlisting}
@@ -806,7 +796,7 @@ Definition calculate_things `{Naturals N} `{!Π n m: N, Decision (n = m)}
 \end{lstlisting}
 Without the \lstinline|Decision| parameter \lstinline|calculate_things| would be equally correct, but could be less efficient. Thus, by this scheme one can start by writing correct-but-possibly-inefficient programs that make use of generic operation instances, and then selectively improve efficiency of key algorithms simply by adding additional operational type class instance parameters where profiling shows it to make a significant difference, without changing their definition body.
 
-Other operations on natural numbers that are sensible choices for specialization are subtraction, distance, division/multiplication by 2, etc.
+Other examples of operations on natural numbers that are sensible choices for specialization include: subtraction, distance, binary division and multiplication.
 
 \subsection{Integers, rationals, and polynomials}
 
@@ -820,7 +810,7 @@ The abstract interface for integers is completely analogous to the one for natur
     ; integers_initial:> Initial (ring.object A) }.
 \end{lstlisting}
 
-The rationals are characterized as a decidable field with an injective ring morphism from a canonical implementation of the integers and for which division of such integers is surjective:
+The rationals are characterized as a decidable field with an injective ring morphism from a canonical implementation of the integers and a surjection of fractions of such integers:
 \begin{lstlisting}
   Context `{Field A} `{Π x y: A, Decision (x = y)} {inj_inv}.
   Class Rationals: Prop :=
@@ -830,15 +820,15 @@ The rationals are characterized as a decidable field with an injective ring morp
           / integers_to_ring (Z nat) A (snd p)) (inv:=inj_inv)
     ; rationals_embed_ints: Injective (integers_to_ring (Z nat) A) }.
 \end{lstlisting}
-Here, \lstinline|Z| is an \lstinline|Integers| implementation paramerized by a \lstinline|Naturals| implementation, for which we just take \lstinline|nat|. The choice of \lstinline|Z nat| here is immaterial; we could have picked any other (or even an explicitly arbitrary) implementation of \lstinline|Integers|, but doing so would provide no benefit.
+Here, \lstinline|Z| is an \lstinline|Integers| implementation paramerized by a \lstinline|Naturals| implementation, for which we just take \lstinline|nat|. The choice of \lstinline|Z nat| here is immaterial; we could have picked another, or even a generic, implementation of \lstinline|Integers|, but doing so would provide no benefit.
   % todo: hm, this Z is poorly named. it's really natpair_integers.Z
   % todo: say a few words about how we handle division by zero?
 
 % todo: say a word about section variable/context discharging, because we use it everywhere.
 
-In our development we prove thas the standard library's default rationals do indeed implement \lstinline|Rationals|, as do implementations of the \lstinline|QType| module interface. While the latter is rather ad-hoc from a theoretical perspective, it is nevertheless of great practical interest because it is used for the very efficient \lstinline|BigQ| rationals based on machine integers~\cite{something}. Hence, theory and programs developed on our \lstinline|Rationals| interface applies and can make immediate use of these efficient rationals. As stated earlier, we plan to rebase the computable real number implementation in CoRN on this interface, precisely so that it may be instantiated with efficient implementations like these.
+In our development we prove that the standard library's default rationals do indeed implement \lstinline|Rationals|, as do implementations of the \lstinline|QType| module interface. While the latter is rather ad-hoc from a theoretical perspective, it is nevertheless of great practical interest because it is used for the very efficient \lstinline|BigQ| rationals based on machine integers~\cite{machineintegers}. Hence, theory and programs developed on our \lstinline|Rationals| interface applies and can make immediate use of these efficient rationals. As stated earlier, we plan to rebase the computable real number implementation in CoRN on this interface, precisely so that it may be instantiated with efficient implementations like these.
 
-We also plan to do the exact same thing for polynomials, which can be abstractly specified as a free commutative algebra, and for which diverse implementations exist (coefficient lists, Bernstein polynomials, etc.).
+We plan to provide an abstract interface for polynomials as a free commutative algebra. This would unify existing implementations such as coefficient lists and Bernstein polynomials.
 
 % Eelis: and when we do, we can write something like:
 % Given a ring $R$, the $R$-algebra $R[X]$ of polynomials, is the free $R$-algebra on a set $X$.
@@ -894,7 +884,7 @@ We also plan to do the exact same thing for polynomials, which can be abstractly
 
 A common need when interfacing generic theory and utilities developed for algebraic structures (such as normalization procedures) with concrete instances of these structures is to take a concrete expression or statement in a model of a particular algebraic structure, and translate it to a symbolic expression or statement in the language of the algebra's signature, so that its structure can be inspected.
 
-Traditionally, proof assistants such as Coq have provided sophisticated tactics or built-in commands to support this ``quoting''. In~\cite{Hints}, TODO et. al. show that unification hints, a very general way of facilitating user-defined extensions to term and type inference, can be used to semi-automatically build quote functions without dropping to a meta-level.\footnote{Gonthier provides similar functionality using ingenious use of canonical structures.} This feature is absent from Coq, but fortunately type classes let us do very much the same thing, as we will now show.
+Traditionally, proof assistants such as Coq have provided sophisticated tactics or built-in commands to support this ``quoting''. In~\cite{Hints}, TODO et. al. show that unification hints, a very general way of facilitating user-defined extensions to term and type inference, can be used to semi-automatically build quote functions without dropping to a meta-level.\footnote{Gonthier provides similar functionality by ingeniously using canonical structures.} This feature is absent from Coq, but fortunately type classes also allow us to do this, as we will now show.
 
 For ease of presentation we show only a proof of concept for a very concrete language. We are currently working to integrate this technique with our existing universal algebra infrastructure, in particular its data types for algebraic terms.%  Preliminary results in this area (such as a simple monoid normalization tactic) suggest yada.
 
@@ -956,7 +946,7 @@ The \lstinline|Quote| instance for 1 illustrates the basic idea:
 \begin{lstlisting}
   Instance quote_one V (v: Vars V): Quote v 1 novars := { quote := One }.
 \end{lstlisting}
-The expression ``1'' can be quoted in any context \lstinline|(V, v)|, introduces no new variables, and the symbolic term representing it is just \lstinline|One|. (The \lstinline|eval_quote| field is turned into a trivial proof obligation.)
+The expression `1' can be quoted in any context \lstinline|(V, v)|, introduces no new variables, and the symbolic term representing it is just \lstinline|One|. The \lstinline|eval_quote| field is turned into a trivial proof obligation.
 
 The \lstinline|Quote| instance for multiplication is a little more subtle, but really only does a bit of heap juggling:
 \begin{lstlisting}
@@ -965,7 +955,7 @@ The \lstinline|Quote| instance for multiplication is a little more subtle, but r
       { quote := Mult (map_var shift (quote n)) (map_var sum_assoc (quote m)) }.
 \end{lstlisting}
 
-These two instances specify how 1 and multiplications are to be quoted, but what about other expressions? For these, we want to distinguish two kinds: expressions we have seen before, and those we have not. To make this distinction, we need to be able to look up expressions in variable heaps to see if they're already there. Importantly, we must do this not by really comparing the values they evaluate to, but by actually browsing the term denoting the variable heap (that is, a composition from \lstinline|novars|, \lstinline|singlevar|, and \lstinline|merge|). This, too, is a job for a type class:
+These two instances specify how 1 and multiplications are to be quoted, but what about other expressions? For these, we want to distinguish two kinds: expressions we have seen before, and those we have not. To make this distinction, we need to be able to look up expressions in variable heaps to see if they're already there. Importantly, we must do this not by comparing the values they evaluate to, but by actually browsing the term denoting the variable heap --- that is, a composition from \lstinline|novars|, \lstinline|singlevar|, and \lstinline|merge|. This, too, is a job for a type class:
 \begin{lstlisting}
   Class Lookup {A} (x: Value) (v: Vars A) := { key: A; key_correct: v key = x }.
 \end{lstlisting}
@@ -973,7 +963,7 @@ Our first \lstinline|Lookup| instance states that \lstinline|x| can be looked up
 \begin{lstlisting}
   Instance singlevar_lookup (x: Value): Lookup x (singlevar x) := { key := tt }.
 \end{lstlisting}
-Next (and last), if an expression can be looked up in a pack, then it can also be looked up when that pack is merged with another pack:
+Finally, if an expression can be looked up in a pack, then it can also be looked up when that pack is merged with another pack:
 \begin{lstlisting}
   Context (x: Value) {A B} (va: Vars A) (vb: Vars B).
 
@@ -1019,7 +1009,7 @@ Notice that we have not made any use of \lstinline|Ltac|, Coq's tactic language.
 % implementation supporting an agda style precedence relation which is only restricted to be a
 % directed acyclic graph~\cite{danielsson2009parsing}.
 
-We have used this technique to implement a tactic to normalize monoid expressions, and plan to extend yada yada.
+% We have used this technique to implement a tactic to normalize monoid expressions, and plan to extend yada yada.
 %It would be interesting to use this technique to implement the \lstinline|congruence| tactic, which implements
 %the congruence closure algorithm~\cite{corbineau2007deciding}. One would naturally obtain a tactic
 %which moreover works on setoid equalities.
@@ -1027,7 +1017,7 @@ We have used this technique to implement a tactic to normalize monoid expression
 
 \section{Big operators}
 Canonical structures have been used to provide a uniform treatment~\cite{bertot2008canonical} of big
-operators (like $\Pi,\sum, \max$). These operators extend a pair of a binary and a 0-ary operation
+operators, like $\Pi,\Sigma, \max$. These operators extend a pair of a binary and a 0-ary operation
 to an $n$-ary operation for any $n$. Categorically, one considers the algebra maps from non-empty
 lists, lists, inhabited finite sets and finite sets to the carrier of a semigroup, monoid,
 commutative semigroup, commutative monoid. Hence we want to reuse the libraries for lists etc.\ as much as possible.
@@ -1041,6 +1031,7 @@ Definition seq_sum
 \end{lstlisting}
 \marginpar{Prove distributivity?}
 
+\begin{comment}
 \section{Subset types and proof irrelevance}\label{PI}
 We have mentioned proof irrelevance a number of times before. It is an important theme in our
 approach. The \lstinline|Program| machinery allows one to conveniently write programs with Hoare-style
@@ -1080,8 +1071,8 @@ theory, i.e.\ an alternation of $\Pi$s and $\Sigma$s. By the type theoretic axio
 
 The addition of implicit Σ-types to Coq would change many things. Perhaps it would even allow us
 to pack the proofs together with the operations, but it is too early to tell.
-
-% 
+\end{comment}
+ 
 % \section{Coq wishlist}
 % % todo: maybe merge with conclusions and add "and future work"
 % 
@@ -1092,19 +1083,16 @@ to pack the proofs together with the operations, but it is too early to tell.
 % 
 % The current syntax for implicit generalization 
 % %current syntax very subtle. various combinations of `, class-ness, {} vs (), ! or no !, make _ mean different things. Worse, one strategy of ``infer if possible, generalize otherwise'' is not supported while it seems like a very commonly needed thing. The Coq development team recognizes this as a legitimate problem, but fears the implementation might not be straightforward, and as of this writing we are not aware of plans to address this. That said, a new proof engine has recently, whcih might make this more attainable. Fortunately, not that big a problem. Just a remaining source of the occasional uglyness in declarations.
-% 
 
+\section{Conclusions}\label{conclusion}
 
-\section{Conclusions}
-\label{conclusion}
-
-While bundling operational and propositional components of abstract structures into records may seem natural at first, doing so actually introduces many serious problems. Keeping things unbundled avoids these problems and is more flexible in theory, and now with type classes finally also in practice---or so we hope to have demonstrated.
+While bundling operational and propositional components of abstract structures into records may seem natural at first, doing so actually introduces many serious problems. With type classes we avoid these problems by avoiding bundling altogether.
 
 %Telescopes have been criticized~\cite{Packed} for the lack of multiple inheritance and
 %the efficiency penalty of a long chain of coercion projections. Packed classes~\cite{Packed} provide
 %a solution to these problems. We have provided an alternative solution based on type classes. 
 
-It has been suggested that canonical structures are more robust (in the sense of being much more restricted and internally closed compared to the comparatively wild and open-ended proof search used for instance resolution). However, in addition to the unfortunate fact that the restrictions force one into bundled representations, a second consequence is that using them for anything beyond basic use cases requires significant ingenuity, whereas type classes are fairly easy and straightforward to use.
+It has been suggested that canonical structures are more robust by being more restricted compared to the wild and open-ended proof search of instance resolution. However, these restrictions force one into bundled representations, and, moreover, their more advanced usage requires significant ingenuity, whereas type classes usage is straightforward.
 
 % \section{Canonical structures}\label{canonical}
 % Packed classes use canonical structures for the algebraic hierarchy. Both canonical structures and
@@ -1123,19 +1111,15 @@ Unification hints are a more general mechanism than type classes, and could prov
 % We encourage their inclusion to the Coq system. -- Eelis: not quite ready to go there yet
 
 The only real pending concern that keeps us from making an unequivocal endorsement of type classes as a versatile, expressive, and elegant means of organizing proof developments, is instance resolution efficiency. In more complex parts of our development we are now experiencing increasingly serious efficiency problems, despite having already made sacrifices by artifically inhibiting many natural class instances in order not to further strain instance resolution.
-
 %While we have already found the predicate-class-based style of formalization to work very well for our development thus far, and believe it has the potential to be \emph{the} modern solution to this problem, in our work we have encountered a number of limitations in the Coq implementation of key features of the tool, that keep us from making an unconditional recommendation for universal adoption of these techniques.
-
-Fortunately, the Coq development team recognizes that this is a real problem, and furthermore agrees that there is plenty of potential for improvement of the current implementation, potentially borrowing techniques from the vast literature on efficient implementation of Prolog-style resolution (which the hint-based proof search used for instance resolution greatly resembles).
+Fortunately, there is plenty of potential for improvement of the current implementation. One source is the vast literature on efficient implementation of Prolog-style resolution, which the hint-based proof search used for instance resolution greatly resembles.
 
 We are currently in the process of retrofitting the rationals interface into CoRN. In future work we aim to base our development of its reals on an abstract dense set, allowing us to use the efficient dyadic rationals~\cite{boldo2009combining} as a base for exact real number computation in Coq~\cite{Riemann,Oconnor:real}. The use of category theory has been important in these developments.
 
-An obvious topic for future research is the extension from equational logic to partial Horn
-logic~\cite{palmgren2007partial}. Another topic would be to fully, but practically, embrace the
+An obvious topic for future research is the extension from equational logic with dependent types~\cite{Cartmell,palmgren2007partial}. Another topic would be to fully, but practically, embrace the
 categorical approach to universal algebra~\cite{pitts2001categorical}.
 
-According to \lstinline|coqwc|, our development consists of 4895 lines of
-specifications and 769 lines of proofs.\marginpar{update,targz}
+According to \lstinline|coqwc|, our development consists of 5660 lines of specifications and 937 lines of proofs.
 
 % Alt-Ergo congruence closure parametrized by an equational theory.
 % As usual either implement in Coq (verify the algorithm), or Check traces, or Check Alt-Ergo (Work
@@ -1143,9 +1127,6 @@ specifications and 769 lines of proofs.\marginpar{update,targz}
 
 % http://lara.epfl.ch/dokuwiki/sav09:congruence_closure_algorithm_and_correctness
 % I understand that this is the algorithm underlying congruence and perhaps first-order.
-% 
-% Type classes vs soft typing (Mizar types).
-% Type classes and types in homalg?
 
 \paragraph{Acknowledgements.}
 This research was stimulated by the new possibilities provided by the introduction of type classes
@@ -1157,7 +1138,6 @@ sharpen our understanding of the relation with Canonical Structures and with Uni
 
 
 This work has been partially funded by the FORMATH project, nr.\ 243847, of the FET program within the 7th Framework program of the European Commission.
-%Jeremy, Thierry
 % MSCS recommends harvard, but does not specify which bst file to use.
 \bibliographystyle{plain}
 \bibliography{alg}
