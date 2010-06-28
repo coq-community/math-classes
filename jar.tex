@@ -380,7 +380,7 @@ Before we proceed with a discussion of the algebraic hierarchy based on type cla
 \end{lstlisting}
 Here, \lstinline|sumbool| is just the (informative) sum of proofs.
 
-\lstinline|Decision| is a very general purpose type class that also works for predicates. For instance, to declare a parameter expressing decidability of, say, (setoid) equality on a type \lstinline|X|, we write: \lstinline|`{Π a b: X, Decision (a = b)}|. To then use this (unnamed) decider to decide a particular equality, we simply say \lstinline|decide (x = y)|, and instance resolution will resolve the decider we declared.
+\lstinline|Decision| is a very general-purpose type class that also works for predicates. For instance, to declare a parameter expressing decidability of, say, (setoid) equality on a type \lstinline|X|, we write: \lstinline|`{Π a b: X, Decision (a = b)}|. To then use this (unnamed) decider to decide a particular equality, we simply say \lstinline|decide (x = y)|, and instance resolution will resolve the decider we declared.
 
 With \lstinline|Decision| as a type class, we can very easily define composite deciders for things like conjunctions and quantifications over (finite) domains:
 \begin{lstlisting}
@@ -428,6 +428,8 @@ The declarations of the two inherited \lstinline|CommutativeMonoid| structures n
 Again, contrast this with type system extensions such as Matita's manifest records, which are required to make this work when the records bundle components such as \lstinline|op| and \lstinline{unit} as \emph{fields} instead of parameters.
 
 Since \lstinline|CommutativeMonoid| indirectly includes a \lstinline|SemiGroup| field, which in turn includes a \lstinline|Equivalence| field, having a \lstinline|SemiRing| proof means having two distinct proofs that the equality relation is an equivalence. This kind of redundant knowledge (which arises naturally in mathematics) is never a problem in our setup, because the use of operational type classes ensures that terms composed of algebraic operations and relations never refer to structure proofs. We find that this is a tremendous relief compared to approaches that \emph{do} intermix the two and where one must be careful to ensure that such terms refer to the ``right'' proofs of properties. There, even \emph{strong} proof irrelevance (which would make terms convertible that differ only in what proofs they refer to) would not make these difficulties go away entirely, because high-level tactics that rely on quotation of terms require syntactic identity (rather than ``mere'' convertibility) to recognize identical subterms.
+
+Because predicate classes only provide contextual information and are insulated from the actual algebraic expressions, their instances can always be kept entirely opaque---only their existence matters. Together, these properties largely defuse an argument occasionally voiced against type classes concerning perceived unpredictability of instance resolution. While it is certainly true that in contexts with redundant information it can become hard to predict which instance of a predicate class will be found by proof search, this is simply a non-issue because it \emph{does not matter} which one is found.
 
 % rather strict separation of operations and proofs of properties about them (resolved by instance resolution) provides a very pleasing environment to work in, without any need for hacks.
 % terms composed of algebraic operations and relations 
