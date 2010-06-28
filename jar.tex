@@ -28,7 +28,6 @@
 % todo:
   % cite that other type class based development in the context of the alternative bundling schemes.
   % maybe have a chapter called "interfaces are primary, not implementations" (also involve polynomials)
-  % mention that we use same RingPlus/RingMult operational type classes (with notation) in SemiRing/Ring.
 
 % listings:
 
@@ -187,7 +186,7 @@ Algebraic structures are expressed in terms of a number of carriers, a number of
 \end{lstlisting}
 The curly brackets used for \lstinline|A| mark it as an implicit argument.
 
-Higher structures, too, can all be expressed as predicates (expressing laws) over a number of carriers, relations, and operations. While optimally flexible in principle, in practice \emph{naive} adoption of this approach (that is, without using type classes) leads to substantial inconveniences in actual use: when \emph{stating} theorems about abstract instances of such structures, one must enumerate all components along with the structure (predicate) of interest. And when \emph{applying} such theorems, one must either enumerate any non-inferrable components, or let the system spawn awkward metavariables to be resolved at a later time. Importantly, this also hinders proof search for proofs of the structure predicates, making any nontrivial use of theorems a laborious experience. Finally, the lack of \emph{canonical names} for particular components of abstract structures makes it impossible to associate idiomatic notations with them.\marginpar{something about opacity?}
+Higher structures, too, can all be expressed as predicates (expressing laws) over a number of carriers, relations, and operations. While optimally flexible in principle, in practice \emph{naive} adoption of this approach (that is, without using type classes) leads to substantial inconveniences in actual use: when \emph{stating} theorems about abstract instances of such structures, one must enumerate all components along with the structure (predicate) of interest. And when \emph{applying} such theorems, one must either enumerate any non-inferrable components, or let the system spawn awkward metavariables to be resolved at a later time. Importantly, this also hinders proof search for proofs of the structure predicates, making any nontrivial use of theorems a laborious experience. Finally, the lack of \emph{canonical names} for particular components of abstract structures makes it impossible to associate idiomatic notations with them.
 
 % hm, i used to have paragraphs here about how it would be unclear how this approach could support structure inference and structure inheritance, but those are actually pretty straightforward using ordinary proof search.
 
@@ -439,6 +438,8 @@ Because predicate classes only provide contextual information and are insulated 
 
 The reader will note that we use names for properties like distributivity and absorption. Indeed, these are type classes as well (which is why we declare them with \lstinline|:>|). It has been our experience that almost any generic predicate worth naming is worth representing as a predicate type class, so that its proofs will be resolved as instances behind the scenes whenever possible. Doing this consistently minimizes administrative noise in the code, bringing us closer to ordinary mathematical vernacular. Indeed, we believe that type classes are an elegant and apt formalization of the seemingly casual manner in which ordinary mathematical presentation assumes implicit administration and use of a ``database'' of properties previously proved. Much more so than the existing canonical structures facility, because canonical structures can only be used with bundled representations, which we argued against in section~\ref{bundling}.
 
+The operational type classes used in \lstinline|SemiRing| for zero, one, multiplication and addition, are the same ones used by \lstinline|Ring| and \lstinline|Field| (not shown). Thus, the realization that a particular semiring is in fact a ring or field (etc.) has no bearing on how one refers to the operations in question, which is as it should be. The realization that a particular semigroup is part of a semiring \emph{does} call for a new (canonical) name, simply because of the need for disambiguation. The introduction of these additional names for the same operation is quite harmless in practice, because canonical names established by operational type class fields are just trivial identity functions anyway, so that in most contexts the distinction reduces away instantly.
+
 The hierarchy of predicate classes for the abstract structures themselves is mirrored by a hierarchy of predicate classes for morphisms. For instance:
 \begin{lstlisting}
   Context `{Monoid A} `{Monoid B}.
@@ -526,9 +527,9 @@ Class Category (O: Type) `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)}
   { arrow_equiv:> Π x y, Setoid (x ⟶ y)
   ; comp_proper:> Π x y z, Proper (equiv ==> equiv ==> equiv) comp
   ; comp_assoc w x y z (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
-      c ◎ (b ◎ a) = (c ◎ b) ◎ a
-  ; id_l `(a: x ⟶ y): cat_id ◎ a = a
-  ; id_r `(a: x ⟶ y): a ◎ cat_id = a }.
+      c ◎$$ (b ◎$$ a) = (c ◎$$ b) ◎$$ a
+  ; id_l `(a: x ⟶ y): cat_id ◎$$ a = a
+  ; id_r `(a: x ⟶ y): a ◎$$ cat_id = a }.
 \end{lstlisting}
 This definition is based on the 2-categorical idea of having equality only on arrows, not on objects.
 %Similarly, we will have equality on natural transformations, but not on functors. % todo: ORLY?
@@ -559,7 +560,7 @@ In our definition of functors we see the by now familiar refrain once more:
     ; functor_morphism:> Π a b: C, Setoid_Morphism (@fmap _ a b)
     ; preserves_id: `(fmap (cat_id: a ⟶ a) = cat_id)
     ; preserves_comp `(f: y ⟶ z) `(g: x ⟶ y):
-      fmap (f ◎ g) = fmap f ◎ fmap g }.
+      fmap (f ◎$$ g) = fmap f ◎$$ fmap g }.
 \end{lstlisting}
 We ought to say a few words about our use of \lstinline|fmap|. The usual mathematical notational convention for functor application is to use the name of the functor to refer to both its object map and its arrow map, relying on additional conventions regarding object/arrow names for disambiguation: ``\lstinline|F x|'' and ``\lstinline|F f|'' map an object and an arrow, respectively, because ``\lstinline|x|'' and ``\lstinline|f|'' are conventional names for objects and arrows, respectively.
 
