@@ -27,7 +27,6 @@
 
 % todo:
   % cite that other type class based development in the context of the alternative bundling schemes.
-  % maybe have a chapter called "interfaces are primary, not implementations" (also involve polynomials)
 
 % listings:
 
@@ -238,9 +237,6 @@ In the next section, we show that type-classification of structure predicates an
 
 %Because in our development we will be working with computable reals, equality on which can never be either Leibniz or decidable, we conclude that the ssreflect library is not usable for us.
 
-
-% todo: mention proof irrelevance here somewhere, and terms that depend on proofs.
-
 The observant reader may wonder whether it might be beneficial to go one step further and unbundle proof of laws and inherited substructures as well. This is not the case, because there is no point in sharing them. After all, by (weak) proof irrelevance, the ``value'' of such proofs can be of no consequence anyway. Indeed, parameterizing on proofs would be actively harmful because instantiations differing only in the proof argument would express the same thing yet be nonconvertible, requiring awkward conversions and hindering automation.
 
 % Another benefit of our approach is that it works very smoothly when these records are in fact type
@@ -340,13 +336,15 @@ where e and the op's are filled in by instance resolution.
 At this point, a legitimate worry might be that the \lstinline|Equiv|/\lstinline|SemiGroup| classes and their \lstinline|equiv|/\lstinline|sg_op| projections imply constant construction and deconstruction of records, harming the simplicity and flexibility of the predicate approach that we are trying so hard to preserve. No such construction and destruction takes place, however, because type classes with only a single field are not desugared into an actual record with field projections the way classes with any other number of fields are. Instead, both class itself and its field projection are defined as the identity function with a fancy type. Thus, the introduction of these canonical names is essentially free; the structure predicate's new type reduces straight back to what it was before.
 
 A remaining eyesore in the theorem declaration is the enumeration of \lstinline|e| and \lstinline|op|. To remove these, we use a new parameter declaration feature called \emph{implicit generalization}, introduced in Coq specifically to support type classes. Using implicit generalization, we can write:
-
 \begin{lstlisting}
   Lemma L `{SemiGroup G}: Π x y z: G, x & y & z = z & y & x.
 \end{lstlisting}
-% TODO: describe implicit generalization in two words
-% TODO: at some point down the line in our coq-inadequacies section, describe the implicit generalization improvements we need.
+The backtick tells Coq to insert implicit declarations of further parameters to \lstinline|SemiGroup G|, namely those declared as \lstinline|e| and \lstinline|op| above. It further lets us omit a name for the \lstinline|SemiGroup G| parameter itself as well. All of these will be given automatically generated names that we will never refer to.
+
 Thus, we have reached the mathematical ideal we aimed for.
+
+While we are on the topic of implicit generalization, we mention one inadequacy concerning their current implementation that we feel should be addressed for the facility to be a completely satisfying solution. While the syntax already supports variants (not shown above) that differ in how exactly different kinds of arguments are inferred and/or generalized, there is no support to have an argument be ``inferred if possible, generalized otherwise". We have found that the need for such a policy arises naturally when declaring a parameter of class type in a contexts where \emph{some} of its components are already available, while others are to be newly introduced. The current workaround in these cases involves providing names for components that are then never referred to, which is a bit awkward.
+
 
 
 
