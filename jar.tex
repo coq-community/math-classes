@@ -75,7 +75,7 @@ The introduction of first-class type classes in the Coq system calls for re-exam
 % especially since existing solutions fall short from a proof engineering perspective.
 We present a new set of foundational type classes for mathematics that take full advantage of their unique features to make practical a particularly flexible approach formerly thought infeasible. Thus, we address both traditional proof engineering challenges as well as new ones resulting from our ambition to build upon this development a library of constructive analysis in which abstraction penalties inhibiting efficient computation are reduced to a minimum.
 
-The base of our development consists of type classes representing a standard algebraic hierarchy, as well as portions of category theory and universal algebra. We build upon this foundation a set of mathematically sound abstract interfaces for different kinds of numbers, succinctly expressed using categorical language and universal algebra constructions. Strategic use of type classes lets us support these high-level theory-friendly definitions while still enabling efficient implementations unhindered by gratuitous indirection or conversion or projection.
+The base of our development consists of type classes representing a standard algebraic hierarchy, as well as portions of category theory and universal algebra. On this foundation we build a set of mathematically sound abstract interfaces for different kinds of numbers, succinctly expressed using categorical language and universal algebra constructions. Strategic use of type classes lets us support these high-level theory-friendly definitions while still enabling efficient implementations unhindered by gratuitous indirection or conversion or projection.
 
 Algebra flourishes by the interplay between syntax and semantics. The Prolog-like abilities of type class instance resolution allow us to conveniently define a quote function, thus facilitating the use of reflective techniques.
 \end{abstract}
@@ -401,7 +401,7 @@ All of \lstinline|Equiv|, \lstinline|RingPlus|, \lstinline|RingMult|, \lstinline
 
 Let us briefly highlight some additional aspects of this style of structure definition in more detail.
 
-Fields declared with \lstinline|:>| are registered as hints for instance resolution, so that in any context where \lstinline|(A, =, +, 0, *, 1)| is known to be a \lstinline|SemiRing|, \lstinline|(A, =, +, 0)| and \lstinline|(A, =, *, 1)| are automatically known to be \lstinline|CommutativeMonoid|s (and so on, transitively, because instance resolution is recursive). In our hierarchy, these ``substructures'' by themselves establish the inheritance diagram in Figure~\ref{inheritancediagram}. % todo: for some reason the figure number reference is wrong here..
+Fields declared with \lstinline|:>| are registered as hints for instance resolution, so that in any context where \lstinline|(A, =, +, 0, *, 1)| is known to be a \lstinline|SemiRing|, \lstinline|(A, =, +, 0)| and \lstinline|(A, =, *, 1)| are automatically known to be \lstinline|CommutativeMonoid|s (and so on, transitively, because instance resolution is recursive). In our hierarchy, these ``substructures'' by themselves establish the inheritance diagram in Figure~\ref{inheritancediagram}.
 
 \begin{figure}
 \centering
