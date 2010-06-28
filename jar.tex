@@ -770,7 +770,7 @@ Taking these conversion functions for granted, we will also need a ``down-to-ear
     naturals_to_semiring: Π B `{RingMult B} `{RingPlus B} `{RingOne B}
       `{RingZero B}, A → B.
 \end{lstlisting}
-In order to use this with \lstinline|Initial|, we define an additional conversion instance that takes a \lstinline|NaturalsToSemiRing| along with a proof showing that it yields \lstinline|SemiRing_Morphism|s, and builds an \lstinline|InitialArrow| instance out of it invoking another conversion function that translates concrete \lstinline|SemiRing_Morphism| proofs into univeral algebra \lstinline|Homomorphism|s instantiated with the semiring signature, which make up the arrows in the category.\marginpar{Zin te lang}
+In order to use this with \lstinline|Initial|, we define an additional conversion instance that takes a \lstinline|NaturalsToSemiRing| along with a proof showing that it yields \lstinline|SemiRing_Morphism|s, and builds an \lstinline|InitialArrow| instance out of it. This conversion instance in turn invokes another conversion function that translates concrete \lstinline|SemiRing_Morphism| proofs into univeral algebra \lstinline|Homomorphism|s instantiated with the semiring signature, which make up the arrows in the category.
 
 With these instances in place, we can now define the improved natural numbers specification:
 \begin{lstlisting}
