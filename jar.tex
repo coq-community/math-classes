@@ -189,7 +189,7 @@ Higher structures, too, can all be expressed as predicates (expressing laws) ove
 
 % hm, i used to have paragraphs here about how it would be unclear how this approach could support structure inference and structure inheritance, but those are actually pretty straightforward using ordinary proof search.
 
-In the absence of type classes, these are all very real problems, and for this reason the two biggest formalizations of abstract algebraic structures in Coq today (namely CoRN\cite{C-corn} and Ssreflect\cite{Packed}), both use \emph{bundled} representation schemes, using records with one or more of the components as fields instead of parameters. For reflexive relations, the following is a fully bundled representation---the other end of the spectrum:
+In the absence of type classes, these are all very real problems, and for this reason the two biggest formalizations of abstract algebraic structures in Coq today, CoRN~\cite{C-corn} and Ssreflect~\cite{Packed}, both use \emph{bundled} representation schemes, using records with one or more of the components as fields instead of parameters. For reflexive relations, the following is a fully bundled representation---the other end of the spectrum:
 \begin{lstlisting}
   Record ReflexiveRelation: Type :=
     { rr_carrier: Type
