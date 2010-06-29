@@ -142,7 +142,7 @@ Section practical.
    apply (@sequence_extend_morphism PS x _ _ _ _ _ _
      (@monoid.decode_variety_and_ops _ _ _ yV) _ _ _ _).
    intro. apply E. reflexivity.
-  Qed.
+  Qed. (* todo: clean up *)
 
   Definition fold `{MonoidUnit M} `{SemiGroupOp M}: free M → M := extend id.
 

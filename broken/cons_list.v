@@ -2,34 +2,80 @@ Set Automatic Introduction.
 
 Require Import
  Morphisms List Program
- abstract_algebra theory.categories sequences.
+ abstract_algebra theory.categories interfaces.sequences.
 Require
- ua_forget categories.setoid categories.product varieties.monoid.
+ categories.setoid categories.product varieties.monoid.
 
 Implicit Arguments app [[A]].
 
 Section contents.
 
-  Context (A: Type).
+  Context A `{Setoid A}.
 
-  Global Instance list_setoid: Equiv (list A) := eq. (* todo: use setoid equality over A *)
+  Fixpoint leq (a b: list A): Prop :=
+    match a, b with
+    | nil, nil => True
+    | h :: t, h' :: t' => h = h' ∧ leq t t'
+    | _, _ => False
+    end.
+
+  Hint Extern 4 (Equiv (list A)) => exact leq: typeclass_instances.
+
+  Instance: Proper ((=) ==> (=) ==> (=)) (@cons A).
+  Proof. repeat intro. split; assumption. Qed.
+
+  Instance: Reflexive (_: Equiv (list A)).
+  Proof. intro x. induction x. reflexivity. split. reflexivity. assumption. Qed.
+
+  Instance: Symmetric (_: Equiv (list A)).
+  Proof with trivial.
+   unfold equiv. intro x. induction x; destruct y...
+   simpl. intros [P Q].
+   split. symmetry...
+   apply IHx...
+  Qed.
+
+  Instance: Transitive (_: Equiv (list A)).
+  Proof with simpl; intuition.
+   unfold equiv. intro x. induction x; destruct y...
+   destruct z... transitivity a0...
+   firstorder.
+  Qed.
+
+  Instance: Setoid (list A).
+  Proof. constructor; apply _. Qed.
 
   Global Instance: SemiGroupOp (list A) := app.
 
-  Global Instance: Proper (equiv ==> equiv ==> equiv)%signature app.
-  Proof. unfold equiv, list_setoid. repeat intro. subst. reflexivity. Qed.
+  Global Instance: Proper ((=) ==> (=) ==> (=))%signature (@app A).
+  Proof with intuition.
+   unfold equiv.
+   intro x. induction x; destruct y; simpl in *; repeat intro...
+   split...
+   apply IHx...
+  Qed.
 
-  Global Instance app_assoc_inst: Associative app.
-  Proof. repeat intro. symmetry. apply (app_ass x y z). Qed.
+  Global Instance app_assoc_inst: Associative (@app A).
+  Proof. repeat intro. symmetry. rewrite (app_ass x y z). reflexivity. Qed.
 
   Global Instance: SemiGroup (list A).
 
   Global Instance: MonoidUnit (list A) := nil.
 
-  Global Instance: Monoid (list A) := { monoid_lunit := @refl_equal _ }.
-  Proof. symmetry. apply (app_nil_end x). Qed.
+  Global Instance: Monoid (list A).
+  Proof.
+   constructor.
+     apply _.
+    repeat intro. reflexivity.
+   intro x. change (x ++ [] = x).
+   rewrite <- (app_nil_end x). reflexivity.
+  Qed.
 
-  Global Instance inj: SeqInject A (list A) := fun x => x :: nil.
+  (* so far so good, but now: *)
+
+  Global Instance inj: InjectToSeq list := fun _ x => x :: nil.
+    (* universe inconsistency... *)
+
   Global Instance sm: SeqToMonoid A (list A) := fun _ _ _ f => fold_right (sg_op ∘ f) mon_unit.
 
   Instance: Equiv A := eq.
