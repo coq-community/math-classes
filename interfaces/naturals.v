@@ -5,6 +5,11 @@ Require Import
 Require
  varieties.semiring categories.variety.
 
+Module bad.
+  Class Naturals (A: semiring.Object) `{!InitialArrow A}: Prop :=
+    { naturals_initial:> Initial A }.
+End bad.
+
 Section initial_maps.
 
   Variable A: Type.
