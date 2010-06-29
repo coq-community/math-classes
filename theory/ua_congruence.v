@@ -8,15 +8,14 @@ Require ua_products.
 
 Require categories.
 
-Section contents. Variable et: Signature.
+Section contents.
 
-  Notation op_type := (op_type (sorts et)).
+  Context σ `{@Algebra σ v ve vo}.
 
-  Context `{!@Algebra et v ve vo}.
+  Notation op_type := (op_type (sorts σ)).
+  Notation vv := (ua_products.carrier σ bool (λ _: bool => v)).
 
-  Notation vv := (ua_products.carrier et bool (λ _: bool => v)).
-
-  Let hint := @ua_products.product_algebra et bool (λ _ => v) _ _ _.
+  Let hint := @ua_products.product_algebra σ bool (λ _ => v) _ _ _.
 
   (* Given an equivalence on the algebra's carrier that respects its setoid equality... *)
 
@@ -31,8 +30,8 @@ Section contents. Variable et: Signature.
   (* We can show that that equivalence lifted to arbitrary operation types still respects the setoid equality: *)
 
   Let Q s x := e s (x true) (x false).
-  Let lifted_e := @op_type_equiv (sorts et) v e.
-  Let lifted_normal := @op_type_equiv (sorts et) v ve.
+  Let lifted_e := @op_type_equiv (sorts σ) v e.
+  Let lifted_normal := @op_type_equiv (sorts σ) v ve.
 
   Instance lifted_e_proper o: Proper (equiv ==> equiv ==> iff) (lifted_e o).
   Proof with intuition.
@@ -52,10 +51,10 @@ Section contents. Variable et: Signature.
    algebra's operations: *)
 
     (* 1: the direct way with Algebra; *)
-  Let eAlgebra := @Algebra et v e _.
+  Let eAlgebra := @Algebra σ v e _.
 
     (* 2: the indirect way of saying that the relation as a set of pairs is a subalgebra in the product algebra: *)
-  Let eSub := @ua_subalgebraT.ClosedSubset et vv _ _ Q.
+  Let eSub := @ua_subalgebraT.ClosedSubset σ vv _ _ Q.
 
   Lemma eAlgebra_eSub: eAlgebra → eSub.
   Proof with intuition.
@@ -78,9 +77,9 @@ Section contents. Variable et: Signature.
     unfold lifted_e.
     destruct H0.
     apply algebra_propers.
-   assert (Π b, Proper (lifted_e (et o)) (f b))...
+   assert (Π b, Proper (lifted_e (σ o)) (f b))...
    clearbody f.
-   induction (et o)...
+   induction (σ o)...
    simpl in *...
    apply IHo0...
    apply H1...
@@ -101,9 +100,9 @@ Section contents. Variable et: Signature.
    assert (Π b, lifted_normal _ (f b) (f b)). intros.
     subst f. simpl.
     apply algebra_propers...
-   change (lifted_e (et o) (f true) (f false)).
+   change (lifted_e (σ o) (f true) (f false)).
    clearbody f.
-   induction (et o)...
+   induction (σ o)...
    simpl in *.
    repeat intro.
    unfold respectful in H0.
@@ -118,8 +117,8 @@ Section contents. Variable et: Signature.
   (* This justifies the following definition of a congruence: *)
 
   Class Congruence: Prop :=
-    { congruence_proper:> Π s: sorts et, Proper (equiv ==> equiv ==> iff) (e s)
-    ; congruence_quotient:> Algebra et v (e:=e) }.
+    { congruence_proper:> Π s: sorts σ, Proper (equiv ==> equiv ==> iff) (e s)
+    ; congruence_quotient:> Algebra σ v (e:=e) }.
 
 End contents.
 
@@ -164,15 +163,15 @@ Section first_iso.
  a congruence on A, and the algebra A/Φ is isomorphic to the image
  of f, which is a subalgebra of B." *)
 
-  Context `{Algebra sign A} `{Algebra sign B} `{!HomoMorphism sign A B f}.
+  Context `{Algebra σ A} `{Algebra σ B} `{!HomoMorphism σ A B f}.
 
-  Notation phi := (λ s => in_domain (f s)).
+  Notation Φ := (λ s => in_domain (f s)).
 
   Lemma square o0 x x' y y':
-    Preservation sign A B f x x' →
-    Preservation sign A B f y y' →
-    op_type_equiv (sorts sign) B o0 x' y' →
-    @op_type_equiv (sorts sign) A (λ s: sorts sign => @in_domain (A s) (B s) (e0 s) (f s)) o0 x y.
+    Preservation σ A B f x x' →
+    Preservation σ A B f y y' →
+    op_type_equiv (sorts σ) B o0 x' y' →
+    @op_type_equiv (sorts σ) A (λ s: sorts σ => @in_domain (A s) (B s) (e0 s) (f s)) o0 x y.
   Proof.
    induction o0.
     simpl.
@@ -194,7 +193,7 @@ Section first_iso.
    assumption.
   Qed.
 
-  Instance co: Congruence sign phi.
+  Instance co: Congruence σ Φ.
   Proof with intuition.
    constructor.
     repeat intro.
@@ -203,11 +202,11 @@ Section first_iso.
    constructor; intro.
     unfold abstract_algebra.Setoid. apply _.
    unfold algebra_op.
-   generalize (preserves sign A B f o).
-   generalize (@algebra_propers sign B _ _ _ o).
+   generalize (preserves σ A B f o).
+   generalize (@algebra_propers σ B _ _ _ o).
    unfold algebra_op.
    generalize (H o), (H1 o).
-   induction (sign o); simpl in *; repeat intro.
+   induction (σ o); simpl in *; repeat intro.
     apply _.
    apply (square _ _ _ _ _ (H4 x) (H4 y))...
   Qed.
@@ -221,21 +220,21 @@ Section first_iso.
   Proof with intuition.
    constructor; repeat intro.
     split; intros [q p]; exists q; rewrite p...
-   generalize (preserves sign A B f o).
-   generalize (@algebra_propers sign B _ _ _ o).
+   generalize (preserves σ A B f o).
+   generalize (@algebra_propers σ B _ _ _ o).
    unfold algebra_op.
    generalize (H1 o), (H o).
-   induction (sign o); simpl; intros.
+   induction (σ o); simpl; intros.
     exists o1...
    destruct X.
-   apply (@op_closed_proper sign B _ _ _ image image_proper _ (o1 z) (o1 (f _ x))).
+   apply (@op_closed_proper σ B _ _ _ image image_proper _ (o1 z) (o1 (f _ x))).
     apply H3...
    apply IHo0 with (o2 x)...
    apply _.
   Qed.
 
-  Definition quot_obj := algebra.object sign A (algebra_equiv:=phi). (* A/Φ *)
-  Definition subobject := algebra.object sign (ua_subalgebraT.carrier image).
+  Definition quot_obj: algebra.Object σ := algebra.object σ A (algebra_equiv:=Φ). (* A/Φ *)
+  Definition subobject: algebra.Object σ := algebra.object σ (ua_subalgebraT.carrier image).
 
   Program Definition back: subobject ⟶ quot_obj := λ _ X => projT1 (projT2 X).
 
@@ -248,9 +247,9 @@ Section first_iso.
    unfold ua_subalgebraT.impl.
    generalize (subset_closed image o).
    unfold algebra_op.
-   generalize (H o) (H1 o) (preserves sign A B f o)
+   generalize (H o) (H1 o) (preserves σ A B f o)
      (_: Proper equiv (H o)) (_: Proper equiv (H1 o)).
-   induction (sign o); simpl; intros ? ? ? ? ?.
+   induction (σ o); simpl; intros ? ? ? ? ?.
     intros [? E]. change (f _ x = f _ o0). rewrite E...
    intros ? [x [? E]]. apply IHo0... simpl in *. rewrite <- E...
   Defined.
@@ -263,9 +262,9 @@ Section first_iso.
    unfold ua_subalgebraT.impl.
    generalize (subset_closed image o).
    unfold algebra_op.
-   generalize (H o) (H1 o) (preserves sign A B f o)
+   generalize (H o) (H1 o) (preserves σ A B f o)
      (_: Proper equiv (H o)) (_: Proper equiv (H1 o)).
-   induction (sign o); simpl...
+   induction (σ o); simpl...
    apply IHo0...
   Qed.
 
