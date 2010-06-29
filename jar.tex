@@ -1020,7 +1020,48 @@ Notice that we have not made any use of \lstinline|Ltac|, Coq's tactic language.
 %which moreover works on setoid equalities.
 
 
-\section{Big operators}
+\section{Sequences and universes}
+
+Finite sequences are another example of a concept that can be represented in many different ways: as cons-lists, maps from bounded naturals, array-queues, etc. Here, too, the introduction of an abstract interface facilitates implementation independence.
+
+Mathematically, finite sequences can be characterized as free monoids over sets. A categorical way of expressing this is in terms of adjunctions. As before, we \emph{could} fully embrace this perspective, paying no heed to practicality of implementation and usage, and define a relatively succinct type class for sequences as follows:
+\begin{lstlisting}
+Class PoshSequence
+   (free: setoid.Object → monoid.Object) `{Fmap free}
+   (singleton: id ⇛ monoid.forget ∘ free)
+   (extend: `((x ⟶ monoid.forget y) → (free x ⟶ y))): Prop :=
+   { sequence_adjunction: AltAdjunction singleton extend
+   ; extend_morphism: `(Setoid_Morphism (extend x y)) }.
+\end{lstlisting}
+Here, \lstinline|monoid.forget| is the forgetful functor from monoids to sets.
+
+However, we \emph{do} care about practicality, and so we will again take a more concrete perspective, starting with operational type classes for the characteristic operations:
+\begin{lstlisting}
+  Context `{Functor (seq: Type → Type)}.
+
+  Class Extend := extend: Π {x y} `{SemiGroupOp y} `{MonoidUnit y},
+    (x → y) → (seq x → y).
+  Class Singleton := singleton: Π x, x → seq x.
+\end{lstlisting}
+With these, we can define the predicate class for sequences:
+\begin{lstlisting}
+  Class Sequence
+   `{Π a, MonoidUnit (seq a)} `{Π a, SemiGroupOp (seq a)}
+   `{Π a, Equiv a → Equiv (seq a)} `{Singleton} `{Extend}: Prop := ...
+\end{lstlisting}
+%    { ... structural and propriety proofs sufficient to bundle up the categories and arrows ...
+%    ; ... AltAdjunction stated using the bundled ... }.
+On top of this interface we can build theory about typical list operations such as maps, folds, their relation to \lstinline|singleton| and \lstinline|extend|, et cetera. We can also generically define ``bigops'' for summation and products, and easily show properties like distributivity, all without ever mentioning cons lists.
+
+Unfortunately, tragedy strikes when, after having defined this theory, we try to show that regular cons lists implement the abstract \lstinline|Sequence| interface. When we get to the point where we want to define the \lstinline|Singleton| operation, Coq emits a universe inconsistency error. The problem is that because of the categorical constructions involved, the theory forces \lstinline|Singleton| to inhabit a relatively high universe level, making it incompatible with lowly \lstinline|list|.
+
+Universe polymorphism could in principle most likely solve this problem, but its current implementation in Coq only supports universe polymorphic inductive definitions, while \lstinline|Singleton| is a regular definition. Universe polymorphic \emph{definitions} have historically not been supported in Coq, primarily because of efficiency concerns. However, we have taken up the issue with the Coq development team, and they have agreed to introduce the means to let one turn on universe polymorphism for definitions voluntarily on a per-definition basis. With such functionality we could make \lstinline|Singleton| universe polymorphic, and hopefully resolve these problems.
+
+In other places in our development, too, we have encountered universe inconsistencies that could be traced back to universe monomorphic definitions being forced into disparate universes (\lstinline|Equiv| being a typical example). Hence, we consider the support for universe polymorphic definitions that is currently being implemented to be of great importance to the general applicability and scalability of our approach.
+
+% todo: not sure why we didn't have this problem with, say, nat/Naturals.
+
+\begin{comment}
 Canonical structures have been used to provide a uniform treatment~\cite{bertot2008canonical} of big
 operators, like $\Pi,\Sigma, \max$. These operators extend a pair of a binary and a 0-ary operation
 to an $n$-ary operation for any $n$. Categorically, one considers the algebra maps from non-empty
@@ -1034,7 +1075,8 @@ Definition seq_sum
   := @seq_to_monoid A T _ A ring_plus z id.
   Eval compute in seq_sum [3; 2].
 \end{lstlisting}
-\marginpar{Prove distributivity?}
+\end{comment}
+
 
 \begin{comment}
 \section{Subset types and proof irrelevance}\label{PI}
@@ -1078,17 +1120,6 @@ The addition of implicit Σ-types to Coq would change many things. Perhaps it wo
 to pack the proofs together with the operations, but it is too early to tell.
 \end{comment}
  
-% \section{Coq wishlist}
-% % todo: maybe merge with conclusions and add "and future work"
-% 
-% \paragraph{Universe-polymorphic definitions}
-% Coq has supported universe-polymorphism for parameterized inductive definitions (different instantiations of which are automatically of the lowest possible sort taking into account the universe level constraints on the arguments) for some time. However, the same functionality has not been available for \emph{definitions}, primarily because of efficiency concerns. In our development, bla bla misery and drama when doing this and that. In response to our inquiries about this issue, the Coq development team has agreed to implement ``opt-in'' universe polymorphism, where only expressly annotated definitions are made universe-polymorphic. This should solve our problems.
-% 
-% \paragraph{Implicit generalization}
-% 
-% The current syntax for implicit generalization 
-% %current syntax very subtle. various combinations of `, class-ness, {} vs (), ! or no !, make _ mean different things. Worse, one strategy of ``infer if possible, generalize otherwise'' is not supported while it seems like a very commonly needed thing. The Coq development team recognizes this as a legitimate problem, but fears the implementation might not be straightforward, and as of this writing we are not aware of plans to address this. That said, a new proof engine has recently, whcih might make this more attainable. Fortunately, not that big a problem. Just a remaining source of the occasional uglyness in declarations.
-
 \section{Conclusions}\label{conclusion}
 
 While bundling operational and propositional components of abstract structures into records may seem natural at first, doing so actually introduces many serious problems. With type classes we avoid these problems by avoiding bundling altogether.
@@ -1114,6 +1145,10 @@ It has been suggested that canonical structures are more robust because of their
 
 Unification hints are a more general mechanism than type classes, and could provide a more precise account of the interaction between implicit argument inference and proof search. It is not a great stretch to conjecture that a fruitful approach might be to use unification hints as the underlying mechanism, with type classes as an end-user interface encapsulating a particularly convenient idiom for using them.
 % We encourage their inclusion to the Coq system. -- Eelis: not quite ready to go there yet
+
+% \paragraph{Universe-polymorphic definitions}
+% Coq has supported universe-polymorphism for parameterized inductive definitions (different instantiations of which are automatically of the lowest possible sort taking into account the universe level constraints on the arguments) for some time. However, the same functionality has not been available for \emph{definitions}, primarily because of efficiency concerns. In our development, bla bla misery and drama when doing this and that. In response to our inquiries about this issue, the Coq development team has agreed to implement ``opt-in'' universe polymorphism, where only expressly annotated definitions are made universe-polymorphic. This should solve our problems.
+
 
 The only real pending concern that keeps us from making an unequivocal endorsement of type classes as a versatile, expressive, and elegant means of organizing proof developments, is instance resolution efficiency. In more complex parts of our development we are now experiencing increasingly serious efficiency problems, despite having already made sacrifices by artifically inhibiting many natural class instances in order not to further strain instance resolution.
 %While we have already found the predicate-class-based style of formalization to work very well for our development thus far, and believe it has the potential to be \emph{the} modern solution to this problem, in our work we have encountered a number of limitations in the Coq implementation of key features of the tool, that keep us from making an unconditional recommendation for universal adoption of these techniques.
