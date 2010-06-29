@@ -20,9 +20,9 @@ Instance: RingMult nat := mult.
 
 (* propers: *)
 Instance: Proper (equiv ==> equiv ==> equiv) plus.
-Proof. unfold equiv, nat_equiv. repeat intro. subst. reflexivity. Qed.
+Proof. unfold equiv, nat_equiv. apply _. Qed.
 Instance: Proper (equiv ==> equiv ==> equiv) mult.
-Proof. unfold equiv, nat_equiv. repeat intro. subst. reflexivity. Qed.
+Proof. unfold equiv, nat_equiv. apply _. Qed.
 
 (* properties: *)
 Instance: Associative plus := Plus.plus_assoc.
