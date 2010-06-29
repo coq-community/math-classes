@@ -1097,7 +1097,7 @@ While bundling operational and propositional components of abstract structures i
 %the efficiency penalty of a long chain of coercion projections. Packed classes~\cite{Packed} provide
 %a solution to these problems. We have provided an alternative solution based on type classes. 
 
-It has been suggested that canonical structures are more robust by being more restricted compared to the wild and open-ended proof search of instance resolution. However, these restrictions force one into bundled representations, and, moreover, their more advanced usage requires significant ingenuity, whereas type classes usage is straightforward.
+It has been suggested that canonical structures are more robust because of their more restricted nature compared to the wild and open-ended proof search of instance resolution. However, these restrictions force one into bundled representations, and moreover, their more advanced usage requires significant ingenuity, whereas type class usage is straightforward. Furthermore, wild and open-ended proof search is harmless for predicate classes for which only existence---not identity---matters.
 
 % \section{Canonical structures}\label{canonical}
 % Packed classes use canonical structures for the algebraic hierarchy. Both canonical structures and
@@ -1112,14 +1112,14 @@ It has been suggested that canonical structures are more robust by being more re
 % which includes an explicit proof that \lstinline|(@eq nat)| is an equivalence,
 % whereas we obtain \lstinline|@equiv nat (@eq nat) (S x) (S y)|.
 
-Unification hints are a more general mechanism than type classes, and could provide a more precise account of the interaction between implicit argument inference and proof search. Perhaps a fruitful approach could be to use unification hints as the underlying mechanism with type classes as an end-user interface encapsulating a particularly convenient idiom for using them.
+Unification hints are a more general mechanism than type classes, and could provide a more precise account of the interaction between implicit argument inference and proof search. It is not a great stretch to conjecture that a fruitful approach might be to use unification hints as the underlying mechanism, with type classes as an end-user interface encapsulating a particularly convenient idiom for using them.
 % We encourage their inclusion to the Coq system. -- Eelis: not quite ready to go there yet
 
 The only real pending concern that keeps us from making an unequivocal endorsement of type classes as a versatile, expressive, and elegant means of organizing proof developments, is instance resolution efficiency. In more complex parts of our development we are now experiencing increasingly serious efficiency problems, despite having already made sacrifices by artifically inhibiting many natural class instances in order not to further strain instance resolution.
 %While we have already found the predicate-class-based style of formalization to work very well for our development thus far, and believe it has the potential to be \emph{the} modern solution to this problem, in our work we have encountered a number of limitations in the Coq implementation of key features of the tool, that keep us from making an unconditional recommendation for universal adoption of these techniques.
-Fortunately, there is plenty of potential for improvement of the current implementation. One source is the vast literature on efficient implementation of Prolog-style resolution, which the hint-based proof search used for instance resolution greatly resembles.
+Fortunately, there is plenty of potential for improvement of the current instance resolution implementation. One source is the vast literature on efficient implementation of Prolog-style resolution, which the hint-based proof search used for instance resolution greatly resembles.
 
-We are currently in the process of retrofitting the rationals interface into CoRN. In future work we aim to base our development of its reals on an abstract dense set, allowing us to use the efficient dyadic rationals~\cite{boldo2009combining} as a base for exact real number computation in Coq~\cite{Riemann,Oconnor:real}. The use of category theory has been important in these developments.
+We are currently in the process of retrofitting the rationals interface into CoRN. In future work we aim to base our development of its reals on an abstract dense set, allowing us to use the efficient dyadic rationals~\cite{boldo2009combining} as a base for exact real number computation in Coq~\cite{Riemann,Oconnor:real}. The use of category theory has been important in these developments. % Eelis: not sure i understand. "has been"? it's not done.
 
 An obvious topic for future research is the extension from equational logic with dependent types~\cite{Cartmell,palmgren2007partial}. Another topic would be to fully, but practically, embrace the
 categorical approach to universal algebra~\cite{pitts2001categorical}.
