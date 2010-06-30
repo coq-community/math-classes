@@ -71,9 +71,9 @@
 \date{today}
 \maketitle
 \begin{abstract}
-The introduction of first-class type classes in the Coq system calls for re-examination of the basic interfaces we use for mathematical formalization in type theory.
+The introduction of first-class type classes in the Coq system calls for re-examination of the basic interfaces used for mathematical formalization in type theory.
 % especially since existing solutions fall short from a proof engineering perspective.
-We present a new set of foundational type classes for mathematics that take full advantage of their unique features to make practical a particularly flexible approach formerly thought infeasible. Thus, we address both traditional proof engineering challenges as well as new ones resulting from our ambition to build upon this development a library of constructive analysis in which abstraction penalties inhibiting efficient computation are reduced to a minimum.
+We present a new set of foundational type classes for mathematics and take full advantage of their unique features to make practical a particularly flexible approach formerly thought infeasible. Thus, we address both traditional proof engineering challenges as well as new ones resulting from our ambition to build upon this development a library of constructive analysis in which abstraction penalties inhibiting efficient computation are reduced to a minimum.
 
 The base of our development consists of type classes representing a standard algebraic hierarchy, as well as portions of category theory and universal algebra. On this foundation we build a set of mathematically sound abstract interfaces for different kinds of numbers, succinctly expressed using categorical language and universal algebra constructions. Strategic use of type classes lets us support these high-level theory-friendly definitions while still enabling efficient implementations unhindered by gratuitous indirection or conversion or projection.
 
@@ -93,18 +93,19 @@ To express these elegantly and without duplication, our development\footnote{The
 at:~\url{http://www.eelis.net/research/math-classes/}} includes an integrated formalization of parts of category theory and multi-sorted universal algebra, all expressed using type classes for optimum effect.
 
 % ideally should be more or less readable by Haskell person. that would be neat. so that's what the preliminaries should prepare for.
+In this paper we focus on the Coq proof assistant. We conjecture that the methods can be transferred
+to any type theory based proof assistant supporting type classes such as
+Matita~\cite{asperti2007user}.
 
 \paragraph{Outline}
-In section~\ref{preliminaries} we briefly describe the Coq system and some of its facilities that are of particular interest to us (most notably its implementation of type classes). Then, in section~\ref{bundling}, we give a very concrete introduction to the issue of \emph{bundling}, arguably the biggest design dimension when building interfaces for abstract structures. In section~\ref{predicateclasses} we show how type classes can make the use of ``unbundled'' purely predicate based interfaces for abstract structures practical. Next, in section~\ref{classes}, we discuss our algebraic hierarchy implemented using such predicate classes.
+In section~\ref{preliminaries} we briefly describe the Coq system and some of its facilities that are of particular interest to us (most notably its implementation of type classes). Then, in section~\ref{bundling}, we give a very concrete introduction to the issue of \emph{bundling}, arguably the biggest design dimension when building interfaces for abstract structures. In section~\ref{predicateclasses} we show how type classes can make the use of ``unbundled'' purely predicate based interfaces for abstract structures practical. Next, in section~\ref{classes}, we discuss our algebraic hierarchy implemented using such predicate classes. In sections~\ref{cat} and~\ref{univ} we give a taste of what category theory and universal algebra look like in our development, and in section~\ref{numbers} we use these facilities to build abstract interfaces for numbers. In order to illustrate a very different use of type classes, we discuss the implementation of a quoting function for algebraic terms in terms of type classes, in section~\ref{quoting}. In section~\ref{sequences} we hint at an interface for sequences but describe how a limitation in the Coq system makes its use problematic. We end with conclusions in section~\ref{conclusions}.
 
 
  %Having derived some principles concerning bundling, we then proceed to show (in section \ref{managing}) how type classes may be employed to adopt these principles without compromising ease of use. Next, in section \ref{hierarchy}, we introduce a number of additional conventions that let us complete a consistent idiom for interfaces to algebraic structures. With this in place, we continue with a discussion of
 
 
 
-In this paper we focus on the Coq proof assistant. We conjecture that the methods can be transferred
-to any type theory based proof assistant supporting type classes such as
-Matita~\cite{asperti2007user}.
+
 
 
 
@@ -455,7 +456,7 @@ Notice that \lstinline|f| is \emph{not} made into an operational type class. The
 
 The \lstinline|monmor_to| and \lstinline|monmor_from| fields are not an absolute necessity, but eliminate the need for theorems to declare \lstinline|Monoid| parameters when they already declare \lstinline|Monoid_Morphism| parameters. This is an instance where we can freely posit structural properties without worrying about potential problems when such information turns out to be redundant in contexts where the source and target of the morphism are already known to be \lstinline|Monoid|s.
 
-Unfortunately, there is actually one annoying wrinkle here, which will also explain why, as the observant reader will have noticed, we do not register these two fields as instance resolution hints (by declaring them with \lstinline|:>|). What we really want these fields to express is ``\emph{if} in a certain context we know something to be a \lstinline|Monoid_Morphism|, \emph{then} realize that the source and target are \lstinline|Monoid|s''. However, the current instance resolution implementation has little support for this style of \emph{forward} reasoning, and is really primarily oriented on \emph{backward} reasoning: had we registered \lstinline|monmor_to| and \lstinline|monmor_from| as instance resolution hints, we would in fact be saying ``\emph{if} trying to establish that something is a \lstinline|Monoid|, \emph{then} try finding a \lstinline|Monoid_Morphism| to or from it'', which quickly degenerates into a wild goose chase. We will return to this point in section~\ref{conclusion}. % todo: do this
+Unfortunately, there is actually one annoying wrinkle here, which will also explain why, as the observant reader will have noticed, we do not register these two fields as instance resolution hints (by declaring them with \lstinline|:>|). What we really want these fields to express is ``\emph{if} in a certain context we know something to be a \lstinline|Monoid_Morphism|, \emph{then} realize that the source and target are \lstinline|Monoid|s''. However, the current instance resolution implementation has little support for this style of \emph{forward} reasoning, and is really primarily oriented on \emph{backward} reasoning: had we registered \lstinline|monmor_to| and \lstinline|monmor_from| as instance resolution hints, we would in fact be saying ``\emph{if} trying to establish that something is a \lstinline|Monoid|, \emph{then} try finding a \lstinline|Monoid_Morphism| to or from it'', which quickly degenerates into a wild goose chase. We will return to this point in section~\ref{conclusions}.
 
 
 % : with predicate classes we can essentially pose queries of the form ``do I already know that proposition P holds?'', whereas canonical structures
@@ -754,7 +755,7 @@ The \lstinline|Program| command generates proof obligations (not shown) expressi
 % \footnote{In Bishop's words~\cite[p.12]{Bishop/Bridges:1985}: The axiom of choice is used to extract
 %elements from equivalence classes where they should never have been put in the first place.}
 
-\section{Numerical interfaces}
+\section{Numerical interfaces}\label{numbers}
 
 \lstinline|EquationalTheory|'s for semirings and rings are easy to define, and so from section~\ref{varieties} we get corresponding categories in which we can postulate initial objects:
 \begin{lstlisting}
@@ -786,7 +787,7 @@ Basing theory and programs on this abstract interface instead of on specific imp
 
 Some theory and programs about naturals are more easily proved, respectively defined, for concrete implementations and then ``lifted'' to the abstract interface. For relatively simple things like decidability of equality, all that is needed to make this lifting easy is a handful of simple lemmas translating the initiality property back into statements saying that \lstinline|naturals_to_semiring| is extensionally equal to other semiring morphisms and involutary between \lstinline|Naturals| implementations. For the example of decidability, these let us define decidability for an arbitrary \lstinline|Naturals| implementation simply by mapping to the \lstinline|nat| implementation using \lstinline|naturals_to_semiring|, deciding equality there, and reflecting the equality or inequality proof back to the abstract implementation using the fact that \lstinline|naturals_to_semiring| is an involution.
 
-For more complex properties such as injectivity of partially applied addition and multiplication, we take a longer detour. As part of our universal algebra theory, we have proved that proofs of statements in the language of an equational theory can be transferred between isomorphic implementations. Combined with the trivially proved property that any two initial objects in a category are isomorphic, this lets us tranfer proofs of such statements between implementations of \lstinline|Naturals|, requiring only that we reflect the concrete statement (expressed in terms of the operational type classes) to a symbolic statement in the language of semirings. We intend to eventually make this reflection completely automatic using type class based quotation techniques along the lines of those described in Section~\ref{quote}.
+For more complex properties such as injectivity of partially applied addition and multiplication, we take a longer detour. As part of our universal algebra theory, we have proved that proofs of statements in the language of an equational theory can be transferred between isomorphic implementations. Combined with the trivially proved property that any two initial objects in a category are isomorphic, this lets us tranfer proofs of such statements between implementations of \lstinline|Naturals|, requiring only that we reflect the concrete statement (expressed in terms of the operational type classes) to a symbolic statement in the language of semirings. We intend to eventually make this reflection completely automatic using type class based quotation techniques along the lines of those described in Section~\ref{quoting}.
 
 Thanks to our close integration of universal algebra we can actually obtain a \lstinline|Naturals| implementation completely automatically, by invoking a generic construction of initial models built from the closed term algebra for the signature along with a setoid equality expressing the congruence closure of the identities in the equational theory. However, this implementation is not very useful, neither in terms of efficiency, nor as a canonical implementation (to be used as the basis for theory and programs that are then subsequently lifted). For example, defining a normalization procedure to decide the aforementioned setoid equality is far harder than deciding equality for, say, \lstinline|nat|.
 
@@ -885,7 +886,7 @@ We plan to provide an abstract interface for polynomials as a free commutative a
 
 
 
-\section{Quoting with type classes}\label{quote}
+\section{Quoting with type classes}\label{quoting}
 
 A common need when interfacing generic theory and utilities developed for algebraic structures (such as normalization procedures) with concrete instances of these structures is to take a concrete expression or statement in a model of a particular algebraic structure, and translate it to a symbolic expression or statement in the language of the algebra's signature, so that its structure can be inspected.
 
@@ -897,7 +898,7 @@ For the present example, we define an ad-hoc term language for monoids
 \begin{lstlisting}
 Inductive Expr (V: Type) := Mult (a b: Expr V) | One | Var (v: V).
 \end{lstlisting}
-The expression type is parametrized over the set of variable indices. Hence, we diverge from~\cite{Hints}, which uses \lstinline|nat| for variables, thereby introducing bound problems and a need for dummy variables.
+The expression type is parameterized over the set of variable indices. Hence, we diverge from~\cite{Hints}, which uses \lstinline|nat| for variables, thereby introducing bound problems and a need for dummy variables.
 
 Suppose now that we want to quote \lstinline|nat| expressions built from 1 and multiplication. To describe the relation we want the symbolic expression to have to the original expression, we first define how symbolic expressions evaluate to values (given a variable assignment):
 %An expression is only meaningful in the context of a variable assignment:\footnote{Categorically: \lstinline|nat| is an \lstinline|Expr|-algebra and \lstinline|eval| is \lstinline|map vars| composed with the algebra map.}
@@ -1020,7 +1021,7 @@ Notice that we have not made any use of \lstinline|Ltac|, Coq's tactic language.
 %which moreover works on setoid equalities.
 
 
-\section{Sequences and universes}
+\section{Sequences and universes}\label{sequences}
 
 Finite sequences are another example of a concept that can be represented in many different ways: as cons-lists, maps from bounded naturals, array-queues, etc. Here, too, the introduction of an abstract interface facilitates implementation independence.
 
@@ -1120,7 +1121,7 @@ The addition of implicit Σ-types to Coq would change many things. Perhaps it wo
 to pack the proofs together with the operations, but it is too early to tell.
 \end{comment}
  
-\section{Conclusions}\label{conclusion}
+\section{Conclusions}\label{conclusions}
 
 While bundling operational and propositional components of abstract structures into records may seem natural at first, doing so actually introduces many serious problems. With type classes we avoid these problems by avoiding bundling altogether.
 
