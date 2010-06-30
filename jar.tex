@@ -297,13 +297,13 @@ Then by (1) making \lstinline|SemiGroup| a \emph{class} (by replacing the \lstin
 
 Next, we turn to problems concerning theorem \emph{declaration}. As a reference point, our ideal will be the common mathematical vernacular, where one simply says:
 \begin{quote}
-Theorem L: For $x, y, z$ in a semigroup $G$, $x * y * z = z * y * x$.
+Theorem: For $x, y, z$ in a semigroup $G$, $x * y * z = z * y * x$.
 \end{quote}
 (Please forgive the admittedly silly statement; we are presently concerned only with the syntax.)
 
 Without further support from the system, this would have to be written as
 \begin{lstlisting}
-  Theorem L G e op {P: SemiGroup G e op}:
+  Theorem example G e op {P: SemiGroup G e op}:
     Π x y z, e (op (op x y) z) (op (op z y) x).
 \end{lstlisting}
 Because \lstinline|e| and \lstinline{op} are freshly introduced local names, we cannot bind notations to them prior to this theorem. Hence, if we want notations, what we really need are canonical names for these components. This is easily accomplished with single-field type classes containing one component each, which we will call \emph{operational type classes}\footnote{These single-field type classes are used in the same way in the \lstinline|Clean| standard library~\cite{clean}.}:
@@ -324,13 +324,14 @@ If we now retype \lstinline|SemiGroup| as:
 \end{lstlisting}
 then we can declare the theorem with:
 \begin{lstlisting}
-  Theorem L G e op {P: SemiGroup G e op}: Π x y z, x & y & z = z & y & x.
+  Theorem example G e op {P: SemiGroup G e op}:
+    Π x y z, x & y & z = z & y & x.
 \end{lstlisting}
 This works because instance resolution, invoked by the use of \lstinline|=| and \lstinline|&|, will find \lstinline|e| and \lstinline|op|, respectively. Hence, the above is really
 
 \begin{lstlisting}
-  Theorem L G e op {P: SemiGroup G e op}: Π x y z,
-    equiv e (sg_op op (sg_op op x y) z) (sg_op op (sg_op op z y) x).
+  Theorem example G e op {P: SemiGroup G e op}:
+    Π x y z, equiv e (sg_op op (sg_op op x y) z) (sg_op op (sg_op op z y) x).
 \end{lstlisting}
 where e and the op's are filled in by instance resolution.
 
@@ -338,7 +339,7 @@ At this point, a legitimate worry might be that the \lstinline|Equiv|/\lstinline
 
 A remaining eyesore in the theorem declaration is the enumeration of \lstinline|e| and \lstinline|op|. To remove these, we use a new parameter declaration feature called \emph{implicit generalization}, introduced in Coq specifically to support type classes. Using implicit generalization, we can write:
 \begin{lstlisting}
-  Lemma L `{SemiGroup G}: Π x y z: G, x & y & z = z & y & x.
+  Theorem example `{SemiGroup G}: Π x y z: G, x & y & z = z & y & x.
 \end{lstlisting}
 The backtick tells Coq to insert implicit declarations of further parameters to \lstinline|SemiGroup G|, namely those declared as \lstinline|e| and \lstinline|op| above. It further lets us omit a name for the \lstinline|SemiGroup G| parameter itself as well. All of these will be given automatically generated names that we will never refer to.
 
