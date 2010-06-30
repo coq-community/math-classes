@@ -802,7 +802,7 @@ Definition calculate_things `{Naturals N} `{Π$$n m: N, Decision (n = m)}
 \end{lstlisting}
 Without the \lstinline|Decision| parameter \lstinline|calculate_things| would be equally correct, but could be less efficient. Thus, by this scheme one can start by writing correct-but-possibly-inefficient programs that make use of generic operation instances, and then selectively improve efficiency of key algorithms simply by adding additional operational type class instance parameters where profiling shows it to make a significant difference, without changing their definition body.
 
-Other examples of operations on natural numbers that are sensible choices for specialization include: subtraction, distance, binary division and multiplication.
+Other examples of operations on natural numbers that are sensible choices for specialization include: subtraction, distance, and division and multiplication by 2.
 
 \subsection{Integers, rationals, and polynomials}
 
