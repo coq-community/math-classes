@@ -285,13 +285,13 @@ Then by (1) making \lstinline|SemiGroup| a \emph{class} (by replacing the \lstin
 
 Next, we turn to problems concerning theorem \emph{declaration}. As a reference point, our ideal will be the common mathematical vernacular, where one simply says:
 \begin{quote}
-Theorem L: For $x, y, z$ in a semigroup $G$, $x * y * z = z * y * x$.
+Theorem: For $x, y, z$ in a semigroup $G$, $x * y * z = z * y * x$.
 \end{quote}
 (This silly statement allows us to clearly present the syntax.)
 
 Without further support from the system, this would have to be written as
 \begin{lstlisting}
-  Theorem L G e op {P: SemiGroup G e op}:
+  Theorem example G e op {P: SemiGroup G e op}:
     Π x y z, e (op (op x y) z) (op (op z y) x).
 \end{lstlisting}
 Because \lstinline|e| and \lstinline{op} are freshly introduced local names, we cannot bind notations to them prior to this theorem. Hence, if we want notations, what we really need are canonical names for these components. This is easily accomplished with single-field type classes containing one component each, which we will call \emph{operational type classes}\footnote{These single-field type classes are used in the same way in the \lstinline|Clean| standard library~\cite{clean}.}:
@@ -312,13 +312,14 @@ If we now retype \lstinline|SemiGroup| as:
 \end{lstlisting}
 then we can declare the theorem with:
 \begin{lstlisting}
-  Theorem L G e op {P: SemiGroup G e op}: Π x y z, x & y & z = z & y & x.
+  Theorem example G e op {P: SemiGroup G e op}:
+    Π x y z, x & y & z = z & y & x.
 \end{lstlisting}
 This works because instance resolution, invoked by the use of \lstinline|=| and \lstinline|&|, will find \lstinline|e| and \lstinline|op|, respectively. Hence, the above is really
 
 \begin{lstlisting}
-  Theorem L G e op {P: SemiGroup G e op}: Π x y z,
-    equiv e (sg_op op (sg_op op x y) z) (sg_op op (sg_op op z y) x).
+  Theorem example G e op {P: SemiGroup G e op}:
+    Π x y z, equiv e (sg_op op (sg_op op x y) z) (sg_op op (sg_op op z y) x).
 \end{lstlisting}
 where \lstinline|e| and the \lstinline|op|s are filled in by instance resolution.
 
@@ -326,7 +327,7 @@ At this point, a legitimate worry might be that the \lstinline|Equiv|/\lstinline
 
 A remaining eyesore in the theorem declaration is the enumeration of \lstinline|e| and \lstinline|op|. To remove these, we use a new parameter declaration feature called \emph{implicit generalization}, introduced in Coq specifically to support type classes. Using implicit generalization, we can write:
 \begin{lstlisting}
-  Lemma L `{SemiGroup G}: Π x y z: G, x & y & z = z & y & x.
+  Theorem example `{SemiGroup G}: Π x y z: G, x & y & z = z & y & x.
 \end{lstlisting}
 The backtick tells Coq to insert implicit declarations of further parameters to \lstinline|SemiGroup G|, namely those declared as \lstinline|e| and \lstinline|op| above. It further lets us omit a name for the \lstinline|SemiGroup G| parameter itself as well. All of these will be given automatically generated names that we will never refer to.
 
@@ -779,7 +780,7 @@ Basing theory and programs on this abstract interface instead of on specific imp
 
 Some theory and programs about naturals are more easily proved, respectively defined, for concrete implementations and then lifted to the abstract interface. For relatively simple things like decidability of equality, all that is needed to make this lifting easy is a handful of simple lemmas translating the initiality property back into statements saying that \lstinline|naturals_to_semiring| is extensionally equal to other semiring morphisms and involutary between \lstinline|Naturals| implementations. For the example of decidability, these let us define decidability for an arbitrary \lstinline|Naturals| implementation simply by mapping to the \lstinline|nat| implementation using \lstinline|naturals_to_semiring|, deciding equality there, and reflecting the equality or inequality proof back to the abstract implementation using the fact that \lstinline|naturals_to_semiring| is an involution.
 
-For more complex properties such as injectivity of partially applied addition and multiplication, we take a longer detour. As part of our universal algebra theory, we have proved that proofs of statements in the language of an equational theory can be transferred between isomorphic implementations. Combined with the trivially proved property that any two initial objects in a category are isomorphic, this lets us tranfer proofs of such statements between implementations of \lstinline|Naturals|, requiring only that we reflect the concrete statement (expressed in terms of the operational type classes) to a symbolic statement in the language of semirings. We intend to eventually make this reflection completely automatic using type class based quotation techniques along the lines of those described in Section~\ref{quoting}.
+For more complex properties such as injectivity of partially applied addition and multiplication, we take a longer detour. As part of our universal algebra theory, we have proved that proofs of statements in the language of an equational theory can be transferred between isomorphic implementations. Combined with the trivially proved property that any two initial objects in a category are isomorphic, this lets us transfer proofs of such statements between implementations of \lstinline|Naturals|, requiring only that we reflect the concrete statement (expressed in terms of the operational type classes) to a symbolic statement in the language of semirings. We intend to eventually make this reflection completely automatic using type class based quotation techniques along the lines of those described in Section~\ref{quoting}.
 
 Thanks to our close integration of universal algebra we can actually obtain a \lstinline|Naturals| implementation completely automatically, by invoking a generic construction of initial models built from the closed term algebra for the signature along with a setoid equality expressing the congruence closure of the identities in the equational theory. However, this implementation is not very useful, neither in terms of efficiency, nor as a canonical implementation (to be used as the basis for theory and programs that are then subsequently lifted). For example, defining a normalization procedure to decide the aforementioned setoid equality is far harder than deciding equality for, say, \lstinline|nat|.
 
@@ -794,7 +795,7 @@ Definition calculate_things `{Naturals N} `{Π$$n m: N, Decision (n = m)}
 \end{lstlisting}
 Without the \lstinline|Decision| parameter \lstinline|calculate_things| would be equally correct, but could be less efficient. Thus, by this scheme one can start by writing correct-but-possibly-inefficient programs that make use of generic operation instances, and then selectively improve efficiency of key algorithms simply by adding additional operational type class instance parameters where profiling shows it to make a significant difference, without changing their definition body.
 
-Other examples of operations on natural numbers that are sensible choices for specialization include: subtraction, distance, binary division and multiplication.
+Other examples of operations on natural numbers that are sensible choices for specialization include: subtraction, distance, and division and multiplication by 2.
 
 \subsection{Integers, rationals, and polynomials}
 
@@ -1145,7 +1146,7 @@ Unification hints are a more general mechanism than type classes, and could prov
 % Coq has supported universe-polymorphism for parameterized inductive definitions (different instantiations of which are automatically of the lowest possible sort taking into account the universe level constraints on the arguments) for some time. However, the same functionality has not been available for \emph{definitions}, primarily because of efficiency concerns. In our development, bla bla misery and drama when doing this and that. In response to our inquiries about this issue, the Coq development team has agreed to implement ``opt-in'' universe polymorphism, where only expressly annotated definitions are made universe-polymorphic. This should solve our problems.
 
 
-There are really only two pending concerns that keeps us from making an unequivocal endorsement of type classes as a versatile, expressive, and elegant means of organizing proof developments. The first and lesser of the two is universe polymorphism for definitions as described in the previous section. The second is instance resolution efficiency. In more complex parts of our development we are now experiencing increasingly serious efficiency problems, despite having already made sacrifices by artifically inhibiting many natural class instances in order not to further strain instance resolution.
+There are really only two pending concerns that keeps us from making an unequivocal endorsement of type classes as a versatile, expressive, and elegant means of organizing proof developments. The first and lesser of the two is universe polymorphism for definitions as described in the previous section. The second is instance resolution efficiency. In more complex parts of our development we are now experiencing increasingly serious efficiency problems, despite having already made sacrifices by artificially inhibiting many natural class instances in order not to further strain instance resolution.
 %While we have already found the predicate-class-based style of formalization to work very well for our development thus far, and believe it has the potential to be \emph{the} modern solution to this problem, in our work we have encountered a number of limitations in the Coq implementation of key features of the tool, that keep us from making an unconditional recommendation for universal adoption of these techniques.
 Fortunately, there is plenty of potential for improvement of the current instance resolution implementation. One source is the vast literature on efficient implementation of Prolog-style resolution, which the hint-based proof search used for instance resolution greatly resembles. We emphasize that these efficiency problems only affect type checking; efficiency of computation using type-checked terms is not affected.
 
