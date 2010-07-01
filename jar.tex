@@ -193,7 +193,7 @@ Unfortunately, despite its apparent virtues, the bundled representation introduc
 
 In our example, lack of sharing support rears its head as soon as we try to define \lstinline|EquivalenceRelation| in terms of \lstinline|ReflexiveRelation| and its hypothetical siblings bundling symmetric and transitive relations. There, we would need some way to make sure that when we `inherit' \lstinline|ReflexiveRelation|, \lstinline|SymmetricRelation|, and \lstinline|TransitiveRelation| by adding them as fields in our bundled record, they all refer to the same carrier and relation. Adding additional fields stating equalities between the three bundled carriers and relations is neither easily accomplished (because one would need to work with heterogenous equality) nor would it permit natural use of the resulting structure (because one would constantly have to rewrite things back and forth).
 
-Manifest fields~\cite{DBLP:conf/types/Luo08} have been proposed, and implemented in the Matita system, to address exactly this problem. We hope to convince the reader that type system extensions of this nature, designed to mitigate particular symptoms of the bundled approach, are less elegant than a solution (described in the next section) that avoids the problem altogether by using predicate-like type classes in place of bundled records.
+Manifest fields~\cite{Pollack:2002} have been proposed to address exactly this problem. In fact, a semblance has been implemented in the Matita system~\cite{sacerdoti2008working}. We hope to convince the reader that type system extensions of this nature, designed to mitigate particular symptoms of the bundled approach, are less elegant than a solution (described in the next section) that avoids the problem altogether by using predicate-like type classes in place of bundled records.
 
 If we revert back to the predicate formulation of relations, we \emph{could} still define \lstinline|EquivalenceRelation| in a bundled fashion without the need for equalities:
 \begin{lstlisting}
@@ -599,7 +599,7 @@ An alternative definition is the following:
     ; alt_adjunction_factor: Π `(f: c ⟶ G d),
         is_sole ((f =) ∘ (◎ η$$ c) ∘ fmap G) (φ f) }.
 \end{lstlisting}
-Formalizing the (nontrivial) proof that these two definitions are equivalent provides a nice test for our definitions. Preliminary results indicate that we can very concisely and closely follow the textbook proof. % todo: ref?
+Formalizing the (nontrivial) proof that these two definitions are equivalent provides a nice test for our definitions. As a first step, we have constructed the unit and co-unit of the adjunction, thus proving MacLane's Theorem 1. We have concisely and closely followed his proof~\cite{CatWork}. % todo: ref?
 
 \section{Universal algebra}\label{univ}
 
@@ -891,7 +891,7 @@ For the present example, we define an ad-hoc term language for monoids
 \begin{lstlisting}
   Inductive Expr (V: Type) := Mult (a b: Expr V) | One | Var (v: V).
 \end{lstlisting}
-The expression type is parameterized over the set of variable indices. Hence, we diverge from~\cite{Hints}, which uses \lstinline|nat| for variables, thereby introducing bound problems and a need for dummy variables.
+The expression type is parameterized over the set of variable indices. Below we use an implicitly defined heap of such variables. Hence, we diverge from~\cite{Hints}, which uses \lstinline|nat| for variables, thereby introducing bound problems and a need for dummy variables.
 
 Suppose now that we want to quote \lstinline|nat| expressions built from 1 and multiplication. To describe the relation we want the symbolic expression to have to the original expression, we first define how symbolic expressions evaluate to values (given a variable assignment):
 %An expression is only meaningful in the context of a variable assignment:\footnote{Categorically: \lstinline|nat| is an \lstinline|Expr|-algebra and \lstinline|eval| is \lstinline|map vars| composed with the algebra map.}
