@@ -511,8 +511,8 @@ Following our idiom, we introduce operational type classes for the \emph{compone
 With these in place, our type class for categories follows the usual type-theoretical definition of a
 category~\cite{saibi1995constructive}:
 \begin{lstlisting}
-  Class Category (O: Type) `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)}
-      `{!CatId O} `{!CatComp O}: Prop :=
+  Class Category (O: Type) `{Arrows O} `{Π x y: O, Equiv (x ⟶ y)}
+      `{CatId O} `{CatComp O}: Prop :=
     { arrow_equiv:> Π x y, Setoid (x ⟶ y)
     ; comp_proper:> Π x y z, Proper (equiv ==> equiv ==> equiv) comp
     ; comp_assoc w x y z (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
@@ -652,7 +652,7 @@ We now introduce a predicate class designating algebras that satisfy the laws of
 \begin{lstlisting}
   Class InVariety
     (et: EquationalTheory) (carriers: sorts et → Type)
-    {e: Π a, Equiv (carriers a)} `{!AlgebraOps et carriers}: Prop :=
+    {e: Π a, Equiv (carriers a)} `{AlgebraOps et carriers}: Prop :=
     { variety_algebra:> Algebra et carriers
     ; variety_laws: Π s, eqt_laws et s → (Π $\hspace{-1.5mm}$vars, eval_stmt et vars s) }.
 \end{lstlisting}
@@ -700,7 +700,7 @@ We have proved that this natural and economical type-theoretic formulation that 
 
 For the homomorphism theorem, we begin by declaring our dramatis personae:
 \begin{lstlisting}
-  Context `{Algebra σ$$ A} `{Algebra σ$$ B} `{!HomoMorphism σ$$ A B f}.
+  Context `{Algebra σ$$ A} `{Algebra σ$$ B} `{HomoMorphism σ$$ A B f}.
 \end{lstlisting}
 With \lstinline|~| defined as described, the first part of the proof is simply the definition of the following instance:
 \begin{lstlisting}
@@ -754,7 +754,7 @@ The \lstinline|Program| command generates proof obligations (not shown) expressi
 
 \lstinline|EquationalTheory|'s for semirings and rings are easy to define, and so from section~\ref{varieties} we get corresponding categories in which we can postulate initial objects:
 \begin{lstlisting}
-  Class Naturals (A: ObjectInVariety semiring_theory) `{!InitialArrow A}: Prop :=
+  Class Naturals (A: ObjectInVariety semiring_theory) `{InitialArrow A}: Prop :=
     { naturals_initial:> Initial A }.
 \end{lstlisting}
 While succinct, this definition is not a satisfactory abstraction because the use of \lstinline|ObjectInVariety| for the type of the \lstinline|A| component `leaks' the fact that we used this one particular universal algebraic construction of the category, which is just an implementation choice. Furthermore, this definition needs an additional layer of class instances to relate it to the \lstinline|SemiRing| class from our algebraic hierarchy.
@@ -777,7 +777,7 @@ To use \lstinline|NaturalsToSemiRing| with \lstinline|Initial|, we define an add
 
 With these instances in place, we can now define the improved natural numbers specification:
 \begin{lstlisting}
-  Context `{SemiRing A} `{!NaturalsToSemiRing A}.
+  Context `{SemiRing A} `{NaturalsToSemiRing A}.
   Class Naturals: Prop :=
     { naturals_ring:> SemiRing A
     ; naturals_to_semiring_mor:> Π `{SemiRing B},
@@ -963,7 +963,7 @@ The expression `1' can be quoted in any context \lstinline|(V, v)|, introduces n
 The \lstinline|Quote| instance for multiplication is a little more subtle, but really only does a bit of heap juggling:
 \begin{lstlisting}
   Instance quote_mult V (v: Env V) n V' (v': Env V') m V'' (v'': Env V'')
-    `{!Quote v n v'} `{!Quote (merge v v') m v''}:
+    `{Quote v n v'} `{Quote (merge v v') m v''}:
       Quote v (n * m) (merge v' v'') :=
       { quote :=
         Mult (map_var shift (quote n)) (map_var sum_assoc (quote m)) }.
@@ -981,10 +981,10 @@ Finally, if an expression can be looked up in a pack, then it can also be looked
 \begin{lstlisting}
   Context (x: Value) {A B} (va: Env A) (vb: Env B).
 
-  Instance lookup_left `{!Lookup x va}: Lookup x (merge va vb)
+  Instance lookup_left `{Lookup x va}: Lookup x (merge va vb)
     := { key := inl (key x va) }.
 
-  Instance lookup_right `{!Lookup x vb}: Lookup x (merge va vb)
+  Instance lookup_right `{Lookup x vb}: Lookup x (merge va vb)
     := { key := inr (key x vb) }.
 \end{lstlisting}
 
@@ -1017,7 +1017,7 @@ The \lstinline|rewrite| rewrites the goal to (something that reduces to):
 The following additional utility lemma lets us quote equalities with a shared heap (so that an opaque expression that occurs on both sides of the equation is not represented by two distinct variables):
 \begin{lstlisting}
   Lemma quote_equality {V} {v: Env V} {V'} {v': Env V'} (l r: Value)
-    `{!Quote novars l v} `{!Quote v r v'}:
+    `{Quote novars l v} `{Quote v r v'}:
       let heap := merge v v' in
       eval heap (map_var shift quote) = eval heap quote → l = r.
 \end{lstlisting}
