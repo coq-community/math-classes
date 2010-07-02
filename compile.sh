@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cp jar.tex tmp.tex
+cp mscs.tex tmp.tex
 dot -Tpdf hierarchy.dot > hierarchy.pdf
 
 set -e
@@ -9,5 +9,5 @@ bibtex tmp
 pdflatex tmp.tex
 bibtex tmp
 pdflatex tmp.tex
-cat tmp.pdf > jar.pdf
+cat tmp.pdf > mscs.pdf
 rm tmp.*
