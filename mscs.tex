@@ -840,7 +840,7 @@ Here, \lstinline|Z| is an \lstinline|Integers| implementation paramerized by a \
 
 In our development we prove that the standard library's default rationals do indeed implement \lstinline|Rationals|, as do implementations of the \lstinline|QType| module interface. While the latter is rather ad-hoc from a theoretical perspective, it is nevertheless of great practical interest because it is used for the very efficient \lstinline|BigQ| rationals based on machine integers~\cite{machineintegers}. Hence, theory and programs developed on our \lstinline|Rationals| interface applies and can make immediate use of these efficient rationals. We plan to rebase the computable real number implementation~\cite{Oconnor:real} on this interface, precisely so that it may be instantiated with efficient implementations like these.
 
-We also plan to provide an abstract interface for polynomials as a free commutative algebra. This would unify existing implementations such as coefficient lists and Bernstein polynomials.
+We also plan to provide an abstract interface for polynomials as a free commutative algebra. This would unify existing implementations such as coefficient lists and Bernstein polynomials; see~\cite{ZumkellerPhD} for the latter.
 
 % Eelis: and when we do, we can write something like:
 % Given a ring $R$, the $R$-algebra $R[X]$ of polynomials, is the free $R$-algebra on a set $X$.
