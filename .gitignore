@@ -1,7 +1,9 @@
 *.vo
 *.glob
+*.pdf
+*.crashcoqide
+tmp.*
 src/deps
 src/.sconsign.dblite
 coqidescript
 coqdoc
-*.crashcoqide
