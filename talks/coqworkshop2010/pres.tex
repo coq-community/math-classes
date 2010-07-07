@@ -1,0 +1,344 @@
+\documentclass{beamer}
+
+
+\mode<presentation>
+{
+  %\usetheme{Darmstadt}
+  %\usetheme{Berlin}
+  %\usetheme{default}
+  \usetheme{Dresden}
+    % Not too large, doesn't continuously list all the sections.
+  \setbeamercovered{transparent}
+}
+
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage{verbatim}
+\usepackage[T1]{fontenc}
+% \usepackage[usenames]{color}
+\usepackage{marvosym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{upgreek}
+\usepackage[mathletters]{ucs}
+\usepackage[utf8x]{inputenx}
+
+\definecolor{dkblue}{rgb}{0,0.1,0.5}
+\definecolor{lightblue}{rgb}{0,0.5,0.5}
+\definecolor{dkgreen}{rgb}{0,0.4,0}
+\definecolor{dk2green}{rgb}{0.4,0,0}
+\definecolor{dkviolet}{rgb}{0.6,0,0.8}
+
+\usepackage{listings}
+  % The package listingsutf8 supports utf8 for \lstinputlisting
+  % However, we do not want to put all our code snippets in separate files.
+
+\def\lstlanguagefiles{defManSSR.tex}
+\lstset{language=SSR}
+\lstset{literate=
+  % symbols that actually occur as unicode in our source:
+  {λ}{{$\uplambda\ $}}1
+  {σ}{{$\upsigma$}}1
+  {η}{{$\upeta$}}1
+  {φ}{{$\upphi$}}1
+  {∃}{{$\exists$}}1
+  {→}{{$\to\ $}}1
+  {≠}{{$\ne\ $}}1
+  {¬}{{$\neg\ $}}1
+  {⟶}{{$\longrightarrow\ $}}1
+  {⇛}{{$\Longrightarrow\ $}}1
+  {∧}{{$\land$}}1
+  {∀}{{$\forall$}}1
+  {Π}{{$\Uppi$ }}1
+  {η}{{$\upeta$}}1
+  {⊓}{{$\sqcap$}}1
+  {∘}{{$\circ\ $}}1
+  {◎}{{$\odot$}}1
+  { ≡ }{{$\equiv\ $}}1
+  % things we can't make pretty in the actual source, but can make pretty here!:
+  {=>}{{$\,\Rightarrow\ $}}1
+  {==>}{{$\Rightarrow\ $}}1
+  {<-}{{$\leftarrow\ $}}1
+  {~}{{$\sim$}}1
+  {->}{{$\to$ }}1
+  %{bumpeq}{{$\Bumpeq$}}1
+}
+
+
+
+\title{Type Classes for Mathematics}
+
+\author[Eelis van der Weegen et al.]{
+Eelis van der Weegen \and \\
+{\small J.w.w. Bas Spitters}}
+
+\institute{Radboud University Nijmegen}
+ 
+\date{Coq Workshop 2010}
+
+\begin{document}
+
+\begin{frame}\titlepage\end{frame}
+% todo: customary to list the other authors here, too?
+
+\begin{frame}
+\frametitle{Interfaces for mathematical structures:}
+
+% so, if you want to do anything interesting in Coq, at some point you will very likely 
+
+\begin{itemize}
+\item Algebraic hierarchy (groups, rings, fields, ...).
+\item Relations, orders, ...
+\item Categories, functors, ...
+\item Algebras over equational theories.
+\item Numbers ($\mathbb{N}$, $\mathbb{Z}$, $\mathbb{Q}$, $\mathbb{R}$, ...)
+  % for some reason often don't do is building programs and theory on abstract interfaces for numbers. we are however very much interested in this because corn blabla swapping implementations, efficiency.
+\end{itemize}
+  % so, it's very important to have solid formalizations of these interfaces.
+Need solid representations of these.
+  % and preferably one day we'll even agree on what these should look like in Coq, but let's not get ahead of ourselves. ;-)
+\end{frame}
+
+% now, if you want to formalize these in a practical system like Coq, you have figure out a nice way to represent them that is convenient to work and hopefully still mathematically sound. and so this sort of becomes a software engineering challenge, and we can point out some of the typical things that solutions need to address:
+\begin{frame}
+\frametitle{Representing interfaces in Coq}
+
+Engineering challenges:
+\begin{itemize}
+\item Structure inference.
+\item Multiple inheritance/sharing.
+\item Convenient algebraic manipulation (e.g. rewriting).
+\item Idiomatic use of notations.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Solutions in Coq}
+Existing solutions:
+\begin{itemize}
+\item Dependent records.
+\item ``Packed classes'' (Ssreflect).
+\item Modules.
+\end{itemize}
+\ \\
+\ \\
+% all of these have their strengths and weaknesses and make different use of the features that Coq provides.
+
+% now, a while ago Coq got a /new/ feature, namely type classes, and we figured:
+Question:
+\begin{quote}
+  What would a solution using \emph{type classes} look like?
+\end{quote}
+Our work: one such solution.
+
+
+%Our work is one such solution.
+% and so we started developing one, and we think it's turning out rather well, so i'll show you what it looks like.
+\end{frame}
+
+\begin{frame}
+% now, i don't know how many of you have actually already started using type classes, so i'll summarize the key properties of the Coq implementation of type classes in one slide
+\frametitle{Type classes}
+
+Implementation in Coq is \emph{first class}:
+\begin{itemize}
+\item \emph{Classes} are just records (``dictionaries'').
+\item Class \emph{instances} are just terms of these records,
+\item ... registered as hints for instance resolution.
+\item Class \emph{constraints} are just implicit parameters,
+\item ... resolved during unification, using instance hints.
+\end{itemize}
+% so it's a relatively light-weight tightly integrated implementation (very much taking advantage of the expressive power of dependent types), and in this sense it's really unlike the implementation of type classes in say Haskell or Isabelle, where type classes are really a completely distinct feature.
+
+% ok, so that's type classes in a nutshell. i'll now show you how we actually use them.
+\end{frame}
+
+% core principle in our approach is to keep operations, relations, carriers _unbundled_. and i'll first very briefly motivate this approach and then show you what it looks like in terms of type classes.
+
+\begin{frame}
+\frametitle{Bundling}
+
+Core principle in our approach: \\
+\begin{itemize}
+\item[] Represent algebraic structures as predicates,
+\item[] ... over fully \emph{unbundled} components.
+\end{itemize}
+  % and by components i mean all the non-propositional stuff (i.e. carriers, relations, operations)
+  % now, to illustrate how and why we do this, let's talk a bit about bundling.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Bundling: The trade-off}
+% so here's what a unbundled predicate thing
+% i'll use the nice and simplistic example of a reflexive relation.
+
+Fully unbundled:
+\begin{lstlisting}
+  Definition reflexive {A: Type} (R: relation A): Prop
+    := Π a, R a a.
+\end{lstlisting}
+
+\begin{itemize}
+\item Very flexible \emph{in theory}.
+  % but multiple inheritance and other kinds of sharing is trivial!
+\item Inconvenient \emph{in practice} (without type classes!):
+  \begin{itemize}
+    \item Nothing to bind notations to. % because no canonical names
+    \item Declaring/passing inconvenient. % enumerate them all all the time
+    \item Structure inference. % there's nothing to hold on to
+  \end{itemize}
+\item Hence: existing solutions choose to bundle. % which is entirely understable
+\end{itemize}
+% now our claim is that these problems can be very effectively solved by using type classes, but first let's talk about why this bundling is actually bad.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Bundling is bad}
+
+Fully bundled (the other end of the spectrum):
+\begin{lstlisting}
+  Record ReflexiveRelation: Type :=
+    { A: Type; $\hspace{3mm}$R: relation A; $\hspace{3mm}$proof: Π a, R a a }.
+\end{lstlisting}
+Addresses \emph{some} of the problems:
+\begin{itemize}
+\item Structure inference. % because you can make these fields canonical
+\item Notations. % because we now have canonical names. theoretically you could now bind a notation to this reflexive relation field R
+\item Declaring/passing.
+\end{itemize}
+
+But also introduces new ones:
+\begin{itemize}
+\item Prevents sharing.
+\item Projection paths.
+\end{itemize}
+  % these are very real problems. nevertheless, some form of bundling has been a perfectly reasonable approach because the unbundled approach was basically unworkable. however, now we get to the part where we argue that with type classes, the unbundled predicate approach can actually overcome the problems that were traditionally associated with it.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Solving problems with type classes}
+
+Slightly more interesting example:
+\begin{lstlisting}
+  Record SemiGroup
+      (G: Type) (e: relation G) (op: G -> G -> G): Prop :=
+    { sg_setoid: Equivalence e
+    ; sg_ass: Associative op
+    ; sg_proper: Proper (e ==> e ==> e) op }.
+\end{lstlisting}
+
+Modifications:
+\begin{enumerate}
+  % first, we make it a type class, and we'll refer to such type classes as "predicate classes".
+\item Make it a type class (``predicate class'').
+\item Use \emph{operational type classes} for \lstinline|e| and \lstinline|op|.
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Solving problems with type classes (cont'd)}
+Revised \lstinline|SemiGroup|:
+\begin{lstlisting}
+  Class Equiv (A: Type) := equiv: relation A.
+  Class SemiGroupOp (A: Type) := sg_op: A $\to$ A $\to$ A.
+
+  Infix "=" := equiv.
+  Infix "&" := sg_op.
+
+  Class SemiGroup
+      (G: Type) {e: Equiv G} {op: SemiGroupOp G}: Prop :=
+    { sg_setoid:> Equivalence e
+    ; sg_ass:> Associative op
+    ; sg_proper:> Proper (e ==> e ==> e) op }.
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+Declaration syntax:
+
+\begin{lstlisting}
+  Lemma bla `{SemiGroup G}:
+    Π x y z: G, x & (y & z) = (x & y) & z.
+\end{lstlisting}
+\end{frame}
+
+
+% - what we have developed in this style:
+
+\begin{frame}[fragile]
+\frametitle{Algebraic hierarchy}
+
+\begin{columns}
+  \column{.35\textwidth}
+    \includegraphics[scale=0.8]{hierarchy.pdf}
+  \column{.65\textwidth}
+Features:
+\begin{itemize}
+\item No distinction between axiomatic and derived inheritance.
+  % point to Ring→SemiRing derivation, which is just a separate instance declaration:
+  % Instance Instance ring_as_semiring `{Ring R}: SemiRing R.
+
+\item No rebundling.
+\item No projection paths (hence, no ambiguous projection paths).
+\item Instances opaque. % because it's just proofs
+\item Terms never refer to proofs. % structural information just floats around in the context without terms referring to them.
+\item Overlapping instances entirely harmless. % happens in SemiRing's multiple inheritance, for example. that will give two Setoid instances for the equivalence relation.
+\item Seemless setoid/rewriting support.
+\end{itemize}
+% full support for setoids and setoid rewriting; seemless integration thanks to the fact that equivalence relations and morphisms can now be registered using type class instances. only worth mentioning to contrast with the ssreflect hierarchy which does /not/ have built-in setoid support. we also don't restrict ourselves to decidable anything, but you're free to posit decidability of things, and by the way doing that with an operational type class is very neat.
+\end{columns}
+\end{frame}
+
+% hm, if time left (unlikely), could show how SemiRing does multiple inheritance with named arguments.
+
+\begin{frame}
+\frametitle{Category theory}
+\end{frame}
+
+\begin{frame}
+\frametitle{Universal algebra}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Numerical interfaces}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Specialization} % should only take a minute
+\end{frame}
+
+\begin{frame}
+\frametitle{Quoting} % maybe no time for this
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Conclusions}
+
+Very promising.
+
+We feel that type classes match mathematical practice.
+
+Especially predicate classes very natural and general database of known information. And because of blabla, overlap and wild instance search no problem.
+
+However, these need to be addressed:
+- instance resolution efficiency
+- universe polymorphism
+- lesser: ``infer if possible, generalize otherwise''.
+
+\end{frame}
+
+\setbeamercolor{background canvas}{bg=black}
+\begin{frame}
+\end{frame}
+
+\end{document}
+
