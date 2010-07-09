@@ -145,7 +145,7 @@ New solution: Use type classes!
 Implementation in Coq is \emph{first class}:
 \begin{itemize}
 \item \emph{Classes}: records (``dictionaries'')
-\item Class \emph{instances}: terms (of these record types)
+\item Class \emph{instances}: constants of these record types
 \item ... registered as hints for instance resolution.
 \item Class \emph{constraints}: implicit parameters
 \item ... resolved during unification using instance hints.
@@ -198,7 +198,7 @@ Fully {\color{blue}unbundled}:
 \begin{frame}[fragile]
 \frametitle{Bundling is bad}
 
-Fully {\color{blue}unbundled} (the other end of the spectrum):
+Fully {\color{blue}bundled} (the other end of the spectrum):
 \begin{lstlisting}
   Record ReflexiveRelation: Type :=
     { A: Type; $\hspace{3mm}$R: relation A; $\hspace{3mm}$proof: Π a, R a a }.
@@ -444,8 +444,8 @@ Minimalistic interface for $\mathbb{N}$:
 
 More convenient: % and this is the one we actually use.
 \begin{lstlisting}
-  Class Naturals
-      `{SemiRing A} `{NaturalsToSemiRing A}: Prop :=
+  Context `{SemiRing A}. 
+  Class Naturals `{NaturalsToSemiRing A}: Prop :=
     { naturals_ring:> SemiRing A
     ; naturals_to_semiring_mor:> Π `{SemiRing B},
         SemiRing_Morphism (naturals_to_semiring A B)
