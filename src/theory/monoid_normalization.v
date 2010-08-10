@@ -60,10 +60,10 @@ Section contents.
 
   Context `{Monoid M}.
 
-  Notation eval vs := (universal_algebra.eval msig (λ _ => (vs: V → M))).
+  Notation eval vs := (universal_algebra.eval msig (λ _, (vs: V → M))).
 
   Program Fixpoint internal_simplify (t: Term) {measure (measure t)}:
-      { r: Term | Π v, eval v (curry (to_ua r)) = eval v (curry (to_ua t)) } :=
+      { r: Term | ∀ v, eval v (curry (to_ua r)) = eval v (curry (to_ua t)) } :=
     match t with
     | Var _ => t
     | Unit => t
@@ -81,7 +81,7 @@ Section contents.
    destruct internal_simplify.
    simpl.
    rewrite e0.
-   transitivity (mon_unit & universal_algebra.eval msig (λ _ => v) (curry (to_ua y))).
+   transitivity (mon_unit & universal_algebra.eval msig (λ _, v) (curry (to_ua y))).
     symmetry.
     apply left_identity.
    reflexivity.
@@ -91,7 +91,7 @@ Section contents.
    destruct internal_simplify.
    simpl.
    rewrite e0.
-   transitivity (universal_algebra.eval msig (λ _ => v) (curry (to_ua x)) & mon_unit).
+   transitivity (universal_algebra.eval msig (λ _, v) (curry (to_ua x)) & mon_unit).
     symmetry.
     apply right_identity.
    reflexivity.
@@ -100,7 +100,7 @@ Section contents.
   Next Obligation. destruct internal_simplify. simpl. rewrite e0. reflexivity. Qed.
   Next Obligation. destruct internal_simplify. simpl. rewrite e0. simpl. apply associativity. Qed.
 
-  Program Definition simplify (t: uaTerm): { r: uaTerm | Π v, eval v r = eval v t } :=
+  Program Definition simplify (t: uaTerm): { r: uaTerm | ∀ v, eval v r = eval v t } :=
     curry (to_ua (internal_simplify (from_ua (decode0 t)))).
 
   Next Obligation.
@@ -118,7 +118,7 @@ Section contents.
 
   Instance: Equiv V := eq.
 
-  Goal Π (x y: uaTerm), open_terms.ee msig msig monoid.Laws (ne_list.one tt) x y →
+  Goal ∀ (x y: uaTerm), open_terms.ee msig msig monoid.Laws (ne_list.one tt) x y →
    ` (simplify x) ≡ ` (simplify y).
   Proof.
 

@@ -29,7 +29,7 @@ Section contents.
 
   Definition head (l: L): T := match l with one x => x | cons x _ => x end.
 
-  Definition last: L → T := foldr1 (λ x y => y).
+  Definition last: L → T := foldr1 (λ x y, y).
 
   Fixpoint replicate_Sn (x: T) (n: nat): L :=
     match n with

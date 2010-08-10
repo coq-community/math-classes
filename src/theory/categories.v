@@ -3,7 +3,7 @@ Set Automatic Introduction.
 Require Import
   Relation_Definitions Morphisms Setoid Program abstract_algebra setoids functors.
 
-Notation "x ⇛ y" := (Π a, x a ⟶ y a) (at level 90, right associativity).
+Notation "x ⇛ y" := (∀ a, x a ⟶ y a) (at level 90, right associativity).
   (* Transformations (polymorphic arrows). Couldn't find an "arrow with dot over it" unicode character. *)
 
 (* Natural transformations: *)
@@ -13,7 +13,7 @@ Section natural_transformation.
   Context `{Category C} `{Category D} `{!Functor (F: C → D) Fa} `{!Functor (G: C → D) Ga}.
 
   Class NaturalTransformation (η: F ⇛ G): Prop :=
-    natural: Π `(f: x ⟶ y), η y ◎ fmap F f = fmap G f ◎ η x.
+    natural: ∀ `(f: x ⟶ y), η y ◎ fmap F f = fmap G f ◎ η x.
 
 End natural_transformation.
 
@@ -27,7 +27,7 @@ Section adjunction.
 
   Section symmetric.
 
-    Context (φ: Π `(F c ⟶ d), (c ⟶ G d)).
+    Context (φ: ∀ `(F c ⟶ d), (c ⟶ G d)).
 
     Implicit Arguments φ [[c] [d]].
 
@@ -51,13 +51,13 @@ Section adjunction.
 
   Section alt.
 
-    Context (η: id ⇛ G ∘ F) (φ: Π `(f: c ⟶ G d), F c ⟶ d).
+    Context (η: id ⇛ G ∘ F) (φ: ∀ `(f: c ⟶ G d), F c ⟶ d).
 
     Implicit Arguments φ [[c] [d]].
 
     Class AltAdjunction: Prop :=
      { alt_adjunction_natural_unit: NaturalTransformation η
-     ; alt_adjunction_factor: Π c d (f: c ⟶ G d),
+     ; alt_adjunction_factor: ∀ c d (f: c ⟶ G d),
          is_sole ((f =) ∘ (◎ η c) ∘ fmap G) (φ f) }.
 
   End alt.
@@ -69,7 +69,7 @@ Section contents.
   Context `{Category X}.
 
   Class Mono `(a: x ⟶ y): Prop :=
-    mono: Π z (f g: z ⟶ x), a ◎ f = a ◎ g → f = g.
+    mono: ∀ z (f g: z ⟶ x), a ◎ f = a ◎ g → f = g.
 
   Section isomorphy.
 
@@ -84,10 +84,10 @@ Section contents.
     Definition isos_unique (x y: X) (a: x ⟶ y) (b b': y ⟶ x): iso_arrows a b → iso_arrows a b' → b = b'.
     Proof. intros [P Q] [R S]. rewrite <- id_l. rewrite <- S, <- comp_assoc, P. apply id_r. Qed.
 
-    Definition iso: Equiv X := λ x y => ex (uncurry (@iso_arrows x y)).
-    Definition isoT: X → X → Type := λ x y => sig (uncurry (@iso_arrows x y)).
+    Definition iso: Equiv X := λ x y, ex (uncurry (@iso_arrows x y)).
+    Definition isoT: X → X → Type := λ x y, sig (uncurry (@iso_arrows x y)).
 
-    Program Instance: Reflexive iso := λ x => ex_intro _ (cat_id, cat_id) _.
+    Program Instance: Reflexive iso := λ x, ex_intro _ (cat_id, cat_id) _.
     Next Obligation. split; apply id_l. Qed.
 
     Instance: Symmetric iso.
@@ -130,12 +130,12 @@ Section contents.
 
   Section initiality.
 
-    Class InitialArrow (x: X): Type := initial_arrow: Π y, x ⟶ y.
+    Class InitialArrow (x: X): Type := initial_arrow: ∀ y, x ⟶ y.
 
     Class Initial (x: X) `{InitialArrow x}: Prop :=
-      initial_arrow_unique: Π y f', initial_arrow y = f'.
+      initial_arrow_unique: ∀ y f', initial_arrow y = f'.
 
-    Definition initial (x: X): Type := Π y: X, sig (λ a: x ⟶ y => Π a': x ⟶ y, a = a').
+    Definition initial (x: X): Type := ∀ y: X, sig (λ a: x ⟶ y, ∀ a': x ⟶ y, a = a').
 
     Lemma initials_unique' (x x': X) `{Initial x} `{Initial x'}:
       iso_arrows (initial_arrow x': x ⟶ x') (initial_arrow x).
@@ -161,14 +161,14 @@ Section contents.
 
       Context (product: X).
 
-      Class ElimProduct: Type := tuple_proj: Π i, product ⟶ component i.
-      Class IntroProduct: Type := make_tuple: Π x, (Π i, x ⟶ component i) → (x ⟶ product).
+      Class ElimProduct: Type := tuple_proj: ∀ i, product ⟶ component i.
+      Class IntroProduct: Type := make_tuple: ∀ x, (∀ i, x ⟶ component i) → (x ⟶ product).
 
       Class Product `{ElimProduct} `{IntroProduct}: Prop :=
-        product_factors: Π c ccomp, is_sole (λ h' => Π i, ccomp i = tuple_proj i ◎ h')
+        product_factors: ∀ c ccomp, is_sole (λ h', ∀ i, ccomp i = tuple_proj i ◎ h')
           (make_tuple c ccomp).
 
-      Lemma tuple_round_trip `{Product} (x: X) (h: Π i, x ⟶ component i) i:
+      Lemma tuple_round_trip `{Product} (x: X) (h: ∀ i, x ⟶ component i) i:
         tuple_proj i ◎ make_tuple x h = h i.
       Proof. symmetry. apply product_factors. Qed.
 
@@ -181,7 +181,7 @@ Section contents.
     Proof with intuition.
      unfold iso_arrows.
      revert c H1 H2 H3 c' H4 H5 H6.
-     cut (Π `{Product x} `{Product y},
+     cut (∀ `{Product x} `{Product y},
        make_tuple x y (tuple_proj y) ◎ make_tuple y x (tuple_proj x) = cat_id)...
      pose proof (proj2 (product_factors x x (tuple_proj x))) as Q.
      rewrite (Q cat_id)... rewrite Q...
@@ -195,9 +195,9 @@ Section contents.
   Class Producer: Type := product I: (I → X) → X.
 
   Class HasProducts `{Producer}
-    `{Π I c, ElimProduct c (product I c)}
-    `{Π I c, IntroProduct c (product I c)}: Prop :=
-      makes_products: Π I (c: I → X), Product c (product I c).
+    `{∀ I c, ElimProduct c (product I c)}
+    `{∀ I c, IntroProduct c (product I c)}: Prop :=
+      makes_products: ∀ I (c: I → X), Product c (product I c).
 
 (*
   Definition binary_product `{Producer} (x y: X): Product (λ b: bool => if b then x else y) := produce _.
@@ -212,16 +212,16 @@ Section contents.
 
       Context {x} (inject: S ⟶ forget x).
 
-      Definition proves_free (factor: Π x', (S ⟶ forget x') → (x ⟶ x')): Prop :=
-          Π x' (inject': S ⟶ forget x'), is_sole ((inject' =) ∘ (◎ inject) ∘ fmap forget) (factor _ inject').
+      Definition proves_free (factor: ∀ x', (S ⟶ forget x') → (x ⟶ x')): Prop :=
+          ∀ x' (inject': S ⟶ forget x'), is_sole ((inject' =) ∘ (◎ inject) ∘ fmap forget) (factor _ inject').
 
       Definition free: Prop := ex proves_free.
 
     End candidate.
 
     Lemma frees_unique (x x': X) (inject: S ⟶ forget x) (inject': S ⟶ forget x')
-      (factor: Π z, (S ⟶ forget z) → (x ⟶ z))
-      (factor': Π z, (S ⟶ forget z) → (x' ⟶ z)):
+      (factor: ∀ z, (S ⟶ forget z) → (x ⟶ z))
+      (factor': ∀ z, (S ⟶ forget z) → (x' ⟶ z)):
        proves_free inject factor → proves_free inject' factor' →
        iso_arrows (factor _ inject') (factor' _ inject).
     Proof with auto; try reflexivity; try apply _.
@@ -254,9 +254,9 @@ Lemma freedom_as_adjunction
   `{!Functor (forget: Extra → Base) forget_arr}
   `{!Functor (freeF: Base → Extra) free_arr}
   (eta: id ⇛ forget ∘ freeF)
-  (phi: Π x y, (x ⟶ forget y) → (freeF x ⟶ y))
+  (phi: ∀ x y, (x ⟶ forget y) → (freeF x ⟶ y))
   `{!AltAdjunction freeF forget eta phi}:
-    Π b, proves_free forget b (eta b) (phi b).
+    ∀ b, proves_free forget b (eta b) (phi b).
 Proof. exact (alt_adjunction_factor _ _ _ _). Qed.
 
 Implicit Arguments Producer [].

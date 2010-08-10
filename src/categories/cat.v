@@ -7,7 +7,7 @@ Require Import
 Record Object := object
   { obj:> Type
   ; Arrows_inst: Arrows obj
-  ; Equiv_inst: Π x y: obj, Equiv (x ⟶ y)
+  ; Equiv_inst: ∀ x y: obj, Equiv (x ⟶ y)
   ; CatId_inst: CatId obj
   ; CatComp_inst: CatComp obj
   ; Category_inst: Category obj }.
@@ -44,14 +44,14 @@ Section contents.
 
   Section more_arrows. Context (x y: Object).
 
-    Global Program Instance e: Equiv (x ⟶ y) := λ a b =>
-      exists X: Π _, isoT _ _, Π (p q: x) (r: p ⟶ q),
+    Global Program Instance e: Equiv (x ⟶ y) := λ a b,
+      exists X: ∀ _, isoT _ _, ∀ (p q: x) (r: p ⟶ q),
        fmap a r ◎ snd (X p) = snd (X q) ◎ fmap b r.
 
     Let e_refl: Reflexive e.
     Proof.
      intro a.
-     exists (λ v => refl_arrows (a v)).
+     exists (λ v, refl_arrows (a v)).
      intros ???. simpl.
      rewrite id_l, id_r. reflexivity.
     Qed.
@@ -64,7 +64,7 @@ Section contents.
     Let e_sym: Symmetric e.
     Proof.
      intros ?? [x1 H].
-     exists (λ v => sym_arrows _ _ _ (x1 v)). simpl.
+     exists (λ v, sym_arrows _ _ _ (x1 v)). simpl.
      intros ???.
      pose proof (H p q r).
      destruct (x1 p), (x1 q). simpl in *.
@@ -73,8 +73,8 @@ Section contents.
     Qed. (* todo: clean up *)
 
     Program Let trans_arrows (x0 y0 z: x → y) (v: x)
-     (x1: sig (λ (p: (x0 v ⟶ y0 v) * _) => uncurry iso_arrows p))
-     (x2: sig (λ (p: (y0 v ⟶ z v) * _) => uncurry iso_arrows p)): (* todo: use isoT *)
+     (x1: sig (λ (p: (x0 v ⟶ y0 v) * _), uncurry iso_arrows p))
+     (x2: sig (λ (p: (y0 v ⟶ z v) * _), uncurry iso_arrows p)): (* todo: use isoT *)
       isoT (x0 v) (z v) := (fst x2 ◎ fst x1, snd x1 ◎ snd x2).
 
     Next Obligation. Proof with assumption.
@@ -86,7 +86,7 @@ Section contents.
     Let e_trans: Transitive e.
     Proof.
      intros a b c [f H] [g H0].
-     exists (λ v => trans_arrows _ _ _ _ (f v) (g v)).
+     exists (λ v, trans_arrows _ _ _ _ (f v) (g v)).
      simpl. intros ? ? ?.
      generalize (H p q r), (H0 p q r).
      clear H H0. intros E E'.
@@ -101,7 +101,7 @@ Section contents.
 
   Let obj_iso (x: Object): Equiv x := @iso x _ _ _ _.
 
-  Global Instance: Π (x y: Object) (a: x ⟶ y), Setoid_Morphism (map_obj a).
+  Global Instance: ∀ (x y: Object) (a: x ⟶ y), Setoid_Morphism (map_obj a).
   Proof with try apply _.
    constructor...
    intros v w [[f g] [E F]].
@@ -112,13 +112,13 @@ Section contents.
    rewrite F. apply preserves_id...
   Qed. (* Putting this in the "arrows" section above (where it belongs) triggers a Coq bug. *)
 
-  Global Instance: CatId Object := λ _ => arrow id _ _.
+  Global Instance: CatId Object := λ _, arrow id _ _.
 
-  Global Program Instance: CatComp Object := λ _ _ _ x y => arrow (x ∘ y) _ _.
+  Global Program Instance: CatComp Object := λ _ _ _ x y, arrow (x ∘ y) _ _.
 
   Program Let proper_arrows (x y z: Object) (x0 y0: y ⟶ z) (x1 y1: x ⟶ y)
-    (f: Π v, @isoT _ _ _ _ _ (map_obj x0 v) (map_obj y0 v))
-    (g: Π v, @isoT _ _ _ _ _ (map_obj x1 v) (map_obj y1 v)) (v: x):
+    (f: ∀ v, @isoT _ _ _ _ _ (map_obj x0 v) (map_obj y0 v))
+    (g: ∀ v, @isoT _ _ _ _ _ (map_obj x1 v) (map_obj y1 v)) (v: x):
       @isoT _ _ _ _ _ (map_obj x0 (map_obj x1 v)) (map_obj y0 (map_obj y1 v))
    := (fst (f (y1 v)) ◎ fmap x0 (fst (g v)), fmap x0 (snd (g v)) ◎ snd (f (y1 v))).
      (* Todo: Investigate why things go wrong without the underscores. *)
@@ -135,7 +135,7 @@ Section contents.
    rewrite e1, id_l, <- preserves_comp, e3, preserves_id...
   Defined.
 
-  Global Instance: Π x y z: Object, Proper (equiv ==> equiv ==> equiv) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Global Instance: ∀ x y z: Object, Proper (equiv ==> equiv ==> equiv) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof with try apply _.
    repeat intro.
    unfold e.

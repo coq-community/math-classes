@@ -15,26 +15,26 @@ Section contents. Variable σ: Signature.
 
   Context
     (A B: sorts σ → Type)
-    `{ea: Π a, Equiv (A a)} `{eb: Π a, Equiv (B a)}
+    `{ea: ∀ a, Equiv (A a)} `{eb: ∀ a, Equiv (B a)}
     `{ai: AlgebraOps σ A} `{bi: AlgebraOps σ B}.
 
-  Section with_f. Context (f: Π a, A a → B a).
+  Section with_f. Context (f: ∀ a, A a → B a).
 
     Implicit Arguments f [[a]].
 
     Fixpoint Preservation {n: OpType}: op_type A n → op_type B n → Prop :=
       match n with
-      | ne_list.one d => λ o o' => f o = o'
-      | ne_list.cons x y => λ o o' => Π x, Preservation (o x) (o' (f x))
+      | ne_list.one d => λ o o', f o = o'
+      | ne_list.cons x y => λ o o', ∀ x, Preservation (o x) (o' (f x))
       end.
 
     Class HomoMorphism: Prop :=
-      { homo_proper:> Π a, Setoid_Morphism (@f a)
-      ; preserves: Π (o: σ), Preservation (ai o) (bi o)
+      { homo_proper:> ∀ a, Setoid_Morphism (@f a)
+      ; preserves: ∀ (o: σ), Preservation (ai o) (bi o)
       ; homo_source_algebra: Algebra σ A
       ; homo_target_algebra: Algebra σ B }.
 
-    Context `{Π i, Equivalence (ea i)} `{Π i, Equivalence (eb i)} `{Π a, Setoid_Morphism (@f a)}.
+    Context `{∀ i, Equivalence (ea i)} `{∀ i, Equivalence (eb i)} `{∀ a, Setoid_Morphism (@f a)}.
 
     Global Instance Preservation_proper n:
       Proper (op_type_equiv _ _ _ ==> op_type_equiv _ B n ==> iff) (@Preservation n).
@@ -67,9 +67,9 @@ Section contents. Variable σ: Signature.
 
   End with_f.
 
-  Lemma Preservation_proper' (f g: Π a, A a → B a)
-   `{Π i, Equivalence (ea i)} `{Π i, Equivalence (eb i)} `{Π a, Setoid_Morphism (@f a)}:
-    (Π a (x: A a), f a x = g a x) → (Π (n: OpType) x y, Proper equiv x → Proper equiv y →
+  Lemma Preservation_proper' (f g: ∀ a, A a → B a)
+   `{∀ i, Equivalence (ea i)} `{∀ i, Equivalence (eb i)} `{∀ a, Setoid_Morphism (@f a)}:
+    (∀ a (x: A a), f a x = g a x) → (∀ (n: OpType) x y, Proper equiv x → Proper equiv y →
       @Preservation f n x y →
       @Preservation g n x y).
   Proof.
@@ -92,7 +92,7 @@ Section contents. Variable σ: Signature.
      apply H5.
     Qed.
 
-    Lemma HomoMorphism_Proper: Proper ((λ f g => Π a x, f a x = g a x) ==> iff) HomoMorphism.
+    Lemma HomoMorphism_Proper: Proper ((λ f g, ∀ a x, f a x = g a x) ==> iff) HomoMorphism.
       (* todo: use pointwise_thingy *)
     Proof with try apply _; intuition.
      constructor; intros [? ? ? ?]; simpl in *.
@@ -105,14 +105,14 @@ Section contents. Variable σ: Signature.
       repeat intro.
       do 2 rewrite H.
       rewrite H0...
-     assert (Π (a : sorts σ) (x0 : A a), y a x0 = x a x0). symmetry. apply H.
+     assert (∀ (a : sorts σ) (x0 : A a), y a x0 = x a x0). symmetry. apply H.
      apply (Preservation_proper' y x H0 (σ o) (ai o) (bi o))...
     Qed.
 
 End homo.
 
   Global Instance id_homomorphism A
-    `{Π a, Equiv (A a)} {ao: AlgebraOps σ A} `{!Algebra σ A}: HomoMorphism _ _ (λ _ => id).
+    `{∀ a, Equiv (A a)} {ao: AlgebraOps σ A} `{!Algebra σ A}: HomoMorphism _ _ (λ _, id).
   Proof with try apply _; intuition.
    constructor; intros...
    generalize (ao o).
@@ -121,9 +121,9 @@ End homo.
   Qed.
 
   Global Instance compose_homomorphisms A B C f g
-    `{Π a, Equiv (A a)} `{Π a, Equiv (B a)} `{Π a, Equiv (C a)}
+    `{∀ a, Equiv (A a)} `{∀ a, Equiv (B a)} `{∀ a, Equiv (C a)}
     {ao: AlgebraOps σ A} {bo: AlgebraOps σ B} {co: AlgebraOps σ C}
-    {gh: HomoMorphism A B g} {fh: HomoMorphism B C f}: HomoMorphism A C (λ a => f a ∘ g a).
+    {gh: HomoMorphism A B g} {fh: HomoMorphism B C f}: HomoMorphism A C (λ a, f a ∘ g a).
   Proof with try apply _; auto.
    pose proof (homo_source_algebra _ _ g).
    pose proof (homo_target_algebra _ _ g).
@@ -138,11 +138,11 @@ End homo.
 Implicit Arguments inverse [[A] [B] [Inverse]].
 
   Lemma invert_homomorphism A B f
-    `{Π a, Equiv (A a)} `{Π a, Equiv (B a)}
+    `{∀ a, Equiv (A a)} `{∀ a, Equiv (B a)}
     {ao: AlgebraOps σ A} {bo: AlgebraOps σ B}
     {fh: HomoMorphism A B f}
-    `{inv: Π a, Inverse (f a)}:
-    (Π a, Bijective (f a)) →
+    `{inv: ∀ a, Inverse (f a)}:
+    (∀ a, Bijective (f a)) →
     HomoMorphism A B f → HomoMorphism B A inv.
   Proof with try assumption; try apply _.
    intros.

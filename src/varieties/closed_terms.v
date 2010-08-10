@@ -1,4 +1,5 @@
 Set Automatic Introduction.
+Set Automatic Coercions Import.
 
 Require Import
   RelationClasses Relation_Definitions List Morphisms
@@ -21,20 +22,20 @@ Section contents. Variable et: EquationalTheory.
   Fixpoint app_tree {o}: ClosedTerm o → op_type ClosedTerm0 o :=
     match o with
     | ne_list.one _ => id
-    | ne_list.cons _ _ => λ x y => app_tree (App _ _ _ _ x y)
+    | ne_list.cons _ _ => λ x y, app_tree (App _ _ _ _ x y)
     end.
 
-  Instance: AlgebraOps et ClosedTerm0 := λ x => app_tree (Op _ _ x).
+  Instance: AlgebraOps et ClosedTerm0 := λ x, app_tree (Op _ _ x).
 
   (* We define term equivalence on all operation types: *)
 
-  Inductive e: Π o, Equiv (ClosedTerm o) :=
+  Inductive e: ∀ o, Equiv (ClosedTerm o) :=
     | e_refl o: Reflexive (e o)
     | e_trans o: Transitive (e o)
     | e_sym o: Symmetric (e o)
     | e_sub o h: Proper ((=) ==> (=) ==> (=)) (App _ _ h o)
-    | e_law (s: EqEntailment et): et_laws et s → (Π (v: Vars et ClosedTerm0 nat),
-      (Π x, In x (entailment_premises _ s) → eval et v (fst (projT2 x)) = eval et v (snd (projT2 x))) →
+    | e_law (s: EqEntailment et): et_laws et s → (∀ (v: Vars et ClosedTerm0 nat),
+      (∀ x, In x (entailment_premises _ s) → eval et v (fst (projT2 x)) = eval et v (snd (projT2 x))) →
         eval et v (fst (projT2 (entailment_conclusion _ s))) = eval et v (snd (projT2 (entailment_conclusion _ s)))).
 
   Existing Instance e.
@@ -42,14 +43,14 @@ Section contents. Variable et: EquationalTheory.
   Existing Instance e_sym.
   Existing Instance e_trans.
 
-  Instance: Π o, Equivalence (e o).
+  Instance: ∀ o, Equivalence (e o).
   Proof. constructor; apply _. Qed.
 
   (* .. and then take the specialization at arity 0 for Term0: *)
 
-  Instance: Π a, Equiv (ClosedTerm0 a) := λ a => e (ne_list.one a).
+  Instance: ∀ a, Equiv (ClosedTerm0 a) := λ a, e (ne_list.one a).
 
-  Instance: Π a, Setoid (ClosedTerm0 a).
+  Instance: ∀ a, Setoid (ClosedTerm0 a).
   Proof. intro. unfold Setoid. apply _. Qed.
 
   (* While this fancy congruence is the one we'll use to make our initial object a setoid,
@@ -57,14 +58,14 @@ Section contents. Variable et: EquationalTheory.
    builders (i.e. terms of type [op_type ClosedTerm0 a] for some a), where we use /Leibniz/ equality
    on closed terms: *)
 
-  Let structural_eq a: relation _ := @op_type_equiv (sorts et) ClosedTerm0 (λ _ => eq) a.
+  Let structural_eq a: relation _ := @op_type_equiv (sorts et) ClosedTerm0 (λ _, eq) a.
 
   Instance structural_eq_refl a: Reflexive (structural_eq a).
   Proof. induction a; repeat intro. reflexivity. subst. apply IHa. Qed.
 
   (* The implementation is proper: *)
 
-  Instance app_tree_proper: Π o, Proper (equiv ==> equiv)%signature (@app_tree o).
+  Instance app_tree_proper: ∀ o, Proper (equiv ==> equiv)%signature (@app_tree o).
   Proof with auto.
    induction o; repeat intro...
    apply IHo, e_sub...
@@ -80,7 +81,7 @@ Section contents. Variable et: EquationalTheory.
 
   (* Better still, the laws hold: *)
 
-  Lemma laws_hold s (L: et_laws et s): Π vars, eval_stmt _ vars s.
+  Lemma laws_hold s (L: et_laws et s): ∀ vars, eval_stmt _ vars s.
   Proof with simpl in *; intuition.
    intros.
    rewrite boring_eval_entailment.
@@ -119,7 +120,7 @@ Section contents. Variable et: EquationalTheory.
      operations: *)
 
     Lemma subst_eval o V (v: Vars _ ClosedTerm0 _) (t: Term _ V o):
-      @eval _ other _ _ _ (λ x y => eval_in_other (v x y)) t =
+      @eval _ other _ _ _ (λ x y, eval_in_other (v x y)) t =
       eval_in_other (close _ v t).
     Proof.
      induction t; simpl.
@@ -153,7 +154,7 @@ Section contents. Variable et: EquationalTheory.
        transitivity (eval_in_other y)...
       apply IHe...
      unfold Vars in v.
-     pose proof (@variety_laws et other _ _ _ s H (λ a n => eval_in_other (v a n))) as Q.
+     pose proof (@variety_laws et other _ _ _ s H (λ a n, eval_in_other (v a n))) as Q.
      clear H.
      destruct s.
      rewrite boring_eval_entailment in Q.
@@ -166,16 +167,16 @@ Section contents. Variable et: EquationalTheory.
      do 2 rewrite <- eval_is_close...
     Qed.
 
-    Instance: Π a, Setoid_Morphism (@eval_in_other (ne_list.one a)).
+    Instance: ∀ a, Setoid_Morphism (@eval_in_other (ne_list.one a)).
     Proof. constructor; simpl; try apply _. Qed.
 
     (* Furthermore, we can show preservation of operations, giving us a homomorphism (and an arrow): *)
 
-    Instance: @HomoMorphism et ClosedTerm0 other _ (variety.variety_equiv et other) _ _ (λ _ => eval_in_other).
+    Instance: @HomoMorphism et ClosedTerm0 other _ (variety.variety_equiv et other) _ _ (λ _, eval_in_other).
     Proof with intuition.
      constructor; try apply _.
      intro.
-     change (Preservation et ClosedTerm0 other (λ _ => eval_in_other) (app_tree (Op _ _ o)) (variety.variety_op _ other o)).
+     change (Preservation et ClosedTerm0 other (λ _, eval_in_other) (app_tree (Op _ _ o)) (variety.variety_op _ other o)).
      generalize (algebra_propers o  : eval_in_other (Op _ _ o) = variety.variety_op _ other o).
      generalize (Op _ False o) (variety.variety_op et other o).
      induction (et o)...
@@ -183,11 +184,11 @@ Section contents. Variable et: EquationalTheory.
      apply reflexivity. (* todo: shouldn't have to say [apply] here. file bug *)
     Qed.
 
-    Program Definition the_arrow: the_object ⟶ other := λ _ => eval_in_other.
+    Program Definition the_arrow: the_object ⟶ other := λ _, eval_in_other.
 
     (* All that remains is to show that this arrow is unique: *)
 
-    Theorem arrow_unique: Π y, the_arrow = y.
+    Theorem arrow_unique: ∀ y, the_arrow = y.
     Proof with auto; try intuition.
      intros [x h] b a.
      simpl in *.

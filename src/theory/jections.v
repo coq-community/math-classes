@@ -52,7 +52,7 @@ Proof with try tauto.
  intuition.
 Qed.
 
-Instance: Π `{Bijective A B f}, Setoid_Morphism (f⁻¹).
+Instance: ∀ `{Bijective A B f}, Setoid_Morphism (f⁻¹).
 Proof with try tauto.
  intros.
  pose proof (setoidmor_a f).
@@ -64,9 +64,9 @@ Proof with try tauto.
  do 2 rewrite (surjective f _)...
 Qed.
 
-Instance: Π `{Inverse A B f}, Inverse (f ⁻¹) := λ _ _ f _ => f.
+Instance: ∀ `{Inverse A B f}, Inverse (f ⁻¹) := λ _ _ f _, f.
 
-Lemma flip_bijection_pseudoinstance: Π `{Bijective A B f}, Bijective (f ⁻¹).
+Lemma flip_bijection_pseudoinstance: ∀ `{Bijective A B f}, Bijective (f ⁻¹).
 Proof with intuition.
  intros.
  pose proof (setoidmor_a f).
@@ -103,7 +103,7 @@ Proof. apply (@cancel_left _ _ _ _ (f ⁻¹) f _). Qed.
 
 Instance Injective_proper `{Equiv A} `{Equiv B}: Proper ((=) ==> (=)) (@Injective A _ B _).
 Proof with intuition.
- cut (Π (x y: A → B), x = y → Injective x → Injective y).
+ cut (∀ (x y: A → B), x = y → Injective x → Injective y).
   split; repeat intro.
    apply H1 with x...
   destruct (injective_mor y).

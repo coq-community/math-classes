@@ -9,7 +9,7 @@ Require Import
 Record Object := object
   { obj:> Type
   ; Arrows_inst: Arrows obj
-  ; Equiv_inst: Π x y: obj, Equiv (x ⟶ y)
+  ; Equiv_inst: ∀ x y: obj, Equiv (x ⟶ y)
   ; CatId_inst: CatId obj
   ; CatComp_inst: CatComp obj
   ; Category_inst: Category obj }.
@@ -38,9 +38,9 @@ Section contents.
 
   Section more_arrows. Context (x y: Object).
 
-    Global Instance e: Equiv (x ⟶ y) := λ a b =>
-      (Π v, a v ≡ b v) ∧
-      (Π `(f: v ⟶ w), JMrelation.R equiv (fmap a f) _ equiv (fmap b f)).
+    Global Instance e: Equiv (x ⟶ y) := λ a b,
+      (∀ v, a v ≡ b v) ∧
+      (∀ `(f: v ⟶ w), JMrelation.R equiv (fmap a f) _ equiv (fmap b f)).
 
     Let e_refl: Reflexive e.
     Proof.
@@ -67,11 +67,11 @@ Section contents.
 
   End more_arrows.
 
-  Global Instance: CatId Object := λ _ => arrow id _ _.
+  Global Instance: CatId Object := λ _, arrow id _ _.
 
-  Global Program Instance: CatComp Object := λ _ _ _ x y => arrow (x ∘ y) _ _.
+  Global Program Instance: CatComp Object := λ _ _ _ x y, arrow (x ∘ y) _ _.
 
-  Global Instance: Π x y z: Object, Proper (equiv ==> equiv ==> equiv) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Global Instance: ∀ x y z: Object, Proper (equiv ==> equiv ==> equiv) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof with intuition; try apply _.
    unfold equiv, e.
    intros x y z a b [P Q] c d [R S].

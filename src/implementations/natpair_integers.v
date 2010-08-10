@@ -17,8 +17,8 @@ Section contents.
 Context N `{Naturals N}.
 
 Context (* Extra parameterization for efficiency: *)
- `{Π x y: N, Decision (x = y)}
- `{Π x y: N, Decision (x <= y)}
+ `{∀ x y: N, Decision (x = y)}
+ `{∀ x y: N, Decision (x <= y)}
  `{!NatDistance N}.
 
 Add Ring N: (stdlib_semiring_theory N).
@@ -27,11 +27,11 @@ Inductive Z: Type := C { pos: N; neg: N }.
 
 (* relations/operations/constants: *)
 
-Global Instance z_equiv: Equiv Z := λ x y => pos x + neg y = pos y + neg x.
-Global Instance z_plus: RingPlus Z := λ (x y: Z) => C (pos x + pos y) (neg x + neg y).
-Global Instance z_inv: GroupInv Z := λ (x: Z) => C (neg x) (pos x).
+Global Instance z_equiv: Equiv Z := λ x y, pos x + neg y = pos y + neg x.
+Global Instance z_plus: RingPlus Z := λ x y: Z, C (pos x + pos y) (neg x + neg y).
+Global Instance z_inv: GroupInv Z := λ x: Z, C (neg x) (pos x).
 Global Instance z_zero: RingZero Z := C 0 0.
-Global Instance z_mult: RingMult Z := λ x y => C (pos x * pos y + neg x * neg y) (pos x * neg y + neg x * pos y).
+Global Instance z_mult: RingMult Z := λ x y, C (pos x * pos y + neg x * neg y) (pos x * neg y + neg x * pos y).
 Global Instance z_ring_one: RingOne Z := C 1 0.
 Global Instance z_one: MonoidUnit Z := z_ring_one.
 
@@ -89,7 +89,7 @@ Instance: Commutative z_mult. Proof. ring_on_nat. Qed.
 
 Global Instance: Distribute z_mult z_plus. Proof. constructor; ring_on_nat. Qed.
 
-Let z_mult_equiv_compat_r y y': y = y' → (Π x, z_mult x y = z_mult x y').
+Let z_mult_equiv_compat_r y y': y = y' → (∀ x, z_mult x y = z_mult x y').
 Proof.
  unfold z_mult, equiv, z_equiv. intros E x. simpl.
  transitivity (pos x * (pos y + neg y') + neg x * (pos y' + neg y)); [ring |].
@@ -140,15 +140,15 @@ Qed.
 Lemma split_into_nats n m: C n m = NtoZ n + - NtoZ m.
 Proof. ring_on_nat. Qed.
 
-Global Instance: Π x y: Z, Decision (x = y)
-  := λ x y => decide (pos x + neg y = pos y + neg x).
+Global Instance: ∀ x y: Z, Decision (x = y)
+  := λ x y, decide (pos x + neg y = pos y + neg x).
     (* An example of specialization: while there will be a generic decider that works for
      all Integers, this specialized one is potentially vastly more efficient. *)
 
 (* Next, we show that Z is initial, and therefore a model of the integers. *)
 
 Global Instance inject: IntegersToRing Z :=
-  λ _ _ _ _ _ _ z => naturals_to_semiring N _ (pos z) + - naturals_to_semiring N _ (neg z).
+  λ _ _ _ _ _ _ z, naturals_to_semiring N _ (pos z) + - naturals_to_semiring N _ (neg z).
 
 (* Hint Rewrite preserves_0 preserves_1 preserves_mult preserves_plus: preservation.
   doesn't work for some reason, so we use: *)
@@ -202,7 +202,7 @@ Section for_another_ring.
 
     Context (inject': Z → R) `{!Ring_Morphism inject'}.
 
-    Definition inject'_N: N → R := inject' ∘ (λ n => C n 0).
+    Definition inject'_N: N → R := inject' ∘ (λ n, C n 0).
 
     Instance: Proper (equiv ==> equiv) inject'_N.
     Proof. intros x y E. unfold inject'_N. rewrite E. reflexivity. Qed.
@@ -240,7 +240,7 @@ Global Instance: Integers Z.
 Lemma NtoZ_uniq x: naturals_to_semiring N Z x = NtoZ x.
 Proof. symmetry. apply (theory.naturals.to_semiring_unique Z NtoZ x). Qed. 
 
-Global Program Instance simpleZ_abs: IntAbs Z N := λ d: Z => nat_distance (pos d) (neg d).
+Global Program Instance simpleZ_abs: IntAbs Z N := λ d: Z, nat_distance (pos d) (neg d).
 
 Next Obligation.
 Proof.

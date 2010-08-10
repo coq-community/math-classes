@@ -15,7 +15,7 @@ Section contents.
 
   Record Object: Type := object
     { variety_carriers:> sorts et → Type
-    ; variety_equiv: Π a, Equiv (variety_carriers a)
+    ; variety_equiv: ∀ a, Equiv (variety_carriers a)
     ; variety_op: AlgebraOps et variety_carriers
     ; variety_proof: InVariety et variety_carriers
     }.
@@ -26,20 +26,20 @@ Section contents.
   Global Existing Instance variety_op.
   Global Existing Instance variety_proof.
 
-  Global Instance: Arrows Object := λ X Y: Object => sig (HomoMorphism et X Y).
+  Global Instance: Arrows Object := λ X Y: Object, sig (HomoMorphism et X Y).
 
   Program Definition arrow `{InVariety et A} `{InVariety et B}
     f `{!HomoMorphism et A B f}: object A ⟶ object B := f.
 
-  Global Program Instance: CatId Object := λ _ _ => id.
+  Global Program Instance: CatId Object := λ _ _, id.
 
-  Global Program Instance: CatComp Object := λ _ _ _ f g v => f v ∘ g v.
+  Global Program Instance: CatComp Object := λ _ _ _ f g v, f v ∘ g v.
   Next Obligation. destruct f, g. apply _. Qed.
 
-  Global Program Instance: Π (x y: Object), Equiv (x ⟶ y)
-    := λ _ _ x y => Π b, pointwise_relation _ equiv (x b) (y b).
+  Global Program Instance: ∀ (x y: Object), Equiv (x ⟶ y)
+    := λ _ _ x y, ∀ b, pointwise_relation _ equiv (x b) (y b).
 
-  Global Instance: Π (x y: Object), Setoid (x ⟶ y).
+  Global Instance: ∀ (x y: Object), Setoid (x ⟶ y).
   Proof.
    constructor.
      repeat intro. reflexivity.
@@ -47,7 +47,7 @@ Section contents.
    intros ? ? ? E F ? ?. rewrite (E _ _). apply F.
   Qed.
 
-  Instance: Π (x y z: Object), Proper (equiv ==> equiv ==> equiv) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Instance: ∀ (x y z: Object), Proper (equiv ==> equiv ==> equiv) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof.
    intros ??? [? [??]] ? E ?? F ??. simpl.
    unfold compose. rewrite (F _ _), (E _ _). reflexivity.

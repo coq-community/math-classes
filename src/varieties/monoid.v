@@ -1,6 +1,7 @@
 (* To be imported qualified. *)
 
 Set Automatic Introduction.
+Set Automatic Coercions Import.
 
 Require
   categories.variety categories.product forget_algebra forget_variety.
@@ -11,7 +12,7 @@ Require Import
 Inductive op := mult | one.
 
 Definition sig: Signature := single_sorted_signature
-  (λ o => match o with one => O | mult => 2 end).
+  (λ o, match o with one => O | mult => 2 end).
 
 Section laws.
 
@@ -37,11 +38,11 @@ Definition Object := variety.Object theory.
 
 Definition forget: Object → setoid.Object :=
   @product.project unit
-    (λ _ => setoid.Object)
-    (λ _ => _: Arrows setoid.Object) _
-    (λ _ => _: CatId setoid.Object)
-    (λ _ => _: CatComp setoid.Object) 
-    (λ _ => _: Category setoid.Object) tt
+    (λ _, setoid.Object)
+    (λ _, _: Arrows setoid.Object) _
+    (λ _, _: CatId setoid.Object)
+    (λ _, _: CatComp setoid.Object) 
+    (λ _, _: Category setoid.Object) tt
      ∘ forget_algebra.object theory ∘ forget_variety.forget theory.
   (* todo: too ugly *)
 
@@ -50,8 +51,8 @@ Definition forget: Object → setoid.Object :=
  Algebra/InVariety/HomoMorphism type classes instantiated with the above
  signature and theory. *)
 
-Instance encode_operations A `{!SemiGroupOp A} `{!MonoidUnit A}: AlgebraOps sig (λ _ => A) :=
-  λ o => match o with mult => sg_op | one => mon_unit: A end.
+Instance encode_operations A `{!SemiGroupOp A} `{!MonoidUnit A}: AlgebraOps sig (λ _, A) :=
+  λ o, match o with mult => sg_op | one => mon_unit: A end.
 
 Section decode_operations.
   Context `{AlgebraOps theory A}.
@@ -66,7 +67,7 @@ Section encode_variety_and_ops.
   Global Instance encode_algebra_and_ops: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
 
-  Global Instance encode_variety_and_ops: InVariety theory (λ _ => A).
+  Global Instance encode_variety_and_ops: InVariety theory (λ _, A).
   Proof.
    constructor. apply _.
    intros ? [] ?; simpl; unfold algebra_op; simpl.
@@ -75,16 +76,16 @@ Section encode_variety_and_ops.
    apply right_identity.
   Qed.
 
-  Definition object: Object := variety.object theory (λ _ => A).
+  Definition object: Object := variety.object theory (λ _, A).
 
 End encode_variety_and_ops.
 
-Lemma encode_algebra_only `{!AlgebraOps theory A} `{Π u, Equiv (A u)} `{!Monoid (A tt)}: Algebra theory A .
+Lemma encode_algebra_only `{!AlgebraOps theory A} `{∀ u, Equiv (A u)} `{!Monoid (A tt)}: Algebra theory A .
 Proof. constructor; intros []; simpl in *; try apply _. Qed.
 
 Global Instance decode_variety_and_ops `{InVariety theory A}: Monoid (A tt).
 Proof with simpl; auto.
- pose proof (λ law lawgood x y z => variety_laws law lawgood (λ s n =>
+ pose proof (λ law lawgood x y z, variety_laws law lawgood (λ s n,
   match s with tt => match n with 0 => x | 1 => y | _ => z end end)) as laws.
  constructor.
    constructor.
@@ -96,9 +97,9 @@ Proof with simpl; auto.
 Qed.
 
 Lemma encode_morphism_only
-  `{AlgebraOps theory A} `{Π u, Equiv (A u)}
-  `{AlgebraOps theory B} `{Π u, Equiv (B u)}
-  (f: Π u, A u → B u) `{!Monoid_Morphism (f tt)}: HomoMorphism sig A B f.
+  `{AlgebraOps theory A} `{∀ u, Equiv (A u)}
+  `{AlgebraOps theory B} `{∀ u, Equiv (B u)}
+  (f: ∀ u, A u → B u) `{!Monoid_Morphism (f tt)}: HomoMorphism sig A B f.
 Proof.
  pose proof (monmor_a (f tt)).
  pose proof (monmor_b (f tt)).
@@ -113,7 +114,7 @@ Proof.
 Qed.
 
 Lemma encode_morphism_and_ops `{Monoid_Morphism A B f}:
-  @HomoMorphism sig (λ _ => A) (λ _ => B) _ _ ( _) ( _) (λ _ => f).
+  @HomoMorphism sig (λ _, A) (λ _, B) _ _ ( _) ( _) (λ _, f).
 Proof. intros. apply encode_morphism_only. assumption. Qed.
 
 Lemma decode_morphism_and_ops
@@ -150,7 +151,7 @@ Section specialized.
    apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ H).
   Qed.
 
-  Global Instance: Π `{H: Monoid_Morphism A B f} `{!Inverse f},
+  Global Instance: ∀ `{H: Monoid_Morphism A B f} `{!Inverse f},
     Bijective f → Monoid_Morphism (inverse f).
   Proof.
    intros.

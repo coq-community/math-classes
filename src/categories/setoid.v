@@ -11,12 +11,12 @@ Existing Instance setoid_proof.
 
 Section contents.
 
-  Global Instance: Arrows Object := λ A B => sig (@Setoid_Morphism A B _ _).
+  Global Instance: Arrows Object := λ A B, sig (@Setoid_Morphism A B _ _).
 
-  Global Program Instance: Π x y: Object, Equiv (x ⟶ y)
-    := λ _ _ => respectful equiv equiv.
+  Global Program Instance: ∀ x y: Object, Equiv (x ⟶ y)
+    := λ _ _, respectful equiv equiv.
 
-  Global Instance: Π x y: Object, Setoid (x ⟶ y).
+  Global Instance: ∀ x y: Object, Setoid (x ⟶ y).
   Proof with intuition.
    intros x y.
    constructor.
@@ -26,11 +26,11 @@ Section contents.
    apply transitivity with (x1 x3)...
   Qed.
 
-  Global Program Instance: CatId Object := λ _ => id.
-  Global Program Instance: CatComp Object := λ _ _ _ => compose.
+  Global Program Instance: CatId Object := λ _, id.
+  Global Program Instance: CatComp Object := λ _ _ _, compose.
   Next Obligation. destruct x, x0. apply _. Qed.
 
-  Global Instance: Π x y z: Object, Proper (equiv ==> equiv ==> equiv) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Global Instance: ∀ x y z: Object, Proper (equiv ==> equiv ==> equiv) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof. repeat intro. simpl. firstorder. Qed.
 
   Global Instance: Category Object.
@@ -39,15 +39,15 @@ Section contents.
     destruct a; try destruct b; try destruct c; simpl; rewrite E; reflexivity.
   Qed.
 
-  Global Instance: Producer Object := λ _ c => object (Π i, c i) (λ x y => Π i, x i = y i) _.
+  Global Instance: Producer Object := λ _ c, object (∀ i, c i) (λ x y, ∀ i, x i = y i) _.
     (* todo: use pointwise_relation or something like that *)
 
   Section product. Context {Index: Type} (c: Index → Object).
 
-    Global Program Instance: ElimProduct c (product c) := λ i x => x i.
+    Global Program Instance: ElimProduct c (product c) := λ i x, x i.
     Next Obligation. constructor; try apply _. firstorder. Qed.
 
-    Global Program Instance: IntroProduct c (product c) := λ d df x y => df y x.
+    Global Program Instance: IntroProduct c (product c) := λ d df x y, df y x.
     Next Obligation. constructor; try apply _. repeat intro. destruct df. simpl. firstorder. Qed.
 
     Global Instance: Product c (product c).
@@ -64,6 +64,6 @@ Section contents.
   Global Instance: HasProducts Object.
 
   Global Instance mono (X Y: Object) (a: X ⟶ Y): Injective (` a) → Mono a.
-  Proof. firstorder. Qed.
+  Proof. intros A ?????? E. apply A. apply (H _ _ E). Qed.
 
 End contents.

@@ -40,13 +40,13 @@ Qed.
 Instance: OrdField Q.
 
 (* misc: *)
-Instance: Π x y: Q, Decision (x = y) := Qeq_dec.
+Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 
 Instance: Proper (equiv ==> equiv) inject_Z. Proof. intros x y H. rewrite H. reflexivity. Qed.
 
 Instance: Setoid_Morphism inject_Z.
 
-Instance: SemiGroup_Morphism inject_Z (Aop:=Zmult) (Bop:=Qmult) := { preserves_sg_op := λ _ _  => refl_equal }.
+Instance: SemiGroup_Morphism inject_Z (Aop:=Zmult) (Bop:=Qmult) := { preserves_sg_op := λ _ _ , refl_equal }.
 
 Instance: SemiGroup_Morphism inject_Z (Aop:=Zplus) (Bop:=Qplus) := { preserves_sg_op := _ }.
 Proof. intros. unfold inject_Z, sg_op, Qplus. repeat rewrite Zmult_1_r. reflexivity. Qed.
@@ -55,7 +55,7 @@ Instance: Monoid_Morphism inject_Z (Aunit:=0%Z) (Bunit:=0%Q) (Amult:=Zplus) (Bmu
 
 Instance: Monoid_Morphism inject_Z (Aunit:=1%Z) (Bunit:=1%Q) (Amult:=Zmult) (Bmult:=Qmult) := { preserves_mon_unit := refl_equal }.
 
-Instance: Group_Morphism inject_Z (Aunit:=0%Z) (Bunit:=0%Q) := { preserves_inv := λ _ => refl_equal }.
+Instance: Group_Morphism inject_Z (Aunit:=0%Z) (Bunit:=0%Q) := { preserves_inv := λ _, refl_equal }.
 
 Instance: Ring_Morphism inject_Z. 
 
@@ -73,9 +73,9 @@ Proof.
  intros ?? E. unfold inject. rewrite E. reflexivity.
 Qed.
 
-Instance: Inverse inject := λ x => (Qnum x, Zpos (Qden x)).
+Instance: Inverse inject := λ x, (Qnum x, Zpos (Qden x)).
 
-Instance: Surjective (λ p => inject_Z (fst p) * / inject_Z (snd p)).
+Instance: Surjective (λ p, inject_Z (fst p) * / inject_Z (snd p)).
 Proof.
  constructor. 2: apply _.
  intros [num den]. unfold Basics.compose, id.

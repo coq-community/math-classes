@@ -49,7 +49,7 @@ Instance: AbGroup BinInt.Z (op:=BinInt.Zplus) (unit:=BinInt.Z0).
 Instance: Ring BinInt.Z.
 
 (* misc: *)
-Instance: Π x y: BinInt.Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
+Instance: ∀ x y: BinInt.Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
 
 Add Ring Z: (stdlib_ring_theory BinInt.Z).
 
@@ -60,7 +60,7 @@ Definition map_Z `{RingPlus R} `{RingZero R} `{RingOne R} `{GroupInv R} (z: Z): 
   | Zneg p => - map_pos p
   end.
 
-Instance inject: IntegersToRing Z := λ B _ _ _ _ _ => @map_Z B _ _ _ _.
+Instance inject: IntegersToRing Z := λ B _ _ _ _ _, @map_Z B _ _ _ _.
 
 Section for_another_ring.
 

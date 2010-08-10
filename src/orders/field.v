@@ -6,14 +6,15 @@ Require Import
   Relation_Definitions Morphisms Ring Field
   abstract_algebra interfaces.naturals theory.fields theory.rings.
 
-Section decfield_order. Context `{Field F} `{Π x y: F, Decision (x = y)}.
+
+Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
 
   Add Ring F: (stdlib_ring_theory F).
     (* Trying to register F as a field fails with an obscure error. Looks like a Coq bug.
      Fortunately we only need [ring] right now. *)
 
-  Instance field_precedes: Order F := λ x y: F =>
-    exists num: nat, exists den: nat,
+  Instance field_precedes: Order F := λ x y: F,
+    ∃ num: nat, ∃ den: nat,
      x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den = y.
 
   Global Instance field_precedes_proper: Proper (equiv ==> equiv ==> iff) field_precedes.
@@ -30,19 +31,16 @@ Section decfield_order. Context `{Field F} `{Π x y: F, Decision (x = y)}.
   (* field_precedes can actually only happen if the denominator is nonzero: *)
 
   Lemma field_precedes_with_nonzero_nat_denominator (x y: F): x <= y → 
-    exists num: nat, exists den: nat, den ≠ 0 ∧
+    ∃ num: nat, ∃ den: nat, den ≠ 0 ∧
      x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den = y.
-  Proof with auto.
-   intros [x0 [x1 H1]].
-   destruct x1.
-    exists (0:nat), (1:nat).
-    split. discriminate.
-    change (x + naturals_to_semiring nat F x0 * / naturals_to_semiring nat F 0 = y) in H1.
-    fold 0 in H1.
-    rewrite <- H1, preserves_0, preserves_0, inv_0. ring.
-   exists x0, (S x1).
-   split... discriminate.
-  Qed. (* Todo: can be cleaned up further. *)
+  Proof with eauto.
+   intros [num [den E]].
+   destruct (decide (den = 0)) as [A|A]...
+   exists (0:nat), (1:nat).
+   split. discriminate.
+   rewrite <- E, A, preserves_0, preserves_1, inv_0.
+   ring.
+  Qed.
 
   (* And if the map from nat to F is injective, we know even more: *)
 
@@ -52,17 +50,16 @@ Section decfield_order. Context `{Field F} `{Π x y: F, Decision (x = y)}.
     exists num: nat, exists den: nat, naturals_to_semiring nat F den ≠ 0 ∧
       x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den = y.
   Proof with auto.
-   intros [x0 [[|x1] E]].
+   intros [num [den E]].
+   destruct (decide (den = 0)) as [A|A].
     exists (0:nat), (1:nat).
     rewrite preserves_1, preserves_0.
-    split. intro. apply field_0neq1. symmetry...
-    change (x + naturals_to_semiring nat F x0 * / naturals_to_semiring nat F 0 = y) in E.
-    rewrite <- E, preserves_0, inv_0. ring.
-   exists x0, (S x1).
-   split... intro  U.
-   absurd (S x1 = 0). discriminate.
+    split. apply not_symmetry. apply zero_ne_one.
+    rewrite <- E, A, preserves_0, inv_0.
+    ring.
+   exists num, den. split... intro. apply A.
    apply (injective (naturals_to_semiring nat F)).
-   rewrite U. reflexivity.
+   rewrite preserves_0...
   Qed.
 
   Global Instance field_precedes_transitive: Transitive field_precedes.
@@ -117,10 +114,10 @@ Section decfield_order. Context `{Field F} `{Π x y: F, Decision (x = y)}.
 
   Global Instance field_partialorder: PartialOrder field_precedes.
 
-  Lemma ringorder_plus: Π `(x <= y) z, x + z <= y + z.
+  Lemma ringorder_plus: ∀ `(x <= y) z, x + z <= y + z.
   Proof. intros x y [num [den E]] z. exists num, den. rewrite <- E. ring. Qed.
 
-  Lemma ringorder_mult: Π x: F, 0 <= x → (Π y: F, 0 <= y → 0 <= x * y).
+  Lemma ringorder_mult: ∀ x: F, 0 <= x → (∀ y: F, 0 <= y → 0 <= x * y).
     (* extra parens necessary because of Coq bug #2234 *)
   Proof.
    intros x [num [den E]] y [num' [den' G]].

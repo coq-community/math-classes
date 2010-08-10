@@ -5,9 +5,9 @@ Require Import
  abstract_algebra theory.naturals theory.integers theory.fields theory.jections
  natpair_integers orders.field.
 
-Class Rationals A {e plus mult opp zero one mult_inv } `{Π x y: A, Decision (x = y)} {inj_inv}: Prop :=
+Class Rationals A {e plus mult opp zero one mult_inv } `{∀ x y: A, Decision (x = y)} {inj_inv}: Prop :=
   { rationals_field:> @Field A e plus mult opp zero one mult_inv
-  ; rationals_frac: Surjective (λ p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p)) (inv:=inj_inv)
+  ; rationals_frac: Surjective (λ p, integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p)) (inv:=inj_inv)
   ; rationals_embed_ints: Injective (integers_to_ring (Z nat) A) }.
 
 (* rational_embed_ints is not declared as a coercion because we prove a stronger result in a moment *)
@@ -17,13 +17,13 @@ Class Rationals A {e plus mult opp zero one mult_inv } `{Π x y: A, Decision (x 
 
 Section alt_Build_Rationals.
 
-  Context A Int (inject: Int → A) `{Field A} {d: Π x y: A, Decision (x = y)}
-    `{Integers Int} `{!Ring_Morphism inject} `{!Inverse (λ p => inject (fst p) * / inject (snd p))}.
+  Context A Int (inject: Int → A) `{Field A} {d: ∀ x y: A, Decision (x = y)}
+    `{Integers Int} `{!Ring_Morphism inject} `{!Inverse (λ p, inject (fst p) * / inject (snd p))}.
 
-  Global Instance: Inverse (λ p => integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p)) :=
-    λ x => (integers_to_ring Int (Z nat) (fst (inverse _ x)), integers_to_ring Int (Z nat) (snd (inverse _ x))).
+  Global Instance: Inverse (λ p, integers_to_ring (Z nat) A (fst p) * / integers_to_ring (Z nat) A (snd p)) :=
+    λ x, (integers_to_ring Int (Z nat) (fst (inverse _ x)), integers_to_ring Int (Z nat) (snd (inverse _ x))).
 
-  Lemma alt_Build_Rationals: Surjective (λ p => inject (fst p) * / inject (snd p)) → Injective inject → Rationals A.
+  Lemma alt_Build_Rationals: Surjective (λ p, inject (fst p) * / inject (snd p)) → Injective inject → Rationals A.
   Proof with auto.
    intros sur ?.
    apply (Build_Rationals A _ _ _ _ _ _ _ _ _)...

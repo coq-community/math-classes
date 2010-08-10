@@ -11,8 +11,8 @@ Section unit.
 
   Context
     `(φ_adj: Adjunction C unused A (F:=F) (G:=G) (φ:=φ))
-    `{Π c a, Inverse (φ c a)}
-    `{Π c a, Bijective (φ c a)}.
+    `{∀ c a, Inverse (φ c a)}
+    `{∀ c a, Bijective (φ c a)}.
 
   Implicit Arguments φ [[d] [c]].
 
@@ -27,7 +27,7 @@ Section unit.
   Let hint'' := functor_from G.
   Let hint''' := functor_to G.
 
-  Definition η: id ⇛ G ∘ F := λ c: C => @φ c (F c) cat_id.
+  Definition η: id ⇛ G ∘ F := λ c: C, @φ c (F c) cat_id.
 
  Instance eta: NaturalTransformation η.
  Proof with try reflexivity; try apply _. (* todo: latter should not be necessary *)
@@ -68,8 +68,8 @@ Section counit.
 
   Context
     `(φ_adj: Adjunction X e A (F:=F) (G:=G) (φ:=φ))
-    `{Π x a, Inverse (φ x a)}
-    `{Π x a, Bijective (φ x a)}.
+    `{∀ x a, Inverse (φ x a)}
+    `{∀ x a, Bijective (φ x a)}.
 
   Let hint := adjunction_left_functor F G (@φ).
   Let hint' := adjunction_right_functor F G (@φ).
@@ -82,12 +82,12 @@ Section counit.
 
   (** And an adjunction *)
 
-  Definition inverse0: ∀x a, Inverse (φinv a x) := λ a x => φ x a. 
+  Definition inverse0: ∀x a, Inverse (φinv a x) := λ a x, φ x a. 
 
-  Lemma inverse: Π (x: A) (a : X), @Bijective _ (dual.e _ _) _ (dual.e _ _) (φinv a x) (inverse0 x a).
+  Lemma inverse: ∀ (x: A) (a : X), @Bijective _ (dual.e _ _) _ (dual.e _ _) (φinv a x) (inverse0 x a).
   Proof. intros a x. unfold φinv. apply _. Qed.
 
-  Instance: @Adjunction A _ _ _ _ X _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) (λ a x => (@φ x a)⁻¹ ). (* flip *)
+  Instance: @Adjunction A _ _ _ _ X _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) (λ a x, (@φ x a)⁻¹ ). (* flip *)
   Proof with intuition; try reflexivity.
    destruct φ_adj. 
    constructor; try apply _.
@@ -110,10 +110,10 @@ Section counit.
 
   Definition ϵnat: @NaturalTransformation _ _ _ _ _ _ _ _ (F ∘ G)
     (@comp_Fmap _ _ A _ _ _ F (dual.fmap_op F) G (dual.fmap_op G))
-    (@η A (@dual.flipA A _) X (@dual.flipA X _) _ G F (λ (a : A) (x : X) => φinv x a)).
+    (@η A (@dual.flipA A _) X (@dual.flipA X _) _ G F (λ (a : A) (x : X), φinv x a)).
   Proof.
-   apply (@eta A _ _ _ _ X _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) (λ a x => (@φ x a)⁻¹ )) with
-     (λ a x => @φ x a); intros; apply _.
+   apply (@eta A _ _ _ _ X _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) (λ a x, (@φ x a)⁻¹ )) with
+     (λ a x, @φ x a); intros; apply _.
   Qed.
 
 End counit.

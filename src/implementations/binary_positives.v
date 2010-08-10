@@ -35,5 +35,5 @@ Instance: RightIdentity BinPos.Pmult (1%positive) := BinPos.Pmult_1_r.
 Instance: Monoid _ (op:=BinPos.Pmult).
 
 (* misc: *)
-Instance positive_eq_dec: Π x y, Decision (x = y) := BinPos.positive_eq_dec.
+Instance positive_eq_dec: ∀ x y, Decision (x = y) := BinPos.positive_eq_dec.
   (* silly type-change constant *)

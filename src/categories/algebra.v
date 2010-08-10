@@ -13,7 +13,7 @@ Section contents.
 
   Record Object: Type := object
     { algebra_carriers:> sorts sign → Type
-    ; algebra_equiv: Π a, Equiv (algebra_carriers a)
+    ; algebra_equiv: ∀ a, Equiv (algebra_carriers a)
     ; algebra_ops: AlgebraOps sign algebra_carriers
     ; algebra_proof: Algebra sign algebra_carriers
     }.
@@ -24,20 +24,20 @@ Section contents.
   Global Existing Instance algebra_ops.
   Global Existing Instance algebra_proof.
 
-  Global Instance: Arrows Object := λ (X Y: Object) => sig (HomoMorphism sign X Y).
+  Global Instance: Arrows Object := λ X Y: Object, sig (HomoMorphism sign X Y).
 
   Program Definition arrow `{Algebra sign A} `{Algebra sign B}
     f `{!HomoMorphism sign A B f}: object A ⟶ object B := f.
 
-  Global Program Instance: CatId Object := λ _ _ => id.
+  Global Program Instance: CatId Object := λ _ _, id.
 
-  Global Program Instance comp: CatComp Object := λ _ _ _ f g v => f v ∘ g v.
+  Global Program Instance comp: CatComp Object := λ _ _ _ f g v, f v ∘ g v.
   Next Obligation. destruct f, g. apply _. Qed.
 
-  Global Program Instance: Π x y: Object, Equiv (x ⟶ y)
-    := λ _ _ x y => Π b, pointwise_relation _ equiv (x b) (y b).
+  Global Program Instance: ∀ x y: Object, Equiv (x ⟶ y)
+    := λ _ _ x y, ∀ b, pointwise_relation _ equiv (x b) (y b).
 
-  Global Instance: Π x y: Object, Setoid (x ⟶ y).
+  Global Instance: ∀ x y: Object, Setoid (x ⟶ y).
   Proof.
    constructor.
      repeat intro. reflexivity.

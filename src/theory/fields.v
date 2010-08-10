@@ -9,7 +9,7 @@ Require Import
 Section dec_mult_inv.
 
   Context
-    `{e: Equiv A} `{RingZero A} `{mi: !MultInv A} `{Π x y: A, Decision (x = y)}
+    `{e: Equiv A} `{RingZero A} `{mi: !MultInv A} `{∀ x y: A, Decision (x = y)}
     `{!Equivalence e} `{mult_inv_proper: !Proper (sig_relation equiv _ ==> equiv) mi}.
 
   Global Instance dec_mult_inv_proper: Proper (e ==> e) dec_mult_inv.
@@ -26,7 +26,7 @@ End dec_mult_inv.
 
 Section field_props. Context `{Field F}.
 
-  Lemma mult_inverse': Π x p, x * // exist _ x p = 1.
+  Lemma mult_inverse': ∀ x p, x * // exist _ x p = 1.
   Proof. intros. apply (mult_inverse (exist _ _ _)). Qed.
 
   Instance: NoZeroDivisors F.
@@ -58,11 +58,11 @@ Section field_props. Context `{Field F}.
    rewrite mult_inverse...
   Qed. (* todo: should be cleanable *)
 
-  Context `{Π x y: F, Decision (x = y)}.
+  Context `{∀ x y: F, Decision (x = y)}.
 
   Definition stdlib_field_theory:
-    Field_theory.field_theory 0 1 ring_plus ring_mult (λ x y => x + - y)
-      group_inv (λ x y => x * / y) dec_mult_inv equiv.
+    Field_theory.field_theory 0 1 ring_plus ring_mult (λ x y, x + - y)
+      group_inv (λ x y, x * / y) dec_mult_inv equiv.
   Proof with auto.
    intros.
    constructor.
@@ -133,7 +133,7 @@ Section contents.
 
   Add Field F: H.
 
-  Definition from_stdlib_field_theory: @Field F e pl mu zero one op (λ x => rinv (proj1_sig x)).
+  Definition from_stdlib_field_theory: @Field F e pl mu zero one op (λ x, rinv (proj1_sig x)).
   Proof.
    repeat (constructor; try assumption); repeat intro
    ; unfold equiv, mon_unit, sg_op, group_inv; try field.

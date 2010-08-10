@@ -44,11 +44,11 @@ Section contents.
 
   End Lookup.
 
-  Instance: MonoidUnit (Term V) := λ V => ua.Op msig _ monoid.one.
+  Instance: MonoidUnit (Term V) := λ V, ua.Op msig _ monoid.one.
   Instance: SemiGroupOp (Term V) :=
-    λ V x => ua.App msig _ _ _ (ua.App msig _ _ _ (ua.Op msig _ monoid.mult) x).
+    λ V x, ua.App msig _ _ _ (ua.App msig _ _ _ (ua.Op msig _ monoid.mult) x).
 
-  Notation eval V vs := (ua.eval _ (λ _ => (vs: Vars V))).
+  Notation eval V vs := (ua.eval _ (λ _, (vs: Vars V))).
 
   Section Quote.
 
@@ -83,9 +83,9 @@ Section contents.
 
   End Quote.
 
-  Definition quote': Π x {V'} {v: Vars V'} {d: Quote novars x v}, Term _ := @quote _ _.
+  Definition quote': ∀ x {V'} {v: Vars V'} {d: Quote novars x v}, Term _ := @quote _ _.
 
-  Definition eval_quote': Π x {V'} {v: Vars V'} {d: Quote novars x v},
+  Definition eval_quote': ∀ x {V'} {v: Vars V'} {d: Quote novars x v},
     eval _ (merge novars v) quote ≡ x
       := @eval_quote _ _.
 
@@ -102,9 +102,9 @@ Section contents.
    intro.
    rewrite <- H0.
    rewrite ua.eval_map_var.
-   cut (eval _ (merge novars v) quote0 ≡ ua.eval msig (λ _ => merge v v' ∘ obvious) quote0).
+   cut (eval _ (merge novars v) quote0 ≡ ua.eval msig (λ _, merge v v' ∘ obvious) quote0).
     intro E. simpl in *. rewrite E. reflexivity.
-   apply (@ua.eval_strong_proper msig (λ _ => M) _ _ (ne_list.one tt))...
+   apply (@ua.eval_strong_proper msig (λ _, M) _ _ (ne_list.one tt))...
    repeat intro...
   Qed.
 
@@ -120,7 +120,7 @@ Section contents.
 
   Ltac monoid := apply (equal_by_normal _ _); vm_compute; reflexivity.
 
-  Example Π x y z: x & (y & z) & mon_unit = mon_unit & (x & y) & z.
+  Example ex x y z: x & (y & z) & mon_unit = mon_unit & (x & y) & z.
   Proof. monoid. Qed.
 
 End contents.

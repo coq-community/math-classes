@@ -8,7 +8,7 @@ Section packed.
 
   Inductive Applied: sorts σ → Type :=
     | AppliedOp o: Arguments (σ o) → Applied (result _ (σ o))
-    | AppliedVar: V → (Π s, Applied s)
+    | AppliedVar: V → (∀ s, Applied s)
   with Arguments: OpType (sorts σ) → Type :=
     | NoMoreArguments s: Arguments (ne_list.one s)
     | MoreArguments o' o: Applied o' → Arguments o → Arguments (ne_list.cons o' o).
@@ -25,7 +25,7 @@ Section packed.
     | NoMoreArguments _ => False
     end.
 
-  Context (P: Π {s}, Applied s → Type).
+  Context (P: ∀ {s}, Applied s → Type).
   Implicit Arguments P [[s]].
 
   Section forallArgs.
@@ -38,8 +38,8 @@ Section packed.
 
     Definition PofSplit {o}: Arguments o → Type :=
       match o with
-      | ne_list.one _ => λ _ => unit
-      | ne_list.cons x y => λ a => prod (P (head_arg x y a)) (forallArgs (tail_args _ _ a))
+      | ne_list.one _ => λ _, unit
+      | ne_list.cons x y => λ a, prod (P (head_arg x y a)) (forallArgs (tail_args _ _ a))
       end.
 
     Definition forallSplit `(a: Arguments (ne_list.cons y z)):
@@ -55,8 +55,8 @@ Section packed.
   End forallArgs.
 
   Context
-    (Pop: Π o x, forallArgs x → P (AppliedOp o x))
-    (Pvar: Π v s, P (AppliedVar v s)).
+    (Pop: ∀ o x, forallArgs x → P (AppliedOp o x))
+    (Pvar: ∀ v s, P (AppliedVar v s)).
 
   Fixpoint better_Applied_rect {o} (a: Applied o): P a :=
     match a with
@@ -81,16 +81,16 @@ Fixpoint curry {σ} {V} {o} (a: Applied σ o): Term σ V (ne_list.one o) :=
 with apply_args {σ} {V} {o} (a: @Arguments σ V o): op_type (Term0 σ V) o → Term0 σ V (result _ o) :=
   match a with
   | NoMoreArguments y => id
-  | MoreArguments x y u q => λ z => apply_args q (z (curry u))
+  | MoreArguments x y u q => λ z, apply_args q (z (curry u))
   end.
 
 (* Conversion /to/ packed representation: *)
 
 Fixpoint decode `(t: Term σ V o): Arguments σ o → Applied σ (result _ o) :=
   match t with
-  | Var x y => λ z => AppliedVar σ x y
+  | Var x y => λ z, AppliedVar σ x y
   | Op x => AppliedOp σ x
-  | App x y z w => λ p => decode z (MoreArguments σ y x (decode w (NoMoreArguments σ _)) p)
+  | App x y z w => λ p, decode z (MoreArguments σ y x (decode w (NoMoreArguments σ _)) p)
   end.
 
 (* Back and forth: *)

@@ -9,14 +9,14 @@ Require Import
 Inductive op := plus | mult | zero | one.
 
 Definition sig: Signature := single_sorted_signature
-  (λ o => match o with zero | one => O | plus | mult => 2 end).
+  (λ o, match o with zero | one => O | plus | mult => 2 end).
 
 Section laws.
 
   Global Instance: RingPlus (Term0 sig nat tt) :=
-    λ x => App sig _ _ _ (App sig _ _ _ (Op sig _ plus) x).
+    λ x, App sig _ _ _ (App sig _ _ _ (Op sig _ plus) x).
   Global Instance: RingMult (Term0 sig nat tt) :=
-    λ x => App sig _ _ _ (App sig _ _ _ (Op sig _ mult) x).
+    λ x, App sig _ _ _ (App sig _ _ _ (Op sig _ mult) x).
   Global Instance: RingZero (Term0 sig nat tt) := Op sig _ zero.
   Global Instance: RingOne (Term0 sig nat tt) := Op sig _ one.
 
@@ -48,7 +48,7 @@ Section from_instance.
 
   Context A `{SemiRing A}.
 
-  Instance implementation: AlgebraOps sig (λ _ => A) := λ o =>
+  Instance implementation: AlgebraOps sig (λ _, A) := λ o,
     match o with plus => ring_plus | mult => ring_mult | zero => 0: A | one => 1:A end.
 
   Global Instance: Algebra sig _.
@@ -69,11 +69,11 @@ Section from_instance.
    apply distribute_r.
   Qed.
 
-  Instance variety: InVariety theory (λ _ => A).
+  Instance variety: InVariety theory (λ _, A).
   Proof. constructor. apply _. exact laws. Qed.
 
   Definition Object := variety.Object theory.
-  Definition object: Object := variety.object theory (λ _ => A).
+  Definition object: Object := variety.object theory (λ _, A).
 
 End from_instance.
 
@@ -87,7 +87,7 @@ Section ops_from_alg_to_sr. Context `{AlgebraOps theory A}.
 End ops_from_alg_to_sr.
 
 Lemma mor_from_sr_to_alg `{InVariety theory A} `{InVariety theory B}
-  (f: Π u, A u → B u) `{!SemiRing_Morphism (f tt)}: HomoMorphism sig A B f.
+  (f: ∀ u, A u → B u) `{!SemiRing_Morphism (f tt)}: HomoMorphism sig A B f.
 Proof.
  constructor.
     intros []. apply _.
@@ -102,7 +102,7 @@ Qed. (* todo: these [change]s should not be necessary at all. [apply] is too wea
 
 Instance struct_from_var_to_class `{v: InVariety theory A}: SemiRing (A tt).
 Proof with simpl; auto.
- pose proof (λ law lawgood x y z => variety_laws law lawgood (λ s n =>
+ pose proof (λ law lawgood x y z, variety_laws law lawgood (λ s n,
    match s with tt => match n with 0 => x | 1 => y | _ => z end end)).
  repeat (constructor; try apply _); repeat intro.
              apply_simplified (H _ e_mult_assoc).

@@ -1,3 +1,5 @@
+Set Automatic Coercions Import.
+
 Require Import
  Relation_Definitions Morphisms
  abstract_algebra theory.categories
@@ -15,17 +17,20 @@ Section initial_maps.
   Variable A: Type.
 
   Class NaturalsToSemiRing :=
-    naturals_to_semiring: Π B `{RingMult B} `{RingPlus B} `{RingOne B} `{RingZero B}, A → B.
+    naturals_to_semiring: ∀ B `{RingMult B} `{RingPlus B} `{RingOne B} `{RingZero B}, A → B.
 
-  Context `{NaturalsToSemiRing} `{SemiRing A} `{Π `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring B)}.
+  Context `{NaturalsToSemiRing} `{SemiRing A} `{∀ `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring B)}.
 
-  Global Instance natural_initial_arrow: InitialArrow (semiring.object A).
-   intro.
-   exists (λ u => match u return A → y u with tt => naturals_to_semiring (y tt) end).
-   abstract (simpl;
-    apply (@semiring.mor_from_sr_to_alg (λ _ => A) _ _ (semiring.variety A) _ _ _ _ _);
-    apply _).
-  Defined. (* for some reason [Program] isn't cooperating here. look into it *)
+  Program Definition natural_initial_arrow: InitialArrow (semiring.object A) :=
+    λ y u, match u return A → y u with tt => naturals_to_semiring (y tt) end.
+
+  Next Obligation.
+   apply (@semiring.mor_from_sr_to_alg (λ _, A) _ _ (semiring.variety A)); apply _.
+  Qed.
+
+  Global Existing Instance natural_initial_arrow.
+   (* For some reason if we try to make it an instance immediately upon
+    definition, Program suddenly generates 5 subgoals.. *)
 
 End initial_maps.
 
@@ -33,7 +38,7 @@ Instance: Params (@naturals_to_semiring) 7.
 
 Class Naturals A {e plus mult zero one} `{U: NaturalsToSemiRing A} :=
   { naturals_ring:> @SemiRing A e plus mult zero one
-  ; naturals_to_semiring_mor:> Π `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
+  ; naturals_to_semiring_mor:> ∀ `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
   ; naturals_initial:> Initial (semiring.object A) }.
 
 Implicit Arguments naturals_to_semiring_mor [[e] [plus] [mult] [zero] [one] [U] [Naturals] [e0] [plus0] [mult0] [zero0] [one0] ].
@@ -42,7 +47,7 @@ Implicit Arguments naturals_to_semiring_mor [[e] [plus] [mult] [zero] [one] [U] 
 (* Specializable operations: *)
 
 Class NatDistance N `{Equiv N} `{RingPlus N}
-  := nat_distance: Π (x y: N), { z: N | x + z = y ∨ y + z = x }.
+  := nat_distance: ∀ (x y: N), { z: N | x + z = y ∨ y + z = x }.
 
 (* Order: *)
 
@@ -53,9 +58,9 @@ Instance natural_precedes `{Naturals N}: Order N := sg_precedes.
  depend on that implementation, which is undesireable. *)
 
 Instance nat_to_semiring: NaturalsToSemiRing nat :=
-  λ _ _ _ _ _ => fix f (n: nat) := match n with 0%nat => 0 | S n' => f n' + 1 end.
+  λ _ _ _ _ _, fix f (n: nat) := match n with 0%nat => 0 | S n' => f n' + 1 end.
 
 Definition sr_precedes `{SemiRing R}: Order R :=
-  λ x y: R => exists z: nat, x + naturals_to_semiring nat R z = y.
+  λ x y: R, exists z: nat, x + naturals_to_semiring nat R z = y.
 
 Instance: Params (@sr_precedes) 7.

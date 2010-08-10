@@ -26,7 +26,7 @@ Section contents.
       | _, _ => False
       end.
 
-    Lemma geneq_sym s (x: Term sign A s): Π s' (y: Term sign A s'), geneq x y → geneq y x.
+    Lemma geneq_sym s (x: Term sign A s): ∀ s' (y: Term sign A s'), geneq x y → geneq y x.
     Proof with intuition.
      induction x.
        destruct y...
@@ -35,7 +35,7 @@ Section contents.
      destruct y... simpl in *...
     Qed.
 
-    Lemma geneq_trans s (x: Term sign A s): Π s' (y: Term sign A s') s'' (z: Term sign A s''),
+    Lemma geneq_trans s (x: Term sign A s): ∀ s' (y: Term sign A s') s'' (z: Term sign A s''),
       geneq x y → geneq y z → geneq x z.
     Proof with simpl in *; intuition.
      induction x; simpl.
@@ -68,7 +68,7 @@ Section contents.
 
   (* For bind, we do the same: *)
 
-  Definition gen_bind {A B: Type} (f: A → M B): Π {s}, Term sign A s → Term sign B s
+  Definition gen_bind {A B: Type} (f: A → M B): ∀ {s}, Term sign A s → Term sign B s
     := fix F {s} (t: Term sign A s): Term sign B s :=
       match t with
       | Var v tt => f v
@@ -78,15 +78,15 @@ Section contents.
 
   Implicit Arguments gen_bind [[A] [B] [s]].
 
-  Instance: MonadBind M := λ _ _ z f => gen_bind f z.
+  Instance: MonadBind M := λ _ _ z f, gen_bind f z.
 
-  Instance: Π `{Equiv A} `{Equiv B},
+  Instance: ∀ `{Equiv A} `{Equiv B},
     Proper (equiv ==> (equiv ==> equiv) ==> equiv) (@bind M _ A B).
   Proof with intuition.
    intros A H1 B H2 x y E x0 y0 E'.
    revert x y E.
-   change (Π x y : M A, geneq x y → geneq (gen_bind x0 x) (gen_bind y0 y)).
-   cut (Π s (x: Term sign A s) s' (y: Term sign A s'),
+   change (∀ x y : M A, geneq x y → geneq (gen_bind x0 x) (gen_bind y0 y)).
+   cut (∀ s (x: Term sign A s) s' (y: Term sign A s'),
       geneq x y → geneq (gen_bind x0 x) (gen_bind y0 y))...
    revert s' y H.
    induction x.
@@ -98,9 +98,9 @@ Section contents.
 
   (* return: *)
 
-  Instance: MonadReturn M := λ _ x => Var sign _ x tt.
+  Instance: MonadReturn M := λ _ x, Var sign _ x tt.
 
-  Instance: Π `{Equiv A}, Proper (equiv ==> equiv) (ret M).
+  Instance: ∀ `{Equiv A}, Proper (equiv ==> equiv) (ret M).
   Proof. repeat intro. assumption. Qed.
 
   (* What remains are the laws: *)
@@ -112,7 +112,7 @@ Section contents.
      reflexivity.
     (* law 2 *)
     unfold M. intros.
-    change (geneq (gen_bind (λ x : A => Var sign A x tt) m) m).
+    change (geneq (gen_bind (λ x : A, Var sign A x tt) m) m).
     induction m; simpl...
     destruct a... simpl...
    (* law 3 *)
@@ -122,9 +122,9 @@ Section contents.
    unfold equiv, Me.
    unfold M in n.
    revert n.
-   cut (Π o (n: Term sign A o),
+   cut (∀ o (n: Term sign A o),
      geneq (gen_bind g (gen_bind f n))
-     (gen_bind (λ x : A => gen_bind g (f x)) n)).
+     (gen_bind (λ x : A, gen_bind g (f x)) n)).
      intuition.
    induction n; simpl...
    destruct a.

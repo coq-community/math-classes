@@ -43,7 +43,7 @@ Section ideal_congruence. Context `{Ring R}.
 
   (* Next, we make a congruence: *)
 
-  Program Instance congruence: Equiv R := λ x y => P (x + - y).
+  Program Instance congruence: Equiv R := λ x y, P (x + - y).
 
   Instance: Equivalence congruence.
   Proof with intuition.
@@ -80,17 +80,17 @@ Section ideal_congruence. Context `{Ring R}.
 
   Let hint := ring.encode_operations R.
 
-  Instance: Congruence ring.sig (λ _ => congruence).
+  Instance: Congruence ring.sig (λ _, congruence).
   Proof.
    constructor. intro. apply _. apply ring.encode_algebra_and_ops.
-   assert (Π x y, @equiv _ e x y → congruence x y) as e_cong.
+   assert (∀ x y, @equiv _ e x y → congruence x y) as e_cong.
      unfold congruence. intros ? ? E. rewrite E, plus_opp_r. intuition.
    repeat (constructor; try apply _); repeat intro; apply e_cong; try firstorder.
   Qed.
 
   Instance: Ring R (e:=congruence).
   Proof.
-   apply (@ring.decode_variety_and_ops (λ _ => R) (λ _ => congruence) hint).
+   apply (@ring.decode_variety_and_ops (λ _, R) (λ _, congruence) hint).
    pose proof (ring.encode_variety_and_ops R).
    apply (quotient_variety ring.theory); try apply _.
    intros ? []; intuition.

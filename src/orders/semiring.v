@@ -50,7 +50,7 @@ Section sr_order. Context `{SemiRing R}.
 
 End sr_order.
 
-Lemma preserves_nonneg `{SemiRing A} `{SemiRing B} `{Naturals N} (f: A → B) `{!SemiRing_Morphism f}: Π n: N,
+Lemma preserves_nonneg `{SemiRing A} `{SemiRing B} `{Naturals N} (f: A → B) `{!SemiRing_Morphism f}: ∀ n: N,
  sr_precedes 0 (f (naturals_to_semiring N A n)).
 Proof.
  intros.

@@ -17,14 +17,14 @@ Instance: RingZero anyQ.t := anyQ.zero.
 Instance: RingOne anyQ.t := anyQ.one.
 Instance: RingMult anyQ.t := anyQ.mul.
 Instance: GroupInv anyQ.t := anyQ.opp.
-Instance: MultInv anyQ.t := λ x => anyQ.inv (proj1_sig x).
+Instance: MultInv anyQ.t := λ x, anyQ.inv (proj1_sig x).
 
 Instance: Setoid anyQ.t.
 
-Instance: Π x y: anyQ.t, Decision (x = y) := λ x y =>
+Instance: ∀ x y: anyQ.t, Decision (x = y) := λ x y,
   (match anyQ.eq_bool x y as p return p ≡ Qeq_bool (anyQ.to_Q x) (anyQ.to_Q y) → Decision (x = y) with
-  | true => λ e => left _
-  | false => λ e => right _
+  | true => λ e, left _
+  | false => λ e, right _
   end) (anyQ.spec_eq_bool x y).
     (* hm, do we really need the anyQ.spec_eq_bool in here? *)
 
@@ -104,7 +104,7 @@ Qed.
 
 Definition inject_Z': Z → anyQ.t := anyQ.of_Q ∘ inject_Z.
 
-Let inject := (λ p: Z * Z => inject_Z' (fst p) * / inject_Z' (snd p)).
+Let inject := (λ p: Z * Z, inject_Z' (fst p) * / inject_Z' (snd p)).
 
 Instance: Setoid_Morphism inject.
 Proof.

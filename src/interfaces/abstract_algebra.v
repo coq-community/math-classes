@@ -7,11 +7,11 @@ Require Import
 Require Export
  canonical_names util.
 
-Class LeftIdentity {A} `{Equiv B} (op: A → B → B) (x: A): Prop := left_identity: Π y, op x y = y.
-Class RightIdentity `{Equiv A} {B} (op: A → B → A) (y: B): Prop := right_identity: Π x, op x y = x.
+Class LeftIdentity {A} `{Equiv B} (op: A → B → B) (x: A): Prop := left_identity: ∀ y, op x y = y.
+Class RightIdentity `{Equiv A} {B} (op: A → B → A) (y: B): Prop := right_identity: ∀ x, op x y = x.
 
-Class LeftAbsorb `{Equiv A} {B} (op: A → B → A) (x: A): Prop := left_absorb: Π y, op x y = x.
-Class RightAbsorb {A} `{Equiv B} (op: A → B → B) (y: B): Prop := right_absorb: Π x, op x y = y.
+Class LeftAbsorb `{Equiv A} {B} (op: A → B → A) (x: A): Prop := left_absorb: ∀ y, op x y = x.
+Class RightAbsorb {A} `{Equiv B} (op: A → B → B) (y: B): Prop := right_absorb: ∀ x, op x y = y.
   (* hm, can we generate left/right instances from right/left+commutativity without causing loops? *)
 
 Section upper_classes.
@@ -88,12 +88,12 @@ Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
   ; partial_preorder:> PreOrder R
   ; partial_antisym:> AntiSymmetric R }.
 
-Class TotalOrder `(Order A): Prop := total_order: Π x y: A, x <= y ∨ y <= x.
+Class TotalOrder `(Order A): Prop := total_order: ∀ x y: A, x <= y ∨ y <= x.
 
 Class RingOrder `(e: Equiv A) (plus: RingPlus A) (mult: RingMult A) (zero: RingZero A) (leq: Order A) :=
   { ringorder_partialorder:> PartialOrder leq
-  ; ringorder_plus: `(leq x y → (Π z, leq (x + z) (y + z)))
-  ; ringorder_mult: `(leq zero x → (Π y, leq 0 y → leq 0 (x * y))) }.
+  ; ringorder_plus: `(leq x y → (∀ z, leq (x + z) (y + z)))
+  ; ringorder_mult: `(leq zero x → (∀ y, leq 0 y → leq 0 (x * y))) }.
     (* todo: use "precedes" here? *)
 
 Class OrdField A {e: Equiv A} {plus mult inv zero one mult_inv leq}: Prop :=
@@ -123,9 +123,9 @@ Class Ralgebra `(e: Equiv Scalar) `(e': Equiv Elem) `{RalgebraAction Scalar Elem
 Definition is_derivation `{Ralgebra Scalar Elem} (f: Elem → Elem): Prop :=
   True. (* something *)
 
-Class Category O `{!Arrows O} `{Π x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatComp O}: Prop :=
-  { arrow_equiv:> Π x y, Setoid (x ⟶ y)
-  ; comp_proper:> Π x y z,
+Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatComp O}: Prop :=
+  { arrow_equiv:> ∀ x y, Setoid (x ⟶ y)
+  ; comp_proper:> ∀ x y z,
     Proper (equiv ==> equiv ==> equiv)%signature (comp: (y ⟶ z) → (x ⟶ y) → x ⟶ z)
   ; comp_assoc w x y z (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
       c ◎ (b ◎ a) = (c ◎ b) ◎ a

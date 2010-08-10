@@ -1,4 +1,5 @@
 Set Automatic Introduction.
+Set Automatic Coercions Import.
 
 Require Import
  Morphisms List Program
@@ -9,17 +10,17 @@ Require categories.cat theory.setoids.
 
 Module ua := universal_algebra.
 
-Instance oh: Π {A} `{Equiv B} `{Equiv C} (f: B → C) `{!Setoid_Morphism f},
+Instance oh: ∀ {A} `{Equiv B} `{Equiv C} (f: B → C) `{!Setoid_Morphism f},
  Proper ((=) ==> (=)) (@compose A B C f).
 Proof. firstorder. Qed.
 
-Instance: Π {A} `{Equiv B} `{Equiv C}, Proper ((=) ==> eq ==> (=)) (@compose A B C).
+Instance: ∀ {A} `{Equiv B} `{Equiv C}, Proper ((=) ==> eq ==> (=)) (@compose A B C).
 Proof. repeat intro. subst. firstorder. Qed.
 
-Lemma eta {A} `{Setoid B} (f: A → B): (λ x => f x) = f.
+Lemma eta {A} `{Setoid B} (f: A → B): (λ x, f x) = f.
 Proof. intro. reflexivity. Qed.
 
-Instance: Arrows Type := λ X Y => X → Y.
+Instance: Arrows Type := λ X Y, X → Y.
 
 (* todo: move last four  elsewhere *)
 
@@ -42,33 +43,33 @@ Section practical.
   (* Here, again, are the ingredients, this time in somewhat more raw form: *)
 
   Class ExtendToSeq (free: Type → Type) :=
-    extend: Π {x y} `{!SemiGroupOp y} `{!MonoidUnit y}, (x → y) → (free x → y).
+    extend: ∀ {x y} `{!SemiGroupOp y} `{!MonoidUnit y}, (x → y) → (free x → y).
       (* todo: rename to extend_to_seq or something *)
 
-  Class InjectToSeq (free: Type → Type) := inject: Π x, x → free x.
+  Class InjectToSeq (free: Type → Type) := inject: ∀ x, x → free x.
       (* todo: rename to singleton or something *)
 
   Context
    (free: Type → Type) {raw_fmap: Fmap free}
-   `{Π a, MonoidUnit (free a)}
-   `{Π a, SemiGroupOp (free a)}
-   `{Π a, Equiv a → Equiv (free a)}
+   `{∀ a, MonoidUnit (free a)}
+   `{∀ a, SemiGroupOp (free a)}
+   `{∀ a, Equiv a → Equiv (free a)}
    `{!InjectToSeq free} `{!ExtendToSeq free}.
 
   Class Sequence :=
-    { sequence_makes_monoids:> Π `{Setoid a}, Monoid (free a)
-    ; sequence_inject_morphism:> Π `{Setoid a}, Setoid_Morphism (inject a)
-    ; sequence_map_morphism:> Π `{Equiv x} `{Equiv y} (f: x → y),
+    { sequence_makes_monoids:> ∀ `{Setoid a}, Monoid (free a)
+    ; sequence_inject_morphism:> ∀ `{Setoid a}, Setoid_Morphism (inject a)
+    ; sequence_map_morphism:> ∀ `{Equiv x} `{Equiv y} (f: x → y),
         Setoid_Morphism f → Monoid_Morphism (raw_fmap _ _ f)
-    ; sequence_extend_makes_morphisms:> Π `{Equiv x} `{Monoid y} (f: x → y),
+    ; sequence_extend_makes_morphisms:> ∀ `{Equiv x} `{Monoid y} (f: x → y),
         Setoid_Morphism f → Monoid_Morphism (extend f)
-    ; sequence_inject_natural: Π `{Setoid A} `{Setoid B} (f: A → B), Setoid_Morphism f →
+    ; sequence_inject_natural: ∀ `{Setoid A} `{Setoid B} (f: A → B), Setoid_Morphism f →
         inject B ∘ f = raw_fmap _ _ f ∘ inject A
-    ; sequence_extend_commutes: Π `{Setoid x} `{Monoid y} (f: x → y), Setoid_Morphism f →
+    ; sequence_extend_commutes: ∀ `{Setoid x} `{Monoid y} (f: x → y), Setoid_Morphism f →
         extend f ∘ inject x = f
-    ; sequence_only_extend_commutes: Π `{Setoid x} `{Monoid y} (f: x → y), Setoid_Morphism f →
-        (Π (g: free x → y), Monoid_Morphism g →  g ∘ inject x = f → g = extend f)
-    ; sequence_extend_morphism: Π `{Setoid x} `{Monoid y} (f g: x → y),
+    ; sequence_only_extend_commutes: ∀ `{Setoid x} `{Monoid y} (f: x → y), Setoid_Morphism f →
+        (∀ (g: free x → y), Monoid_Morphism g →  g ∘ inject x = f → g = extend f)
+    ; sequence_extend_morphism: ∀ `{Setoid x} `{Monoid y} (f g: x → y),
         Setoid_Morphism f → Setoid_Morphism g →
         f = g → extend f = extend g
     }.
@@ -80,17 +81,17 @@ Section practical.
   Program Definition posh_free (X: setoid.Object): monoid.Object := monoid.object (free X).
 
   Program Instance posh_fmap: functors.Fmap posh_free :=
-    λ _ _ X _ => raw_fmap _ _ X.
+    λ _ _ X _, raw_fmap _ _ X.
 
   Next Obligation. apply monoid.encode_morphism_only. destruct X. apply _. Qed.
 
-  Program Definition posh_inject: id ⇛ monoid.forget ∘ posh_free := λ a => inject a.
+  Program Definition posh_inject: id ⇛ monoid.forget ∘ posh_free := λ a, inject a.
 
   Next Obligation. apply PS, _. Qed.
 
   Program Definition posh_extend (x: setoid.Object) (y: monoid.Object)
     (X: x ⟶ monoid.forget y): posh_free x ⟶ y
-    := λ u => match u return posh_free x u → y u with
+    := λ u, match u return posh_free x u → y u with
       tt => @extend free _ x (monoid.forget y) _ _ X end.
 
   Next Obligation. apply _. Defined.

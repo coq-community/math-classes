@@ -1,6 +1,7 @@
 (* This module should never be Import-ed, only Require-d. *)
 
 Set Automatic Introduction.
+Set Automatic Coercions Import.
 
 Require Import
   theory.categories.
@@ -48,7 +49,7 @@ Instance: CommutativeMonoid _ (op:=plus) (unit:=0%nat).
 Instance nat_semiring: SemiRing nat.
 
 (* misc *)
-Global Instance: Π x y: nat, Decision (x = y) := Peano_dec.eq_nat_dec.
+Global Instance: ∀ x y: nat, Decision (x = y) := Peano_dec.eq_nat_dec.
 
 Add Ring nat: (theory.rings.stdlib_semiring_theory nat).
 
@@ -139,7 +140,7 @@ Proof.
   apply predefined_le_coincides; auto with arith.
 Qed.
 
-Program Instance: NatDistance nat := λ (x y: nat) =>
+Program Instance: NatDistance nat := λ x y: nat,
   if decide (natural_precedes x y) then minus y x else minus x y.
 
 Next Obligation. destruct H as [x0 []]. left. rewrite Minus.minus_plus. reflexivity. Qed.
@@ -155,7 +156,7 @@ Qed.
 (* Two simple omissions in the standard library that we prove for nats and then
  lift to arbitrary Naturals in theory.naturals: *)
 
-Lemma Mult_mult_reg_l: Π n m p: nat, ~ p = 0 → mult p n = mult p m → n = m.
+Lemma Mult_mult_reg_l: ∀ n m p: nat, ~ p = 0 → mult p n = mult p m → n = m.
 Proof.
  destruct p. intuition.
  intros. apply Le.le_antisym; apply Mult.mult_S_le_reg_l with p; rewrite H0; constructor.

@@ -18,7 +18,7 @@ Hint Unfold precedes integer_precedes.
 (* Any two integer implementations are trivially isomorphic because of their initiality,
  but it's nice to have this stated in terms of integers_to_ring being self-inverse: *)
 
-Lemma iso_ints `{Integers A} B `{Integers B}: Π a: A,
+Lemma iso_ints `{Integers A} B `{Integers B}: ∀ a: A,
   integers_to_ring B A (integers_to_ring A B a) = a.
 Proof.
  intros.
@@ -36,11 +36,11 @@ Section contents.
   (* Two more immediate results that are just convenient to have as properties of integers_to_ring: *)
 
   Lemma integers_to_ring_unique R `{Ring R} (f: Int → R) {h: Ring_Morphism f}:
-   Π x, f x = integers_to_ring Int R x.
+   ∀ x, f x = integers_to_ring Int R x.
   Proof.
    intros. symmetry.
    pose proof (ring.encode_morphism_and_ops (f:=f)).
-   set (@variety.arrow ring.theory _ _ _ (ring.encode_variety_and_ops _) _ _ _ (ring.encode_variety_and_ops _) (λ _ => f) _).
+   set (@variety.arrow ring.theory _ _ _ (ring.encode_variety_and_ops _) _ _ _ (ring.encode_variety_and_ops _) (λ _, f) _).
    exact (integers_initial _ a tt x).
   Qed.
 
@@ -67,7 +67,7 @@ Section contents.
   Global Instance int_to_int_injective `{Integers B} (f: Int → B) `{!Ring_Morphism f}: Injective f.
   Proof. apply int_to_ring_injective with (integers_to_ring B Int); apply _. Qed.
 
-  Global Program Instance: Π x y: Int, Decision (x = y) | 10 := λ x y =>
+  Global Program Instance: ∀ x y: Int, Decision (x = y) | 10 := λ x y,
     match decide (integers_to_ring _ (Z nat) x = integers_to_ring _ (Z nat) y) with
     | left E => left _
     | right E => right _
@@ -109,7 +109,7 @@ Section contents.
    rewrite preserves_0, preserves_1...
   Qed.
 
-  Lemma abs_uniq `{Naturals N} (a a': IntAbs Int N): Π z: Int, proj1_sig (a z) = proj1_sig (a' z).
+  Lemma abs_uniq `{Naturals N} (a a': IntAbs Int N): ∀ z: Int, proj1_sig (a z) = proj1_sig (a' z).
   Proof with eauto.
    intros. destruct a, a'. simpl.
    apply (injective (naturals_to_semiring N Int)).
@@ -188,7 +188,7 @@ Section contents.
   Obligation Tactic := idtac.
   
   Global Program Instance slow_int_abs `{Naturals N}: IntAbs Int N | 10 :=
-    λ x => exist _ (proj1_sig (int_abs (Z N) N (integers_to_ring Int (Z N) x))) _.
+    λ x, exist _ (proj1_sig (int_abs (Z N) N (integers_to_ring Int (Z N) x))) _.
 
   Next Obligation.
    intros.
@@ -209,7 +209,7 @@ Hint Resolve opp_0.
 
   Lemma eq_opp_self (z: Int) (E: z = -z): z = 0.
   Proof with auto.
-   assert (Π n: nat, naturals_to_semiring nat Int n = - naturals_to_semiring nat Int n ->
+   assert (∀ n: nat, naturals_to_semiring nat Int n = - naturals_to_semiring nat Int n ->
        naturals_to_semiring nat Int n = 0) as P.
     intros n E'. apply (antisymmetry precedes)...
     rewrite E'. apply -> precedes_0_flip...
@@ -264,10 +264,10 @@ Section preservation. Context `{Integers A} `{Integers B} (f: A → B) `{!Ring_M
     Local Coercion NB := naturals_to_semiring N B.
 
     Lemma preserves_abs `{!IntAbs A N} `{!IntAbs B N}:
-      Π a, f (int_abs' A N a) = int_abs' B N (f a).
+      ∀ a, f (int_abs' A N a) = int_abs' B N (f a).
     Proof with eauto; try apply _.
      pose proof (@neg_precedes_pos B _ _ _ _ _ _ _ N).
-     assert (Π (x0 x: N), - NB x0 = f x → f x = x0); unfold NA, NB in *.
+     assert (∀ (x0 x: N), - NB x0 = f x → f x = x0); unfold NA, NB in *.
       intros x0 x P.
       apply (antisymmetry integer_precedes).
        apply <- (@precedes_flip B _ _ _ _ _ _ _).
@@ -308,7 +308,7 @@ Section more. Context `{Integers Int}.
      [left | right]; apply (preserve_sr_order _)...
   Qed.
 
-  Global Program Instance: Π x y: Int, Decision (x <= y) | 10 := λ x y =>
+  Global Program Instance: ∀ x y: Int, Decision (x <= y) | 10 := λ x y,
    match decide (integers_to_ring Int (Z nat) x <= integers_to_ring Int (Z nat) y) with
    | left E => left _
    | right E => right _

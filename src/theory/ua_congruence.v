@@ -13,19 +13,19 @@ Section contents.
   Context σ `{@Algebra σ v ve vo}.
 
   Notation op_type := (op_type (sorts σ)).
-  Notation vv := (ua_products.carrier σ bool (λ _: bool => v)).
+  Notation vv := (ua_products.carrier σ bool (λ _: bool, v)).
 
-  Let hint := @ua_products.product_algebra σ bool (λ _ => v) _ _ _.
+  Let hint := @ua_products.product_algebra σ bool (λ _, v) _ _ _.
 
   (* Given an equivalence on the algebra's carrier that respects its setoid equality... *)
 
-  Context (e: Π s, relation (v s)).
+  Context (e: ∀ s, relation (v s)).
 
   Section for_nice_e.
 
   Context
-    (e_e: Π s, Equivalence (e s))
-    (e_proper: Π s, Proper (equiv ==> equiv ==> iff) (e s)).
+    (e_e: ∀ s, Equivalence (e s))
+    (e_proper: ∀ s, Proper (equiv ==> equiv ==> iff) (e s)).
 
   (* We can show that that equivalence lifted to arbitrary operation types still respects the setoid equality: *)
 
@@ -68,8 +68,8 @@ Section contents.
    intro o.
    simpl.
    unfold algebra_op, ua_products.product_ops, algebra_op.
-   set (f := λ _: bool => vo o).
-   assert (Π b, Proper equiv (f b)).
+   set (f := λ _: bool, vo o).
+   assert (∀ b, Proper equiv (f b)).
     intro.
     unfold f.
     apply algebra_propers.
@@ -77,7 +77,7 @@ Section contents.
     unfold lifted_e.
     destruct H0.
     apply algebra_propers.
-   assert (Π b, Proper (lifted_e (σ o)) (f b))...
+   assert (∀ b, Proper (lifted_e (σ o)) (f b))...
    clearbody f.
    induction (σ o)...
    simpl in *...
@@ -96,8 +96,8 @@ Section contents.
    unfold ua_products.product_ops.
    intro.
    change (lifted_e _ (algebra_op o) (algebra_op o)).
-   set (f := λ _: bool => algebra_op o) in *.
-   assert (Π b, lifted_normal _ (f b) (f b)). intros.
+   set (f := λ _: bool, algebra_op o) in *.
+   assert (∀ b, lifted_normal _ (f b) (f b)). intros.
     subst f. simpl.
     apply algebra_propers...
    change (lifted_e (σ o) (f true) (f false)).
@@ -106,7 +106,7 @@ Section contents.
    simpl in *.
    repeat intro.
    unfold respectful in H0.
-   apply (IHo0 (λ b => f b (if b then x else y)))...
+   apply (IHo0 (λ b, f b (if b then x else y)))...
   Qed. (* todo: clean up *)
 
   Lemma back_and_forth: iffT eSub eAlgebra.
@@ -117,7 +117,7 @@ Section contents.
   (* This justifies the following definition of a congruence: *)
 
   Class Congruence: Prop :=
-    { congruence_proper:> Π s: sorts σ, Proper (equiv ==> equiv ==> iff) (e s)
+    { congruence_proper:> ∀ s: sorts σ, Proper (equiv ==> equiv ==> iff) (e s)
     ; congruence_quotient:> Algebra σ v (e:=e) }.
 
 End contents.
@@ -127,8 +127,8 @@ End contents.
 
 Lemma quotient_variety
   (et: EquationalTheory) `{InVariety et v}
-  (e': Π s, relation (v s)) `{!Congruence et e'}
-  (no_premises: Π s, et_laws et s → entailment_premises _ s ≡ nil):
+  (e': ∀ s, relation (v s)) `{!Congruence et e'}
+  (no_premises: ∀ s, et_laws et s → entailment_premises _ s ≡ nil):
     InVariety et v (e:=e').
       (* Todo: Can this no-premises condition be weakened? Does it occur in this form in the literature? *)
 Proof.
@@ -146,7 +146,7 @@ Section in_domain.
 
   Context {A B} {R: Equiv B} (f: A → B).
 
-  Definition in_domain: Equiv A := λ x y => f x = f y. (* todo: use pointwise thingy *)
+  Definition in_domain: Equiv A := λ x y, f x = f y. (* todo: use pointwise thingy *)
 
   Global Instance in_domain_equivalence: Equivalence R → Equivalence in_domain.
   Proof with intuition.
@@ -165,13 +165,13 @@ Section first_iso.
 
   Context `{Algebra σ A} `{Algebra σ B} `{!HomoMorphism σ A B f}.
 
-  Notation Φ := (λ s => in_domain (f s)).
+  Notation Φ := (λ s, in_domain (f s)).
 
   Lemma square o0 x x' y y':
     Preservation σ A B f x x' →
     Preservation σ A B f y y' →
     op_type_equiv (sorts σ) B o0 x' y' →
-    @op_type_equiv (sorts σ) A (λ s: sorts σ => @in_domain (A s) (B s) (e0 s) (f s)) o0 x y.
+    @op_type_equiv (sorts σ) A (λ s: sorts σ, @in_domain (A s) (B s) (e0 s) (f s)) o0 x y.
   Proof.
    induction o0.
     simpl.
@@ -211,9 +211,9 @@ Section first_iso.
    apply (square _ _ _ _ _ (H4 x) (H4 y))...
   Qed.
 
-  Definition image s (b: B s): Type := sigT (λ a => f s a = b).
+  Definition image s (b: B s): Type := sigT (λ a, f s a = b).
 
-  Lemma image_proper: Π s (x0 x' : B s), x0 = x' → iffT (image s x0) (image s x').
+  Lemma image_proper: ∀ s (x0 x' : B s), x0 = x' → iffT (image s x0) (image s x').
   Proof. intros ??? E. split; intros [v ?]; exists v; rewrite E in *; assumption. Qed.
 
   Instance: ClosedSubset image.
@@ -236,7 +236,7 @@ Section first_iso.
   Definition quot_obj: algebra.Object σ := algebra.object σ A (algebra_equiv:=Φ). (* A/Φ *)
   Definition subobject: algebra.Object σ := algebra.object σ (ua_subalgebraT.carrier image).
 
-  Program Definition back: subobject ⟶ quot_obj := λ _ X => projT1 (projT2 X).
+  Program Definition back: subobject ⟶ quot_obj := λ _ X, projT1 (projT2 X).
 
   Next Obligation. Proof with try apply _; intuition.
    repeat constructor...
@@ -255,7 +255,7 @@ Section first_iso.
   Defined.
 
   Program Definition forth: quot_obj ⟶ subobject := 
-    λ a X => existT _ (f a X) (existT _ X (reflexivity _)).
+    λ a X, existT _ (f a X) (existT _ X (reflexivity _)).
 
   Next Obligation. Proof with try apply _; intuition.
    repeat constructor... intro...

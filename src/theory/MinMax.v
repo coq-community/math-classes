@@ -4,13 +4,13 @@ Require Import
 
 Section contents.
 
-  Context `{e: Setoid A} `{Order A} `{Π x y: A, Decision (x <= y)}.
+  Context `{e: Setoid A} `{Order A} `{∀ x y: A, Decision (x <= y)}.
 
   Definition sort (x y: A): prod A A := if decide (x <= y) then (x, y) else (y, x).
 
   Definition min (x y: A) := fst (sort x y).
 
-  Instance max: SemiGroupOp A := λ x y => snd (sort x y).
+  Instance max: SemiGroupOp A := λ x y, snd (sort x y).
 
   Lemma max_ub_l `{Reflexive _ precedes} x y: x <= x & y.
   Proof. unfold sg_op, max, sort. intros. destruct decide; firstorder. Qed.

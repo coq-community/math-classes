@@ -8,7 +8,7 @@ Require Import
 Instance: Equiv Prop := iff.
 Instance: Setoid Prop.
 
-Instance: Π A `{Setoid B}, Setoid (A → B).
+Instance: ∀ A `{Setoid B}, Setoid (A → B).
 Proof. constructor; repeat intro; firstorder. Qed.
 
 Instance sig_Setoid `{Setoid A} (P: A → Prop): Setoid (sig P).
@@ -18,7 +18,7 @@ Section simple_product.
 
   Context `{Setoid A} `{Setoid B}.
 
-  Global Instance: Equiv (A * B) := λ p q => fst p = fst q ∧ snd p = snd q.
+  Global Instance: Equiv (A * B) := λ p q, fst p = fst q ∧ snd p = snd q.
 
   Global Instance: Setoid (A * B).
   Proof. firstorder. Qed.
@@ -33,11 +33,11 @@ End simple_product.
 
 Section product.
 
-  Context (I: Type) (c: I → Type) `{Π i, Equiv (c i)} `{Π i, Setoid (c i)}.
+  Context (I: Type) (c: I → Type) `{∀ i, Equiv (c i)} `{∀ i, Setoid (c i)}.
 
-  Let product: Type := Π i, c i.
+  Let product: Type := ∀ i, c i.
 
-  Global Instance: Equiv product := `(Π i, x i = y i).
+  Global Instance: Equiv product := `(∀ i, x i = y i).
 
   Global Instance: Setoid product.
   Proof.
@@ -47,7 +47,7 @@ Section product.
    intros ? y ??? i. transitivity (y i); firstorder.
   Qed.
 
-  Global Instance projection_morphism i: Setoid_Morphism (λ c: product => c i).
+  Global Instance projection_morphism i: Setoid_Morphism (λ c: product, c i).
   Proof. firstorder. Qed.
 
 End product.
@@ -59,7 +59,7 @@ Instance compose_morphisms (A B C: Type)
   {P: Setoid_Morphism f} {Q: Setoid_Morphism g}: Setoid_Morphism (g ∘ f).
 Proof. destruct P, Q. constructor; apply _. Qed.
 
-Instance: Π `{Setoid_Morphism A B f} `{!Inverse f}, Bijective f → Setoid_Morphism (inverse f).
+Instance: ∀ `{Setoid_Morphism A B f} `{!Inverse f}, Bijective f → Setoid_Morphism (inverse f).
 Proof.
  intros.
  pose proof (setoidmor_a f).
@@ -72,14 +72,14 @@ Qed.
 
 Instance morphism_proper `{ea: Equiv A} `{eb: Equiv B}: Proper ((=) ==> (=)) (@Setoid_Morphism A B _ _).
 Proof.
- cut (Π (x y: A → B), x = y → Setoid_Morphism x → Setoid_Morphism y).
+ cut (∀ (x y: A → B), x = y → Setoid_Morphism x → Setoid_Morphism y).
   firstorder.
  intros x y E [AS BS P].
  constructor; try apply _. intros v w E'.
  rewrite <- (E v), <- (E w), E'. reflexivity.
 Qed.
 
-Lemma projected_equivalence `{Setoid B} `{f: A → B}: Equivalence (λ x y => f x = f y).
+Lemma projected_equivalence `{Setoid B} `{f: A → B}: Equivalence (λ x y, f x = f y).
 Proof with auto.
  constructor; repeat intro.
    reflexivity.

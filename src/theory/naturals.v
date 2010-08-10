@@ -1,4 +1,5 @@
 Set Automatic Introduction.
+Set Automatic Coercions Import.
 
 Require Import
  Relation_Definitions Morphisms Program Ring
@@ -8,11 +9,11 @@ Require Export
  interfaces.naturals.
 
 Lemma to_semiring_unique `{Naturals N} SR `{SemiRing SR} (f: N → SR) {h: SemiRing_Morphism f}:
- Π x, f x = naturals_to_semiring N SR x.
+ ∀ x, f x = naturals_to_semiring N SR x.
 Proof.
  intros. symmetry.
- pose proof (@semiring.mor_from_sr_to_alg _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (λ _ => f) _).
- set (@variety.arrow semiring.theory _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (λ _ => f) _).
+ pose proof (@semiring.mor_from_sr_to_alg _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (λ _, f) _).
+ set (@variety.arrow semiring.theory _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (λ _, f) _).
  apply (naturals_initial _ a tt x).
 Qed.
 
@@ -25,7 +26,7 @@ Proof.
  reflexivity.
 Qed.
 
-Lemma to_semiring_involutive A `{Naturals A} B `{Naturals B}: Π a: A,
+Lemma to_semiring_involutive A `{Naturals A} B `{Naturals B}: ∀ a: A,
  naturals_to_semiring B A (naturals_to_semiring A B a) = a.
 Proof.
  intros.
@@ -36,7 +37,7 @@ Qed.
 
 Lemma morphisms_involutive `{Naturals A} `{Naturals B} (f: A → B) (g: B → A)
   `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}:
-    Π a, f (g a) = a.
+    ∀ a, f (g a) = a.
 Proof.
  intros.
  rewrite (to_semiring_unique _ g _).
@@ -87,7 +88,7 @@ Section borrowed_from_nat.
 
   Lemma induction
     (P: N → Prop) `{!Proper (equiv ==> iff)%signature P}:
-    P 0 → (Π n, P n → P (1 + n)) → (Π n, P n).
+    P 0 → (∀ n, P n → P (1 + n)) → (∀ n, P n).
   Proof with auto.
    intros.
    rewrite <- (to_semiring_involutive _ nat n).
@@ -100,8 +101,8 @@ Section borrowed_from_nat.
   Qed.
 
   Lemma from_nat_stmt:
-    Π (s: Statement varieties.semiring.theory) (w : Vars varieties.semiring.theory (varieties.semiring.object N) nat),
-     (Π v: Vars varieties.semiring.theory (varieties.semiring.object nat) nat,
+    ∀ (s: Statement varieties.semiring.theory) (w : Vars varieties.semiring.theory (varieties.semiring.object N) nat),
+     (∀ v: Vars varieties.semiring.theory (varieties.semiring.object nat) nat,
        eval_stmt varieties.semiring.theory v s) → eval_stmt varieties.semiring.theory w s.
   Proof.
    pose proof (@naturals_initial nat _ _ _ _ _ _ _) as AI.
@@ -125,25 +126,25 @@ Section borrowed_from_nat.
   (* Some clever autoquoting tactic might make what follows even more automatic. *)
   (* The ugly [pose proof ... . apply that_thing.]'s are because of Coq bug 2185. *)
 
-  Global Instance: Π x: N, Injective (ring_plus x).
+  Global Instance: ∀ x: N, Injective (ring_plus x).
   Proof.
    intros u.
    constructor.
     intros v w.
     pose proof (from_nat_stmt (x' + y' === x' + z' -=> y' === z')
-      (λ _ d => match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
+      (λ _ d, match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
     simpl in P.
     apply P. intro. simpl. apply Plus.plus_reg_l.
    constructor; apply _.
   Qed.
 
-  Global Instance mult_injective: Π x: N, x ≠ 0 → Injective (ring_mult x).
+  Global Instance mult_injective: ∀ x: N, x ≠ 0 → Injective (ring_mult x).
   Proof.
    intros u E.
    constructor.
     intros v w.
     pose proof (from_nat_stmt ((x' === 0 -=> Ext _ False) -=> x' * y' === x' * z' -=> y' === z')
-     (λ _ d => match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
+     (λ _ d, match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
     apply P. intro. simpl. apply Mult_mult_reg_l. assumption.
    constructor; apply _.
   Qed.
@@ -185,8 +186,8 @@ End borrowed_from_nat.
 
   Obligation Tactic := idtac.
 
-  Global Program Instance: Π x y: N, Decision (x <= y) | 10 :=
-    λ x y =>
+  Global Program Instance: ∀ x y: N, Decision (x <= y) | 10 :=
+    λ x y,
     match decide (natural_precedes (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y)) with
     | left E => left _
     | right E => right _
@@ -204,8 +205,8 @@ End borrowed_from_nat.
    assumption. 
   Qed.
 
-  Global Program Instance: Π x y: N, Decision (x = y) | 10 :=
-    λ x y =>
+  Global Program Instance: ∀ x y: N, Decision (x = y) | 10 :=
+    λ x y,
     match Peano_dec.eq_nat_dec (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y) with
     | left E => left _
     | right E => right _
@@ -272,12 +273,12 @@ End borrowed_from_nat.
   Lemma nat_distance_unique' {a b: NatDistance N} x: a x = b x.
   Proof. intro. apply nat_distance_unique_respectful; reflexivity. Qed.
 
-  Global Instance nat_distance_proper `{!NatDistance N}: Proper ((=) ==> (=) ==> (=)) (λ (x y: N) => ` (nat_distance x y)).
+  Global Instance nat_distance_proper `{!NatDistance N}: Proper ((=) ==> (=) ==> (=)) (λ x y: N, ` (nat_distance x y)).
     (* Program *should* allow us to write plain nat_distance instead of the
        above eta, like in nat_distance_unique_respectful. Matthieu confirms it's a bug. *)
   Proof. apply nat_distance_unique_respectful. Qed.
 
-  Global Program Instance: NatDistance N | 10 := λ (x y: N) => 
+  Global Program Instance: NatDistance N | 10 := λ x y: N,
     naturals_to_semiring _ N (proj1_sig (nat_distance (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y))).
       (* Removing the proj1_sig here results in an explosion of proof obligations. Todo: investigate. *)
   Next Obligation.

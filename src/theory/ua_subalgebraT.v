@@ -14,19 +14,19 @@ Require
 
 Section subalgebras.
 
-  Context `{Algebra sign A} (P: Π s, A s → Type).
+  Context `{Algebra sign A} (P: ∀ s, A s → Type).
 
   (* We begin by describing what it means for P to be a proper closed subset: *)
 
   Fixpoint op_closed {o: OpType (sorts sign)}: op_type A o → Type :=
     match o with
     | ne_list.one x => P x
-    | ne_list.cons x y => λ d => Π z, P _ z → op_closed (d z)
+    | ne_list.cons x y => λ d, ∀ z, P _ z → op_closed (d z)
     end.
 
   Definition op_closed_proper:
-   Π (Pproper: Π s x x', x = x' → iffT (P s x) (P s x')) o,
-   Π x x', x = x' → iffT (@op_closed o x) (@op_closed o x').
+   ∀ (Pproper: ∀ s x x', x = x' → iffT (P s x) (P s x')) o,
+   ∀ x x', x = x' → iffT (@op_closed o x) (@op_closed o x').
   Proof with intuition.
    induction o; simpl; intros x y E.
     intuition.
@@ -39,8 +39,8 @@ Section subalgebras.
   Qed.
 
   Class ClosedSubset: Type :=
-    { subset_proper: Π s x x', x = x' → iffT (P s x) (P s x')
-    ; subset_closed: Π o, op_closed (algebra_op o) }.
+    { subset_proper: ∀ s x x', x = x' → iffT (P s x) (P s x')
+    ; subset_closed: ∀ o, op_closed (algebra_op o) }.
 
   (* Now suppose P is closed in this way. *)
 
@@ -54,16 +54,16 @@ Section subalgebras.
 
   (* We can implement closed operations in the new algebra: *)
 
-  Fixpoint close_op {d}: Π (o: op_type A d), op_closed o → op_type carrier d :=
+  Fixpoint close_op {d}: ∀ (o: op_type A d), op_closed o → op_type carrier d :=
     match d with
-    | ne_list.one _ => λ o c => existT _ o (c)
-    | ne_list.cons _ _ => λ o c X => close_op (o (projT1 X)) (c (projT1 X) (projT2 X))
+    | ne_list.one _ => λ o c, existT _ o (c)
+    | ne_list.cons _ _ => λ o c X, close_op (o (projT1 X)) (c (projT1 X) (projT2 X))
     end.
 
-  Global Instance impl: AlgebraOps sign carrier := λ o => close_op (algebra_op o) (subset_closed o).
+  Global Instance impl: AlgebraOps sign carrier := λ o, close_op (algebra_op o) (subset_closed o).
 
   (* By showing that these ops are proper, we get our new algebra: *)
-  Instance: Π d, Equiv (op_type carrier d).
+  Instance: ∀ d, Equiv (op_type carrier d).
    intro.
    apply op_type_equiv.
    intro.

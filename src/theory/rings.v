@@ -86,16 +86,16 @@ Section semiringmor_props. Context `{SemiRing_Morphism}.
   Proof. intros. apply (@preserves_mon_unit _ _ _ _ _ _ _ _ f _). Qed.
   Lemma preserves_1: f 1 = 1.
   Proof. intros. apply (@preserves_mon_unit _ _ _ _ _ _ _ _ f _). Qed.
-  Lemma preserves_mult: Π x y, f (x * y) = f x * f y.
+  Lemma preserves_mult: ∀ x y, f (x * y) = f x * f y.
   Proof. intros. apply preserves_sg_op. Qed.
-  Lemma preserves_plus: Π x y, f (x + y) = f x + f y.
+  Lemma preserves_plus: ∀ x y, f (x + y) = f x + f y.
   Proof. intros. apply preserves_sg_op. Qed.
 
 End semiringmor_props.
 
 Section ring_props. Context `{Ring R}.
 
-  Lemma stdlib_ring_theory: Ring_theory.ring_theory 0 1 ring_plus ring_mult (λ x y => x + - y) group_inv equiv.
+  Lemma stdlib_ring_theory: Ring_theory.ring_theory 0 1 ring_plus ring_mult (λ x y, x + - y) group_inv equiv.
   Proof.
    constructor; intros.
            apply left_identity.
@@ -134,7 +134,7 @@ Section ring_props. Context `{Ring R}.
   Lemma equal_by_zero_sum x y: x + - y = 0 → x = y.
   Proof. intro E. rewrite <- (plus_0_l y). rewrite <- E. ring. Qed.
 
-  Global Instance: Π p: R, Injective (ring_plus p).
+  Global Instance: ∀ p: R, Injective (ring_plus p).
   Proof.
    intros p.
    constructor. 2: constructor; apply _.
@@ -163,10 +163,10 @@ Section ring_props. Context `{Ring R}.
    rewrite xz_zero...
   Qed.
 
-  Lemma mult_ne_zero `{!NoZeroDivisors R}: Π (x y: R), x ≠ 0 → y ≠ 0 → x * y ≠ 0.
+  Lemma mult_ne_zero `{!NoZeroDivisors R}: ∀ (x y: R), x ≠ 0 → y ≠ 0 → x * y ≠ 0.
   Proof. repeat intro. apply (no_zero_divisors x). split; eauto. Qed.
 
-  Global Instance mult_injective `{!NoZeroDivisors R} `{Π x y, Stable (x = y)} (x: R):
+  Global Instance mult_injective `{!NoZeroDivisors R} `{∀ x y, Stable (x = y)} (x: R):
     x ≠ 0 → Injective (ring_mult x).
       (* this is the cancellation law in disguise *)
   Proof with intuition.

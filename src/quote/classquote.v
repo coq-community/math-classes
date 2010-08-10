@@ -163,12 +163,12 @@ Section eqs.
 
 End eqs.
 
-Instance: Π `{Equiv A}, Proper (equiv ==> equiv) (ret Expr).
+Instance: ∀ `{Equiv A}, Proper (equiv ==> equiv) (ret Expr).
  repeat intro.
  assumption.
 Qed.
 
-Instance bind_proper: Π `{Equiv A} `{Equiv B},
+Instance bind_proper: ∀ `{Equiv A} `{Equiv B},
  Proper (equiv ==> pointwise_relation A equiv ==> equiv) (@expr_bind A B).
 Proof.
  intros A H B H0 x y E.
@@ -357,9 +357,9 @@ End Quote.
 (* When quoting something from scratch we will want to start with an empty heap.
  To avoid having to mention this, we define quote' and eval_quote': *)
 
-Definition quote': Π x {V'} {v: Vars V'} {d: Quote novars x v}, Expr _ := @quote _ _.
+Definition quote': ∀ x {V'} {v: Vars V'} {d: Quote novars x v}, Expr _ := @quote _ _.
 
-Definition eval_quote': Π x {V'} {v: Vars V'} {d: Quote novars x v},
+Definition eval_quote': ∀ x {V'} {v: Vars V'} {d: Quote novars x v},
   eval (merge novars v) quote = x
     := @eval_quote _ _ .
 
@@ -368,7 +368,7 @@ Implicit Arguments eval_quote' [[V'] [v] [d]].
 
 (* Time for some tests! *)
 
-Goal Π x y (P: Value -> Prop), P ((x * y) * (x * 0)).
+Goal ∀ x y (P: Value -> Prop), P ((x * y) * (x * 0)).
   intros.
   rewrite <- (eval_quote' _).
     (* turns the goal into
@@ -413,7 +413,7 @@ Proof with intuition.
  apply eval_proper... intro...
 Qed.
 
-Goal Π x y, x * y = y * x.
+Goal ∀ x y, x * y = y * x.
  intros.
  apply (quote_equality _ _).
  simpl quote.

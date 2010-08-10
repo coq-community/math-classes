@@ -27,21 +27,21 @@ Section contents.
   Fixpoint app_tree {o}: OpenTerm o → op_type OpenTerm0 o :=
     match o with
     | ne_list.one _ => id
-    | ne_list.cons _ _ => λ x y => app_tree (App _ _ _ _ x y)
+    | ne_list.cons _ _ => λ x y, app_tree (App _ _ _ _ x y)
     end.
 
-  Instance: AlgebraOps et OpenTerm0 := λ x => app_tree (Op _ _ x).
+  Instance: AlgebraOps et OpenTerm0 := λ x, app_tree (Op _ _ x).
 
   (* We define term equivalence on all operation types: *)
 
-  Inductive ee: Π o, Equiv (OpenTerm o) :=
+  Inductive ee: ∀ o, Equiv (OpenTerm o) :=
     | e_vars a a': a = a' → Var et A a tt = Var et A a' tt
     | e_refl o: Reflexive (ee o)
     | e_trans o: Transitive (ee o)
     | e_sym o: Symmetric (ee o)
     | e_sub o h: Proper ((=) ==> (=) ==> (=)) (App _ _ h o) 
-    | e_law (s: EqEntailment et): et_laws et s → (Π (v: Vars et OpenTerm0 nat),
-      (Π x, In x (entailment_premises _ s) → eval et v (fst (projT2 x)) = eval et v (snd (projT2 x))) →
+    | e_law (s: EqEntailment et): et_laws et s → (∀ (v: Vars et OpenTerm0 nat),
+      (∀ x, In x (entailment_premises _ s) → eval et v (fst (projT2 x)) = eval et v (snd (projT2 x))) →
         eval et v (fst (projT2 (entailment_conclusion _ s))) = eval et v (snd (projT2 (entailment_conclusion _ s)))).
 
   Existing Instance ee.
@@ -49,14 +49,14 @@ Section contents.
   Existing Instance e_sym.
   Existing Instance e_trans.
 
-  Instance we: Π o, Equivalence (ee o).
+  Instance we: ∀ o, Equivalence (ee o).
   Proof. constructor; apply _. Qed.
 
   (* .. and then take the specialization at arity 0 for Term0: *)
 
-  Instance: Π a, Equiv (OpenTerm0 a) := λ a => ee (ne_list.one a).
+  Instance: ∀ a, Equiv (OpenTerm0 a) := λ a, ee (ne_list.one a).
 
-  Instance: Π a, Setoid (OpenTerm0 a).
+  Instance: ∀ a, Setoid (OpenTerm0 a).
   Proof. intro. unfold Setoid, OpenTerm0. apply _. Qed.
 
   (* While this fancy congruence is the one we'll use to make our initial object a setoid,
@@ -64,14 +64,14 @@ Section contents.
    builders (i.e. terms of type [op_type ClosedTerm0 a] for some a), where we use /Leibniz/ equality
    on closed terms: *)
 
-  Let structural_eq a: relation _ := @op_type_equiv unit OpenTerm0 (λ _ => eq) a.
+  Let structural_eq a: relation _ := @op_type_equiv unit OpenTerm0 (λ _, eq) a.
 
   Instance structural_eq_refl a: Reflexive (structural_eq a).
   Proof. induction a; repeat intro. reflexivity. subst. apply IHa. Qed.
 
   (* The implementation is proper: *)
 
-  Instance app_tree_proper: Π o, Proper (equiv ==> equiv)%signature (@app_tree o).
+  Instance app_tree_proper: ∀ o, Proper (equiv ==> equiv)%signature (@app_tree o).
   Proof with auto.
    induction o; repeat intro...
    apply IHo, e_sub...
@@ -85,7 +85,7 @@ Section contents.
 
   (* Better still, the laws hold: *)
 
-  Lemma laws_hold s (L: et_laws et s): Π vars, eval_stmt _ vars s.
+  Lemma laws_hold s (L: et_laws et s): ∀ vars, eval_stmt _ vars s.
   Proof with simpl in *; intuition.
    intros.
    rewrite boring_eval_entailment.

@@ -1,9 +1,12 @@
 Global Generalizable All Variables.
 Set Automatic Introduction.
 
+Set Automatic Coercions Import.
+  (* Needed to recover old behavior. Todo: Figure out why the behavior was changed; what was wrong with it? *)
+
 Require Import
  RelationClasses Relation_Definitions Morphisms Setoid Program.
-Require Export Unicode.Utf8.
+Require Export Unicode.Utf8 Utf8_core.
 
 (* Equality *)
 Class Equiv A := equiv: relation A.
@@ -12,7 +15,7 @@ Class Equiv A := equiv: relation A.
 Infix "=" := equiv: type_scope.
 Notation "(=)" := equiv (only parsing).
 Notation "( f =)" := (equiv f) (only parsing).
-Notation "(= f )" := (λ g => equiv g f) (only parsing).
+Notation "(= f )" := (λ g, equiv g f) (only parsing).
 Notation "x ≠ y":= (~ equiv x y): type_scope.
 
 (* For Leibniz equality we use "≡": *)
@@ -20,7 +23,7 @@ Infix "≡" := eq (at level 70, no associativity).
   (* Hm, we could define a very low priority Equiv instance for Leibniz equality.. *)
 
 Instance ext_eq (A B: Type) `(Equiv B): Equiv (A → B)
-  := λ (f g: A → B) => Π x, f x = g x.
+  := λ f g: A → B, ∀ x, f x = g x.
 
 (* Other canonically named relations/operations/constants: *)
 Class Decision P := decide: sumbool P (~ P).
@@ -35,7 +38,7 @@ Class MultInv A `{Equiv A} `{RingZero A} := mult_inv: { x: A | x ≠ ring_zero }
 Class Arrows (O: Type): Type := Arrow: O → O → Type.
 Infix "⟶" := Arrow (at level 90, right associativity).
 Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
-Class CatComp O `{Arrows O} := comp: Π {x y z}, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
+Class CatComp O `{Arrows O} := comp: ∀ {x y z}, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
 Class Order A := precedes: relation A.
 Class RalgebraAction A B := ralgebra_action: A → B → B.
 Class RingMultInverse {R} (x: R): Type := ring_mult_inverse: R.
@@ -59,7 +62,7 @@ Infix "&" := sg_op (at level 50, left associativity).
 Infix "+" := ring_plus.
 Notation "(+)" := ring_plus (only parsing).
 Notation "( x +)" := (ring_plus x) (only parsing).
-Notation "(+ x )" := (λ y => ring_plus y x) (only parsing).
+Notation "(+ x )" := (λ y, ring_plus y x) (only parsing).
 Infix "*" := ring_mult.
 Notation "( x *)" := (ring_mult x) (only parsing).
   (* We don't add "(*)" and "(*x)" notations because they're too much like comments. *)
@@ -74,13 +77,13 @@ Infix "◎" := comp (at level 40, left associativity).
    a tad extreme. *)
 Notation "(◎)" := comp (only parsing).
 Notation "( f ◎)" := (comp f) (only parsing).
-Notation "(◎ f )" := (λ g => comp g f) (only parsing).
+Notation "(◎ f )" := (λ g, comp g f) (only parsing).
   (* Haskell style! *)
 
-Notation "(→)" := (λ x y => x → y).
+Notation "(→)" := (λ x y, x → y).
 
 Program Definition dec_mult_inv `{e: Equiv A} `{RingZero A} `{!MultInv A}
-  `{Π x y: A, Decision (equiv x y)} (x: A): A := if decide (equiv x 0) then 0 else // x.
+  `{∀ x y: A, Decision (equiv x y)} (x: A): A := if decide (equiv x 0) then 0 else // x.
 
 Notation "/ x" := (dec_mult_inv x).
 
@@ -92,7 +95,7 @@ Class AntiSymmetric `{ea: Equiv A} (R: relation A): Prop := antisymmetry: `(R x 
 Class Distribute `{Equiv A} (f g: A → A → A): Prop :=
   { distribute_l: `(f a (g b c) = g (f a b) (f a c))
   ; distribute_r: `(f (g a b) c = g (f a c) (f b c)) }.
-Class HeteroSymmetric {A} {T: A → A → Type} (R: Π {x y}, T x y → T y x → Prop): Prop :=
+Class HeteroSymmetric {A} {T: A → A → Type} (R: ∀ {x y}, T x y → T y x → Prop): Prop :=
   hetero_symmetric `(a: T x y) (b: T y x): R _ _ a b → R _ _ b a.
 
 Implicit Arguments inverse [[A] [B] [Inverse]].

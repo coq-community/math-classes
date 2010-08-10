@@ -13,7 +13,7 @@ Section for_signature. Variable σ: Signature.
   Notation OpType := (OpType (sorts σ)).
 
   Inductive Term (V: Type): OpType → Type :=
-    | Var: V → (Π a, Term V (ne_list.one a))
+    | Var: V → (∀ a, Term V (ne_list.one a))
     | App t y: Term V (ne_list.cons y t) → Term V (ne_list.one y) → Term V t
     | Op o: Term V (σ o).
 
@@ -34,27 +34,27 @@ Section for_signature. Variable σ: Signature.
 
   Section applications_ind.
 
-    Context V (P: Π {a}, Term0 V a → Type).
+    Context V (P: ∀ {a}, Term0 V a → Type).
 
     Implicit Arguments P [[a]].
 
     (* Proving such properties for nullary terms directly using Term's induction principle is
     problematic because it requires a property over terms of /any/ arity. Hence, we must first
      transform P into a statement about terms of all arities. Roughly speaking, we do this by
-     saying [Π x0...xN, P (App (... (App f x0) ...) xN)] for a term f of arity N. *)
+     saying [∀ x0...xN, P (App (... (App f x0) ...) xN)] for a term f of arity N. *)
 
     Fixpoint applications {ot}: Term V ot → Type :=
       match ot with
       | ne_list.one x => @P x
-      | ne_list.cons x y => λ z => Π v, P v → applications (App V _ _ z v)
+      | ne_list.cons x y => λ z, ∀ v, P v → applications (App V _ _ z v)
       end.
 
     (* To prove P/applications by induction, we can then use: *)
 
     Lemma applications_rect:
-      (Π v a, P (Var v a)) →
-      (Π o, applications (Op _ o)) →
-      (Π a (t: Term0 V a), P t).
+      (∀ v a, P (Var v a)) →
+      (∀ o, applications (Op _ o)) →
+      (∀ a (t: Term0 V a), P t).
     Proof.
      intros X0 X1 ??.
      cut (applications t).
@@ -121,23 +121,23 @@ Section for_signature. Variable σ: Signature.
 
   Section Vars.
 
-    Context (A: sorts σ → Type) (V: Type) `{e: Π a, Equiv (A a)} `{Π a, Equivalence (e a)}.
+    Context (A: sorts σ → Type) (V: Type) `{e: ∀ a, Equiv (A a)} `{∀ a, Equivalence (e a)}.
 
-    Definition Vars := Π a, V → A a.
+    Definition Vars := ∀ a, V → A a.
 
     Global Instance: Equiv Vars :=
-     @pointwise_dependent_relation (sorts σ) (λ a => V → A a)
-      (λ _ => pointwise_relation _ equiv).
+     @pointwise_dependent_relation (sorts σ) (λ a, V → A a)
+      (λ _, pointwise_relation _ equiv).
 
     Global Instance: Equivalence (equiv: relation Vars).
 
   End Vars.
 
-  Definition no_vars x: Vars x False := λ _ => False_rect _.
+  Definition no_vars x: Vars x False := λ _, False_rect _.
 
   (* Given an assignment mapping variables to closed terms, we can close open terms: *)
 
-  Fixpoint close {V} {o} (v: Vars (λ x => Term False (ne_list.one x)) V) (t: Term V o): Term False o :=
+  Fixpoint close {V} {o} (v: Vars (λ x, Term False (ne_list.one x)) V) (t: Term V o): Term False o :=
     match t in Term _ o return Term False o with
     | Var x y => v y x
     | App x y z r => App _ x y (close v z) (close v r)
@@ -168,7 +168,7 @@ Section for_signature. Variable σ: Signature.
 
     Global Instance eval_strong_proper {V} (n: OpType):
       Proper ((pointwise_dependent_relation (sorts σ) _
-        (λ _ => pointwise_relation V eq)) ==> eq ==> eq) (@eval V n).
+        (λ _, pointwise_relation V eq)) ==> eq ==> eq) (@eval V n).
     Proof with auto.
      intros x y E a _ [].
      unfold pointwise_dependent_relation in E.
@@ -182,7 +182,7 @@ Section for_signature. Variable σ: Signature.
     Hint Extern 4 (Equiv (Term _ _)) => exact eq: typeclass_instances.
     Hint Extern 4 (Equiv (Term0 _ _)) => exact eq: typeclass_instances.
 
-    Instance: Π V n v, Setoid_Morphism (@eval V (ne_list.one n) v).
+    Instance: ∀ V n v, Setoid_Morphism (@eval V (ne_list.one n) v).
     Proof.
      constructor; try apply _.
       unfold Setoid. apply _.
@@ -192,7 +192,7 @@ Section for_signature. Variable σ: Signature.
     Fixpoint app_tree {V} {o}: Term V o → op_type (Term0 V) o :=
       match o with
       | ne_list.one _ => id
-      | ne_list.cons _ _ => λ x y => app_tree (App _ _ _ x y)
+      | ne_list.cons _ _ => λ x y, app_tree (App _ _ _ x y)
       end.
 (*
     Instance: AlgebraOps σ (Term0 V) := λ _ x => app_tree (Op _ x).
@@ -210,7 +210,7 @@ Section for_signature. Variable σ: Signature.
     Qed.
 *)
     Lemma eval_map_var `(f: V -> W) v s (t: Term V s):
-      eval v (map_var f t) ≡ eval (λ s => v s ∘ f) t.
+      eval v (map_var f t) ≡ eval (λ s, v s ∘ f) t.
     Proof.
      induction t; simpl.
        reflexivity.
@@ -258,10 +258,10 @@ Record EquationalTheory :=
 Class InVariety
   (et: EquationalTheory)
   (carriers: sorts et → Type)
-  {e: Π a, Equiv (carriers a)}
+  {e: ∀ a, Equiv (carriers a)}
   `{!AlgebraOps et carriers}: Prop :=
   { variety_algebra:> Algebra et carriers
-  ; variety_laws: Π s, et_laws et s → (Π vars, eval_stmt et vars s) }.
+  ; variety_laws: ∀ s, et_laws et s → (∀ vars, eval_stmt et vars s) }.
 
 Module op_type_notations.
   Global Infix "-=>" := (ne_list.cons) (at level 95, right associativity).

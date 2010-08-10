@@ -26,7 +26,7 @@ Definition map_pos `{RingPlus R} `{RingOne R}: positive → R :=
     | 1%positive => 1
     end.
 
-Lemma map_pos_tri `{SemiRing R} `{SemiRing R'} (f: R → R') `{!SemiRing_Morphism f}: Π p, f (map_pos p) = map_pos p.
+Lemma map_pos_tri `{SemiRing R} `{SemiRing R'} (f: R → R') `{!SemiRing_Morphism f}: ∀ p, f (map_pos p) = map_pos p.
 Proof.
  induction p; simpl;
  repeat (try rewrite preserves_plus; try rewrite preserves_1);
@@ -42,7 +42,7 @@ Section contents.
   Lemma preserves_Psucc x: map_pos (Psucc x) = map_pos x + 1.
   Proof. induction x; simpl; try reflexivity. rewrite IHx. ring. Qed.
 
-  Lemma preserves_Pplus x: Π y, map_pos (x + y) = map_pos x + map_pos y.
+  Lemma preserves_Pplus x: ∀ y, map_pos (x + y) = map_pos x + map_pos y.
   Proof with try ring.
    induction x; destruct y; simpl; try rewrite IHx...
      rewrite Pplus_carry_spec, preserves_Psucc, IHx...
@@ -50,7 +50,7 @@ Section contents.
    rewrite preserves_Psucc...
   Qed.
 
-  Lemma Pmult_sr_mult p: Π n, Pmult_nat p n = map_pos p * n.
+  Lemma Pmult_sr_mult p: ∀ n, Pmult_nat p n = map_pos p * n.
   Proof with try ring.
    induction p; simpl; intros; try rewrite IHp...
     change (n + map_pos p * (n + n) = (map_pos p + map_pos p + 1) * n)...
@@ -64,7 +64,7 @@ Section contents.
    ring.
   Qed.
 
-  Lemma preserves_Pmult x: Π y, map_pos (x * y) = map_pos x * map_pos y.
+  Lemma preserves_Pmult x: ∀ y, map_pos (x * y) = map_pos x * map_pos y.
   Proof with try reflexivity; try ring.
    induction x; intros; simpl...
     rewrite preserves_Pplus.

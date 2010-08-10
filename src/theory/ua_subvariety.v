@@ -11,15 +11,15 @@ Section contents.
   Context `{InVariety et A} `{@ClosedSubset et A _ _ P}. (* todo: why so ugly? *)
 
   Definition Pvars (vars: Vars et (carrier P) nat): Vars et A nat
-    := λ s n => ` (vars s n).
+    := λ s n, ` (vars s n).
 
   (* To prove that the laws still hold in the subalgebra, we first prove that evaluation in it
    is the same as evaluation in the original: *)
 
   Program Fixpoint heq {o}: op_type (carrier P) o → op_type A o → Prop :=
     match o with
-    | ne_list.one _ => λ a b => `a = b
-    | ne_list.cons _ _ => λ a b => Π u, heq (a u) (b u)
+    | ne_list.one _ => λ a b, `a = b
+    | ne_list.cons _ _ => λ a b, ∀ u, heq (a u) (b u)
     end.
 
   Instance heq_proper: Proper (equiv ==> equiv ==> iff) (@heq o).
@@ -34,7 +34,7 @@ Section contents.
      transitivity x0...
     transitivity x1...
     transitivity y0...
-   assert (Π u, x u = y u). intros. apply U...
+   assert (∀ u, x u = y u). intros. apply U...
    split; repeat intro.
     apply -> (IHo (x u) (y u) (H1 u) (x0 (proj1_sig u)))...
     apply K...
@@ -68,7 +68,7 @@ Section contents.
   Proof. apply (heq_eval vars t). Qed.
     (* todo: this specialization wasn't needed in a previous Coq version *)
 
-  Lemma laws s: et_laws et s → (Π vars: Π a, nat → carrier P a, eval_stmt et vars s).
+  Lemma laws s: et_laws et s → (∀ vars: ∀ a, nat → carrier P a, eval_stmt et vars s).
   Proof with intuition.
    intros.
    generalize (@variety_laws et A _ _ _ s H1 (Pvars vars)). clear H1.

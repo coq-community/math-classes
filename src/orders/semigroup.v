@@ -4,7 +4,7 @@ Require Import Relation_Definitions Morphisms abstract_algebra.
 
 Section sg_order. Context `{SemiGroup G}.
 
-  Instance sg_precedes: Order G := λ x y: G => exists z: G, x & z = y.
+  Instance sg_precedes: Order G := λ x y: G, exists z: G, x & z = y.
 
   Global Instance: Proper (equiv ==> equiv ==> iff) sg_precedes.
   Proof with assumption.

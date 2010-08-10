@@ -10,7 +10,7 @@ Definition op := False.
 
 Definition sig: Signature := Build_Signature unit op (False_rect _).
 
-Definition Laws: EqEntailment sig → Prop := λ _ => False.
+Definition Laws: EqEntailment sig → Prop := λ _, False.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
 
@@ -20,9 +20,9 @@ Section from_instance.
 
   Context A `{Setoid A}.
 
-  Notation carriers := (λ _ => A).
+  Notation carriers := (λ _, A).
 
-  Instance: AlgebraOps sig carriers := λ o => False_rect _ o.
+  Instance: AlgebraOps sig carriers := λ o, False_rect _ o.
 
   Instance: Algebra sig carriers.
   Proof. constructor; intuition. Qed.
@@ -30,7 +30,7 @@ Section from_instance.
   Instance: InVariety theory carriers.
   Proof. constructor; intuition. Qed.
 
-  Definition object: variety.Object theory := variety.object theory (λ _ => A).
+  Definition object: variety.Object theory := variety.object theory (λ _, A).
 
 End from_instance.
 
@@ -45,7 +45,7 @@ Section from_variety.
 End from_variety.
 
 Lemma mor_from_sr_to_alg `{InVariety theory A} `{InVariety theory B}
-  (f: Π u, A u → B u) `{!Setoid_Morphism (f tt)}: HomoMorphism sig A B f.
+  (f: ∀ u, A u → B u) `{!Setoid_Morphism (f tt)}: HomoMorphism sig A B f.
 Proof with try apply _.
  constructor.
     intros []...

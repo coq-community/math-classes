@@ -9,10 +9,10 @@ Section natural_transformations_id_comp.
     `{!Functor (f: A → B) f'} `{!Functor (g: A → B) g'} `{!Functor (h: A → B) h'}
     `{!NaturalTransformation (m:f⇛g)} `{!NaturalTransformation (n:g⇛h)}.
 
-  Global Instance id_transformation: NaturalTransformation (λ a => cat_id: f a ⟶ f a).
+  Global Instance id_transformation: NaturalTransformation (λ a, cat_id: f a ⟶ f a).
   Proof. intros ???. rewrite id_l, id_r; reflexivity. Qed.
 
-  Global Instance compose_transformation: NaturalTransformation (λ a => n a ◎ m a).
+  Global Instance compose_transformation: NaturalTransformation (λ a, n a ◎ m a).
   Proof.
     intros ???.
     rewrite <- comp_assoc, natural, comp_assoc, natural, comp_assoc; reflexivity.
@@ -47,7 +47,7 @@ Section contents.
   Section arrow_setoid. Context (F G: Object).
 
     Global Program Instance e: Equiv (F ⟶ G) :=
-      λ m n => Π x: A, m x = n x.
+      λ m n, ∀ x: A, m x = n x.
 
     Let e_refl: Reflexive e.
     Proof. intro a; red; reflexivity. Qed.
@@ -63,10 +63,10 @@ Section contents.
 
   End arrow_setoid.
  
-  Global Instance: CatId Object := λ _ => arrow (λ _ => cat_id) _.
-  Global Instance: CatComp Object := λ _ _ _ m n => arrow (λ a => m a ◎ n a) _.
+  Global Instance: CatId Object := λ _, arrow (λ _, cat_id) _.
+  Global Instance: CatComp Object := λ _ _ _ m n, arrow (λ a, m a ◎ n a) _.
 
-  Global Instance: Π x y z: Object,
+  Global Instance: ∀ x y z: Object,
     Proper (equiv ==> equiv ==> equiv) ((◎): (y ⟶ z) -> (x ⟶ y) -> (x ⟶ z)).
   Proof.
     intros ????? Hx ?? Hy a.

@@ -36,7 +36,7 @@ Section with_sorts. Variable Sorts: Set.
 
   (* We use extensional equivalence for such generated function types: *)
 
-  Context `{e: Π s, Equiv (carrier s)}.
+  Context `{e: ∀ s, Equiv (carrier s)}.
 
   Fixpoint op_type_equiv o: Equiv (op_type o) :=
     match o with
@@ -46,12 +46,12 @@ Section with_sorts. Variable Sorts: Set.
 
   Global Existing Instance op_type_equiv. (* There's no [Global Instance Fixpoint]. *)
 
-  Global Instance sig_type_sym `{Π s, Symmetric (e s)}: Symmetric (op_type_equiv o).
+  Global Instance sig_type_sym `{∀ s, Symmetric (e s)}: Symmetric (op_type_equiv o).
   Proof. induction o; simpl; firstorder. Qed.
 
   (* We need either reflexivity or symmetry of e in order to get transitivity of op_type_equiv: *)
 
-  Global Instance sig_type_trans `{Π s, Reflexive (e s)} `{Π s, Transitive (e s)}: Transitive (op_type_equiv o).
+  Global Instance sig_type_trans `{∀ s, Reflexive (e s)} `{∀ s, Transitive (e s)}: Transitive (op_type_equiv o).
   Proof.
    induction o; simpl. firstorder.
    intros ? y ???? y0 ?. transitivity (y y0); firstorder.
@@ -59,7 +59,7 @@ Section with_sorts. Variable Sorts: Set.
 
   Hint Unfold op_type.
 
-  Global Instance sig_type_trans' `{Π s, Symmetric (e s)} `{Π s, Transitive (e s)}: Transitive (op_type_equiv o).
+  Global Instance sig_type_trans' `{∀ s, Symmetric (e s)} `{∀ s, Transitive (e s)}: Transitive (op_type_equiv o).
   Proof with auto.
    induction o; simpl...
    intros x y ? ? H2 x0 y0 ?.
@@ -69,7 +69,7 @@ Section with_sorts. Variable Sorts: Set.
   Qed.
 
     (* This is the closest i've been able to get to reflexivity thus far: *)
-  Lemma sig_type_refl `{Π a, Reflexive (e a)} (o: OpType) a (x: op_type (ne_list.cons a o)) y:
+  Lemma sig_type_refl `{∀ a, Reflexive (e a)} (o: OpType) a (x: op_type (ne_list.cons a o)) y:
     Proper equiv x → op_type_equiv o (x y) (x y).
   Proof. intro H0. apply H0. reflexivity. Qed.
 
@@ -94,14 +94,14 @@ Definition single_sorted_signature {Op: Set} (arities: Op → nat): Signature :=
 (* An implementation of a signature for a given realization of the sorts is simply a
  function (of the right type) for each operation: *)
 
-Class AlgebraOps (σ: Signature) (A: sorts σ → Type) := algebra_op: Π o, op_type A (σ o).
+Class AlgebraOps (σ: Signature) (A: sorts σ → Type) := algebra_op: ∀ o, op_type A (σ o).
 
 (* .. which, if they are proper with respect to a bona fide setoid equality, form an algebra: *)
 
 Class Algebra
   (σ: Signature)
   (carriers: sorts σ → Type)
-  {e: Π a, Equiv (carriers a)}
+  {e: ∀ a, Equiv (carriers a)}
   `{AlgebraOps σ carriers}: Prop :=
-    { algebra_setoids:> Π a, Setoid (carriers a)
-    ; algebra_propers:> Π o: σ, Proper (=) (algebra_op o) }.
+    { algebra_setoids:> ∀ a, Setoid (carriers a)
+    ; algebra_propers:> ∀ o: σ, Proper (=) (algebra_op o) }.

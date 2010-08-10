@@ -20,20 +20,20 @@ Section contents.
   Let ba_proper a: Proper (equiv ==> equiv) (@ba a).
   Proof. apply _. Qed.
 
-  Let epA: Π V n, Proper (equiv ==> eq ==> equiv) (@eval _ A _ V n) := _.
-  Let epB: Π V n, Proper (equiv ==> eq ==> equiv) (@eval _ B _ V n) := _.
+  Let epA: ∀ V n, Proper (equiv ==> eq ==> equiv) (@eval _ A _ V n) := _.
+  Let epB: ∀ V n, Proper (equiv ==> eq ==> equiv) (@eval _ B _ V n) := _.
     (* hints. shouldn't be necessary *)
 
-  Let ab_ba: Π b (a: B b), ab (ba a) = a := proj1 i.
-  Let ba_ab: Π b (a: A b), ba (ab a) = a := proj2 i.
+  Let ab_ba: ∀ b (a: B b), ab (ba a) = a := proj1 i.
+  Let ba_ab: ∀ b (a: A b), ba (ab a) = a := proj2 i.
 
   Program Lemma transfer_eval n (t: Term et nat n) (v: Vars et B nat):
-    eval et (A:=A) (λ _ i => ba (v _ i)) t = map_op _ (@ba) (@ab) (eval et v t).
+    eval et (A:=A) (λ _ i, ba (v _ i)) t = map_op _ (@ba) (@ab) (eval et v t).
   Proof with auto; try reflexivity.
    induction t; simpl in *; intros...
-    set (eval et (λ (a: sorts et) (i : nat) => ba (v a i)) t2).
-    pose proof (@epA nat (ne_list.cons y t1) (λ a i => ba (v a i))
-         (λ a i => ba (v a i)) (reflexivity _) t2 t2 (reflexivity _)
+    set (eval et (λ (a: sorts et) (i : nat), ba (v a i)) t2).
+    pose proof (@epA nat (ne_list.cons y t1) (λ a i, ba (v a i))
+         (λ a i, ba (v a i)) (reflexivity _) t2 t2 (reflexivity _)
          : Proper (equiv ==> op_type_equiv (sorts et) A t1)%signature o).
     rewrite (IHt2 v).
     subst o.
@@ -59,7 +59,7 @@ Section contents.
   Qed. (* todo: make [reflexivity] work as a hint. further cleanup. *)
 
   Program Lemma transfer_eval' n (t: Term et nat n) (v: Vars et B nat):
-    map_op _ (@ab) (@ba) (eval et (A:=A) (λ _ i => ba (v _ i)) t) = eval et v t.
+    map_op _ (@ab) (@ba) (eval et (A:=A) (λ _ i, ba (v _ i)) t) = eval et v t.
   Proof with auto.
    intros.
    pose proof (@map_op_proper (sorts et) A B _ _ _ _ _ _).
@@ -69,7 +69,7 @@ Section contents.
   Qed. 
 
   Program Lemma transfer_statement_and_vars (s: Statement et) (v: Vars et B nat):
-    eval_stmt et v s <-> eval_stmt et (A:=A) (λ _ i => ba (v _ i)) s.
+    eval_stmt et v s <-> eval_stmt et (A:=A) (λ _ i, ba (v _ i)) s.
   Proof with auto; reflexivity.
    intros.
    induction s; simpl; intuition.
@@ -81,10 +81,10 @@ Section contents.
    apply (map_op_proper _ _ _)...
   Qed.
 
-  Theorem transfer_statement (s: Statement et): (Π v, eval_stmt et (A:=A) v s) → (Π v, eval_stmt et (A:=B) v s).
+  Theorem transfer_statement (s: Statement et): (∀ v, eval_stmt et (A:=A) v s) → (∀ v, eval_stmt et (A:=B) v s).
   Proof with intuition.
    intros ? v.
-   assert (v = (λ _ i => ab (ba (v _ i)))) as P.
+   assert (v = (λ _ i, ab (ba (v _ i)))) as P.
     destruct i. intros a a0. symmetry...
    rewrite P, transfer_statement_and_vars...
   Qed.

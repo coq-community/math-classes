@@ -19,7 +19,7 @@ Let carriers := False_rect _: sorts sig → Type.
 Instance: Equiv (carriers a).
 Proof. intros []. Qed.
 
-Instance implementation: AlgebraOps sig carriers := λ o => False_rect _ o.
+Instance implementation: AlgebraOps sig carriers := λ o, False_rect _ o.
 
 Global Instance: Algebra sig _.
 Proof. constructor; intuition. Qed.

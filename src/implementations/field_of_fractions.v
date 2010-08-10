@@ -5,8 +5,8 @@ Section contents.
 
 Context R
   `{IntegralDomain R}
-  `{Π x y, Stable (x = y)} (* needed to get cancellation law in transitivity proof *)
-  `{Π x y, Decision (x = y)}. (* only used in decider for Frac *)
+  `{∀ x y, Stable (x = y)} (* needed to get cancellation law in transitivity proof *)
+  `{∀ x y, Decision (x = y)}. (* only used in decider for Frac *)
 
 Add Ring R: (stdlib_ring_theory R).
 
@@ -16,7 +16,7 @@ Inductive Frac: Type := frac { num: R; den: R; den_nonzero: den ≠ 0 }.
 
 (* equality *)
 
-Global Program Instance frac_equiv: Equiv Frac := λ x y => num x * den y = num y * den x.
+Global Program Instance frac_equiv: Equiv Frac := λ x y, num x * den y = num y * den x.
 
 Instance: Reflexive frac_equiv. Proof. repeat intro. unfold frac_equiv. reflexivity. Qed.
 Instance: Symmetric frac_equiv. Proof. repeat intro. unfold frac_equiv. symmetry. assumption. Qed.
@@ -33,7 +33,7 @@ Qed.
 Instance: Equivalence frac_equiv.
 Instance: Setoid Frac.
 
-Global Instance: Π x y: Frac, Decision (x = y) := λ x y => decide (num x * den y = num y * den x).
+Global Instance: ∀ x y: Frac, Decision (x = y) := λ x y, decide (num x * den y = num y * den x).
 
 (* injection from R *)
 
@@ -46,19 +46,19 @@ Proof. unfold inject, equiv, frac_equiv. intros x x' E. simpl. rewrite E. reflex
 (* relations/operations/constants: *)
 
 Global Program Instance frac_plus: RingPlus Frac :=
-  λ x y => frac (num x * den y + num y * den x) (den x * den y) _.
+  λ x y, frac (num x * den y + num y * den x) (den x * den y) _.
 Next Obligation. destruct x, y. simpl. apply mult_ne_zero; assumption. Qed.
   (* hm, this is no good, because now frac_plus refers to the proof :-( *)
 
 Global Instance frac_zero: RingZero Frac := inject 0.
 Global Instance frac_one: RingOne Frac := inject 1.
 
-Global Instance frac_opp: GroupInv Frac := λ x => frac (- num x) (den x) (den_nonzero x).
+Global Instance frac_opp: GroupInv Frac := λ x, frac (- num x) (den x) (den_nonzero x).
 
-Global Program Instance frac_mult: RingMult Frac := λ x y => frac (num x * num y) (den x * den y) _.
+Global Program Instance frac_mult: RingMult Frac := λ x y, frac (num x * num y) (den x * den y) _.
 Next Obligation. destruct x, y. simpl. apply mult_ne_zero; assumption. Qed.
 
-Global Program Instance frac_inv: MultInv Frac := λ x => frac (den x) (num x) _.
+Global Program Instance frac_inv: MultInv Frac := λ x, frac (den x) (num x) _.
 Next Obligation. intro U. unfold equiv, frac_equiv in H2. apply H2. rewrite U. simpl. ring. Qed.
 
 (* plus is nice, giving us a monoid: *)
@@ -145,9 +145,9 @@ Qed.
 Global Instance: Injective inject.
 Proof. constructor. intros x y. unfold equiv, frac_equiv. simpl. do 2 rewrite mult_1_r. intuition. constructor; apply _. Qed.
 
-Let inject_frac := (λ p => inject (fst p) * / inject (snd p)).
+Let inject_frac := (λ p, inject (fst p) * / inject (snd p)).
 
-Global Instance: Inverse inject_frac := λ x => (num x, den x).
+Global Instance: Inverse inject_frac := λ x, (num x, den x).
 
 Global Instance: Surjective inject_frac.
 Proof.
