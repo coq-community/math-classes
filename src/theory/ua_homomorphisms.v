@@ -69,9 +69,9 @@ Section contents. Variable σ: Signature.
 
   Lemma Preservation_proper' (f g: ∀ a, A a → B a)
    `{∀ i, Equivalence (ea i)} `{∀ i, Equivalence (eb i)} `{∀ a, Setoid_Morphism (@f a)}:
-    (∀ a (x: A a), f a x = g a x) → (∀ (n: OpType) x y, Proper equiv x → Proper equiv y →
+    (∀ a (x: A a), f a x = g a x) → ∀ (n: OpType) x y, Proper equiv x → Proper equiv y →
       @Preservation f n x y →
-      @Preservation g n x y).
+      @Preservation g n x y.
   Proof.
      induction n.
       simpl.

@@ -89,7 +89,7 @@ Instance: Commutative z_mult. Proof. ring_on_nat. Qed.
 
 Global Instance: Distribute z_mult z_plus. Proof. constructor; ring_on_nat. Qed.
 
-Let z_mult_equiv_compat_r y y': y = y' → (∀ x, z_mult x y = z_mult x y').
+Let z_mult_equiv_compat_r y y': y = y' → ∀ x, z_mult x y = z_mult x y'.
 Proof.
  unfold z_mult, equiv, z_equiv. intros E x. simpl.
  transitivity (pos x * (pos y + neg y') + neg x * (pos y' + neg y)); [ring |].

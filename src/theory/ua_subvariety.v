@@ -68,7 +68,7 @@ Section contents.
   Proof. apply (heq_eval vars t). Qed.
     (* todo: this specialization wasn't needed in a previous Coq version *)
 
-  Lemma laws s: et_laws et s → (∀ vars: ∀ a, nat → carrier P a, eval_stmt et vars s).
+  Lemma laws s: et_laws et s → ∀ vars: ∀ a, nat → carrier P a, eval_stmt et vars s.
   Proof with intuition.
    intros.
    generalize (@variety_laws et A _ _ _ s H1 (Pvars vars)). clear H1.

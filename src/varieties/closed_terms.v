@@ -34,9 +34,9 @@ Section contents. Variable et: EquationalTheory.
     | e_trans o: Transitive (e o)
     | e_sym o: Symmetric (e o)
     | e_sub o h: Proper ((=) ==> (=) ==> (=)) (App _ _ h o)
-    | e_law (s: EqEntailment et): et_laws et s → (∀ (v: Vars et ClosedTerm0 nat),
+    | e_law (s: EqEntailment et): et_laws et s → ∀ (v: Vars et ClosedTerm0 nat),
       (∀ x, In x (entailment_premises _ s) → eval et v (fst (projT2 x)) = eval et v (snd (projT2 x))) →
-        eval et v (fst (projT2 (entailment_conclusion _ s))) = eval et v (snd (projT2 (entailment_conclusion _ s)))).
+        eval et v (fst (projT2 (entailment_conclusion _ s))) = eval et v (snd (projT2 (entailment_conclusion _ s))).
 
   Existing Instance e.
   Existing Instance e_refl.

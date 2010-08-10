@@ -88,7 +88,7 @@ Section borrowed_from_nat.
 
   Lemma induction
     (P: N → Prop) `{!Proper (equiv ==> iff)%signature P}:
-    P 0 → (∀ n, P n → P (1 + n)) → (∀ n, P n).
+    P 0 → (∀ n, P n → P (1 + n)) → ∀ n, P n.
   Proof with auto.
    intros.
    rewrite <- (to_semiring_involutive _ nat n).

@@ -8,7 +8,7 @@ Section packed.
 
   Inductive Applied: sorts σ → Type :=
     | AppliedOp o: Arguments (σ o) → Applied (result _ (σ o))
-    | AppliedVar: V → (∀ s, Applied s)
+    | AppliedVar: V → ∀ s, Applied s
   with Arguments: OpType (sorts σ) → Type :=
     | NoMoreArguments s: Arguments (ne_list.one s)
     | MoreArguments o' o: Applied o' → Arguments o → Arguments (ne_list.cons o' o).

@@ -92,8 +92,8 @@ Class TotalOrder `(Order A): Prop := total_order: ∀ x y: A, x <= y ∨ y <= x.
 
 Class RingOrder `(e: Equiv A) (plus: RingPlus A) (mult: RingMult A) (zero: RingZero A) (leq: Order A) :=
   { ringorder_partialorder:> PartialOrder leq
-  ; ringorder_plus: `(leq x y → (∀ z, leq (x + z) (y + z)))
-  ; ringorder_mult: `(leq zero x → (∀ y, leq 0 y → leq 0 (x * y))) }.
+  ; ringorder_plus: `(leq x y → ∀ z, leq (x + z) (y + z))
+  ; ringorder_mult: `(leq zero x → ∀ y, leq 0 y → leq 0 (x * y)) }.
     (* todo: use "precedes" here? *)
 
 Class OrdField A {e: Equiv A} {plus mult inv zero one mult_inv leq}: Prop :=

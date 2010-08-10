@@ -13,7 +13,7 @@ Section for_signature. Variable σ: Signature.
   Notation OpType := (OpType (sorts σ)).
 
   Inductive Term (V: Type): OpType → Type :=
-    | Var: V → (∀ a, Term V (ne_list.one a))
+    | Var: V → ∀ a, Term V (ne_list.one a)
     | App t y: Term V (ne_list.cons y t) → Term V (ne_list.one y) → Term V t
     | Op o: Term V (σ o).
 
@@ -261,7 +261,7 @@ Class InVariety
   {e: ∀ a, Equiv (carriers a)}
   `{!AlgebraOps et carriers}: Prop :=
   { variety_algebra:> Algebra et carriers
-  ; variety_laws: ∀ s, et_laws et s → (∀ vars, eval_stmt et vars s) }.
+  ; variety_laws: ∀ s, et_laws et s → ∀ vars, eval_stmt et vars s }.
 
 Module op_type_notations.
   Global Infix "-=>" := (ne_list.cons) (at level 95, right associativity).

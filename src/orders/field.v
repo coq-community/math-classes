@@ -117,8 +117,7 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
   Lemma ringorder_plus: ∀ `(x <= y) z, x + z <= y + z.
   Proof. intros x y [num [den E]] z. exists num, den. rewrite <- E. ring. Qed.
 
-  Lemma ringorder_mult: ∀ x: F, 0 <= x → (∀ y: F, 0 <= y → 0 <= x * y).
-    (* extra parens necessary because of Coq bug #2234 *)
+  Lemma ringorder_mult: ∀ x: F, 0 <= x → ∀ y: F, 0 <= y → 0 <= x * y.
   Proof.
    intros x [num [den E]] y [num' [den' G]].
    exists (num * num'), (den * den').
