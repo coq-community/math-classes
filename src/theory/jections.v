@@ -33,8 +33,14 @@ Section compositions.
 End compositions.
 
 Lemma back `{Bijective A B f}: f ⁻¹ ∘ f = id. (* a.k.a. "split-mono" *)
-Proof. repeat intro. apply (injective f). exact (surjective f (f x)). Qed.
+Proof. firstorder. Qed.
   (* recall that "f ∘ f ⁻¹ = id" is just surjective. *)
+
+Lemma surjective_applied `{Surjective A B f} x: f (f⁻¹ x) = x.
+Proof. firstorder. Qed.
+
+Lemma bijective_applied `{Bijective A B f} x: f⁻¹ (f x) = x.
+Proof. firstorder. Qed.
 
 Lemma alt_injective `{Equiv A} `{Equiv B} `{f: A → B} `{!Inverse f}:
   Setoid_Morphism f →

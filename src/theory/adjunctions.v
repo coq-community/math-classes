@@ -5,115 +5,204 @@ Set Automatic Introduction.
 Require Import
   Relation_Definitions Morphisms Setoid Program
   abstract_algebra setoids functors categories
-  workaround_tactics.
+  workaround_tactics theory.jections.
 
-Section unit.
+Notation "f ⁻¹" := (inverse f) (at level 30). (* todo: move *)
 
-  Context
-    `(φ_adj: Adjunction C unused A (F:=F) (G:=G) (φ:=φ))
-    `{∀ c a, Inverse (φ c a)}
-    `{∀ c a, Bijective (φ c a)}.
+Hint Unfold id compose: typeclass_instances. (* todo: move *)
+
+Lemma equal_because_sole `{Setoid T} (P: T → Prop) x: is_sole P x → forall y z, P y → P z → y = z.
+Proof. firstorder. Qed. (* todo: move *)
+
+Section for_φAdjunction.
+
+  (* MacLane p79/p80, showing that from an φAdjunction we can make
+   both a ηAdjunction and a ηεAdjunction. *)
+
+  Context `(φAdjunction).
 
   Implicit Arguments φ [[d] [c]].
 
-  (* Move to Utils *)
-  Hint Unfold id compose:typeclass_instances.
-
-  (* Waiting for the new proof engine ... *)
+  Let hint''''' := φ_adjunction_bijective F G.
   Let hint'''' x y: Injective (@φ x y) := _.
-  Let hint''''' x y: Setoid_Morphism (@φ x y) := injective_mor (@φ x y).
-  Let hint := adjunction_left_functor F G (@φ).
-  Let hint' := adjunction_right_functor F G (@φ).
+  Let hint := φ_adjunction_left_functor F G.
+  Let hint' := φ_adjunction_right_functor F G.
   Let hint'' := functor_from G.
   Let hint''' := functor_to G.
+   (* Waiting for the new proof engine ... *)
 
-  Definition η: id ⇛ G ∘ F := λ c: C, @φ c (F c) cat_id.
-
- Instance eta: NaturalTransformation η.
- Proof with try reflexivity; try apply _. (* todo: latter should not be necessary *)
-   (* MacLane p81 *)
-  intros x' x h.
-  transitivity (φ (fmap F h ◎ cat_id)).
-   symmetry. transitivity (φ (cat_id ◎ fmap F h)).
-    transitivity (φ (fmap F h)); [rewrite id_r|rewrite id_l]...
-   transitivity (φ cat_id ◎ fmap id h)... 
-   apply (rad_r F G)...   (* the naturality of φ.*)
-  rewrite rad_l...                           (*the naturality of φ.*)
- Qed.
-
-  (**
-  It is a natural transformation because:
-  GF h ∘ (φ (cat_id (F x')))
-     = (φ (fmap F h∘ cat_id (F x')))
-     = φ ( cat_id (F x) ∘ (fmap F h))
-     = φ ( cat_id (F x) ∘ h
-
-  Based on the naturality of φ.
-  *)
-
-  (** Characterization of φ in terms of G and η *)
-  Lemma φarrows `(f: F x ⟶ a): φ f = fmap G f ◎ η x.
-  Proof with reflexivity.
-   rewrite <- (id_r  f).
-   (* TODO: Finish the proof by autorewrite *)
-   rewrite  rad_l by apply _.
-   rewrite id_r...
+  Lemma φ_adjunction_natural_right_inv `(g: c ⟶ G d) `(h: c' ⟶ c): φ⁻¹ (g ◎ h) = φ⁻¹ g ◎ fmap F h.
+  Proof with try reflexivity; try apply _.
+   intros.
+   apply (injective φ).
+   rewrite surjective_applied...
+   rewrite φ_adjunction_natural_right...
+   rewrite surjective_applied...
   Qed.
 
-End unit.
-
-Require categories.dual jections.
-
-Section counit.
-
-  Context
-    `(φ_adj: Adjunction X e A (F:=F) (G:=G) (φ:=φ))
-    `{∀ x a, Inverse (φ x a)}
-    `{∀ x a, Bijective (φ x a)}.
-
-  Let hint := adjunction_left_functor F G (@φ).
-  Let hint' := adjunction_right_functor F G (@φ).
-  Let hint'' := functor_from G.
-  Let hint''' := functor_to G.
-
-  Notation "f ⁻¹" := (inverse f) (at level 30).
-
-  Definition φinv x a := (@φ x a)⁻¹.
-
-  (** And an adjunction *)
-
-  Definition inverse0: ∀x a, Inverse (φinv a x) := λ a x, φ x a. 
-
-  Lemma inverse: ∀ (x: A) (a : X), @Bijective _ (dual.e _ _) _ (dual.e _ _) (φinv a x) (inverse0 x a).
-  Proof. intros a x. unfold φinv. apply _. Qed.
-
-  Instance: @Adjunction A _ _ _ _ X _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) (λ a x, (@φ x a)⁻¹ ). (* flip *)
-  Proof with intuition; try reflexivity.
-   destruct φ_adj. 
-   constructor; try apply _.
-    (* first law *)
-    intros x x' k a h.
-    apply jections.cancel_left...
-    transitivity (φ x a ((φ x a ⁻¹) h) ◎ k).
-     symmetry; apply natural_right.
-    posed_rewrite (surjective (φ x a) h)...
-    (* second law *)
-   intros a a' h x k.
-   apply jections.cancel_left...
-   change (a' ⟶ a) in h.
-   change (φ x a (h ◎ ((φ x a' ⁻¹) k)) = G' a' a h ◎ k).
-   transitivity (fmap G h ◎ φ x a' ((φ x a' ⁻¹) k)).
-    symmetry; apply natural_left.
-   apply comp_proper...
-   apply surjective...
+  Lemma φ_adjunction_natural_left_inv `(g: c ⟶ G d) `(k: d ⟶ d'): φ⁻¹ (fmap G k ◎ g) = k ◎ φ⁻¹ g.
+  Proof with try reflexivity; try apply _.
+   intros.
+   apply (injective φ).
+   rewrite surjective_applied...
+   rewrite φ_adjunction_natural_left...
+   rewrite surjective_applied...
   Qed.
 
-  Definition ϵnat: @NaturalTransformation _ _ _ _ _ _ _ _ (F ∘ G)
-    (@comp_Fmap _ _ A _ _ _ F (dual.fmap_op F) G (dual.fmap_op G))
-    (@η A (@dual.flipA A _) X (@dual.flipA X _) _ G F (λ (a : A) (x : X), φinv x a)).
+  Let η: id ⇛ G ∘ F := λ c, φ (cat_id: F c ⟶ F c).
+  Let ε: F ∘ G ⇛ id := λ d, φ ⁻¹ (cat_id: G d ⟶ G d).
+
+  Global Instance η_natural: NaturalTransformation η.
+  Proof with try reflexivity; try apply _.
+   intros x' x h.
+   change (φ cat_id ◎ h = fmap G (fmap F h) ◎ φ cat_id).
+   rewrite <- φ_adjunction_natural_left, <- φ_adjunction_natural_right, id_l, id_r...
+  Qed.
+
+  Global Instance: NaturalTransformation ε.
+  Proof with try reflexivity; try apply _.
+   intros d d' f.
+   change ((φ ⁻¹) cat_id ◎ fmap F (fmap G f) = f ◎ (φ ⁻¹) cat_id).
+   rewrite <- φ_adjunction_natural_left_inv, <- φ_adjunction_natural_right_inv, id_l, id_r...
+  Qed.
+
+  Lemma φ_in_terms_of_η `(f: F x ⟶ a): φ f = fmap G f ◎ η x.
   Proof.
-   apply (@eta A _ _ _ _ X _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) (λ a x, (@φ x a)⁻¹ )) with
-     (λ a x, @φ x a); intros; apply _.
+   rewrite <- (id_r f) at 1.
+   rewrite φ_adjunction_natural_left. reflexivity. apply _.
   Qed.
 
-End counit.
+  Lemma φ_in_terms_of_ε `(g: x ⟶ G a): φ⁻¹ g = ε a ◎ fmap F g.
+  Proof.
+   rewrite <- (id_l g) at 1.
+   apply φ_adjunction_natural_right_inv.
+  Qed.
+
+  Definition univwit (c : C) (d : D): (c ⟶ G d) → (F c ⟶ d) := φ⁻¹.
+
+  Instance: ∀ c, UniversalArrow (η c: c ⟶ G (F c)) (univwit c).
+  Proof.
+   unfold univwit.
+   constructor; unfold compose.
+    rewrite <- (φ_in_terms_of_η ((φ ⁻¹) f)).
+    symmetry.
+    apply surjective_applied.
+   intros ? E.
+   rewrite E.
+   rewrite <- (φ_in_terms_of_η y).
+   symmetry.
+   apply bijective_applied.
+  Qed.
+
+  Instance φAdjunction_ηAdjunction: ηAdjunction F G η univwit.
+
+  Instance φAdjunction_ηεAdjunction: ηεAdjunction F G η ε.
+  Proof with try apply _.
+   constructor; try apply _; intro x.
+    rewrite <- @φ_in_terms_of_η.
+    unfold ε. apply surjective_applied.
+   rewrite <- @φ_in_terms_of_ε.
+   unfold η. apply surjective_applied.
+  Qed.
+
+End for_φAdjunction.
+
+Section for_ηAdjunction.
+
+  Context `(ηAdjunction).
+
+  Let hint := η_adjunction_left_functor F G.
+  Let hint' := η_adjunction_right_functor F G.
+  Let hint'' := functor_from G.
+  Let hint''' := functor_to G.
+
+  Let φ x a (g: F x ⟶ a): (x ⟶ G a) := fmap G g ◎ η x.
+
+  Instance: ∀ (c: C) (d: D), Inverse (@φ c d) := uniwit.
+
+  Instance: ∀ x a, Surjective (@φ x a).
+  Proof with try apply _.
+   unfold φ.
+   repeat intro.
+   constructor.
+    intro. symmetry.
+    apply (η_adjunction_universal F G x).
+   constructor...
+   intros ?? E. rewrite E. reflexivity.
+  Qed.
+
+  Instance: ∀ x a, Injective (@φ x a).
+  Proof with try reflexivity; try apply _; auto.
+   repeat intro. constructor... unfold φ. repeat intro.
+   apply (equal_because_sole _ _ (η_adjunction_universal F G _ _ (fmap G x0 ◎ η x))); unfold compose...
+  Qed.
+
+  Instance: ∀ x a, Bijective (@φ x a).
+  Proof. intros. constructor; apply _. Qed.
+
+  Instance ηAdjunction_φAdjunction: φAdjunction F G φ.
+  Proof with try reflexivity; try apply _.
+   unfold φ. unfold id in *. unfold compose in η.
+   constructor...
+    repeat intro. unfold compose.
+    rewrite comp_assoc...
+    rewrite preserves_comp...
+   repeat intro. unfold compose.
+   rewrite preserves_comp...
+   rewrite <- comp_assoc.
+   pose proof (η_adjunction_natural F G c' c h) as P.
+   change (η c ◎ h = fmap G (fmap F h) ◎ η c') in P.
+   rewrite <- P.
+   rewrite comp_assoc...
+  Qed.
+
+End for_ηAdjunction.
+
+Section for_ηεAdjunction.
+
+  Context `(ηεAdjunction).
+
+  Let hint := ηε_adjunction_left_functor F G.
+  Let hint' := ηε_adjunction_right_functor F G.
+  Let hint'' := functor_from G.
+  Let hint''' := functor_to G.
+  Let hint'''' := ηε_adjunction_η_natural F G.
+  Let hint''''' := ηε_adjunction_ε_natural F G.
+
+  Let φ `(f: F c ⟶ d): (c ⟶ G d) := fmap G f ◎ η c.
+  Instance uniwit c d: Inverse (φ c d) := λ f, ε d ◎ fmap F f.
+
+  Instance ηεAdjunction_ηAdjunction: ηAdjunction F G η uniwit.
+  Proof with try apply _.
+   constructor...
+   unfold uniwit.
+   constructor; unfold compose.
+    rewrite preserves_comp...
+    pose proof (ηε_adjunction_η_natural F G c (G d) f) as P.
+    change (η (G d) ◎ f = fmap G (fmap F f) ◎ η c) in P.
+    rewrite <- comp_assoc.
+    rewrite <- P.
+    rewrite comp_assoc.
+    pose proof (ηε_adjunction_identity_at_G F G d) as Q.
+    simpl in Q.
+    rewrite Q.
+    symmetry.
+    apply id_l.
+   intros y E. rewrite E. clear E f.
+   rewrite preserves_comp...
+   rewrite comp_assoc.
+   pose proof (ηε_adjunction_ε_natural F G (F c) d y) as P.
+   change (ε d ◎ fmap F (fmap G y) = y ◎ ε (F c)) in P.
+   rewrite P.
+   rewrite <- comp_assoc.
+   pose proof (ηε_adjunction_identity_at_F F G c) as Q.
+   simpl in Q.
+   rewrite Q.
+   symmetry.
+   apply id_r.
+  Qed.
+
+  Instance ηεAdjunction_φAdjunction: φAdjunction F G φ.
+  Proof. apply ηAdjunction_φAdjunction, _. Qed.
+
+End for_ηεAdjunction.

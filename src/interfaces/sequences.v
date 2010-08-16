@@ -30,9 +30,9 @@ Class PoshSequence
    (free: setoid.Object → monoid.Object) `{!Fmap free}
    (inject: id ⇛ monoid.forget ∘ free)
    (extend: `((x ⟶ monoid.forget y) → (free x ⟶ y))): Prop :=
-   { sequence_adjunction: AltAdjunction _ _ inject extend
+   { sequence_adjunction: ηAdjunction _ _ inject extend
    ; extend_morphism: `(Setoid_Morphism (extend x y)) }.
-     (* todo: how come extend_proper isn't part of AltAdjunction? *)
+     (* todo: how come extend_morphism isn't part of ηAdjunction? *)
 
 (* This looks very nice, but the encapsulation of the parameters makes it
 a bit awkward to work with. Hence, let us define a more down to earth
@@ -61,6 +61,10 @@ Section practical.
     ; sequence_inject_morphism:> ∀ `{Setoid a}, Setoid_Morphism (inject a)
     ; sequence_map_morphism:> ∀ `{Equiv x} `{Equiv y} (f: x → y),
         Setoid_Morphism f → Monoid_Morphism (raw_fmap _ _ f)
+    ; sequence_fmap_proper: ∀ `{Equiv x} `{Equiv y} (f g: x → y), f = g → fmap free f = raw_fmap _ _ g
+    ; sequence_fmap_id: ∀ `{Equiv x}, raw_fmap _ _ (@id x) = id
+    ; sequence_fmap_comp: ∀ `{Equiv x} `{Equiv y} `{Equiv z} (f: y → z) (g: x → y),
+        raw_fmap _ _ (f ∘ g) = raw_fmap _ _ f ∘ raw_fmap _ _ g
     ; sequence_extend_makes_morphisms:> ∀ `{Equiv x} `{Monoid y} (f: x → y),
         Setoid_Morphism f → Monoid_Morphism (extend f)
     ; sequence_inject_natural: ∀ `{Setoid A} `{Setoid B} (f: A → B), Setoid_Morphism f →
@@ -85,6 +89,25 @@ Section practical.
 
   Next Obligation. apply monoid.encode_morphism_only. destruct X. apply _. Qed.
 
+  Instance: Functor posh_free posh_fmap.
+  Proof with try apply _.
+   constructor...
+     repeat intro.
+     constructor...
+     repeat intro.
+     simpl.
+     apply sequence_fmap_proper.
+     intro.
+     apply H2.
+     reflexivity.
+    repeat intro.
+    simpl.
+    apply sequence_fmap_id.
+   repeat intro.
+   simpl.
+   apply sequence_fmap_comp.
+  Qed.
+
   Program Definition posh_inject: id ⇛ monoid.forget ∘ posh_free := λ a, inject a.
 
   Next Obligation. apply PS, _. Qed.
@@ -104,16 +127,20 @@ Section practical.
 
   (* ... and show that they form a posh sequence: *)
 
+  Instance: NaturalTransformation posh_inject.
+  Proof.
+   unfold NaturalTransformation.
+   intros [???] [???] [??] ?? E.
+   simpl in *.
+   rewrite E.
+   apply sequence_inject_natural.
+   apply _.
+  Qed.
+
   Goal @PoshSequence posh_free posh_fmap posh_inject posh_extend.
   Proof.
    constructor.
-    constructor.
-     unfold NaturalTransformation.
-     intros [???] [???] [??] ?? E.
-     simpl in *.
-     rewrite E.
-     apply sequence_inject_natural.
-     apply _.
+    constructor; try apply _.
     intros [x xE xH] y [f fM].
     pose proof (@monoid.decode_variety_and_ops y _ _ _).
     split.

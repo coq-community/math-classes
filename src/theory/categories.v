@@ -1,66 +1,69 @@
 Set Automatic Introduction.
 
 Require Import
-  Relation_Definitions Morphisms Setoid Program abstract_algebra setoids functors.
+  Relation_Definitions Morphisms Setoid Program abstract_algebra setoids functors theory.jections.
 
 Notation "x ⇛ y" := (∀ a, x a ⟶ y a) (at level 90, right associativity).
   (* Transformations (polymorphic arrows). Couldn't find an "arrow with dot over it" unicode character. *)
 
+Notation "f ⁻¹" := (inverse f) (at level 30). (* todo: move *)
+
 (* Natural transformations: *)
 
-Section natural_transformation.
+Definition id_nat_trans `{Arrows D} `{!CatId D} `(F: C → D): F ⇛ F := λ _, cat_id.
 
+Section NaturalTransformation.
   Context `{Category C} `{Category D} `{!Functor (F: C → D) Fa} `{!Functor (G: C → D) Ga}.
-
   Class NaturalTransformation (η: F ⇛ G): Prop :=
     natural: ∀ `(f: x ⟶ y), η y ◎ fmap F f = fmap G f ◎ η x.
+End NaturalTransformation.
 
-End natural_transformation.
-
-(* The elegant symmetrical definition of adjunctions: *)
+Section UniversalArrow.
+  Context `{Category D} `{Category C} `{!Functor (F: D → C) Fa}.
+  Class UniversalArrow `(u: c ⟶ F r) (wit: ∀ `(f: c ⟶ F d), r ⟶ d): Prop :=
+    universal_arrow: ∀ (d: D) (f: c ⟶ F d), is_sole ((f =) ∘ (◎ u) ∘ fmap F) (wit _ f).
+      (* Todo: Consider an operational type class for wit. *)
+End UniversalArrow.
 
 Section adjunction.
+
+  (* Three definitions of adjunctions. *)
 
   Context `{Category C} `{Category D}
     F `{!Functor (F: C → D) F'}
     G `{!Functor (G: D → C) G'}.
 
-  Section symmetric.
+  (* 1. The definition based on φ (MacLane p79): *)
 
-    Context (φ: ∀ `(F c ⟶ d), (c ⟶ G d)).
+  Class φAdjunction (φ: ∀ `(F c ⟶ d), (c ⟶ G d)) `{∀ c d, Inverse (φ c d)}: Prop :=
+    { φ_adjunction_left_functor: Functor F _
+    ; φ_adjunction_right_functor: Functor G _
+    ; φ_adjunction_bijective: ∀ c d, Bijective (@φ c d)
+    ; φ_adjunction_natural_left `(f: F c ⟶ d) `(k: d ⟶ d'): φ _ _ (k ◎ f) = fmap G k ◎ φ _ _ f
+    ; φ_adjunction_natural_right `(f: F c ⟶ d) `(h: c' ⟶ c): φ _ _ (f ◎ fmap F h) = φ _ _ f ◎ h }.
 
-    Implicit Arguments φ [[c] [d]].
+  (* 2. The definition based on a universal η (MacLane p81 Theorem 2 (i)): *)
 
-    Class Adjunction: Prop :=
-     { adjunction_left_functor: Functor F _
-     ; adjunction_right_functor: Functor G _
-     ; natural_left `(f: d ⟶ d') c: (fmap G f ◎) ∘ φ = φ (c:=c) ∘ (f ◎)
-     ; natural_right `(f: c' ⟶ c) d: (◎ f) ∘ φ (d:=d) = φ ∘ (◎ fmap F f) }.
+  Class ηAdjunction (η: id ⇛ G ∘ F) (uniwit: ∀ `(c ⟶ G d), F c ⟶ d): Prop :=
+    { η_adjunction_left_functor: Functor F _
+    ; η_adjunction_right_functor: Functor G _
+    ; η_adjunction_natural: NaturalTransformation η
+    ; η_adjunction_universal: ∀ c: C, UniversalArrow (η c: c ⟶ G (F c)) (uniwit c) }.
 
-    Context `{Adjunction}.
+  (* We could symmetically define εAdjunction based on universal ε, as
+    in MacLane p81 Theorem 2 (iii), but that would be boring. *)
 
-    Lemma rad_l `{f:F x ⟶ a}`(k:a  ⟶ a'): φ (k ◎ f)= (fmap G k) ◎ φ f.
-    Proof. symmetry. apply natural_left. Qed.
+  (* 3. The definition based on η and ε being inverses (MacLane p81 Theorem 2 (v)): *)
 
-    Lemma rad_r `{f:F x ⟶ a}`(h:x' ⟶ x): φ (f ◎ fmap F h) = φ f ◎ h.
-    Proof. symmetry. apply (natural_right h). Qed.
+  Class ηεAdjunction (η: id ⇛ G ∘ F) (ε: F ∘ G ⇛ id): Prop :=
+    { ηε_adjunction_left_functor: Functor F _
+    ; ηε_adjunction_right_functor: Functor G _
+    ; ηε_adjunction_η_natural: NaturalTransformation η
+    ; ηε_adjunction_ε_natural: NaturalTransformation ε
+    ; ηε_adjunction_identity_at_G: (λ a, fmap G (ε a) ◎ η (G a)) = id_nat_trans G
+    ; ηε_adjunction_identity_at_F: (λ a, ε (F a) ◎ fmap F (η a)) = id_nat_trans F }.
 
-  End symmetric.
-
-  (* The more practical definition via universal morphisms: *)
-
-  Section alt.
-
-    Context (η: id ⇛ G ∘ F) (φ: ∀ `(f: c ⟶ G d), F c ⟶ d).
-
-    Implicit Arguments φ [[c] [d]].
-
-    Class AltAdjunction: Prop :=
-     { alt_adjunction_natural_unit: NaturalTransformation η
-     ; alt_adjunction_factor: ∀ c d (f: c ⟶ G d),
-         is_sole ((f =) ∘ (◎ η c) ∘ fmap G) (φ f) }.
-
-  End alt.
+  (* We currently don't define adjunctions as characterized in MacLane p81 Theorem 2 (ii) and (iv). *)
 
 End adjunction.
 
@@ -203,7 +206,7 @@ Section contents.
   Definition binary_product `{Producer} (x y: X): Product (λ b: bool => if b then x else y) := produce _.
   Definition empty_product `{Producer}: Product (λ f: False => match f with end) := produce _.
 *)
-
+(*
   Section freedom.
 
     Context `{Category B} (forget: X → B) `{!Functor forget forget_arr} (S: B).
@@ -246,18 +249,20 @@ Section contents.
     Qed.
 
   End freedom.
-
+*)
 End contents.
 
+(*
 Lemma freedom_as_adjunction
   `{Category Base} `{Category Extra}
   `{!Functor (forget: Extra → Base) forget_arr}
   `{!Functor (freeF: Base → Extra) free_arr}
   (eta: id ⇛ forget ∘ freeF)
   (phi: ∀ x y, (x ⟶ forget y) → (freeF x ⟶ y))
-  `{!AltAdjunction freeF forget eta phi}:
+  `{!ηAdjunction freeF forget eta phi}:
     ∀ b, proves_free forget b (eta b) (phi b).
-Proof. exact (alt_adjunction_factor _ _ _ _). Qed.
+Proof. exact (alt_adjunction_η_universal _ _ _ _). Qed.
+*)
 
 Implicit Arguments Producer [].
 Implicit Arguments HasProducts [[Arrows0] [H] [CatComp0] [H1] [H2] [H3]]. (* todo: rename args *)
