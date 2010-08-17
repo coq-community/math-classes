@@ -213,7 +213,20 @@ Section jections.
     { bijective_injective:> Injective
     ; bijective_surjective:> Surjective }.
 
+  Context `{Bijective}.
+
+  Let hint := setoidmor_a f: Setoid A.
+  Let hint' := setoidmor_b f: Setoid B.
+
+  Instance: Setoid_Morphism inv.
+  Proof.
+   constructor; try apply _.
+   repeat intro.
+   apply injective.
+   rewrite (surjective x), (surjective y).
+   assumption.
+  Qed.
+
 End jections.
 
 Implicit Arguments injective [[A] [ea] [B] [eb] [Injective]].
-
