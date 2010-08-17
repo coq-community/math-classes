@@ -6,6 +6,7 @@ Require Import
   Relation_Definitions Morphisms Setoid Program
   abstract_algebra setoids functors categories
   workaround_tactics theory.jections.
+Require dual.
 
 Notation "f ⁻¹" := (inverse f) (at level 30). (* todo: move *)
 
@@ -103,6 +104,31 @@ Section for_φAdjunction.
     unfold ε. apply surjective_applied.
    rewrite <- @φ_in_terms_of_ε.
    unfold η. apply surjective_applied.
+  Qed.
+
+  (* On a side note, if we let F and G map between the duals of C and D, the adjunction is reversed: *)
+
+  Goal @φAdjunction D _ _ _ _ C _ _ _ _ G (dual.fmap_op G) F (dual.fmap_op F) (λ d c, (@φ c d)⁻¹)
+    (λ d c, @φ c d).
+  Proof with try apply _.
+   constructor; intros...
+     pose proof (φ_adjunction_bijective F G)...
+    change (d' ⟶ d) in k.
+    change (d ⟶ G c) in f.
+    change ((φ ⁻¹) (f ◎ k) = (φ ⁻¹) f ◎ fmap F k).
+    apply (injective (@φ d' c)).
+    rewrite surjective_applied.
+    rewrite φ_adjunction_natural_right...
+    rewrite surjective_applied.
+    reflexivity.
+   change (c ⟶ c') in h.
+   change (d ⟶ G c) in f.
+   change ((φ ⁻¹) (fmap G h ◎ f) = h ◎ (φ ⁻¹) f).
+   apply (injective (@φ d c')).
+   rewrite surjective_applied.
+   rewrite φ_adjunction_natural_left...
+   rewrite surjective_applied.
+   reflexivity.
   Qed.
 
 End for_φAdjunction.
