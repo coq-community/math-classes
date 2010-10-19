@@ -24,12 +24,6 @@ Section contents.
   Global Instance e (x y: Object): Equiv (x ⟶ y) := λ f g, ∀ i, f i = g i.
 
   Global Instance: ∀ x y: Object, Setoid (x ⟶ y).
-  Proof with auto.
-   constructor.
-     repeat intro. reflexivity.
-    repeat intro. symmetry...
-   intros ? ? ? E ? i. rewrite (E i)...
-  Qed.
 
   Global Instance: Category Object.
   Proof with try reflexivity.

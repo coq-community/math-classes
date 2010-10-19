@@ -156,11 +156,12 @@ Proof.
   unfold Basics.compose, inject_frac, equiv, frac_equiv.
   simpl.
   ring_simplify.
-  unfold dec_mult_inv. destruct decide.
-   exfalso. apply P.
-   unfold equiv in e0. simpl in e0. ring_simplify in e0.
+  unfold dec_mult_inv. case (decide _).
+   intros. exfalso. apply P.
+   unfold equiv in e0. unfold frac_equiv in e0. simpl in e0.
+   ring_simplify in e0.
    assumption.
-  simpl. ring.
+  simpl. intros. ring.
  constructor; try apply _.
  intros ?? E.
  unfold inject_frac.

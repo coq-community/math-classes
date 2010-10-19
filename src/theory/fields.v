@@ -15,11 +15,11 @@ Section dec_mult_inv.
   Global Instance dec_mult_inv_proper: Proper (e ==> e) dec_mult_inv.
   Proof with auto.
    unfold dec_mult_inv. intros x y E.
-   destruct decide as [? | P]; destruct decide as [? | Q].
+   case (decide _); case (decide _).
       reflexivity.
-     exfalso. apply Q. rewrite <- E...
-    exfalso. apply P. rewrite E...
-   apply mult_inv_proper...
+     intros P Q. exfalso. apply P. rewrite <- E...
+    intros Q P. exfalso. apply P. rewrite E...
+   intros; eapply mult_inv_proper...
   Qed.
 
 End dec_mult_inv.
@@ -72,7 +72,7 @@ Section field_props. Context `{Field F}.
    intros.
    rewrite commutativity.
    unfold dec_mult_inv.
-   destruct decide. intuition.
+   case (decide _). intuition.
    apply mult_inverse'.
   Qed.
 
@@ -80,7 +80,7 @@ Section field_props. Context `{Field F}.
 
   Lemma dec_mult_inverse (x: F): x ≠ 0 → x * / x = 1.
   Proof.
-   unfold dec_mult_inv. destruct decide. intuition.
+   unfold dec_mult_inv. case (decide _). intuition.
    intros. apply (mult_inverse (exist _ x _)).
   Qed.
 
@@ -96,7 +96,7 @@ Section field_props. Context `{Field F}.
   Qed.
 
   Lemma inv_0: / 0 = 0.
-  Proof. unfold dec_mult_inv. destruct decide; intuition. Qed.
+  Proof. unfold dec_mult_inv. case (decide _); intuition. Qed.
 
   Lemma dec_mult_inv_distr (x y: F): / (x * y) = / x * / y.
   Proof.

@@ -18,7 +18,6 @@ Section contents.
   Proof. intros. change (Equivalence (equiv: Equiv (A y x))). apply _. Qed.
 
   Global Instance: ∀ (x y: Object), Setoid (x ⟶ y).
-  Proof. unfold Setoid. apply _. Qed.
 
   Instance: ∀ (x y z: Object), Proper (equiv ==> equiv ==> equiv) (@comp Object flipA _ x y z).
   Proof.
