@@ -52,6 +52,41 @@ Section contents.
    reflexivity.
   Qed.
 
+  Section retract_is_int.
+    Context `{Ring Int2} .
+    Context (f : Int → Int2) (g : Int2 → Int) `{!Ring_Morphism f} `{!Ring_Morphism g}.
+    Context (f_retraction_g : ∀ x : Int2, f (g x) = x).
+
+    (* If we make this an instance, then instance resulution will result in an infinite loop *)
+    Definition retract_is_int_to_ring : IntegersToRing Int2 := λ R _ _ _ _ _, integers_to_ring Int R ∘ g.
+
+    Section for_another_ring.
+      Context `{Ring R}.
+
+      Instance: Ring_Morphism (integers_to_ring Int R ∘ g).
+      Context (h :  Int2 → R) `{!Ring_Morphism h}. 
+      
+      Lemma same_morphism: integers_to_ring Int R ∘ g = h.
+      Proof with auto.
+        intro x. 
+        rewrite <-f_retraction_g at 2.
+        assert (H3:=integers_to_ring_unique R (h ∘ f)).
+        unfold compose in *. 
+        unfold equiv in H3. unfold ext_eq in H3. rewrite H3. 
+        apply reflexivity.
+      Qed.
+    End for_another_ring.
+
+    (* If we make this an instance, then instance resulution will result in an infinite loop *)
+    Program Definition retract_is_int: @Integers Int2 _ _ _ _ _ _ retract_is_int_to_ring. 
+    Proof.
+      esplit. (* for some reason split doesn't work... *)
+      intros y [x h] []. simpl in *.
+      apply same_morphism. 
+      apply (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+    Qed.
+  End retract_is_int.
+
   (* A ring morphism from integers to another ring is injective if there's an injection in the other direction: *)
 
   Lemma int_to_ring_injective `{Ring A}  
