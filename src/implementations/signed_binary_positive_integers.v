@@ -113,7 +113,7 @@ Section for_another_ring.
   Hint Resolve preserves_Zplus preserves_Zmult preserves_opp.
   Hint Constructors Monoid_Morphism SemiGroup_Morphism Group_Morphism Ring_Morphism.
 
-  Instance map_Z_ring_mor: Ring_Morphism map_Z.
+  Global Instance map_Z_ring_mor: Ring_Morphism map_Z.
   Proof. repeat (constructor; auto with typeclass_instances; try reflexivity; try apply _). Qed.
 
   Section with_another_morphism.
@@ -158,11 +158,6 @@ Section for_another_ring.
   End with_another_morphism.
 
 End for_another_ring.
-
-Instance yada `{Ring R}: Ring_Morphism (integers_to_ring Z R).
- unfold integers_to_ring, inject.
- intros. apply map_Z_ring_mor.
-Qed. (* todo: rename or get rid of *)
 
 Instance: Initial (ring.object Z).
 Proof.
