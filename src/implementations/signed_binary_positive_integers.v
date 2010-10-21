@@ -147,7 +147,7 @@ Section for_another_ring.
      rewrite <- agree_on_positive...
     Qed.
 
-    Lemma same_morphism: @equiv _ (pointwise_relation _ equiv) map_Z map_Z'.
+    Lemma same_morphism: integers_to_ring Z R = map_Z'.
     Proof.
      intros [].
        apply agree_on_0.

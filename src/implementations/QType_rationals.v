@@ -5,7 +5,7 @@ Require
 
 Require Import
  QArith QSig Program
- jections integers canonical_names abstract_algebra interfaces.rationals.
+ jections interfaces.integers canonical_names abstract_algebra interfaces.rationals.
 
 Module QType_Rationals (anyQ: QType).
 
