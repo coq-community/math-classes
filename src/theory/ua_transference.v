@@ -69,7 +69,7 @@ Section contents.
   Qed. 
 
   Program Lemma transfer_statement_and_vars (s: Statement et) (v: Vars et B nat):
-    eval_stmt et v s <-> eval_stmt et (A:=A) (λ _ i, ba (v _ i)) s.
+    eval_stmt et v s ↔ eval_stmt et (A:=A) (λ _ i, ba (v _ i)) s.
   Proof with auto; reflexivity.
    intros.
    induction s; simpl; intuition.

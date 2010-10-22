@@ -48,7 +48,8 @@ Qed.
 Instance: Params (@natural_precedes) 8.
 Instance: Params (@precedes) 2.
 
-Lemma preserves_naturals_order_back `{Naturals A} `{Naturals B} (f: A → B) `{!SemiRing_Morphism f} (x y: A): f x <= f y → x <= y.
+Lemma preserves_naturals_order_back `{Naturals A} `{Naturals B} (f: A → B) `{!SemiRing_Morphism f} (x y: A): 
+  f x ≤ f y → x ≤ y.
 Proof.
  intros.
  pose proof (_: Proper ((=) ==> (=) ==> iff) precedes).
@@ -59,7 +60,8 @@ Proof.
  assumption.
 Qed.
 
-Lemma preserves_naturals_order `{Naturals A} `{Naturals B} (f: A → B) `{!SemiRing_Morphism f} (x y: A): x <= y <-> f x <= f y.
+Lemma preserves_naturals_order `{Naturals A} `{Naturals B} (f: A → B) `{!SemiRing_Morphism f} (x y: A): 
+  x ≤ y ↔ f x ≤ f y.
 Proof.
  split. apply preserves_sg_order. apply _.
  apply preserves_naturals_order_back. apply _.
@@ -186,7 +188,7 @@ End borrowed_from_nat.
 
   Obligation Tactic := idtac.
 
-  Global Program Instance: ∀ x y: N, Decision (x <= y) | 10 :=
+  Global Program Instance: ∀ x y: N, Decision (x ≤ y) | 10 :=
     λ x y,
     match decide (natural_precedes (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y)) with
     | left E => left _
@@ -230,7 +232,7 @@ End borrowed_from_nat.
    exfalso. apply (nz_mult_nz b a)...
   Qed.
 
-  Lemma le_mult_compat_inv_l (x x' y: N): y ≠ 0 → x * y <= x' * y → x <= x'.
+  Lemma le_mult_compat_inv_l (x x' y: N): y ≠ 0 → x * y ≤ x' * y → x ≤ x'.
   Proof.
    destruct (total_order x x') as [|[z E]]. intuition.
    rewrite <- E. clear E x.

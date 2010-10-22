@@ -32,17 +32,18 @@ Class Integers A {e plus mult zero one opp} `{IntegersToRing A} :=
   ; integers_initial:> Initial (ring.object A) }.
 
 Section specializable.
+  Context (Int N: Type) `{Equiv Int} `{RingMult Int} `{RingPlus Int} `{RingOne Int}
+    `{GroupInv Int} `{RingZero Int} `{NaturalsToSemiRing N}.
 
-  Context (Int N: Type) `{Equiv Int} `{RingMult Int} `{RingPlus Int} `{RingOne Int} `{GroupInv Int} `{RingZero Int} `{NaturalsToSemiRing N}.
+  Class IntAsNat := int_as_nat: ∀ i: Int, 
+    { n: N | i = naturals_to_semiring N Int n } + { n: N | i = - naturals_to_semiring N Int n }.
 
-  Class IntAsNat := int_as_nat: ∀ i: Int, { n: N | i = naturals_to_semiring N Int n } + { n: N | i = - naturals_to_semiring N Int n }.
-
-  Class IntAbs := int_abs: ∀ i: Int, { n: N | naturals_to_semiring N Int n = i ∨ - naturals_to_semiring N Int n = i }.
-  Definition int_abs' `{IntAbs}: Int → N := λ x, proj1_sig (int_abs x).
-
+  Class IntAbs := int_abs_sig : ∀ i: Int, 
+    { n: N | naturals_to_semiring N Int n = i ∨ - naturals_to_semiring N Int n = i }.
+  Definition int_abs `{IntAbs}: Int → N := λ x, proj1_sig (int_abs_sig x).
 End specializable.
 
-Instance: Params (@int_abs') 10.
+Instance: Params (@int_abs) 10.
 
 Instance integer_precedes `{Integers Int}: Order Int := sr_precedes.
 

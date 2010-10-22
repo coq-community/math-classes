@@ -30,7 +30,7 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
 
   (* field_precedes can actually only happen if the denominator is nonzero: *)
 
-  Lemma field_precedes_with_nonzero_nat_denominator (x y: F): x <= y → 
+  Lemma field_precedes_with_nonzero_nat_denominator (x y: F): x ≤ y → 
     ∃ num: nat, ∃ den: nat, den ≠ 0 ∧
      x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den = y.
   Proof with eauto.
@@ -46,7 +46,7 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
 
   Context `{!Injective (naturals_to_semiring nat F)}.
 
-  Lemma field_precedes_with_nonzero_denominator (x y: F): x <= y →
+  Lemma field_precedes_with_nonzero_denominator (x y: F): x ≤ y →
     exists num: nat, exists den: nat, naturals_to_semiring nat F den ≠ 0 ∧
       x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den = y.
   Proof with auto.
@@ -114,10 +114,10 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
 
   Global Instance field_partialorder: PartialOrder field_precedes.
 
-  Lemma ringorder_plus: ∀ `(x <= y) z, x + z <= y + z.
+  Lemma ringorder_plus: ∀ `(x ≤ y) z, x + z ≤ y + z.
   Proof. intros x y [num [den E]] z. exists num, den. rewrite <- E. ring. Qed.
 
-  Lemma ringorder_mult: ∀ x: F, 0 <= x → ∀ y: F, 0 <= y → 0 <= x * y.
+  Lemma ringorder_mult: ∀ x: F, 0 ≤ x → ∀ y: F, 0 ≤ y → 0 ≤ x * y.
   Proof.
    intros x [num [den E]] y [num' [den' G]].
    exists (num * num'), (den * den').

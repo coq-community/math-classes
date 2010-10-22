@@ -73,14 +73,14 @@ Section ring. Context `{Ring R}. (* extra sr_precedes properties that hold in ri
 
   Add Ring R: (stdlib_ring_theory R).
 
-  Lemma precedes_flip (x y: R): sr_precedes x y <-> sr_precedes (-y) (-x).
+  Lemma precedes_flip (x y: R): sr_precedes x y ↔ sr_precedes (-y) (-x).
   Proof.
    split; intros [z p]; exists z.
     rewrite <- p. ring.
    rewrite <- (inv_involutive x), <- p. ring.
   Qed.
 
-  Lemma precedes_0_flip (z: R): sr_precedes 0 z <-> sr_precedes (-z) 0. 
+  Lemma precedes_0_flip (z: R): sr_precedes 0 z ↔ sr_precedes (-z) 0. 
   Proof with auto.
    pose proof (precedes_flip z 0).
    pose proof (precedes_flip 0 z).

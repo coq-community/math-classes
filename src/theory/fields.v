@@ -41,7 +41,7 @@ Section field_props. Context `{Field F}.
 
   Add Ring R: (stdlib_ring_theory F).
 
-  Lemma equal_quotients (a c: F) b d: a * ` d = c * ` b <-> a *// b = c *// d.
+  Lemma equal_quotients (a c: F) b d: a * ` d = c * ` b ↔ a *// b = c *// d.
   Proof with try ring.
    split; intro E.
     transitivity (1 * (a * // b))...

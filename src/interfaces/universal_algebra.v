@@ -209,7 +209,7 @@ Section for_signature. Variable σ: Signature.
      simpl. repeat intro. subst. apply IHo0.
     Qed.
 *)
-    Lemma eval_map_var `(f: V -> W) v s (t: Term V s):
+    Lemma eval_map_var `(f: V → W) v s (t: Term V s):
       eval v (map_var f t) ≡ eval (λ s, v s ∘ f) t.
     Proof.
      induction t; simpl.
@@ -242,7 +242,7 @@ Section for_signature. Variable σ: Signature.
     Qed.
 
     Definition boring_eval_entailment (vars: Vars A nat) (ee: EqEntailment):
-      eval_stmt vars ee <-> eval_stmt vars (entailment_as_conjunctive_statement ee).
+      eval_stmt vars ee ↔ eval_stmt vars (entailment_as_conjunctive_statement ee).
     Proof. destruct ee. simpl. induction entailment_premises0; simpl; intuition. Qed.
 
   End eval.

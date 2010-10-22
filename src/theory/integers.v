@@ -158,21 +158,21 @@ Section contents.
    apply (injective group_inv). symmetry...
   Qed.
 
-  Lemma abs_nat `{Naturals N} `{!IntAbs Int N} (n: N): int_abs' Int N (naturals_to_semiring N Int n) = n.
+  Lemma abs_nat `{Naturals N} `{!IntAbs Int N} (n: N): int_abs Int N (naturals_to_semiring N Int n) = n.
   Proof with eauto.
-   unfold int_abs'.
+   unfold int_abs.
    apply (injective (naturals_to_semiring N Int)).
-   destruct int_abs as [x [A | B]]... simpl.
+   destruct int_abs_sig as [x [A | B]]... simpl.
    apply (antisymmetry integer_precedes).
     apply <- precedes_flip. rewrite B...
    rewrite <- B...
   Qed. 
   
-  Lemma abs_opp_nat `{Naturals N} `{!IntAbs Int N} (n: N): int_abs' Int N (- naturals_to_semiring N Int n) = n.
+  Lemma abs_opp_nat `{Naturals N} `{!IntAbs Int N} (n: N): int_abs Int N (- naturals_to_semiring N Int n) = n.
   Proof with eauto.
    apply (injective (naturals_to_semiring N Int)). 
-   unfold int_abs'. 
-   destruct int_abs as [x [A | B]]; simpl.
+   unfold int_abs. 
+   destruct int_abs_sig as [x [A | B]]; simpl.
     apply (antisymmetry integer_precedes). rewrite A...
     apply <- precedes_flip. rewrite <- A...
    apply (injective group_inv)...
@@ -188,11 +188,11 @@ Section contents.
    rewrite preserves_0...
   Qed. 
   
-  Global Instance int_abs'_proper `{Naturals N} `{!IntAbs Int N}: Proper (equiv ==> equiv) (int_abs' Int N).
+  Global Instance int_abs_proper `{Naturals N} `{!IntAbs Int N}: Proper (equiv ==> equiv) (int_abs Int N).
   Proof with eauto; try reflexivity.
    intros z z' E.
-   unfold int_abs'.
-   destruct int_abs as [x o], int_abs as [x' o'].
+   unfold int_abs.
+   destruct int_abs_sig as [x o], int_abs_sig as [x' o'].
    simpl. rewrite E in o. clear E z.
    apply (injective (naturals_to_semiring N Int)).
    destruct o as [A|A], o' as [C|C]; rewrite <- C in A; clear C z'...
@@ -201,9 +201,9 @@ Section contents.
    apply (injective group_inv)...
   Qed.
 
-  Lemma abs_nat' `{Naturals N} `{Naturals N'} `{!IntAbs Int N} (n: N'): int_abs' Int N (naturals_to_semiring N' Int n) = naturals_to_semiring N' N n.
+  Lemma abs_nat' `{Naturals N} `{Naturals N'} `{!IntAbs Int N} (n: N'): int_abs Int N (naturals_to_semiring N' Int n) = naturals_to_semiring N' N n.
   Proof with eauto.
-   unfold int_abs'. destruct int_abs. simpl.
+   unfold int_abs. destruct int_abs_sig. simpl.
    apply (injective (naturals_to_semiring N Int)).
    posed_rewrite (theory.naturals.to_semiring_unique Int (naturals_to_semiring N Int ∘ naturals_to_semiring N' N) n).
    destruct o...
@@ -212,10 +212,10 @@ Section contents.
    rewrite <- H3...
   Qed.
 
-  Lemma abs_opp `{Naturals N} `{!IntAbs Int N} z: int_abs' Int N (- z) = int_abs' Int N z.
+  Lemma abs_opp `{Naturals N} `{!IntAbs Int N} z: int_abs Int N (- z) = int_abs Int N z.
   Proof.
-   unfold int_abs' at 2.
-   destruct int_abs as [x [E | E]]; simpl; rewrite <- E. apply abs_opp_nat.
+   unfold int_abs at 2.
+   destruct int_abs_sig as [x [E | E]]; simpl; rewrite <- E. apply abs_opp_nat.
    rewrite inv_involutive.
    apply abs_nat.
   Qed.
@@ -223,11 +223,11 @@ Section contents.
   Obligation Tactic := idtac.
   
   Global Program Instance slow_int_abs `{Naturals N}: IntAbs Int N | 10 :=
-    λ x, exist _ (proj1_sig (int_abs (Z N) N (integers_to_ring Int (Z N) x))) _.
+    λ x, exist _ (proj1_sig (int_abs_sig (Z N) N (integers_to_ring Int (Z N) x))) _.
 
   Next Obligation.
    intros.
-   destruct int_abs as [x0 [M | M]]; simpl; [left | right].
+   destruct int_abs_sig as [x0 [M | M]]; simpl; [left | right].
     rewrite <- (iso_ints (Z N) x), <- M.
     symmetry.
     apply_simplified (theory.naturals.to_semiring_unique Int (integers_to_ring (Z N) Int ∘ naturals_to_semiring N (Z N))).
@@ -244,11 +244,11 @@ Hint Resolve opp_0.
 
   Lemma eq_opp_self (z: Int) (E: z = -z): z = 0.
   Proof with auto.
-   assert (∀ n: nat, naturals_to_semiring nat Int n = - naturals_to_semiring nat Int n ->
+   assert (∀ n: nat, naturals_to_semiring nat Int n = - naturals_to_semiring nat Int n →
        naturals_to_semiring nat Int n = 0) as P.
     intros n E'. apply (antisymmetry precedes)...
     rewrite E'. apply -> precedes_0_flip...
-   destruct (int_abs Int nat z) as [x [A | A]]; rewrite <- A in *; rewrite P...
+   destruct (int_abs_sig Int nat z) as [x [A | A]]; rewrite <- A in *; rewrite P...
     reflexivity.
    rewrite E. symmetry...
   Qed.
@@ -256,7 +256,7 @@ Hint Resolve opp_0.
   Global Instance zero_product: ZeroProduct Int.
   Proof with auto.
    intros x y E.
-   destruct (int_abs Int nat x) as [x0 o], (int_abs Int nat y) as [x1 o0].
+   destruct (int_abs_sig Int nat x) as [x0 o], (int_abs_sig Int nat y) as [x1 o0].
    assert (x0 * x1 = 0) as U.
     apply (injective (naturals_to_semiring _ _)).
     rewrite preserves_mult, preserves_0.
@@ -299,7 +299,7 @@ Section preservation. Context `{Integers A} `{Integers B} (f: A → B) `{!Ring_M
     Local Coercion NB := naturals_to_semiring N B.
 
     Lemma preserves_abs `{!IntAbs A N} `{!IntAbs B N}:
-      ∀ a, f (int_abs' A N a) = int_abs' B N (f a).
+      ∀ a, f (int_abs A N a) = int_abs B N (f a).
     Proof with eauto; try apply _.
      pose proof (@neg_precedes_pos B _ _ _ _ _ _ _ N).
      assert (∀ (x0 x: N), - NB x0 = f x → f x = x0); unfold NA, NB in *.
@@ -311,11 +311,11 @@ Section preservation. Context `{Integers A} `{Integers B} (f: A → B) `{!Ring_M
       apply <- (precedes_flip (naturals_to_semiring N B x0) 0).
       rewrite P, opp_0...
      intro.
-     unfold int_abs' at 1. destruct int_abs as [x [P|P]]; simpl; rewrite <- P; clear P a.
-      unfold int_abs'. destruct int_abs as [x0 [P|P]]; simpl...
+     unfold int_abs at 1. destruct int_abs_sig as [x [P|P]]; simpl; rewrite <- P; clear P a.
+      unfold int_abs. destruct int_abs_sig as [x0 [P|P]]; simpl...
       rewrite <- P. reflexivity.
      rewrite preserves_inv, abs_opp.
-     unfold int_abs'. destruct int_abs as [x0 [P|P]]; simpl...
+     unfold int_abs. destruct int_abs_sig as [x0 [P|P]]; simpl...
      symmetry...
     Qed.
 
@@ -324,7 +324,7 @@ Section preservation. Context `{Integers A} `{Integers B} (f: A → B) `{!Ring_M
   Lemma preserve_sr_order (x y: A): sr_precedes x y → sr_precedes (f x) (f y).
   Proof. intros [z p]. 
    unfold sr_precedes. 
-   exists (int_abs' _ _ (f (naturals_to_semiring nat A z))).
+   exists (int_abs _ _ (f (naturals_to_semiring nat A z))).
    rewrite <- preserves_abs.
    rewrite <- p, preserves_sg_op, abs_nat. reflexivity.
   Qed.
@@ -343,14 +343,14 @@ Section more. Context `{Integers Int}.
      [left | right]; apply (preserve_sr_order _)...
   Qed.
 
-  Global Program Instance: ∀ x y: Int, Decision (x <= y) | 10 := λ x y,
-   match decide (integers_to_ring Int (Z nat) x <= integers_to_ring Int (Z nat) y) with
+  Global Program Instance: ∀ x y: Int, Decision (x ≤ y) | 10 := λ x y,
+   match decide (integers_to_ring Int (Z nat) x ≤ integers_to_ring Int (Z nat) y) with
    | left E => left _
    | right E => right _
    end.
 
   Next Obligation.
-   change (x <= y). rewrite <- (iso_ints (Z nat) x), <- (iso_ints (Z nat) y).
+   change (x ≤ y). rewrite <- (iso_ints (Z nat) x), <- (iso_ints (Z nat) y).
    apply (preserve_sr_order _). assumption.
   Qed. 
 
@@ -358,7 +358,7 @@ Section more. Context `{Integers Int}.
    intro. apply E. apply (preserve_sr_order _). assumption.
   Qed.
 
-  Global Instance le_mult_compat_r (x: Int) (xnonneg: 0 <= x): Proper (integer_precedes ==> integer_precedes) (ring_mult x).
+  Global Instance le_mult_compat_r (x: Int) (xnonneg: 0 ≤ x): Proper (integer_precedes ==> integer_precedes) (ring_mult x).
   Proof.
    intros y y'.
    destruct xnonneg as [z E]. rewrite <- E. clear E x.
@@ -370,7 +370,7 @@ Section more. Context `{Integers Int}.
   Qed.
 
     (* todo: by generalizing [Injective] to work with signatures, we should be able to write the following as an inverse proper thingy *)
-  Lemma le_mult_compat_inv_l (x x' y: Int): 1 <= y → x * y <= x' * y → x <= x'.
+  Lemma le_mult_compat_inv_l (x x' y: Int): 1 ≤ y → x * y ≤ x' * y → x ≤ x'.
   Proof with auto.
    intros H1 [u H2].
    destruct (total_order x x') as [P | [x0 P]]...

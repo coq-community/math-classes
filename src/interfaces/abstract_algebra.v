@@ -88,12 +88,12 @@ Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
   ; partial_preorder:> PreOrder R
   ; partial_antisym:> AntiSymmetric R }.
 
-Class TotalOrder `(Order A): Prop := total_order: ∀ x y: A, x <= y ∨ y <= x.
+Class TotalOrder `(Order A): Prop := total_order: ∀ x y: A, x ≤ y ∨ y ≤ x.
 
 Class RingOrder `(e: Equiv A) (plus: RingPlus A) (mult: RingMult A) (zero: RingZero A) (leq: Order A) :=
   { ringorder_partialorder:> PartialOrder leq
-  ; ringorder_plus: `(x <= y → ∀ z, (x + z) <= (y + z))
-  ; ringorder_mult: `(0 <= x → ∀ y, 0 <= y → 0 <= (x * y)) }.
+  ; ringorder_plus: `(x ≤ y → ∀ z, x + z ≤ y + z)
+  ; ringorder_mult: `(0 ≤ x → ∀ y, 0 ≤ y → 0 ≤ x * y) }.
 
 Class OrdRing A {e: Equiv A} {plus mult inv zero one leq}: Prop :=
   { ordring_ring:> @Ring A e plus mult zero one inv 

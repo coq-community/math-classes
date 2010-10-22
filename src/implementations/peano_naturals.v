@@ -114,16 +114,16 @@ Qed. (* todo: these [pose]s are nasty *)
 
 Global Instance nat_Naturals: Naturals nat.
 
-Lemma predefined_le_coincides (x y: nat): (x <= y)%nat → x <= y.
+Lemma predefined_le_coincides (x y: nat): (x <= y)%nat → x ≤ y.
 Proof.
  induction 1 as [| n _ [m []]]. reflexivity.
  exists (S m). change (x + (1 + m) = 1 + (x + m)). ring.
 Qed.
 
-Lemma predefined_le_coincides_rev (x y: nat): x <= y → (x <= y)%nat.
+Lemma predefined_le_coincides_rev (x y: nat): x ≤ y → (x <= y)%nat.
 Proof. intros [z []]. auto with arith. Qed.
 
-Program Instance le_nat_dec (x y: nat): Decision (x <= y) :=
+Program Instance le_nat_dec (x y: nat): Decision (x ≤ y) :=
   match Compare_dec.le_lt_dec x y with
   | left E => left (predefined_le_coincides _ _ E)
   | right E => right _

@@ -68,7 +68,7 @@ Notation "( x *)" := (ring_mult x) (only parsing).
   (* We don't add "(*)" and "(*x)" notations because they're too much like comments. *)
 Notation "- x" := (group_inv x).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
-Infix "<=" := precedes.
+Infix "≤" := precedes.
 Notation "x ⁻¹" := (ring_mult_inverse x) (at level 30).
 Infix "◎" := comp (at level 40, left associativity).
   (* Taking over ∘ is just a little too zealous at this point. With our current

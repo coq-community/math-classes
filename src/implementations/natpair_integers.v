@@ -18,7 +18,7 @@ Context N `{Naturals N}.
 
 Context (* Extra parameterization for efficiency: *)
  `{∀ x y: N, Decision (x = y)}
- `{∀ x y: N, Decision (x <= y)}
+ `{∀ x y: N, Decision (x ≤ y)}
  `{!NatDistance N}.
 
 Add Ring N: (stdlib_semiring_theory N).
@@ -250,7 +250,7 @@ Proof.
  destruct o as [A|A]; [right | left]; rewrite <- A; ring.
 Qed.
 
-Global Program Instance simpleZ_le_dec (x y: Z): Decision (x <= y) :=
+Global Program Instance simpleZ_le_dec (x y: Z): Decision (x ≤ y) :=
   match decide (natural_precedes (pos x + neg y) (pos y + neg x)) with
   | left E => left _
   | right E => right _
