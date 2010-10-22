@@ -3,6 +3,7 @@
 Set Automatic Introduction.
 
 Require Import Relation_Definitions RelationClasses.
+Require Export Unicode.Utf8 Utf8_core.
 
 Inductive R {A: Type} (r: relation A) (x: A): forall B: Type, relation B → B → Prop := relate y: r x y → R r x A r y.
 

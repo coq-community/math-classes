@@ -33,6 +33,15 @@ Proof with auto.
    right. apply Zeq_bool_neq. rewrite <-spec_eq_bool...
 Qed.
 
+Ltac unfold_equiv := unfold equiv, anyZ_eq, eq.
+
+Program Instance: RingMinus t := sub.
+Next Obligation.
+  unfold_equiv.
+  rewrite spec_add. rewrite spec_opp.
+  apply spec_sub.
+Qed.
+
 Lemma anyZ_ring_theory: ring_theory zero one add mul sub opp eq.
 Proof.
   repeat split; repeat intro; axioms.zify; auto with zarith.
@@ -56,18 +65,19 @@ Qed.
 
 Lemma of_Z_to_Z x : of_Z (to_Z x) = x.
 Proof.
-  unfold equiv. unfold anyZ_eq. unfold eq.
+  unfold_equiv.
   rewrite spec_of_Z. auto.
 Qed.
 
 Instance: Proper (equiv ==> equiv) of_Z.
 Proof.
-  repeat intro. rewrite H. reflexivity.
+  repeat intro. rewrite H. (* slow *)
+  reflexivity.
 Qed.
 
 Instance: Ring_Morphism of_Z.
 Proof with try apply _; auto.
-  repeat (split; try apply _); repeat intro; unfold equiv; unfold anyZ_eq; unfold eq. 
+  repeat (split; try apply _); repeat intro; unfold_equiv. 
   rewrite spec_add. repeat rewrite spec_of_Z...
   unfold mon_unit at 2. unfold anyZ_zero. rewrite spec_0. rewrite spec_of_Z...
   rewrite spec_opp. repeat rewrite spec_of_Z...

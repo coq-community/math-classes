@@ -75,6 +75,31 @@ Section upper_classes.
 
 End upper_classes.
 
+Section more_ring_operations.
+  Context R `{Ring R}.
+  Class RingMinus := ring_minus_sig: ∀ x y : R, { z: R |  z = x + -y }.
+  Definition ring_minus `{RingMinus}: R → R → R := λ x y, proj1_sig (ring_minus_sig x y).
+  Infix "-" := ring_minus.
+
+  Global Program Instance: RingMinus | 10 := {
+    ring_minus_sig := λ x y, x + -y
+  }.
+  Next Obligation. apply reflexivity. Qed.
+End more_ring_operations.
+
+Section more_field_operations.
+  Context R `{Field R}.
+  Class FieldDiv := field_div_sig: ∀ (x : R) (y : { x: R | x ≠ zero }), { z: R |  z = x * //y }.
+  Definition field_div `{FieldDiv}: R → { x: R | x ≠ zero } → R 
+    := λ x y, proj1_sig (field_div_sig x y).
+  Infix "/" := field_div.
+
+  Global Program Instance: FieldDiv | 10 := {
+    field_div_sig := λ x y, x * //(proj1_sig y)
+  }.
+  Next Obligation. apply reflexivity. Qed.
+End more_field_operations.
+
 Implicit Arguments inv_proper [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments ginv_l [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments ginv_r [[A] [e] [op] [unit] [inv] [Group]].

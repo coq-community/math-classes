@@ -7,17 +7,17 @@ Require Import
  QArith QSig Program
  jections interfaces.integers canonical_names abstract_algebra interfaces.rationals.
 
-Module QType_Rationals (anyQ: QType).
+Module QType_Rationals (Import anyQ: QType).
 
 Module props := QProperties anyQ.
 
-Instance qev: Equiv anyQ.t := anyQ.eq.
-Instance: RingPlus anyQ.t := anyQ.add.
-Instance: RingZero anyQ.t := anyQ.zero.
-Instance: RingOne anyQ.t := anyQ.one.
-Instance: RingMult anyQ.t := anyQ.mul.
-Instance: GroupInv anyQ.t := anyQ.opp.
-Instance: MultInv anyQ.t := λ x, anyQ.inv (proj1_sig x).
+Instance qev: Equiv t := eq.
+Instance: RingPlus t := add.
+Instance: RingZero t := zero.
+Instance: RingOne t := one.
+Instance: RingMult t := mul.
+Instance: GroupInv t := opp.
+Instance anyQ_mult_inv: MultInv t := λ x, inv (proj1_sig x).
 
 Instance: Setoid anyQ.t.
 
@@ -33,6 +33,23 @@ Proof with intuition. apply Qeq_bool_iff... apply Qeq_bool_neq... Qed.
   (* We could get the above for free from the fact that anyQ.eq is just projected Qeq,
    but that mean that any comparison would involve two conversion to Q, which is
    a premature pessimization. *)
+
+Ltac unfold_equiv := unfold equiv, qev, eq.
+
+Program Instance: RingMinus t := sub.
+Next Obligation.
+  unfold_equiv.
+  rewrite spec_add. rewrite spec_opp.
+  apply spec_sub.
+Qed.
+
+Program Instance: FieldDiv t := div.
+Next Obligation.
+  unfold_equiv. 
+  rewrite spec_mul. 
+  unfold mult_inv. unfold anyQ_mult_inv. rewrite spec_inv.
+  apply spec_div.
+Qed.
 
 Lemma anyQ_field_theory:
  field_theory anyQ.zero anyQ.one anyQ.add anyQ.mul anyQ.sub anyQ.opp anyQ.div anyQ.inv anyQ.eq.
