@@ -92,13 +92,18 @@ Class TotalOrder `(Order A): Prop := total_order: ∀ x y: A, x <= y ∨ y <= x.
 
 Class RingOrder `(e: Equiv A) (plus: RingPlus A) (mult: RingMult A) (zero: RingZero A) (leq: Order A) :=
   { ringorder_partialorder:> PartialOrder leq
-  ; ringorder_plus: `(leq x y → ∀ z, leq (x + z) (y + z))
-  ; ringorder_mult: `(leq zero x → ∀ y, leq 0 y → leq 0 (x * y)) }.
-    (* todo: use "precedes" here? *)
+  ; ringorder_plus: `(x <= y → ∀ z, (x + z) <= (y + z))
+  ; ringorder_mult: `(0 <= x → ∀ y, 0 <= y → 0 <= (x * y)) }.
+
+Class OrdRing A {e: Equiv A} {plus mult inv zero one leq}: Prop :=
+  { ordring_ring:> @Ring A e plus mult zero one inv 
+  ; ordring_order:> RingOrder e plus mult zero leq }.
 
 Class OrdField A {e: Equiv A} {plus mult inv zero one mult_inv leq}: Prop :=
   { ordfield_field:> @Field A e plus mult zero one inv mult_inv
   ; ordfield_order:> RingOrder e plus mult zero leq }.
+
+Instance ordfield_is_ordring `{OrdField A} : OrdRing A.
 
 Local Infix "<*>" := ralgebra_action (at level 30).
 
