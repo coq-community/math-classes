@@ -407,7 +407,9 @@ Lemma quote_equality {V} {v: Vars V} {V'} {v': Vars V'} (l r: Value) `{!Quote no
   let heap := (merge v v') in
   eval heap (map_var monkey quote) = eval heap quote → l = r.
 Proof with intuition.
- intros V v V' v' l r [lq []] [rq []] heap H.
+ destruct Quote0 as [lq []].
+ destruct Quote1 as [rq []].
+ intros heap H.
  subst heap. simpl in H.
  rewrite <- H, eval_map_var.
  apply eval_proper... intro...

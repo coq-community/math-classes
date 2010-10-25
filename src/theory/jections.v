@@ -24,11 +24,11 @@ Section compositions.
    intro. unfold compose.
    pose proof (setoidmor_b f).
    posed_rewrite (surjective g (fi x)).
-   apply surjective...
+   posed_rewrite (surjective f x).
+   reflexivity.
   Qed.
 
   Global Instance: Bijective f → Bijective g → Bijective (f ∘ g).
-  Proof. intros []. constructor; apply _. Qed.
 
 End compositions.
 

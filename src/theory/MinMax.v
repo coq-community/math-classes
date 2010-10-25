@@ -13,22 +13,22 @@ Section contents.
   Instance max: SemiGroupOp A := λ x y, snd (sort x y).
 
   Lemma max_ub_l `{Reflexive _ precedes} x y: x ≤ x & y.
-  Proof. unfold sg_op, max, sort. intros. destruct decide; firstorder. Qed.
+  Proof. unfold sg_op, max, sort. case (decide _); firstorder. Qed.
 
   Lemma max_r x y: x ≤ y → x & y = y.
-  Proof. unfold sg_op, max, sort. intros. destruct decide; firstorder. Qed.
+  Proof. unfold sg_op, max, sort. intros. case (decide _); firstorder. Qed.
 
   Lemma max_idem x: max x x = x.
-  Proof. intros. unfold max, sort. destruct decide; reflexivity. Qed.
+  Proof. intros. unfold max, sort. case (decide _); reflexivity. Qed.
 
   Global Instance max_proper `{p: !Proper (equiv ==> equiv ==> iff) precedes}: Proper (equiv ==> equiv ==> equiv) max.
   Proof with assumption.
    intros x y E x' y' E'.
    unfold max, sort.
-   do 2 destruct decide; simpl.
+   do 2 case (decide _); simpl.
       firstorder. 
-     exfalso. apply n. apply -> (p x y E x')...
-    exfalso. apply n. apply <- (p x y E x' y')...
+     intros n ?. exfalso. apply n. apply -> (p x y E x')...
+    intros ? n. exfalso. apply n. apply <- (p x y E x' y')...
    firstorder.
   Qed.
 
@@ -37,7 +37,7 @@ Section contents.
     Context `{!TotalOrder precedes} `{!PartialOrder precedes}.
 
     Lemma max_comm (x y: A): max x y = max y x.
-    Proof. intros. unfold max, sort. destruct decide; destruct decide; firstorder. Qed.
+    Proof. intros. unfold max, sort. case (decide _); case (decide _); firstorder. Qed.
 
     Lemma max_ub_r (x y: A): y ≤ max x y.
     Proof. intros. rewrite max_comm. apply max_ub_l. Qed.
@@ -47,7 +47,7 @@ Section contents.
      intros x y z.
      unfold max, sort.
      intros.
-     repeat destruct decide; try reflexivity; try intuition; simpl in *.
+     do 4 case (decide _); try reflexivity; try intuition; simpl in *.
       exfalso.
       apply n.
       transitivity y...

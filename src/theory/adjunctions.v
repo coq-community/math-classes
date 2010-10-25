@@ -164,7 +164,6 @@ Section for_ηAdjunction.
   Qed.
 
   Instance: ∀ x a, Bijective (@φ x a).
-  Proof. intros. constructor; apply _. Qed.
 
   Instance ηAdjunction_φAdjunction: φAdjunction F G φ.
   Proof with try reflexivity; try apply _.

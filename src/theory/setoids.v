@@ -9,7 +9,6 @@ Instance: Equiv Prop := iff.
 Instance: Setoid Prop.
 
 Instance: ∀ A `{Setoid B}, Setoid (A → B).
-Proof. constructor; repeat intro; firstorder. Qed.
 
 Instance sig_Setoid `{Setoid A} (P: A → Prop): Setoid (sig P).
 Instance sigT_Setoid `{Setoid A} (P: A → Type): Setoid (sigT P).
