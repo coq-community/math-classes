@@ -35,13 +35,6 @@ Qed.
 
 Ltac unfold_equiv := unfold equiv, anyZ_eq, eq.
 
-Program Instance: RingMinus t := sub.
-Next Obligation.
-  unfold_equiv.
-  rewrite spec_add. rewrite spec_opp.
-  apply spec_sub.
-Qed.
-
 Lemma anyZ_ring_theory: ring_theory zero one add mul sub opp eq.
 Proof.
   repeat split; repeat intro; axioms.zify; auto with zarith.
@@ -51,6 +44,13 @@ Instance: Ring t.
 Proof.
   apply (@rings.from_stdlib_ring_theory.from_stdlib_ring_theory
     t _ _ _ _ _ _ _ anyZ_ring_theory); apply _.
+Qed.
+
+Program Instance: RingMinus t := sub.
+Next Obligation.
+  unfold_equiv.
+  rewrite spec_add. rewrite spec_opp.
+  apply spec_sub.
 Qed.
 
 Instance: Ring_Morphism to_Z.
