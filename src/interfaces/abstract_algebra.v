@@ -75,37 +75,67 @@ Section upper_classes.
 
 End upper_classes.
 
-Section more_ring_operations.
-  Context R `{Ring R}.
-  Class RingMinus := ring_minus_sig: ∀ x y : R, { z: R |  z = x + -y }.
-  Definition ring_minus `{RingMinus}: R → R → R := λ x y, proj1_sig (ring_minus_sig x y).
-  Infix "-" := ring_minus.
-
-  Global Program Instance: RingMinus | 10 := {
-    ring_minus_sig := λ x y, x + -y
-  }.
-  Next Obligation. apply reflexivity. Qed.
-End more_ring_operations.
-
-Section more_field_operations.
-  Context R `{Field R}.
-  Class FieldDiv := field_div_sig: ∀ (x : R) (y : { x: R | x ≠ zero }), { z: R |  z = x * //y }.
-  Definition field_div `{FieldDiv}: R → { x: R | x ≠ zero } → R 
-    := λ x y, proj1_sig (field_div_sig x y).
-  Infix "/" := field_div.
-
-  Global Program Instance: FieldDiv | 10 := {
-    field_div_sig := λ x y, x * //(proj1_sig y)
-  }.
-  Next Obligation. apply reflexivity. Qed.
-End more_field_operations.
-
 Implicit Arguments inv_proper [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments ginv_l [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments ginv_r [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments field_0neq1 [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv] [Field]].
 Implicit Arguments mult_inverse [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv0] [Field]].
 Implicit Arguments sg_mor [[A] [e] [op] [SemiGroup]].
+
+Section ring_minus.
+  Context R `{r : Ring R}.
+  Class RingMinus := ring_minus_sig: ∀ x y : R, { z: R |  z = x + -y }.
+  Global Program Instance: RingMinus | 10 := λ x y, x + -y.
+  Next Obligation. reflexivity. Qed.
+End ring_minus.
+
+Definition ring_minus `{RingMinus R} : R → R → R := λ x y, proj1_sig (ring_minus_sig R x y).
+Infix "-" := ring_minus.
+
+Section ring_minus_properties.
+  Context `{Ring R} `{minus : !RingMinus R}.
+
+  Lemma ring_minus_correct x y : x - y = x + -y.
+  Proof.
+    unfold ring_minus. unfold ring_minus_sig. 
+    destruct minus as [z E]. simpl. auto.
+  Qed.
+
+  Global Instance: Proper ((=) ==> (=) ==> (=)) ring_minus.
+  Proof.
+    intros x1 y1 E1 x2 y2 E2.
+    rewrite ring_minus_correct. rewrite ring_minus_correct.
+    rewrite E1, E2. reflexivity.
+  Qed.
+End ring_minus_properties.
+
+Section field_div.
+  Context R `{Field R}.
+  Class FieldDiv := field_div_sig: ∀ (x : R) (y : { x: R | x ≠ zero }), { z: R |  z = x * //y }.
+  (* Extend program *)
+  Global Program Instance: FieldDiv | 10 := λ x y, x * //(proj1_sig y).
+  Next Obligation. reflexivity. Qed.
+End field_div.
+
+Definition field_div `{FieldDiv R}: R → { x: R | x ≠ zero } → R 
+  := λ x y, proj1_sig (field_div_sig R x y).
+Infix "/" := field_div.
+
+Section field_div_properties.
+  Context `{Field R} `{div : !FieldDiv R}.
+  Lemma field_div_correct x y : x / y = x * //y.
+  Proof.
+    unfold field_div. unfold field_div_sig. 
+    destruct div as [z E]. simpl. auto.
+  Qed.
+
+  Global Instance: Proper ((=) ==> (=) ==> (=)) field_div.
+  Proof.
+    intros x1 y1 E1 x2 y2 E2.
+    rewrite (field_div_correct x1 x2). rewrite (field_div_correct y1 y2).
+    rewrite E1, E2. reflexivity.
+  Qed.
+End field_div_properties.
 
 Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
   { equ:> Equivalence e

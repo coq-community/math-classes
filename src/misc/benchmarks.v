@@ -1,7 +1,8 @@
 Require Import 
   fast_integers
   fast_rationals
-  canonical_names.
+  canonical_names
+  BigZ ZArith.
 Require Export 
   interfaces.integers 
   interfaces.rationals.

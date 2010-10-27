@@ -36,21 +36,6 @@ Proof with intuition. apply Qeq_bool_iff... apply Qeq_bool_neq... Qed.
 
 Ltac unfold_equiv := unfold equiv, qev, eq.
 
-Program Instance: RingMinus t := sub.
-Next Obligation.
-  unfold_equiv.
-  rewrite spec_add. rewrite spec_opp.
-  apply spec_sub.
-Qed.
-
-Program Instance: FieldDiv t := div.
-Next Obligation.
-  unfold_equiv. 
-  rewrite spec_mul. 
-  unfold mult_inv. unfold anyQ_mult_inv. rewrite spec_inv.
-  apply spec_div.
-Qed.
-
 Lemma anyQ_field_theory:
  field_theory anyQ.zero anyQ.one anyQ.add anyQ.mul anyQ.sub anyQ.opp anyQ.div anyQ.inv anyQ.eq.
   (* No idea why this is missing in QSig. *)
@@ -74,6 +59,16 @@ Instance: Field anyQ.t.
 Proof.
  apply (@fields.from_stdlib_field_theory.from_stdlib_field_theory
   anyQ.t anyQ.zero _ _ _ _ _ _ _ _ anyQ_field_theory); apply _.
+Qed.
+
+Program Instance: RingMinus t := sub.
+Next Obligation. 
+  apply props.sub_add_opp.
+Qed.
+
+Program Instance: FieldDiv t := div.
+Next Obligation.
+  apply props.div_mul_inv.
 Qed.
 
 (* Type-classified facts about to_Q/of_Q: *)
