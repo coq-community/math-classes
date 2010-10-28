@@ -24,7 +24,9 @@ Section dec_mult_inv.
 
 End dec_mult_inv.
 
-Section field_props. Context `{Field F}.
+Section field_props. 
+  Context `{Field F}.
+  Add Ring R: (stdlib_ring_theory F).
 
   Lemma mult_inverse': ∀ x p, x * // exist _ x p = 1.
   Proof. intros. apply (mult_inverse (exist _ _ _)). Qed.
@@ -39,7 +41,65 @@ Section field_props. Context `{Field F}.
 
   Global Instance: IntegralDomain F.
 
-  Add Ring R: (stdlib_ring_theory F).
+  (* The non zero elements of a field form a CommutativeMonoid. *)
+  Global Program Instance nonzero_one: RingOne { q : F | q ≠ 0 } := exist (λ x, x ≠ 0) 1 _.
+  Next Obligation. intro E. symmetry in E. apply (field_0neq1 E). Qed.
+
+  (* I am not using Program because now we can easily refer to this proof obligation *) 
+  (* TODO: Use a type class for NonZero to clean up this ugly Lemma *)
+  Lemma mult_ne_zero_sig (x y : {q : F | q ≠ 0}) : (λ x, x ≠ 0) (`x * `y).
+  Proof with auto.
+    destruct x. destruct y. simpl. 
+    apply mult_ne_zero...
+  Qed.
+ 
+  Global Instance nonzero_mult: RingMult { x : F | x ≠ 0 } := λ x y, 
+    exist (λ x, x ≠ 0) (`x *  `y) (mult_ne_zero_sig x y).
+
+  Global Instance: Proper ((=) ==> (=) ==> (=)) nonzero_mult.
+  Proof.
+    intros [??] [??] E1 [??] [??] E2. 
+    unfold equiv, sig_equiv, sig_relation in *. simpl in *.
+    rewrite E1, E2.
+    reflexivity.
+  Qed.
+
+  Global Instance: Associative nonzero_mult.
+  Proof.
+    intros [??] [??] [??].
+    unfold equiv, sig_equiv, sig_relation in *. simpl in *. 
+    apply associativity.
+  Qed.
+
+  Global Instance: Commutative nonzero_mult.
+  Proof.
+    intros [??] [??].
+    unfold equiv, sig_equiv, sig_relation in *. simpl in *. 
+    apply commutativity.
+  Qed.
+
+  Global Instance: LeftIdentity nonzero_mult nonzero_one.
+  Proof.
+    intros [? ?].
+    unfold equiv, sig_equiv, sig_relation in *. simpl in *. 
+    apply left_identity.
+  Qed.
+
+  Global Instance: RightIdentity nonzero_mult nonzero_one.
+  Proof.
+    intros [? ?].
+    unfold equiv, sig_equiv, sig_relation in *. simpl in *. 
+    apply right_identity.
+  Qed.
+
+  Global Instance: CommutativeMonoid { x : F | x ≠ 0 } (op:=nonzero_mult) (unit:=nonzero_one).
+  Proof. repeat (split; try apply _). Qed.
+
+  Lemma nonzero_mult_proj_dist (x y : {x : F | x ≠ 0}) : `x * `y = ` (x * y).
+  Proof. reflexivity. Qed.
+
+  Lemma nonzero_mult_proj_one (x y : {x : F | x ≠ 0}) : `1 = 1.
+  Proof. reflexivity. Qed.
 
   Lemma equal_quotients (a c: F) b d: a * ` d = c * ` b ↔ a *// b = c *// d.
   Proof with try ring.
@@ -57,6 +117,17 @@ Section field_props. Context `{Field F}.
    transitivity (c * (`d * // d) * `b)...
    rewrite mult_inverse...
   Qed. (* todo: should be cleanable *)
+
+  Lemma quotients a c b d :
+    a * //b + c * //d = (a * `d + c * `b) * // (b * d).
+  Proof with auto.
+    assert (a * // b = (a * `d) * // exist _ (`b * `d) (mult_ne_zero_sig b d)) as E1.
+      apply equal_quotients. simpl. ring.
+    assert (c * // d = (`b * c) * // exist _ (`b * `d) (mult_ne_zero_sig b d)) as E2.
+      apply equal_quotients. simpl. ring.
+    rewrite E1, E2.
+    unfold "*" at 10. unfold nonzero_mult. ring.
+  Qed.
 
   Context `{∀ x y: F, Decision (x = y)}.
 
@@ -82,6 +153,16 @@ Section field_props. Context `{Field F}.
   Proof.
    unfold dec_mult_inv. case (decide _). intuition.
    intros. apply (mult_inverse (exist _ x _)).
+  Qed.
+
+  Lemma mult_inv_distr (x y : {x : F | x ≠ 0}) : // x * // y = // (x * y).
+  Proof with auto.
+    apply (theory.rings.mult_injective (` (x * y)))...
+      destruct x. destruct y. simpl. apply mult_ne_zero...
+    rewrite mult_inverse.
+    rewrite <-nonzero_mult_proj_dist.
+    assert (`x * `y * (// x * // y) = (`x * // x) * (`y * // y)) as E by ring. 
+    rewrite E. repeat rewrite mult_inverse. ring.
   Qed.
 
   Global Instance: ZeroProduct F.
