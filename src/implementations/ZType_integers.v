@@ -18,8 +18,8 @@ Module axioms := ZTypeIsZAxioms anyZ.
 
 Instance anyZ_eq : Equiv t := eq.
 Instance: RingPlus t := add.
-Instance anyZ_zero: RingZero t := zero.
-Instance anyZ_one: RingOne t := one.
+Instance anyZ_0: RingZero t := zero.
+Instance anyZ_1: RingOne t := one.
 Instance: RingMult t := mul.
 Instance: GroupInv t := opp.
 
@@ -79,10 +79,10 @@ Instance: Ring_Morphism of_Z.
 Proof with try apply _; auto.
   repeat (split; try apply _); repeat intro; unfold_equiv. 
   rewrite spec_add. repeat rewrite spec_of_Z...
-  unfold mon_unit at 2. unfold anyZ_zero. rewrite spec_0. rewrite spec_of_Z...
+  unfold mon_unit at 2. unfold anyZ_0. rewrite spec_0. rewrite spec_of_Z...
   rewrite spec_opp. repeat rewrite spec_of_Z...
   rewrite spec_mul. repeat rewrite spec_of_Z...
-  unfold mon_unit. unfold anyZ_one. rewrite spec_1. rewrite spec_of_Z...
+  unfold mon_unit. unfold anyZ_1. rewrite spec_1. rewrite spec_of_Z...
 Qed.
 
 Instance: IntegersToRing t := theory.integers.retract_is_int_to_ring to_Z.
