@@ -9,7 +9,7 @@ Require Import
 Inductive op := plus | mult | zero | one.
 
 Definition sig: Signature := single_sorted_signature
-  (λ o, match o with zero | one => O | plus | mult => 2 end).
+  (λ o, match o with zero | one => O | plus | mult => 2%nat end).
 
 Section laws.
 
@@ -22,7 +22,7 @@ Section laws.
 
   Local Notation x := (Var sig _ 0%nat tt).
   Local Notation y := (Var sig _ 1%nat tt).
-  Local Notation z := (Var sig _ 2 tt).
+  Local Notation z := (Var sig _ 2%nat tt).
 
   Import notations.
 
@@ -69,7 +69,7 @@ Section from_instance.
    apply distribute_r.
   Qed.
 
-  Instance variety: InVariety theory (λ _, A).
+  Global Instance variety: InVariety theory (λ _, A).
   Proof. constructor. apply _. exact laws. Qed.
 
   Definition Object := variety.Object theory.
@@ -100,7 +100,7 @@ Proof.
  change (Algebra theory B). apply _.
 Qed. (* todo: these [change]s should not be necessary at all. [apply] is too weak. report bug. *)
 
-Instance struct_from_var_to_class `{v: InVariety theory A}: SemiRing (A tt).
+Instance decode_variety_and_ops `{v: InVariety theory A}: SemiRing (A tt).
 Proof with simpl; auto.
  pose proof (λ law lawgood x y z, variety_laws law lawgood (λ s n,
    match s with tt => match n with 0 => x | 1 => y | _ => z end end)).
@@ -124,3 +124,13 @@ Proof with simpl; auto.
  apply_simplified (H _ e_mult_0_l)...
 Qed.
   (* todo: clean up ring in the same way *)
+
+Lemma decode_morphism_and_ops
+  `{InVariety theory x} `{InVariety theory y} `{!HomoMorphism theory x y f}:
+    SemiRing_Morphism (f tt).
+Proof.
+ pose proof (homo_proper theory x y f tt).
+ pose proof (preserves theory x y f) as P.
+ repeat (constructor; try apply _)
+ ; [ apply (P plus) | apply (P zero) | apply (P mult) | apply (P one) ].
+Qed.

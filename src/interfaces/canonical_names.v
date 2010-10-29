@@ -32,6 +32,7 @@ Class MonoidUnit A := mon_unit: A.
 Class RingPlus A := ring_plus: A → A → A.
 Class RingMult A := ring_mult: A → A → A.
 Class RingOne A := ring_one: A.
+Definition ring_two `{RingOne A} `{RingPlus A} := ring_plus ring_one ring_one.
 Class RingZero A := ring_zero: A.
 Class GroupInv A := group_inv: A → A.
 Class MultInv A `{Equiv A} `{RingZero A} := mult_inv: { x: A | x ≠ ring_zero } → A.
@@ -40,6 +41,7 @@ Infix "⟶" := Arrow (at level 90, right associativity).
 Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
 Class CatComp O `{Arrows O} := comp: ∀ {x y z}, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
 Class Order A := precedes: relation A.
+Definition precedes_neq `{Equiv A} `{Order A} : Order A := λ (x y : A),  precedes x y ∧ x ≠ y.
 Class RalgebraAction A B := ralgebra_action: A → B → B.
 Class RingMultInverse {R} (x: R): Type := ring_mult_inverse: R.
 Implicit Arguments ring_mult_inverse [[R] [RingMultInverse]].
@@ -58,6 +60,7 @@ Instance ringzero_is_monoidunit `{c: RingZero A}: MonoidUnit A := c.
 (* Notations: *)
 Notation "0" := ring_zero.
 Notation "1" := ring_one.
+Notation "2" := ring_two.
 Infix "&" := sg_op (at level 50, left associativity).
 Infix "+" := ring_plus.
 Notation "(+)" := ring_plus (only parsing).
@@ -69,6 +72,11 @@ Notation "( x *)" := (ring_mult x) (only parsing).
 Notation "- x" := (group_inv x).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
 Infix "≤" := precedes.
+Infix "<" := precedes_neq.
+Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z) (at level 70, y at next level).
+Notation "x ≤ y < z" := (x ≤ y /\ y < z) (at level 70, y at next level).
+Notation "x < y < z" := (x < y /\ y < z) (at level 70, y at next level).
+Notation "x < y ≤ z" := (x < y /\ y ≤ z) (at level 70, y at next level).
 Notation "x ⁻¹" := (ring_mult_inverse x) (at level 30).
 Infix "◎" := comp (at level 40, left associativity).
   (* Taking over ∘ is just a little too zealous at this point. With our current

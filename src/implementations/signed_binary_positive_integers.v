@@ -161,8 +161,7 @@ End for_another_ring.
 
 Instance: Initial (ring.object Z).
 Proof.
- intros y [x h] []. simpl in *.
- apply same_morphism, (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+  apply integer_initial. intros. apply same_morphism. auto.
 Qed.
 
 Instance: Integers Z.

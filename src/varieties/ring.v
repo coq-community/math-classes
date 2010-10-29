@@ -11,7 +11,7 @@ Require Import
 Inductive op := plus | mult | zero | one | opp.
 
 Definition sig: Signature := single_sorted_signature
-  (λ o, match o with zero | one => O | opp => 1%nat | plus | mult => 2 end).
+  (λ o, match o with zero | one => O | opp => 1%nat | plus | mult => 2%nat end).
 
 Section laws.
 
@@ -25,7 +25,7 @@ Section laws.
 
   Local Notation x := (Var sig nat 0%nat tt).
   Local Notation y := (Var sig nat 1%nat tt).
-  Local Notation z := (Var sig nat 2 tt).
+  Local Notation z := (Var sig nat 2%nat tt).
 
   Import notations.
 
@@ -82,7 +82,7 @@ End encode_with_ops.
 Lemma encode_algebra_only `{!AlgebraOps theory A} `{∀ u, Equiv (A u)} `{!Ring (A tt)}: Algebra sig A .
 Proof. constructor; intros []; simpl in *; try apply _. Qed.
 
-Global Instance decode_variety_and_ops `{InVariety theory A}: Ring (A tt).
+Instance decode_variety_and_ops `{InVariety theory A}: Ring (A tt).
 Proof with simpl; auto.
  pose proof (λ law lawgood x y z, variety_laws law lawgood (λ s n,
   match s with tt => match n with 0 => x | 1 => y | _ => z end end)) as laws.

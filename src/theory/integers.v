@@ -76,14 +76,14 @@ Section contents.
         apply reflexivity.
       Qed.
     End for_another_ring.
-
+  
     (* If we make this an instance, then instance resulution will result in an infinite loop *)
     Program Definition retract_is_int: @Integers Int2 _ _ _ _ _ _ retract_is_int_to_ring. 
     Proof.
       esplit. (* for some reason split doesn't work... *)
-      intros y [x h] []. simpl in *.
-      apply same_morphism. 
-      apply (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+      apply integer_initial. intros. 
+      unfold integers_to_ring, retract_is_int_to_ring. 
+      apply same_morphism. auto.
     Qed.
   End retract_is_int.
 
@@ -277,9 +277,10 @@ Hint Resolve opp_0.
 
   Global Instance: IntegralDomain Int.
 
-  Lemma two_nonzero: 1+1 ≠ 0.
+  Lemma two_nonzero: 2 ≠ 0.
   Proof.
-   intro E. apply zero_ne_one.
+   intro E. unfold "2". 
+   apply zero_ne_one.
    symmetry. apply eq_opp_self.
    apply (injective (ring_plus 1)).
    rewrite E. ring.

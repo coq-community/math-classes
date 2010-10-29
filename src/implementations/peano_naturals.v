@@ -99,18 +99,15 @@ End for_another_semiring.
 
 Instance: Initial (semiring.object nat).
 Proof.
- intros y [x h] [] a. simpl in *.
- pose proof (_: SemiRing (y tt)).
- pose proof (@ua_homomorphisms.preserves semiring.theory _ _ _ _ _ _ _ h) as pr.
- induction a; simpl.
-  symmetry. apply (pr semiring.zero).
- change (naturals_to_semiring nat (y tt) a + 1 = x tt (S a)).
- rewrite IHa. clear IHa.
- pose proof (pr semiring.plus 1 a) as E. simpl in E. rewrite E. clear E.
- change (x tt a + 1 = x tt 1 + x tt a).
- pose proof (pr semiring.one) as E. simpl in E. rewrite E.
- apply commutativity.
-Qed. (* todo: these [pose]s are nasty *)
+  intros. apply natural_initial. intros. 
+  intro x. induction x. 
+  replace 0%nat with (ring_zero:nat) by reflexivity.
+  do 2 rewrite preserves_0. reflexivity.
+  replace (S x) with (1 + x) by reflexivity. 
+  do 2 rewrite preserves_plus.
+  do 2 rewrite preserves_1. 
+  rewrite IHx. reflexivity.
+Qed.
 
 Global Instance nat_Naturals: Naturals nat.
 

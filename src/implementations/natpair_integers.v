@@ -212,7 +212,7 @@ Section for_another_ring.
     Lemma agree_on_nat: inject'_N = n_to_sr.
     Proof. intro x. apply (theory.naturals.to_semiring_unique _ inject'_N). Qed.
 
-    Lemma agree: integers_to_ring Z R = inject'.
+    Lemma same_morphism: integers_to_ring Z R = inject'.
     Proof.
      intros [pos0 neg0].
      rewrite split_into_nats.
@@ -231,8 +231,7 @@ End for_another_ring.
 
 Instance: Initial (ring.object Z).
 Proof.
- intros y [x h] []. simpl in *.
- apply agree, (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+  apply integer_initial. intros. apply same_morphism. auto.
 Qed.
 
 Global Instance: Integers Z.

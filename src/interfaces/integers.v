@@ -22,6 +22,14 @@ Section initial_maps.
    abstract (apply ring.encode_morphism_only, _).
   Defined. (* for some reason [Program] isn't cooperating here. look into it *)
 
+  Lemma integer_initial (same_morphism : ∀ `{Ring B} {h :  Int → B} `{!Ring_Morphism h}, integers_to_ring B = h) : 
+    Initial (ring.object Int).
+  Proof.
+    intros y [x h] []. simpl in *.
+    apply same_morphism.
+    apply ring.decode_variety_and_ops. 
+    apply (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+  Qed.
 End initial_maps.
 
 Instance: Params (@integers_to_ring) 8.

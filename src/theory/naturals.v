@@ -71,6 +71,40 @@ Section contents.
 
 Context `{Naturals N}.
 
+Section retract_is_nat.
+  Context `{SemiRing SR} .
+  Context (f : N → SR) (g : SR → N) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}.
+  Context (f_retraction_g : ∀ x : SR, f (g x) = x).
+
+  (* If we make this an instance, then instance resulution will result in an infinite loop *)
+  Definition retract_is_nat_to_sr : NaturalsToSemiRing SR := λ R _ _ _ _ , naturals_to_semiring N R ∘ g.
+
+  Section for_another_semiring.
+    Context `{SemiRing R}.
+
+    Instance: SemiRing_Morphism (naturals_to_semiring N R ∘ g).
+    Context (h :  SR → R) `{!SemiRing_Morphism h}. 
+     
+    Lemma same_morphism: naturals_to_semiring N R ∘ g = h.
+    Proof with auto.
+      intro x. 
+      rewrite <-f_retraction_g at 2.
+      assert (H3:=to_semiring_unique R (h ∘ f)).
+      unfold compose in *. 
+      unfold equiv in H3. unfold ext_eq in H3. rewrite H3. 
+      apply reflexivity.
+    Qed.
+  End for_another_semiring.
+
+  (* If we make this an instance, then instance resulution will result in an infinite loop *)
+  Program Definition retract_is_nat: @Naturals SR _ _ _ _ _ retract_is_nat_to_sr. 
+  Proof. 
+    esplit. (* for some reason split doesn't work... *)
+    intros. apply natural_initial. intros.
+    apply same_morphism. auto. 
+  Qed.
+End retract_is_nat.
+
 Add Ring N: (stdlib_semiring_theory N).
 
 Let hint0 := naturals_to_semiring_mor N nat _.

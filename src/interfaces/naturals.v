@@ -32,6 +32,14 @@ Section initial_maps.
    (* For some reason if we try to make it an instance immediately upon
     definition, Program suddenly generates 5 subgoals.. *)
 
+  Lemma natural_initial (same_morphism : ∀ `{SemiRing B} {h :  A → B} `{!SemiRing_Morphism h}, naturals_to_semiring B = h) : 
+    Initial (semiring.object A).
+  Proof.
+    intros y [x h] []. simpl in *.
+    apply same_morphism.
+    apply semiring.decode_variety_and_ops. 
+    apply (@semiring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+  Qed.
 End initial_maps.
 
 Instance: Params (@naturals_to_semiring) 7.
