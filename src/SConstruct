@@ -15,7 +15,7 @@ while nodes:
 
 Rs = ' -R . "" '
 
-coqc = 'coqc ' + Rs + ' $SOURCE'
+coqc = 'coqc -q ' + Rs + ' $SOURCE'
 
 env = DefaultEnvironment(ENV = os.environ)
 
