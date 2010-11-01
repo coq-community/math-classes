@@ -6,7 +6,11 @@ Require Import
  Relation_Definitions Morphisms Ring Program
  abstract_algebra interfaces.naturals theory.rings workaround_tactics.
 
-Section sr_order. Context `{SemiRing R}.
+Section sr_order. 
+  Context `{SemiRing R}.
+  Add Ring SR: (stdlib_semiring_theory R).
+
+  Local Infix "≤" := sr_precedes.
 
   Global Instance sr_precedes_proper: Proper ((=) ==> (=) ==> (=)) sr_precedes.
   Proof with assumption.
@@ -29,7 +33,7 @@ Section sr_order. Context `{SemiRing R}.
    unfold sr_precedes.
    exists 0%nat.
    posed_rewrite (@preserves_0 nat R _ _ _ _ _ _ _ _ _ _ (naturals_to_semiring nat R) _).
-   apply plus_0_r.
+   ring.
   Qed.
 
   Global Instance: PreOrder sr_precedes.
@@ -46,6 +50,30 @@ Section sr_order. Context `{SemiRing R}.
    exists (naturals_to_semiring N nat z).
    posed_rewrite (theory.naturals.to_semiring_unique R (naturals_to_semiring nat R ∘ naturals_to_semiring N nat) z).
    assumption.
+  Qed.
+
+  Lemma sr_precedes_nonneg_plus_compat (x y : R) : 0 ≤ x → 0 ≤ y → 0 ≤ x + y.
+  Proof.
+    intros [x' Ex] [y' Ey].
+    rewrite <-Ex, <-Ey.
+    exists (x' + y').
+    rewrite preserves_plus.
+    ring.
+  Qed.
+
+  Lemma sr_precedes_nonneg_mult_compat (x y : R) : 0 ≤ x → 0 ≤ y → 0 ≤ x * y.
+  Proof.
+    intros [x' Ex] [y' Ey].
+    rewrite <-Ex, <-Ey.
+    exists (x' * y').
+    rewrite preserves_mult.
+    ring.
+  Qed.
+
+  Lemma sr_precedes_0_1: (0:R) ≤ (1:R).
+  Proof.
+    exists (@ring_one nat _).
+    rewrite preserves_1. ring. 
   Qed.
 
 End sr_order.
@@ -69,8 +97,8 @@ Proof.
  apply plus_0_l.
 Qed. 
 
-Section ring. Context `{Ring R}. (* extra sr_precedes properties that hold in rings: *)
-
+Section ring. 
+  Context `{Ring R}. (* extra sr_precedes properties that hold in rings: *)
   Add Ring R: (stdlib_ring_theory R).
 
   Lemma precedes_flip (x y: R): sr_precedes x y ↔ sr_precedes (-y) (-x).

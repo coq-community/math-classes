@@ -68,6 +68,8 @@ Instance natural_precedes `{Naturals N}: Order N := sg_precedes.
 Instance nat_to_semiring: NaturalsToSemiRing nat :=
   λ _ _ _ _ _, fix f (n: nat) := match n with 0%nat => 0 | S n' => f n' + 1 end.
 
+(* We make this order a definition because it does not make a lot of sense for 
+  semirings in general. *)
 Definition sr_precedes `{SemiRing R}: Order R :=
   λ x y: R, exists z: nat, x + naturals_to_semiring nat R z = y.
 
