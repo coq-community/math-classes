@@ -1,11 +1,12 @@
 (* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
 
-Require
-  interfaces.naturals.
+Require 
+  interfaces.naturals theory.naturals peano_naturals.
 Require Import
   BinInt Morphisms Ring Arith
-  abstract_algebra theory.categories theory.rings interfaces.integers
-  signed_binary_positives peano_naturals.
+  abstract_algebra interfaces.integers
+  theory.categories theory.rings 
+  signed_binary_positives. 
 
 (* canonical names: *)
 Instance z_equiv: Equiv BinInt.Z := eq.
@@ -37,6 +38,7 @@ Instance: LeftIdentity BinInt.Zmult 1 := BinInt.Zmult_1_l.
 Instance: RightIdentity BinInt.Zmult 1 := BinInt.Zmult_1_r.
 
 (* structures: *)
+Instance: Equivalence (@eq BinInt.Z). (* this should not be necessary, seems like a regression bug *)
 Instance: Setoid BinInt.Z.
 Instance: SemiGroup _ (op:=BinInt.Zplus).
 Instance: SemiGroup _ (op:=BinInt.Zmult).
@@ -46,7 +48,7 @@ Instance: CommutativeMonoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH).
 Instance: @Group _ _ (BinInt.Zplus) (BinInt.Z0) _
   := { ginv_l := BinInt.Zplus_opp_l; ginv_r := BinInt.Zplus_opp_r }.
 Instance: AbGroup BinInt.Z (op:=BinInt.Zplus) (unit:=BinInt.Z0).
-Instance: Ring BinInt.Z.
+Program Instance: Ring BinInt.Z.
 
 (* misc: *)
 Instance: ∀ x y: BinInt.Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
@@ -165,3 +167,48 @@ Proof.
 Qed.
 
 Instance: Integers Z.
+
+(* The Peano naturals can be embedded into Z *)
+Instance: Proper ((=) ==> (=)) Z_of_nat.
+Proof.
+  intros x y E.
+  rewrite E. reflexivity.
+Qed.
+
+Instance: SemiRing_Morphism Z_of_nat.
+Proof.
+  repeat (split; try apply _).
+  exact Znat.inj_plus.
+  exact Znat.inj_mult.
+Qed.
+
+(* Relate <= on Z to our ≤ *)
+(* Figure out whether the standard library contains lemmas to make the following proofs shorter.
+  There should be, because these proofs look horrible... *)
+Lemma sr_precedes_Zle (x y : Z) : x ≤ y → (x <= y)%Z.
+Proof with auto with zarith.
+  intros [z Ez].
+  rewrite <-(theory.naturals.to_semiring_unique Z Z_of_nat) in Ez.
+  generalize dependent x. induction z; intros.
+  apply Zorder.Zeq_le. rewrite <-Ez...
+  apply Zorder.Zle_succ_le.
+  apply IHz. rewrite Znat.inj_S in Ez. rewrite <-Ez.
+  apply Zplus_succ_comm.
+Qed.
+
+Lemma Zle_sr_precedes (x y : Z) : (x <= y)%Z → x ≤ y.
+Proof with auto with zarith.
+  intros E.
+  destruct (Zorder.Zle_lt_or_eq x y E) as [E2 | E2].
+  destruct (Zcompare.Zcompare_Gt_spec y x) as [z Ez].
+    apply Zcompare.Zcompare_Gt_Lt_antisym.
+    pose proof (Zcompare.Zlt_compare x y E2). 
+    destruct ((x ?= y)%Z); try contradiction...
+  exists (nat_of_P z).
+  rewrite <-(theory.naturals.to_semiring_unique Z Z_of_nat)...
+  rewrite <-Znat.Zpos_eq_Z_of_nat_o_nat_of_P, <-Ez.
+  replace ((y + - x)%Z) with (y + -x) by reflexivity. ring.
+  exists (0%nat).
+  rewrite <-(theory.naturals.to_semiring_unique Z Z_of_nat)...
+  rewrite Znat.inj_0. rewrite E2. apply Zplus_0_r.
+Qed.

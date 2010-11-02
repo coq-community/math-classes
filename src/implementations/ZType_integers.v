@@ -1,8 +1,3 @@
-Require 
-  rings
-  theory.integers
-  signed_binary_positive_integers.
-
 Require Import 
   ZSig ZSigZAxioms 
   ZArith
@@ -10,7 +5,12 @@ Require Import
   Program
   Morphisms
   interfaces.integers 
-  abstract_algebra.
+  abstract_algebra
+  positive_integers_naturals
+  orders.semiring
+  signed_binary_positive_integers
+  rings
+  theory.integers.
 
 Module ZType_Integers (Import anyZ: ZType).
 
@@ -85,6 +85,73 @@ Proof with try apply _; auto.
   unfold mon_unit. unfold anyZ_1. rewrite spec_1. rewrite spec_of_Z...
 Qed.
 
-Instance: IntegersToRing t := theory.integers.retract_is_int_to_ring to_Z.
-Instance: Integers t := theory.integers.retract_is_int of_Z to_Z of_Z_to_Z.
+Global Instance: IntegersToRing t := theory.integers.retract_is_int_to_ring to_Z.
+Global Instance: Integers t := theory.integers.retract_is_int of_Z to_Z of_Z_to_Z.
+
+Lemma to_Z_sr_precedes_Zle x y : (to_Z x <= to_Z y)%Z → x ≤ y.
+Proof.
+  intro.
+  rewrite <-of_Z_to_Z, <-(of_Z_to_Z y). 
+  apply (integers.preserve_sr_order of_Z).
+  apply Zle_sr_precedes. assumption.
+Qed.
+
+Lemma to_Z_Zle_sr_precedes x y : x ≤ y → (to_Z x <= to_Z y)%Z.
+Proof.
+  intro E.
+  apply sr_precedes_Zle.
+  apply (integers.preserve_sr_order to_Z). assumption.
+Qed.
+
+Global Program Instance: IntAbs t (ZPos t) := abs.
+Next Obligation.
+  apply to_Z_sr_precedes_Zle.
+  rewrite spec_abs.
+  rewrite preserves_0.
+  apply Zabs_pos.
+Qed.
+
+Next Obligation with auto.
+  rewrite ZPos_to_semiring_self.
+  unfold_equiv. 
+  rewrite preserves_opp.
+  rewrite spec_abs.
+  destruct (Zabs_dec (to_Z x))...
+Qed.
+
+Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) with
+  | Lt => left _
+  | Eq => left _
+  | _ => right _
+  end.
+Next Obligation.
+  apply to_Z_sr_precedes_Zle.
+  rewrite spec_compare in *.
+  destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate.
+  apply Zlt_le_weak. assumption.
+Qed.
+
+Next Obligation.
+  apply to_Z_sr_precedes_Zle.
+  rewrite spec_compare in *.
+  destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate.
+  apply Zeq_le. assumption.
+Qed.
+
+(* This proof is ugly, clean it up? *)
+Next Obligation with auto.
+  intros E.
+  apply to_Z_Zle_sr_precedes in E.
+  rewrite spec_compare in *.
+  destruct (Zle_lt_or_eq (to_Z x) (to_Z y) E) as [E2 | E2].
+  assert (E2a:=Zlt_compare (to_Z x) (to_Z y) E2). 
+    destruct ((to_Z x ?= to_Z y)%Z)...
+  rewrite E2 in *. rename H into H. (* fix the dirty name *)
+  apply H. symmetry. apply Zcompare_refl.
+Qed.
+
+Next Obligation.
+  split; intro; discriminate.
+Qed.
+
 End ZType_Integers.

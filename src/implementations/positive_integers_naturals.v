@@ -136,4 +136,9 @@ Qed.
 Global Instance: NaturalsToSemiRing ZPos := theory.naturals.retract_is_nat_to_sr to_nat.
 Global Instance: Naturals ZPos := theory.naturals.retract_is_nat of_nat to_nat of_nat_to_nat.
 
+Lemma ZPos_to_semiring_self x p : naturals_to_semiring ZPos Z (exist _ x p) = x.
+Proof.
+  apply abs_nonneg. assumption.
+Qed.
+
 End positive_integers_naturals.

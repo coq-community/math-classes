@@ -14,7 +14,7 @@ Require Import
   theory.integers theory.rings theory.fields.
 
 Section dyadics.
-  Context Z N `{Integers Z} `{Naturals N}.
+  Context `{Integers Z} `{Naturals N}.
   Add Ring Z: (rings.stdlib_ring_theory Z).
   Add Ring N: (rings.stdlib_semiring_theory N).
 
