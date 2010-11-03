@@ -45,6 +45,20 @@ Proof.
  apply (to_semiring_involutive _ _).
 Qed.
 
+Lemma to_semiring_twice `{Naturals A} `{Naturals B} `{SemiRing SR} x : 
+  naturals_to_semiring B SR (naturals_to_semiring A B x) = naturals_to_semiring A SR x.
+Proof.
+  replace (naturals_to_semiring B SR (naturals_to_semiring A B x))
+    with ((naturals_to_semiring B SR  ∘ naturals_to_semiring A B) x) by reflexivity.
+  apply to_semiring_unique; apply _.
+Qed.
+
+Lemma to_semiring_self `{Naturals A} x : x = naturals_to_semiring A A x.
+Proof.
+  replace x with (id x) by auto.
+  apply to_semiring_unique; apply _.
+Qed.
+
 Instance: Params (@natural_precedes) 8.
 Instance: Params (@precedes) 2.
 

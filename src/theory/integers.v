@@ -18,7 +18,7 @@ Hint Unfold precedes integer_precedes.
 (* Any two integer implementations are trivially isomorphic because of their initiality,
  but it's nice to have this stated in terms of integers_to_ring being self-inverse: *)
 
-Lemma iso_ints `{Integers A} B `{Integers B}: ∀ a: A,
+Lemma to_ring_involutive `{Integers A} B `{Integers B}: ∀ a: A,
   integers_to_ring B A (integers_to_ring A B a) = a.
 Proof.
  intros.
@@ -108,7 +108,7 @@ Section contents.
     | right E => right _
     end.
 
-  Next Obligation. rewrite <- (iso_ints (Z nat) x), <- (iso_ints (Z nat) y), E. reflexivity. Qed.
+  Next Obligation. rewrite <- (to_ring_involutive (Z nat) x), <- (to_ring_involutive (Z nat) y), E. reflexivity. Qed.
   Next Obligation. intro U. apply E. rewrite U. reflexivity. Qed.
 
   Global Instance naturals_to_integers_injective `{Naturals N}: Injective (naturals_to_semiring N Int).
@@ -166,10 +166,10 @@ Section contents.
   Next Obligation.
    intros.
    destruct int_abs_sig as [x0 [M | M]]; simpl; [left | right].
-    rewrite <- (iso_ints (Z N) x), <- M.
+    rewrite <- (to_ring_involutive (Z N) x), <- M.
     symmetry.
     apply_simplified (theory.naturals.to_semiring_unique Int (integers_to_ring (Z N) Int ∘ naturals_to_semiring N (Z N))).
-   rewrite <- (iso_ints (Z N) x), <- M.
+   rewrite <- (to_ring_involutive (Z N) x), <- M.
    pose proof (_: Ring_Morphism (integers_to_ring (Z N) Int)).
    rewrite preserves_inv. 
    apply inv_proper. symmetry.
@@ -403,7 +403,7 @@ Section more. Context `{Integers Int}.
   Global Instance: TotalOrder (_: Order Int).
   Proof with auto; try apply _.
    intros x y.
-   rewrite <- (iso_ints (Z nat) x), <- (iso_ints (Z nat) y).
+   rewrite <- (to_ring_involutive (Z nat) x), <- (to_ring_involutive (Z nat) y).
    destruct (total_order (integers_to_ring Int (Z nat) x) (integers_to_ring Int (Z nat) y));
      [left | right]; apply (preserve_sr_order _)...
   Qed.
@@ -415,7 +415,7 @@ Section more. Context `{Integers Int}.
    end.
 
   Next Obligation.
-   change (x ≤ y). rewrite <- (iso_ints (Z nat) x), <- (iso_ints (Z nat) y).
+   change (x ≤ y). rewrite <- (to_ring_involutive (Z nat) x), <- (to_ring_involutive (Z nat) y).
    apply (preserve_sr_order _). assumption.
   Qed. 
 
