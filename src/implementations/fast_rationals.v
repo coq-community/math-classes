@@ -5,8 +5,6 @@ Module BigQ_Rationals := QType_Rationals BigQ.
 
 Definition fastQ: Type := BigQ.t.
 
-Instance: Rationals fastQ := _.
-
 Opaque fastQ.
 (* This doesn't actually do much; see Coq bug # 2074. *)
 (* Print Assumptions fastQ. *)

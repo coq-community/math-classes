@@ -12,16 +12,23 @@ Require Import
   interfaces.additional_operations theory.additional_operations
   theory.integers theory.rings theory.fields.
 
+Record Dyadic Z N := dyadic { mant: Z; expo: N }.
+Implicit Arguments dyadic [[Z] [N]].
+Implicit Arguments mant [[Z] [N]].
+Implicit Arguments expo [[Z] [N]].
+
+Infix "#" := dyadic (at level 80).
+
 Section dyadics.
-  Context `{Integers Z} `{Naturals N}.
+  Context `{Integers Z} `{!SemiRing Z} `{Naturals N}.
+  (* The Semiring is necesarry because Coq otherwise picks a stupid SemiRing instance for NatPow *)
+
   Add Ring Z: (rings.stdlib_ring_theory Z).
   Add Ring N: (rings.stdlib_semiring_theory N).
 
   Context `{!NatPow Z N} `{sl : !ShiftLeft Z N}.
 
-  (** * Definition *)
-  Record Dyadic := dyadic { mant: Z; expo: N }.
-  Infix "#" := dyadic (at level 80).
+  Let Dyadic := Dyadic Z N.
 
   (** * Equality *)
   Global Instance dy_eq: Equiv Dyadic := λ x y,
@@ -92,7 +99,7 @@ Section dyadics.
     Timeout 5 repeat rewrite shiftl_sum_base.
     Timeout 10 repeat rewrite shiftl_sum_exp.
     apply sg_mor.
-    rewrite shiftl_order_4a. rewrite E2. rewrite shiftl_order_4b...
+    rewrite shiftl_order_4a. rewrite E2. rewrite (shiftl_order_4b _ (expo y2) _ _)...
     rewrite shiftl_order_4b. rewrite E1. rewrite (shiftl_order (mant x1))...
   Qed.
 
