@@ -6,7 +6,7 @@ Require Import
   BinInt Morphisms Ring Arith
   abstract_algebra interfaces.integers
   theory.categories theory.rings 
-  signed_binary_positives. 
+  signed_binary_positives.
 
 (* canonical names: *)
 Instance z_equiv: Equiv BinInt.Z := eq.
@@ -168,7 +168,7 @@ Qed.
 
 Instance: Integers Z.
 
-(* The Peano naturals can be embedded into Z *)
+(* * Embedding of the Peano naturals into Z *)
 Instance: Proper ((=) ==> (=)) Z_of_nat.
 Proof.
   intros x y E.
@@ -182,9 +182,9 @@ Proof.
   exact Znat.inj_mult.
 Qed.
 
-(* Relate <= on Z to our ≤ *)
+(* * The order <= from the stdlib corresponds to our ≤ *)
 (* Figure out whether the standard library contains lemmas to make the following proofs shorter.
-  There should be, because these proofs look horrible... *)
+  Hopefully such lemmas exist, because these proofs look horrible... *)
 Lemma sr_precedes_Zle (x y : Z) : x ≤ y → (x <= y)%Z.
 Proof with auto with zarith.
   intros [z Ez].
@@ -202,7 +202,7 @@ Proof with auto with zarith.
   destruct (Zorder.Zle_lt_or_eq x y E) as [E2 | E2].
   destruct (Zcompare.Zcompare_Gt_spec y x) as [z Ez].
     apply Zcompare.Zcompare_Gt_Lt_antisym.
-    pose proof (Zcompare.Zlt_compare x y E2). 
+    pose proof (Zcompare.Zlt_compare x y E2).
     destruct ((x ?= y)%Z); try contradiction...
   exists (nat_of_P z).
   rewrite <-(theory.naturals.to_semiring_unique Z Z_of_nat)...
@@ -211,4 +211,18 @@ Proof with auto with zarith.
   exists (0%nat).
   rewrite <-(theory.naturals.to_semiring_unique Z Z_of_nat)...
   rewrite Znat.inj_0. rewrite E2. apply Zplus_0_r.
+Qed.
+
+Lemma sr_precedes_Zlt (x y : Z) : x < y → (x < y)%Z.
+Proof with auto.
+  intros [E1 E2].
+  destruct (Zorder.Zle_lt_or_eq x y)... apply sr_precedes_Zle...
+  contradiction.
+Qed.
+
+Lemma Zlt_sr_precedes (x y : Z) : (x < y)%Z → x < y.
+Proof with auto.
+  intros E.
+  split. apply Zle_sr_precedes, Zorder.Zlt_le_weak...
+  apply Zorder.Zlt_not_eq...
 Qed.

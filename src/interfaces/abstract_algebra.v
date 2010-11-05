@@ -82,66 +82,11 @@ Implicit Arguments field_0neq1 [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_i
 Implicit Arguments mult_inverse [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv0] [Field]].
 Implicit Arguments sg_mor [[A] [e] [op] [SemiGroup]].
 
-Section ring_minus.
-  Context R `{r : Ring R}.
-  Class RingMinus := ring_minus_sig: ∀ x y : R, { z: R |  z = x + -y }.
-  Global Program Instance: RingMinus | 10 := λ x y, x + -y.
-  Next Obligation. reflexivity. Qed.
-End ring_minus.
-
-Definition ring_minus `{RingMinus R} : R → R → R := λ x y, proj1_sig (ring_minus_sig R x y).
-Infix "-" := ring_minus.
-
-Section ring_minus_properties.
-  Context `{Ring R} `{minus : !RingMinus R}.
-
-  Lemma ring_minus_correct x y : x - y = x + -y.
-  Proof.
-    unfold ring_minus. unfold ring_minus_sig. 
-    destruct minus as [z E]. simpl. auto.
-  Qed.
-
-  Global Instance: Proper ((=) ==> (=) ==> (=)) ring_minus.
-  Proof.
-    intros x1 y1 E1 x2 y2 E2.
-    rewrite ring_minus_correct. rewrite ring_minus_correct.
-    rewrite E1, E2. reflexivity.
-  Qed.
-End ring_minus_properties.
-
-Section field_div.
-  Context R `{Field R}.
-  Class FieldDiv := field_div_sig: ∀ (x : R) (y : { x: R | x ≠ zero }), { z: R |  z = x * //y }.
-  (* Extend program *)
-  Global Program Instance: FieldDiv | 10 := λ x y, x * //(proj1_sig y).
-  Next Obligation. reflexivity. Qed.
-End field_div.
-
-Definition field_div `{FieldDiv R}: R → { x: R | x ≠ zero } → R 
-  := λ x y, proj1_sig (field_div_sig R x y).
-Infix "/" := field_div.
-
-Section field_div_properties.
-  Context `{Field R} `{div : !FieldDiv R}.
-  Lemma field_div_correct x y : x / y = x * //y.
-  Proof.
-    unfold field_div. unfold field_div_sig. 
-    destruct div as [z E]. simpl. auto.
-  Qed.
-
-  Global Instance: Proper ((=) ==> (=) ==> (=)) field_div.
-  Proof.
-    intros x1 y1 E1 x2 y2 E2.
-    rewrite (field_div_correct x1 x2). rewrite (field_div_correct y1 y2).
-    rewrite E1, E2. reflexivity.
-  Qed.
-End field_div_properties.
-
 Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
-  { equ:> Equivalence e
-  ; partialorder_proper:> Proper (e ==> e ==> iff) R
-  ; partial_preorder:> PreOrder R
-  ; partial_antisym:> AntiSymmetric R }.
+  { poset_setoid :> Equivalence e
+  ; poset_proper:> Proper (e ==> e ==> iff) R
+  ; poset_preorder:> PreOrder R
+  ; poset_antisym:> AntiSymmetric R }.
 
 Class TotalOrder `(Order A): Prop := total_order: ∀ x y: A, x ≤ y ∨ y ≤ x.
 

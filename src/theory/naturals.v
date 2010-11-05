@@ -45,7 +45,7 @@ Proof.
  apply (to_semiring_involutive _ _).
 Qed.
 
-Lemma to_semiring_twice `{Naturals A} `{Naturals B} `{SemiRing SR} x : 
+Lemma to_semiring_twice A `{Naturals A} B `{Naturals B} SR `{SemiRing SR} x : 
   naturals_to_semiring B SR (naturals_to_semiring A B x) = naturals_to_semiring A SR x.
 Proof.
   replace (naturals_to_semiring B SR (naturals_to_semiring A B x))
@@ -219,6 +219,13 @@ Section borrowed_from_nat.
   Qed.
 
 End borrowed_from_nat.
+
+  Lemma nz_one_plus_zero x : 1 + x ≠ 0.
+  Proof.
+    intro E.
+    destruct (zero_sum 1 x E). 
+    apply zero_ne_one. symmetry. auto.
+  Qed.
 
   Global Instance: AntiSymmetric natural_precedes.
    intros x y [v A] [w B].

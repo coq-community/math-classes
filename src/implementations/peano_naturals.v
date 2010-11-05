@@ -97,15 +97,20 @@ Section contents.
 End contents.
 End for_another_semiring.
 
+Lemma S_nat_plus_1 x : S x ≡ x + 1.
+Proof. rewrite commutativity. reflexivity. Qed.
+
+Lemma S_nat_1_plus x : S x ≡ 1 + x.
+Proof. reflexivity. Qed.
+
 Instance: Initial (semiring.object nat).
 Proof.
   intros. apply natural_initial. intros. 
   intro x. induction x. 
   replace 0%nat with (ring_zero:nat) by reflexivity.
   do 2 rewrite preserves_0. reflexivity.
-  replace (S x) with (1 + x) by reflexivity. 
-  do 2 rewrite preserves_plus.
-  do 2 rewrite preserves_1. 
+  rewrite S_nat_1_plus.
+  do 2 rewrite preserves_plus, preserves_1. 
   rewrite IHx. reflexivity.
 Qed.
 
@@ -114,7 +119,8 @@ Global Instance nat_Naturals: Naturals nat.
 Lemma predefined_le_coincides (x y: nat): (x <= y)%nat → x ≤ y.
 Proof.
  induction 1 as [| n _ [m []]]. reflexivity.
- exists (S m). change (x + (1 + m) = 1 + (x + m)). ring.
+ exists (S m).
+ change (x + (1 + m) = 1 + (x + m)). ring.
 Qed.
 
 Lemma predefined_le_coincides_rev (x y: nat): x ≤ y → (x <= y)%nat.

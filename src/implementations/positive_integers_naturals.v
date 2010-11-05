@@ -1,9 +1,7 @@
 Require Import
   Morphisms Ring Program RelationClasses
   abstract_algebra
-  interfaces.integers
-  interfaces.naturals
-  canonical_names
+  interfaces.integers interfaces.naturals
   theory.integers theory.rings theory.naturals
   orders.semiring
   peano_naturals.
@@ -136,9 +134,63 @@ Qed.
 Global Instance: NaturalsToSemiRing ZPos := theory.naturals.retract_is_nat_to_sr to_nat.
 Global Instance: Naturals ZPos := theory.naturals.retract_is_nat of_nat to_nat of_nat_to_nat.
 
+(* * Embedding of ZPos into Z *)
+Global Instance: SemiRing_Morphism (@proj1_sig Z _).
+Proof with auto; try reflexivity.
+  repeat (split; try apply _); repeat intro; unfold_equivs...
+Qed.
+
+(* Are these lemmas really needed *)
 Lemma ZPos_to_semiring_self x p : naturals_to_semiring ZPos Z (exist _ x p) = x.
 Proof.
   apply abs_nonneg. assumption.
 Qed.
+
+Lemma ZPos_to_semiring_proj_1 x : naturals_to_semiring ZPos Z x = `x.
+Proof.
+  destruct x. simpl. apply ZPos_to_semiring_self.
+Qed.
+
+Lemma ZPos_to_semiring_proj_2 x : 
+  naturals_to_semiring nat Z x = ` (naturals_to_semiring nat ZPos x).
+Proof.
+  rewrite <-ZPos_to_semiring_proj_1.
+  symmetry. apply (to_semiring_twice nat ZPos Z).
+Qed.
+
+Lemma ZPos_to_nat_int_abs x p : naturals_to_semiring ZPos nat (exist _ x p) = int_abs Z nat x.
+Proof.
+  replace (int_abs Z nat x) with (to_nat (exist _ x p)) by reflexivity.
+  apply to_semiring_unique'; apply _.
+Qed.
+
+Lemma ZPos_int_nat_precedes (x y : ZPos) : `x ≤ `y → x ≤ y.
+Proof.
+  intro E. destruct x as [x Ex], y as [y Ey]. simpl in *.
+  destruct E as [z Ez].
+  exists (naturals_to_semiring nat ZPos z).
+  unfold_equivs. rewrite <-ZPos_to_semiring_proj_2.
+  assumption.
+Qed.
+
+Lemma ZPos_nat_int_precedes (x y : ZPos) : x ≤ y → `x ≤ `y.
+Proof with auto.
+  intro E.
+  destruct x as [x Ex], y as [y Ey]. simpl in *.
+  destruct E as [z Ez].
+  exists (to_nat z). destruct z as [z Ez2]. 
+  unfold_equivs. unfold to_nat. simpl.
+  rewrite abs_nonneg...
+Qed.
+
+(* Efficient comparison *)
+Context `{Zdec : ∀ x y : Z, Decision (x ≤ y)}.
+Global Instance: ∀ x y: ZPos, Decision (x ≤ y).
+Proof with auto.
+  intros x y.
+  destruct (Zdec (`x)  (`y)) as [El | Er]. 
+  left. apply ZPos_int_nat_precedes...
+  right. intro E. apply Er. apply ZPos_nat_int_precedes...
+Defined.
 
 End positive_integers_naturals.

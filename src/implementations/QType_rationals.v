@@ -1,11 +1,12 @@
 Set Automatic Introduction.
 
 Require
- setoids fields stdlib_rationals signed_binary_positive_integers.
+  setoids fields stdlib_rationals.
 
 Require Import
- QArith QSig Program
- jections interfaces.integers canonical_names abstract_algebra interfaces.rationals.
+  QArith QSig Program
+  jections abstract_algebra 
+  interfaces.integers interfaces.rationals interfaces.additional_operations.
 
 Module QType_Rationals (Import anyQ: QType).
 

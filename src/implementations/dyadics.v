@@ -8,9 +8,8 @@
 Require Import
   Morphisms Ring Program RelationClasses
   abstract_algebra 
-  canonical_names 
   interfaces.integers interfaces.naturals interfaces.rationals
-  interfaces.bit_shift
+  interfaces.additional_operations theory.additional_operations
   theory.integers theory.rings theory.fields.
 
 Section dyadics.
@@ -18,10 +17,7 @@ Section dyadics.
   Add Ring Z: (rings.stdlib_ring_theory Z).
   Add Ring N: (rings.stdlib_semiring_theory N).
 
-  (* Without this Instance many rewrites result in an seeminly infinite loop... *)
-  Context `{sl : !ShiftLeft Z N}.
-  Instance: Proper ((=) ==> (=) ==> (=)) (@shiftl Z N _ _ _ _ _ _). 
-  Proof.  apply _. Qed.
+  Context `{!NatPow Z N} `{sl : !ShiftLeft Z N}.
 
   (** * Definition *)
   Record Dyadic := dyadic { mant: Z; expo: N }.
@@ -73,7 +69,7 @@ Section dyadics.
 
   (* the Timeouts are present to detect possible hangs caused by rewrite *)
   Global Instance: Associative dy_plus.
-  Proof with auto; try ring.
+  Proof with try ring; try reflexivity.
     repeat intro. unfold dy_plus, equiv, dy_eq. simpl. 
     apply shiftl_proper...
     Timeout 5 repeat rewrite shiftl_sum_exp.
@@ -104,7 +100,7 @@ Section dyadics.
 
   Lemma dyadic_left_identity (x : Dyadic) : 0 + x = x.
   Proof with try reflexivity.
-    unfold equiv, dy_eq, sg_op, dy_plus. simpl.
+    unfold equiv, dy_eq, sg_op, dy_plus. simpl. 
     rewrite left_identity. rewrite right_identity. rewrite left_absorb. rewrite right_identity...
   Qed.
 
