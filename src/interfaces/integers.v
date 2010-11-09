@@ -52,7 +52,3 @@ Section specializable.
 End specializable.
 
 Instance: Params (@int_abs) 10.
-
-Instance integer_precedes `{Integers Int}: Order Int := sr_precedes.
-
-Instance: Params (@integer_precedes) 9.

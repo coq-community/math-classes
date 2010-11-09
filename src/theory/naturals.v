@@ -59,28 +59,6 @@ Proof.
   apply to_semiring_unique; apply _.
 Qed.
 
-Instance: Params (@natural_precedes) 8.
-Instance: Params (@precedes) 2.
-
-Lemma preserves_naturals_order_back `{Naturals A} `{Naturals B} (f: A → B) `{!SemiRing_Morphism f} (x y: A): 
-  f x ≤ f y → x ≤ y.
-Proof.
- intros.
- pose proof (_: Proper ((=) ==> (=) ==> iff) precedes).
- pose proof (naturals_to_semiring_mor B A _).
- rewrite <- (morphisms_involutive (naturals_to_semiring _ _) f y).
- rewrite <- (morphisms_involutive (naturals_to_semiring _ _) f x).
- apply preserves_sg_order. apply _.
- assumption.
-Qed.
-
-Lemma preserves_naturals_order `{Naturals A} `{Naturals B} (f: A → B) `{!SemiRing_Morphism f} (x y: A): 
-  x ≤ y ↔ f x ≤ f y.
-Proof.
- split. apply preserves_sg_order. apply _.
- apply preserves_naturals_order_back. apply _.
-Qed.
-
 Section contents.
 
 Context `{Naturals N}.
@@ -128,13 +106,6 @@ Section borrowed_from_nat.
 
   Import universal_algebra.
   Import notations.
-
-  Global Instance: TotalOrder (natural_precedes (N:=N)).
-  Proof.
-   intros x y. 
-   destruct (total_order (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y)); [left | right];
-    rewrite <- preserves_naturals_order in H0; try apply _; assumption. 
-  Qed.
 
   Lemma induction
     (P: N → Prop) `{!Proper (equiv ==> iff)%signature P}:
@@ -227,41 +198,7 @@ End borrowed_from_nat.
     apply zero_ne_one. symmetry. auto.
   Qed.
 
-  Global Instance: AntiSymmetric natural_precedes.
-   intros x y [v A] [w B].
-   rewrite <- A in *. clear A.
-   change (x + v + w = x) in B.
-   change (x = x + v).
-   rewrite <- associativity in B.
-   assert (v + w = 0) as C.
-    apply (injective (ring_plus x)). rewrite plus_0_r. assumption.
-   destruct (zero_sum v w C) as [D _]. rewrite D.
-   ring.
-  Qed.
-
-  Global Instance: PartialOrder natural_precedes.
-
   Obligation Tactic := idtac.
-
-  Global Program Instance: ∀ x y: N, Decision (x ≤ y) | 10 :=
-    λ x y,
-    match decide (natural_precedes (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y)) with
-    | left E => left _
-    | right E => right _
-    end.
-
-  Next Obligation.
-   intros.
-   apply (preserves_naturals_order (naturals_to_semiring N nat) x y).
-   assumption. 
-  Qed.
-
-  Next Obligation.
-   intros x y _ E _ ?. apply E.
-   apply (preserves_naturals_order (naturals_to_semiring N nat) x y).
-   assumption. 
-  Qed.
-
   Global Program Instance: ∀ x y: N, Decision (x = y) | 10 :=
     λ x y,
     match Peano_dec.eq_nat_dec (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y) with
@@ -285,21 +222,6 @@ End borrowed_from_nat.
    destruct (decide (a = 0))...
    destruct (decide (b = 0))...
    exfalso. apply (nz_mult_nz b a)...
-  Qed.
-
-  Lemma le_mult_compat_inv_l (x x' y: N): y ≠ 0 → x * y ≤ x' * y → x ≤ x'.
-  Proof.
-   destruct (total_order x x') as [|[z E]]. intuition.
-   rewrite <- E. clear E x.
-   unfold precedes, natural_precedes, orders.semigroup.sg_precedes.
-   intros ne [v F]. exists 0.
-   apply (mult_injective y ne).
-   destruct (zero_sum (z * y) v) as [A _].
-    apply (injective (ring_plus (x' * y))). 
-    change ((x' + z) * y + v = x' * y) in F.
-    rewrite <- F at 2. ring.
-   change (y * (x' + z + 0) = y * x').
-   ring_simplify. rewrite (commutativity y z), A. ring.
   Qed.
 
   (* NatDistance instances are all equivalent, because their behavior is fully

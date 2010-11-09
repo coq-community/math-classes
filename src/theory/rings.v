@@ -195,11 +195,7 @@ Section ringmor_props. Context `{Ring_Morphism A B f}.
 
 End ringmor_props.
 
-Module from_stdlib_ring_theory.
- (* Without this module wrapping, the [Add Ring] below gives an error about some
-  internal name conflict. Todo: report. *)
-Section contents.
-
+Section from_stdlib_ring_theory.
   Context
     `{H: @ring_theory R zero one pl mu mi op e}
     `{!@Setoid R e}
@@ -207,7 +203,7 @@ Section contents.
     `{!Proper (e ==> e ==> e) mu}
     `{!Proper (e ==> e) op}.
 
-  Add Ring R: H.
+  Add Ring R2: H.
 
   Definition from_stdlib_ring_theory: @Ring R e pl mu zero one op.
   Proof.
@@ -215,7 +211,6 @@ Section contents.
    ; unfold equiv, mon_unit, sg_op, group_inv; ring.
   Qed.
 
-End contents.
 End from_stdlib_ring_theory.
 
 Section morphism_composition.

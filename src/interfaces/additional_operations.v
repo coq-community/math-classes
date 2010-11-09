@@ -25,22 +25,33 @@ Class ShiftLeft A B `{SemiRing A} `{Naturals B} `{!NatPow A B} := shiftl_sig: �
 Definition shiftl `{ShiftLeft A B}: A → B → A := λ x y, ` (shiftl_sig x y).
 Infix "≪" := shiftl (at level 33, left associativity).
 
-Class Log `(b : A) B `{SemiRing A} `{Order A} `{Naturals B} `{!NatPow A B} :=
+Class Log `(b : A) B `{SemiRing A} `{Naturals B} `{!NatPow A B} :=
   log_sig: ∀ (x : {z : A | 0 < z }), { z: B | b ^ z ≤ `x < b ^ (z + 1) }.
 Definition log  `(b : A) `{Log A b N}: {z | 0 < z } → N := λ x, ` (log_sig x).
 
-Section euclid.
-  Context Z `{Integers Z}.
-  
-  (* Our abs operation is of type Z → N and therefore quite annoying for this definition *)
-  Class Euclid a (b : { z : Z | z ≠ 0}) q r := 
-    euclid : a = `b * q + r ∧ (0 ≤ r < `b ∨ `b < r ≤ 0).
+(* Our abs operation is of type Z → N and therefore quite annoying for this definition *)
+Class Euclid `{SemiRing A} a (b : { z : A | z ≠ 0}) q r := 
+  euclid : a = `b * q + r ∧ (0 ≤ r < `b ∨ `b < r ≤ 0).
 
-  Class DivEuclid := div_euclid_sig (a : Z) (b : { z : Z | z ≠ 0}) : 
-    { q : Z | ∃ r, Euclid a b q r }.
-  Class ModEuclid := mod_euclid_sig (a : Z) (b : { z : Z | z ≠ 0}) : 
-    { r : Z | ∃ q, Euclid a b q r }.
-End euclid.
+Class DivEuclid A `{SemiRing A} := div_euclid_sig (a : A) (b : { z : A | z ≠ 0}) : 
+  { q : A | ∃ r, Euclid a b q r }.
+Class ModEuclid A `{SemiRing A} := mod_euclid_sig (a : A) (b : { z : A | z ≠ 0}) : 
+  { r : A | ∃ q, Euclid a b q r }.
 
-Definition div_euclid `{DivEuclid}: Z → { z : Z | z ≠ 0} → Z := λ x y, ` (div_euclid_sig Z x y).
-Definition mod_euclid `{ModEuclid}: Z → { z : Z | z ≠ 0} → Z := λ x y, ` (mod_euclid_sig Z x y).
+Definition div_euclid `{DivEuclid A}: A → { z : A | z ≠ 0} → A := λ x y, ` (div_euclid_sig x y).
+Definition mod_euclid `{ModEuclid A}: A → { z : A | z ≠ 0} → A := λ x y, ` (mod_euclid_sig x y).
+
+Class ShiftRight A B `{SemiRing A} `{Naturals B} `{!NatPow A B} 
+  := shiftr_sig: ∀ (x : A) (y : B), { z: A | x ≤ z * 2 ^ y < x }.
+
+Definition shiftr `{ShiftRight A B}: A → B → A := λ x y, proj1_sig (shiftr_sig x y).
+Infix "≫" := shiftr (at level 33, left associativity).
+
+Class CutMinus A `{SemiRing A} := 
+  cut_minus_sig: ∀ (x y : A), { z: A | (y ≤ x → z + y = x) ∧ (¬ y ≤ x → z =0) }.
+Definition cut_minus `{m : CutMinus A} : A → A → A := λ x y, ` (cut_minus_sig x y).
+Infix "∸" := cut_minus (at level 50, left associativity).
+
+Class Minimum A `{SemiRing A} := 
+  minimum_sig: ∀ (x y : A), { z: A | (y ≤ x → z = y) ∧ (¬ y ≤ x → z = x) }.
+Definition minimum `{Minimum A} : A → A → A := λ x y, ` (minimum_sig x y).

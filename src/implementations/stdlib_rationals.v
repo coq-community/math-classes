@@ -21,7 +21,7 @@ Instance: Field Q.
 Proof @theory.fields.from_stdlib_field_theory.from_stdlib_field_theory _ _ _ _ _ _ _ _ _ _ Qfield.Qsft _ _ _ _ _.
 
 (* order: *)
-
+(*
 Instance: Transitive Qle := Qle_trans.
 Instance: Reflexive Qle := Qle_refl.
 Instance Qle_PreOrder: PreOrder Qle.
@@ -38,11 +38,12 @@ Proof with auto.
 Qed.
 
 Instance: OrdField Q.
-
+*)
 (* misc: *)
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 
-Instance: Proper (equiv ==> equiv) inject_Z. Proof. intros x y H. rewrite H. reflexivity. Qed.
+Instance: Proper ((=) ==> (=)) inject_Z. 
+Proof. intros x y H. rewrite H. reflexivity. Qed.
 
 Instance: Setoid_Morphism inject_Z.
 

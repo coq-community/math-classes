@@ -6,21 +6,20 @@ Require Import
   orders.semiring
   peano_naturals.
 
+Definition Pos R `{RingZero R} `{Order R} := { z : R | 0 ≤ z }.
+
 Section positive_integers_naturals.
 Context Z `{Integers Z}.
 
 Add Ring Z: (stdlib_ring_theory Z).
 
-Definition ZPos := { z : Z | 0 ≤ z }.
-
-Local Ltac unfold_equivs := unfold equiv, sig_equiv, sig_relation in *; simpl in *.
+Let ZPos := Pos Z.
 
 (* Operations *)
 Global Program Instance ZPos_plus: RingPlus ZPos := λ x y, exist _ (`x + `y) _. 
 Next Obligation with auto.
   destruct x as [x Hx], y as [y Hy].
-  simpl. unfold "≤".  unfold integer_precedes. 
-  apply sr_precedes_nonneg_plus_compat...
+  simpl. apply sr_precedes_nonneg_plus_compat...
 Qed.
 
 Global Program Instance ZPos_mult: RingMult ZPos := λ x y, exist _ (`x * `y) _. 
@@ -34,7 +33,11 @@ Next Obligation. reflexivity. Qed.
 
 Global Program Instance ZPos_1: RingOne ZPos := exist _ 1 _.
 Next Obligation. apply sr_precedes_0_1. Qed.
- 
+
+Global Instance ZPos_equiv: Equiv ZPos := λ x y, `x = `y.
+
+Local Ltac unfold_equivs := unfold equiv, ZPos_equiv in *; simpl in *.
+
 Global Instance: Proper (equiv ==> equiv ==> equiv) ZPos_plus.
 Proof.
   intros [x1 Ex1] [y1 Ey1] E1 [x2 Ex2] [y2 Ey2] E2. unfold_equivs. 
@@ -94,7 +97,7 @@ Proof.
   rewrite E. reflexivity.
 Qed.
 
-Instance: SemiRing_Morphism to_nat.
+Instance ZPos_to_nat_sr_morphism: SemiRing_Morphism to_nat.
 Proof with auto.
   repeat (split; try apply _). 
 
@@ -161,26 +164,23 @@ Qed.
 Lemma ZPos_to_nat_int_abs x p : naturals_to_semiring ZPos nat (exist _ x p) = int_abs Z nat x.
 Proof.
   replace (int_abs Z nat x) with (to_nat (exist _ x p)) by reflexivity.
-  apply to_semiring_unique'; apply _.
+  apply to_semiring_unique'. apply _. apply ZPos_to_nat_sr_morphism.
 Qed.
 
 Lemma ZPos_int_nat_precedes (x y : ZPos) : `x ≤ `y → x ≤ y.
 Proof.
-  intro E. destruct x as [x Ex], y as [y Ey]. simpl in *.
-  destruct E as [z Ez].
-  exists (naturals_to_semiring nat ZPos z).
+  intros [z Ez].
+  exists z.
   unfold_equivs. rewrite <-ZPos_to_semiring_proj_2.
   assumption.
 Qed.
 
 Lemma ZPos_nat_int_precedes (x y : ZPos) : x ≤ y → `x ≤ `y.
 Proof with auto.
-  intro E.
-  destruct x as [x Ex], y as [y Ey]. simpl in *.
-  destruct E as [z Ez].
-  exists (to_nat z). destruct z as [z Ez2]. 
-  unfold_equivs. unfold to_nat. simpl.
-  rewrite abs_nonneg...
+  intros [z Ez].
+  exists z.
+  unfold_equivs. rewrite <-ZPos_to_semiring_proj_2 in Ez.
+  assumption.
 Qed.
 
 (* Efficient comparison *)

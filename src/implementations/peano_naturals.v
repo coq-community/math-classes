@@ -1,16 +1,9 @@
 (* This module should never be Import-ed, only Require-d. *)
 
-Set Automatic Introduction.
-Set Automatic Coercions Import.
-
-Require Import
-  theory.categories.
-
 Require ua_homomorphisms.
-
 Require Import
   Morphisms Ring
-  abstract_algebra interfaces.naturals theory.rings.
+  abstract_algebra interfaces.naturals theory.rings theory.categories.
 
 Instance nat_equiv: Equiv nat := eq.
 
@@ -118,9 +111,11 @@ Global Instance nat_Naturals: Naturals nat.
 
 Lemma predefined_le_coincides (x y: nat): (x <= y)%nat → x ≤ y.
 Proof.
- induction 1 as [| n _ [m []]]. reflexivity.
+ induction 1 as [| n _ [m []]]. exists 0. rewrite preserves_0. ring.
  exists (S m).
- change (x + (1 + m) = 1 + (x + m)). ring.
+ change (x + naturals_to_semiring nat nat (1 + m) =
+    1 + (x + naturals_to_semiring nat nat m)).
+ rewrite preserves_plus, preserves_1. ring. 
 Qed.
 
 Lemma predefined_le_coincides_rev (x y: nat): x ≤ y → (x <= y)%nat.
@@ -137,14 +132,14 @@ Next Obligation.
  apply predefined_le_coincides_rev. assumption.
 Qed. 
 
-Instance: TotalOrder natural_precedes.
+Instance: TotalOrder (sr_precedes (R:=nat)).
 Proof.
  intros x y. destruct (Compare_dec.le_lt_dec x y); [left | right];
   apply predefined_le_coincides; auto with arith.
 Qed.
 
 Program Instance: NatDistance nat := λ x y: nat,
-  if decide (natural_precedes x y) then minus y x else minus x y.
+  if decide (x ≤ y) then minus y x else minus x y.
 
 Next Obligation. destruct H as [x0 []]. left. rewrite Minus.minus_plus. reflexivity. Qed.
 

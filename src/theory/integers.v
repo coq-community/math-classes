@@ -1,7 +1,4 @@
 (* General results about arbitrary integer implementations. *)
-
-Set Automatic Introduction.
-
 Require Export
  interfaces.integers.
 Require
@@ -9,11 +6,10 @@ Require
 Require Import
  RelationClasses Morphisms Ring Program
  interfaces.naturals abstract_algebra orders.semiring theory.rings
- natpair_integers canonical_names workaround_tactics.
+ natpair_integers workaround_tactics.
 
 Hint Immediate @neg_precedes_pos @preserves_0 @preserves_nonneg @zero_sr_precedes_nat.
 Hint Resolve @neg_precedes_pos @preserves_0 @preserves_nonneg @zero_sr_precedes_nat.
-Hint Unfold precedes integer_precedes.
 
 (* Any two integer implementations are trivially isomorphic because of their initiality,
  but it's nice to have this stated in terms of integers_to_ring being self-inverse: *)
@@ -123,7 +119,7 @@ Section contents.
    unfold compose. rewrite E. reflexivity.
   Qed.
 
-  Instance: AntiSymmetric integer_precedes.
+  Instance: AntiSymmetric (sr_precedes (R:=Int)).
   Proof with ring.
    intros x y [v p] [w q]. rewrite <- p in *.
    destruct (theory.naturals.zero_sum v w) as [B _].
@@ -134,7 +130,7 @@ Section contents.
    rewrite B, preserves_0...
   Qed.
 
-  Global Instance: PartialOrder integer_precedes.
+  Global Instance: PartialOrder (sr_precedes (R:=Int)).
 
   Global Instance: ZeroNeOne Int.
   Proof with auto.
@@ -150,11 +146,11 @@ Section contents.
    apply (injective (naturals_to_semiring N Int)).
    destruct o as [A | A], o0 as [B | B]; rewrite <- A in B; clear A.
       symmetry...
-     apply (antisymmetry integer_precedes). rewrite <- B...
+     apply (antisymmetry (≤)). rewrite <- B. apply neg_precedes_pos.
      apply <- precedes_flip. rewrite B...
-    apply (antisymmetry integer_precedes).
+    apply (antisymmetry (≤)).
      apply <- precedes_flip. rewrite <- B...
-    rewrite B...
+    rewrite B. apply neg_precedes_pos.
    apply (injective group_inv). symmetry...
   Qed.
 
@@ -185,9 +181,9 @@ Section contents.
    unfold int_abs.
    apply (injective (naturals_to_semiring N Int)).
    destruct int_abs_sig as [x [A | B]]... simpl.
-   apply (antisymmetry integer_precedes).
+   apply (antisymmetry (≤)).
     apply <- precedes_flip. rewrite B...
-   rewrite <- B...
+   rewrite <- B. apply neg_precedes_pos.
   Qed. 
   
   Lemma abs_opp_nat (n: N): int_abs Int N (- naturals_to_semiring N Int n) = n.
@@ -195,8 +191,8 @@ Section contents.
    apply (injective (naturals_to_semiring N Int)). 
    unfold int_abs. 
    destruct int_abs_sig as [x [A | B]]; simpl.
-    apply (antisymmetry integer_precedes). rewrite A...
-    apply <- precedes_flip. rewrite <- A...
+    apply (antisymmetry (≤)). rewrite A. apply neg_precedes_pos.
+    apply <- precedes_flip. rewrite <- A. apply neg_precedes_pos.
    apply (injective group_inv)...
   Qed. 
   
@@ -204,14 +200,14 @@ Section contents.
     - naturals_to_semiring N Int x = naturals_to_semiring N Int y → x = 0 ∧ y = 0.
   Proof with eauto.
    intro E.
-   split; apply (injective (naturals_to_semiring N Int)); apply (antisymmetry integer_precedes).
+   split; apply (injective (naturals_to_semiring N Int)); apply (antisymmetry (≤)).
       apply <- precedes_flip. rewrite E...
      rewrite preserves_0...
     rewrite <- E...
    rewrite preserves_0...
   Qed. 
   
-  Global Instance int_abs_proper: Proper (equiv ==> equiv) (int_abs Int N).
+  Global Instance int_abs_proper: Proper ((=) ==> (=)) (int_abs Int N).
   Proof with eauto; try reflexivity.
    intros z z' E.
    unfold int_abs.
@@ -231,7 +227,7 @@ Section contents.
    apply (injective (naturals_to_semiring N Int)).
    posed_rewrite (theory.naturals.to_semiring_unique Int (naturals_to_semiring N Int ∘ naturals_to_semiring N' N) n).
    destruct o...
-   apply (antisymmetry integer_precedes).
+   apply (antisymmetry (≤)).
     apply <- precedes_flip. rewrite H3...
    rewrite <- H3...
   Qed.
@@ -240,7 +236,7 @@ Section contents.
   Proof with auto.
     intros E. 
     apply (injective (naturals_to_semiring N Int)).
-    apply (antisymmetry integer_precedes).
+    apply (antisymmetry (≤)).
     apply <- precedes_flip. rewrite preserves_0. rewrite opp_0...
     rewrite preserves_0. apply zero_sr_precedes_nat.
   Qed.
@@ -369,7 +365,7 @@ Section preservation. Context `{Integers A} `{Integers B} (f: A → B) `{!Ring_M
      pose proof (@neg_precedes_pos B _ _ _ _ _ _ _ N).
      assert (∀ (x0 x: N), - NB x0 = f x → f x = x0); unfold NA, NB in *.
       intros x0 x P.
-      apply (antisymmetry integer_precedes).
+      apply (antisymmetry (≤)).
        apply <- (@precedes_flip B _ _ _ _ _ _ _).
        rewrite <- P, inv_involutive...
       transitivity (0:B)...
@@ -386,9 +382,8 @@ Section preservation. Context `{Integers A} `{Integers B} (f: A → B) `{!Ring_M
 
   End with_naturals.
 
-  Lemma preserve_sr_order (x y: A): sr_precedes x y → sr_precedes (f x) (f y).
+  Lemma preserve_sr_order (x y: A): x ≤ y → f x ≤ f y.
   Proof. intros [z p]. 
-   unfold sr_precedes. 
    exists (int_abs _ _ (f (naturals_to_semiring nat A z))).
    rewrite <- preserves_abs.
    rewrite <- p, preserves_sg_op, abs_nat. reflexivity.
@@ -423,7 +418,7 @@ Section more. Context `{Integers Int}.
    intro. apply E. apply (preserve_sr_order _). assumption.
   Qed.
 
-  Global Instance le_mult_compat_r (x: Int) (xnonneg: 0 ≤ x): Proper (integer_precedes ==> integer_precedes) (ring_mult x).
+  Global Instance le_mult_compat_r (x: Int) (xnonneg: 0 ≤ x): Proper ((≤) ==> (≤)) (ring_mult x).
   Proof.
    intros y y'.
    destruct xnonneg as [z E]. rewrite <- E. clear E x.

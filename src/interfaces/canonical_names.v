@@ -48,6 +48,7 @@ Implicit Arguments ring_mult_inverse [[R] [RingMultInverse]].
 Implicit Arguments cat_id [[O] [H] [CatId] [x]].
 Implicit Arguments decide [[Decision]].
 
+Instance: Params (@precedes) 2.
 Instance: Params (@ring_mult) 2.
 Instance: Params (@ring_plus) 2.
 Instance: Params (@equiv) 2.
@@ -72,7 +73,9 @@ Notation "( x *)" := (ring_mult x) (only parsing).
 Notation "- x" := (group_inv x).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
 Infix "≤" := precedes.
+Notation "(≤)" := precedes (only parsing).
 Infix "<" := precedes_neq.
+Notation "(<)" := precedes_neq (only parsing).
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z) (at level 70, y at next level).
 Notation "x ≤ y < z" := (x ≤ y /\ y < z) (at level 70, y at next level).
 Notation "x < y < z" := (x < y /\ y < z) (at level 70, y at next level).

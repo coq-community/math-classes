@@ -2,8 +2,7 @@ Set Automatic Coercions Import.
 
 Require Import
  Relation_Definitions Morphisms
- abstract_algebra theory.categories
- orders.semigroup.
+ abstract_algebra theory.categories.
 Require
  varieties.semiring categories.variety.
 
@@ -59,18 +58,19 @@ Class NatDistance N `{Equiv N} `{RingPlus N}
 
 (* Order: *)
 
-Instance natural_precedes `{Naturals N}: Order N := sg_precedes.
-
 (* The following NaturalsToSemiRing instance really belongs in implementations.peano_naturals, but
  having it there would mean that sr_precedes (and things built on it, like interfaces.integers must also
  depend on that implementation, which is undesireable. *)
 
-Instance nat_to_semiring: NaturalsToSemiRing nat :=
+Instance: NaturalsToSemiRing nat :=
   λ _ _ _ _ _, fix f (n: nat) := match n with 0%nat => 0 | S n' => f n' + 1 end.
 
-(* We make this order a definition because it does not make a lot of sense for 
-  semirings in general. *)
-Definition sr_precedes `{SemiRing R}: Order R :=
-  λ x y: R, exists z: nat, x + naturals_to_semiring nat R z = y.
-
+(* We give this order a low priority because it does not make a lot of sense for 
+  semirings in general. Yet, it makes more sense than sg_precedes, so it has priority
+  9 instead of 10. *)
+Instance sr_precedes `{SemiRing R} : Order R | 9 :=
+  λ x y: R, ∃ z: nat, x + naturals_to_semiring nat R z = y.
 Instance: Params (@sr_precedes) 7.
+
+(* Notice that it is also possible to use sg_precedes instead of sr_precedes for the naturals.
+  However, now we have the same order for the naturals and the integers *)

@@ -166,7 +166,7 @@ Next Obligation with auto.
 Qed.
 
 (* Efficient division *)
-Global Instance Ztype_euclid (x :t) (y : {z : t | z ≠ 0}) : Euclid t x y (div x (`y)) (modulo x (`y)).
+Global Instance Ztype_euclid (x :t) (y : {z : t | z ≠ 0}) : Euclid x y (div x (`y)) (modulo x (`y)).
 Proof with auto.
   destruct y as [y Ey].
   split; simpl.

@@ -6,14 +6,13 @@ Require Import
   Relation_Definitions Morphisms Ring Field
   abstract_algebra interfaces.naturals theory.fields theory.rings.
 
-
 Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
 
   Add Ring F: (stdlib_ring_theory F).
     (* Trying to register F as a field fails with an obscure error. Looks like a Coq bug.
      Fortunately we only need [ring] right now. *)
 
-  Instance field_precedes: Order F := λ x y: F,
+  Global Instance field_precedes: Order F | 8 := λ x y: F,
     ∃ num: nat, ∃ den: nat,
      x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den = y.
 
@@ -47,7 +46,7 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
   Context `{!Injective (naturals_to_semiring nat F)}.
 
   Lemma field_precedes_with_nonzero_denominator (x y: F): x ≤ y →
-    exists num: nat, exists den: nat, naturals_to_semiring nat F den ≠ 0 ∧
+    ∃ num: nat, exists den: nat, naturals_to_semiring nat F den ≠ 0 ∧
       x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den = y.
   Proof with auto.
    intros [num [den E]].
@@ -114,7 +113,7 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
 
   Global Instance field_partialorder: PartialOrder field_precedes.
 
-  Lemma ringorder_plus: ∀ `(x ≤ y) z, x + z ≤ y + z.
+  Lemma ringorder_plus: ∀ `(x ≤ y) (z : F), x + z ≤ y + z.
   Proof. intros x y [num [den E]] z. exists num, den. rewrite <- E. ring. Qed.
 
   Lemma ringorder_mult: ∀ x: F, 0 ≤ x → ∀ y: F, 0 ≤ y → 0 ≤ x * y.
