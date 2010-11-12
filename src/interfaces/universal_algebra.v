@@ -96,6 +96,7 @@ Section for_signature. Variable σ: Signature.
     | Eq t (i: Identity t)
     | Impl (a b: Statement)
     | Conj (a b: Statement)
+    | Disj (a b: Statement)
     | Ext (P: Prop).
 
   (* Statements are a strict generalization of EqEntailments. We cannot use the former for the laws,
@@ -225,19 +226,21 @@ Section for_signature. Variable σ: Signature.
        | Impl a b => F a → F b
        | Ext P => P
        | Conj a b => F a ∧ F b
+       | Disj a b => F a ∨ F b
        end.
 
     Global Instance eval_stmt_proper: Proper (equiv ==> eq ==> iff) eval_stmt.
     Proof with auto.
      intros v v' ve s s' se. subst.
-     induction s'; simpl; intuition.
+     induction s'; simpl; try solve [intuition].
+     split; intros E.
       transitivity (eval v (fst i)).
        apply eval_proper... symmetry...
       transitivity (eval v (snd i))...
       apply eval_proper...
      transitivity (eval v' (fst i)).
       apply eval_proper...
-     rewrite H1.
+     rewrite E.
      apply eval_proper... symmetry...
     Qed.
 
