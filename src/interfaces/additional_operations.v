@@ -1,14 +1,6 @@
 Require Import 
   Program Morphisms
-  abstract_algebra interfaces.naturals interfaces.integers.
-
-Class RingMinus R `{r : Ring R} := ring_minus_sig: ∀ x y : R, { z: R |  z = x + -y }.
-Definition ring_minus `{RingMinus R} : R → R → R := λ x y, ` (ring_minus_sig x y).
-Infix "-" := ring_minus.
-
-Class FieldDiv R `{Field R} := field_div_sig: ∀ (x : R) (y : { x: R | x ≠ zero }), { z: R |  z = x * //y }.
-Definition field_div `{FieldDiv R}: R → { x: R | x ≠ zero } → R := λ x y, ` (field_div_sig x y).
-Infix "/" := field_div.
+  abstract_algebra interfaces.naturals.
 
 Inductive nat_pow_spec `{SemiRing A} `{Naturals B} : A → B → A → Prop := 
 | nat_pow_spec_0 : `(nat_pow_spec x 0 1)
@@ -19,11 +11,13 @@ Inductive nat_pow_spec `{SemiRing A} `{Naturals B} : A → B → A → Prop :=
 Class NatPow A B `{SemiRing A} `{Naturals B} := nat_pow_sig (x : A) (n : B) : { y | nat_pow_spec x n y }.
 Definition nat_pow `{NatPow A B}: A → B → A := λ x n, ` (nat_pow_sig x n).
 Infix "^" := nat_pow.
+Notation "(^)" := nat_pow (only parsing).
 
 Class ShiftLeft A B `{SemiRing A} `{Naturals B} `{!NatPow A B} := shiftl_sig: ∀ (x : A) (y : B), 
   { z: A | z = x * 2 ^ y }.
 Definition shiftl `{ShiftLeft A B}: A → B → A := λ x y, ` (shiftl_sig x y).
 Infix "≪" := shiftl (at level 33, left associativity).
+Notation "(≪)" := shiftl (only parsing).
 
 Class Log `(b : A) B `{SemiRing A} `{Naturals B} `{!NatPow A B} :=
   log_sig: ∀ (x : {z : A | 0 < z }), { z: B | b ^ z ≤ `x < b ^ (z + 1) }.
@@ -42,16 +36,15 @@ Definition div_euclid `{DivEuclid A}: A → { z : A | z ≠ 0} → A := λ x y, 
 Definition mod_euclid `{ModEuclid A}: A → { z : A | z ≠ 0} → A := λ x y, ` (mod_euclid_sig x y).
 
 Class ShiftRight A B `{SemiRing A} `{Naturals B} `{!NatPow A B} 
-  := shiftr_sig: ∀ (x : A) (y : B), { z: A | x ≤ z * 2 ^ y < x }.
+  := shiftr_sig: ∀ (x : A) (y : B), { z: A | x ≤ z * 2 ^ y < 2 * x }.
 
 Definition shiftr `{ShiftRight A B}: A → B → A := λ x y, proj1_sig (shiftr_sig x y).
 Infix "≫" := shiftr (at level 33, left associativity).
+Notation "(≫)" := shiftr (only parsing).
 
 Class CutMinus A `{SemiRing A} := 
-  cut_minus_sig: ∀ (x y : A), { z: A | (y ≤ x → z + y = x) ∧ (¬ y ≤ x → z =0) }.
+  cut_minus_sig: ∀ (x y : A), { z: A | (y < x → z + y = x) ∧ (x ≤ y → z =0) }.
 Definition cut_minus `{m : CutMinus A} : A → A → A := λ x y, ` (cut_minus_sig x y).
 Infix "∸" := cut_minus (at level 50, left associativity).
+Notation "(∸)" := cut_minus (only parsing).
 
-Class Minimum A `{SemiRing A} := 
-  minimum_sig: ∀ (x y : A), { z: A | (y ≤ x → z = y) ∧ (¬ y ≤ x → z = x) }.
-Definition minimum `{Minimum A} : A → A → A := λ x y, ` (minimum_sig x y).

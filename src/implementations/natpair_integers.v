@@ -45,7 +45,7 @@ Proof.
  unfold z_equiv. intros x y z E E'.
  rewrite commutativity.
  rewrite (commutativity (pos z)).
- apply (injective (ring_plus (pos y))).
+ apply (left_cancellation (+) (pos y)); trivial.
  do 2 rewrite associativity.
  rewrite <- E, E'. ring.
 Qed.
@@ -211,7 +211,7 @@ Section for_another_ring.
     Instance: SemiRing_Morphism inject'_N.
 
     Lemma agree_on_nat: inject'_N = n_to_sr.
-    Proof. intro x. apply (theory.naturals.to_semiring_unique _ inject'_N). Qed.
+    Proof. intro x. apply (naturals.to_semiring_unique inject'_N). Qed.
 
     Lemma same_morphism: integers_to_ring Z R = inject'.
     Proof.
@@ -238,7 +238,7 @@ Qed.
 Global Instance: Integers Z.
 
 Lemma NtoZ_uniq x: naturals_to_semiring N Z x = NtoZ x.
-Proof. symmetry. apply (theory.naturals.to_semiring_unique Z NtoZ x). Qed. 
+Proof. symmetry. apply (theory.naturals.to_semiring_unique NtoZ x). Qed. 
 
 Global Program Instance simpleZ_abs: IntAbs Z N := λ d: Z, nat_distance (pos d) (neg d).
 

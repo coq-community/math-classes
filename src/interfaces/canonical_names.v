@@ -49,6 +49,7 @@ Implicit Arguments cat_id [[O] [H] [CatId] [x]].
 Implicit Arguments decide [[Decision]].
 
 Instance: Params (@precedes) 2.
+Instance: Params (@precedes_neq) 3.
 Instance: Params (@ring_mult) 2.
 Instance: Params (@ring_plus) 2.
 Instance: Params (@equiv) 2.
@@ -98,6 +99,16 @@ Program Definition dec_mult_inv `{e: Equiv A} `{RingZero A} `{!MultInv A}
 
 Notation "/ x" := (dec_mult_inv x).
 
+Class RingMinus A `{Equiv A} `{RingPlus A} `{GroupInv A} := ring_minus_sig: ∀ x y : A, { z: A |  z = x + -y }.
+Definition ring_minus `{RingMinus A} : A → A → A := λ x y, ` (ring_minus_sig x y).
+Infix "-" := ring_minus.
+Instance: Params (@ring_minus) 2.
+
+Class FieldDiv A `{RingMult A} `{MultInv A} `{RingZero A} := field_div_sig: ∀ (x : A) (y : { x: A | x ≠ 0 }), { z: A |  z = x * //y }.
+Definition field_div `{FieldDiv A}: A → { x: A | x ≠ 0 } → A := λ x y, ` (field_div_sig x y).
+Infix "//" := field_div (at level 35, right associativity).
+Instance: Params (@field_div) 2.
+
 (* Common properties: *)
 Class Commutative `{Equiv B} `(m: A → A → B): Prop := commutativity: `(m x y = m y x).
 Class Associative `{Equiv A} (m: A → A → A): Prop := associativity: `(m x (m y z) = m (m x y) z).
@@ -117,6 +128,8 @@ Class ZeroProduct A `{Equiv A} `{!RingMult A} `{!RingZero A}: Prop :=
   zero_product: `(x * y = 0 → x = 0 ∨ y = 0).
 Class ZeroNeOne A `{Equiv A} `{!RingOne A} `{!RingZero A}: Prop :=
   zero_ne_one: 0 ≠ 1.
+Class ZeroNeTwo A `{Equiv A} `{!RingOne A} `{!RingPlus A} `{!RingZero A}: Prop :=
+  zero_ne_two: 0 ≠ 2.
     (* todo: this is silly *)
 
 Class ZeroDivisor {R} `{Equiv R} `{RingZero R} `{RingMult R} (x: R): Prop

@@ -58,7 +58,7 @@ Qed.
 
 Instance: Field anyQ.t.
 Proof.
- apply (@fields.from_stdlib_field_theory.from_stdlib_field_theory
+ apply (@fields.from_stdlib_field_theory
   anyQ.t anyQ.zero _ _ _ _ _ _ _ _ anyQ_field_theory); apply _.
 Qed.
 

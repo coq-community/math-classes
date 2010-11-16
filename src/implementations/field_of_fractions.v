@@ -24,7 +24,7 @@ Instance: Transitive frac_equiv.
 Proof with auto.
  unfold frac_equiv. intros [] [] [] V W.
  simpl in *.
- apply (mult_injective den1)...
+ apply (left_cancellation ring_mult den1)...
  do 2 rewrite associativity.
  do 2 rewrite (commutativity den1).
  rewrite V, <- W. ring.

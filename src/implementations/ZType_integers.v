@@ -1,9 +1,10 @@
-Require orders.orders signed_binary_positive_integers.
+Require 
+  orders.orders signed_binary_positive_integers.
 Require Import 
   ZSig ZSigZAxioms ZArith Program Morphisms
   positive_integers_naturals 
   abstract_algebra interfaces.integers interfaces.additional_operations
-  theory.rings theory.integers theory.additional_operations
+  theory.rings theory.integers theory.nat_pow
   orders.semiring.  
 
 Module ZType_Integers (Import anyZ: ZType).
@@ -17,7 +18,7 @@ Instance anyZ_1: RingOne t := one.
 Instance: RingMult t := mul.
 Instance: GroupInv t := opp.
 
-Instance: Setoid t.
+Instance: Setoid t | 10.
 
 Instance: ∀ x y: t, Decision (x = y). 
 Proof with auto.
@@ -25,7 +26,7 @@ Proof with auto.
    destruct (Sumbool.sumbool_of_bool (eq_bool x y)).
    left. apply Zeq_bool_eq. rewrite <-spec_eq_bool...
    right. apply Zeq_bool_neq. rewrite <-spec_eq_bool...
-Qed.
+Defined.
 
 Ltac unfold_equiv := unfold equiv, anyZ_eq, eq.
 
@@ -34,10 +35,9 @@ Proof.
   repeat split; repeat intro; axioms.zify; auto with zarith.
 Qed.
 
-Instance: Ring t.
+Instance: Ring t | 10.
 Proof.
-  apply (@rings.from_stdlib_ring_theory.from_stdlib_ring_theory
-    t _ _ _ _ _ _ _ anyZ_ring_theory); apply _.
+  apply (@rings.from_stdlib_ring_theory t _ _ _ _ _ _ _ anyZ_ring_theory); apply _.
 Qed.
 
 Instance: Ring_Morphism to_Z.
@@ -72,11 +72,11 @@ Proof with try apply _; auto.
   unfold mon_unit. unfold anyZ_1. rewrite spec_1. rewrite spec_of_Z...
 Qed.
 
-Global Instance: IntegersToRing t := theory.integers.retract_is_int_to_ring to_Z.
-Global Instance: Integers t := theory.integers.retract_is_int of_Z to_Z of_Z_to_Z.
+Instance: IntegersToRing t := theory.integers.retract_is_int_to_ring to_Z.
+Instance: Integers t := theory.integers.retract_is_int of_Z to_Z of_Z_to_Z.
 
 (* Efficient minus *)
-Global Program Instance: RingMinus t := sub.
+Program Instance: RingMinus t := sub.
 Next Obligation.
   unfold_equiv.
   rewrite spec_add. rewrite spec_opp.
@@ -114,7 +114,7 @@ Proof with auto.
 Qed.
 
 (* Efficient comparison *)
-Global Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) with
+Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) with
   | Lt => left _
   | Eq => left _
   | _ => right _
@@ -149,7 +149,7 @@ Next Obligation.
   split; intro; discriminate.
 Qed.
 
-Global Program Instance: IntAbs t (ZPos t) := abs.
+Program Instance: IntAbs t (Pos t) := abs.
 Next Obligation.
   apply to_Z_Zle_sr_precedes.
   rewrite spec_abs.
@@ -166,7 +166,7 @@ Next Obligation with auto.
 Qed.
 
 (* Efficient division *)
-Global Instance Ztype_euclid (x :t) (y : {z : t | z ≠ 0}) : Euclid x y (div x (`y)) (modulo x (`y)).
+Instance Ztype_euclid (x :t) (y : {z : t | z ≠ 0}) : Euclid x y (div x (`y)) (modulo x (`y)).
 Proof with auto.
   destruct y as [y Ey].
   split; simpl.
@@ -182,12 +182,12 @@ Proof with auto.
 Qed.
 
 Obligation Tactic := idtac.
-Global Program Instance: DivEuclid t := div.
+Program Instance: DivEuclid t := div.
 Next Obligation.
   intros x y. exists (modulo x (`y)). apply _.
 Qed.
 
-Global Program Instance: ModEuclid t := modulo.
+Program Instance: ModEuclid t := modulo.
 Next Obligation.
   intros x y. exists (div x (`y)). apply _.
 Qed.
@@ -206,13 +206,13 @@ Proof.
 Qed.
 
 (* Efficient nat_pow *)
-Global Program Instance anyZ_pow: NatPow t (ZPos t) := pow.
+Program Instance anyZ_pow: NatPow t (Pos t) := pow.
 Next Obligation with try reflexivity; auto.
   intros x n. 
-  change (nat_pow_spec x n ((λ x n, pow x (`n)) x n)). (* This is stupid ... *)
+  change (nat_pow_spec x n ((λ x n, pow x (`n)) x n)). (* This is stupid... pattern is not helpful either *)
   apply nat_pow_spec_from_properties.
   intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2. 
-  unfold equiv, sig_equiv, sig_relation in E2. simpl in *. rewrite E1, E2... 
+  unfold equiv, ZPos_equiv in E2. simpl in *. rewrite E1, E2... 
   intros x1. rewrite preserves_0.  rewrite axioms.pow_0_r...
   intros x1 n1. rewrite preserves_plus, preserves_1. 
   rewrite <-axioms.pow_succ_r. rewrite ZType_succ_plus_1...
@@ -220,7 +220,7 @@ Next Obligation with try reflexivity; auto.
 Qed.
 
 (* Efficient log2 *)
-Global Program Instance: Log (2:t) (ZPos t) := log2.
+Program Instance: Log (2:t) (Pos t) := log2.
 Next Obligation with auto.
   intros x. 
   apply to_Z_Zle_sr_precedes.

@@ -3,7 +3,7 @@ Require
 Require Import
  Relation_Definitions Morphisms Ring Program
  abstract_algebra interfaces.naturals
- orders.semiring orders.semigroup.
+ orders.semiring orders.semigroup orders.orders.
 
 Section contents.
 Context `{Naturals N}.
@@ -51,15 +51,15 @@ Proof.
   eapply preserves_naturals_order in E; try apply _; auto.
 Qed.
 
-Global Instance: AntiSymmetric (sr_precedes (R:=N)).
-Proof.
+Instance: AntiSymmetric (sr_precedes (R:=N)).
+Proof with auto.
   intros x y E F. 
   destruct (natural_precedes_with E) as [v A].
   destruct (natural_precedes_with F) as [w B].
   rewrite <- A in *. clear A.
   rewrite <- associativity in B.
   assert (v + w = 0) as C.
-  apply (injective (ring_plus x)). rewrite right_identity. assumption.
+  apply (left_cancellation (+) x)... rewrite right_identity. assumption.
   destruct (naturals.zero_sum v w C) as [D _]. rewrite D.
   ring.
 Qed.
@@ -84,19 +84,18 @@ Next Obligation.
   assumption. 
 Qed.
 
-Lemma le_mult_compat_inv_l (x x' y: N): y ≠ 0 → x * y ≤ x' * y → x ≤ x'.
-Proof.
-  destruct (total_order x x') as [|E]. intuition. 
-  destruct (natural_precedes_with E) as [z Ez].
-  rewrite <- Ez. 
-  intros ne F. 
-  destruct (natural_precedes_with F) as [v Ev].
-  apply (natural_precedes_from 0).
-  apply (naturals.mult_injective y ne).
-  destruct (naturals.zero_sum (z * y) v) as [A _].
-  apply (injective (ring_plus (x' * y))). 
-  rewrite <- Ev at 2. ring.
-  ring_simplify. rewrite (commutativity y z), A. ring.
+Lemma natural_precedes_nonzero_positive x : x ≠ 0 → 1 ≤ x.
+Proof with intuition.
+  intros E.
+  destruct (total_order 1 x) as [| [z Ez]]...
+  destruct (naturals.one_sum _ _ Ez)...
+  apply orders.equiv_precedes. symmetry...
+Qed.
+
+Global Instance: LeftCancellation (≤) (λ x : N, x ≠ 0) ring_mult.
+Proof with auto.
+   intros z ? ? ? E. apply (left_cancellation ring_mult z)...
+   apply natural_precedes_nonzero_positive...
 Qed.
 
 End contents.

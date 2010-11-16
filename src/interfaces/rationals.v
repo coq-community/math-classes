@@ -32,19 +32,19 @@ Section alt_Build_Rationals.
      unfold Basics.compose, id in *.
      transitivity (inject (fst (inverse _ x)) * / inject (snd (inverse _ x))).
       2: apply sur.
-     pose proof (integers_to_ring_unique' _
+     pose proof (integers.to_ring_unique' 
        (integers_to_ring (Z nat) A ∘ integers_to_ring Int (Z nat)) inject) as B.
-     pose proof (B (fst (inverse _ x))). simpl in H3. rewrite H3.
-     pose proof (B (snd (inverse _ x))). simpl in H4. rewrite H4.
+     pose proof (B (fst (inverse _ x))) as P1. simpl in P1. rewrite P1.
+     pose proof (B (snd (inverse _ x))) as P2. simpl in P2. rewrite P2.
      reflexivity.
     constructor; try apply _.
-    repeat intro.
-    rewrite H3.
+    intros x y E.
+    rewrite E.
     reflexivity.
    constructor. 2: apply _.
    intros x y ?.
    apply (injective (integers_to_ring (Z nat) Int)), (injective inject).
-   pose proof (integers_to_ring_unique _ (inject ∘ integers_to_ring (Z nat) Int)) as P.
+   pose proof (integers.to_ring_unique (inject ∘ integers_to_ring (Z nat) Int)) as P.
    unfold compose in P. do 2 rewrite P...
   Qed. (* todo: too long *)
 
@@ -59,7 +59,7 @@ Section sec. Context `{Rationals Q}.
   Global Instance injective_ints `{Integers Int} `{!Ring_Morphism (f: Int → Q)}: Injective f.
   Proof with try apply _.
    assert (f = integers_to_ring (Z nat) Q ∘ integers_to_ring Int (Z nat)).
-    apply (@integers_to_ring_unique' Int _ _ _ _ _ _ _ _ Q _ _ _ _ _ _)...
+    apply (integers.to_ring_unique')...
     unfold compose...
    pose proof rationals_embed_ints.
    apply (Injective_proper f (integers_to_ring (Z nat) Q ∘ integers_to_ring Int (Z nat)))... (* todo: make it so that we can use [rewrite] here *)
@@ -68,14 +68,14 @@ Section sec. Context `{Rationals Q}.
 
   Global Instance injective_nats `{Naturals N} `{!SemiRing_Morphism (f: N → Q)}: Injective f.
   Proof with auto.
-   pose proof (to_semiring_unique' f (naturals_to_semiring N Q) _ _).
+   pose proof (naturals.to_semiring_unique' f (naturals_to_semiring N Q)).
    apply (Injective_proper f (naturals_to_semiring N Q)). (* todo: make it so that we can use [rewrite] here *)
     assumption.
    constructor. 2: apply _.
    intros x y ?.
    apply (injective (naturals_to_semiring N (Z nat))).
    apply (injective (integers_to_ring (Z nat) Q)).
-   pose proof (theory.naturals.to_semiring_unique Q
+   pose proof (naturals.to_semiring_unique
      (integers_to_ring (Z nat) Q ∘ naturals_to_semiring N (Z nat))) as P.
    unfold compose in P. do 2 rewrite P...
   Qed.

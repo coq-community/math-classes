@@ -63,9 +63,16 @@ Section upper_classes.
     require commutative multiplication. *)
 
   Class IntegralDomain: Prop :=
-    { intdom_ring:> Ring
+    { intdom_ring: Ring 
     ; intdom_nontrivial:> ZeroNeOne A
     ; intdom_nozeroes:> NoZeroDivisors A }.
+
+  (* For a strange reason Ring instances of Integers are sometimes obtained by
+    Integers -> IntegralDomain -> Ring and sometimes directly. Making this an
+    instance with a low priority instead of using intdom_ring:> Ring forces Coq to
+    take the right way *)
+  Global Instance intdom_is_ring `{IntegralDomain} : Ring | 10. 
+  Proof. apply intdom_ring. Qed.
 
   Class Field {mult_inv: MultInv A}: Prop :=
     { field_ring:> Ring
@@ -82,8 +89,20 @@ Implicit Arguments field_0neq1 [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_i
 Implicit Arguments mult_inverse [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv0] [Field]].
 Implicit Arguments sg_mor [[A] [e] [op] [SemiGroup]].
 
+Section cancellation.
+  Context `{e : Equiv A} (Rel : relation A) (P : A → Prop) (op : A → A → A).
+
+  Class LeftCancellation := 
+    left_cancellation : ∀ z, P z → ∀ {x y}, Rel (op z x) (op z y) → Rel x y.
+  Class RightCancellation := 
+    right_cancellation : ∀ z, P z → ∀ {x y}, Rel (op x z) (op y z) → Rel x y.
+End cancellation.
+
+Implicit Arguments left_cancellation [[A] [Rel] [P] [LeftCancellation] [x] [y]].
+Implicit Arguments right_cancellation [[A] [Rel] [P] [RightCancellation] [x] [y]].
+
 Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
-  { poset_setoid :> Equivalence e
+  { poset_setoid :> Equivalence e (* Setoid A introduces instance resolution bugs, todo: investigate *)
   ; poset_proper:> Proper (e ==> e ==> iff) R
   ; poset_preorder:> PreOrder R
   ; poset_antisym:> AntiSymmetric R }.
@@ -221,4 +240,3 @@ Section jections.
 End jections.
 
 Implicit Arguments injective [[A] [ea] [B] [eb] [Injective]].
-

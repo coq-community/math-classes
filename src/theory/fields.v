@@ -1,10 +1,31 @@
 Set Automatic Introduction.
 
 Require
-  Field_theory.
+  Field_theory Setoid.
 Require Import
   Morphisms Ring Program Field
   abstract_algebra theory.rings.
+
+(* * Field Div *)
+Section field_div_properties.
+  Context `{Field R} `{div : !FieldDiv R}.
+
+  Lemma field_div_correct x y : x // y = x * //y.
+  Proof.
+    unfold field_div. unfold field_div_sig. 
+    destruct div as [z E]. simpl. auto.
+  Qed.
+
+  Global Instance: Proper ((=) ==> (=) ==> (=)) field_div.
+  Proof.
+    intros x1 y1 E1 x2 y2 E2.
+    rewrite (field_div_correct x1 x2). rewrite (field_div_correct y1 y2).
+    rewrite E1, E2. reflexivity.
+  Qed.
+End field_div_properties.
+
+Global Program Instance default_field_div `{Field R} : FieldDiv R | 10 := λ x y, x * // `y.
+Next Obligation. reflexivity. Qed.
 
 Section dec_mult_inv.
 
@@ -24,9 +45,8 @@ Section dec_mult_inv.
 
 End dec_mult_inv.
 
-Section field_props. 
+Section field_is_integral_domain. 
   Context `{Field F}.
-  Add Ring R: (stdlib_ring_theory F).
 
   Lemma mult_inverse': ∀ x p, x * // exist _ x p = 1.
   Proof. intros. apply (mult_inverse (exist _ _ _)). Qed.
@@ -40,8 +60,12 @@ Section field_props.
   Qed.
 
   Global Instance: IntegralDomain F.
+End field_is_integral_domain. 
 
-  (* The non zero elements of a field form a CommutativeMonoid. *)
+(* The non zero elements of a field form a CommutativeMonoid. *)
+Section non_zero_elements.
+  Context `{Field F}.
+
   Global Program Instance nonzero_one: RingOne { q : F | q ≠ 0 } := exist (λ x, x ≠ 0) 1 _.
   Next Obligation. intro E. symmetry in E. apply (field_0neq1 E). Qed.
 
@@ -56,7 +80,7 @@ Section field_props.
   Global Instance nonzero_mult: RingMult { x : F | x ≠ 0 } := λ x y, 
     exist (λ x, x ≠ 0) (`x *  `y) (mult_ne_zero_sig x y).
 
-  Global Instance: Proper ((=) ==> (=) ==> (=)) nonzero_mult.
+  Instance: Proper ((=) ==> (=) ==> (=)) nonzero_mult.
   Proof.
     intros [??] [??] E1 [??] [??] E2. 
     unfold equiv, sig_equiv, sig_relation in *. simpl in *.
@@ -64,28 +88,28 @@ Section field_props.
     reflexivity.
   Qed.
 
-  Global Instance: Associative nonzero_mult.
+  Instance: Associative nonzero_mult.
   Proof.
     intros [??] [??] [??].
     unfold equiv, sig_equiv, sig_relation in *. simpl in *. 
     apply associativity.
   Qed.
 
-  Global Instance: Commutative nonzero_mult.
+  Instance: Commutative nonzero_mult.
   Proof.
     intros [??] [??].
     unfold equiv, sig_equiv, sig_relation in *. simpl in *. 
     apply commutativity.
   Qed.
 
-  Global Instance: LeftIdentity nonzero_mult nonzero_one.
+  Instance: LeftIdentity nonzero_mult nonzero_one.
   Proof.
     intros [? ?].
     unfold equiv, sig_equiv, sig_relation in *. simpl in *. 
     apply left_identity.
   Qed.
 
-  Global Instance: RightIdentity nonzero_mult nonzero_one.
+  Instance: RightIdentity nonzero_mult nonzero_one.
   Proof.
     intros [? ?].
     unfold equiv, sig_equiv, sig_relation in *. simpl in *. 
@@ -100,6 +124,28 @@ Section field_props.
 
   Lemma nonzero_mult_proj_one (x y : {x : F | x ≠ 0}) : `1 = 1.
   Proof. reflexivity. Qed.
+
+End non_zero_elements.
+
+Definition stdlib_field_theory F `{Field F} `{∀ x y: F, Decision (x = y)} `{minus : !RingMinus F} :
+  Field_theory.field_theory 0 1 ring_plus ring_mult ring_minus
+    group_inv (λ x y, x * / y) dec_mult_inv equiv.
+Proof with auto.
+  intros.
+  constructor.
+     apply (theory.rings.stdlib_ring_theory _).
+    intro. apply field_0neq1. symmetry...
+   reflexivity.
+  intros.
+  rewrite commutativity.
+  unfold dec_mult_inv.
+  case (decide _). intuition.
+  apply mult_inverse'.
+Qed.
+
+Section field_props.
+  Context `{Field F}.
+  Add Ring R: (stdlib_ring_theory F).
 
   Lemma equal_quotients (a c: F) b d: a * ` d = c * ` b ↔ a *// b = c *// d.
   Proof with try ring.
@@ -118,36 +164,19 @@ Section field_props.
    rewrite mult_inverse...
   Qed. (* todo: should be cleanable *)
 
-  Lemma quotients a c b d :
+  Lemma quotients a c (b d : { q : F | q ≠ 0 }) :
     a * //b + c * //d = (a * `d + c * `b) * // (b * d).
   Proof with auto.
     assert (a * // b = (a * `d) * // exist _ (`b * `d) (mult_ne_zero_sig b d)) as E1.
       apply equal_quotients. simpl. ring.
     assert (c * // d = (`b * c) * // exist _ (`b * `d) (mult_ne_zero_sig b d)) as E2.
       apply equal_quotients. simpl. ring.
-    rewrite E1, E2.
+    rewrite E1, E2. 
     unfold "*" at 10. unfold nonzero_mult. ring.
   Qed.
 
   Context `{∀ x y: F, Decision (x = y)}.
-
-  Definition stdlib_field_theory:
-    Field_theory.field_theory 0 1 ring_plus ring_mult (λ x y, x + - y)
-      group_inv (λ x y, x * / y) dec_mult_inv equiv.
-  Proof with auto.
-   intros.
-   constructor.
-      apply (theory.rings.stdlib_ring_theory _).
-     intro. apply field_0neq1. symmetry...
-    reflexivity.
-   intros.
-   rewrite commutativity.
-   unfold dec_mult_inv.
-   case (decide _). intuition.
-   apply mult_inverse'.
-  Qed.
-
-  Add Field F: stdlib_field_theory.
+  Add Field F: (stdlib_field_theory F).
 
   Lemma dec_mult_inverse (x: F): x ≠ 0 → x * / x = 1.
   Proof.
@@ -157,7 +186,7 @@ Section field_props.
 
   Lemma mult_inv_distr (x y : {x : F | x ≠ 0}) : // x * // y = // (x * y).
   Proof with auto.
-    apply (theory.rings.mult_injective (` (x * y)))...
+    eapply (left_cancellation ring_mult (` (x * y))).
       destruct x. destruct y. simpl. apply mult_ne_zero...
     rewrite mult_inverse.
     rewrite <-nonzero_mult_proj_dist.
@@ -166,14 +195,11 @@ Section field_props.
   Qed.
 
   Global Instance: ZeroProduct F.
-  Proof.
+  Proof with auto.
    intros x y E.
-   destruct (decide (x = 0)) as [? | P]. intuition.
+   destruct (decide (x = 0)) as [? | P]...
    rewrite <- (mult_0_r x) in E.
-   right.
-   pose proof (mult_injective x P).
-   apply (injective (ring_mult x)).
-   assumption.
+   right. apply (left_cancellation ring_mult x)...
   Qed.
 
   Lemma inv_0: / 0 = 0.
@@ -198,12 +224,7 @@ Section field_props.
 
 End field_props.
 
-Implicit Arguments stdlib_field_theory [[e] [plus0] [mult0] [inv] [zero] [one] [mult_inv0] [H] [H0]].
-
-Module from_stdlib_field_theory.
- (* Without this module wrapping, the [Add Ring] below gives an error about some
-  internal name conflict. Todo: report. *)
-Section contents.
+Section from_stdlib_field_theory.
 
   Context `{H: @field_theory F zero one pl mu mi op div rinv e}
     `{!@Setoid F e}
@@ -212,7 +233,7 @@ Section contents.
     `{!Proper (e ==> e) rinv}
     `{!Proper (e ==> e) op}.
 
-  Add Field F: H.
+  Add Field F2 : H.
 
   Definition from_stdlib_field_theory: @Field F e pl mu zero one op (λ x, rinv (proj1_sig x)).
   Proof.
@@ -237,5 +258,4 @@ Section contents.
    auto.
   Qed.
 
-End contents.
 End from_stdlib_field_theory.

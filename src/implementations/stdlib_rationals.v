@@ -18,7 +18,7 @@ Program Instance: MultInv Q := Qinv.
 Instance: Setoid Q.
 
 Instance: Field Q.
-Proof @theory.fields.from_stdlib_field_theory.from_stdlib_field_theory _ _ _ _ _ _ _ _ _ _ Qfield.Qsft _ _ _ _ _.
+Proof @theory.fields.from_stdlib_field_theory _ _ _ _ _ _ _ _ _ _ Qfield.Qsft _ _ _ _ _.
 
 (* order: *)
 (*

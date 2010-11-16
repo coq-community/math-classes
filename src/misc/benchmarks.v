@@ -1,25 +1,51 @@
 Require Import 
-  fast_integers positive_integers_naturals
+  BigZ fast_integers positive_integers_naturals
   fast_rationals
-  abstract_algebra interfaces.integers interfaces.rationals interfaces.additional_operations
-  BigZ ZArith.
+  abstract_algebra interfaces.integers interfaces.rationals 
+  interfaces.additional_operations interfaces.appfield
+  dyadics dyadics_appfield.
 
-Program Definition X : { z : fastZ | z ≠ 0 } := (1441)%bigZ.
+Check (_ : Integers fastZ).
+Check (_ : ∀ (x y : fastZ), Decision (x = y)).
+Check (_ : ∀ (x y : Pos fastZ), Decision (x = y)).
+Check (_ : ∀ (x y : fastZ), Decision (x ≤ y)).
+Check (_ : ∀ (x y : Pos fastZ), Decision (x ≤ y)).
+Check (_ : NatPow fastZ (Pos fastZ)).
+Check (_ : ShiftLeft fastZ (Pos fastZ)). 
+Check (_ : ShiftRight fastZ (Pos fastZ)). 
+Check (_ : RingMinus fastZ).
+Check (_ : CutMinus fastZ).
+Check (_ : Log (2:fastZ) (Pos fastZ)).
+Check (_ : DivEuclid fastZ).
+Check (_ : RingMinus fastZ).
+Check (_ : CutMinus fastZ).
+Check (_ : CutMinus (Pos fastZ)).
+
+Definition D : Dyadic fastZ := (233123124123412343%bigZ) # (12314%bigZ).
+Definition E : Dyadic fastZ := (2151453412523525234%bigZ) # (-13152%bigZ).
+
+Program Definition Y : Pos fastZ := 5%bigZ.
+Next Obligation.  Admitted.
+
+Time Eval vm_compute in (D + E).
+Time Eval vm_compute in ((D ✚ E) Y).
+
+Program Definition D2 : { z : Dyadic fastZ | ~dy_eq z 0} := D.
+Next Obligation.  Admitted.
+
+Program Definition Y2 : Pos fastZ := 45%bigZ.
 Next Obligation. Admitted.
-Program Definition Y : ZPos fastZ := (2333)%bigZ.
-Next Obligation. Admitted.
+Eval vm_compute in ((/// D2) Y2).
 
-Time Eval vm_compute in (mod_euclid ((12312%bigZ) ^ Y) X).
+Check (_ : Integers Z).
+Check (_ : ∀ (x y : Z), Decision (x = y)).
+Check (_ : ∀ (x y : Z), Decision (x ≤ y)).
+Check (_ : NatPow Z (Pos Z)).
+Check (_ : ShiftLeft Z (Pos Z)). 
+Check (_ : RingMinus Z).
+Check (_ : CutMinus Z).
 
-Time Eval vm_compute in ((Zmod (12312 ^ 2333) 1441)%Z).
-(* 
-Definition x: Z := (3^5382)%Z.
-Definition y: Z := (5^3751)%Z.
-
-Time Eval vm_compute in (x * y).
-
-Definition x2: fastZ := (3^5382)%bigZ.
-Definition y2: fastZ := (5^3751)%bigZ.
-
-Time Eval vm_compute in (x2 * y2).
-*)
+Definition DZ : Dyadic Z := (233123124123412343%Z) # (12314%Z).
+Definition EZ : Dyadic Z := (2151453412523525234%Z) # (-13152%Z).
+Time Eval vm_compute in (DZ + EZ).
+(* log2 and div_euclid aren't implemented for Z yet, so we can't test ✚ *)

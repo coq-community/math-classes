@@ -46,7 +46,7 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
   Context `{!Injective (naturals_to_semiring nat F)}.
 
   Lemma field_precedes_with_nonzero_denominator (x y: F): x ≤ y →
-    ∃ num: nat, exists den: nat, naturals_to_semiring nat F den ≠ 0 ∧
+    ∃ num: nat, ∃ den: nat, naturals_to_semiring nat F den ≠ 0 ∧
       x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den = y.
   Proof with auto.
    intros [num [den E]].
@@ -91,24 +91,24 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
    rewrite <- V in U |- *.
    clear V x.
    assert (naturals_to_semiring nat F num' * / naturals_to_semiring nat F den' +
-     naturals_to_semiring nat F num * / naturals_to_semiring nat F den = 0).
-    apply (injective (ring_plus y)).
+     naturals_to_semiring nat F num * / naturals_to_semiring nat F den = 0) as E1.
+    apply (left_cancellation (+) y)...
     rewrite plus_0_r.
     rewrite associativity...
    set (naturals_to_semiring nat F) in *. 
-   assert (f den' * / f den' * f den * f num' + f den * / f den * f num * f den' = f den * f den' * 0).
-    rewrite <- H1 at 1. ring.
-   rewrite dec_mult_inverse in H2...
-   rewrite dec_mult_inverse in H2...
-   ring_simplify in H2.
-   do 2 rewrite <- preserves_mult in H2.
-   rewrite <- preserves_plus in H2.
-   destruct (zero_product (f den) (f num')).
-     assert (den * num' + num * den' = 0). apply (injective f)...
-     destruct (theory.naturals.zero_sum (den * num') (num * den') H3).
-     rewrite <- preserves_mult. rewrite H4. apply preserves_0.
+   assert (f den' * / f den' * f den * f num' + f den * / f den * f num * f den' = f den * f den' * 0) as E2.
+    rewrite <- E1 at 1. ring.
+   rewrite dec_mult_inverse in E2...
+   rewrite dec_mult_inverse in E2...
+   ring_simplify in E2.
+   do 2 rewrite <- preserves_mult in E2.
+   rewrite <- preserves_plus in E2.
+   destruct (zero_product (f den) (f num')) as [E3|E3].
+     assert (den * num' + num * den' = 0) as E3. apply (injective f)...
+     destruct (theory.naturals.zero_sum (den * num') (num * den') E3) as [E4a E4b].
+     rewrite <- preserves_mult. rewrite E4a. apply preserves_0.
     intuition.
-   rewrite H3. ring.
+   rewrite E3. ring.
   Qed. (* Todo: can be cleaned up further. *)
 
   Global Instance field_partialorder: PartialOrder field_precedes.
