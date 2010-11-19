@@ -2,7 +2,8 @@ Require
   theory.naturals theory.integers orders.orders.
 Require Import 
   Program Morphisms Setoid Ring
-  abstract_algebra interfaces.additional_operations.
+  abstract_algebra interfaces.additional_operations
+  orders.minmax.
 
 (* * Properties of Cut off Minus *)
 Section cut_minus_properties.
@@ -11,9 +12,11 @@ Section cut_minus_properties.
   Context `{∀ (x y : R), Decision (x ≤ y)} 
     `{∀ (x y : R), Decision (x = y)} 
     `{!TotalOrder (≤)} 
+    `{!AntiSymmetric (≤)} 
     `{!LeftCancellation (=) (λ x, True) (+)}.
 
   Add Ring SR: (rings.stdlib_semiring_theory R).
+  Hint Resolve (@orders.precedes_flip R _ _).
 
   Global Instance cut_minus_proper: Proper ((=) ==> (=) ==> (=)) cut_minus.
   Proof with auto; try reflexivity.
@@ -31,21 +34,24 @@ Section cut_minus_properties.
   Proof.
     unfold cut_minus, cut_minus_sig. destruct cm. simpl. tauto.
   Qed.
+  Hint Resolve cut_minus_precedes_neq.
 
   Lemma cut_minus_0 x y : x ≤ y → (x ∸y) = 0.
   Proof.
     unfold cut_minus, cut_minus_sig. destruct cm. simpl. tauto.
   Qed.
+  Hint Resolve cut_minus_0.
 
   Lemma cut_minus_precedes x y : y ≤ x → (x ∸y) + y = x.
   Proof.
     intros E. destruct ((proj2 (orders.precedes_neq_precedes y x)) E) as [F|].
     rewrite F, cut_minus_0. ring. reflexivity.
-    apply cut_minus_precedes_neq. assumption.
+    auto.
   Qed.  
+  Hint Resolve cut_minus_precedes.
 
   Lemma cut_minus_diag x : x ∸ x = 0.
-  Proof.
+  Proof. 
     apply cut_minus_0. reflexivity.
   Qed.
 
@@ -53,25 +59,23 @@ Section cut_minus_properties.
   Proof.
     intros E.
     rewrite <-(rings.plus_0_r (x ∸ 0)).
-    apply cut_minus_precedes. assumption.
+    auto.
   Qed.
 
   Lemma cut_minus_leftabsorb x : 0 ≤ x → 0 ∸ x = 0.
   Proof.
-    intros E.
-    apply cut_minus_0. assumption.
+    auto.
   Qed.
 
   Lemma cut_minus_rightabsorb x : x ≤ 0 → x ∸ 0 = 0.
   Proof.
-    intros E.
-    apply cut_minus_0. assumption.
+    auto.
   Qed.
 
   Lemma cut_minus_positive x y : 0 ≤ x ∸ y.
   Proof with auto.
     destruct (total_order x y) as [E|E].
-    apply orders.equiv_precedes. symmetry. apply cut_minus_0...
+    apply orders.equiv_precedes. symmetry...
     apply (right_cancellation (+) y)...
     rewrite cut_minus_precedes; ring_simplify...
   Qed.
@@ -84,6 +88,7 @@ Section cut_minus_properties.
     repeat rewrite cut_minus_precedes... 
     transitivity y...
   Qed.
+  Hint Resolve cut_minus_precedes_trans.
 
   Lemma cut_minus_plus_distr x1 x2 y1 y2 : y1 ≤ x1 → y2 ≤ x2 
      → (x1 ∸ y1) + (x2 ∸ y2) = (x1 + x2) ∸ (y1 + y2).
@@ -125,7 +130,7 @@ Section cut_minus_properties.
   Proof with auto.
     intros. destruct (total_order x z).
     rewrite (cut_minus_0 x z), cut_minus_precedes_trans... ring.
-    rewrite (cut_minus_0 z x)... ring_simplify. apply cut_minus_precedes_trans...
+    rewrite (cut_minus_0 z x)... ring_simplify...
   Qed.
 
   Lemma cut_minus_plus_toggle3 x1 x2 y1 y2 : x1 ≤ y1 → y2 ≤ x2 
@@ -171,6 +176,72 @@ Section cut_minus_properties.
      apply cut_minus_precedes_trans...
   Qed.
 
+  (* * Properties of min and minus *)
+  Lemma cut_minus_min1 x y z : x ∸ min y z = x ∸ y + (min x y ∸ z). 
+  Proof with eauto; try ring.
+    unfold min, sort.
+    case (decide (x ≤ y)); case (decide (y ≤ z)); intros F G; simpl.
+    rewrite (cut_minus_0 x z)... transitivity y...
+    rewrite (cut_minus_0 x y)...
+    rewrite (cut_minus_0 y z)...
+    symmetry...
+  Qed.
+  
+  Lemma cut_minus_min2 x y z : y ∸ z + (min y z ∸ x) = y ∸ x + (min x y ∸ z).
+  Proof with eauto; try ring.
+    unfold min, sort.
+    case (decide (x ≤ y)); case (decide (y ≤ z)); intros; simpl.
+    repeat rewrite (cut_minus_0 _ z)... transitivity y...
+    apply cut_minus_plus_toggle1... 
+    repeat rewrite (cut_minus_0 _ x)...
+    repeat rewrite (cut_minus_0 _ x)...
+    transitivity y...
+  Qed.
+
+  Lemma cut_minus_min3 x y z : (x + min y z) ∸ min (x + y) (x + z) = min (x + y) (x + z) ∸ (x + min y z).
+  Proof with auto; try reflexivity.
+    destruct (total_order y z) as [G1|G1].
+    rewrite (min_l y z), (min_l (x + y) (x + z))...
+    apply semiring.sr_precedes_plus_compat_l...
+    rewrite (min_r y z), (min_r (x + y) (x + z))...
+    apply semiring.sr_precedes_plus_compat_l...
+  Qed.
+
+  Lemma cut_minus_min4 x1 x2 y1 y2 : 
+    y1 ∸ x1 + (x1 ∸ x2 + (min x1 x2 ∸ min y1 y2)) = y1 ∸ y2 + (min y1 y2 ∸ min x1 x2) + (x1 ∸ y1).
+  Proof with auto.
+    unfold min, sort.
+    case (decide (x1 ≤ x2)); case (decide (y1 ≤ y2)); intros; simpl.
+    (* case 1*)
+    rewrite (cut_minus_0 x1 x2), (cut_minus_0 y1 y2)... ring.
+    (* case 2 *)
+    rewrite (cut_minus_0 x1 x2)... 
+    destruct (total_order x1 y2) as [G3|G3]; rewrite (cut_minus_0 _ _ G3)... 
+    rewrite (cut_minus_0 _ y1)... 
+      ring_simplify. symmetry...
+      transitivity y2...
+    ring_simplify. symmetry. 
+    rewrite commutativity. apply cut_minus_plus_toggle2...    
+    (* case 3 *)
+    rewrite (cut_minus_0 y1 y2)...
+    destruct (total_order x1 y1) as [G3|G3]; rewrite (cut_minus_0 _ _ G3)... 
+    rewrite (cut_minus_0 _ y1)... 
+      ring_simplify. apply cut_minus_precedes_trans... 
+      transitivity x1...
+    ring_simplify. 
+    rewrite (commutativity (y1 ∸ x2)). apply cut_minus_plus_toggle1...
+    (* case 4 *)
+    destruct (total_order x1 y1) as [G3|G3];
+      rewrite (cut_minus_0 _ _ G3);
+      destruct (total_order x2 y2) as [G4|G4];
+      rewrite (cut_minus_0 _ _ G4); ring_simplify.
+    rewrite cut_minus_precedes_trans... symmetry...
+    rewrite cut_minus_precedes_trans... apply cut_minus_precedes_trans... transitivity x1...
+    symmetry. rewrite commutativity. rewrite cut_minus_precedes_trans... 
+      apply cut_minus_precedes_trans... transitivity y2...
+    rewrite cut_minus_precedes_trans... symmetry. rewrite commutativity...
+  Qed.
+
   (* The relation to ring minus *)
   Context `{GroupInv R} `{!Ring R} `{!RingMinus R}.
   Add Ring R: (rings.stdlib_ring_theory R).
@@ -178,8 +249,7 @@ Section cut_minus_properties.
   Lemma cut_minus_ring_minus (x y : R) : y ≤ x → x ∸ y = x - y.
   Proof with auto.
     intros E.
-    apply (right_cancellation (+) y)... ring_simplify.
-    apply cut_minus_precedes...
+    apply (right_cancellation (+) y)... ring_simplify...
   Qed.
 
   Lemma cut_minus_ring_inv (x : R) : x ≤ 0 → 0 ∸ x = -x.

@@ -80,6 +80,14 @@ Section contents.
     exists (1:nat).
     rewrite preserves_1. ring. 
   Qed.
+
+  Lemma not_sr_precedes_0_1 `{!AntiSymmetric (≤)} `{!ZeroNeOne R} : ¬ (1:R) ≤ (0:R).
+  Proof.
+    intros E.
+    destruct zero_ne_one.
+    apply (antisymmetry (≤)). 
+    apply sr_precedes_0_1. assumption.
+  Qed.
   
   Context `{!LeftCancellation (=) (λ x, True) (+)}.
 

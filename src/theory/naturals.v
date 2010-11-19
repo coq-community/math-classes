@@ -75,27 +75,26 @@ Proof.
 Qed.
 
 Section retract_is_nat.
-  Context `{Naturals N} `{SemiRing SR} .
-  Context (f : N → SR) (g : SR → N) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}.
-  Context (f_retraction_g : ∀ x : SR, f (g x) = x).
+  Context `{Naturals N} `{SemiRing SR}.
+  Context (f : N → SR) `{!Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (inverse f)}.
 
-  (* If we make this an instance, then instance resulution will result in an infinite loop *)
-  Definition retract_is_nat_to_sr : NaturalsToSemiRing SR := λ R _ _ _ _ , naturals_to_semiring N R ∘ g.
+  (* If we make this an instance, then instance resolution will result in an infinite loop *)
+  Definition retract_is_nat_to_sr : NaturalsToSemiRing SR := λ R _ _ _ _ , naturals_to_semiring N R ∘ inverse f.
 
   Section for_another_semiring.
     Context `{SemiRing R}.
 
-    Instance: SemiRing_Morphism (naturals_to_semiring N R ∘ g).
+    Instance: SemiRing_Morphism (naturals_to_semiring N R ∘ inverse f).
+
     Context (h :  SR → R) `{!SemiRing_Morphism h}. 
      
-    Lemma same_morphism: naturals_to_semiring N R ∘ g = h.
+    Lemma same_morphism: naturals_to_semiring N R ∘ inverse f = h.
     Proof with auto.
-      intro x. 
-      rewrite <-f_retraction_g at 2.
-      assert (H3:=to_semiring_unique (h ∘ f)).
-      unfold compose in *. 
-      unfold equiv in H3. unfold ext_eq in H3. rewrite H3. 
-      apply reflexivity.
+      intro x.
+      pose proof (to_semiring_unique (h ∘ f)) as E.
+      unfold compose in *.
+      rewrite <-E. apply sm_proper. 
+      apply jections.surjective_applied.
     Qed.
   End for_another_semiring.
 

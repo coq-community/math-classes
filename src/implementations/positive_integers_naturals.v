@@ -1,6 +1,6 @@
 Require 
   peano_naturals orders.semiring
-  theory.integers theory.rings theory.naturals. (* cut_minus *)
+  theory.integers theory.rings theory.naturals.
 Require Import
   Morphisms Ring Program RelationClasses Setoid
   abstract_algebra
@@ -80,11 +80,27 @@ Proof. repeat (split; try apply _). Qed.
 Global Instance ZPos_equiv_dec `{∀ x y : Z, Decision (x = y)} : ∀ x y: ZPos, Decision (x = y) 
   := λ x y, decide (`x = `y).
 
-Definition to_nat (x : { x : Z | 0 ≤ x}) : nat := int_abs Z nat (`x).
-Program Definition of_nat (x : nat) : { x : Z | 0 ≤ x} := exist (λ x, 0 ≤ x) (naturals_to_semiring nat Z x) _.
+Program Definition of_nat (x : nat) : Pos Z := exist (λ x, 0 ≤ x) (naturals_to_semiring nat Z x) _.
 Next Obligation. 
   apply semiring.zero_sr_precedes_nat.
 Qed.
+
+Instance: Proper ((=) ==> (=)) of_nat.
+Proof.
+  intros x y E. unfold_equivs. 
+  rewrite E. reflexivity.
+Qed.
+
+Instance: SemiRing_Morphism of_nat.
+Proof with reflexivity.
+  repeat (split; try apply _); repeat intro; unfold_equivs.
+  apply rings.preserves_plus...
+  apply rings.preserves_0...
+  apply rings.preserves_mult...
+  apply rings.preserves_1...
+Qed.
+
+Program Instance to_nat: Inverse of_nat := λ x, int_abs Z nat (`x).
 
 Instance: Proper ((=) ==> (=)) to_nat.
 Proof.
@@ -107,30 +123,16 @@ Proof with auto.
   apply integers.abs_1.
 Qed.
 
-Instance: Proper ((=) ==> (=)) of_nat.
+Instance: Surjective of_nat.
 Proof.
-  intros x y E. unfold of_nat. unfold_equivs. 
-  rewrite E. reflexivity.
-Qed.
-
-Instance: SemiRing_Morphism of_nat.
-Proof with reflexivity.
-  repeat (split; try apply _); repeat intro; unfold of_nat; unfold_equivs.
-  apply rings.preserves_plus...
-  apply rings.preserves_0...
-  apply rings.preserves_mult...
-  apply rings.preserves_1...
-Qed.
-
-Lemma of_nat_to_nat x : of_nat (to_nat x) = x.
-Proof.
-  destruct x as [x Ex]. 
+  split. 2: apply _.
+  intros [x Ex]. 
   unfold to_nat, of_nat. unfold_equivs. 
   apply integers.abs_nonneg. assumption.
 Qed.
 
-Global Instance: NaturalsToSemiRing ZPos := naturals.retract_is_nat_to_sr to_nat.
-Global Instance: Naturals ZPos := naturals.retract_is_nat of_nat to_nat of_nat_to_nat.
+Global Instance: NaturalsToSemiRing ZPos := naturals.retract_is_nat_to_sr of_nat.
+Global Instance: Naturals ZPos := naturals.retract_is_nat of_nat.
 
 (* * Embedding of ZPos into Z *)
 Global Instance: SemiRing_Morphism (@proj1_sig Z _).

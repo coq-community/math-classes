@@ -1,17 +1,23 @@
 Require Import 
   Program Morphisms
-  abstract_algebra interfaces.naturals.
+  abstract_algebra interfaces.naturals interfaces.integers.
 
-Inductive nat_pow_spec `{SemiRing A} `{Naturals B} : A → B → A → Prop := 
+Class Pow A B := pow: A → B → A.
+Infix "^" := pow.
+Notation "(^)" := pow (only parsing).
+
+Inductive nat_pow_spec `{SemiRing A} `{SemiRing B} : A → B → A → Prop := 
 | nat_pow_spec_0 : `(nat_pow_spec x 0 1)
 | nat_pow_spec_S : `(nat_pow_spec x n y → nat_pow_spec x (1 + n) (x * y))
 | nat_pow_spec_proper': `(x1 = x2 → n1 = n2 → y1 = y2 → 
     nat_pow_spec x1 n1 y1 → nat_pow_spec x2 n2 y2). 
 
 Class NatPow A B `{SemiRing A} `{Naturals B} := nat_pow_sig (x : A) (n : B) : { y | nat_pow_spec x n y }.
-Definition nat_pow `{NatPow A B}: A → B → A := λ x n, ` (nat_pow_sig x n).
-Infix "^" := nat_pow.
-Notation "(^)" := nat_pow (only parsing).
+Instance nat_pow `{NatPow A B} : `{Pow A B} := λ x n, ` (nat_pow_sig x n).
+
+Class IntPow A B `{Field A} `{Integers B} := 
+  int_pow_sig (x : A) (n : B) : { y | (0 ≤ n → nat_pow_spec x n y) ∧ (n < 0 → ∃ z, nat_pow_spec x (-n) (// z) ∧ y = `z) }.
+Instance int_pow `{IntPow A B} : `{Pow A B} := λ x n, ` (int_pow_sig x n).
 
 Class ShiftLeft A B `{SemiRing A} `{Naturals B} `{!NatPow A B} := shiftl_sig: ∀ (x : A) (y : B), 
   { z: A | z = x * 2 ^ y }.

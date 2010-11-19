@@ -232,7 +232,7 @@ Section default_shiftr.
     `{!ZeroNeOne A}
     `{!ZeroNeTwo A}.
 
-  Global Program Instance default_shiftr  : ShiftRight A B | 10 
+  Global Program Instance default_shiftr : ShiftRight A B | 10 
     := λ x y, div_euclid x (exist _ (2 ^ y) _).
   Next Obligation. eapply nat_pow_nonzero. apply not_symmetry. apply zero_ne_two. Qed.
   Next Obligation. admit. Qed.

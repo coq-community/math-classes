@@ -66,37 +66,35 @@ Proof.
 Qed.
 
 Section retract_is_int.
-  Context `{Integers Int} `{Ring Int2} .
-  Context (f : Int → Int2) (g : Int2 → Int) `{!Ring_Morphism f} `{!Ring_Morphism g}.
-  Context (f_retraction_g : ∀ x : Int2, f (g x) = x).
+  Context `{Integers Int} `{Ring Int2}.
+  Context (f : Int → Int2) `{!Inverse f} `{!Surjective f} `{!Ring_Morphism f} `{!Ring_Morphism (inverse f)}.
 
-  (* If we make this an instance, then instance resulution will result in an infinite loop *)
-  Definition retract_is_int_to_ring : IntegersToRing Int2 := λ R _ _ _ _ _, integers_to_ring Int R ∘ g.
+  (* If we make this an instance, then instance resolution will result in an infinite loop *)
+  Definition retract_is_int_to_ring : IntegersToRing Int2 := λ R _ _ _ _ _, integers_to_ring Int R ∘ inverse f.
 
   Section for_another_ring.
     Context `{Ring R}.
 
-    Instance: Ring_Morphism (integers_to_ring Int R ∘ g).
+    Instance: Ring_Morphism (integers_to_ring Int R ∘ inverse f).
     Context (h :  Int2 → R) `{!Ring_Morphism h}. 
       
-    Lemma same_morphism: integers_to_ring Int R ∘ g = h.
+    Lemma same_morphism: integers_to_ring Int R ∘ inverse f = h.
     Proof with auto.
-      intro x. 
-      rewrite <-f_retraction_g at 2.
-      assert (H3:=to_ring_unique (h ∘ f)).
-      unfold compose in *. 
-      unfold equiv in H3. unfold ext_eq in H3. rewrite H3. 
-      apply reflexivity.
+      intro x.
+      pose proof (to_ring_unique (h ∘ f)) as E.
+      unfold compose in *.
+      rewrite <-E. apply sm_proper. 
+      apply jections.surjective_applied.
     Qed.
   End for_another_ring.
   
-  (* If we make this an instance, then instance resulution will result in an infinite loop *)
+  (* If we make this an instance, then instance resolution will result in an infinite loop *)
   Program Definition retract_is_int: @Integers Int2 _ _ _ _ _ _ retract_is_int_to_ring. 
   Proof.
     esplit. (* for some reason split doesn't work... *)
     apply integer_initial. intros. 
     unfold integers_to_ring, retract_is_int_to_ring. 
-    apply same_morphism. auto.
+    apply same_morphism. assumption.
   Qed.
 End retract_is_int.
 

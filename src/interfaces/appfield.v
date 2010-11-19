@@ -37,7 +37,7 @@ Class AppMultInv A B `{Equiv A} `{RingZero A} :=
   app_mult_inv: { x: A | x ≠ ring_zero } → B → A.
 
 Infix "✚" := app_ring_plus (at level 50).
-Infix "✖" := app_ring_plus (at level 70).
+Infix "✖" := app_ring_mult (at level 70).
 Notation "▬ x" := (app_group_inv x) (at level 70).
 Notation "/// x" := (app_mult_inv x) (at level 70). (* I'm unable to find a bold unicode / :( *)
 

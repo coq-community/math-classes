@@ -5,13 +5,13 @@
 *)
 
 Require
-  theory.integers theory.rings theory.fields.
+  theory.integers theory.rings theory.fields theory.rationals.
 Require Import
   Morphisms Ring Program RelationClasses Setoid
   abstract_algebra 
   interfaces.integers interfaces.naturals interfaces.rationals
   interfaces.additional_operations 
-  theory.cut_minus theory.bit_shift
+  theory.cut_minus theory.bit_shift orders.minmax
   positive_integers_naturals.
 
 Record Dyadic Z := dyadic { mant: Z; expo: Z }.
@@ -19,7 +19,7 @@ Implicit Arguments dyadic [[Z]].
 Implicit Arguments mant [[Z]].
 Implicit Arguments expo [[Z]].
 
-Infix "#" := dyadic (at level 80).
+Infix "$" := dyadic (at level 80).
 Instance: Params (@dyadic) 2.
 
 Section dyadics.
@@ -36,7 +36,7 @@ Section dyadics.
 
   Instance: Proper ((=) ==> (=) ==> (=)) (∸). Proof. apply _. Qed.
 
-  Hint Resolve (@orders.precedes_flip Z _ _).
+  Hint Resolve (@orders.precedes_flip Z _ _ _ _).
 
   (* Dirty hack to avoid having sigma times all over *)
   Program Let cut_minus_ZPos (x y : Z) : Pos Z := exist _ (x ∸ y) _.
@@ -145,47 +145,18 @@ Section dyadics.
     rewrite E1, E2. reflexivity.
   Qed.
 
-  (* Ad hoc min function, it would be nicer to formalize some lattice theory *)
-  Definition min (x y : Z) := if (decide (x ≤ y)) then x else y.
-  
-  Instance: Commutative min.
-  Proof with auto; try reflexivity.
-    intros x y. unfold min. 
-    case (decide (x ≤ y)); case (decide (y ≤ x)); intros; apply (antisymmetry (≤))...
-  Qed.
-
-  Instance: Associative min.
-  Proof with auto; try reflexivity; try contradiction.
-     intros x y z. unfold min.
-     case (decide (y ≤ z)); intros E1; case (decide (x ≤ y)); intros E2; 
-       case (decide (x ≤ z)); intros E3; case (decide (y ≤ z)); intros E4...
-     destruct E3. transitivity y...
-     destruct E4. transitivity x...
-  Qed.
-  
-  Lemma sr_precedes_min_l (x y : Z) : x ≤ y → min x y = x.
-  Proof with auto.
-    intros E. unfold min.
-    case (decide (x ≤ y)). reflexivity. contradiction.
-  Qed.
-  
-  Lemma sr_precedes_min_r (x y : Z) : y ≤ x → min x y = y.
-  Proof with auto.
-    intros E. rewrite commutativity. apply sr_precedes_min_l...
-  Qed.
-
   (** * Basic operations *)
   Global Program Instance dy_plus: RingPlus Dyadic := λ x y, 
     if decide (expo x ≤ expo y)
-    then mant x + (mant y ≪ exist _ (expo y - expo x) _) # min (expo x) (expo y)
-    else (mant x ≪ exist _ (expo x - expo y) _) + mant y # min (expo x) (expo y).
+    then mant x + (mant y ≪ exist _ (expo y - expo x) _) $ min (expo x) (expo y)
+    else (mant x ≪ exist _ (expo x - expo y) _) + mant y $ min (expo x) (expo y).
   Next Obligation. apply semiring.sr_precedes_0_minus. assumption. Qed.
   Next Obligation. apply semiring.sr_precedes_0_minus. auto. Qed.
 
   (* The following plus function is less efficient, because it involves computing [decide (expo x ≤ expo y)] twice.
     Yet, it is much more convinient to reason with. *)
   Definition dy_plus_alt (x y : Dyadic) : Dyadic := 
-    mant x ≪ (expo x -- expo y) + mant y ≪ (expo y -- expo x) # min (expo x) (expo y).
+    mant x ≪ (expo x -- expo y) + mant y ≪ (expo y -- expo x) $ min (expo x) (expo y).
   
   Lemma dy_plus_alt_correct x y : dy_plus x y = dy_plus_alt x y.
   Proof with auto; try reflexivity.
@@ -200,86 +171,23 @@ Section dyadics.
     symmetry. apply shiftl_cut_minus_0...
   Qed.
 
-  Global Instance dy_opp: GroupInv Dyadic := λ x, -mant x # expo x.
+  Global Instance dy_opp: GroupInv Dyadic := λ x, -mant x $ expo x.
 
-  Global Instance dy_mult: RingMult Dyadic := λ x y, mant x * mant y # expo x + expo y.
+  Global Instance dy_mult: RingMult Dyadic := λ x y, mant x * mant y $ expo x + expo y.
 
-  Global Instance dy_0: RingZero Dyadic := 0 # 0.
-  Global Instance dy_1: RingOne Dyadic := 1 # 0.
+  Global Instance dy_0: RingZero Dyadic := 0 $ 0.
+  Global Instance dy_1: RingOne Dyadic := 1 $ 0.
 
   (* * General properties *)
-  Lemma nonzero_mant x : x ≠ 0 → mant x ≠ 0.
+  Lemma nonzero_mant x : x ≠ 0 ↔ mant x ≠ 0.
   Proof.
-    intros E F. apply E. unfold equiv, dy_eq. simpl.
-    rewrite F.
-    do 2 rewrite left_absorb. reflexivity.
-  Qed.
-
-  (* * Properties of min and minus *)
-  Lemma min_minus1 x y z : x ∸ min y z = x ∸ y + (min x y ∸ z). 
-  Proof with eauto; try ring.
-    unfold min.
-    case (decide (x ≤ y)); case (decide (y ≤ z)); intros F G.
-    rewrite (cut_minus_0 x z)... transitivity y...
-    rewrite (cut_minus_0 x y)...
-    rewrite (cut_minus_0 y z)...
-    symmetry. apply cut_minus_precedes_trans...
-  Qed.
-  
-  Lemma min_minus2 x y z : y ∸ z + (min y z ∸ x) = y ∸ x + (min x y ∸ z).
-  Proof with eauto; try ring.
-    unfold min.
-    case (decide (x ≤ y)); case (decide (y ≤ z)); intros.
-    repeat rewrite (cut_minus_0 _ z)... transitivity y...
-    apply cut_minus_plus_toggle1... 
-    repeat rewrite (cut_minus_0 _ x)...
-    repeat rewrite (cut_minus_0 _ x)...
-    transitivity y...
-  Qed.
-
-  Lemma min_minus3 x y z : (x + min y z) ∸ min (x + y) (x + z) = min (x + y) (x + z) ∸ (x + min y z).
-  Proof with auto; try reflexivity.
-    destruct (total_order y z) as [G1|G1].
-    rewrite (sr_precedes_min_l y z), (sr_precedes_min_l (x + y) (x + z))...
-    apply semiring.sr_precedes_plus_compat_l...
-    rewrite (sr_precedes_min_r y z), (sr_precedes_min_r (x + y) (x + z))...
-    apply semiring.sr_precedes_plus_compat_l...
-  Qed.
-
-  Lemma min_minus4 x1 x2 y1 y2 : 
-    y1 ∸ x1 + (x1 ∸ x2 + (min x1 x2 ∸ min y1 y2)) = y1 ∸ y2 + (min y1 y2 ∸ min x1 x2) + (x1 ∸ y1).
-  Proof with auto.
-    unfold min.
-    case (decide (x1 ≤ x2)); case (decide (y1 ≤ y2)); intros.
-    (* case 1*)
-    rewrite (cut_minus_0 x1 x2), (cut_minus_0 y1 y2)... ring.
-    (* case 2 *)
-    rewrite (cut_minus_0 x1 x2)... 
-    destruct (total_order x1 y2) as [G3|G3]; rewrite (cut_minus_0 _ _ G3)... 
-    rewrite (cut_minus_0 _ y1)... 
-      ring_simplify. symmetry. apply cut_minus_precedes_trans... 
-      transitivity y2...
-    ring_simplify. symmetry. 
-    rewrite commutativity. apply cut_minus_plus_toggle2...    
-    (* case 3 *)
-    rewrite (cut_minus_0 y1 y2)...
-    destruct (total_order x1 y1) as [G3|G3]; rewrite (cut_minus_0 _ _ G3)... 
-    rewrite (cut_minus_0 _ y1)... 
-      ring_simplify. apply cut_minus_precedes_trans... 
-      transitivity x1...
-    ring_simplify. 
-    rewrite (commutativity (y1 ∸ x2)). apply cut_minus_plus_toggle1...
-    (* case 4 *)
-    destruct (total_order x1 y1) as [G3|G3];
-      rewrite (cut_minus_0 _ _ G3);
-      destruct (total_order x2 y2) as [G4|G4];
-      rewrite (cut_minus_0 _ _ G4); ring_simplify.
-    rewrite cut_minus_precedes_trans... symmetry. apply cut_minus_precedes_trans...
-    rewrite cut_minus_precedes_trans... apply cut_minus_precedes_trans... transitivity x1...
-    symmetry. rewrite commutativity. rewrite cut_minus_precedes_trans... 
-      apply cut_minus_precedes_trans... transitivity y2...
-    rewrite cut_minus_precedes_trans... symmetry. rewrite commutativity. 
-      apply cut_minus_precedes_trans...
+    split; intros E F; apply E. 
+    unfold equiv, dy_eq. simpl.
+    rewrite F. do 2 rewrite left_absorb. reflexivity.
+    unfold equiv, dy_eq in F. simpl in F.
+    rewrite left_absorb in F.
+    apply stable; intros G. 
+    apply (shiftl_nonzero (mant x) (expo x -- 0)); assumption.
   Qed.
 
   Lemma dy_plus_proper_aux n m x1 x2 y1 y2 : n ≪ (x1 -- y1) = m ≪ (y1 --x1) → 
@@ -290,7 +198,7 @@ Section dyadics.
     rewrite shiftl_order. rewrite E. 
     repeat rewrite <-shiftl_sum_exp. apply shiftl_proper...
     unfold_cut_minus.
-    apply min_minus4.
+    apply cut_minus_min4.
   Qed.
 
   (* * Properties of plus *)
@@ -322,10 +230,10 @@ Section dyadics.
     repeat rewrite <-shiftl_sum_exp. 
     rewrite associativity.
     repeat apply sg_mor; apply shiftl_proper; unfold_cut_minus...
-    apply min_minus1.
-    apply min_minus2.
+    apply cut_minus_min1.
+    apply cut_minus_min2.
     rewrite (commutativity (expo y) (expo z)), (commutativity (expo x) (expo y)).
-    symmetry. apply min_minus1.
+    symmetry. apply cut_minus_min1.
   Qed.
 
   Instance: Commutative dy_plus.
@@ -346,8 +254,8 @@ Section dyadics.
     rewrite left_absorb, left_identity. rewrite <-shiftl_sum_exp.
     apply shiftl_proper... unfold_cut_minus.
     destruct (total_order (expo x) 0) as [F|F].
-    repeat rewrite sr_precedes_min_r... rewrite cut_minus_rightabsorb... ring.
-    repeat rewrite sr_precedes_min_l... rewrite cut_minus_leftabsorb... ring.
+    rewrite min_r; auto. 2: apply _. rewrite cut_minus_rightabsorb... ring.
+    rewrite min_l... rewrite cut_minus_leftabsorb... ring.
   Qed.
 
   Program Instance: Monoid Dyadic (op:=dy_plus) (unit:=dy_0).
@@ -448,7 +356,7 @@ Section dyadics.
     rewrite <-distribute_l. repeat apply sg_mor...
     apply shiftl_proper... unfold_cut_minus. apply cut_minus_plus_l_rev.
     apply shiftl_proper... unfold_cut_minus. apply cut_minus_plus_l_rev.
-    unfold_cut_minus. apply min_minus3.
+    unfold_cut_minus. apply cut_minus_min3.
   Qed.
 
   Instance: Distribute dy_mult dy_plus.
@@ -460,7 +368,7 @@ Section dyadics.
   Qed.
 
   Global Instance: Ring Dyadic.
-(*
+
   (** 
    * Embedding into the rationals
    If we already have a [Rationals] implementation [Q], then we can embed [Dyadic]
@@ -471,7 +379,7 @@ Section dyadics.
 
   (* We don't make (Z >-> Q) a coercion because it could be computationally expensive
    and we want to see where it's called. *)
-  Context (ZtoQ: Z → Q) `{!Ring_Morphism ZtoQ}.
+  Context `{!Ring_Morphism (ZtoQ: Z → Q)}.
   
   (* We use binary division because that might have a more efficient implementation. *)
   Context `{fd : !FieldDiv Q}.
@@ -498,7 +406,7 @@ Section dyadics.
   Proof with auto; try reflexivity.
     intros x y E.
     unfold DtoQ, EtoQ. simpl. 
-    do 2 rewrite additional_operations.field_div_correct.
+    do 2 rewrite fields.field_div_correct.
     apply fields.equal_quotients. simpl.
     do 2 rewrite <-rings.preserves_mult.
     apply sm_proper.
@@ -507,11 +415,11 @@ Section dyadics.
     unfold equiv, dy_eq in E.
     destruct (total_order (expo x) (expo y)) as [F|F]; rewrite (shiftl_cut_minus_0 F) in E.
     rewrite E. do 3 rewrite <-shiftl_sum_exp.
-    apply shiftl_proper... unfold_cut_minus. ring_simplify. apply test...
+    apply shiftl_proper... unfold_cut_minus. ring_simplify. apply cut_minus_zeros_precedes...
     rewrite <-E. do 3 rewrite <-shiftl_sum_exp.
-    apply shiftl_proper... unfold_cut_minus. symmetry. ring_simplify. apply test...
+    apply shiftl_proper... unfold_cut_minus. symmetry. ring_simplify. apply cut_minus_zeros_precedes...
   Qed.
-
+  (*
   Lemma EtoQ_plus_mult x y :  EtoQ (x + y) = (EtoQ x) * (EtoQ y).
   Proof.
     intros.
@@ -531,10 +439,10 @@ Section dyadics.
   Qed.
 
   Lemma EtoQ_quotients a b c d : 
-    ZtoQ a / EtoQ b + ZtoQ c / EtoQ d = ZtoQ (a ≪ d + c ≪ b) / EtoQ (b + d).
+    ZtoQ a // EtoQ b + ZtoQ c // EtoQ d = ZtoQ (a ≪ d + c ≪ b) // EtoQ (b + d).
   Proof.
     rewrite rings.preserves_plus.
-    do 3 rewrite additional_operations.field_div_correct.
+    do 3 rewrite fields.field_div_correct.
     rewrite fields.quotients. simpl.
     repeat rewrite <-rings.preserves_mult.
     repeat rewrite <-mult_shiftl_1.
@@ -544,9 +452,13 @@ Section dyadics.
 
   Lemma DtoQ_preserves_plus x y : DtoQ (x + y) = DtoQ x + DtoQ y.
   Proof.
-    unfold ring_plus at 1. unfold dy_plus at 1.
+    unfold ring_plus at 1. rewrite dy_plus_alt_correct. unfold dy_plus_alt.
     unfold DtoQ. simpl.
     rewrite shiftl_sum_base.
+    Check min_minus1.
+    setoid_replace (0 -- min (expo x) (expo y)) with
+      (0 -- (expo x) + (min 0 (expo x) -- (expo y))).
+    Check min_minus1.
     (* rewrite (commutativity (mant y ≪ expo x) _).*)
     symmetry. apply EtoQ_quotients.
   Qed.

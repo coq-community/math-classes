@@ -1,5 +1,5 @@
 Require Import 
-  BigZ fast_integers positive_integers_naturals
+  BigZ BigQ fast_integers positive_integers_naturals
   fast_rationals
   abstract_algebra interfaces.integers interfaces.rationals 
   interfaces.additional_operations interfaces.appfield
@@ -21,12 +21,24 @@ Check (_ : RingMinus fastZ).
 Check (_ : CutMinus fastZ).
 Check (_ : CutMinus (Pos fastZ)).
 
-Definition D : Dyadic fastZ := (233123124123412343%bigZ) # (12314%bigZ).
-Definition E : Dyadic fastZ := (2151453412523525234%bigZ) # (-13152%bigZ).
+Definition D : Dyadic fastZ := (2331%bigZ) $ (14%bigZ).
+Definition E : Dyadic fastZ := (215%bigZ) $ (-132%bigZ).
 
-Program Definition Y : Pos fastZ := 5%bigZ.
+Definition Q1 : fastQ := (1#3)%bigQ.
+
+Program Definition Y : Pos fastZ := 256%bigZ.
 Next Obligation.  Admitted.
 
+Time Eval vm_compute in (QtoD Q1 Y).
+Time Eval vm_compute in (((QtoD Q1 Y) * (3%bigZ $ 0))).
+Time Eval vm_compute in (DtoQ (
+  ((QtoD Q1 Y) ✖ (3%bigZ $ 0)) Y
+)).
+Time Eval vm_compute in (Q1 * (3#1)%bigQ).
+Time Eval vm_compute in (((QtoD Q1 Y) ✖ (3%bigZ $ 0)) Y).
+Time Eval vm_compute in (DtoQ (
+  ((QtoD Q1 Y) ✚ (3%bigZ $ 0)) Y
+)).
 Time Eval vm_compute in (D + E).
 Time Eval vm_compute in ((D ✚ E) Y).
 

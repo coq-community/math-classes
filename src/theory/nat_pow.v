@@ -1,17 +1,19 @@
 Require
-  theory.naturals.
+  theory.naturals orders.semiring orders.naturals.
 Require Import 
   Program Morphisms Setoid Ring
   abstract_algebra interfaces.naturals interfaces.additional_operations.
 
-(* * Properties of Nat Pow *)
-Section nat_pow_properties.
-  Context `{SemiRing A} `{Naturals B}.
+(* * Properties of Nat Pow spec *)
+Section nat_pow_spec_properties.
+  Context `{SemiRing A} 
+    `{SemiRing B} 
+    `{!ZeroNeOne B} 
+    `{!AntiSymmetric (sr_precedes (R:=B))}
+    `{!LeftCancellation (=) (λ x : B, True) (+)}.
 
-  Add Ring A: (rings.stdlib_semiring_theory A).
-  Add Ring B: (rings.stdlib_semiring_theory B).
-
-  Global Instance nat_pow_spec_proper: Proper ((=) ==> (=) ==> (=) ==> iff) nat_pow_spec.
+  Global Instance nat_pow_spec_proper: 
+    Proper ((=) ==> (=) ==> (=) ==> iff) (nat_pow_spec (A:=A) (B:=B)).
   Proof with eauto.
     intros x1 x2 E n1 n2 F y1 y2 G. 
     split; intro. eapply nat_pow_spec_proper'...
@@ -22,7 +24,25 @@ Section nat_pow_properties.
     set (x := c) in *;
     let H := fresh in (assert (H : x = c) by reflexivity; clearbody x; revert H).
 
-  Lemma nat_pow_spec_unique x n y1 y2 : 
+  Lemma nat_pow_spec_nonneg x (n : B) y : nat_pow_spec x n y → 0 ≤ n.
+  Proof with auto.
+    induction 1 as [ |  | ? ? ? ? ? ? ? G ].
+    reflexivity.
+    apply semiring.sr_precedes_nonneg_plus_compat...
+    apply semiring.sr_precedes_0_1.
+    rewrite <-G...
+  Qed.
+
+  Lemma nat_pow_spec_nz_one_plus_zero x (n : B) y : nat_pow_spec x n y → 1 + n ≠ 0.
+  Proof.
+    intros E F. 
+    destruct (nat_pow_spec_nonneg _ _ _ E) as [z Ez].
+    apply semiring.not_sr_precedes_0_1.
+    exists z.
+    rewrite left_identity in Ez. rewrite Ez. assumption.
+  Qed.
+
+  Lemma nat_pow_spec_unique x (n : B) y1 y2 : 
     nat_pow_spec x n y1 → nat_pow_spec x n y2 → y1 = y2.
   Proof with eauto; try reflexivity.
     intros E F. generalize dependent y2. 
@@ -30,13 +50,13 @@ Section nat_pow_properties.
     
     intros.
     gen_eq (0:B) as n. induction F as [ |  | ? ? ? ? ? ? G1 G2 G3 ]; intros...
-    destruct (naturals.nz_one_plus_zero n)...
+    edestruct nat_pow_spec_nz_one_plus_zero...
     rewrite <-G3. apply IHF. rewrite G2...
 
     intros.
     gen_eq (1+n) as m. generalize dependent n. generalize dependent y. 
     induction F as [ | | ? ? ? ? ? ? G1 G2 G3 ]; intros ? ? ? ? G4.
-    destruct (naturals.nz_one_plus_zero n). symmetry...
+    edestruct nat_pow_spec_nz_one_plus_zero... symmetry...
     apply sg_mor... apply IHE. 
     apply (left_cancellation (+) 1) in G4... 
     symmetry in G4. eapply nat_pow_spec_proper...
@@ -45,6 +65,14 @@ Section nat_pow_properties.
  
     intros. rewrite <-G3. apply IHE. eapply nat_pow_spec_proper... 
   Qed.
+End nat_pow_spec_properties.
+
+(* * Properties of Nat Pow *)
+Section nat_pow_properties.
+  Context `{SemiRing A} `{Naturals B}.
+
+  Add Ring A: (rings.stdlib_semiring_theory A).
+  Add Ring B: (rings.stdlib_semiring_theory B).
 
   Section nat_pow_spec_from_properties.
   Context (f : A → B → A) ( f_proper : Proper ((=) ==> (=) ==> (=)) f )
@@ -63,20 +91,20 @@ Section nat_pow_properties.
   Global Instance: Proper ((=) ==> (=) ==> (=)) (^).
   Proof with eauto.
     intros x1 x2 E y1 y2 F. 
-    unfold nat_pow, nat_pow_sig. do 2 destruct np. simpl.
+    unfold pow, nat_pow, nat_pow_sig. do 2 destruct np. simpl.
     eapply nat_pow_spec_unique...
     eapply nat_pow_spec_proper... reflexivity. 
   Qed.
 
   Lemma nat_pow_0 x : x ^ 0 = 1.
   Proof with eauto.
-   unfold nat_pow, nat_pow_sig. destruct np. simpl.
+   unfold pow, nat_pow, nat_pow_sig. destruct np. simpl.
    eapply nat_pow_spec_unique... apply nat_pow_spec_0.
   Qed.
 
   Lemma nat_pow_S x n : x ^ (1+n) = x * x ^ n.
   Proof with eauto.
-   unfold nat_pow, nat_pow_sig. do 2 destruct np. simpl.
+   unfold pow, nat_pow, nat_pow_sig. do 2 destruct np. simpl.
    eapply nat_pow_spec_unique... eapply nat_pow_spec_S...
   Qed.
 

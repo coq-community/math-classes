@@ -116,7 +116,8 @@ Section semiring_props.
 
 End semiring_props.
 
-Section semiringmor_props. Context `{SemiRing_Morphism}.
+Section semiringmor_props. 
+  Context `{SemiRing_Morphism A B f}.
 
   Lemma preserves_0: f 0 = 0.
   Proof. intros. apply (@preserves_mon_unit _ _ _ _ _ _ _ _ f _). Qed.
@@ -127,6 +128,18 @@ Section semiringmor_props. Context `{SemiRing_Morphism}.
   Lemma preserves_plus: ∀ x y, f (x + y) = f x + f y.
   Proof. intros. apply preserves_sg_op. Qed.
 
+  Context `{!Setoid B} `{!Injective f}.
+  Lemma injective_not_0 x : x ≠ 0 → f x ≠ 0.
+  Proof.
+    intros E G. apply E. 
+    apply (injective f). rewrite preserves_0. assumption.
+  Qed.
+
+  Lemma injective_not_1 x : x ≠ 1 → f x ≠ 1.
+  Proof.
+    intros E G. apply E. 
+    apply (injective f). rewrite preserves_1. assumption.
+  Qed.
 End semiringmor_props.
 
 Lemma stdlib_ring_theory R `{Ring R} `{minus : !RingMinus R} : 
@@ -222,7 +235,7 @@ End ringmor_props.
 
 Section from_stdlib_ring_theory.
   Context
-    `{H: @ring_theory R zero one pl mu mi op e}
+    `(H: @ring_theory R zero one pl mu mi op e)
     `{!@Setoid R e}
     `{!Proper (e ==> e ==> e) pl}
     `{!Proper (e ==> e ==> e) mu}

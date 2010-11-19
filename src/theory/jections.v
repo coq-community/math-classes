@@ -36,7 +36,11 @@ Lemma back `{Bijective A B f}: f ⁻¹ ∘ f = id. (* a.k.a. "split-mono" *)
 Proof. firstorder. Qed.
   (* recall that "f ∘ f ⁻¹ = id" is just surjective. *)
 
-Lemma surjective_applied `{Surjective A B f} x: f (f⁻¹ x) = x.
+Lemma surjective_applied `{Surjective A B f} x : f (f⁻¹ x) = x.
+Proof. firstorder. Qed.
+
+(* Without explicit argument f. This one is more convenient for rewriting *)
+Lemma surjective_applied' `{Equiv A} `{Equiv B} (f : A → B) `{!Inverse f} `{!Surjective f} x : f (f⁻¹ x) = x.
 Proof. firstorder. Qed.
 
 Lemma bijective_applied `{Bijective A B f} x: f⁻¹ (f x) = x.
@@ -110,17 +114,17 @@ Proof. apply (@cancel_left _ _ _ _ (f ⁻¹) f _). Qed.
 Instance Injective_proper `{Equiv A} `{Equiv B}: Proper ((=) ==> (=)) (@Injective A _ B _).
 Proof with intuition.
  cut (∀ (x y: A → B), x = y → Injective x → Injective y).
-  split; repeat intro.
-   apply H1 with x...
-  destruct (injective_mor y).
-  apply H1 with y...
- repeat intro.
- destruct (injective_mor x).
+  intros P f g ?. split; intros ?.
+   apply P with f...
+  destruct (injective_mor g).
+  apply P with g...
+ intros f g P ?.
+ destruct (injective_mor f).
  constructor.
-  repeat intro.
-  apply (injective x).
-  rewrite (H1 x0), (H1 y0)...
- rewrite <- H1...
+  intros x y ?.
+  apply (injective f).
+  rewrite (P x), (P y)...
+ rewrite <-P...
 Qed.
 
 Instance Surjective_proper `{Equiv A} `{Equiv B} (f g: A → B) {finv: Inverse f}:

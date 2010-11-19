@@ -164,6 +164,19 @@ Section field_props.
    rewrite mult_inverse...
   Qed. (* todo: should be cleanable *)
 
+  Lemma mult_inv_inj `{!LeftCancellation (=) (λ x, x ≠ 0) ring_mult} x y : //x = //y → x = y.
+  Proof with auto.
+    intros E.
+    unfold equiv, sig_equiv, sig_relation. fold equiv.
+    apply (right_cancellation ring_mult (//x)).
+      intros G.
+      destruct zero_ne_one.
+      rewrite <-(rings.mult_0_r (`x)), <-G.
+      apply mult_inverse.
+    rewrite mult_inverse, E, mult_inverse.
+    reflexivity.
+  Qed.
+
   Lemma quotients a c (b d : { q : F | q ≠ 0 }) :
     a * //b + c * //d = (a * `d + c * `b) * // (b * d).
   Proof with auto.
@@ -202,13 +215,13 @@ Section field_props.
    right. apply (left_cancellation ring_mult x)...
   Qed.
 
-  Lemma inv_0: / 0 = 0.
+  Lemma dec_mult_inv_0: / 0 = 0.
   Proof. unfold dec_mult_inv. case (decide _); intuition. Qed.
 
   Lemma dec_mult_inv_distr (x y: F): / (x * y) = / x * / y.
   Proof.
-   destruct (decide (x = 0)) as [E|E]. rewrite E, left_absorb, inv_0. ring.
-   destruct (decide (y = 0)) as [G|G]. rewrite G, right_absorb, inv_0. ring.
+   destruct (decide (x = 0)) as [E|E]. rewrite E, left_absorb, dec_mult_inv_0. ring.
+   destruct (decide (y = 0)) as [G|G]. rewrite G, right_absorb, dec_mult_inv_0. ring.
    field. intuition.
   Qed.
 
@@ -217,16 +230,35 @@ Section field_props.
    intro E.
    destruct (decide (y = 0)).
     exfalso. apply field_0neq1.
-    rewrite <- E, e0, inv_0...
+    rewrite <- E, e0, dec_mult_inv_0...
    transitivity (1 * y)...
    rewrite <- E...
   Qed.
 
 End field_props.
 
+Section morphisms.
+  Context `{Field F} `{Field F2} `{!Ring_Morphism (f : F → F2)}.
+
+  Context `{∀ x y: F, Decision (x = y)} `{∀ x y: F2, Decision (x = y)}.
+   
+  Lemma preserves_dec_mult_inv `{!Injective f} x : f (/x) = /(f x).
+  Proof with auto.
+    case (decide (x = 0)) as [E | E].
+    rewrite E, dec_mult_inv_0, preserves_0, dec_mult_inv_0. reflexivity.
+    apply (right_cancellation ring_mult (f x)).
+      apply injective_not_0...
+    rewrite <-preserves_mult.
+    rewrite commutativity, dec_mult_inverse...
+    rewrite commutativity, dec_mult_inverse.
+    apply preserves_1.
+    apply injective_not_0...
+  Qed.
+End morphisms.
+
 Section from_stdlib_field_theory.
 
-  Context `{H: @field_theory F zero one pl mu mi op div rinv e}
+  Context `(H: @field_theory F zero one pl mu mi op div rinv e)
     `{!@Setoid F e}
     `{!Proper (e ==> e ==> e) pl}
     `{!Proper (e ==> e ==> e) mu}

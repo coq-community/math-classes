@@ -37,7 +37,7 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
    destruct (decide (den = 0)) as [A|A]...
    exists (0:nat), (1:nat).
    split. discriminate.
-   rewrite <- E, A, preserves_0, preserves_1, inv_0.
+   rewrite <- E, A, preserves_0, preserves_1, dec_mult_inv_0.
    ring.
   Qed.
 
@@ -54,7 +54,7 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
     exists (0:nat), (1:nat).
     rewrite preserves_1, preserves_0.
     split. apply not_symmetry. apply zero_ne_one.
-    rewrite <- E, A, preserves_0, inv_0.
+    rewrite <- E, A, preserves_0, dec_mult_inv_0.
     ring.
    exists num, den. split... intro. apply A.
    apply (injective (naturals_to_semiring nat F)).
@@ -128,3 +128,5 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
     := { ringorder_plus := @ringorder_plus; ringorder_mult := ringorder_mult }.
 
 End decfield_order.
+
+Instance: Params (@field_precedes) 8.

@@ -2,7 +2,8 @@ Require
   signed_binary_positive_integers Field Qfield theory.fields.
 Require Import
   Ring Morphisms QArith_base
-  abstract_algebra theory.rings interfaces.rationals canonical_names.
+  abstract_algebra theory.rings interfaces.rationals canonical_names
+  theory.rationals.
 
 (* canonical names for relations/operations/constants: *)
 Instance q_equiv: Equiv Q := Qeq.
@@ -18,7 +19,7 @@ Program Instance: MultInv Q := Qinv.
 Instance: Setoid Q.
 
 Instance: Field Q.
-Proof @theory.fields.from_stdlib_field_theory _ _ _ _ _ _ _ _ _ _ Qfield.Qsft _ _ _ _ _.
+Proof fields.from_stdlib_field_theory Qfield.Qsft.
 
 (* order: *)
 (*
@@ -85,3 +86,12 @@ Qed.
 
 Instance Qrat: Rationals Q.
 Proof alt_Build_Rationals _ _ inject_Z _ _.
+
+(* Relation to dec_mult_inv *)
+Lemma Qinv_dec_mult_inv (q : Q) : /q = Qinv q.
+Proof.
+  unfold dec_mult_inv.
+  case (decide (q = 0)); intros E.
+  rewrite E. reflexivity.
+  reflexivity.
+Qed.

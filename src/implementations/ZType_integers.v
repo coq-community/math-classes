@@ -37,7 +37,12 @@ Qed.
 
 Instance: Ring t | 10.
 Proof.
-  apply (@rings.from_stdlib_ring_theory t _ _ _ _ _ _ _ anyZ_ring_theory); apply _.
+  apply (rings.from_stdlib_ring_theory anyZ_ring_theory).
+Qed.
+
+Instance: Proper ((=) ==> (=)) of_Z.
+Proof. 
+  intros x y E. unfold_equiv. repeat f_equal. assumption.
 Qed.
 
 Instance: Ring_Morphism to_Z.
@@ -50,30 +55,26 @@ Proof with try apply _; auto.
   apply spec_1...
 Qed.
 
-Lemma of_Z_to_Z x : of_Z (to_Z x) = x.
-Proof.
-  unfold_equiv.
-  rewrite spec_of_Z. auto.
-Qed.
+Instance: Inverse to_Z := of_Z.
 
-Instance: Proper (equiv ==> equiv) of_Z.
-Proof.
-  intros x y E. rewrite E. (* slow *)
-  reflexivity.
-Qed.
+Instance: Surjective to_Z.
+Proof. constructor. exact spec_of_Z. apply _. Qed.
+
+Instance: Injective to_Z.
+Proof. constructor. intros. unfold equiv. unfold anyZ_eq. auto. apply _. Qed.
+
+Instance: Bijective to_Z.
+
+Instance: Inverse of_Z := to_Z.
+
+Instance: Bijective of_Z.
+Proof. apply jections.flip_bijection, _. Qed.
 
 Instance: Ring_Morphism of_Z.
-Proof with try apply _; auto.
-  repeat (split; try apply _); repeat intro; unfold_equiv. 
-  rewrite spec_add. repeat rewrite spec_of_Z...
-  unfold mon_unit at 2. unfold anyZ_0. rewrite spec_0. rewrite spec_of_Z...
-  rewrite spec_opp. repeat rewrite spec_of_Z...
-  rewrite spec_mul. repeat rewrite spec_of_Z...
-  unfold mon_unit. unfold anyZ_1. rewrite spec_1. rewrite spec_of_Z...
-Qed.
+Proof. change (Ring_Morphism (inverse to_Z)). apply _. Qed.
 
-Instance: IntegersToRing t := theory.integers.retract_is_int_to_ring to_Z.
-Instance: Integers t := theory.integers.retract_is_int of_Z to_Z of_Z_to_Z.
+Instance: IntegersToRing t := retract_is_int_to_ring of_Z.
+Instance: Integers t := retract_is_int of_Z.
 
 (* Efficient minus *)
 Program Instance: RingMinus t := sub.
@@ -93,8 +94,8 @@ Qed.
 
 Lemma to_Z_Zle_sr_precedes x y : (to_Z x <= to_Z y)%Z → x ≤ y.
 Proof.
-  intro.
-  rewrite <-of_Z_to_Z, <-(of_Z_to_Z y). 
+  intro. 
+  rewrite <-(jections.surjective_applied' of_Z x), <-(jections.surjective_applied' of_Z y). 
   apply (integers.preserve_sr_order of_Z).
   apply signed_binary_positive_integers.Zle_sr_precedes. assumption.
 Qed.
@@ -234,7 +235,7 @@ Next Obligation with auto.
     apply to_Z_sr_precedes_Zlt...
   unfold nat_pow, nat_pow_sig, anyZ_pow; simpl.
   split. 
-  apply to_Z_Zle_sr_precedes. rewrite <-ZType_two_2...
+  apply to_Z_Zle_sr_precedes. unfold additional_operations.pow. rewrite <-ZType_two_2...
   apply to_Z_Zlt_sr_precedes. rewrite ZType_succ_plus_1, commutativity, ZType_two_2 in E2...
 Qed.
 
