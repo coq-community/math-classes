@@ -7,18 +7,32 @@ Module BigZ_Integers := ZType_Integers BigZ.
 
 Definition fastZ: Type := BigZ.t.
 
+Print BigN.log2.
 (* Some ad hoc hacks to integrate BigN's shiftl and shiftr *)
-Add Ring R : (rings.stdlib_ring_theory Z).
-Program Instance: ShiftLeft fastZ (Pos fastZ) := λ (x : fastZ) (y : Pos fastZ), 
-  match y with
-  | BigZ.Pos y => match x with 
-     | BigZ.Pos x => BigZ.Pos (BigN.shiftl y x)
-     | BigZ.Neg x => BigZ.Neg (BigN.shiftl y x)
+Definition fastZ_shiftl (p : fastZ) (x : fastZ) :=
+  match p with
+  | BigZ.Pos p => match x with 
+     | BigZ.Pos x => BigZ.Pos (BigN.shiftl p x)
+     | BigZ.Neg x => BigZ.Neg (BigN.shiftl p x)
      end
-  | BigZ.Neg y => 0
+  | BigZ.Neg p => 0
   end.
 
-Next Obligation. 
+Definition fastZ_shiftr (p : fastZ) (x : fastZ) := 
+  match p with
+  | BigZ.Pos p => match x with 
+     | BigZ.Pos x => BigZ.Pos (BigN.shiftr p x)
+     | BigZ.Neg x => BigZ.Neg (BigN.shiftr p x)
+     end
+  | BigZ.Neg p => 0
+  end.
+
+Add Ring R : (rings.stdlib_ring_theory Z).
+Program Instance: ShiftLeft fastZ (Pos fastZ) := fastZ_shiftl.
+Next Obligation.
+  unfold fastZ_shiftl.
+  intros [x [[y|y] Ey] |x]; simpl.
+  unfold fastZ_shiftl. 
   program_simpl. destruct y as [[? | ?] ?]. simpl in *. inject Heq_y.
   unfold equiv, BigZ_Integers.anyZ_eq, BigZ.eq. simpl.
   rewrite BigN.spec_shiftl.

@@ -124,29 +124,6 @@ Class OrdField A {e: Equiv A} {plus mult inv zero one mult_inv leq}: Prop :=
 
 Instance ordfield_is_ordring `{OrdField A} : OrdRing A.
 
-Local Infix "<*>" := ralgebra_action (at level 30).
-
-Class Rmodule `(e: Equiv Scalar) `(Equiv Elem) `{RalgebraAction Scalar Elem}
-    scalar_plus scalar_mult scalar_inv scalar_zero scalar_one
-    elem_plus elem_zero elem_opp: Prop :=
-  { rmodule_ring:> @Ring Scalar e scalar_plus scalar_mult scalar_inv scalar_zero scalar_one
-  ; rmodule_abgroup:> @AbGroup _ _ elem_plus elem_zero elem_opp
-  ; rmodule_distr_l: `(x <*> (a & b) = (x <*> a) & (x <*> b))
-  ; rmodule_distr_r: `((x + y) <*> a = (x <*> a) & (y <*> a))
-  ; rmodule_assoc: `((x * y) <*> a = x <*> (y <*> a)) }.
-
-Class Ralgebra `(e: Equiv Scalar) `(e': Equiv Elem) `{RalgebraAction Scalar Elem}
-    scalar_plus scalar_mult scalar_inv scalar_zero scalar_one
-    elem_plus elem_mult elem_zero elem_one elem_opp: Prop :=
-  { ralgebra_module:> Rmodule e e'
-      scalar_plus scalar_mult scalar_inv scalar_zero scalar_one
-      elem_plus elem_zero elem_opp
-  ; ralgebra_ring:> @Ring Elem e' elem_plus elem_mult elem_zero elem_one elem_opp
-  ; ralgebra_assoc: `(x <*> (a * b) = (x <*> a) * b) }.
-
-Definition is_derivation `{Ralgebra Scalar Elem} (f: Elem → Elem): Prop :=
-  True. (* something *)
-
 Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatComp O}: Prop :=
   { arrow_equiv:> ∀ x y, Setoid (x ⟶ y)
   ; comp_proper:> ∀ x y z,

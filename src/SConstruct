@@ -13,11 +13,9 @@ while nodes:
     dirs += [node]
     nodes += glob.glob(node + '/*')
 
-Rs = ' -R interfaces interfaces -R theory theory -R orders orders -R varieties varieties -R categories categories '
-  # Todo: This sucks. We'd like to use "-R . ''", but this doesn't work. See Coq bug 2263.
-Rs_and_Is = Rs + ' -I implementations -I misc '
+Rs = ' -R . "" '
 
-coqc = 'coqc ' + Rs_and_Is + ' $SOURCE'
+coqc = 'coqc -q ' + Rs + ' $SOURCE'
 
 env = DefaultEnvironment(ENV = os.environ)
 
@@ -39,17 +37,17 @@ for node in vs:
   vos += [vo]
   globs += [glob]
 
-env.Command(env.Dir('coqdoc'), vs + vos + globs + [File('tools/coqdoc.css.diff')],
+env.Command(env.Dir('coqdoc'), vs + vos + globs + [File('../tools/coqdoc.css.diff')],
   [ Delete('coqdoc')
   , Mkdir('coqdoc')
   , 'coqdoc -utf8 --toc -g --no-lib-name -d $TARGET' + Rs + ' '.join(vs)
-  , 'patch --backup $TARGET/coqdoc.css tools/coqdoc.css.diff'])
+  , 'patch --backup $TARGET/coqdoc.css ../tools/coqdoc.css.diff'])
 
-os.system('coqdep ' + Rs_and_Is + ' '.join(vs) + ' > deps')
+os.system('coqdep ' + Rs + ' '.join(vs) + ' > deps')
 ParseDepends('deps')
 
-Alias('coqide', Command(['dummy'], [], 'coqide ' + Rs_and_Is + ' &'))
+Alias('coqide', Command(['dummy'], [], 'coqide ' + Rs + ' &'))
 
-Default('implementations', 'theory', 'categories', 'orders', 'varieties')
+Default('implementations', 'theory', 'categories', 'orders', 'varieties', 'misc')
 
-open('coqidescript', 'w').write('#!/bin/sh\ncoqide ' + Rs_and_Is + ' $@ \n')
+open('coqidescript', 'w').write('#!/bin/sh\ncoqide -args "' + Rs + '" $@ \n')
