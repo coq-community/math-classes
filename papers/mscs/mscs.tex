@@ -11,6 +11,7 @@
 \newcommand{\N}{\ensuremath{\mathbbm{N}}}
 \newcommand{\Z}{\ensuremath{\mathbbm{Z}}}
 \newcommand{\Q}{\ensuremath{\mathbbm{Q}}}
+
 \usepackage{color}
 
 \usepackage{graphicx}
@@ -49,8 +50,7 @@
   {⟶}{{$\longrightarrow\ $}}1
   {⇛}{{$\Longrightarrow\ $}}1
   {∧}{{$\land$}}1
-  {∀}{{$\forall$}}1
-  {Π}{{$\Uppi$ }}1
+  {∀}{{$\forall\ $}}1
   {η}{{$\upeta$}}1
   {⊓}{{$\sqcap$}}1
   {∘}{{$\circ\ $}}1
@@ -136,7 +136,7 @@ Occasionally there is some ambiguity as to whether a certain piece of informatio
 
 The `native' notion of equality in Coq is that of terms being convertible, naturally reified as a proposition by the inductive type family \lstinline|eq| with single constructor \lstinline|eq_refl|:
 \begin{lstlisting}
-  eq_refl : Π (T: Type) (x: T), x ≡ x,
+  eq_refl : ∀ (T: Type) (x: T), x ≡ x,
 \end{lstlisting}
 where `\lstinline|a ≡ b|' is notation for \lstinline|eq T a b|. Here we diverge from Coq tradition and reserve \lstinline|=| for setoid equality, as this is the equality we will be working with most of the time. Importantly, since convertibility is a congruence, a proof of \lstinline|a ≡ b| lets us substitute \lstinline|b| for \lstinline|a| anywhere inside a term without further conditions. We mention this explicitly only because rewriting \emph{does} give rise to conditions when we depart from Leibniz equality and introduce equivalence relations representing abstractions over common representations of the same conceptual object. For instance, consider formal fractions of integers as a representation of rationals. Rewriting a subterm using such an equality is permitted only if the subterm is an argument of a function that has been proven to \emph{respect} the equality. Such a function is called \emph{proper}, and propriety must be proved for each function in whose arguments we wish to enable rewriting.
 
@@ -173,7 +173,7 @@ Thus, type classes in Coq are realized by relatively minor syntactic aids that b
 Algebraic structures are expressed in terms of a number of carrier sets, a number of operations and relations on these carriers, and a number of laws that the operations and relations satisfy. In a system like Coq, we have different options when it comes to representing the grouping of these components. On one end of the spectrum, we can simply define the (conjunction of) laws as an $n$-ary predicate over $n$ components, forgoing explicit grouping altogether. For instance, for the mundane example of a reflexive relation, we could use:
 
 \begin{lstlisting}
-  Definition reflexive {A: Type} (R: relation A): Prop := Π a, R a a.
+  Definition reflexive {A: Type} (R: relation A): Prop := ∀ a, R a a.
 \end{lstlisting}
 The curly brackets used for \lstinline|A| mark it as an implicit argument.
 
@@ -186,7 +186,7 @@ In the absence of type classes, these are all very real problems, and for this r
   Record ReflexiveRelation: Type :=
     { rr_carrier: Type
     ; rr_rel: relation rr_carrier
-    ; rr_proof: Π x, rr_rel x x }.
+    ; rr_proof: ∀ x, rr_rel x x }.
 \end{lstlisting}
 Superficially, this instantly solves the problems described above: reflexive relations can now be declared and passed as self-contained packages, and the \lstinline|rr_rel| projection now constitutes a canonical name for relations that are known to be reflexive, and we could bind a notation to it. While there is no conventional notation for reflexive relations, the situation is the same in the context of, say, a semiring, where we would bind $+$ and $*$ notations to the record field projections for the addition and multiplication operations, respectively.
 
@@ -295,7 +295,7 @@ Theorem: For $x, y, z$ in a semigroup $G$, $x * y * z = z * y * x$.
 Without further support from the system, this would have to be written as
 \begin{lstlisting}
   Theorem example G e op {P: SemiGroup G e op}:
-    Π x y z, e (op (op x y) z) (op (op z y) x).
+    ∀ x y z, e (op (op x y) z) (op (op z y) x).
 \end{lstlisting}
 Because \lstinline|e| and \lstinline{op} are freshly introduced local names, we cannot bind notations to them prior to this theorem. Hence, if we want notations, what we really need are canonical names for these components. This is easily accomplished with single-field type classes containing one component each, which we will call \emph{operational type classes}\footnote{These single-field type classes are used in the same way in the \lstinline|Clean| standard library~\cite{clean}.}:
 \begin{lstlisting}
@@ -311,18 +311,18 @@ As an aside, we note that the distinction between the class field name and the i
 
 If we now retype \lstinline|SemiGroup| as:
 \begin{lstlisting}
-  Π (G: Type) (e: Equiv G) (op: SemiGroupOp G), Prop
+  ∀ (G: Type) (e: Equiv G) (op: SemiGroupOp G), Prop
 \end{lstlisting}
 then we can declare the theorem with:
 \begin{lstlisting}
   Theorem example G e op {P: SemiGroup G e op}:
-    Π x y z, x & y & z = z & y & x.
+    ∀ x y z, x & y & z = z & y & x.
 \end{lstlisting}
 This works because instance resolution, invoked by the use of \lstinline|=| and \lstinline|&|, will find \lstinline|e| and \lstinline|op|, respectively. Hence, the above is really
 
 \begin{lstlisting}
   Theorem example G e op {P: SemiGroup G e op}:
-    Π x y z, equiv e (sg_op op (sg_op op x y) z) (sg_op op (sg_op op z y) x).
+    ∀ x y z, equiv e (sg_op op (sg_op op x y) z) (sg_op op (sg_op op z y) x).
 \end{lstlisting}
 where \lstinline|e| and the \lstinline|op|s are filled in by instance resolution.
 
@@ -330,7 +330,7 @@ At this point, a legitimate worry might be that the \lstinline|Equiv|/\lstinline
 
 A remaining eyesore in the theorem declaration is the enumeration of \lstinline|e| and \lstinline|op|. To remove these, we use a new parameter declaration feature called \emph{implicit generalization}, introduced in Coq specifically to support type classes. Using implicit generalization, we can write:
 \begin{lstlisting}
-  Theorem example `{SemiGroup G}: Π x y z: G, x & y & z = z & y & x.
+  Theorem example `{SemiGroup G}: ∀ x y z: G, x & y & z = z & y & x.
 \end{lstlisting}
 The backtick tells Coq to insert implicit declarations of further parameters to \lstinline|SemiGroup G|, namely those declared as \lstinline|e| and \lstinline|op| above. It further lets us omit a name for the \lstinline|SemiGroup G| parameter itself as well. All of these will be given automatically generated names that we will never refer to.
 
@@ -370,7 +370,7 @@ Before we proceed with a discussion of the algebraic hierarchy based on predicat
 \end{lstlisting}
 Here, \lstinline|sumbool| is just the (informative) sum of proofs.
 
-\lstinline|Decision| is a very general-purpose type class that also works for predicates. For instance, to declare a parameter expressing decidability of, say, (setoid) equality on a type \lstinline|X|, we write: \lstinline|`{Π a b: X, Decision (a = b)}|. To then use this (unnamed) decider to decide a particular equality, we simply say \lstinline|decide (x = y)|, and instance resolution will resolve the decider we declared.
+\lstinline|Decision| is a very general-purpose type class that also works for predicates. For instance, to declare a parameter expressing decidability of, say, (setoid) equality on a type \lstinline|X|, we write: \lstinline|`{∀ a b: X, Decision (a = b)}|. To then use this (unnamed) decider to decide a particular equality, we simply say \lstinline|decide (x = y)|, and instance resolution will resolve the decider we declared.
 
 With \lstinline|Decision| as a type class, we can very easily define composite deciders for things like conjunctions and quantifications over (finite) domains:
 \begin{lstlisting}
@@ -501,7 +501,7 @@ Following our idiom, we introduce operational type classes for the \emph{compone
   Class Arrows (O: Type): Type := Arrow: O → O → Type.
   Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
   Class CatComp O `{Arrows O} :=
-    comp: Π {x y z}, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
+    comp: ∀ {x y z}, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
 
   Infix "⟶" := Arrow (at level 90, right associativity).
   Infix "◎" := comp (at level 40, left associativity).
@@ -511,10 +511,10 @@ Following our idiom, we introduce operational type classes for the \emph{compone
 With these in place, our type class for categories follows the usual type-theoretical definition of a
 category~\cite{saibi1995constructive}:
 \begin{lstlisting}
-  Class Category (O: Type) `{Arrows O} `{Π x y: O, Equiv (x ⟶ y)}
+  Class Category (O: Type) `{Arrows O} `{∀$$x y: O, Equiv (x ⟶ y)}
       `{CatId O} `{CatComp O}: Prop :=
-    { arrow_equiv:> Π x y, Setoid (x ⟶ y)
-    ; comp_proper:> Π x y z, Proper (equiv ==> equiv ==> equiv) comp
+    { arrow_equiv:> ∀ x y, Setoid (x ⟶ y)
+    ; comp_proper:> ∀ x y z, Proper (equiv ==> equiv ==> equiv) comp
     ; comp_assoc w x y z (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
         c ◎$$ (b ◎$$ a) = (c ◎$$ b) ◎$$ a
     ; id_l `(a: x ⟶ y): cat_id ◎$$ a = a
@@ -526,9 +526,9 @@ This definition is based on the 2-categorical idea of having equality only on ar
 Initiality, too, is defined by a combination of an operational and a predicate class:
 \begin{lstlisting}
   Context `{Category X}.
-  Class InitialArrows (x: X): Type := initial_arrow: Π y, x ⟶ y.
+  Class InitialArrows (x: X): Type := initial_arrow: ∀ y, x ⟶ y.
   Class Initial (x: X) `{InitialArrows x}: Prop :=
-    initial_arrow_unique: Π y (a: x ⟶ y), a = initial_arrow y.
+    initial_arrow_unique: ∀ y (a: x ⟶ y), a = initial_arrow y.
 \end{lstlisting}
 The operational class \lstinline|InitialArrows| designates the arrows that originate from an initial object \lstinline|x| by virtue of it being initial. The \lstinline|Initial| class itself further requires these ``initial arrows'' to be unique. Having \lstinline|InitialArrows| as an operational type class means that we can always simply say \lstinline|initial_arrow y| whenever \lstinline|y| is known to be an object in a category known to have an initial object (where `known' should be read as ``can be determined by instance resolution'').
 
@@ -541,12 +541,12 @@ In our definition of functors we see the by now familiar refrain once more:
   Context `{Category C} `{Category D} (map_obj: C → D).
 
   Class Fmap: Type :=
-    fmap: Π {v w: C}, (v ⟶ w) → (map_obj v ⟶ map_obj w).
+    fmap: ∀ {v w: C}, (v ⟶ w) → (map_obj v ⟶ map_obj w).
 
   Class Functor `{Fmap}: Prop :=
     { functor_from: Category C
     ; functor_to: Category D
-    ; functor_morphism:> Π a b: C, Setoid_Morphism (@fmap _ a b)
+    ; functor_morphism:> ∀ a b: C, Setoid_Morphism (@fmap _ a b)
     ; preserves_id: `(fmap (cat_id: a ⟶ a) = cat_id)
     ; preserves_comp `(f: y ⟶ z) `(g: x ⟶ y):
       fmap (f ◎$$ g) = fmap f ◎$$ fmap g }.
@@ -555,7 +555,7 @@ We ought to say a few words about our use of \lstinline|fmap|. The usual mathema
 
 In Coq, for a term \lstinline|F| to function as though it had two different types simultaneously (namely the object map and the arrow map), there must either (1) be coercions from the type of F to either function, or (2) F must be (coercible to) a single function that is able to consume both object and arrow arguments. In addition to not being supported by Coq, option (1) would violate our policy of leaving components unbundled. For (2), if it could be made to work at all, F would need a pretty egregious type considering that arrow types are indexed by objects, and that the type of the arrow map
 \begin{lstlisting}
- Π x y, (x ⟶ y) → (F x ⟶ F y)
+ ∀ x y, (x ⟶ y) → (F x ⟶ F y)
 \end{lstlisting}
 must refer to the object map.
 
@@ -565,7 +565,7 @@ We feel that these issues are not limitations of the Coq system, but merely refl
 
 We introduce a convenient notation for the type of the computational content of a natural transformation between two functors:
 \begin{lstlisting}
-  Notation "F ⇛ G" := (Π x, F x ⟶ G x).
+  Notation "F ⇛ G" := (∀ x, F x ⟶ G x).
 \end{lstlisting}
 Now assume the following context:
 \begin{lstlisting}
@@ -577,7 +577,7 @@ The naturality property is easy to write:
   Class NaturalTransformation (η: F ⇛ G): Prop :=
     { naturaltrans_from: Functor F
     ; naturaltrans_to: Functor G
-    ; natural: Π `(f: x ⟶ y), η$$ y ◎$$ fmap F f = fmap G f ◎$$ η$$ x }.
+    ; natural: ∀ `(f: x ⟶ y), η$$ y ◎$$ fmap F f = fmap G f ◎$$ η$$ x }.
 \end{lstlisting}
   % Todo: Having to add "$$" to get whitespace is awful. we can't add "\ " in η's literate-replacement though, because then we also get space before the colon in "η: t".
 
@@ -588,7 +588,7 @@ The naturality property is easy to write:
 
 Adjunctions can be defined in different ways. A nice symmetric definition is the following:
 \begin{lstlisting}
-  Class Adjunction (φ: Π `(F c ⟶ d), (c ⟶ G d)): Prop :=
+  Class Adjunction (φ: ∀ `(F c ⟶ d), (c ⟶ G d)): Prop :=
     { adjunction_left_functor: Functor F _
     ; adjunction_right_functor: Functor G _
     ; natural_left `(f: d ⟶ d') c: (fmap G f ◎) ∘ φ$$ = φ (c:=c) ∘ (f ◎)
@@ -596,9 +596,9 @@ Adjunctions can be defined in different ways. A nice symmetric definition is the
 \end{lstlisting}
 An alternative definition is the following:
 \begin{lstlisting}
-  Class AltAdjunction (η: id ⇛ G ∘ F) (φ: Π `(f: c ⟶ G d), F c ⟶ d): Prop :=
+  Class AltAdjunction (η: id ⇛ G ∘ F) (φ: ∀ `(f: c ⟶ G d), F c ⟶ d): Prop :=
     { alt_adjunction_natural_unit: NaturalTransformation η
-    ; alt_adjunction_factor: Π `(f: c ⟶ G d),
+    ; alt_adjunction_factor: ∀ `(f: c ⟶ G d),
         is_sole ((f =) ∘ (◎ η$$ c) ∘ fmap G) (φ f) }.
 \end{lstlisting}
 Formalizing the (nontrivial) proof that these two definitions are equivalent provides a nice test for our definitions. As a first step, we have constructed the unit and co-unit of the adjunction, thus proving MacLane's Theorem 1. We have concisely and closely followed his proof~\cite{CatWork}. % todo: ref?
@@ -625,13 +625,13 @@ Given an interpretation of the sorts (mapping each symbolic sort to a carrier), 
   Definition op_type: ne_list (sorts σ) → Type := fold (→) ∘ map carrier.
 
   Class AlgebraOps (σ: Signature) (carriers: sorts σ$$ → Type)
-    := algebra_op: Π o: operation σ, op_type carriers (σ o).
+    := algebra_op: ∀ o: operation σ, op_type carriers (σ o).
 \end{lstlisting}
 Because our carriers will normally be equipped with a setoid equality, we further define the predicate class \lstinline|Algebra|, stating that each of the operations respects the setoid equality on the carriers:
 \begin{lstlisting}
-  Class Algebra `{Π a, Equiv (carriers a)} `{AlgebraOps σ$$ carriers}: Prop :=
-      { algebra_setoids:> Π a, Setoid (carriers a)
-      ; algebra_propers:> Π o: σ, Proper (=) (algebra_op o) }.
+  Class Algebra `{∀$$a, Equiv (carriers a)} `{AlgebraOps σ$$ carriers}: Prop :=
+      { algebra_setoids:> ∀ a, Setoid (carriers a)
+      ; algebra_propers:> ∀ o: σ, Proper (=) (algebra_op o) }.
 \end{lstlisting}
 The \lstinline|(=)| referred to in \lstinline|algebra_propers| is an \lstinline|Equiv| instance expressing setoid-respecting extensionality for the function types generated by \lstinline|op_type|.
 
@@ -652,11 +652,10 @@ We now introduce a predicate class designating algebras that satisfy the laws of
 \begin{lstlisting}
   Class InVariety
     (et: EquationalTheory) (carriers: sorts et → Type)
-    {e: Π a, Equiv (carriers a)} `{AlgebraOps et carriers}: Prop :=
+    {e: ∀ a, Equiv (carriers a)} `{AlgebraOps et carriers}: Prop :=
     { variety_algebra:> Algebra et carriers
-    ; variety_laws: Π s, eqt_laws et s → (Π $\hspace{-1.5mm}$vars, eval_stmt et vars s) }.
+    ; variety_laws: ∀ s, eqt_laws et s → (∀$$vars, eval_stmt et vars s) }.
 \end{lstlisting}
-  % todo: why do i need the manual \hspace!?
 
 What remains is to show that carrier sets together with \lstinline|Equiv|s and \lstinline|AlgebraOps| satisfying \lstinline|InVariety| for a given \lstinline|EquationalTheory| do indeed form a \lstinline|Category| (the `variety'). Since we need a type for the objects in the \lstinline|Category|, at this point we have no choice but to bundle components and proof together in a record:
 \begin{lstlisting}
@@ -664,7 +663,7 @@ What remains is to show that carrier sets together with \lstinline|Equiv|s and \
 
   Record ObjectInVariety: Type := object_in_variety
     { variety_carriers:> sorts et → Type
-    ; variety_equiv: Π a, Equiv (variety_carriers a)
+    ; variety_equiv: ∀ a, Equiv (variety_carriers a)
     ; variety_op: AlgebraOps et variety_carriers
     ; variety_proof: InVariety et variety_carriers }.
 \end{lstlisting}
@@ -692,8 +691,8 @@ If $A$ and $B$ are algebras, and $f$ is a homomorphism from $A$ to $B$, then the
 A set of relations \lstinline|e| (one for each sort) is a congruence for an existing algebra if (1) \lstinline|e| respects that algebra's existing setoid equality, and (2) the operations with \lstinline|e| again form an algebra (namely the quotient algebra):
 \begin{lstlisting}
   Context `{Algebra σ$$ A}.
-  Class Congruence (e: Π s: sorts σ, relation (v s)): Prop :=
-    { congruence_proper:> Π s, Proper (equiv ==> equiv ==> iff) (e s)
+  Class Congruence (e: ∀ s: sorts σ, relation (v s)): Prop :=
+    { congruence_proper:> ∀ s, Proper (equiv ==> equiv ==> iff) (e s)
     ; congruence_quotient:> Algebra σ$$ v (e:=e) }.
 \end{lstlisting}
 We have proved that this natural and economical type-theoretic formulation that leverages our systematic integration of setoid equality is equivalent to the traditional definition of congruences as relations that, represented as sets of pairs, form a subalgebra of the product algebra.
@@ -715,10 +714,10 @@ For the second part, we describe the image of \lstinline|f| as a predicate over 
 \end{lstlisting}
 The \lstinline|sigT| type constructor is a \lstinline|Type|-sorted existential quantifier. \lstinline|ClosedSubset| is defined elsewhere as:
 \begin{lstlisting}
-  Context `{Algebra σ$$ A} (P: Π s, A s → Type).
+  Context `{Algebra σ$$ A} (P: ∀ s, A s → Type).
   Class ClosedSubset: Type :=
-    { subset_proper: Π s x x', x = x' → iffT (P s x) (P s x')
-    ; subset_closed: Π o, op_closed (algebra_op o) }.
+    { subset_proper: ∀ s x x', x = x' → iffT (P s x) (P s x')
+    ; subset_closed: ∀ o, op_closed (algebra_op o) }.
 \end{lstlisting}
 Here, \lstinline|op_closed| is defined by recursion over the symbolic operation types.
 
@@ -764,7 +763,7 @@ What we \emph{really} want to say is that an implementation of the natural numbe
 Taking these conversion functions for granted, we will also need a ``down to earth'' representation of the initiality arrows if we are to give a \lstinline|SemiRing|-based definition of the interface for natural numbers. Once again, we introduce an operational type class to represent this particular component:
 \begin{lstlisting}
   Class NaturalsToSemiRing (A: Type) :=
-    naturals_to_semiring: Π B `{RingMult B} `{RingPlus B} `{RingOne B}
+    naturals_to_semiring: ∀ B `{RingMult B} `{RingPlus B} `{RingOne B}
       `{RingZero B}, A → B.
 \end{lstlisting}
 The instance for \lstinline|nat| is defined as follows:
@@ -780,7 +779,7 @@ With these instances in place, we can now define the improved natural numbers sp
   Context `{SemiRing A} `{NaturalsToSemiRing A}.
   Class Naturals: Prop :=
     { naturals_ring:> SemiRing A
-    ; naturals_to_semiring_mor:> Π `{SemiRing B},
+    ; naturals_to_semiring_mor:> ∀ `{SemiRing B},
         SemiRing_Morphism (naturals_to_semiring A B)
     ; naturals_initial:> Initial (bundle_semiring A) }.
 \end{lstlisting}
@@ -789,7 +788,7 @@ Basing theory and programs on this abstract interface instead of on specific imp
 Since initial objects in categories are isomorphic, we can easily derive that \lstinline|naturals_to_semiring| gives isomorphisms between different \lstinline|Naturals| implementations:
 \begin{lstlisting}
   Lemma iso_naturals `{Naturals A} `{Naturals B}:
-    Π a: A, naturals_to_semiring B A (naturals_to_semiring A B a) = a.
+    ∀ a: A, naturals_to_semiring B A (naturals_to_semiring A B a) = a.
 \end{lstlisting}
 This is very useful, because some properties of and operations on naturals are more easily proved, respectively defined, for concrete implementations (such as \lstinline|nat|) and then \emph{lifted} to the abstract \lstinline|Naturals| interface so that they work for arbitrary implementations. For example, while showing decidability for an arbitrary \lstinline|Naturals| implementation directly is tricky, it is very easy to show decidability for \lstinline|nat|. Using \lstinline|iso_naturals|, the latter can be very straightforwardly used to implement the former.
 
@@ -803,7 +802,7 @@ The generic \lstinline|Decision| instance for \lstinline|Naturals| equality impl
 
 To permit a \emph{generic} function operating on naturals to take advantage of specialized operations, we simply introduce an additional instance parameter:
 \begin{lstlisting}
-Definition calculate_things `{Naturals N} `{Π$$n m: N, Decision (n = m)}
+Definition calculate_things `{Naturals N} `{∀$$n m: N, Decision (n = m)}
   (a b: nat): ... := ... decide (a = b) ... .
 \end{lstlisting}
 Without the \lstinline|Decision| parameter \lstinline|calculate_things| would be equally correct, but could be less efficient. Thus, by this scheme one can start by writing correct-but-possibly-inefficient programs that make use of generic operation instances, and then selectively improve efficiency of key algorithms simply by adding additional operational type class instance parameters where profiling shows it to make a significant difference, without changing their definition body.
@@ -817,14 +816,14 @@ The abstract interface for integers is completely analogous to the one for natur
   Context `{Ring A} `{IntegersToRing A}.
   Class Integers: Prop :=
     { integers_ring:> Ring A
-    ; integers_to_ring_mor:> Π `{Ring B},
+    ; integers_to_ring_mor:> ∀ `{Ring B},
         Ring_Morphism (integers_to_ring A B)
     ; integers_initial:> Initial (ring.object A) }.
 \end{lstlisting}
 
 The rationals are characterized as a decidable field with an injective ring morphism from a canonical implementation of the integers and a surjection of fractions of such integers:
 \begin{lstlisting}
-  Context `{Field A} `{Π x y: A, Decision (x = y)} {inj_inv}.
+  Context `{Field A} `{∀ x y: A, Decision (x = y)} {inj_inv}.
   Class Rationals: Prop :=
     { rationals_field:> Field A
     ; rationals_frac: Surjective
@@ -1001,7 +1000,7 @@ If none of the \lstinline|Quote| instances defined so far apply, the term in que
 \end{lstlisting}
 And with that, we can start quoting:
 \begin{lstlisting}
-  Goal Π x y (P: Value → Prop), P ((x * y) * (x * 1)).
+  Goal ∀ x y (P: Value → Prop), P ((x * y) * (x * 1)).
     intros.
     rewrite <- eval_quote.
 \end{lstlisting}
@@ -1054,15 +1053,15 @@ However, we \emph{do} care about practicality, and so we will again take a more 
 \begin{lstlisting}
   Context `{Functor (seq: Type → Type)}.
 
-  Class Extend := extend: Π {x y} `{SemiGroupOp y} `{MonoidUnit y},
+  Class Extend := extend: ∀ {x y} `{SemiGroupOp y} `{MonoidUnit y},
     (x → y) → (seq x → y).
-  Class Singleton := singleton: Π x, x → seq x.
+  Class Singleton := singleton: ∀ x, x → seq x.
 \end{lstlisting}
 With these, we can define the predicate class for sequences:
 \begin{lstlisting}
   Class Sequence
-   `{Π a, MonoidUnit (seq a)} `{Π a, SemiGroupOp (seq a)}
-   `{Π a, Equiv a → Equiv (seq a)} `{Singleton} `{Extend}: Prop := ...
+   `{∀ a, MonoidUnit (seq a)} `{∀ a, SemiGroupOp (seq a)}
+   `{∀ a, Equiv a → Equiv (seq a)} `{Singleton} `{Extend}: Prop := ...
 \end{lstlisting}
 %    { ... structural and propriety proofs sufficient to bundle up the categories and arrows ...
 %    ; ... AltAdjunction stated using the bundled ... }.
