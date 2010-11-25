@@ -1,3 +1,4 @@
+
 import os, glob, string
 
 nodes = ['.']
@@ -7,7 +8,7 @@ vs = []
 while nodes:
   node = nodes.pop()
   b = os.path.basename(node)
-  if node.endswith('.v'):
+  if node.endswith('.v') and node != "./misc/benchmarks.v":
     vs += [node]
   if os.path.isdir(node) and node != "./broken":
     dirs += [node]
@@ -46,8 +47,8 @@ env.Command(env.Dir('coqdoc'), vs + vos + globs + [File('../tools/coqdoc.css.dif
 os.system('coqdep ' + Rs + ' '.join(vs) + ' > deps')
 ParseDepends('deps')
 
-Alias('coqide', Command(['dummy'], [], 'coqide ' + Rs + ' &'))
-
 Default('implementations', 'theory', 'categories', 'orders', 'varieties', 'misc')
 
-open('coqidescript', 'w').write('#!/bin/sh\ncoqide -args "' + Rs + '" $@ \n')
+open('coqidescript', 'w').write('#!/bin/sh\ncoqide ' + Rs.replace('"', '\\"') + ' $@ \n')
+os.chmod('coqidescript', 0755)
+
