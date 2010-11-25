@@ -76,7 +76,7 @@ Module simple.
 
     End instances.
 
-    Lemma do_quote {n m} `{Quote n} `{Quote m}: eval (quote n) = eval (quote m) -> n = m.
+    Lemma do_quote {n m} `{Quote n} `{Quote m}: eval (quote n) = eval (quote m) → n = m.
     Proof. intros. rewrite (eval_quote n), (eval_quote m). assumption. Qed.
 
     Lemma example: (1 + 0 + 1) * (1 + 1) = (1 + 1) + (1 + 1).
@@ -105,13 +105,13 @@ Section obvious.
 
   Context (A B C: Type).
 
-  Global Instance: Obvious (A -> A) := id.
-  Global Instance: Obvious (False -> A) := False_rect _.
-  Global Instance: Obvious (A -> A + B) := inl.
-  Global Instance: Obvious (A -> B + A) := inr.
-  Global Instance obvious_sum_src  `{Obvious (A -> C)} `{Obvious (B -> C)}: Obvious (A+B -> C). repeat intro. intuition. Defined.
-  Global Instance obvious_sum_dst_l `{Obvious (A -> B)}: Obvious (A -> B+C). repeat intro. intuition. Defined.
-  Global Instance obvious_sum_dst_r `{Obvious (A -> B)}: Obvious (A -> C+B). repeat intro. intuition. Defined.
+  Global Instance: Obvious (A → A) := id.
+  Global Instance: Obvious (False → A) := False_rect _.
+  Global Instance: Obvious (A → A + B) := inl.
+  Global Instance: Obvious (A → B + A) := inr.
+  Global Instance obvious_sum_src  `{Obvious (A → C)} `{Obvious (B → C)}: Obvious (A+B → C). repeat intro. intuition. Defined.
+  Global Instance obvious_sum_dst_l `{Obvious (A → B)}: Obvious (A → B+C). repeat intro. intuition. Defined.
+  Global Instance obvious_sum_dst_r `{Obvious (A → B)}: Obvious (A → C+B). repeat intro. intuition. Defined.
 
 End obvious.
 
@@ -130,7 +130,7 @@ Require Import monads canonical_names.
 Instance: MonadReturn Expr := fun _ => Var.
 
 Instance expr_bind: MonadBind Expr := fun A B =>
-  fix F (m: Expr A) (f: A -> Expr B): Expr B :=
+  fix F (m: Expr A) (f: A → Expr B): Expr B :=
     match m with
     | Zero => Zero
     | Mult x y => Mult (F x f) (F y f)
@@ -206,7 +206,7 @@ Instance: Monad Expr.
 (* An expression is only meaningful in the context of a variable assignment: *)
 
 Definition Value := nat.
-Definition Vars V := V -> Value.
+Definition Vars V := V → Value.
 
 Fixpoint eval {V} (vs: Vars V) (e: Expr V): Value :=
   match e with
@@ -271,7 +271,7 @@ End Lookup.
 (* One useful operation we need before we get to Quote relates to variables and expression
  evaluation. As its name suggests, map_var maps an expression's variable indices. *)
 
-Definition map_var {V W: Type} (f: V -> W): Expr V -> Expr W :=
+Definition map_var {V W: Type} (f: V → W): Expr V → Expr W :=
   fix F (e: Expr V): Expr W :=
     match e with
     | Mult a b => Mult (F a) (F b)
@@ -281,7 +281,7 @@ Definition map_var {V W: Type} (f: V -> W): Expr V -> Expr W :=
 
 (* An obvious identity is: *)
 
-Lemma eval_map_var {V W} (f: V -> W) v e:
+Lemma eval_map_var {V W} (f: V → W) v e:
   eval v (map_var f e) = eval (v ∘ f) e.
 Proof.
  induction e; simpl; try reflexivity.
@@ -368,7 +368,7 @@ Implicit Arguments eval_quote' [[V'] [v] [d]].
 
 (* Time for some tests! *)
 
-Goal ∀ x y (P: Value -> Prop), P ((x * y) * (x * 0)).
+Goal ∀ x y (P: Value → Prop), P ((x * y) * (x * 0)).
   intros.
   rewrite <- (eval_quote' _).
     (* turns the goal into
@@ -405,7 +405,7 @@ End inspect.
 
 Lemma quote_equality {V} {v: Vars V} {V'} {v': Vars V'} (l r: Value) `{!Quote novars l v} `{!Quote v r v'}:
   let heap := (merge v v') in
-  eval heap (map_var monkey quote) = eval heap quote -> l = r.
+  eval heap (map_var monkey quote) = eval heap quote → l = r.
 Proof with intuition.
  destruct Quote0 as [lq []].
  destruct Quote1 as [rq []].

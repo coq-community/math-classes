@@ -3,17 +3,18 @@
 Set Automatic Introduction.
 
 Require Import Relation_Definitions RelationClasses.
+Require Export Unicode.Utf8 Utf8_core.
 
-Inductive R {A: Type} (r: relation A) (x: A): forall B: Type, relation B -> B -> Prop := relate y: r x y -> R r x A r y.
+Inductive R {A: Type} (r: relation A) (x: A): forall B: Type, relation B → B → Prop := relate y: r x y → R r x A r y.
 
 Lemma reflexive A (x:A) (Ra: relation A) `{!Reflexive Ra}: R Ra x _ Ra x.
 Proof. apply relate. reflexivity. Qed.
 
-Lemma symmetric A B (x:A) (Ra: relation A) (Rb: relation B) (y:B) `{!Symmetric Ra}: R Ra x _ Rb y -> R Rb y _ Ra x.
+Lemma symmetric A B (x:A) (Ra: relation A) (Rb: relation B) (y:B) `{!Symmetric Ra}: R Ra x _ Rb y → R Rb y _ Ra x.
 Proof. destruct 1. apply relate. symmetry. assumption. Qed.
 
 Lemma transitive A B C (Ra: relation A) (Rb: relation B) (Rc: relation C) (a:A) (b:B) (c:C) `{!Transitive Ra}:
-  R Ra a _ Rb b -> R Rb b _ Rc c -> R Ra a _ Rc c.
+  R Ra a _ Rb b → R Rb b _ Rc c → R Ra a _ Rc c.
 Proof. destruct 1. destruct 1. apply relate. transitivity y; assumption. Qed.
 
 Require Import Eqdep.

@@ -63,9 +63,16 @@ Section upper_classes.
     require commutative multiplication. *)
 
   Class IntegralDomain: Prop :=
-    { intdom_ring:> Ring
+    { intdom_ring: Ring 
     ; intdom_nontrivial:> ZeroNeOne A
     ; intdom_nozeroes:> NoZeroDivisors A }.
+
+  (* For a strange reason Ring instances of Integers are sometimes obtained by
+    Integers -> IntegralDomain -> Ring and sometimes directly. Making this an
+    instance with a low priority instead of using intdom_ring:> Ring forces Coq to
+    take the right way *)
+  Global Instance intdom_is_ring `{IntegralDomain} : Ring | 10. 
+  Proof. apply intdom_ring. Qed.
 
   Class Field {mult_inv: MultInv A}: Prop :=
     { field_ring:> Ring
@@ -82,23 +89,40 @@ Implicit Arguments field_0neq1 [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_i
 Implicit Arguments mult_inverse [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv0] [Field]].
 Implicit Arguments sg_mor [[A] [e] [op] [SemiGroup]].
 
-Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
-  { equ:> Equivalence e
-  ; partialorder_proper:> Proper (e ==> e ==> iff) R
-  ; partial_preorder:> PreOrder R
-  ; partial_antisym:> AntiSymmetric R }.
+Section cancellation.
+  Context `{e : Equiv A} (Rel : relation A) (P : A → Prop) (op : A → A → A).
 
-Class TotalOrder `(Order A): Prop := total_order: ∀ x y: A, x <= y ∨ y <= x.
+  Class LeftCancellation := 
+    left_cancellation : ∀ z, P z → ∀ {x y}, Rel (op z x) (op z y) → Rel x y.
+  Class RightCancellation := 
+    right_cancellation : ∀ z, P z → ∀ {x y}, Rel (op x z) (op y z) → Rel x y.
+End cancellation.
+
+Implicit Arguments left_cancellation [[A] [Rel] [P] [LeftCancellation] [x] [y]].
+Implicit Arguments right_cancellation [[A] [Rel] [P] [RightCancellation] [x] [y]].
+
+Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
+  { poset_setoid :> Equivalence e (* Setoid A introduces instance resolution bugs, todo: investigate *)
+  ; poset_proper:> Proper (e ==> e ==> iff) R
+  ; poset_preorder:> PreOrder R
+  ; poset_antisym:> AntiSymmetric R }.
+
+Class TotalOrder `(Order A): Prop := total_order: ∀ x y: A, x ≤ y ∨ y ≤ x.
 
 Class RingOrder `(e: Equiv A) (plus: RingPlus A) (mult: RingMult A) (zero: RingZero A) (leq: Order A) :=
   { ringorder_partialorder:> PartialOrder leq
-  ; ringorder_plus: `(leq x y → ∀ z, leq (x + z) (y + z))
-  ; ringorder_mult: `(leq zero x → ∀ y, leq 0 y → leq 0 (x * y)) }.
-    (* todo: use "precedes" here? *)
+  ; ringorder_plus: `(x ≤ y → ∀ z, x + z ≤ y + z)
+  ; ringorder_mult: `(0 ≤ x → ∀ y, 0 ≤ y → 0 ≤ x * y) }.
+
+Class OrdRing A {e: Equiv A} {plus mult inv zero one leq}: Prop :=
+  { ordring_ring:> @Ring A e plus mult zero one inv 
+  ; ordring_order:> RingOrder e plus mult zero leq }.
 
 Class OrdField A {e: Equiv A} {plus mult inv zero one mult_inv leq}: Prop :=
   { ordfield_field:> @Field A e plus mult zero one inv mult_inv
   ; ordfield_order:> RingOrder e plus mult zero leq }.
+
+Instance ordfield_is_ordring `{OrdField A} : OrdRing A.
 
 Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatComp O}: Prop :=
   { arrow_equiv:> ∀ x y, Setoid (x ⟶ y)
@@ -193,4 +217,3 @@ Section jections.
 End jections.
 
 Implicit Arguments injective [[A] [ea] [B] [eb] [Injective]].
-

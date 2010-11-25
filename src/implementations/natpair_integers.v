@@ -10,7 +10,8 @@ Require
  theory.naturals.
 Require Import
  Morphisms Ring Program
- abstract_algebra theory.categories theory.rings interfaces.naturals interfaces.integers orders.semiring.
+ abstract_algebra theory.categories theory.rings 
+ interfaces.naturals interfaces.integers orders.naturals.
 
 Section contents.
 
@@ -18,7 +19,7 @@ Context N `{Naturals N}.
 
 Context (* Extra parameterization for efficiency: *)
  `{∀ x y: N, Decision (x = y)}
- `{∀ x y: N, Decision (x <= y)}
+ `{∀ x y: N, Decision (x ≤ y)}
  `{!NatDistance N}.
 
 Add Ring N: (stdlib_semiring_theory N).
@@ -44,7 +45,7 @@ Proof.
  unfold z_equiv. intros x y z E E'.
  rewrite commutativity.
  rewrite (commutativity (pos z)).
- apply (injective (ring_plus (pos y))).
+ apply (left_cancellation (+) (pos y)); trivial.
  do 2 rewrite associativity.
  rewrite <- E, E'. ring.
 Qed.
@@ -210,9 +211,9 @@ Section for_another_ring.
     Instance: SemiRing_Morphism inject'_N.
 
     Lemma agree_on_nat: inject'_N = n_to_sr.
-    Proof. intro x. apply (theory.naturals.to_semiring_unique _ inject'_N). Qed.
+    Proof. intro x. apply (naturals.to_semiring_unique inject'_N). Qed.
 
-    Lemma agree: integers_to_ring Z R = inject'.
+    Lemma same_morphism: integers_to_ring Z R = inject'.
     Proof.
      intros [pos0 neg0].
      rewrite split_into_nats.
@@ -231,14 +232,13 @@ End for_another_ring.
 
 Instance: Initial (ring.object Z).
 Proof.
- intros y [x h] []. simpl in *.
- apply agree, (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+  apply integer_initial. intros. apply same_morphism. auto.
 Qed.
 
 Global Instance: Integers Z.
 
 Lemma NtoZ_uniq x: naturals_to_semiring N Z x = NtoZ x.
-Proof. symmetry. apply (theory.naturals.to_semiring_unique Z NtoZ x). Qed. 
+Proof. symmetry. apply (theory.naturals.to_semiring_unique NtoZ x). Qed. 
 
 Global Program Instance simpleZ_abs: IntAbs Z N := λ d: Z, nat_distance (pos d) (neg d).
 
@@ -250,35 +250,36 @@ Proof.
  destruct o as [A|A]; [right | left]; rewrite <- A; ring.
 Qed.
 
-Global Program Instance simpleZ_le_dec (x y: Z): Decision (x <= y) :=
-  match decide (natural_precedes (pos x + neg y) (pos y + neg x)) with
+Global Program Instance simpleZ_le_dec (x y: Z): Decision (x ≤ y) :=
+  match decide (pos x + neg y ≤ pos y + neg x) with
   | left E => left _
   | right E => right _
   end.
 
 Next Obligation.
- destruct E as [z E]. apply (@sr_precedes_from Z _ _ _ _ _ _  N _ _ _ _ _ _ _ x y z).
- rewrite NtoZ_uniq. unfold equiv, z_equiv. simpl. ring_simplify.
- rewrite <- E. change (pos x + z + neg y = pos x + neg y + z). ring.
+  destruct (natural_precedes_with E) as [z Ez].
+  apply (semiring.sr_precedes_from N z).
+  rewrite NtoZ_uniq. unfold equiv, z_equiv. simpl. ring_simplify.
+  rewrite <-Ez. ring.
 Qed.
 
 Next Obligation.
- intro. apply E. destruct (sr_precedes_with N H2) as [z F]. exists z.
- rewrite NtoZ_uniq in F. unfold equiv, z_equiv in F. simpl in F. ring_simplify in F.
- rewrite <- F. change (pos x + neg y + z = pos x + z + neg y). ring.
+ intro F. apply E. destruct (semiring.sr_precedes_with N F) as [z Ez].
+ apply (natural_precedes_from z).
+ rewrite NtoZ_uniq in Ez. unfold equiv, z_equiv in Ez. simpl in Ez. ring_simplify in Ez.
+ rewrite <-Ez. ring.
 Qed. 
 
-Global Instance: TotalOrder integer_precedes.
+Global Instance: TotalOrder (sr_precedes (R:=Z)).
  intros x y.
  cut ((exists z, x + NtoZ z = y) ∨ (exists z, y + NtoZ z = x)).
   intros [[z E] | [z E]]; [left | right];
-   apply (@sr_precedes_from _ _ _ _ _ _ _ N _ _ _ _ _ _ _) with z; rewrite NtoZ_uniq; assumption.
+   apply (semiring.sr_precedes_from N z); rewrite NtoZ_uniq; assumption.
  unfold equiv, z_equiv.
  simpl.
- destruct (total_order (pos x + neg y) (pos y + neg x)) as [[z E] | [z E]];
-     [left | right]; exists z; ring_simplify; rewrite <- E.
-  change (pos x + z + neg y = pos x + neg y + z). ring.
- change (pos y + z + neg x = pos y + neg x + z). ring.
+ destruct (total_order (pos x + neg y) (pos y + neg x)) as [E | E];
+   destruct (natural_precedes_with E) as [z Ez];
+   [left | right]; exists z; ring_simplify; rewrite <- Ez; ring.
 Qed.
 
 End contents.

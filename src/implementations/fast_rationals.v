@@ -1,24 +1,62 @@
 Require Import
-  BigQ QType_rationals.
-Require Export
-  interfaces.rationals.
+  QArith BigQ Morphisms Program Field
+  abstract_algebra 
+  interfaces.rationals QType_rationals
+  interfaces.integers fast_integers.
 
 Module BigQ_Rationals := QType_Rationals BigQ.
 
 Definition fastQ: Type := BigQ.t.
 
-Instance: Rationals fastQ := _.
+Definition fastZ_to_fastQ := BigQ.Qz.
 
-Opaque fastQ.
-  (* This doesn't actually do much; see Coq bug # 2074. *)
+Instance: Proper ((=) ==> (=)) fastZ_to_fastQ.
+Proof.
+  intros x y E.
+  unfold equiv, BigQ_Rationals.qev, BigQ.eq, QArith_base.Qeq. simpl.
+  rewrite E. reflexivity.
+Qed.
 
-(* Test: *)
+Instance: Ring_Morphism fastZ_to_fastQ.
+Proof.
+  repeat (split; try apply _).
+Qed.
 
-Print Assumptions fastQ.
+Instance fastQ_to_frac: Inverse (λ p, fastZ_to_fastQ (fst p) * / fastZ_to_fastQ (snd p)) 
+  := λ x, match x with
+  | BigQ.Qz x => (x, 1)
+  | BigQ.Qq x y => (x, BigN_BigZ.Z_of_N y)
+  end.
 
-Require Import canonical_names.
+Add Field F: (fields.stdlib_field_theory BigQ.t_).
 
-Definition x: fastQ := 1323165839068539058238947317846319874689127346289734455%bigQ.
-Definition y: fastQ := 7513809371247375904098574279845236875724897648927556454%bigQ.
+Lemma fastQ_fastZ_surjective_aux y : (0 < y)%Z →  
+  (Qnum (Qinv (y # 1)) * ' Z2P y)%Z ≡ (' Qden (Qinv (y # 1)))%Z.
+Proof with try reflexivity; auto.
+  intros E.
+  destruct y as [| | y]...
+  destruct (Zlt_irrefl 0)...
+  destruct (Zlt_asym _ _ (Zlt_neg_0 y))...
+Qed.
 
-Eval vm_compute in (x * y).
+Instance: Surjective (λ p, fastZ_to_fastQ (fst p) * / fastZ_to_fastQ (snd p)).
+Proof.
+  split.
+ 
+  intros x. unfold id, compose, inverse, fastZ_to_fastQ.
+  destruct x as [x | x y]; simpl. 
+  rewrite rings.preserves_1. field. 
+  apply not_symmetry. apply zero_ne_one.
+
+  unfold equiv, BigQ_Rationals.qev, BigQ.eq. 
+  rewrite rings.preserves_mult, fields.preserves_dec_mult_inv, 
+    stdlib_rationals.Qinv_dec_mult_inv. 
+  unfold QArith_base.Qeq. simpl. 
+  BigQ.destr_eqb; intros F; simpl.
+  rewrite F, BigN.spec_0. simpl. rewrite right_absorb, left_absorb. reflexivity.
+  rewrite <-associativity. apply sg_mor. reflexivity.
+  apply fastQ_fastZ_surjective_aux. assumption.
+
+  repeat (split; try apply _).
+  intros x y E. rewrite E. reflexivity.
+Qed.

@@ -7,16 +7,16 @@
 (map (trans
 
   ;; Coq built-ins:
-  ("\\forall" ?Π) ;; better than Unicode.Utf8's ∀, which only works in some cases.
+  ("\\forall" ?∀)
   ("\\fun" ?λ)
 
   ;; From Unicode.Utf8:
-  ;;("\\forall" ?∀) ;; use Π above
   ("\\exists" ?∃)
   ("\\not" ?¬)
   ("\\/" ?∨)
   ("/\\" ?∧)
   ("->" "→")
+  ("<->" "↔")
 
   ;; Our notations:
   ("-->" "⟶") ;; long arrow. not ideal, but should be sufficiently distinguishable from short arrow.
@@ -24,8 +24,16 @@
   ("\\==" ?≡)
   ("\\/==" ?≢)
   ("/=" ?≠)
+  ("\\<=" ?≤)
+  ("\\approx" ?≈)
   
   ;; From Program.Basics:
   ("\\comp" ?∘)
+  
+  ("\\alpha" ?α)
+  ("\\beta" ?β)
+  ("\\gamma" ?γ)
+  ("\\delta" ?δ)
+  ("\\epsilon" ?ε)
 ))
 (state (init (trans)))

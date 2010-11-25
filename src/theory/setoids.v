@@ -22,6 +22,9 @@ Section simple_product.
   Global Instance: Setoid (A * B).
   Proof. firstorder. Qed.
 
+  Global Instance pair_proper : Proper ((=) ==> (=) ==> (=)) (@pair A B).
+  Proof. firstorder. Qed.
+
   Global Instance: Setoid_Morphism (@fst A B).
   Proof. constructor; try apply _. firstorder. Qed.
 

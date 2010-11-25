@@ -1,11 +1,13 @@
 (* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
-
-Require
-  interfaces.naturals.
+Require 
+  interfaces.naturals theory.naturals peano_naturals theory.nat_pow.
 Require Import
-  BinInt Morphisms Ring Arith
-  abstract_algebra theory.categories theory.rings interfaces.integers
-  signed_binary_positives peano_naturals.
+  BinInt Morphisms Ring Program Arith ZBinary
+  abstract_algebra interfaces.integers
+  theory.categories theory.rings 
+  signed_binary_positives
+  interfaces.additional_operations
+  positive_integers_naturals.
 
 (* canonical names: *)
 Instance z_equiv: Equiv BinInt.Z := eq.
@@ -37,6 +39,7 @@ Instance: LeftIdentity BinInt.Zmult 1 := BinInt.Zmult_1_l.
 Instance: RightIdentity BinInt.Zmult 1 := BinInt.Zmult_1_r.
 
 (* structures: *)
+Instance: Equivalence (@eq BinInt.Z). (* this should not be necessary, seems like a regression bug *)
 Instance: Setoid BinInt.Z.
 Instance: SemiGroup _ (op:=BinInt.Zplus).
 Instance: SemiGroup _ (op:=BinInt.Zmult).
@@ -46,7 +49,7 @@ Instance: CommutativeMonoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH).
 Instance: @Group _ _ (BinInt.Zplus) (BinInt.Z0) _
   := { ginv_l := BinInt.Zplus_opp_l; ginv_r := BinInt.Zplus_opp_r }.
 Instance: AbGroup BinInt.Z (op:=BinInt.Zplus) (unit:=BinInt.Z0).
-Instance: Ring BinInt.Z.
+Program Instance: Ring BinInt.Z.
 
 (* misc: *)
 Instance: ∀ x y: BinInt.Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
@@ -77,22 +80,22 @@ Section for_another_ring.
 
   Lemma preserves_Zplus x y: map_Z (x + y) = map_Z x + map_Z y.
   Proof with try reflexivity; try assumption; try ring.
-   destruct x; simpl; intros...
-    destruct y; simpl...
+   destruct x as [| x | x ]; simpl...
+    destruct y as [| y | y]; simpl...
      apply preserves_Pplus.
-    case_eq (Pcompare p p0 Eq); intros; simpl.
-      rewrite (Pcompare_Eq_eq _ _ H0)...
+    case_eq (Pcompare x y Eq); intros E; simpl.
+      rewrite (Pcompare_Eq_eq _ _ E)...
      rewrite preserves_Pminus...
     apply preserves_Pminus.
     unfold Plt.
-    rewrite (ZC1 _ _ H0)...
-   destruct y; simpl...
-    case_eq (Pcompare p p0 Eq); intros; simpl.
-      rewrite (Pcompare_Eq_eq _ _ H0)...
+    rewrite (ZC1 _ _ E)...
+   destruct y as [| y | y ]; simpl...
+    case_eq (Pcompare x y Eq); intros E; simpl.
+      rewrite (Pcompare_Eq_eq _ _ E)...
      rewrite preserves_Pminus...
     rewrite preserves_Pminus...
     unfold Plt.
-    rewrite (ZC1 _ _ H0)...
+    rewrite (ZC1 _ _ E)...
    rewrite preserves_Pplus...
   Qed.
 
@@ -113,7 +116,7 @@ Section for_another_ring.
   Hint Resolve preserves_Zplus preserves_Zmult preserves_opp.
   Hint Constructors Monoid_Morphism SemiGroup_Morphism Group_Morphism Ring_Morphism.
 
-  Instance map_Z_ring_mor: Ring_Morphism map_Z.
+  Global Instance map_Z_ring_mor: Ring_Morphism map_Z.
   Proof. repeat (constructor; auto with typeclass_instances; try reflexivity; try apply _). Qed.
 
   Section with_another_morphism.
@@ -147,7 +150,7 @@ Section for_another_ring.
      rewrite <- agree_on_positive...
     Qed.
 
-    Lemma same_morphism: @equiv _ (pointwise_relation _ equiv) map_Z map_Z'.
+    Lemma same_morphism: integers_to_ring Z R = map_Z'.
     Proof.
      intros [].
        apply agree_on_0.
@@ -159,15 +162,84 @@ Section for_another_ring.
 
 End for_another_ring.
 
-Instance yada `{Ring R}: Ring_Morphism (integers_to_ring Z R).
- unfold integers_to_ring, inject.
- intros. apply map_Z_ring_mor.
-Qed. (* todo: rename or get rid of *)
-
 Instance: Initial (ring.object Z).
 Proof.
- intros y [x h] []. simpl in *.
- apply same_morphism, (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+  apply integer_initial. intros. apply same_morphism. auto.
 Qed.
 
 Instance: Integers Z.
+
+(* * Embedding of the Peano naturals into Z *)
+Instance: Proper ((=) ==> (=)) Z_of_nat.
+Proof.
+  intros x y E.
+  rewrite E. reflexivity.
+Qed.
+
+Instance: SemiRing_Morphism Z_of_nat.
+Proof.
+  repeat (split; try apply _).
+  exact Znat.inj_plus.
+  exact Znat.inj_mult.
+Qed.
+
+(* * The order <= from the stdlib corresponds to our ≤ *)
+(* Figure out whether the standard library contains lemmas to make the following proofs shorter.
+  Hopefully such lemmas exist, because these proofs look horrible... *)
+Lemma sr_precedes_Zle (x y : Z) : x ≤ y → (x <= y)%Z.
+Proof with auto with zarith.
+  intros [z Ez].
+  rewrite <-(naturals.to_semiring_unique Z_of_nat) in Ez.
+  generalize dependent x. induction z; intros.
+  apply Zorder.Zeq_le. rewrite <-Ez...
+  apply Zorder.Zle_succ_le.
+  apply IHz. rewrite Znat.inj_S in Ez. rewrite <-Ez.
+  apply Zplus_succ_comm.
+Qed.
+
+Lemma Zle_sr_precedes (x y : Z) : (x <= y)%Z → x ≤ y.
+Proof with auto with zarith.
+  intros E.
+  destruct (Zorder.Zle_lt_or_eq x y E) as [E2 | E2].
+  destruct (Zcompare.Zcompare_Gt_spec y x) as [z Ez].
+    apply Zcompare.Zcompare_Gt_Lt_antisym.
+    pose proof (Zcompare.Zlt_compare x y E2).
+    destruct ((x ?= y)%Z); try contradiction...
+  exists (nat_of_P z).
+  rewrite <-(naturals.to_semiring_unique Z_of_nat)...
+  rewrite <-Znat.Zpos_eq_Z_of_nat_o_nat_of_P, <-Ez.
+  replace ((y + - x)%Z) with (y + -x) by reflexivity. ring.
+  exists (0%nat).
+  rewrite <-(naturals.to_semiring_unique Z_of_nat)...
+  rewrite Znat.inj_0. rewrite E2. apply right_identity.
+Qed.
+
+Lemma sr_precedes_Zlt (x y : Z) : x < y → (x < y)%Z.
+Proof with auto.
+  intros [E1 E2].
+  destruct (Zorder.Zle_lt_or_eq x y)... 
+  apply sr_precedes_Zle...
+  contradiction.
+Qed.
+
+Lemma Zlt_sr_precedes (x y : Z) : (x < y)%Z → x < y.
+Proof with auto.
+  intros E.
+  split. apply Zle_sr_precedes, Zorder.Zlt_le_weak...
+  apply Zorder.Zlt_not_eq...
+Qed.
+
+Obligation Tactic := idtac.
+(* Efficient nat_pow *)
+Program Instance Zpow: NatPow Z (Pos Z) := Z.pow.
+Next Obligation with try reflexivity; auto with zarith.
+  intros x n. 
+  change (nat_pow_spec x n ((λ x n, Z.pow x (`n)) x n)). (* This is stupid... pattern is not helpful either *)
+  apply nat_pow.nat_pow_spec_from_properties.
+  intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2. 
+  unfold equiv, ZPos_equiv in E2. simpl in *. rewrite E1, E2... 
+  intros x1. rewrite preserves_0. apply Z.pow_0_r.
+  intros x1 n1. rewrite preserves_plus, preserves_1. 
+  rewrite <-(Z.pow_1_r x1) at 2. apply Z.pow_add_r...
+  destruct n1. simpl. apply sr_precedes_Zle...
+Qed.

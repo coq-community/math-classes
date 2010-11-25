@@ -32,6 +32,7 @@ Class MonoidUnit A := mon_unit: A.
 Class RingPlus A := ring_plus: A → A → A.
 Class RingMult A := ring_mult: A → A → A.
 Class RingOne A := ring_one: A.
+Definition ring_two `{RingOne A} `{RingPlus A} := ring_plus ring_one ring_one.
 Class RingZero A := ring_zero: A.
 Class GroupInv A := group_inv: A → A.
 Class MultInv A `{Equiv A} `{RingZero A} := mult_inv: { x: A | x ≠ ring_zero } → A.
@@ -40,12 +41,15 @@ Infix "⟶" := Arrow (at level 90, right associativity).
 Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
 Class CatComp O `{Arrows O} := comp: ∀ {x y z}, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
 Class Order A := precedes: relation A.
+Definition precedes_neq `{Equiv A} `{Order A} : Order A := λ (x y : A),  precedes x y ∧ x ≠ y.
 Class RalgebraAction A B := ralgebra_action: A → B → B.
 Class RingMultInverse {R} (x: R): Type := ring_mult_inverse: R.
 Implicit Arguments ring_mult_inverse [[R] [RingMultInverse]].
 Implicit Arguments cat_id [[O] [H] [CatId] [x]].
 Implicit Arguments decide [[Decision]].
 
+Instance: Params (@precedes) 2.
+Instance: Params (@precedes_neq) 3.
 Instance: Params (@ring_mult) 2.
 Instance: Params (@ring_plus) 2.
 Instance: Params (@equiv) 2.
@@ -58,6 +62,7 @@ Instance ringzero_is_monoidunit `{c: RingZero A}: MonoidUnit A := c.
 (* Notations: *)
 Notation "0" := ring_zero.
 Notation "1" := ring_one.
+Notation "2" := ring_two.
 Infix "&" := sg_op (at level 50, left associativity).
 Infix "+" := ring_plus.
 Notation "(+)" := ring_plus (only parsing).
@@ -68,7 +73,14 @@ Notation "( x *)" := (ring_mult x) (only parsing).
   (* We don't add "(*)" and "(*x)" notations because they're too much like comments. *)
 Notation "- x" := (group_inv x).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
-Infix "<=" := precedes.
+Infix "≤" := precedes.
+Notation "(≤)" := precedes (only parsing).
+Infix "<" := precedes_neq.
+Notation "(<)" := precedes_neq (only parsing).
+Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z) (at level 70, y at next level).
+Notation "x ≤ y < z" := (x ≤ y /\ y < z) (at level 70, y at next level).
+Notation "x < y < z" := (x < y /\ y < z) (at level 70, y at next level).
+Notation "x < y ≤ z" := (x < y /\ y ≤ z) (at level 70, y at next level).
 Notation "x ⁻¹" := (ring_mult_inverse x) (at level 30).
 Infix "◎" := comp (at level 40, left associativity).
   (* Taking over ∘ is just a little too zealous at this point. With our current
@@ -86,6 +98,16 @@ Program Definition dec_mult_inv `{e: Equiv A} `{RingZero A} `{!MultInv A}
   `{∀ x y: A, Decision (equiv x y)} (x: A): A := if decide (equiv x 0) then 0 else // x.
 
 Notation "/ x" := (dec_mult_inv x).
+
+Class RingMinus A `{Equiv A} `{RingPlus A} `{GroupInv A} := ring_minus_sig: ∀ x y : A, { z: A |  z = x + -y }.
+Definition ring_minus `{RingMinus A} : A → A → A := λ x y, ` (ring_minus_sig x y).
+Infix "-" := ring_minus.
+Instance: Params (@ring_minus) 2.
+
+Class FieldDiv A `{RingMult A} `{MultInv A} `{RingZero A} := field_div_sig: ∀ (x : A) (y : { x: A | x ≠ 0 }), { z: A |  z = x * //y }.
+Definition field_div `{FieldDiv A}: A → { x: A | x ≠ 0 } → A := λ x y, ` (field_div_sig x y).
+Infix "//" := field_div (at level 35, right associativity).
+Instance: Params (@field_div) 2.
 
 (* Common properties: *)
 Class Commutative `{Equiv B} `(m: A → A → B): Prop := commutativity: `(m x y = m y x).
@@ -106,6 +128,8 @@ Class ZeroProduct A `{Equiv A} `{!RingMult A} `{!RingZero A}: Prop :=
   zero_product: `(x * y = 0 → x = 0 ∨ y = 0).
 Class ZeroNeOne A `{Equiv A} `{!RingOne A} `{!RingZero A}: Prop :=
   zero_ne_one: 0 ≠ 1.
+Class ZeroNeTwo A `{Equiv A} `{!RingOne A} `{!RingPlus A} `{!RingZero A}: Prop :=
+  zero_ne_two: 0 ≠ 2.
     (* todo: this is silly *)
 
 Class ZeroDivisor {R} `{Equiv R} `{RingZero R} `{RingMult R} (x: R): Prop

@@ -22,6 +22,14 @@ Section initial_maps.
    abstract (apply ring.encode_morphism_only, _).
   Defined. (* for some reason [Program] isn't cooperating here. look into it *)
 
+  Lemma integer_initial (same_morphism : ∀ `{Ring B} {h :  Int → B} `{!Ring_Morphism h}, integers_to_ring B = h) : 
+    Initial (ring.object Int).
+  Proof.
+    intros y [x h] []. simpl in *.
+    apply same_morphism.
+    apply ring.decode_variety_and_ops. 
+    apply (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+  Qed.
 End initial_maps.
 
 Instance: Params (@integers_to_ring) 8.
@@ -32,18 +40,15 @@ Class Integers A {e plus mult zero one opp} `{IntegersToRing A} :=
   ; integers_initial:> Initial (ring.object A) }.
 
 Section specializable.
+  Context (Int N: Type) `{Equiv Int} `{RingMult Int} `{RingPlus Int} `{RingOne Int}
+    `{GroupInv Int} `{RingZero Int} `{NaturalsToSemiRing N}.
 
-  Context (Int N: Type) `{Equiv Int} `{RingMult Int} `{RingPlus Int} `{RingOne Int} `{GroupInv Int} `{RingZero Int} `{NaturalsToSemiRing N}.
+  Class IntAsNat := int_as_nat: ∀ i: Int, 
+    { n: N | i = naturals_to_semiring N Int n } + { n: N | i = - naturals_to_semiring N Int n }.
 
-  Class IntAsNat := int_as_nat: ∀ i: Int, { n: N | i = naturals_to_semiring N Int n } + { n: N | i = - naturals_to_semiring N Int n }.
-
-  Class IntAbs := int_abs: ∀ i: Int, { n: N | naturals_to_semiring N Int n = i ∨ - naturals_to_semiring N Int n = i }.
-  Definition int_abs' `{IntAbs}: Int → N := λ x, proj1_sig (int_abs x).
-
+  Class IntAbs := int_abs_sig : ∀ i: Int, 
+    { n: N | naturals_to_semiring N Int n = i ∨ - naturals_to_semiring N Int n = i }.
+  Definition int_abs `{IntAbs}: Int → N := λ x, proj1_sig (int_abs_sig x).
 End specializable.
 
-Instance: Params (@int_abs') 10.
-
-Instance integer_precedes `{Integers Int}: Order Int := sr_precedes.
-
-Instance: Params (@integer_precedes) 9.
+Instance: Params (@int_abs) 10.

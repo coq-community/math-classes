@@ -12,7 +12,7 @@ Require Import
 Inductive op := mult | one.
 
 Definition sig: Signature := single_sorted_signature
-  (λ o, match o with one => O | mult => 2 end).
+  (λ o, match o with one => O | mult => 2%nat end).
 
 Section laws.
 
@@ -22,7 +22,7 @@ Section laws.
 
   Local Notation x := (Var sig nat 0%nat tt).
   Local Notation y := (Var sig nat 1%nat tt).
-  Local Notation z := (Var sig nat 2 tt).
+  Local Notation z := (Var sig nat 2%nat tt).
 
   Import notations.
 
