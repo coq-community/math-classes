@@ -7,18 +7,47 @@ Module BigZ_Integers := ZType_Integers BigZ.
 
 Definition fastZ: Type := BigZ.t.
 
-Print BigN.log2.
-(* Some ad hoc hacks to integrate BigN's shiftl and shiftr *)
-Definition fastZ_shiftl (p : fastZ) (x : fastZ) :=
+(* The following definition and lemma should be added to stdlib *)
+Definition fastZ_shiftl (p x : fastZ) :=
   match p with
   | BigZ.Pos p => match x with 
      | BigZ.Pos x => BigZ.Pos (BigN.shiftl p x)
      | BigZ.Neg x => BigZ.Neg (BigN.shiftl p x)
      end
-  | BigZ.Neg p => 0
+  | BigZ.Neg p => x
   end.
 
-Definition fastZ_shiftr (p : fastZ) (x : fastZ) := 
+Lemma BigN_neg_is_zero p :  (BigZ.le 0 (BigZ.Neg p) -> BigN.to_Z p = 0)%Z.
+Proof.
+  intros E.
+  apply Zle_antisym.
+   apply Z.opp_nonneg_nonpos. trivial.
+  apply BigN.spec_pos.
+Qed.
+ 
+Lemma spec_shiftl (p x : fastZ) : (BigZ.le 0 p -> BigZ.to_Z (fastZ_shiftl p x) = BigZ.to_Z x * 2 ^(BigZ.to_Z p))%Z.
+Proof with auto.
+  intros E. case_eq p; intros p' Ep'.
+   case_eq x; intros x' Ex'; simpl.
+    apply BigN.spec_shiftl.
+   rewrite BigN.spec_shiftl. rewrite Z.mul_opp_l. reflexivity.
+  subst. simpl. rewrite (BigN_neg_is_zero p')...
+  simpl. rewrite Z.mul_1_r. reflexivity.
+Qed.
+
+Program Instance: ShiftLeft fastZ (Pos fastZ) := λ x y, fastZ_shiftl y x.
+Next Obligation.
+  intros x y. 
+  BigZ_Integers.unfold_equiv. 
+  rewrite spec_shiftl.
+   rewrite rings.preserves_mult. 
+   unfold pow, nat_pow, nat_pow_sig, BigZ_Integers.ZType_pow. simpl.
+   rewrite BigZ.spec_pow. 
+   reflexivity.
+  apply BigZ_Integers.to_Z_sr_precedes_Zle. destruct y. trivial.
+Qed.
+
+Definition fastZ_shiftr (p x : fastZ) := 
   match p with
   | BigZ.Pos p => match x with 
      | BigZ.Pos x => BigZ.Pos (BigN.shiftr p x)
@@ -27,48 +56,7 @@ Definition fastZ_shiftr (p : fastZ) (x : fastZ) :=
   | BigZ.Neg p => 0
   end.
 
-Add Ring R : (rings.stdlib_ring_theory Z).
-Program Instance: ShiftLeft fastZ (Pos fastZ) := fastZ_shiftl.
-Next Obligation.
-  unfold fastZ_shiftl.
-  intros [x [[y|y] Ey] |x]; simpl.
-  unfold fastZ_shiftl. 
-  program_simpl. destruct y as [[? | ?] ?]. simpl in *. inject Heq_y.
-  unfold equiv, BigZ_Integers.anyZ_eq, BigZ.eq. simpl.
-  rewrite BigN.spec_shiftl.
-  unfold pow, nat_pow, nat_pow_sig, BigZ_Integers.anyZ_pow. simpl.
-  rewrite rings.preserves_mult.
-  replace (2:bigZ) with (BigZ.Pos 2) by reflexivity.
-  rewrite BigZ.spec_pow. simpl. reflexivity.
-  simpl in *. discriminate.
-Qed.
+(* Add Ring R : (rings.stdlib_ring_theory Z). *)
 
-Next Obligation.
-  program_simpl. destruct y as [[? | ?] ?]. simpl in *. inject Heq_y.
-  unfold equiv, BigZ_Integers.anyZ_eq, BigZ.eq. simpl.
-  rewrite BigN.spec_shiftl.
-  unfold pow, nat_pow, nat_pow_sig, BigZ_Integers.anyZ_pow. simpl.
-  rewrite rings.preserves_mult.
-  replace (2:bigZ) with (BigZ.Pos 2) by reflexivity.
-  rewrite BigZ.spec_pow. rewrite Zopp_mult_distr_l. simpl. reflexivity.
-  simpl in *. discriminate.
-Qed.
-
-Next Obligation. 
-  program_simpl. destruct y as [[? | ?] ?]. simpl in *. discriminate.
-  exfalso. clear Heq_y.
-  apply (BigZ_Integers.to_Z_sr_precedes_Zle _ _) in p.
-  simpl in p.
-Admitted.
-
-Program Instance: ShiftRight fastZ (Pos fastZ) := λ (x : fastZ) (y : Pos fastZ), 
-  match y with
-  | BigZ.Pos y => match x with 
-     | BigZ.Pos x => BigZ.Pos (BigN.shiftr y x)
-     | BigZ.Neg x => BigZ.Neg (BigN.shiftr y x)
-     end
-  | BigZ.Neg y => 0
-  end.
-Next Obligation. Admitted.
-Next Obligation. Admitted.
+Program Instance: ShiftRight fastZ (Pos fastZ) := λ x y, fastZ_shiftr y x.
 Next Obligation. Admitted.
