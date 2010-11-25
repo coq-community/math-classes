@@ -41,7 +41,7 @@ Next Obligation.
   BigZ_Integers.unfold_equiv. 
   rewrite spec_shiftl.
    rewrite rings.preserves_mult. 
-   unfold pow, nat_pow, nat_pow_sig, BigZ_Integers.ZType_pow. simpl.
+   unfold pow, nat_pow, nat_pow_sig, BigZ_Integers.anyZ_pow. simpl.
    rewrite BigZ.spec_pow. 
    reflexivity.
   apply BigZ_Integers.to_Z_sr_precedes_Zle. destruct y. trivial.
