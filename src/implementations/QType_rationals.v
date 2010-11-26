@@ -13,6 +13,7 @@ Module QType_Rationals (Import anyQ: QType).
 
 Module props := QProperties anyQ.
 
+(* Todo: we need a similar trick as in ZType_integers for Equiv t *)
 Instance qev: Equiv t := eq.
 Instance: RingPlus t := add.
 Instance: RingZero t := zero.

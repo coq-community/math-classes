@@ -192,8 +192,8 @@ Defined.
 End positive_integers_naturals.
 
 (* 
-  For an obscure reason instance resolution fails to find this instance while contained in the
-  above section. Yet, then its type is equivalence to the function below and it is just listed
+  For an unknown reason instance resolution fails to find this instance when it's contained in 
+  the above section. However, then its type is equivalent to the function below and it is listed
   in typeclass_instances.. Todo: further investigation.
 
   Also, it might be more elegant to use an existing instance of CutMinus Z (whose

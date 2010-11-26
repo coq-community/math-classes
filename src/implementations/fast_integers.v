@@ -53,10 +53,8 @@ Definition fastZ_shiftr (p x : fastZ) :=
      | BigZ.Pos x => BigZ.Pos (BigN.shiftr p x)
      | BigZ.Neg x => BigZ.Neg (BigN.shiftr p x)
      end
-  | BigZ.Neg p => 0
+  | BigZ.Neg p => x
   end.
-
-(* Add Ring R : (rings.stdlib_ring_theory Z). *)
 
 Program Instance: ShiftRight fastZ (Pos fastZ) := λ x y, fastZ_shiftr y x.
 Next Obligation. Admitted.

@@ -4,7 +4,7 @@ Require Export
 Require
  theory.naturals.
 Require Import
- RelationClasses Morphisms Ring Program
+ RelationClasses Morphisms Ring Program Setoid
  interfaces.naturals abstract_algebra orders.semiring theory.rings
  natpair_integers workaround_tactics.
 
@@ -99,7 +99,7 @@ Section retract_is_int.
 End retract_is_int.
 
 Section contents.
-  Context `{Integers Int}.
+  Context `{Integers Int} `{!RingMinus Int}.
   Add Ring Int: (stdlib_ring_theory Int).
 
   Hint Immediate @neg_sr_precedes_pos @preserves_0 @sr_preserves_nonneg @zero_sr_precedes_nat.
@@ -291,6 +291,39 @@ Section contents.
   Qed.
   
   End int_abs.
+
+  Lemma induction
+    (P: Int → Prop) `{!Proper (equiv ==> iff)%signature P}:
+    P 0 → (∀ n, 0 ≤ n → P n → P (1 + n)) → (∀ n, n ≤ 0 → P n → P (n - 1)) → ∀ n, P n.
+  Proof with auto.
+    intros P0 Psuc1 Psuc2 n.
+    destruct (int_abs_sig Int nat n) as [m [E|E]].
+     rewrite <-E. clear E. pattern m. 
+     apply naturals.induction; clear m.
+       intros ? ? E. rewrite E. tauto.
+      rewrite preserves_0...
+     intros m E. 
+     rewrite preserves_plus, preserves_1.
+     apply Psuc1... apply zero_sr_precedes_nat.
+    rewrite <-E. clear E. pattern m. 
+    apply naturals.induction; clear m.
+      intros ? ? E. rewrite E. tauto.
+     rewrite preserves_0, rings.opp_0...
+    intros m E. 
+    rewrite preserves_plus, preserves_1.
+    rewrite plus_opp_distr, commutativity, <-rings.ring_minus_correct.
+    apply Psuc2...
+    apply sr_precedes_0_flip, zero_sr_precedes_nat...
+  Qed.
+
+  Lemma biinduction
+    (P: Int → Prop) `{!Proper (equiv ==> iff)%signature P}:
+    P 0 → (∀ n, P n ↔ P (1 + n)) → ∀ n, P n.
+  Proof with auto.
+    intros P0 Psuc. apply induction...
+    firstorder.
+    intros. apply Psuc. setoid_replace (1+(n-1)) with n by ring...
+  Qed.
 
   Hint Immediate zero_sr_precedes_nat opp_0 inv_involutive.
   Hint Resolve opp_0.
