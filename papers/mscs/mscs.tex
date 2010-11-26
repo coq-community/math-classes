@@ -177,11 +177,12 @@ Algebraic structures are expressed in terms of a number of carrier sets, a numbe
 \end{lstlisting}
 The curly brackets used for \lstinline|A| mark it as an implicit argument.
 
-More elaborate structures, too, can be expressed as predicates (expressing laws) over a number of carriers, relations, and operations. While optimally flexible in principle, in practice \emph{na\"ive} adoption of this approach (that is, without using type classes) leads to substantial inconveniences in actual use: when \emph{stating} theorems about abstract instances of such structures, one must enumerate all components along with the structure (predicate) of interest. And when \emph{applying} such theorems, one must either enumerate any non-inferrable components, or let the system spawn awkward metavariables to be resolved at a later time. Importantly, this also hinders proof search for proofs of the structure predicates, making any nontrivial use of theorems a laborious experience. Finally, the lack of \emph{canonical names} for particular components of abstract structures makes it impossible to associate idiomatic notations with them.
+More elaborate structures, too, can be expressed as predicates (expressing laws) over a number of carriers, relations, and operations. While optimally flexible in principle, in practice \emph{naive} adoption of this approach (that is, without using type classes) leads to substantial inconveniences in actual use: when \emph{stating} theorems about abstract instances of such structures, one must enumerate all components along with the structure (predicate) of interest. And when \emph{applying} such theorems, one must either enumerate any non-inferrable components, or let the system spawn awkward metavariables to be resolved at a later time. Importantly, this also hinders proof search for proofs of the structure predicates, making any nontrivial use of theorems a laborious experience. Finally, the lack of \emph{canonical names} for particular components of abstract structures makes it impossible to associate idiomatic notations with them.
 
 % hm, i used to have paragraphs here about how it would be unclear how this approach could support structure inference and structure inheritance, but those are actually pretty straightforward using ordinary proof search.
 
 In the absence of type classes, these are all very real problems, and for this reason the two largest formalizations of abstract algebraic structures in Coq today, CoRN~\cite{C-corn} and \textsc{Ssreflect}~\cite{Packed}, both use \emph{bundled} representation schemes, using records with one or more of the components as fields instead of parameters. For reflexive relations, the following is a fully bundled representation---the other end of the spectrum:
+\newpage
 \begin{lstlisting}
   Record ReflexiveRelation: Type :=
     { rr_carrier: Type
@@ -277,7 +278,7 @@ The observant reader may wonder whether it might be beneficial to go one step fu
 
 \section{Predicate classes and operational classes}\label{predicateclasses}
 
-We will tackle the problems associated with the use of structure predicates one by one, starting with those encountered during theorem \emph{application}. Suppose we have defined \lstinline|SemiGroup| as a structure predicate as follows\footnote{Note that defining \lstinline|SemiGroup| as a record instead of a straight conjunction does not make it any less of a predicate. The record form is simply more convenient in that it immediately gives us named projections for laws and substructures.}:
+To show that the fully unbundled approach with structures represented by predicates can be made feasible using type classes, we will tackle one by one the problems traditionally associated with their use, starting with those encountered during theorem \emph{application}. Suppose we have defined \lstinline|SemiGroup| as a structure predicate as follows\footnote{Note that defining \lstinline|SemiGroup| as a record instead of a straight conjunction does not make it any less of a predicate. The record form is simply more convenient in that it immediately gives us named projections for laws and substructures.}:
 \begin{lstlisting}
   Record SemiGroup (G: Type) (e: relation G) (op: G → G → G): Prop :=
     { sg_setoid: Equivalence e
@@ -417,7 +418,7 @@ The declarations of the two inherited \lstinline|CommutativeMonoid| structures i
 
 Since \lstinline|CommutativeMonoid| indirectly includes a \lstinline|SemiGroup| field, which in turn includes a \lstinline|Equivalence| field, having a \lstinline|SemiRing| proof means having two distinct proofs that the equality relation is an equivalence. This kind of redundant knowledge (which arises naturally) is never a problem in our setup, because the use of operational type classes ensures that terms composed of algebraic operations and relations never refer to structure proofs. We find that this is a tremendous relief compared to approaches that \emph{do} intermix the two and where one must be careful to ensure that such terms refer to the \emph{right} proofs of properties. There, even \emph{strong} proof irrelevance (which would make terms convertible that differ only in what proofs they refer to) would not make these difficulties go away entirely, because high-level tactics that rely on quotation of terms require syntactic identity (rather than `mere' convertibility) to recognize identical subterms.
 
-Because predicate classes only provide contextual information and are insulated from the actual algebraic expressions, their instances can always be kept entirely opaque---only their existence matters. Together, these properties largely defuse an argument occasionally voiced against type classes concerning perceived unpredictability of instance resolution. While it is certainly true that in contexts with redundant information it can become hard to predict which instance of a predicate class will be found by proof search, it simply \emph{does not matter} which one is found. Moreover, for operational type classes the issue rarely arises because their instances are not nearly as abundant.
+Because predicate classes only provide contextual information and are insulated from the actual algebraic expressions, their instances can always be kept entirely opaque---only their existence matters. Together, these properties largely defuse an argument occasionally voiced against type classes concerning perceived unpredictability of instance resolution. While it is certainly true that in contexts with redundant information it can become hard to predict which instance of a predicate class will be found by proof search, it simply \emph{does not matter} which one is found. Moreover, for operational type classes the issue rarely arises because their instances are not nearly as abundant, and are systematically shared.
 
 % rather strict separation of operations and proofs of properties about them (resolved by instance resolution) provides a very pleasing environment to work in, without any need for hacks.
 % terms composed of algebraic operations and relations 
@@ -425,7 +426,7 @@ Because predicate classes only provide contextual information and are insulated 
 % it is /never/ a problem to know a fact twice.
 % multiple proofs of equality, and even of semigroup-ness (since both Monoid), but that's simply not a problem, since none of our terms ever refers to such proofs. We have found that this rather strict separation of operations and proofs of properties about them (resolved by instance resolution) provides a very pleasing environment to work in, without any need for hacks.
 
-We use names for properties like distributivity and absorption, because these are type classes as well (which is why we declare them with \lstinline|:>|). It has been our experience that almost any generic predicate worth naming is worth representing as a predicate type class, so that its proofs will be resolved as instances behind the scenes whenever possible. Doing this consistently minimizes administrative noise in the code, bringing us closer to ordinary mathematical vernacular. Indeed, we believe that type classes are an elegant and apt formalization of the seemingly casual manner in which ordinary mathematical presentation assumes implicit administration and use of a `database' of properties previously proved. Much more so than the existing canonical structures facility, because canonical structures can only be used with bundled representations, which we argued against in section~\ref{bundling}.
+We use names for properties like distributivity and absorption, because these are type classes as well (which is why we declare their instances with \lstinline|:>|). It has been our experience that almost any generic predicate worth naming is worth representing as a predicate type class, so that its proofs will be resolved as instances behind the scenes whenever possible. Doing this consistently minimizes administrative noise in the code, bringing us closer to ordinary mathematical vernacular. Indeed, we believe that type classes provide an elegant and apt formalization of the seemingly casual manner in which ordinary mathematical presentation assumes implicit administration and use of a `database' of properties previously proved.
 
 The operational type classes used in \lstinline|SemiRing| for zero, one, multiplication and addition, are the same ones used by \lstinline|Ring| and \lstinline|Field| (not shown). Thus, the realization that a particular semiring is in fact a ring or field has no bearing on how one refers to the operations in question, which is as it should be. The realization that a particular semigroup is part of a semiring \emph{does} call for a new (canonical) name, simply because of the need for disambiguation. The introduction of these additional names for the same operation is quite harmless in practice, because canonical names established by operational type class fields are identity functions, so that in most contexts the distinction reduces away instantly.
 
@@ -444,7 +445,7 @@ Some clarification is in order to explain the role of the \lstinline|Context| de
 
 Notice that \lstinline|f| is \emph{not} made into an operational type class. The reason for this is that the role of \lstinline|f| is analogous to the carrier type in the previous predicate class definitions, in that it serves as the primary identification for the structure, and should therefore not be inferred.
 
-The \lstinline|monmor_to| and \lstinline|monmor_from| fields are not an absolute necessity, but eliminate the need for theorems to declare \lstinline|Monoid| parameters when they already declare \lstinline|Monoid_Morphism| parameters. This is an instance where we can freely posit structural properties without worrying about potential problems when such information turns out to be redundant in contexts where the source and target of the morphism are already known to be \lstinline|Monoid|s.
+We include the \lstinline|monmor_to| and \lstinline|monmor_from| fields because it does not make much sense to talk about monoid morphisms between non-monoids, and having these fields removes the need for \lstinline|Monoid| class constraints when we are already parameterizing definitions or theory on a \lstinline|Monoid_Morphism|. On the other hand, we will also wish to talk about monoid morphisms between \emph{known} monoids, and in these cases the fields will be strictly redundant. As mentioned before, it is a strength of our approach that such redundant knowledge is entirely harmless, so that we may freely posit these structural properties whenever they make sense and provide convenience, without risking rebundling tar-pits or projection path ambiguities down the line.
 
 Unfortunately, there is actually one annoying wrinkle here, which will also explain why we do not register these two fields as instance resolution hints (by declaring them with \lstinline|:>|). What we really want these fields to express is ``\emph{if} in a certain context we know something to be a \lstinline|Monoid_Morphism|, \emph{then} realize that the source and target are \lstinline|Monoid|s''. However, the current instance resolution implementation has little support for this style of \emph{forward} reasoning, and is really primarily oriented on \emph{backward} reasoning: had we registered \lstinline|monmor_to| and \lstinline|monmor_from| as instance resolution hints, we would in fact be saying ``\emph{if} trying to establish that something is a \lstinline|Monoid|, \emph{then} try finding a \lstinline|Monoid_Morphism| to or from it'', which quickly degenerates into a wild goose chase. We will return to this point in section~\ref{conclusions}.
 
@@ -618,29 +619,27 @@ A multisorted signature enumerates sorts, operations, and specifies the `types' 
     ; operation:> Set
     ; operation_type:> operation → ne_list sorts }.
 \end{lstlisting}
-Given an interpretation of the sorts (mapping each symbolic sort to a carrier), an interpretation for the operations is easily written as an operational type class:
+Given an interpretation of the sorts (mapping each symbolic sort to a carrier type), interpretations of the operations are easily represented by an operational type class:
 \begin{lstlisting}
-  Variables (σ: Signature) (carriers: sorts σ → Type).
+  Variables (σ: Signature) (carriers: sorts σ$$ → Type).
 
-  Definition op_type: ne_list (sorts σ) → Type := fold (→) ∘ map carrier.
-
-  Class AlgebraOps (σ: Signature) (carriers: sorts σ$$ → Type)
-    := algebra_op: ∀ o: operation σ, op_type carriers (σ o).
+  Class AlgebraOps :=
+    algebra_op: ∀ o: operation σ, fold (→$\hspace{-1mm}$) (map carriers (operation_type σ$$ o)).
 \end{lstlisting}
 Because our carriers will normally be equipped with a setoid equality, we further define the predicate class \lstinline|Algebra|, stating that each of the operations respects the setoid equality on the carriers:
 \begin{lstlisting}
-  Class Algebra `{∀$$a, Equiv (carriers a)} `{AlgebraOps σ$$ carriers}: Prop :=
+  Class Algebra `{∀$$a, Equiv (carriers a)} `{AlgebraOps}: Prop :=
       { algebra_setoids:> ∀ a, Setoid (carriers a)
       ; algebra_propers:> ∀ o: σ, Proper (=) (algebra_op o) }.
 \end{lstlisting}
-The \lstinline|(=)| referred to in \lstinline|algebra_propers| is an \lstinline|Equiv| instance expressing setoid-respecting extensionality for the function types generated by \lstinline|op_type|.
+The \lstinline|(=)| referred to in \lstinline|algebra_propers| is an automatically derived \lstinline|Equiv| instance expressing setoid-respecting extensionality for the function types produced by the \lstinline|fold| in \lstinline|AlgebraOps|.
 
 We do not unbundle \lstinline|Signature| because it represents a triple that will always be specifically constructed for subsequent use with the universal algebra facilities. We have no ambition to recognize signature triples ``in the wild'', nor will we ever talk about multiple signatures sharing sort- or operation enumerations.
 
 \subsection{Equational theories and varieties}
 \label{varieties}
 
-To characterize structures such as semirings and rings, we need equational theories, consisting of a signature together with laws (represented by a predicate over equality entailments):
+To adequately characterize structures such as semirings and rings, we need not just a signature that enumerates and gives the types of their operations, but also a specification of the axioms (laws) that these operations must satisfy. For this, we define \lstinline|EquationalTheory| as a signature together with a set of laws, the latter represented by a predicate over equality entailments:
 \begin{lstlisting}
   Record EquationalTheory :=
     { eqt_sig:> Signature
@@ -685,7 +684,7 @@ In addition to this variety category, we also have categories of lawless algebra
 
 To give a further taste of what universal algebra in our development looks like, we consider the definitions involved in the first homomorphism theorem~\cite{meinke1993universal} in more detail:
 \begin{theorem}[First homomorphism theorem]
-If $A$ and $B$ are algebras, and $f$ is a homomorphism from $A$ to $B$, then the equivalence relation defined by $a\sim b$ if and only if $f(a)=f(b)$ is a congruence on $A$, and the algebra $A/\hspace{-1mm}\sim$ is isomorphic to the image of $f$, which is a subalgebra of B.
+If $A$ and $B$ are algebras, and $f$ is a homomorphism from $A$ to $B$, then the equivalence relation $\sim$ defined by ``$a\sim b \leftrightarrow f(a)=f(b)$'' is a congruence on $A$, and the quotient algebra $A/\hspace{-1mm}\sim$ is isomorphic to the image of $f$, which is a subalgebra of B.
 \end{theorem}
 
 A set of relations \lstinline|e| (one for each sort) is a congruence for an existing algebra if (1) \lstinline|e| respects that algebra's existing setoid equality, and (2) the operations with \lstinline|e| again form an algebra (namely the quotient algebra):
@@ -699,9 +698,9 @@ We have proved that this natural and economical type-theoretic formulation that 
 
 For the homomorphism theorem, we begin by declaring our dramatis personae:
 \begin{lstlisting}
-  Context `{Algebra σ$$ A} `{Algebra σ$$ B} `{HomoMorphism σ$$ A B f}.
+  Context `{HomoMorphism σ$$ A B f}.
 \end{lstlisting}
-With \lstinline|~| defined as described, the first part of the proof is simply the definition of the following instance:
+With \lstinline|~| defined as indicated, the first part of the proof is simply the definition of the following instance:
 \begin{lstlisting}
   Instance co: Congruence σ$$ (~).
 \end{lstlisting}
@@ -723,7 +722,7 @@ Here, \lstinline|op_closed| is defined by recursion over the symbolic operation 
 
 The reason we define \lstinline|image| and \lstinline|ClosedSubset| in \lstinline|Type| rather than in \lstinline|Prop| is that since the final goal of the proof is to establish an isomorphism in the category of σ-algebras (where arrows are algebra homomorphisms), we will eventually need to map elements in the subalgebra defined by \lstinline|image| back to their pre-image in \lstinline|A|.
 
-However, there are contexts (in other proofs) where \lstinline|Prop|-sorted construction of subalgebras really \emph{is} appropriate. Unfortunately, Coq's universe polymorphism is not yet up to the task of letting us use a single set of definitions to handle both cases. In particular, there is no universe polymorphism for definitions (as opposed to inductive definitions) yet. We will return to this point later. In our development, we have two sets of definitions, one for \lstinline|Prop| and one for \lstinline|Type|, resulting in duplication of about a hundred lines of code.
+However, there are contexts (in other proofs) where \lstinline|Prop|-sorted construction of subalgebras really \emph{is} appropriate. Unfortunately, Coq's universe polymorphism is not yet up to the task of letting us use a single set of definitions to handle both cases. In particular, there is no universe polymorphism for ordinary definitions (as opposed to inductive definitions) yet. We will return to this point later. In our development, we have two sets of definitions, one for \lstinline|Prop| and one for \lstinline|Type|, resulting in duplication of about a hundred lines of code.
 
 For the main theorem, we now bundle the quotient algebra and the subalgebra into records akin to \lstinline|ObjectInVariety| from section~\ref{varieties}:
 \begin{lstlisting}
