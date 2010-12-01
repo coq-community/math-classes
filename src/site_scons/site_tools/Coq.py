@@ -8,12 +8,13 @@ def add_glob(target, source, env):
   return target, source
 
 Coq = SCons.Builder.Builder(
-  action = 'coqc $COQFLAGS -q  $SOURCE',
+  action = '$COQC $COQFLAGS -q  $SOURCE',
   suffix = '.vo',
   src_suffix = '.v',
   emitter = add_glob)
 
 def generate(env):
+  env['COQC'] = 'coqc'
   env.Append(BUILDERS = {'Coq': Coq})
 
 def exists(env):
