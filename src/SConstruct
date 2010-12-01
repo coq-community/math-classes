@@ -16,25 +16,11 @@ while nodes:
 
 Rs = ' -R . "" '
 
-coqc = 'coqc -q ' + Rs + ' $SOURCE'
-
-env = DefaultEnvironment(ENV = os.environ)
-
-def add_glob(target, source, env):
-  base, _ = os.path.splitext(str(target[0]))
-  target.append(base + ".glob")
-  return target, source
-
-env.Append(BUILDERS =
-  {'Coq' : Builder(
-    action = coqc,
-    suffix = '.vo',
-    src_suffix = '.v',
-    emitter = add_glob)})
+env = DefaultEnvironment(ENV = os.environ, tools=['default', 'Coq'])
 
 vos = globs = []
 for node in vs:
-  vo, glob = env.Coq(node)
+  vo, glob = env.Coq(node, COQFLAGS=Rs)
   vos += [vo]
   globs += [glob]
 
