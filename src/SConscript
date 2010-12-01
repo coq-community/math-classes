@@ -8,33 +8,18 @@ vs = []
 while nodes:
   node = nodes.pop()
   b = os.path.basename(node)
-  if node.endswith('.v') and node != "./misc/benchmarks.v":
-    vs += [node]
-  if os.path.isdir(node) and node != "./broken":
+  if node.endswith('.v') and not b.endswith('_nobuild.v'):
+    vs += [File(node)]
+  if os.path.isdir(node) and b != 'broken':
     dirs += [node]
     nodes += glob.glob(node + '/*')
-
-Rs = ' -R . "" '
 
 env = DefaultEnvironment()
 
 vos = globs = []
 for node in vs:
-  vo, glob = env.Coq(node, COQFLAGS=Rs)
+  vo, glob = env.Coq(node)
   vos += [vo]
   globs += [glob]
 
-env.Command(env.Dir('coqdoc'), vs + vos + globs + [File('../tools/coqdoc.css.diff')],
-  [ Delete('coqdoc')
-  , Mkdir('coqdoc')
-  , 'coqdoc -utf8 --toc -g --no-lib-name -d $TARGET' + Rs + ' '.join(vs)
-  , 'patch --backup $TARGET/coqdoc.css ../tools/coqdoc.css.diff'])
-
-os.system('coqdep ' + Rs + ' '.join(vs) + ' > deps')
-ParseDepends('deps')
-
-Default('implementations', 'theory', 'categories', 'orders', 'varieties', 'misc')
-
-open('coqidescript', 'w').write('#!/bin/sh\ncoqide ' + Rs.replace('"', '\\"') + ' $@ \n')
-os.chmod('coqidescript', 0755)
-
+Return('vs vos globs')
