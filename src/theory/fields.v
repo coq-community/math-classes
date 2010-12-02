@@ -16,11 +16,22 @@ Section field_div_properties.
     destruct div as [z E]. simpl. auto.
   Qed.
 
-  Global Instance: Proper ((=) ==> (=) ==> (=)) field_div.
+  Global Instance field_div_proper: Proper ((=) ==> (=) ==> (=)) field_div.
   Proof.
     intros x1 y1 E1 x2 y2 E2.
     rewrite (field_div_correct x1 x2). rewrite (field_div_correct y1 y2).
     rewrite E1, E2. reflexivity.
+  Qed.
+
+  Lemma field_div_0_l x y : x = 0 → x // y = 0.
+  Proof.
+    intros E. rewrite E, field_div_correct. rewrite left_absorb. reflexivity.
+  Qed.
+
+  Lemma field_div_diag x y : x = `y → x // y = 1.
+  Proof.
+    intros E. rewrite E, field_div_correct.
+    apply mult_inverse.
   Qed.
 End field_div_properties.
 
@@ -229,12 +240,49 @@ Section field_props.
   Proof with auto; try field; auto.
    intro E.
    destruct (decide (y = 0)).
-    exfalso. apply field_0neq1.
+    exfalso. apply zero_ne_one.
     rewrite <- E, e0, dec_mult_inv_0...
    transitivity (1 * y)...
    rewrite <- E...
   Qed.
 
+  Lemma mult_inv_nonzero x : // x ≠ 0.
+  Proof with auto.
+    intro E.
+    apply zero_ne_one. 
+    rewrite <-(mult_inverse x), E. ring.
+  Qed.
+
+  Lemma dec_mult_inv_nonzero x : x ≠ 0 → / x ≠ 0.
+  Proof with auto.
+    intros E1 E2.
+    apply zero_ne_one. 
+    rewrite <-(dec_mult_inverse x), E2... ring.
+  Qed.
+
+  Lemma dec_mult_inv_inj x y : /x = /y → x = y.
+  Proof with try solve [intuition].
+    intros E.
+    destruct (decide (x = 0)) as [E2|E2].
+     rewrite E2 in *. rewrite dec_mult_inv_0 in E.
+     apply stable. intro. apply (dec_mult_inv_nonzero y)...
+    apply (right_cancellation ring_mult (/x)).
+     apply dec_mult_inv_nonzero...
+    rewrite dec_mult_inverse, E, dec_mult_inverse...
+    intros E3. rewrite E3, dec_mult_inv_0 in E. 
+    apply (dec_mult_inv_nonzero x)...
+  Qed.
+
+  Lemma dec_mult_inv_involutive x : / / x = x.
+  Proof with auto.
+    destruct (decide (x = 0)) as [E|E].
+    rewrite E. do 2 rewrite dec_mult_inv_0. reflexivity.
+    apply (right_cancellation ring_mult (/x)).
+     apply dec_mult_inv_nonzero...
+    rewrite dec_mult_inverse...
+    rewrite commutativity, dec_mult_inverse. reflexivity.
+    apply dec_mult_inv_nonzero...
+  Qed.
 End field_props.
 
 Section morphisms.

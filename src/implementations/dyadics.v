@@ -400,12 +400,22 @@ Section dyadics.
     rewrite E. reflexivity.
   Qed.
  
-  Definition DtoQ (d: Dyadic): Q := ZtoQ (mant d ≪ (expo d -- 0)) // EtoQ (0 -- expo d).
+  Program Definition DtoQ (d: Dyadic): Q := 
+    if decide (0 ≤ expo d)
+    then ZtoQ (mant d ≪ exist _ (expo d) _)
+    else ZtoQ (mant d) // (EtoQ (exist _ (-expo d) _)).
+  Next Obligation. 
+   apply semiring.sr_precedes_0_flip. 
+   rewrite rings.inv_involutive. 
+   apply orders.precedes_flip. assumption.
+  Qed.
 
-  Global Instance: Proper ((=) ==> (=)) DtoQ.
+  Definition DtoQ_alt (d: Dyadic): Q := ZtoQ (mant d ≪ (expo d -- 0)) // EtoQ (0 -- expo d).
+
+  Global Instance: Proper ((=) ==> (=)) DtoQ_alt.
   Proof with auto; try reflexivity.
     intros x y E.
-    unfold DtoQ, EtoQ. simpl. 
+    unfold DtoQ_alt, EtoQ.
     do 2 rewrite fields.field_div_correct.
     apply fields.equal_quotients. simpl.
     do 2 rewrite <-rings.preserves_mult.
@@ -414,12 +424,41 @@ Section dyadics.
     do 2 rewrite right_identity.
     unfold equiv, dy_eq in E.
     destruct (total_order (expo x) (expo y)) as [F|F]; rewrite (shiftl_cut_minus_0 F) in E.
-    rewrite E. do 3 rewrite <-shiftl_sum_exp.
-    apply shiftl_proper... unfold_cut_minus. ring_simplify. apply cut_minus_zeros_precedes...
+     rewrite E. do 3 rewrite <-shiftl_sum_exp.
+     apply shiftl_proper... 
+     unfold_cut_minus. ring_simplify. apply cut_minus_zeros_precedes...
     rewrite <-E. do 3 rewrite <-shiftl_sum_exp.
-    apply shiftl_proper... unfold_cut_minus. symmetry. ring_simplify. apply cut_minus_zeros_precedes...
+    apply shiftl_proper... 
+    unfold_cut_minus. symmetry. ring_simplify. apply cut_minus_zeros_precedes...
   Qed.
-  (*
+  
+  Lemma DtoQ_alt_correct x : DtoQ x = DtoQ_alt x.
+  Proof with auto; try reflexivity.
+    unfold DtoQ, DtoQ_alt. 
+    case (decide (0 ≤ expo x)); intros E.
+     rewrite fields.field_div_correct.
+     setoid_replace (// EtoQ (0 -- expo x)) with 1.
+     rewrite right_identity.
+     apply sm_proper. apply shiftl_proper... 
+     unfold_cut_minus. rewrite cut_minus_rightidentity...
+     assert (EtoQ (0 -- expo x) = 1) as F.
+      unfold EtoQ, equiv, sig_equiv, sig_relation. simpl.
+      rewrite shiftl_cut_minus_0... apply rings.preserves_1.
+     rewrite F. rewrite <-rings.mult_1_l. apply fields.mult_inverse'.
+    rewrite shiftl_cut_minus_0... 
+    apply fields.field_div_proper...
+    unfold EtoQ, equiv, sig_equiv, sig_relation. simpl.
+    apply sm_proper. apply shiftl_proper...
+    unfold_cut_minus.
+    rewrite cut_minus_ring_inv...
+  Qed.
+
+  Global Instance: Proper ((=) ==> (=)) DtoQ.
+  Proof.
+    intros x y E. do 2 rewrite DtoQ_alt_correct.
+    rewrite E. reflexivity.
+  Qed.
+
   Lemma EtoQ_plus_mult x y :  EtoQ (x + y) = (EtoQ x) * (EtoQ y).
   Proof.
     intros.
@@ -451,71 +490,107 @@ Section dyadics.
   Qed.
 
   Lemma DtoQ_preserves_plus x y : DtoQ (x + y) = DtoQ x + DtoQ y.
-  Proof.
-    unfold ring_plus at 1. rewrite dy_plus_alt_correct. unfold dy_plus_alt.
-    unfold DtoQ. simpl.
-    rewrite shiftl_sum_base.
-    Check min_minus1.
-    setoid_replace (0 -- min (expo x) (expo y)) with
-      (0 -- (expo x) + (min 0 (expo x) -- (expo y))).
-    Check min_minus1.
-    (* rewrite (commutativity (mant y ≪ expo x) _).*)
-    symmetry. apply EtoQ_quotients.
+  Proof. 
+    unfold ring_plus at 1. 
+    rewrite dy_plus_alt_correct. do 3 rewrite DtoQ_alt_correct. 
+    unfold dy_plus_alt, DtoQ_alt. simpl.
+    rewrite EtoQ_quotients. 
+    do 2 rewrite fields.field_div_correct.
+    apply fields.equal_quotients. 
+    unfold EtoQ. simpl.
+    do 2 rewrite <-rings.preserves_mult.
+    apply sm_proper.
+    do 2 rewrite <-mult_shiftl_1.
+    do 3 rewrite shiftl_sum_base.
+    repeat rewrite <-shiftl_sum_exp.
+    apply sg_mor; apply shiftl_proper; try reflexivity; unfold_cut_minus; 
+      destruct (total_order (expo x) (expo y)) as [F|F]. 
+       rewrite (cut_minus_0 _ _ F), (min_l _ _ F). ring.
+      rewrite (min_r _ _ F). 
+      symmetry. rewrite associativity, <-cut_minus_zeros_precedes. ring. assumption.
+     rewrite (min_l _ _ F).
+     symmetry. rewrite associativity, <-cut_minus_zeros_precedes. ring. assumption.
+    rewrite (cut_minus_0 _ _ F), (min_r _ _ F). ring.
   Qed.
   
-  Lemma DtoQ_preserves_zero : DtoQ 0 = 0.
+  Lemma DtoQ_preserves_0 : DtoQ 0 = 0.
   Proof. 
-    unfold DtoQ. simpl.
-    rewrite field_div_correct. 
-    rewrite preserves_0. ring.
+    rewrite DtoQ_alt_correct. unfold DtoQ_alt. simpl.
+    apply fields.field_div_0_l.
+    rewrite left_absorb.
+    rewrite rings.preserves_0. reflexivity.
   Qed.
   
   Lemma DtoQ_preserves_group_inv x : DtoQ (-x) = -DtoQ x.
   Proof. 
-    unfold DtoQ. simpl.
-    do 2 rewrite field_div_correct.
-    rewrite preserves_inv. ring.
-  Qed.
-
-  Lemma DtoQ_preserves_mult x y : DtoQ (x * y) = DtoQ x * DtoQ y.
-  Proof. 
-    unfold ring_mult at 1. unfold dy_mult at 1.
-    unfold DtoQ. simpl.
-    do 3 rewrite field_div_correct. 
-    rewrite preserves_mult.
-    rewrite EtoQ_plus_mult. 
-    rewrite <-mult_inv_distr.
+    do 2 rewrite DtoQ_alt_correct. unfold DtoQ_alt. simpl.
+    do 2 rewrite fields.field_div_correct.
+    rewrite opp_shiftl, preserves_inv.
     ring.
   Qed.
 
-  Lemma DtoQ_preserves_one : DtoQ 1 = 1.
-  Proof. 
-    unfold DtoQ. simpl.
-    rewrite field_div_correct.
-    rewrite preserves_1. rewrite EtoQ_zero_one.
-    apply mult_inverse'.
+  Lemma DtoQ_preserves_mult x y : DtoQ (x * y) = DtoQ x * DtoQ y.
+  Proof with auto; try reflexivity.
+    do 3 rewrite DtoQ_alt_correct. 
+    unfold ring_mult at 1. unfold dy_mult at 1.
+    unfold DtoQ_alt. simpl.
+    rewrite mult_shiftl_1, (mult_shiftl_1 (mant x)), (mult_shiftl_1 (mant y)).
+    do 4 rewrite rings.preserves_mult.
+    assert (∀ (a b c : Q) d, (a * b * c) // d = (a * b) * (c // d)) as E1.
+     intros. do 2 rewrite fields.field_div_correct. ring.
+    assert (∀ (a b d e : Q) c f, (a * b) // c * (d * e) // f = (a * d) * ((b * e) // (c * f))) as E2.
+     intros. do 3 rewrite fields.field_div_correct. rewrite <-fields.mult_inv_distr. ring.
+    rewrite E1, E2. apply sg_mor... clear E1 E2.
+    do 2 rewrite fields.field_div_correct.
+    apply fields.equal_quotients. simpl.
+    do 4 rewrite <-rings.preserves_mult.
+    apply sm_proper.
+    do 3 rewrite <-mult_shiftl_1. 
+    repeat rewrite <-shiftl_sum_exp.
+    rewrite <-mult_shiftl_1, <-shiftl_sum_exp.
+    apply shiftl_proper...
+    unfold_cut_minus.
+    repeat rewrite <-cut_minus_zero_plus_toggle. ring.
+  Qed. 
+
+  Lemma DtoQ_preserves_1 : DtoQ 1 = 1.
+  Proof.
+    rewrite DtoQ_alt_correct. 
+    unfold DtoQ_alt, EtoQ. simpl. 
+    apply fields.field_div_diag. reflexivity.
   Qed.
 
   Instance: Ring_Morphism DtoQ.
   Proof. 
     repeat (split; try apply _).
     exact DtoQ_preserves_plus.
-    exact DtoQ_preserves_zero.
+    exact DtoQ_preserves_0.
     exact DtoQ_preserves_group_inv.
     exact DtoQ_preserves_mult.
-    exact DtoQ_preserves_one.
+    exact DtoQ_preserves_1.
   Qed.
 
   Instance: Injective DtoQ.
   Proof with auto.
     split; try apply _.
     intros x y E.
-    unfold equiv, dy_eq. unfold DtoQ in E. unfold EtoQ in E.
-    do 2 rewrite field_div_correct in E.
-    apply equal_quotients in E. simpl in E.
-    do 2 rewrite <-preserves_mult in E.
+    unfold equiv, dy_eq. 
+    do 2 rewrite DtoQ_alt_correct in E. 
+    unfold DtoQ_alt, EtoQ in E. 
+    do 2 rewrite fields.field_div_correct in E.
+    apply fields.equal_quotients in E. simpl in E.
+    do 2 rewrite <-rings.preserves_mult in E.
     do 2 rewrite <-mult_shiftl_1 in E.
-    symmetry. apply (injective ZtoQ)...
+    do 2 rewrite <-shiftl_sum_exp in E.
+    apply (injective ZtoQ) in E.
+    destruct (total_order (expo x) (expo y)) as [F|F]; rewrite (shiftl_cut_minus_0 F).
+     apply (shiftl_inj (expo x -- 0 + (0 -- expo y))). unfold flip.
+     rewrite E, <-shiftl_sum_exp. apply shiftl_proper. reflexivity.
+     unfold_cut_minus. rewrite <-cut_minus_zeros_precedes... ring.
+    apply (shiftl_inj (expo y -- 0 + (0 -- expo x))). unfold flip.
+    rewrite <-E, <-shiftl_sum_exp. apply shiftl_proper. reflexivity.
+    unfold_cut_minus. symmetry. 
+    rewrite <-cut_minus_zeros_precedes... ring.
   Qed.
-*)
+
 End dyadics.

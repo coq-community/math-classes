@@ -113,13 +113,22 @@ Section nat_pow_properties.
     intro. assert ((1:B) = 1 + 0) as E by ring. rewrite E.
     rewrite nat_pow_S, nat_pow_0. ring.
   Qed.
+
+  Instance: LeftAbsorb (^) 1.
+  Proof. 
+    intro. 
+    pattern y. apply naturals.induction; clear y.
+      intros ? ? E. rewrite E. tauto.
+     apply nat_pow_0.
+    intros n E. rewrite nat_pow_S. rewrite E. ring.
+  Qed.
   
   Lemma nat_pow_exp_sum (x y: B) (n: A) : 
     n ^ (x + y) = n ^ x * n ^ y.
   Proof with auto.
     pattern x. apply naturals.induction; clear x.
-    intros ? ? E. rewrite E. tauto.
-    rewrite nat_pow_0, left_identity. ring.
+      intros ? ? E. rewrite E. tauto.
+     rewrite nat_pow_0, left_identity. ring.
     intros x E. 
     rewrite <-associativity.
     do 2 rewrite nat_pow_S.
@@ -131,8 +140,8 @@ Section nat_pow_properties.
   Lemma nat_pow_nonzero (x: B) (n: A) : n ≠ 0 → n ^ x ≠ 0.
   Proof with eauto.
     pattern x. apply naturals.induction; clear x.
-    intros x1 x2 E. rewrite E. tauto.
-    intros. rewrite nat_pow_0. apply not_symmetry. apply zero_ne_one.
+      intros x1 x2 E. rewrite E. tauto.
+     intros. rewrite nat_pow_0. apply not_symmetry. apply zero_ne_one.
     intros x E F G. rewrite nat_pow_S in G.
     apply (no_zero_divisors n); split... 
   Qed. 

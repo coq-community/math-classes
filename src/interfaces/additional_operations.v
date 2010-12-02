@@ -15,8 +15,9 @@ Inductive nat_pow_spec `{SemiRing A} `{SemiRing B} : A → B → A → Prop :=
 Class NatPow A B `{SemiRing A} `{Naturals B} := nat_pow_sig (x : A) (n : B) : { y | nat_pow_spec x n y }.
 Instance nat_pow `{NatPow A B} : `{Pow A B} := λ x n, ` (nat_pow_sig x n).
 
-Class IntPow A B `{Field A} `{Integers B} := 
-  int_pow_sig (x : A) (n : B) : { y | (0 ≤ n → nat_pow_spec x n y) ∧ (n < 0 → ∃ z, nat_pow_spec x (-n) (// z) ∧ y = `z) }.
+(* 0 ^ x where x is negative is not defined. However, we take the easy way and let it yield 0 in that case. *)
+Class IntPow A B `{Field A} `{∀ x y, Decision (x = y)} `{Integers B} := 
+  int_pow_sig (x : A) (n : B) : { y | (0 ≤ n → nat_pow_spec x n y) ∧ (n < 0 → nat_pow_spec x (-n) (/ y)) }.
 Instance int_pow `{IntPow A B} : `{Pow A B} := λ x n, ` (int_pow_sig x n).
 
 Class ShiftLeft A B `{SemiRing A} `{Naturals B} `{!NatPow A B} := shiftl_sig: ∀ (x : A) (y : B), 

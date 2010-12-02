@@ -202,8 +202,8 @@ Section ring.
     rewrite ring_minus_correct. 
     split; intros E.
     apply (right_cancellation (+) (-x)); trivial.
-      eapply sr_precedes_proper; eauto; try ring.
+      rewrite plus_opp_r. assumption.
     apply (right_cancellation (+) x); trivial.
-      eapply sr_precedes_proper; eauto; try ring.
+      rewrite left_identity, <-associativity, plus_opp_l, right_identity. assumption.
   Qed.
 End ring.
