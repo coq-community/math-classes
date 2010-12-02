@@ -1,7 +1,7 @@
 Set Automatic Introduction.
 
 Require Import
-  Relation_Definitions Morphisms Setoid Program abstract_algebra setoids functors theory.jections.
+  Relation_Definitions Morphisms Setoid Program abstract_algebra setoids interfaces.functors theory.jections.
 
 Notation "x ⇛ y" := (∀ a, x a ⟶ y a) (at level 90, right associativity).
   (* Transformations (polymorphic arrows). Couldn't find an "arrow with dot over it" unicode character. *)
@@ -60,8 +60,8 @@ Section adjunction.
     ; ηε_adjunction_right_functor: Functor G _
     ; ηε_adjunction_η_natural: NaturalTransformation η
     ; ηε_adjunction_ε_natural: NaturalTransformation ε
-    ; ηε_adjunction_identity_at_G: (λ a, fmap G (ε a) ◎ η (G a)) = id_nat_trans G
-    ; ηε_adjunction_identity_at_F: (λ a, ε (F a) ◎ fmap F (η a)) = id_nat_trans F }.
+    ; ηε_adjunction_identity_at_G: ∀ a, fmap G (ε a) ◎ η (G a) = id_nat_trans G a
+    ; ηε_adjunction_identity_at_F: ∀ a, ε (F a) ◎ fmap F (η a) = id_nat_trans F a }.
 
   (* We currently don't define adjunctions as characterized in MacLane p81 Theorem 2 (ii) and (iv). *)
 

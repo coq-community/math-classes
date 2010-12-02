@@ -152,7 +152,8 @@ Global Instance: Inverse inject_frac := λ x, (num x, den x).
 Global Instance: Surjective inject_frac.
 Proof.
  constructor.
-  intros [n d P].
+  intros [n d P] y E.
+  rewrite <- E.
   unfold Basics.compose, inject_frac, equiv, frac_equiv.
   simpl.
   ring_simplify.

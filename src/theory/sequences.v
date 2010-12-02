@@ -3,7 +3,7 @@ Set Automatic Introduction.
 Require Import
   Program
   theory.categories
-  functors
+  interfaces.functors
   abstract_algebra
   interfaces.sequences
   canonical_names.
@@ -22,7 +22,11 @@ Section contents.
    pose proof (@setoidmor_a _ _ _ _ f _).
    pose proof (@monmor_b _ _ _ _ _ _ _ _ g _).
    pose proof (sequence_only_extend_commutes sq (f ∘ inject A) _) as E.
+   pose proof (_: Setoid_Morphism (f ∘ inject A)) as cm.
    rewrite (E f), (E g)...
+    apply (sequence_extend_morphism sq)...
+    apply cm.
+   apply cm.
   Qed.
 
   Lemma extend_comp
@@ -40,17 +44,17 @@ Section contents.
    apply (sequence_only_extend_commutes sq (f ∘ g))...
    symmetry.
    rewrite <- (sequence_extend_commutes sq g _) at 1.
-   reflexivity.
+   apply sm_proper.
   Qed.
 
-  Lemma extend_inject A `{Setoid A}: extend (inject A) = id.
+  Lemma extend_inject `{Setoid A}: extend (inject A) = @id (sq A).
   Proof with try apply _.
    symmetry. apply (sequence_only_extend_commutes sq)...
-   intro. reflexivity.
+   apply sm_proper.
   Qed.
 
   Lemma fmap_alt `{Equiv A} `{Equiv B} (f: A → B):
-    Setoid_Morphism f → extend (inject B ∘ f) = fmap sq f.
+    Setoid_Morphism f → extend (inject B ∘ f) = (fmap sq f: sq A → sq B).
   Proof with try apply _.
    intros.
    pose proof (@setoidmor_a _ _ _ _ f _).
@@ -76,7 +80,7 @@ Section contents.
    change (f = fold sq ∘ inject B ∘ f).
    rewrite fold_inject.
    rewrite compose_id_left.
-   reflexivity.
+   apply sm_proper.
   Qed.
 
 End contents.
@@ -98,7 +102,7 @@ Section semiring_folds.
    rewrite <- extend_comp...
    rewrite compose_id_right.
    rewrite fold_map...
-   reflexivity.
+   apply sm_proper.
   Qed.
 
 End semiring_folds.

@@ -1,6 +1,6 @@
 Require Import
   Morphisms RelationClasses Equivalence Setoid
-  abstract_algebra functors categories.
+  abstract_algebra interfaces.functors categories.
 
 Section natural_transformations_id_comp.
 

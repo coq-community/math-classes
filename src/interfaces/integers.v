@@ -25,10 +25,11 @@ Section initial_maps.
   Lemma integer_initial (same_morphism : ∀ `{Ring B} {h :  Int → B} `{!Ring_Morphism h}, integers_to_ring B = h) : 
     Initial (ring.object Int).
   Proof.
-    intros y [x h] []. simpl in *.
+    intros y [x h] [] ?. simpl in *.
     apply same_morphism.
-    apply ring.decode_variety_and_ops. 
-    apply (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+      apply ring.decode_variety_and_ops. 
+     apply (@ring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+    reflexivity.
   Qed.
 End initial_maps.
 

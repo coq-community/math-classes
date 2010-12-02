@@ -29,9 +29,10 @@ Qed.
 Lemma to_semiring_unique' `{Naturals N} `{SemiRing SR} (f g: N → SR) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} :
   f = g.
 Proof.
-  intro.
+  intros x y E.
   rewrite (to_semiring_unique f).
   rewrite (to_semiring_unique g).
+  rewrite E.
   reflexivity.
 Qed.
 
@@ -60,11 +61,11 @@ Qed.
 
 Lemma to_semiring_injective `{Naturals N} `{SemiRing A}  
    (f: A → N) (g: N → A) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: Injective g.
-Proof.
+Proof with intuition.
   constructor. 2: constructor; apply _.
   intros x y E.
-  rewrite <- (to_semiring_unique' (f ∘ g) id x).
-  rewrite <- (to_semiring_unique' (f ∘ g) id y).
+  rewrite <- (to_semiring_unique' (f ∘ g) id x x)...
+  rewrite <- (to_semiring_unique' (f ∘ g) id y y)...
   unfold compose. rewrite E. reflexivity.
 Qed.
 
@@ -90,10 +91,11 @@ Section retract_is_nat.
      
     Lemma same_morphism: naturals_to_semiring N R ∘ inverse f = h.
     Proof with auto.
-      intro x.
+      intros x y F.
       pose proof (to_semiring_unique (h ∘ f)) as E.
       unfold compose in *.
-      rewrite <-E. apply sm_proper. 
+      rewrite <- E. apply sm_proper. 
+      rewrite <- F.
       apply jections.surjective_applied.
     Qed.
   End for_another_semiring.
@@ -260,8 +262,8 @@ Section contents.
    rewrite A, E, F, B...
   Qed.
 
-  Lemma nat_distance_unique {a b: NatDistance N} x: a x = b x.
-  Proof. intro. apply nat_distance_unique_respectful; reflexivity. Qed.
+(*  Lemma nat_distance_unique {a b: NatDistance N} x: a x = b x.
+  Proof. intro. apply nat_distance_unique_respectful; reflexivity. Qed.*)
 
   Global Instance nat_distance_proper `{!NatDistance N}: Proper ((=) ==> (=) ==> (=)) (λ x y: N, ` (nat_distance x y)).
     (* Program *should* allow us to write plain nat_distance instead of the

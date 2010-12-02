@@ -153,8 +153,11 @@ Section for_another_ring.
     Lemma same_morphism: integers_to_ring Z R = map_Z'.
     Proof.
      intros [].
+       intros y E. rewrite <- E.
        apply agree_on_0.
+      intros p y E. rewrite <- E.
       apply agree_on_positive.
+     intros p y E. rewrite <- E.
      apply agree_on_negative.
     Qed.
 
