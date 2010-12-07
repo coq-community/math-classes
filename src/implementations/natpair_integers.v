@@ -211,15 +211,18 @@ Section for_another_ring.
     Instance: SemiRing_Morphism inject'_N.
 
     Lemma agree_on_nat: inject'_N = n_to_sr.
-    Proof. intro x. apply (naturals.to_semiring_unique inject'_N). Qed.
+    Proof.
+     intros x y E. rewrite E.
+     apply (naturals.to_semiring_unique inject'_N).
+    Qed.
 
     Lemma same_morphism: integers_to_ring Z R = inject'.
-    Proof.
-     intros [pos0 neg0].
+    Proof with intuition.
+     intros [pos0 neg0] z' E. rewrite <- E. clear E z'.
      rewrite split_into_nats.
      preservation.
      rewrite preserves_inv, abstract_algebra.preserves_inv.
-     rewrite (agree_on_nat pos0), (agree_on_nat neg0).
+     rewrite (agree_on_nat pos0 pos0), (agree_on_nat neg0 neg0)...
      unfold integers_to_ring, inject. simpl. rewrite theory.rings.preserves_0.
      ring.
     Qed.

@@ -92,7 +92,7 @@ Qed.
 Instance: Inverse to_Z := of_Z.
 
 Instance: Surjective to_Z.
-Proof. constructor. exact spec_of_Z. apply _. Qed.
+Proof. constructor. intros x y E. rewrite <- E. apply spec_of_Z. apply _. Qed.
 
 Instance: Injective to_Z.
 Proof. constructor. unfold_equiv. intuition. apply _. Qed.

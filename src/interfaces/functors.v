@@ -1,6 +1,6 @@
 Global Set Automatic Introduction. (* todo: do this in a more sensible place *)
 
-Require Import abstract_algebra canonical_names Program.
+Require Import abstract_algebra canonical_names Program Morphisms.
 Require setoids.
 
 Section functor_class.
@@ -102,3 +102,39 @@ Section compose_functors.
   Qed.
 
 End compose_functors.
+
+(** The Functor class is nice and abstract and theory-friendly, but not as convenient
+ to use for regular programming as Haskell's Functor class. The reason for this is that
+ our Functor is parameterized on two Categories, which by necessity bundle setoid-
+ ness and setoid-morphism-ness into objects and arrows, respectively.
+ The Haskell Functor class, by contrast, is essentially specialized for endofunctors on
+ the category of Haskell types and functions between them. The latter corresponds to our
+ setoid.Object category.
+
+ To recover convenience, we introduce a second functor type class tailored specifically to
+ functors of this kind. The specialization allows us to forgo bundling, and lets us recover
+ the down-to-earth Type→Type type for the type constructor, and the (a→b)→(F a→F b)
+ type for the function map, with all setoid/morphism proofs hidden in the structure class
+ in Prop.
+
+ To justify this definition, in theory/functors we show that instances of this new functor
+ class do indeed give rise to instances of the original nice abstract Functor class. *)
+
+Section setoid_functor.
+
+  Context (map_obj: Type → Type) {map_eq: ∀ `{Equiv A}, Equiv (map_obj A)}.
+
+  Class SFmap: Type := sfmap: ∀ `(v → w), (map_obj v → map_obj w).
+
+  Class SFunctor `{SFmap}: Prop :=
+    { sfunctor_makes_setoids `{Setoid A}: Setoid (map_obj A)
+    ; sfunctor_makes_morphisms `{Equiv v} `{Equiv w} (f: v → w):>
+        Setoid_Morphism f → Setoid_Morphism (sfmap f)
+    ; sfunctor_morphism `{Setoid v} `{Setoid w}:>
+        Proper ((equiv ==> equiv) ==> (equiv ==> equiv)) (@sfmap _ v w)
+    ; sfunctor_id `{Setoid v}: sfmap id = id
+    ; sfunctor_comp `{Equiv a} `{Equiv b} `{Equiv c} (f: b → c) (g: a → b):
+        Setoid_Morphism f → Setoid_Morphism g →
+        sfmap (f ∘ g) = sfmap f ∘ sfmap g }.
+
+End setoid_functor.

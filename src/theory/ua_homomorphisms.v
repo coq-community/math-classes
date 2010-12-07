@@ -155,15 +155,16 @@ Implicit Arguments inverse [[A] [B] [Inverse]].
    induction (σ o); simpl.
     intros.
     apply (injective (f t)).
-    pose proof (surjective (f t) o1).
+    pose proof (surjective (f t) o1 o1 (reflexivity o1)).
     transitivity o1...
     symmetry...
    intros P Q R S T x.
    apply IHo0.
      specialize (R (inv t x)).
-     pose proof (surjective (f t) x) as E.
+     pose proof (surjective (f t) x x) as E.
      rewrite E in R.
-     assumption.
+      assumption.
+     reflexivity.
     apply S. reflexivity.
    apply T. reflexivity.
   Qed.

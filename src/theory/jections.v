@@ -18,14 +18,13 @@ Section compositions.
   Proof. firstorder. Qed.
 
   Global Instance: Surjective f → Surjective g → Surjective (f ∘ g).
-  Proof with try apply _.
+  Proof with try apply _; intuition.
    constructor...
-   change (f ∘ (g ∘ gi ∘ fi) = id).
-   intro. unfold compose.
    pose proof (setoidmor_b f).
-   posed_rewrite (surjective g (fi x)).
-   posed_rewrite (surjective f x).
-   reflexivity.
+   pose proof (setoidmor_a f).
+   intros x y E. unfold compose.
+   posed_rewrite (surjective g (fi x) (fi x))...
+   posed_rewrite (surjective f x x)...
   Qed.
 
   Global Instance: Bijective f → Bijective g → Bijective (f ∘ g).
@@ -33,7 +32,18 @@ Section compositions.
 End compositions.
 
 Lemma back `{Bijective A B f}: f ⁻¹ ∘ f = id. (* a.k.a. "split-mono" *)
-Proof. firstorder. Qed.
+Proof.
+ intros x y E.
+ unfold compose.
+ destruct H.
+ unfold id, inverse.
+ apply bijective_injective.
+ destruct (bijective_surjective).
+ apply surjective.
+ destruct surjective_mor.
+ apply sm_proper.
+ assumption.
+Qed.
   (* recall that "f ∘ f ⁻¹ = id" is just surjective. *)
 
 Lemma surjective_applied `{Surjective A B f} x : f (f⁻¹ x) = x.
@@ -50,20 +60,20 @@ Lemma alt_injective `{Equiv A} `{Equiv B} `{f: A → B} `{!Inverse f}:
   Setoid_Morphism f →
   Setoid_Morphism (f ⁻¹: B → A) →
   f ⁻¹ ∘ f = id → Injective f.
-Proof with try tauto.
+Proof with try tauto; intuition.
  intros ?? E.
  pose proof (setoidmor_a f).
  pose proof (setoidmor_b f).
- constructor...
- intros ?? E'.
- rewrite <- (E x), <- (E y).
- unfold compose.
- rewrite E'...
- intuition.
+ constructor.
+  intros ?? F.
+  rewrite <- (E x x), <- (E y y)...
+  unfold compose.
+  rewrite F...
+ tauto.
 Qed.
 
 Instance: ∀ `{Bijective A B f}, Setoid_Morphism (f⁻¹).
-Proof with try tauto.
+Proof with try tauto; intuition.
  intros.
  pose proof (setoidmor_a f).
  pose proof (setoidmor_b f).
@@ -71,7 +81,8 @@ Proof with try tauto.
  repeat intro.
  apply (injective f).
  change ((f ∘ f ⁻¹) x = (f ∘ f ⁻¹) y).
- do 2 rewrite (surjective f _)...
+ rewrite (surjective f x x)...
+ rewrite (surjective f y y)...
 Qed.
 
 Instance: ∀ `{Inverse A B f}, Inverse (f ⁻¹) := λ _ _ f _, f.
@@ -83,10 +94,11 @@ Proof with intuition.
  pose proof (setoidmor_b f).
  repeat (constructor; try apply _).
   intros x y E.
-  rewrite <- (surjective f x), <- (surjective f y).
+  rewrite <- (surjective f x x), <- (surjective f y y)...
   unfold compose. (* f_equal ?*)
   rewrite E...
- intro. apply (injective f), (surjective f).
+ intros x y E. rewrite <- E.
+ apply bijective_applied.
 Qed.
 
 Hint Extern 4 (Bijective (inverse _)) => apply flip_bijection_pseudoinstance: typeclass_instances.
@@ -104,8 +116,9 @@ Proof.
  pose proof (setoidmor_a f).
  pose proof (setoidmor_b f).
  intros. apply (injective f).
- posed_rewrite (surjective f y).
+ posed_rewrite (surjective f y y).
  assumption.
+ reflexivity.
 Qed.
 
 Lemma cancel_left' `{Bijective A B f} x y: f ⁻¹ x = y → x = f y.
@@ -123,15 +136,17 @@ Proof with intuition.
  constructor.
   intros x y ?.
   apply (injective f).
-  rewrite (P x), (P y)...
+  rewrite (P x x), (P y y)...
  rewrite <-P...
 Qed.
 
 Instance Surjective_proper `{Equiv A} `{Equiv B} (f g: A → B) {finv: Inverse f}:
   f = g → Surjective g (inv:=finv) → Surjective f.
-Proof with try apply _; try assumption.
+Proof with try apply _; intuition.
  intros E [P [Q U Z]].
  repeat constructor...
-  intro. unfold compose. rewrite (E (inverse f x)). apply P.
- repeat intro. rewrite (E x), (E y). apply Z...
+  intros x y F. unfold compose.
+  rewrite <- F.
+  rewrite (E (inverse f x) (inverse f x))... apply P...
+ repeat intro. rewrite (E x x), (E y y)...
 Qed. 

@@ -1,11 +1,16 @@
-Set Implicit Arguments.
+(** This module should be [Require]d but not [Import]ed (except for the notations submodule). *)
 
 Require Import
-  Unicode.Utf8 canonical_names Setoid.
+  Unicode.Utf8 Setoid Coq.Lists.List Setoid Morphisms Permutation.
+
+Instance: forall A, Proper (@Permutation A ==> eq) (@length A).
+Proof Permutation_length.
+
+Existing Instance Permutation_map_aux_Proper.
 
 Section contents.
 
-  Variable T: Type.
+  Context {T: Type}.
 
   Inductive L: Type := one: T → L | cons: T → L → L.
 
@@ -29,7 +34,17 @@ Section contents.
 
   Definition head (l: L): T := match l with one x => x | cons x _ => x end.
 
-  Definition last: L → T := foldr1 (λ x y, y).
+  Fixpoint to_list (l: L): list T :=
+    match l with
+    | one x => x :: nil
+    | cons x xs => x :: to_list xs
+    end.
+
+  Global Coercion to_list: L >-> list.
+
+  Definition tail (l: L): list T := match l with one _ => nil | cons _ x => to_list x end.
+
+  Definition last: L → T := foldr1 (fun x y => y).
 
   Fixpoint replicate_Sn (x: T) (n: nat): L :=
     match n with
@@ -37,10 +52,97 @@ Section contents.
     | S n' => cons x (replicate_Sn x n')
     end.
 
+  Fixpoint take (n: nat) (l: L): L :=
+    match l, n with
+    | cons x xs, S n' => take n' xs
+    | _, _ => one (head l)
+    end.
+
+  Lemma two_level_rect (P: L → Type)
+    (Pone: ∀ x, P (one x))
+    (Ptwo: ∀ x y, P (cons x (one y)))
+    (Pmore: ∀ x y z, P z → (∀ y', P (cons y' z)) → P (cons x (cons y z))):
+      ∀ l, P l.
+  Proof with auto.
+   cut (∀ l, P l * ∀ x, P (cons x l)).
+    intros. apply X.
+   destruct l...
+   revert t.
+   induction l...
+   intros.
+   split. apply IHl.
+   intro.
+   apply Pmore; intros; apply IHl.
+  Qed.
+
+  Lemma tl_length (l: L): S (length (tl l)) = length l.
+  Proof. destruct l; reflexivity. Qed.
+
+  Notation ListPermutation := (@Permutation.Permutation _).
+
+  Definition Permutation (x y: L): Prop := ListPermutation x y.
+
+  Global Instance: Equivalence Permutation.
+  Proof with intuition.
+   unfold Permutation.
+   split; repeat intro...
+   transitivity y...
+  Qed.
+
+  Global Instance: Proper (Permutation ==> ListPermutation) to_list.
+  Proof. firstorder. Qed.
+
+  Lemma Permutation_ne_tl_length (x y: L):
+    Permutation x y → length (tl x) = length (tl y).
+  Proof.
+   intro H.
+   apply eq_add_S.
+   do 2 rewrite tl_length.
+   rewrite H.
+   reflexivity.
+  Qed.
+
 End contents.
 
-Fixpoint map `(f: A → B) (l: L A): L B :=
+Implicit Arguments L [].
+
+Fixpoint tails {A} (l: L A): L (L A) :=
+  match l with
+  | one x => one (one x)
+  | cons x y => cons l (tails y)
+  end.
+
+Lemma tails_are_shorter {A} (y x: L A):
+  In x (tails y) →
+  length x <= length y.
+Proof with auto.
+ induction y; simpl.
+  intros [[] | ?]; intuition.
+ intros [[] | C]...
+Qed.
+
+Fixpoint map {A B} (f: A → B) (l: L A): L B :=
   match l with
   | one x => one (f x)
   | cons h t => cons (f h) (map f t)
   end.
+
+Lemma list_map {A B} (f: A → B) (l: L A): to_list (map f l) = List.map f (to_list l).
+Proof. induction l. reflexivity. simpl. congruence. Qed.
+
+Global Instance: forall {A B} (f: A → B), Proper (Permutation ==> Permutation) (map f).
+Proof with auto.
+ intros ????? E.
+ unfold Permutation.
+ do 2 rewrite list_map.
+ rewrite E.
+ reflexivity.
+Qed.
+
+Module notations.
+
+  Global Notation ne_list := L.
+  Global Infix ":::" := cons (at level 60, right associativity).
+    (* Todo: Try to get that "[ x ; .. ; y ]" notation working. *)
+
+End notations.

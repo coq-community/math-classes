@@ -80,7 +80,7 @@ Instance: Inverse inject := λ x, (Qnum x, Zpos (Qden x)).
 Instance: Surjective (λ p, inject_Z (fst p) * / inject_Z (snd p)).
 Proof.
  constructor. 2: apply _.
- intros [num den]. unfold Basics.compose, id.
+ intros [num den] q E. rewrite <- E. unfold Basics.compose, id.
  simpl. rewrite Qmake_Qdiv. reflexivity.
 Qed.
 

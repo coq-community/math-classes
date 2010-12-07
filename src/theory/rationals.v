@@ -21,11 +21,11 @@ Section alt_Build_Rationals.
      intro x.
      unfold Basics.compose, id in *.
      transitivity (inject (fst (inverse _ x)) * / inject (snd (inverse _ x))).
-      2: apply sur.
+      2: apply sur...
      pose proof (integers.to_ring_unique' 
        (integers_to_ring (Z nat) A ∘ integers_to_ring Int (Z nat)) inject) as B.
-     pose proof (B (fst (inverse _ x))) as P1. simpl in P1. rewrite P1.
-     pose proof (B (snd (inverse _ x))) as P2. simpl in P2. rewrite P2.
+     pose proof (B (fst (inverse _ x)) (fst (inverse _ x)) (reflexivity _)) as P1. simpl in P1. rewrite P1.
+     pose proof (B (snd (inverse _ x)) (snd (inverse _ x)) (reflexivity _)) as P2. simpl in P2. rewrite P2.
      reflexivity.
     constructor; try apply _.
     intros x y E.
@@ -80,7 +80,7 @@ Section isomorphism_is_rationals.
   Lemma isomorphism_is_rationals: Rationals F (inj_inv:=isomorphism_is_inj_inv). 
   Proof.
     repeat (split; try apply _).
-    intros x. unfold id, compose, inverse, isomorphism_is_inj_inv, compose.
+    intros x y U. rewrite <- U. unfold id, compose, inverse, isomorphism_is_inj_inv, compose.
     apply (injective (inverse f)).
     rewrite <-(@surjective_applied _ _ _ _ _ inj_inv rationals_frac (inverse f x)) at 3.
     rewrite rings.preserves_mult, preserves_dec_mult_inv.

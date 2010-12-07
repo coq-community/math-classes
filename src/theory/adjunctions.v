@@ -4,7 +4,7 @@ Set Automatic Introduction.
 
 Require Import
   Relation_Definitions Morphisms Setoid Program
-  abstract_algebra setoids functors categories
+  abstract_algebra setoids interfaces.functors categories
   workaround_tactics theory.jections.
 Require dual.
 
@@ -151,7 +151,8 @@ Section for_ηAdjunction.
    unfold φ.
    repeat intro.
    constructor.
-    intro. symmetry.
+    intros x0 y E. symmetry.
+    rewrite <- E.
     apply (η_adjunction_universal F G x).
    constructor...
    intros ?? E. rewrite E. reflexivity.

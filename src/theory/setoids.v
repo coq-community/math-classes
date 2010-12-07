@@ -5,10 +5,14 @@ Set Automatic Introduction.
 Require Import
   Morphisms Setoid abstract_algebra Program.
 
+Instance ext_eq_trans `{Setoid A} `{Setoid B}: Transitive (equiv: relation (A → B)).
+Proof. intros ? y ???? w ?. transitivity (y w); firstorder. Qed.
+
+Instance ext_eq_sym `{Setoid A} `{Setoid B}: Symmetric (equiv: relation (A → B)).
+Proof. firstorder. Qed.
+
 Instance: Equiv Prop := iff.
 Instance: Setoid Prop.
-
-Instance: ∀ A `{Setoid B}, Setoid (A → B).
 
 Instance sig_Setoid `{Setoid A} (P: A → Prop): Setoid (sig P).
 Instance sigT_Setoid `{Setoid A} (P: A → Type): Setoid (sigT P).
@@ -39,7 +43,7 @@ Section product.
 
   Let product: Type := ∀ i, c i.
 
-  Global Instance: Equiv product := `(∀ i, x i = y i).
+  Instance product_eq: Equiv product := `(∀ i, x i = y i).
 
   Global Instance: Setoid product.
   Proof.
@@ -69,7 +73,8 @@ Proof.
  constructor; try apply _.
  repeat intro. apply (injective f).
  pose proof (surjective f) as E.
- rewrite (E x), (E y). assumption.
+ unfold compose in E.
+ rewrite (E x x), (E y y); intuition.
 Qed.
 
 Instance morphism_proper `{ea: Equiv A} `{eb: Equiv B}: Proper ((=) ==> (=)) (@Setoid_Morphism A B _ _).
@@ -78,7 +83,7 @@ Proof.
   firstorder.
  intros x y E [AS BS P].
  constructor; try apply _. intros v w E'.
- rewrite <- (E v), <- (E w), E'. reflexivity.
+ rewrite <- (E v), <- (E w), E'; reflexivity.
 Qed.
 
 Lemma projected_equivalence `{Setoid B} `{f: A → B}: Equivalence (λ x y, f x = f y).

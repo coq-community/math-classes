@@ -1,6 +1,6 @@
 Require Import
   Morphisms Setoid
-  abstract_algebra universal_algebra monads canonical_names.
+  abstract_algebra universal_algebra interfaces.monads canonical_names.
 
 Section contents.
 
@@ -100,7 +100,7 @@ Section contents.
 
   Instance: MonadReturn M := λ _ x, Var sign _ x tt.
 
-  Instance: ∀ `{Equiv A}, Proper (equiv ==> equiv) (ret M).
+  Instance: ∀ `{Equiv A}, Proper (equiv ==> equiv) (@ret M _ A).
   Proof. repeat intro. assumption. Qed.
 
   (* What remains are the laws: *)
