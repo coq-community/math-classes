@@ -2,6 +2,7 @@
 *.glob
 *.pdf
 *.crashcoqide
+*.pyc
 tmp.*
 src/deps
 src/.sconsign.dblite

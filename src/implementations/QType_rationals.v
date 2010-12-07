@@ -89,7 +89,7 @@ Qed.
 Instance: Inverse to_Q := of_Q.
 
 Instance: Surjective to_Q.
-Proof. constructor. exact spec_of_Q. apply _. Qed.
+Proof. constructor. intros x y E. rewrite <- E. apply spec_of_Q. apply _. Qed.
 
 Instance: Injective to_Q.
 Proof. constructor. auto. apply _. Qed.

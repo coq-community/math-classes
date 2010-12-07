@@ -99,7 +99,7 @@ Proof. reflexivity. Qed.
 Instance: Initial (semiring.object nat).
 Proof.
   intros. apply natural_initial. intros. 
-  intro x. induction x. 
+  intros x y E. unfold equiv, nat_equiv in E. subst y. induction x. 
   replace 0%nat with (ring_zero:nat) by reflexivity.
   do 2 rewrite preserves_0. reflexivity.
   rewrite S_nat_1_plus.

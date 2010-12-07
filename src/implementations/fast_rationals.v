@@ -42,8 +42,8 @@ Qed.
 Instance: Surjective (λ p, fastZ_to_fastQ (fst p) * / fastZ_to_fastQ (snd p)).
 Proof.
   split.
- 
-  intros x. unfold id, compose, inverse, fastZ_to_fastQ.
+
+  intros x y E. rewrite <- E. clear E y. unfold id, compose, inverse, fastZ_to_fastQ.
   destruct x as [x | x y]; simpl. 
   rewrite rings.preserves_1. field. 
   apply (ne_zero 1).

@@ -22,7 +22,13 @@ Section algebras.
     | ne_list.cons _ g => λ X X0, rec_impl g (λ i, X i (X0 i))
     end.
 
-  Instance rec_impl_proper: ∀ o, Proper (equiv ==> equiv) (rec_impl o).
+  Let u (s: sorts sig): Equiv (forall i : I, carriers i s).
+   apply setoids.product_eq.
+   intro. apply _.
+  Defined.
+
+  Instance rec_impl_proper: ∀ o,
+    Proper (@setoids.product_eq I _ (fun _ => op_type_equiv _ _ _) ==> equiv) (rec_impl o).
   Proof with auto.
    induction o; simpl. repeat intro...
    intros ? ? Y x0 y0 ?. apply IHo.
@@ -103,7 +109,11 @@ Section varieties.
         (eval et vars term1 (eval et vars term2))).
       apply sig_type_refl.
        intro. apply _.
-      apply _.
+      apply eval_proper; try apply _.
+        apply product_algebra.
+        intro. apply _.
+       reflexivity.
+      reflexivity.
      apply (nqe_proper t (eval et vars term1 (eval et vars term2)) (eval et vars term1 (eval et vars term2)) H2 k p).
      subst p k.
      simpl.

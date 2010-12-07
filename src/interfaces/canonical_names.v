@@ -22,8 +22,13 @@ Notation "x ≠ y":= (~ equiv x y): type_scope.
 Infix "≡" := eq (at level 70, no associativity).
   (* Hm, we could define a very low priority Equiv instance for Leibniz equality.. *)
 
-Instance ext_eq (A B: Type) `(Equiv B): Equiv (A → B)
-  := λ f g: A → B, ∀ x, f x = g x.
+Instance ext_eq `{Equiv A} `{Equiv B}: Equiv (A → B)
+  := ((=) ==> (=))%signature.
+
+(** Interestingly, most of the development works fine if this is defined as
+  ∀ x, f x = g x.
+However, in the end that version was just not strong enough for comfortable rewriting
+in setoid-pervasive contexts. *)
 
 (* Other canonically named relations/operations/constants: *)
 Class Decision P := decide: sumbool P (~ P).

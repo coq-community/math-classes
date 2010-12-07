@@ -3,26 +3,16 @@ Set Automatic Coercions Import.
 
 Require Import
  Morphisms List Program
- abstract_algebra theory.categories forget_algebra forget_variety theory.rings interfaces.functors.
+ abstract_algebra theory.categories forget_algebra forget_variety theory.rings interfaces.functors
+ canonical_names.
 Require
  categories.setoid categories.product varieties.monoid categories.algebra.
 Require categories.cat theory.setoids.
 
 Module ua := universal_algebra.
 
-Instance oh: ∀ {A} `{Equiv B} `{Equiv C} (f: B → C) `{!Setoid_Morphism f},
- Proper ((=) ==> (=)) (@compose A B C f).
-Proof. firstorder. Qed.
-
-Instance: ∀ {A} `{Equiv B} `{Equiv C}, Proper ((=) ==> eq ==> (=)) (@compose A B C).
-Proof. repeat intro. subst. firstorder. Qed.
-
-Lemma eta {A} `{Setoid B} (f: A → B): (λ x, f x) = f.
-Proof. intro. reflexivity. Qed.
-
 Instance: Arrows Type := λ X Y, X → Y.
-
-(* todo: move last four  elsewhere *)
+  (* todo: move elsewhere *)
 
 (* First, the nice clean high level encapsulated version: *)
 
@@ -103,9 +93,11 @@ Section practical.
     repeat intro.
     simpl.
     apply sequence_fmap_id.
+    reflexivity.
    repeat intro.
    simpl.
    apply sequence_fmap_comp.
+   reflexivity.
   Qed.
 
   Program Definition posh_inject: id ⇛ monoid.forget ∘ posh_free := λ a, inject a.
@@ -135,6 +127,7 @@ Section practical.
    rewrite E.
    apply sequence_inject_natural.
    apply _.
+   reflexivity.
   Qed.
 
   Goal @PoshSequence posh_free posh_fmap posh_inject posh_extend.
@@ -155,13 +148,14 @@ Section practical.
      rewrite H4.
      symmetry.
      apply (@sequence_extend_commutes PS x _ _ _ _ _ _ H2 f fM).
+     reflexivity.
     unfold compose.
     intros [x0 h] H4 [] a.
     unfold equiv, setoid.Equiv_instance_0 in H4.
     simpl in *.
     apply (@sequence_only_extend_commutes PS x _ _ _ _ _ _ H2 f _ (x0 tt)).
      apply (@monoid.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
-    intro. symmetry. apply H4. reflexivity.
+    intros. symmetry. apply H4. reflexivity.
    unfold posh_extend.
    intros [x ??] [y ?? yV].
    constructor; try apply _.

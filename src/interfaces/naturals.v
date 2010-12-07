@@ -34,11 +34,13 @@ Section initial_maps.
   Lemma natural_initial (same_morphism : ∀ `{SemiRing B} {h :  A → B} `{!SemiRing_Morphism h}, naturals_to_semiring B = h) : 
     Initial (semiring.object A).
   Proof.
-    intros y [x h] []. simpl in *.
+    intros y [x h] [] ?. simpl in *.
     apply same_morphism.
-    apply semiring.decode_variety_and_ops. 
-    apply (@semiring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+      apply semiring.decode_variety_and_ops. 
+     apply (@semiring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+    reflexivity.
   Qed.
+
 End initial_maps.
 
 Instance: Params (@naturals_to_semiring) 7.
