@@ -388,7 +388,7 @@ Section dyadics.
   Next Obligation with intuition.
     intros E.
     apply (shiftl_nonzero 1 n).
-    apply not_symmetry. apply zero_ne_one.
+     apply (ne_zero 1).
     apply (injective ZtoQ).
     rewrite rings.preserves_0...
   Qed.

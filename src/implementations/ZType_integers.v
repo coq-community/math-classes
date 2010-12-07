@@ -123,14 +123,14 @@ Lemma to_Z_sr_precedes_Zle x y : x ≤ y → (to_Z x <= to_Z y)%Z.
 Proof.
   intro E.
   apply signed_binary_positive_integers.sr_precedes_Zle.
-  apply (integers.preserve_sr_order to_Z). assumption.
+  pose proof (order_preserving to_Z). auto.
 Qed.
 
 Lemma to_Z_Zle_sr_precedes x y : (to_Z x <= to_Z y)%Z → x ≤ y.
 Proof.
   intro. 
   rewrite <-(jections.surjective_applied' of_Z x), <-(jections.surjective_applied' of_Z y). 
-  apply (integers.preserve_sr_order of_Z).
+  apply (order_preserving of_Z).
   apply signed_binary_positive_integers.Zle_sr_precedes. assumption.
 Qed.
 
@@ -156,7 +156,7 @@ Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) 
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate.
-  apply orders.not_precedes_precedes_neq.
+  apply orders.not_precedes_strictly_precedes.
   apply to_Z_Zlt_sr_precedes. assumption.
 Qed.
 
@@ -164,7 +164,7 @@ Next Obligation with intuition.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate...
   apply to_Z_Zle_sr_precedes, Zeq_le...
-  apply orders.precedes_neq_weaken, to_Z_Zlt_sr_precedes...
+  apply orders.strictly_precedes_weaken, to_Z_Zlt_sr_precedes...
 Qed.
 
 Program Instance: IntAbs t (Pos t) := abs.
@@ -261,5 +261,21 @@ Next Obligation with auto.
   rewrite ZType_two_2 in E1, E2. 
   rewrite ZType_succ_plus_1, commutativity in E2...
 Qed.
+
+(* Efficient shiftl *)
+Program Instance: ShiftLeft t (Pos t) := λ x y, shiftl x y.
+Next Obligation.
+  intros x [y Ey].
+  unfold additional_operations.pow, nat_pow, nat_pow_sig, ZType_pow.
+  unfold_equiv. simpl.
+  rewrite rings.preserves_mult, spec_pow.
+  rewrite spec_shiftl, Z.shiftl_mul_pow2.
+   rewrite <-ZType_two_2, spec_2. reflexivity.
+  apply to_Z_sr_precedes_Zle in Ey. rewrite preserves_0 in Ey. assumption.
+Qed. 
+(* This proof could possibly be much shorter by using the correctness of shiftl on Z *)
+
+Program Instance: ShiftRight t (Pos t) := λ x y, shiftr x y.
+Next Obligation. Admitted.
 
 End ZType_Integers.

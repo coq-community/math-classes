@@ -80,6 +80,18 @@ Proof with try reflexivity.
   apply distribute_r.
 Qed.
 
+(* Coq does not allow us to apply [left_cancellation ring_mult z] for a [z] for which we do not have [NeZero z]
+    in our context. Therefore we need [left_cancellation_ne_zero] to help us out. *)
+Section cancellation.
+  Context `{e : Equiv A} (op : A → A → A) `{!RingZero A}.
+
+  Lemma left_cancellation_ne_zero `{∀ z, NeZero z → LeftCancellation op z} z : z ≠ 0 → LeftCancellation op z.
+  Proof. auto. Qed.
+
+  Lemma right_cancellation_ne_zero `{∀ z, NeZero z → RightCancellation op z} z : z ≠ 0 → RightCancellation op z.
+  Proof. auto. Qed.
+End cancellation.
+
 Section semiring_props.
   Context `{SemiRing R}.
 
@@ -98,19 +110,17 @@ Section semiring_props.
    apply right_absorb.
   Qed.
 
-  Context {Rel} {proper : Proper ((=) ==> (=) ==> iff) Rel}.
-  Timeout 3 Global Instance ring_plus_left_cancel_right `{!LeftCancellation Rel (λ x, True) (+) } : RightCancellation Rel (λ x, True) (+).
+  Global Instance ring_plus_left_cancel_right `{!LeftCancellation (+) z} : RightCancellation (+) z.
   Proof.
-    intros z _ x y E.
-    apply (left_cancellation (+) z). auto.
+    intros x y E.
+    apply (left_cancellation (+) z).
     rewrite (commutativity z x), (commutativity z y). assumption.
   Qed.
 
-  Global Instance ring_mult_left_cancel_right `{!LeftCancellation Rel (λ x, x ≠ 0) ring_mult } : 
-    RightCancellation Rel (λ x, x ≠ 0) ring_mult.
+  Global Instance ring_mult_left_cancel_right `{!LeftCancellation ring_mult z } : RightCancellation ring_mult z.
   Proof.
-    intros z z_nonzero x y E. 
-    apply (left_cancellation ring_mult z). assumption.
+    intros x y E. 
+    apply (left_cancellation ring_mult z). 
     rewrite (commutativity z x), (commutativity z y). assumption.
   Qed.
 
@@ -185,9 +195,9 @@ Section ring_props.
   Lemma equal_by_zero_sum x y: x + - y = 0 → x = y.
   Proof. intro E. rewrite <- (plus_0_l y). rewrite <- E. ring. Qed.
 
-  Global Instance: LeftCancellation (=) (λ x, True) (+).
+  Global Instance: ∀ z, LeftCancellation (+) z.
   Proof.
-   intros z _ x y E.
+   intros z x y E.
    rewrite <- plus_0_l.
    rewrite <- (plus_opp_l z).
    rewrite <- associativity.
@@ -206,16 +216,16 @@ Section ring_props.
    rewrite xz_zero...
   Qed.
 
-  Lemma mult_ne_zero `{!NoZeroDivisors R}: ∀ (x y: R), x ≠ 0 → y ≠ 0 → x * y ≠ 0.
+  Lemma mult_ne_zero `{!NoZeroDivisors R} (x y: R) : x ≠ 0 → y ≠ 0 → x * y ≠ 0.
   Proof. repeat intro. apply (no_zero_divisors x). split; eauto. Qed.
 
   Global Instance ring_mult_left_cancel `{!NoZeroDivisors R} `{∀ x y, Stable (x = y)} :
-    LeftCancellation (=) (λ x, x ≠ 0) ring_mult.
+    ∀ z, NeZero z → LeftCancellation ring_mult z.
   Proof with intuition.
    intros z z_nonzero x y E.
    apply stable.
    intro U.
-   apply (mult_ne_zero z (x +- y) z_nonzero).
+   apply (mult_ne_zero z (x +- y) (ne_zero z)). 
     intro. apply U. apply equal_by_zero_sum...
    rewrite distribute_l, E. ring.
   Qed.

@@ -127,10 +127,10 @@ Section contents.
   Next Obligation. rewrite <- (to_ring_involutive (Z nat) x), <- (to_ring_involutive (Z nat) y), E. reflexivity. Qed.
   Next Obligation. intro U. apply E. rewrite U. reflexivity. Qed.
 
-  Global Instance: ZeroNeOne Int.
+  Global Instance: NeZero (1:Int).
   Proof with auto.
    intros E.
-   apply (@zero_ne_one nat _ _ _ _).
+   apply (ne_zero (1:nat)).
    apply (injective (naturals_to_semiring nat Int)). 
    rewrite preserves_0, preserves_1...
   Qed.
@@ -364,13 +364,13 @@ Section contents.
 
   Global Instance: IntegralDomain Int.
 
-  Global Instance: ZeroNeTwo Int.
+  Global Instance: NeZero (2 : Int).
   Proof.
    intro E. unfold "2" in E. 
-   apply zero_ne_one.
-   symmetry. apply eq_opp_self.
+   apply (ne_zero 1).
+   apply eq_opp_self.
    apply (left_cancellation (+) 1); trivial.
-   rewrite <-E. ring.
+   rewrite E. ring.
   Qed.
 
 End contents.
@@ -403,8 +403,10 @@ Section preservation.
 
   End with_naturals.
 
-  Lemma preserve_sr_order (x y: A): x ≤ y → f x ≤ f y.
-  Proof. intros [z p]. 
+  Global Instance: OrderPreserving f.
+  Proof. 
+   repeat (split; try apply _).
+   intros x y [z p]. 
    exists (int_abs _ _ (f (naturals_to_semiring nat A z))).
    rewrite <- preserves_abs.
    rewrite <- p, preserves_sg_op, abs_nat. reflexivity.
@@ -422,7 +424,7 @@ Section int_order.
    intros x y.
    rewrite <- (to_ring_involutive (Z nat) x), <- (to_ring_involutive (Z nat) y).
    destruct (total_order (integers_to_ring Int (Z nat) x) (integers_to_ring Int (Z nat) y));
-     [left | right]; apply (preserve_sr_order _)...
+     [left | right]; apply (order_preserving (integers_to_ring (Z nat) Int))...
   Qed.
 
   Global Program Instance: ∀ x y: Int, Decision (x ≤ y) | 10 := λ x y,
@@ -433,11 +435,11 @@ Section int_order.
 
   Next Obligation.
    change (x ≤ y). rewrite <- (to_ring_involutive (Z nat) x), <- (to_ring_involutive (Z nat) y).
-   apply (preserve_sr_order _). assumption.
+   apply (order_preserving (integers_to_ring (Z nat) Int)). assumption.
   Qed. 
 
   Next Obligation.
-   intro. apply E. apply (preserve_sr_order _). assumption.
+   intro. apply E. pose proof (order_preserving (integers_to_ring Int (Z nat))). auto.
   Qed.
 
 End int_order.

@@ -78,7 +78,7 @@ Section non_zero_elements.
   Context `{Field F}.
 
   Global Program Instance nonzero_one: RingOne { q : F | q ≠ 0 } := exist (λ x, x ≠ 0) 1 _.
-  Next Obligation. intro E. symmetry in E. apply (field_0neq1 E). Qed.
+  Next Obligation. intro E. apply field_0neq1. assumption. Qed.
 
   (* I am not using Program because now we can easily refer to this proof obligation *) 
   (* TODO: Use a type class for NonZero to clean up this ugly Lemma *)
@@ -145,7 +145,7 @@ Proof with auto.
   intros.
   constructor.
      apply (theory.rings.stdlib_ring_theory _).
-    intro. apply field_0neq1. symmetry...
+    apply field_0neq1.
    reflexivity.
   intros.
   rewrite commutativity.
@@ -175,15 +175,15 @@ Section field_props.
    rewrite mult_inverse...
   Qed. (* todo: should be cleanable *)
 
-  Lemma mult_inv_inj `{!LeftCancellation (=) (λ x, x ≠ 0) ring_mult} x y : //x = //y → x = y.
+  Lemma mult_inv_inj `{∀ z, NeZero z → LeftCancellation ring_mult z} x y : //x = //y → x = y.
   Proof with auto.
     intros E.
     unfold equiv, sig_equiv, sig_relation. fold equiv.
-    apply (right_cancellation ring_mult (//x)).
-      intros G.
-      destruct zero_ne_one.
-      rewrite <-(rings.mult_0_r (`x)), <-G.
-      apply mult_inverse.
+    apply (right_cancellation_ne_zero ring_mult (//x)).
+     intros G.
+     destruct (ne_zero 1).
+     rewrite <-(rings.mult_0_r (`x)), <-G.
+     symmetry. apply mult_inverse.
     rewrite mult_inverse, E, mult_inverse.
     reflexivity.
   Qed.
@@ -210,7 +210,7 @@ Section field_props.
 
   Lemma mult_inv_distr (x y : {x : F | x ≠ 0}) : // x * // y = // (x * y).
   Proof with auto.
-    eapply (left_cancellation ring_mult (` (x * y))).
+    apply (left_cancellation_ne_zero ring_mult (` (x * y))).
       destruct x. destruct y. simpl. apply mult_ne_zero...
     rewrite mult_inverse.
     rewrite <-nonzero_mult_proj_dist.
@@ -223,7 +223,7 @@ Section field_props.
    intros x y E.
    destruct (decide (x = 0)) as [? | P]...
    rewrite <- (mult_0_r x) in E.
-   right. apply (left_cancellation ring_mult x)...
+   right. apply (left_cancellation_ne_zero ring_mult x)...
   Qed.
 
   Lemma dec_mult_inv_0: / 0 = 0.
@@ -240,7 +240,7 @@ Section field_props.
   Proof with auto; try field; auto.
    intro E.
    destruct (decide (y = 0)).
-    exfalso. apply zero_ne_one.
+    exfalso. apply (ne_zero 1).
     rewrite <- E, e0, dec_mult_inv_0...
    transitivity (1 * y)...
    rewrite <- E...
@@ -249,14 +249,14 @@ Section field_props.
   Lemma mult_inv_nonzero x : // x ≠ 0.
   Proof with auto.
     intro E.
-    apply zero_ne_one. 
+    apply (ne_zero 1). 
     rewrite <-(mult_inverse x), E. ring.
   Qed.
 
   Lemma dec_mult_inv_nonzero x : x ≠ 0 → / x ≠ 0.
   Proof with auto.
     intros E1 E2.
-    apply zero_ne_one. 
+    apply (ne_zero 1). 
     rewrite <-(dec_mult_inverse x), E2... ring.
   Qed.
 
@@ -266,7 +266,7 @@ Section field_props.
     destruct (decide (x = 0)) as [E2|E2].
      rewrite E2 in *. rewrite dec_mult_inv_0 in E.
      apply stable. intro. apply (dec_mult_inv_nonzero y)...
-    apply (right_cancellation ring_mult (/x)).
+    apply (right_cancellation_ne_zero ring_mult (/x)).
      apply dec_mult_inv_nonzero...
     rewrite dec_mult_inverse, E, dec_mult_inverse...
     intros E3. rewrite E3, dec_mult_inv_0 in E. 
@@ -277,7 +277,7 @@ Section field_props.
   Proof with auto.
     destruct (decide (x = 0)) as [E|E].
     rewrite E. do 2 rewrite dec_mult_inv_0. reflexivity.
-    apply (right_cancellation ring_mult (/x)).
+    apply (right_cancellation_ne_zero ring_mult (/x)).
      apply dec_mult_inv_nonzero...
     rewrite dec_mult_inverse...
     rewrite commutativity, dec_mult_inverse. reflexivity.
@@ -294,7 +294,7 @@ Section morphisms.
   Proof with auto.
     case (decide (x = 0)) as [E | E].
     rewrite E, dec_mult_inv_0, preserves_0, dec_mult_inv_0. reflexivity.
-    apply (right_cancellation ring_mult (f x)).
+    apply (right_cancellation_ne_zero ring_mult (f x)).
       apply injective_not_0...
     rewrite <-preserves_mult.
     rewrite commutativity, dec_mult_inverse...
@@ -306,36 +306,25 @@ End morphisms.
 
 Section from_stdlib_field_theory.
 
-  Context `(H: @field_theory F zero one pl mu mi op div rinv e)
+  Context `(ftheory : @field_theory F zero one pl mu mi op div rinv e)
     `{!@Setoid F e}
     `{!Proper (e ==> e ==> e) pl}
     `{!Proper (e ==> e ==> e) mu}
     `{!Proper (e ==> e) rinv}
     `{!Proper (e ==> e) op}.
 
-  Add Field F2 : H.
+  Add Field F2 : ftheory.
 
   Definition from_stdlib_field_theory: @Field F e pl mu zero one op (λ x, rinv (proj1_sig x)).
-  Proof.
+  Proof with auto.
+   destruct ftheory.
    repeat (constructor; try assumption); repeat intro
-   ; unfold equiv, mon_unit, sg_op, group_inv; try field.
-     destruct H.
-     apply F_1_neq_0.
-     symmetry.
-     assumption.
-    unfold sig_relation in H1.
-    simpl in *.
-    rewrite H1.
-    reflexivity.
-   destruct x.
+   ; unfold equiv, mon_unit, sg_op, group_inv; try field...
+   destruct x as [x Ex].
+   unfold mult_inv, ring_mult.
    simpl.
-   unfold mult_inv.
-   simpl.
-   destruct H.
-   unfold ring_mult.
-   assert (e (mu x (rinv x)) (mu (rinv x) x)) by ring.
-   rewrite H1.
-   auto.
+   assert (e (mu x (rinv x)) (mu (rinv x) x)) as E by ring.
+   rewrite E...
   Qed.
 
 End from_stdlib_field_theory.

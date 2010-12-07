@@ -8,9 +8,9 @@ Require Import
 Section nat_pow_spec_properties.
   Context `{SemiRing A} 
     `{SemiRing B} 
-    `{!ZeroNeOne B} 
+    `{!NeZero (1:B)} 
     `{!AntiSymmetric (sr_precedes (R:=B))}
-    `{!LeftCancellation (=) (λ x : B, True) (+)}.
+    `{∀ z : B, LeftCancellation (+) z}.
 
   Global Instance nat_pow_spec_proper: 
     Proper ((=) ==> (=) ==> (=) ==> iff) (nat_pow_spec (A:=A) (B:=B)).
@@ -135,13 +135,13 @@ Section nat_pow_properties.
     rewrite E. ring.
   Qed.
   
-  Context `{!NoZeroDivisors A} `{!ZeroNeOne A}.
+  Context `{!NoZeroDivisors A} `{!NeZero (1:A) }.
 
   Lemma nat_pow_nonzero (x: B) (n: A) : n ≠ 0 → n ^ x ≠ 0.
   Proof with eauto.
     pattern x. apply naturals.induction; clear x.
       intros x1 x2 E. rewrite E. tauto.
-     intros. rewrite nat_pow_0. apply not_symmetry. apply zero_ne_one.
+     intros. rewrite nat_pow_0. apply (ne_zero 1).
     intros x E F G. rewrite nat_pow_S in G.
     apply (no_zero_divisors n); split... 
   Qed. 

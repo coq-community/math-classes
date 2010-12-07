@@ -19,11 +19,11 @@ Instance: GroupInv BinInt.Z := BinInt.Zopp.
   (* some day we'd like to do this with [Existing Instance] *)
 
 (* propers: *)
-Instance: Proper (equiv ==> equiv ==> equiv) BinInt.Zplus.
+Instance: Proper ((=) ==> (=) ==> (=)) BinInt.Zplus.
 Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
-Instance: Proper (equiv ==> equiv ==> equiv) BinInt.Zmult.
+Instance: Proper ((=) ==> (=) ==> (=)) BinInt.Zmult.
 Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
-Instance: Proper (equiv ==> equiv) BinInt.Zopp.
+Instance: Proper ((=) ==> (=)) BinInt.Zopp.
 Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
 
 (* properties: *)
@@ -242,4 +242,12 @@ Next Obligation with try reflexivity; auto with zarith.
   intros x1 n1. rewrite preserves_plus, preserves_1. 
   rewrite <-(Z.pow_1_r x1) at 2. apply Z.pow_add_r...
   destruct n1. simpl. apply sr_precedes_Zle...
+Qed.
+
+(* Efficient shiftl *)
+Program Instance: ShiftLeft Z (Pos Z) := λ x y, Z.shiftl x y. 
+Next Obligation.
+  intros x [y Ey].
+  apply Z.shiftl_mul_pow2.
+  simpl. apply sr_precedes_Zle. assumption.
 Qed.

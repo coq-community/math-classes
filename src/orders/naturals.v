@@ -27,28 +27,25 @@ Proof.
   intros E. eapply sg_sr_precedes. exists z. assumption.
 Qed.
 
-Lemma preserves_naturals_order_back `{Naturals B} (f: N → B) `{!SemiRing_Morphism f} (x y: N): 
-  f x ≤ f y → x ≤ y.
+Global Instance preserves_naturals_order_back `{Naturals B} (f: N → B) `{!SemiRing_Morphism f} : 
+  OrderPreservingBack f.
 Proof.
- intros.
+ repeat (split; try apply _).
+ intros x y E.
  rewrite <- (naturals.morphisms_involutive (naturals_to_semiring _ _) f y).
  rewrite <- (naturals.morphisms_involutive (naturals_to_semiring _ _) f x).
  apply nats_preserve_sr_order. apply _.
  assumption.
 Qed.
 
-Lemma preserves_naturals_order `{Naturals B} (f: N → B) `{!SemiRing_Morphism f} (x y: N): 
-  x ≤ y ↔ f x ≤ f y.
-Proof.
- split. apply nats_preserve_sr_order. apply _.
- apply preserves_naturals_order_back. apply _.
-Qed.
+Global Instance preserves_naturals_order `{Naturals B} (f: N → B) `{!SemiRing_Morphism f} : 
+  OrderEmbedding f.
 
 Global Instance: TotalOrder (sr_precedes (R:=N)).
 Proof.
   intros x y. 
   destruct (total_order (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y)) as [E|E];
-  eapply preserves_naturals_order in E; try apply _; auto.
+   apply preserves_naturals_order_back in E; auto; try apply _.
 Qed.
 
 Instance: AntiSymmetric (sr_precedes (R:=N)).
@@ -74,14 +71,14 @@ Global Program Instance: ∀ x y: N, Decision (x ≤ y) | 10 := λ x y,
 
 Next Obligation.
   intros.
-  apply (preserves_naturals_order (naturals_to_semiring N nat) x y).
+  apply (order_preserving_back (naturals_to_semiring N nat) x y).
   assumption. 
 Qed.
 
 Next Obligation.
   intros F. apply E.
-  apply (preserves_naturals_order (naturals_to_semiring N nat) x y).
-  assumption. 
+  pose proof (_ : OrderPreserving (naturals_to_semiring N nat)).
+  apply order_preserving; assumption.
 Qed.
 
 Lemma natural_precedes_nonzero_positive x : x ≠ 0 → 1 ≤ x.
@@ -92,9 +89,12 @@ Proof with intuition.
   apply orders.equiv_precedes. symmetry...
 Qed.
 
-Global Instance: LeftCancellation (≤) (λ x : N, x ≠ 0) ring_mult.
+Global Instance: ∀ (z : N), NeZero z → OrderPreservingBack (ring_mult z).
 Proof with auto.
-   intros z ? ? ? E. apply (left_cancellation ring_mult z)...
+   intros z ?. 
+   repeat (split; try apply _).
+   intros x y E.
+   apply (order_preserving_back_ge_one ring_mult z)...
    apply natural_precedes_nonzero_positive...
 Qed.
 

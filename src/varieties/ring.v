@@ -145,11 +145,10 @@ Qed.
 
 Section specialized.
 
-  Context (A B C: Type)
+  Context (A B : Type)
     `{!RingPlus A} `{!RingMult A} `{!RingZero A} `{!RingOne A} `{!GroupInv A} `{!Equiv A}
     `{!RingPlus B} `{!RingMult B} `{!RingZero B} `{!RingOne B} `{!GroupInv B} `{!Equiv B}
-    `{!RingPlus C} `{!RingMult C} `{!RingZero C} `{!RingOne C} `{!GroupInv C} `{!Equiv C}
-    (f: A → B) (g: B → C).
+     (f: A → B).
 
   Global Instance: ∀ `{H: Ring_Morphism A B f} `{!Inverse f},
     Bijective f → Ring_Morphism (inverse f).

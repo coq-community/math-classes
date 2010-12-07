@@ -67,7 +67,7 @@ Section shift_left_properties.
     ring.
   Qed.
 
-  Context `{!NoZeroDivisors A} `{!ZeroNeOne A} `{!ZeroNeTwo A} `{!RightCancellation (=) (λ x, x ≠ 0) ring_mult}.
+  Context `{!NoZeroDivisors A} `{!NeZero (1:A)} `{!NeZero (2:A)} `{∀z, NeZero z → RightCancellation ring_mult z}.
 
   Lemma shiftl_nonzero x y: x ≠ 0 → x ≪ y ≠ 0.
   Proof with auto.
@@ -75,7 +75,7 @@ Section shift_left_properties.
     apply (no_zero_divisors x). split... 
     exists (2 ^ y); split...
     apply nat_pow_nonzero.
-    apply not_symmetry. apply zero_ne_two.
+    apply (ne_zero 2).
   Qed.
 
   (* x ≪ b = y ≪ b → x = y *)
@@ -83,8 +83,8 @@ Section shift_left_properties.
   Proof with auto.
     repeat (split; try apply _).
     intros x y E. unfold flip in E. do 2 rewrite shiftl_correct in E.
-    apply (right_cancellation ring_mult (2 ^ n))...
-    apply nat_pow_nonzero. apply not_symmetry. apply zero_ne_two.
+    apply (rings.right_cancellation_ne_zero ring_mult (2 ^ n))...
+    apply nat_pow_nonzero. apply (ne_zero 2).
   Qed.
 End shift_left_properties.
 
@@ -100,11 +100,11 @@ Section shift_right_properties.
     `{sr : !ShiftRight A B}
     `{sl : !ShiftLeft A B}
     `{!NoZeroDivisors A} 
-    `{!ZeroNeOne A} 
-    `{!ZeroNeTwo A} 
-    `{!LeftCancellation (=) (λ x, x ≠ 0) ring_mult}.
+    `{!NeZero (1:A)} 
+    `{!NeZero (2:A)} 
+    `{!∀ z, NeZero z → LeftCancellation ring_mult z}.
 
-  Hint Resolve orders.precedes_neq_weaken.
+  Hint Resolve orders.strictly_precedes_weaken.
 
   Lemma shiftr_correct (x : A) y : x ≤ (x ≫ y) * 2 ^ y < 2 * x.
   Proof.
@@ -117,6 +117,7 @@ Section shift_right_properties.
     rewrite shiftl_correct. apply shiftr_correct. 
   Qed.
 End shift_right_properties.
+
 (*
   Lemma shiftl_shiftr_correct x y : x = (x ≪ y) ≫ y.
   Proof with auto.
@@ -220,7 +221,7 @@ End shift_right_properties.
     apply nat_pow_nonzero, integers.two_nonzero.
     rewrite commutativity, E. ring.
   Qed. 
-End shift_right_properties.  *)
+End shift_right_properties.  
 
 (* * Default Shift Left implementation using Nat Pow*)
 Section default_shiftr.
@@ -229,11 +230,12 @@ Section default_shiftr.
     `{!NatPow A B} 
     `{!DivEuclid A} 
     `{!NoZeroDivisors A} 
-    `{!ZeroNeOne A}
-    `{!ZeroNeTwo A}.
+    `{!NeZero (1:A)}
+    `{!NeZero (2:A)}
 
   Global Program Instance default_shiftr : ShiftRight A B | 10 
     := λ x y, div_euclid x (exist _ (2 ^ y) _).
-  Next Obligation. eapply nat_pow_nonzero. apply not_symmetry. apply zero_ne_two. Qed.
+  Next Obligation. eapply nat_pow_nonzero. apply (ne_zero 2). Qed.
   Next Obligation. admit. Qed.
 End default_shiftr.
+*)

@@ -153,16 +153,16 @@ Section borrowed_from_nat.
   (* Some clever autoquoting tactic might make what follows even more automatic. *)
   (* The ugly [pose proof ... . apply that_thing.]'s are because of Coq bug 2185. *)
 
-  Global Instance: LeftCancellation (=) (λ x, True) (+).
+  Global Instance: ∀ z : N, LeftCancellation (+) z.
   Proof.
-   intros u _ v w.
+   intros u v w.
     pose proof (from_nat_stmt (x' + y' === x' + z' -=> y' === z')
       (λ _ d, match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
     simpl in P.
     apply P. intro. simpl. apply Plus.plus_reg_l.
   Qed.
 
-  Global Instance: LeftCancellation (=) (λ x, x ≠ 0) ring_mult.
+  Global Instance: ∀ z : N, NeZero z → LeftCancellation ring_mult z.
   Proof.
    intros u E v w.
     pose proof (from_nat_stmt ((x' === 0 -=> Ext _ False) -=> x' * y' === x' * z' -=> y' === z')
@@ -170,15 +170,15 @@ Section borrowed_from_nat.
     apply P. intro. simpl. apply Mult_mult_reg_l. assumption.
   Qed.
 
-  Global Instance: ZeroNeOne N.
+  Global Instance: NeZero (1:N).
   Proof.
-   pose proof (from_nat_stmt (0 === 1 -=> Ext _ False) no_vars) as P.
+   pose proof (from_nat_stmt (1 === 0 -=> Ext _ False) no_vars) as P.
    apply P. discriminate.
   Qed.
 
-  Global Instance: ZeroNeTwo N.
+  Global Instance: NeZero (2:N).
   Proof.
-   pose proof (from_nat_stmt (0 === 2 -=> Ext _ False) no_vars) as P.
+   pose proof (from_nat_stmt (2 === 0 -=> Ext _ False) no_vars) as P.
    apply P. discriminate.
   Qed.
 
@@ -209,8 +209,8 @@ Section contents.
   Lemma nz_one_plus_zero x : 1 + x ≠ 0.
   Proof.
     intro E.
-    destruct (zero_sum 1 x E). 
-    apply zero_ne_one. symmetry. auto.
+    destruct (zero_sum 1 x E).
+    apply (ne_zero 1). assumption.
   Qed.  
 
   Obligation Tactic := idtac.

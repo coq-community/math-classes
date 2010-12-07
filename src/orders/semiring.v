@@ -6,6 +6,37 @@ Require Import
  Relation_Definitions Morphisms Ring Program Setoid
  abstract_algebra interfaces.naturals theory.rings workaround_tactics.
 
+Section comm_monoid_order.
+  Context `{CommutativeMonoid R} `{!Order R}.
+
+  (* These instances should be created manually to avoid loops *)
+  Lemma order_preserving_flip `{!OrderPreserving (sg_op z) } : OrderPreserving (flip sg_op z).
+  Proof with auto.
+    repeat (split; try apply _).
+    intros x y E. unfold flip.
+    rewrite (commutativity x z), (commutativity y z).
+    apply order_preserving...
+  Qed.
+
+  Lemma order_preserving_back_flip `{!OrderPreservingBack (sg_op z) } : OrderPreservingBack (flip sg_op z).
+  Proof with auto.
+    repeat (split; try apply _).
+    intros x y E. unfold flip in E.
+    apply (order_preserving_back (sg_op z)).
+    rewrite (commutativity z x), (commutativity z y)...
+  Qed.
+End comm_monoid_order.
+
+Section order_preserving.
+  Context `{Equiv A} `{oA : Order A} `{Equiv B} `{oB : Order B} (op : A → B → A) `{!RingZero A} `{!RingOne A}.
+
+  Lemma order_preserving_ge_zero `{∀ z, GeZero z → OrderPreserving (op z)} z : 0 ≤ z → OrderPreserving (op z).
+  Proof. auto. Qed.
+
+  Lemma order_preserving_back_ge_one `{∀ z, GeOne z → OrderPreservingBack (op z)} z : 1 ≤ z → OrderPreservingBack (op z).
+  Proof. auto. Qed.
+End order_preserving.
+
 Section contents. 
   Context `{SemiRing R}.
   Add Ring SR: (stdlib_semiring_theory R).
@@ -40,69 +71,70 @@ Section contents.
     exists (v1 + v2). rewrite preserves_plus, <-Ev1, <-Ev2. ring.
   Qed.
 
-  Global Instance sr_precedes_plus_compat_l (x : R) : Proper ((≤) ==> (≤)) ((+) x).
-  Proof.
-    apply sr_precedes_plus_compat. reflexivity.
-  Qed.
+  Global Instance: ∀ (z : R), OrderPreserving ((+) z).
+  Proof. repeat (split; try apply _). apply sr_precedes_plus_compat. reflexivity. Qed.
 
-  Global Instance sr_precedes_plus_compat_r (x : R) : Proper ((≤) ==> (≤)) (flip (+) x).
-  Proof.
-    repeat intro. apply sr_precedes_plus_compat. assumption. reflexivity.
-  Qed.
+  Global Instance: ∀ (z : R), OrderPreserving (flip (+) z).
+  Proof. intros. apply order_preserving_flip. Qed.
 
   Lemma sr_precedes_nonneg_plus_compat (x y : R) : 0 ≤ x → 0 ≤ y → 0 ≤ x + y.
   Proof.
     intros. rewrite <-(plus_0_r 0). apply sr_precedes_plus_compat; assumption.
   Qed.
 
-  Global Instance sr_precedes_mult_compat_l (x: R) : 0 ≤ x → Proper ((≤) ==> (≤)) (ring_mult x).
+  Global Instance: ∀ (z : R), GeZero z → OrderPreserving (ring_mult z).
   Proof.
-   intros [v E] y z [w F].
+   intros z [v E]. 
+   repeat (split; try apply _).
+   intros x y [w F].
    rewrite <-E, <-F. 
    exists (v * w). rewrite preserves_mult. ring.
   Qed.
 
-  Global Instance sr_precedes_mult_compat_r (x: R) : 0 ≤ x → Proper ((≤) ==> (≤)) (flip ring_mult x).
-  Proof.
-   intros [v E] y z [w F]. unfold flip.
-   rewrite <-E, <-F. 
-   exists (v * w). rewrite preserves_mult. ring.
-  Qed.
+  Global Instance: ∀ (z : R), GeZero z → OrderPreserving (flip ring_mult z).
+  Proof. intros. apply order_preserving_flip. Qed.
 
   Lemma sr_precedes_nonneg_mult_compat (x y : R) : 0 ≤ x → 0 ≤ y → 0 ≤ x * y.
   Proof.
     repeat intro. rewrite <-(mult_0_r x).
-    apply sr_precedes_mult_compat_l; assumption.
+    apply (order_preserving_ge_zero ring_mult x); assumption.
   Qed.
 
-  Lemma sr_precedes_0_1: (0:R) ≤ (1:R).
+  Global Instance sr_precedes_0_1: GeZero (1:R).
   Proof.
     exists (1:nat).
     rewrite preserves_1. ring. 
   Qed.
 
-  Lemma not_sr_precedes_0_1 `{!AntiSymmetric (≤)} `{!ZeroNeOne R} : ¬ (1:R) ≤ (0:R).
-  Proof.
+  Lemma not_sr_precedes_0_1 `{!AntiSymmetric (≤)} `{!NeZero (1:R)} : ¬ (1:R) ≤ (0:R).
+  Proof with auto.
     intros E.
-    destruct zero_ne_one.
-    apply (antisymmetry (≤)). 
-    apply sr_precedes_0_1. assumption.
+    destruct (ne_zero 1).
+    apply (antisymmetry (≤))...
+    apply sr_precedes_0_1.
   Qed.
   
-  Context `{!LeftCancellation (=) (λ x, True) (+)}.
+  Context `{∀ z, LeftCancellation (+) z}.
 
-  Global Instance: LeftCancellation (≤) (λ x, True) (+).
+  Global Instance: ∀ (z : R), OrderPreservingBack ((+) z).
   Proof with auto. 
-    intros z _ x y [v Ev]. 
+    intros z.
+    repeat (split; try apply _). 
+    intros x y [v Ev]. 
     exists v. apply (left_cancellation (+) z)...
     rewrite <-Ev. ring.
   Qed.
 
+  Global Instance: ∀ (z : R), OrderPreservingBack (flip (+) z).
+  Proof. intros. apply order_preserving_back_flip. Qed.
+
   Context `{!TotalOrder (≤)} `{!Injective (naturals_to_semiring nat R)}.
 
-  Global Instance: LeftCancellation (≤) (λ x, 1 ≤ x) ring_mult.
+  Global Instance: ∀ (z : R), GeOne z → OrderPreservingBack (ring_mult z).
   Proof with auto.
-    intros z [w Ew] x y [v Ev].
+    intros z [w Ew].
+    repeat (split; try apply _). 
+    intros x y [v Ev].
     destruct (total_order x y) as [| [u Eu]]...
     exists (0:nat). 
     rewrite <-Eu in *. clear Eu x.
@@ -115,6 +147,8 @@ Section contents.
     rewrite E, preserves_0. ring.
   Qed.
 
+  Global Instance: ∀ (z : R), GeOne z → OrderPreservingBack (flip ring_mult z).
+  Proof. intros. apply order_preserving_back_flip. Qed.
 End contents.
 
 Section with_naturals.
@@ -154,10 +188,11 @@ Section with_naturals.
    apply plus_0_l.
   Qed. 
 
-  Lemma nats_preserve_sr_order `{SemiRing A} `{Naturals B} (f: A → B) `{!SemiGroup_Morphism f} (x y: A):
-    x ≤ y → f x ≤ f y.
+  Global Instance nats_preserve_sr_order `{SemiRing A} `{Naturals B} (f: A → B) `{!SemiGroup_Morphism f} :
+    OrderPreserving f.
   Proof.
-   intros [z p].
+   repeat (split; try apply _).
+   intros x y [z p].
    exists (naturals_to_semiring B nat (f (naturals_to_semiring nat A z))).
    rewrite <- p, preserves_sg_op.
    rewrite (naturals.to_semiring_involutive B nat).
@@ -201,9 +236,9 @@ Section ring.
   Proof.
     rewrite ring_minus_correct. 
     split; intros E.
-    apply (right_cancellation (+) (-x)); trivial.
-      rewrite plus_opp_r. assumption.
-    apply (right_cancellation (+) x); trivial.
-      rewrite left_identity, <-associativity, plus_opp_l, right_identity. assumption.
+    apply (order_preserving_back (flip (+) (-x))).
+      unfold flip. rewrite plus_opp_r. assumption.
+    apply (order_preserving_back (flip (+) x)).
+      unfold flip. rewrite left_identity, <-associativity, plus_opp_l, right_identity. assumption.
   Qed.
 End ring.

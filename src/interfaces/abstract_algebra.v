@@ -64,7 +64,7 @@ Section upper_classes.
 
   Class IntegralDomain: Prop :=
     { intdom_ring: Ring 
-    ; intdom_nontrivial:> ZeroNeOne A
+    ; intdom_nontrivial:> NeZero (1:A)
     ; intdom_nozeroes:> NoZeroDivisors A }.
 
   (* For a strange reason Ring instances of Integers are sometimes obtained by
@@ -76,7 +76,7 @@ Section upper_classes.
 
   Class Field {mult_inv: MultInv A}: Prop :=
     { field_ring:> Ring
-    ; field_0neq1:> ZeroNeOne A
+    ; field_0neq1:> NeZero (1:A)
     ; mult_inv_proper:> Proper (sig_relation (=) _ ==> (=)) mult_inv
     ; mult_inverse: `(` x * // x = 1) }.
 
@@ -90,16 +90,13 @@ Implicit Arguments mult_inverse [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_
 Implicit Arguments sg_mor [[A] [e] [op] [SemiGroup]].
 
 Section cancellation.
-  Context `{e : Equiv A} (Rel : relation A) (P : A → Prop) (op : A → A → A).
+  Context `{e : Equiv A} (op : A → A → A) (z : A).
 
   Class LeftCancellation := 
-    left_cancellation : ∀ z, P z → ∀ {x y}, Rel (op z x) (op z y) → Rel x y.
+    left_cancellation : `(op z x = op z y → x = y).
   Class RightCancellation := 
-    right_cancellation : ∀ z, P z → ∀ {x y}, Rel (op x z) (op y z) → Rel x y.
+    right_cancellation : `(op x z = op y z → x = y).
 End cancellation.
-
-Implicit Arguments left_cancellation [[A] [Rel] [P] [LeftCancellation] [x] [y]].
-Implicit Arguments right_cancellation [[A] [Rel] [P] [RightCancellation] [x] [y]].
 
 Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
   { poset_setoid :> Equivalence e (* Setoid A introduces instance resolution bugs, todo: investigate *)
@@ -217,3 +214,30 @@ Section jections.
 End jections.
 
 Implicit Arguments injective [[A] [ea] [B] [eb] [Injective]].
+
+Section order_maps.
+
+  Context `{Equiv A} `{oA : Order A} `{Equiv B} `{oB : Order B} (f : A → B).
+
+  (* It makes sense to require these maps to be [Setoid_Morphism]s, however, 
+      Coq will become horribly slow then *)
+  Class OrderPreserving := 
+    { order_preserving : `(x ≤ y → f x ≤ f y)  
+    ; order_preserving_proper_a :> Proper ((=) ==> (=) ==> iff) oA
+    ; order_preserving_proper_b :> Proper ((=) ==> (=) ==> iff) oB }.
+
+  Class OrderPreservingBack := 
+    { order_preserving_back : `(f x ≤ f y → x ≤ y)
+    ; order_preserving_back_proper_a :> Proper ((=) ==> (=) ==> iff) oA
+    ; order_preserving_back_proper_b :> Proper ((=) ==> (=) ==> iff) oB }.
+
+  Class OrderEmbedding := 
+    { order_embedding_preserving :> OrderPreserving
+    ; order_embedding_back :> OrderPreservingBack }.
+
+  Class StrictlyOrderPreserving := 
+    { strictly_order_preserving : `(x < y → f x < f y)  
+    ; strictly_order_preserving_proper_a :> Proper ((=) ==> (=) ==> iff) oA
+    ; strictly_order_preserving_proper_b :> Proper ((=) ==> (=) ==> iff) oB }.
+
+End order_maps.

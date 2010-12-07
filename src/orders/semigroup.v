@@ -23,10 +23,10 @@ End sg_order.
 
 Instance: Params (@sg_precedes) 3.
 
-Lemma preserves_sg_order `{SemiGroup A} `{SemiGroup B} (f: A → B) `{!SemiGroup_Morphism f} (x y: A):
-  x ≤ y → f x ≤ f y.
+Instance preserves_sg_order `{SemiGroup A} `{SemiGroup B} (f: A → B) `{!SemiGroup_Morphism f} : OrderPreserving f.
 Proof. 
-  intros [z p]. 
+  repeat (split; try apply _).
+  intros x y [z p]. 
   exists (f z). 
   rewrite <-preserves_sg_op, p. reflexivity. 
 Qed.

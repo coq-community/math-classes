@@ -7,3 +7,5 @@ src/deps
 src/.sconsign.dblite
 coqidescript
 coqdoc
+*#
+

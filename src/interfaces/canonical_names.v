@@ -41,7 +41,7 @@ Infix "⟶" := Arrow (at level 90, right associativity).
 Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
 Class CatComp O `{Arrows O} := comp: ∀ {x y z}, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
 Class Order A := precedes: relation A.
-Definition precedes_neq `{Equiv A} `{Order A} : Order A := λ (x y : A),  precedes x y ∧ x ≠ y.
+Definition strictly_precedes `{Equiv A} `{Order A} : Order A := λ (x y : A),  precedes x y ∧ x ≠ y.
 Class RalgebraAction A B := ralgebra_action: A → B → B.
 Class RingMultInverse {R} (x: R): Type := ring_mult_inverse: R.
 Implicit Arguments ring_mult_inverse [[R] [RingMultInverse]].
@@ -49,7 +49,7 @@ Implicit Arguments cat_id [[O] [H] [CatId] [x]].
 Implicit Arguments decide [[Decision]].
 
 Instance: Params (@precedes) 2.
-Instance: Params (@precedes_neq) 3.
+Instance: Params (@strictly_precedes) 3.
 Instance: Params (@ring_mult) 2.
 Instance: Params (@ring_plus) 2.
 Instance: Params (@equiv) 2.
@@ -75,8 +75,8 @@ Notation "- x" := (group_inv x).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
 Infix "≤" := precedes.
 Notation "(≤)" := precedes (only parsing).
-Infix "<" := precedes_neq.
-Notation "(<)" := precedes_neq (only parsing).
+Infix "<" := strictly_precedes.
+Notation "(<)" := strictly_precedes (only parsing).
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z) (at level 70, y at next level).
 Notation "x ≤ y < z" := (x ≤ y /\ y < z) (at level 70, y at next level).
 Notation "x < y < z" := (x < y /\ y < z) (at level 70, y at next level).
@@ -126,11 +126,17 @@ Implicit Arguments antisymmetry [[A] [ea] [AntiSymmetric]].
 (* Some things that hold in N, Z, Q, etc, and which we like to refer to by a common name: *)
 Class ZeroProduct A `{Equiv A} `{!RingMult A} `{!RingZero A}: Prop :=
   zero_product: `(x * y = 0 → x = 0 ∨ y = 0).
-Class ZeroNeOne A `{Equiv A} `{!RingOne A} `{!RingZero A}: Prop :=
-  zero_ne_one: 0 ≠ 1.
-Class ZeroNeTwo A `{Equiv A} `{!RingOne A} `{!RingPlus A} `{!RingZero A}: Prop :=
-  zero_ne_two: 0 ≠ 2.
-    (* todo: this is silly *)
+
+Section compare_zero.
+  Context `{Equiv A} `{!Order A} `{!RingZero A} (x : A).
+  Class NeZero  : Prop := ne_zero: x ≠ 0.
+  Class GeZero : Prop := ge_zero: 0 ≤ x.
+End compare_zero.
+
+Section compare_one.
+  Context `{Equiv A} `{!Order A} `{!RingOne A} (x : A).
+  Class GeOne : Prop := ge_one: 1 ≤ x.
+End compare_one.
 
 Class ZeroDivisor {R} `{Equiv R} `{RingZero R} `{RingMult R} (x: R): Prop
   := zero_divisor: x ≠ 0 ∧ ∃ y, y ≠ 0 ∧ x * y = 0.

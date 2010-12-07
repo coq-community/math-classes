@@ -3,7 +3,8 @@ Require Import
   Morphisms
   abstract_algebra
   canonical_names
-  interfaces.integers.
+  interfaces.integers
+  interfaces.rationals.
 
 (* Move to a separate module *)
 Class Ball A B := ball : B → relation A.

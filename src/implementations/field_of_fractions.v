@@ -24,7 +24,7 @@ Instance: Transitive frac_equiv.
 Proof with auto.
  unfold frac_equiv. intros [] [] [] V W.
  simpl in *.
- apply (left_cancellation ring_mult den1)...
+ apply (left_cancellation_ne_zero ring_mult den1)...
  do 2 rewrite associativity.
  do 2 rewrite (commutativity den1).
  rewrite V, <- W. ring.
@@ -38,7 +38,7 @@ Global Instance: ∀ x y: Frac, Decision (x = y) := λ x y, decide (num x * den 
 (* injection from R *)
 
 Program Definition inject (r: R): Frac := frac r 1 _.
-Next Obligation. intro E. symmetry in E. apply zero_ne_one. assumption. Qed.
+Next Obligation. intro E. apply (ne_zero 1). assumption. Qed.
 
 Instance: Proper (equiv ==> equiv) inject.
 Proof. unfold inject, equiv, frac_equiv. intros x x' E. simpl. rewrite E. reflexivity. Qed.
@@ -127,9 +127,9 @@ Qed.
 Global Instance: Field Frac.
 Proof.
  constructor; try apply _.
-  unfold ZeroNeOne, equiv, frac_equiv.
+  unfold NeZero, equiv, frac_equiv.
   simpl. do 2 rewrite mult_1_r.
-  apply zero_ne_one.
+  apply (ne_zero 1).
  unfold mult_inv, frac_inv, equiv, frac_equiv. intro. simpl. ring.
 Qed.
 

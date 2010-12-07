@@ -6,7 +6,8 @@ Require Import
   Relation_Definitions Morphisms Ring Field
   abstract_algebra interfaces.naturals theory.fields theory.rings.
 
-Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
+Section decfield_order. 
+  Context `{Field F} `{∀ x y: F, Decision (x = y)}.
 
   Add Ring F: (stdlib_ring_theory F).
     (* Trying to register F as a field fails with an obscure error. Looks like a Coq bug.
@@ -53,7 +54,7 @@ Section decfield_order. Context `{Field F} `{∀ x y: F, Decision (x = y)}.
    destruct (decide (den = 0)) as [A|A].
     exists (0:nat), (1:nat).
     rewrite preserves_1, preserves_0.
-    split. apply not_symmetry. apply zero_ne_one.
+    split. apply (ne_zero 1).
     rewrite <- E, A, preserves_0, dec_mult_inv_0.
     ring.
    exists num, den. split... intro. apply A.
