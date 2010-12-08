@@ -285,7 +285,7 @@ To show that the fully unbundled approach with structures represented by predica
     ; sg_ass: Associative op
     ; sg_proper: Proper (e ==> e ==> e) op }.
 \end{lstlisting}
-Then by (1) making \lstinline|SemiGroup| a \emph{class} (by replacing the \lstinline|Record| keyword with the \lstinline|Class| keyword), (2) marking its proofs as \emph{instances} (again by replacing a single keyword), and (3) marking the \lstinline|SemiGroup| parameter of semigroup theorems as implicit (by using curly instead of round brackets), we no longer have to pass \lstinline|SemiGroup| proofs around manually ourselves, letting instance resolution do it for us instead. Because instance resolution is part of the unifier, this also works when the statement of the theorem we wish to apply only mentions some of the components (which admittedly doesn't make much sense for semigroups).
+Then by (1) making \lstinline|SemiGroup| a \emph{class} (by replacing the \lstinline|Record| keyword with the \lstinline|Class| keyword), (2) marking its proofs as \emph{instances} (by replacing the \lstinline|Lemma| keyword with the \lstinline|Instance| keyword), and (3) marking the \lstinline|SemiGroup| parameter of semigroup theorems as implicit (by using curly instead of round brackets), we no longer have to pass \lstinline|SemiGroup| proofs around manually ourselves, letting instance resolution do it for us instead. Because instance resolution is part of the unifier, this also works when the statement of the theorem we wish to apply only mentions some of the components (which admittedly doesn't make much sense for semigroups).
 
 Next, we turn to problems concerning theorem \emph{declaration}. As a reference point, our ideal will be the common mathematical vernacular, where one simply says:
 \begin{quote}
@@ -896,7 +896,8 @@ A common need when interfacing generic theory and utilities developed for algebr
 
 Traditionally, proof assistants such as Coq have provided sophisticated tactics or built-in commands to support such \emph{quoting}. Unification hints~\cite{Hints}, a very general way of facilitating user-defined extensions to term and type inference, can be used to semi-automatically build quote functions without dropping to a meta-level.\footnote{Gonthier provides similar functionality by ingeniously using canonical structures.} This feature is absent from Coq, but fortunately type classes also allow us to do this, as we will now show.
 
-For ease of presentation we show only a proof of concept for a very concrete language. We are currently working to integrate this technique with our existing universal algebra infrastructure, in particular its data types for algebraic terms.%  Preliminary results in this area (such as a simple monoid normalization tactic) suggest yada.
+For ease of presentation we show only a proof of concept for a very concrete language. We are currently working to integrate this technique with our existing universal algebra infrastructure. In particular, the latter's term data type should be ideally suited to serve as a generic symbolic representation of terms in a wide class of algebras. This should let us implement the basic setup of the technique once and for all, so that quotation for new algebraic structures can be enabled with minimal effort.
+  %  Preliminary results in this area (such as a simple monoid normalization tactic) suggest yada.
 
 For the present example, we define an ad-hoc term language for monoids
 \begin{lstlisting}
