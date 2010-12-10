@@ -16,7 +16,7 @@ Infix "=" := equiv: type_scope.
 Notation "(=)" := equiv (only parsing).
 Notation "( f =)" := (equiv f) (only parsing).
 Notation "(= f )" := (λ g, equiv g f) (only parsing).
-Notation "x ≠ y":= (~ equiv x y): type_scope.
+Notation "x ≠ y":= (¬x = y): type_scope.
 
 (* For Leibniz equality we use "≡": *)
 Infix "≡" := eq (at level 70, no associativity).
@@ -98,6 +98,15 @@ Notation "(◎ f )" := (λ g, comp g f) (only parsing).
   (* Haskell style! *)
 
 Notation "(→)" := (λ x y, x → y).
+
+(* Apartness *)
+Class Apart A := apart: A → A → Type.
+Instance default_apart `{Equiv A} : Apart A | 10 := λ x y, x ≠ y.
+Notation "x >< y" := (apart x y) (at level 70, no associativity).
+
+Class CStrictlyPrecedes A := cstrictly_precedes : A → A → Type.
+Instance default_cstrictly_precedes `{Equiv A} `{Order A} : CStrictlyPrecedes A | 10 := strictly_precedes.
+Notation "x ⋖ y" := (cstrictly_precedes x y) (at level 70, no associativity).
 
 Program Definition dec_mult_inv `{e: Equiv A} `{RingZero A} `{!MultInv A}
   `{∀ x y: A, Decision (equiv x y)} (x: A): A := if decide (equiv x 0) then 0 else // x.
