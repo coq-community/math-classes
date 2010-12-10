@@ -99,6 +99,9 @@ Notation "(◎ f )" := (λ g, comp g f) (only parsing).
 
 Notation "(→)" := (λ x y, x → y).
 
+Class Inject A B := inject: A → B.
+Notation "' x" := (inject x) (at level 1).
+
 (* Apartness *)
 Class Apart A := apart: A → A → Type.
 Instance default_apart `{Equiv A} : Apart A | 10 := λ x y, x ≠ y.
