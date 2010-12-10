@@ -107,16 +107,15 @@ Section contents.
 
   Instance: Monad M.
   Proof with intuition.
-   constructor; try apply _.
+   constructor; intros; try apply _.
      (* law 1 *)
      reflexivity.
     (* law 2 *)
-    unfold M. intros.
+    unfold M in *.
     change (geneq (gen_bind (λ x : A, Var sign A x tt) m) m).
     induction m; simpl...
     destruct a... simpl...
    (* law 3 *)
-   intros.
    unfold M, bind.
    unfold MonadBind_instance_0.
    unfold equiv, Me.
@@ -124,8 +123,7 @@ Section contents.
    revert n.
    cut (∀ o (n: Term sign A o),
      geneq (gen_bind g (gen_bind f n))
-     (gen_bind (λ x : A, gen_bind g (f x)) n)).
-     intuition.
+     (gen_bind (λ x : A, gen_bind g (f x)) n))...
    induction n; simpl...
    destruct a.
    change (gen_bind g (f v) = gen_bind g (f v))...
