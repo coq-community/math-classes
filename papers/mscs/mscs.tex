@@ -3,6 +3,7 @@
 \usepackage{url}
 \usepackage{bbm}
 \usepackage{amsmath}
+\usepackage{harvard}
 \usepackage{amssymb}
 \usepackage{upgreek}
 \usepackage[mathletters]{ucs}
@@ -110,11 +111,11 @@ In the rest of the paper, we tour the key components in our development, leading
 % ideally, this should make the paper readable for Haskell people
 
 The Coq proof assistant is based on the calculus of inductive
-constructions~\cite{CoquandHuet,CoquandPaulin}, a dependent type theory with (co)inductive types; see~\cite{Coq,BC04}. In true Curry-Howard fashion, it is both an excessively pure, if somewhat pedantic, functional programming language with an extremely expressive type system, and a language for mathematical statements and proofs. We highlight some aspect of Coq that are of particular relevance to our development.
+constructions~\cite{CoquandHuet,CoquandPaulin}, a dependent type theory with (co)inductive types; see~\cite{BC04,Coq}. In true Curry-Howard fashion, it is both an excessively pure, if somewhat pedantic, functional programming language with an extremely expressive type system, and a language for mathematical statements and proofs. We highlight some aspect of Coq that are of particular relevance to our development.
 
 \paragraph{Types and propositions.}
 
-Propositions in Coq are types~\cite{ITT,CMCP}, which themselves have types called \emph{sorts}. Coq features a distinguished sort called \lstinline|Prop| that one may choose to use as the sort for types representing propositions. The distinguishing feature of the \lstinline|Prop| sort is that terms of non-\lstinline|Prop| type may not depend on the values of inhabitants of \lstinline|Prop| types (that is, proof terms).
+Propositions in Coq are types~\cite{CMCP,ITT}, which themselves have types called \emph{sorts}. Coq features a distinguished sort called \lstinline|Prop| that one may choose to use as the sort for types representing propositions. The distinguishing feature of the \lstinline|Prop| sort is that terms of non-\lstinline|Prop| type may not depend on the values of inhabitants of \lstinline|Prop| types (that is, proof terms).
 % As originally conceived~\cite{ITT,CMCP}, Propositions are Types and we can extract information from
 % them. Often we do \emph{not} want functions to depend on proofs. In Coq, this is the paradigmatic way of working. We are forbidden to extract information from proofs of \lstinline|Prop|s. Especially with the aid of the Program machinery, this allows us to flexibly work with simply typed program and their Hoare style correctness proofs.
 This regime of discrimination establishes a weak form of proof irrelevance, in that changing a proof can never affect the result of value computations. On a very practical level, this lets Coq safely erase all \lstinline|Prop| components when extracting certified programs to OCaml or Haskell.
@@ -1176,7 +1177,7 @@ There are really only two pending concerns that keeps us from making an unequivo
 Fortunately, there is plenty of potential for improvement of the current instance resolution implementation. One source is the vast literature on efficient implementation of Prolog-style resolution, which the hint-based proof search used for instance resolution greatly resembles. We emphasize that these efficiency problems only affect type checking; efficiency of computation using type-checked terms is not affected.
 
 
-We are currently in the process of retrofitting the rationals interface into CoRN. In future work we aim to base our development of its reals on an abstract dense set, allowing us to use the efficient dyadic rationals~\cite{boldo2009combining} as a base for exact real number computation in Coq~\cite{Riemann,Oconnor:real}. The use of category theory has been important in these developments. % Eelis: not sure i understand. "has been"? it's not done.
+We are currently in the process of retrofitting the rationals interface into CoRN. In future work we aim to base our development of its reals on an abstract dense set, allowing us to use the efficient dyadic rationals~\cite{boldo2009combining} as a base for exact real number computation in Coq~\cite{Oconnor:real,Riemann}. The use of category theory has been important in these developments. % Eelis: not sure i understand. "has been"? it's not done.
 
 An obvious topic for future research is the extension from equational logic with dependent types~\cite{Cartmell,palmgren2007partial}. Another topic would be to fully, but practically, embrace the
 categorical approach to universal algebra~\cite{pitts2001categorical}.
@@ -1201,6 +1202,6 @@ sharpen our understanding of the relation with Canonical Structures and with Uni
 
 This work has been partially funded by the FORMATH project, nr.\ 243847, of the FET program within the 7th Framework program of the European Commission.
 % MSCS recommends harvard, but does not specify which bst file to use.
-\bibliographystyle{plain}
+\bibliographystyle{agsm}
 \bibliography{alg}
 \end{document}
