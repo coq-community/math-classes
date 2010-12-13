@@ -1,5 +1,5 @@
 Global Generalizable All Variables.
-Set Automatic Introduction.
+Global Set Automatic Introduction.
 
 Set Automatic Coercions Import.
   (* Needed to recover old behavior. Todo: Figure out why the behavior was changed; what was wrong with it? *)
@@ -16,7 +16,7 @@ Infix "=" := equiv: type_scope.
 Notation "(=)" := equiv (only parsing).
 Notation "( f =)" := (equiv f) (only parsing).
 Notation "(= f )" := (λ g, equiv g f) (only parsing).
-Notation "x ≠ y":= (~ equiv x y): type_scope.
+Notation "x ≠ y":= (¬x = y): type_scope.
 
 (* For Leibniz equality we use "≡": *)
 Infix "≡" := eq (at level 70, no associativity).
@@ -99,20 +99,44 @@ Notation "(◎ f )" := (λ g, comp g f) (only parsing).
 
 Notation "(→)" := (λ x y, x → y).
 
-Program Definition dec_mult_inv `{e: Equiv A} `{RingZero A} `{!MultInv A}
-  `{∀ x y: A, Decision (equiv x y)} (x: A): A := if decide (equiv x 0) then 0 else // x.
+Class Inject A B := inject: A → B.
+Notation "' x" := (inject x) (at level 20).
 
-Notation "/ x" := (dec_mult_inv x).
+(* Apartness *)
+Class Apart A := apart: A → A → Type.
+Instance default_apart `{Equiv A} : Apart A | 10 := λ x y, x ≠ y.
+Notation "x >< y" := (apart x y) (at level 70, no associativity).
 
+Class CStrictlyPrecedes A := cstrictly_precedes : A → A → Type.
+Instance default_cstrictly_precedes `{Equiv A} `{Order A} : CStrictlyPrecedes A | 10 := strictly_precedes.
+Notation "x ⋖ y" := (cstrictly_precedes x y) (at level 70, no associativity).
+
+(* We define classes for binary subtraction and division. Default implementations of these
+     these operations by means of their corresponding unary operations can be found in 
+     theory.rings and theory.fields. *)
 Class RingMinus A `{Equiv A} `{RingPlus A} `{GroupInv A} := ring_minus_sig: ∀ x y : A, { z: A |  z = x + -y }.
 Definition ring_minus `{RingMinus A} : A → A → A := λ x y, ` (ring_minus_sig x y).
 Infix "-" := ring_minus.
 Instance: Params (@ring_minus) 2.
 
-Class FieldDiv A `{RingMult A} `{MultInv A} `{RingZero A} := field_div_sig: ∀ (x : A) (y : { x: A | x ≠ 0 }), { z: A |  z = x * //y }.
+Class FieldDiv A `{RingMult A} `{MultInv A} `{RingZero A} 
+  := field_div_sig: ∀ (x : A) (y : { x: A | x ≠ 0 }), { z: A |  z = x * //y }.
 Definition field_div `{FieldDiv A}: A → { x: A | x ≠ 0 } → A := λ x y, ` (field_div_sig x y).
 Infix "//" := field_div (at level 35, right associativity).
 Instance: Params (@field_div) 2.
+
+(* We define a division operation that yield zero for zero elements. Default implementations for 
+    decidable fields can be found in theory.fields. *)
+Class DecMultInv A `{Equiv A} `{RingZero A} `{RingOne A} `{RingMult A} 
+  := dec_mult_inv_sig : ∀ x : A, {z | (x ≠ 0 → x * z = 1) ∧ (x = 0 → z = 0)}.
+Definition dec_mult_inv `{DecMultInv A} : A → A := λ x, ` (dec_mult_inv_sig x).
+Notation "/ x" := (dec_mult_inv x).
+Instance: Params (@dec_mult_inv) 1.
+
+Class DecFieldDiv A `{RingMult A} `{DecMultInv A} := dec_field_div_sig: ∀ (x y : A), { z: A |  z = x * / y }.
+Definition dec_field_div `{DecFieldDiv A}: A → A → A := λ x y, ` (dec_field_div_sig x y).
+Infix "/" := dec_field_div.
+Instance: Params (@dec_field_div) 2.
 
 (* Common properties: *)
 Class Commutative `{Equiv B} `(m: A → A → B): Prop := commutativity: `(m x y = m y x).

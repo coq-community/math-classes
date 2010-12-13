@@ -106,18 +106,18 @@ Class PartialOrder `{e: Equiv A} (R: Order A): Prop :=
 
 Class TotalOrder `(Order A): Prop := total_order: ∀ x y: A, x ≤ y ∨ y ≤ x.
 
-Class RingOrder `(e: Equiv A) (plus: RingPlus A) (mult: RingMult A) (zero: RingZero A) (leq: Order A) :=
+Class RingOrder `{e: Equiv A} {plus: RingPlus A} {mult: RingMult A} {zero: RingZero A} (leq: Order A) :=
   { ringorder_partialorder:> PartialOrder leq
   ; ringorder_plus: `(x ≤ y → ∀ z, x + z ≤ y + z)
   ; ringorder_mult: `(0 ≤ x → ∀ y, 0 ≤ y → 0 ≤ x * y) }.
 
 Class OrdRing A {e: Equiv A} {plus mult inv zero one leq}: Prop :=
   { ordring_ring:> @Ring A e plus mult zero one inv 
-  ; ordring_order:> RingOrder e plus mult zero leq }.
+  ; ordring_order:> RingOrder leq }.
 
 Class OrdField A {e: Equiv A} {plus mult inv zero one mult_inv leq}: Prop :=
   { ordfield_field:> @Field A e plus mult zero one inv mult_inv
-  ; ordfield_order:> RingOrder e plus mult zero leq }.
+  ; ordfield_order:> RingOrder leq }.
 
 Instance ordfield_is_ordring `{OrdField A} : OrdRing A.
 

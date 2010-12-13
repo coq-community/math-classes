@@ -16,8 +16,9 @@ Section alt_Build_Rationals.
   Lemma alt_Build_Rationals: Surjective (λ p, inject (fst p) * / inject (snd p)) → Injective inject → Rationals A.
   Proof with auto.
    intros sur ?.
-   apply (Build_Rationals A _ _ _ _ _ _ _ _ _)...
-    constructor.
+   split.
+      apply _.
+     constructor.
      intro x.
      unfold Basics.compose, id in *.
      transitivity (inject (fst (inverse _ x)) * / inject (snd (inverse _ x))).
@@ -82,9 +83,9 @@ Section isomorphism_is_rationals.
     repeat (split; try apply _).
     intros x y U. rewrite <- U. unfold id, compose, inverse, isomorphism_is_inj_inv, compose.
     apply (injective (inverse f)).
-    rewrite <-(@surjective_applied _ _ _ _ _ inj_inv rationals_frac (inverse f x)) at 3.
-    rewrite rings.preserves_mult, preserves_dec_mult_inv.
-    apply sg_mor. (* doing "do 2 rewrite ..." works in 13650, loops in 8.3 *)
+    rewrite <-(@surjective_applied _ _ _ _ _ inj_inv (rationals_frac Q) (inverse f x)) at 3.
+    rewrite rings.preserves_mult. rewrite preserves_dec_mult_inv.
+    apply sg_mor. 
     rewrite <-(to_ring_unique (inverse f ∘ integers_to_ring (Z nat) F)). reflexivity.
     apply (_ : Proper ((=) ==> (=)) dec_mult_inv). 
     rewrite <-(to_ring_unique (inverse f ∘ integers_to_ring (Z nat) F)). reflexivity. 
@@ -95,10 +96,3 @@ Section isomorphism_is_rationals.
     assumption.
   Qed.
 End isomorphism_is_rationals.
-
-Section rationals_ordered_field. 
-  Context `{Rationals Q}.
-
-  Instance: OrdField Q.
-   (* making this global (as it should be) indirectly produces an [Add Ring] bug that i've presented to mattam *)
-End rationals_ordered_field.

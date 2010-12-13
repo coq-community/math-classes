@@ -16,5 +16,6 @@ vs_string = ' '.join(map(str, vs))
 os.system('coqdep ' + Rs + vs_string + ' > deps')
 ParseDepends('deps')
 
-open('coqidescript', 'w').write('#!/bin/sh\ncoqide ' + Rs.replace('"', '\\"') + ' $@ \n')
+open('coqidescript', 'w').write('#!/bin/sh\ncoqide ' + Rs + ' $@ \n')
 os.chmod('coqidescript', 0755)
+

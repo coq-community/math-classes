@@ -375,7 +375,7 @@ Section dyadics.
    into it. That is, we have an injective ring morphism [DtoQ : Dyadic → Q].
   *)
   Context `{Rationals Q}.
-  Add Field Q: (fields.stdlib_field_theory Q).
+  Add Ring Q: (rings.stdlib_ring_theory Q).
 
   (* We don't make (Z >-> Q) a coercion because it could be computationally expensive
    and we want to see where it's called. *)
@@ -444,7 +444,7 @@ Section dyadics.
      assert (EtoQ (0 -- expo x) = 1) as F.
       unfold EtoQ, equiv, sig_equiv, sig_relation. simpl.
       rewrite shiftl_cut_minus_0... apply rings.preserves_1.
-     rewrite F. rewrite <-rings.mult_1_l. apply fields.mult_inverse'.
+     rewrite F. rewrite <-rings.mult_1_l. apply fields.mult_inverse_alt.
     rewrite shiftl_cut_minus_0... 
     apply fields.field_div_proper...
     unfold EtoQ, equiv, sig_equiv, sig_relation. simpl.
@@ -539,7 +539,7 @@ Section dyadics.
     assert (∀ (a b c : Q) d, (a * b * c) // d = (a * b) * (c // d)) as E1.
      intros. do 2 rewrite fields.field_div_correct. ring.
     assert (∀ (a b d e : Q) c f, (a * b) // c * (d * e) // f = (a * d) * ((b * e) // (c * f))) as E2.
-     intros. do 3 rewrite fields.field_div_correct. rewrite <-fields.mult_inv_distr. ring.
+     intros. do 3 rewrite fields.field_div_correct. rewrite fields.mult_inv_distr. ring.
     rewrite E1, E2. apply sg_mor... clear E1 E2.
     do 2 rewrite fields.field_div_correct.
     apply fields.equal_quotients. simpl.
@@ -563,10 +563,10 @@ Section dyadics.
   Instance: Ring_Morphism DtoQ.
   Proof. 
     repeat (split; try apply _).
-    exact DtoQ_preserves_plus.
-    exact DtoQ_preserves_0.
-    exact DtoQ_preserves_group_inv.
-    exact DtoQ_preserves_mult.
+        exact DtoQ_preserves_plus.
+       exact DtoQ_preserves_0.
+      exact DtoQ_preserves_group_inv.
+     exact DtoQ_preserves_mult.
     exact DtoQ_preserves_1.
   Qed.
 

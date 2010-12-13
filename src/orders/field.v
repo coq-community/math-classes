@@ -17,7 +17,7 @@ Section decfield_order.
     ∃ num: nat, ∃ den: nat,
      x + naturals_to_semiring nat F num * / naturals_to_semiring nat F den = y.
 
-  Global Instance field_precedes_proper: Proper (equiv ==> equiv ==> iff) field_precedes.
+  Global Instance field_precedes_proper: Proper ((=) ==> (=) ==> iff) field_precedes.
   Proof with assumption.
    intros x x' E y y' E'. unfold field_precedes.
    split; intros [num [den U]]; exists num, den.
@@ -125,8 +125,12 @@ Section decfield_order.
    ring.
   Qed.
 
-  Global Instance field_ringorder: RingOrder _ _ _ _ field_precedes
-    := { ringorder_plus := @ringorder_plus; ringorder_mult := ringorder_mult }.
+  Global Instance field_ringorder: RingOrder field_precedes.
+  Proof with auto.
+    split; try apply _.
+     intros; apply ringorder_plus...
+    intros; apply ringorder_mult...
+  Qed.
 
 End decfield_order.
 

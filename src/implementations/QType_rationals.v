@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require
   theory.fields stdlib_rationals.
 Require Import
@@ -11,16 +9,16 @@ Require Import
 
 Module QType_Rationals (Import anyQ: QType).
 
-Module props := QProperties anyQ.
+Module Import props := QProperties anyQ.
 
 (* Todo: we need a similar trick as in ZType_integers for Equiv t *)
-Instance qev: Equiv t := eq.
-Instance: RingPlus t := add.
-Instance: RingZero t := zero.
-Instance: RingOne t := one.
-Instance: RingMult t := mul.
-Instance: GroupInv t := opp.
-Instance anyQ_mult_inv: MultInv t := λ x, inv (proj1_sig x).
+Instance QType_eq: Equiv t := eq.
+Instance QType_plus: RingPlus t := add.
+Instance QType_0: RingZero t := zero.
+Instance QType_1: RingOne t := one.
+Instance QType_mult: RingMult t := mul.
+Instance QType_inv: GroupInv t := opp.
+Instance QType_mult_inv: MultInv t := λ x, inv (proj1_sig x).
 
 Instance: Setoid t.
 
@@ -37,54 +35,34 @@ Proof with intuition. apply Qeq_bool_iff... apply Qeq_bool_neq... Qed.
    but that mean that any comparison would involve two conversion to Q, which is
    a premature pessimization. *)
 
-Ltac unfold_equiv := unfold equiv, qev, eq.
+Ltac unfold_equiv := unfold equiv, QType_eq, eq.
 
+Add Ring Q : Qsrt.
 Lemma anyQ_field_theory: field_theory zero one add mul sub opp div inv eq.
   (* No idea why this is missing in QSig. *)
 Proof.
- constructor. constructor.
-            exact props.add_0_l.
-           exact props.add_comm.
-          exact props.add_assoc.
-         exact props.mul_1_l.
-        exact props.mul_comm.
-       exact props.mul_assoc.
-      exact props.mul_add_distr_r.
-     exact props.sub_add_opp .
-    exact props.add_opp_diag_r.
-   exact props.neq_1_0.
-  exact props.div_mul_inv.
- exact props.mul_inv_diag_l.
+ constructor. 
+    constructor; intros; qify; ring.
+   exact neq_1_0.
+  exact div_mul_inv.
+ exact mul_inv_diag_l.
 Qed.
 
 Instance: Field t.
-Proof.
- apply (fields.from_stdlib_field_theory anyQ_field_theory).
-Qed.
+Proof. apply (fields.from_stdlib_field_theory anyQ_field_theory). Qed.
 
 Program Instance: RingMinus t := sub.
-Next Obligation. 
-  apply props.sub_add_opp.
-Qed.
+Next Obligation. apply sub_add_opp. Qed.
 
 Program Instance: FieldDiv t := div.
-Next Obligation.
-  apply props.div_mul_inv.
-Qed.
+Next Obligation. apply div_mul_inv. Qed.
 
 (* Type-classified facts about to_Q/of_Q: *)
 Instance: Setoid_Morphism to_Q.
 Proof. constructor; try apply _. intros x y. auto. Qed.
 
 Instance: Ring_Morphism to_Q.
-Proof.
- repeat (constructor; try apply _).
-     exact anyQ.spec_add.
-    exact anyQ.spec_0.
-   exact anyQ.spec_opp.
-  exact anyQ.spec_mul.
- exact anyQ.spec_1.
-Qed.
+Proof. repeat (constructor; try apply _); intros; qify; reflexivity. Qed.
 
 Instance: Inverse to_Q := of_Q.
 
@@ -107,13 +85,11 @@ Proof. change (Ring_Morphism (inverse anyQ.to_Q)). apply _. Qed.
 Instance: Inverse (λ p, integers_to_ring (Z nat) t (fst p) * / integers_to_ring (Z nat) t (snd p)) := isomorphism_is_inj_inv of_Q.
 Instance: Rationals t := isomorphism_is_rationals of_Q.
 
-(* Relation to dec_mult_inv *)
-Lemma Qtype_inv_dec_mult_inv q : /q = inv q.
-Proof.
-  unfold dec_mult_inv.
-  case (decide (q = 0)); intros E.
-  rewrite E. unfold_equiv. rewrite spec_inv, rings.preserves_0. reflexivity.
-  reflexivity.
+Global Program Instance Qtype_dec_mult_inv: DecMultInv t := inv.
+Next Obligation.
+  split; intros E. 
+   rewrite commutativity. apply mul_inv_diag_l; trivial.
+  rewrite E. unfold_equiv. qify. reflexivity.
 Qed.
 
 End QType_Rationals.
