@@ -6,13 +6,13 @@ Require Import
   theory.rationals.
 
 (* canonical names for relations/operations/constants: *)
-Instance q_equiv: Equiv Q := Qeq.
-Instance: RingZero Q := 0%Q.
-Instance: RingOne Q := 1%Q.
-Instance: GroupInv Q := Qopp.
-Instance: RingPlus Q := Qplus.
-Instance: RingMult Q := Qmult.
-Program Instance: MultInv Q := Qinv.
+Instance Q_eq: Equiv Q := Qeq.
+Instance Q_0 : RingZero Q := 0%Q.
+Instance Q_1 : RingOne Q := 1%Q.
+Instance Q_inv : GroupInv Q := Qopp.
+Instance Q_plus : RingPlus Q := Qplus.
+Instance Q_mult : RingMult Q := Qmult.
+Program Instance Q_mult_inv : MultInv Q := Qinv.
 
 (* properties: *)
 
@@ -46,20 +46,11 @@ Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 Instance: Proper ((=) ==> (=)) inject_Z. 
 Proof. intros x y H. rewrite H. reflexivity. Qed.
 
-Instance: Setoid_Morphism inject_Z.
-
-Instance: SemiGroup_Morphism inject_Z (Aop:=Zmult) (Bop:=Qmult) := { preserves_sg_op := λ _ _ , refl_equal }.
-
-Instance: SemiGroup_Morphism inject_Z (Aop:=Zplus) (Bop:=Qplus) := { preserves_sg_op := _ }.
-Proof. intros. unfold inject_Z, sg_op, Qplus. repeat rewrite Zmult_1_r. reflexivity. Qed.
-
-Instance: Monoid_Morphism inject_Z (Aunit:=0%Z) (Bunit:=0%Q) (Amult:=Zplus) (Bmult:=Qplus) := { preserves_mon_unit := refl_equal }.
-
-Instance: Monoid_Morphism inject_Z (Aunit:=1%Z) (Bunit:=1%Q) (Amult:=Zmult) (Bmult:=Qmult) := { preserves_mon_unit := refl_equal }.
-
-Instance: Group_Morphism inject_Z (Aunit:=0%Z) (Bunit:=0%Q) := { preserves_inv := λ _, refl_equal }.
-
 Instance: Ring_Morphism inject_Z. 
+Proof.
+  repeat (split; try apply _).
+  intros x y. repeat red. simpl. repeat rewrite Zmult_1_r. reflexivity.
+Qed.
 
 Instance: Injective inject_Z.
 Proof.
@@ -88,10 +79,9 @@ Instance Qrat: Rationals Q.
 Proof alt_Build_Rationals _ _ inject_Z _ _.
 
 (* Relation to dec_mult_inv *)
-Lemma Qinv_dec_mult_inv (q : Q) : /q = Qinv q.
-Proof.
-  unfold dec_mult_inv.
-  case (decide (q = 0)); intros E.
+Program Instance Qinv_dec_mult: DecMultInv Q := Qinv.
+Next Obligation.
+  split; intros E. 
+   apply Qmult_inv_r; trivial.
   rewrite E. reflexivity.
-  reflexivity.
 Qed.

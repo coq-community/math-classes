@@ -15,8 +15,8 @@ Inductive nat_pow_spec `{SemiRing A} `{SemiRing B} : A → B → A → Prop :=
 Class NatPow A B `{SemiRing A} `{Naturals B} := nat_pow_sig (x : A) (n : B) : { y | nat_pow_spec x n y }.
 Instance nat_pow `{NatPow A B} : `{Pow A B} := λ x n, ` (nat_pow_sig x n).
 
-(* 0 ^ x where x is negative is not defined. However, we take the easy way and let it yield 0 in that case. *)
-Class IntPow A B `{Field A} `{∀ x y, Decision (x = y)} `{Integers B} := 
+(* [0 ^ x] for a negative [x] is not defined. However, we take the easy way and let it yield [0]. *)
+Class IntPow A B `{Field A} `{!DecMultInv A} `{Integers B} := 
   int_pow_sig (x : A) (n : B) : { y | (0 ≤ n → nat_pow_spec x n y) ∧ (n < 0 → nat_pow_spec x (-n) (/ y)) }.
 Instance int_pow `{IntPow A B} : `{Pow A B} := λ x n, ` (int_pow_sig x n).
 
@@ -30,7 +30,7 @@ Class Log `(b : A) B `{SemiRing A} `{Naturals B} `{!NatPow A B} :=
   log_sig: ∀ (x : {z : A | 0 < z }), { z: B | b ^ z ≤ `x < b ^ (z + 1) }.
 Definition log  `(b : A) `{Log A b N}: {z | 0 < z } → N := λ x, ` (log_sig x).
 
-(* Our abs operation is of type Z → N and therefore quite annoying for this definition *)
+(* Our abs operation is of type [Z → N] and therefore quite annoying for this definition *)
 Class Euclid `{SemiRing A} a (b : { z : A | z ≠ 0}) q r := 
   euclid : a = `b * q + r ∧ (0 ≤ r < `b ∨ `b < r ≤ 0).
 
@@ -54,4 +54,3 @@ Class CutMinus A `{SemiRing A} :=
 Definition cut_minus `{m : CutMinus A} : A → A → A := λ x y, ` (cut_minus_sig x y).
 Infix "∸" := cut_minus (at level 50, left associativity).
 Notation "(∸)" := cut_minus (only parsing).
-

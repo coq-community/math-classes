@@ -5,8 +5,7 @@ Require Import
   theory.categories
   interfaces.functors
   abstract_algebra
-  interfaces.sequences
-  canonical_names.
+  interfaces.sequences.
 
 Section contents.
 

@@ -4,7 +4,7 @@ Require Import
   interfaces.rationals QType_rationals
   interfaces.integers fast_integers.
 
-Module BigQ_Rationals := QType_Rationals BigQ.
+Module Import BigQ_Rationals := QType_Rationals BigQ.
 
 Definition fastQ: Type := BigQ.t.
 
@@ -12,15 +12,12 @@ Definition fastZ_to_fastQ := BigQ.Qz.
 
 Instance: Proper ((=) ==> (=)) fastZ_to_fastQ.
 Proof.
-  intros x y E.
-  unfold equiv, BigQ_Rationals.qev, BigQ.eq, QArith_base.Qeq. simpl.
+  intros x y E. unfold_equiv. simpl.
   rewrite E. reflexivity.
 Qed.
 
 Instance: Ring_Morphism fastZ_to_fastQ.
-Proof.
-  repeat (split; try apply _).
-Qed.
+Proof. repeat (split; try apply _). Qed.
 
 Instance fastQ_to_frac: Inverse (λ p, fastZ_to_fastQ (fst p) * / fastZ_to_fastQ (snd p)) 
   := λ x, match x with
@@ -40,23 +37,21 @@ Proof with try reflexivity; auto.
 Qed.
 
 Instance: Surjective (λ p, fastZ_to_fastQ (fst p) * / fastZ_to_fastQ (snd p)).
-Proof.
+Proof with auto; try reflexivity.
   split.
-
-  intros x y E. rewrite <- E. clear E y. unfold id, compose, inverse, fastZ_to_fastQ.
-  destruct x as [x | x y]; simpl. 
-  rewrite rings.preserves_1. field. 
-  apply (ne_zero 1).
-
-  unfold equiv, BigQ_Rationals.qev, BigQ.eq. 
-  rewrite rings.preserves_mult, fields.preserves_dec_mult_inv, 
-    stdlib_rationals.Qinv_dec_mult_inv. 
-  unfold QArith_base.Qeq. simpl. 
-  BigQ.destr_eqb; intros F; simpl.
-  rewrite F, BigN.spec_0. simpl. rewrite right_absorb, left_absorb. reflexivity.
-  rewrite <-associativity. apply sg_mor. reflexivity.
-  apply fastQ_fastZ_surjective_aux. assumption.
-
+    intros x y E. rewrite <- E. clear E y. 
+    unfold id, compose, inverse, fastZ_to_fastQ.
+    destruct x as [x | x y]; simpl. 
+    rewrite rings.preserves_1. field. 
+    apply (ne_zero 1).
+   unfold_equiv.
+   rewrite rings.preserves_mult, fields.preserves_dec_mult_inv.
+   unfold QArith_base.Qeq. simpl. 
+   BigQ.destr_eqb; intros F; simpl.
+    rewrite F, BigN.spec_0. simpl. 
+    rewrite right_absorb, left_absorb...
+   rewrite <-associativity. apply sg_mor...
+   apply fastQ_fastZ_surjective_aux...
   repeat (split; try apply _).
-  intros x y E. rewrite E. reflexivity.
+  intros x y E. rewrite E. reflexivity...
 Qed.
