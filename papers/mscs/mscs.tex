@@ -3,7 +3,7 @@
 \usepackage{url}
 \usepackage{bbm}
 \usepackage{amsmath}
-\usepackage{harvard}
+% \usepackage{harvard}
 \usepackage{amssymb}
 \usepackage{upgreek}
 \usepackage[mathletters]{ucs}
@@ -12,7 +12,7 @@
 \newcommand{\N}{\ensuremath{\mathbbm{N}}}
 \newcommand{\Z}{\ensuremath{\mathbbm{Z}}}
 \newcommand{\Q}{\ensuremath{\mathbbm{Q}}}
-
+\usepackage{wrapfig}
 \usepackage{color}
 
 \usepackage{graphicx}
@@ -86,7 +86,7 @@ The development of libraries for formalized mathematics presents many software e
 
 For the algebraic hierarchy---a critical component in any library of formalized mathematics---these challenges include structure inference, handling of multiple inheritance, equality of axiomatically posited and derived structure, idiomatic use of notations, support for models based on quotient representations, and convenient algebraic manipulation (e.g.\ rewriting). Several solutions have been proposed for the Coq theorem prover: dependent records~\cite{DBLP:journals/jsc/GeuversPWZ02} (a.k.a. telescopes), packed classes~\cite{Packed}, and occasionally modules. We present a new solution based entirely on the use of Coq's new type class facility to make fully `unbundled' predicate-representations of algebraic structures practical to work with.
 
-Our development is not merely aimed at formalization of theory, and our choice of a system based on type theory is no accident. It is our explicit ambition for the interfaces and theory we develop to be employed directly for the specification and parameterization of efficiently executable procedures and data structures, implemented using type theory's native term reduction as a programming language. Thus, our work very much belongs in the long tradition of trying to realize the promise of type theory to truly unite mathematical formalization and certified (functional) programming, without making painful sacrifices on either side.
+Our development is not merely aimed at formalization of theory, and our choice of a system based on type theory is no accident. It is our explicit ambition for the interfaces and theory we develop to be employed directly for the specification and parameterization of efficiently executable procedures and data structures, implemented using type theory's native term reduction as a programming language. Thus, our work belongs in the long tradition of realize the promise of type theory to truly unite mathematical formalization and certified (functional) programming, without making painful sacrifices on either side.
 
 Because our ``ultimate'' goal is to use this development as a basis for constructive analysis with practical certified exact real arithmetic, and because numerical structures are ideal test subjects for our algebraic hierarchy, we shall use these to motivate and demonstrate the key parts of our development. Since we are concerned with \emph{efficient} computation, we want to be able to effortlessly swap implementations of number representations. Doing this requires that we have clean abstract interfaces, and mathematics tells us what these should look like: we represent $\N$, $\Z$, and $\Q$ as \emph{interfaces} specifying an initial semiring, an initial ring, and a field of integral fractions, respectively. To express these interfaces elegantly and without duplication, our development\footnote{The sources are available at:~\url{http://www.eelis.net/research/math-classes/}} includes an integrated formalization of parts of category theory and multi-sorted universal algebra, all expressed using type classes for optimum effect.
 
@@ -95,7 +95,7 @@ In this paper we focus on the Coq proof assistant. We conjecture that the method
 to any type theory based proof assistant supporting type classes such as
 Matita~\cite{asperti2007user}.
 
-\paragraph{Outline.}
+\emph{Outline.}
 In section~\ref{preliminaries} we briefly describe the Coq system and its implementation of type classes. Then, in section~\ref{bundling}, we give a very concrete introduction to the issue of \emph{bundling}, arguably the biggest design dimension when building interfaces for abstract structures. In section~\ref{predicateclasses} we show how type classes can make the use of `unbundled' purely predicate based interfaces for abstract structures practical.
 
 In the rest of the paper, we tour the key components in our development, leading up to the numerical interfaces. This will not only show the pleasant style of formalization that rigorous use of type classes enables, but will also show that eager adoption and incorporation of more abstract mathematical perspectives (which are traditionally often ignored when doing dependently typed programming on concrete data structures in type theory), is not only feasible but actually practical and beneficial.
@@ -188,7 +188,7 @@ More elaborate structures, too, can be expressed as predicates (expressing laws)
 % hm, i used to have paragraphs here about how it would be unclear how this approach could support structure inference and structure inheritance, but those are actually pretty straightforward using ordinary proof search.
 
 In the absence of type classes, these are all very real problems, and for this reason the two largest formalizations of abstract algebraic structures in Coq today, CoRN~\cite{C-corn} and \textsc{Ssreflect}~\cite{Packed}, both use \emph{bundled} representation schemes, using records with one or more of the components as fields instead of parameters. For reflexive relations, the following is a fully bundled representation---the other end of the spectrum:
-\newpage
+
 \begin{lstlisting}
   Record ReflexiveRelation: Type :=
     { rr_carrier: Type
@@ -224,7 +224,7 @@ A second problem with bundling is that as the bundled records are stacked to rep
 
 Thus, bundled representations come at a substantial cost in flexibility. Historically, using bundled representations has nevertheless been an acceptable trade-off, because (1) the unbundled alternative was such a pain, and (2) the standard algebraic hierarchy (up to, say, fields and modules) is not all that wild.
 
-In the next section, we show that type-classification of structure predicates and their component parameters has the potential to remedy the problems associated with the naive unbundled predicate approach, giving us the best of both worlds.
+In the next section, we show that type-classification of structure predicates and their component parameters has the potential to remedy the problems associated with the naive unbundled predicate approach.
 
 %For completeness, we mention an alternative record-based approach known as ``packed classes'', as used in the ssreflect library. In the packed classes idiom, each algebraic structure is represented by not one but a trinity of interdependent records along with packing/unpacking functions. These are then stacked in an intricate manner designed to reach a particular hybrid packing balance that, combined with the use of canonical structures and coercions, accomplishes some of the goals above.
 
@@ -293,7 +293,7 @@ To show that the fully unbundled approach with structures represented by predica
 \end{lstlisting}
 Then by (1) making \lstinline|SemiGroup| a \emph{class} (by replacing the \lstinline|Record| keyword with the \lstinline|Class| keyword), (2) marking its proofs as \emph{instances} (by replacing the \lstinline|Lemma| keyword with the \lstinline|Instance| keyword), and (3) marking the \lstinline|SemiGroup| parameter of semigroup theorems as implicit (by using curly instead of round brackets), we no longer have to pass \lstinline|SemiGroup| proofs around manually ourselves, letting instance resolution do it for us instead. Because instance resolution is part of the unifier, this also works when the statement of the theorem we wish to apply only mentions some of the components (which admittedly doesn't make much sense for semigroups).
 
-Next, we turn to problems concerning theorem \emph{declaration}. As a reference point, our ideal will be the common mathematical vernacular, where one simply says:
+Next, we turn to problems concerning theorem \emph{declaration}. Our ideal will be the common mathematical vernacular, where one simply says:
 \begin{quote}
 Theorem: For $x, y, z$ in a semigroup $G$, $x * y * z = z * y * x$.
 \end{quote}
@@ -343,11 +343,7 @@ The backtick tells Coq to insert implicit declarations of further parameters to 
 
 Thus, we have reached the mathematical ideal we aimed for.
 
-While we are on the topic of implicit generalization, we mention one inadequacy concerning their current implementation that we feel should be addressed for the facility to be a completely satisfying solution. While the syntax already supports variants (not shown above) that differ in how exactly different kinds of arguments are inferred and/or generalized, there is no support to have an argument be ``inferred if possible, generalized otherwise". We have found that the need for such a policy arises naturally when declaring a parameter of class type in a context where \emph{some} of its components are already available, while others are to be newly introduced. The current workaround in these cases involves providing names for components that are then never referred to, which is a bit awkward.
-
-
-
-
+While we are on the topic of implicit generalization, we mention one inadequacy concerning their current implementation that we feel should be addressed for the facility to be a completely satisfying solution. While the syntax already supports variants (not shown above) that differ in how exactly different kinds of arguments are inferred and/or generalized, there is no support to have an argument be ``inferred if possible, generalized otherwise". The need for such a policy arises naturally when declaring a parameter of class type in a context where \emph{some} of its components are already available, while others are to be newly introduced. The current workaround in these cases involves providing names for components that are then never referred to, which is a bit awkward.
 
 % We note that operational type classes allow us to avoid Coq's notation \lstinline|scope| mechanism.
 % hm, i don't think this is true. we don't need scopes for different representations' use of operators because we properly recognize their commonality, but that can be done without operational type classes as well.
@@ -360,7 +356,7 @@ While we are on the topic of implicit generalization, we mention one inadequacy 
 % may use in the proof. This lack of projections keeps our terms small and independent, and keeps
 % rewriting simple and sane; see Section~\ref{canonical}.
 
-One aspect of the predicate approach we have not mentioned thus far is that in proofs parameterized by abstract structures, all components become hypotheses in the context. For the example theorem above, the context looks like:
+One aspect of the predicate approach we have not mentioned thus far is that in proofs parameterized by abstract structures, all components become hypotheses in the context. For the theorem above, the context looks like:
 \begin{lstlisting}
   G: Type
   e: Equiv G
@@ -397,17 +393,15 @@ We have developed an algebraic hierarchy composed entirely out of predicate clas
     ; semiring_distr:> Distribute mult plus
     ; semiring_left_absorb:> LeftAbsorb mult zero }.
 \end{lstlisting}
-All of \lstinline|Equiv|, \lstinline|RingPlus|, \lstinline|RingMult|, \lstinline|RingZero|, and \lstinline|RingOne| are operational (single-field) classes, with bound notations \lstinline|=|, \lstinline|+|, \lstinline|*|, \lstinline|0|, and \lstinline|1|, respectively.
 
+All of \lstinline|Equiv|, \lstinline|RingPlus|, \lstinline|RingMult|, \lstinline|RingZero|, and \lstinline|RingOne| are operational (single-field) classes, with bound notations \lstinline|=|, \lstinline|+|, \lstinline|*|, \lstinline|0|, and \lstinline|1|, respectively.
+\begin{wrapfigure}{r}{.4\textwidth}
+    \includegraphics[scale=.8]{hierarchy.pdf}
+%   \caption{}
+\end{wrapfigure}
 Let us briefly highlight some additional aspects of this style of structure definition in more detail.
 
-Fields declared with \lstinline|:>| are registered as hints for instance resolution, so that in any context where \lstinline|(A, =, +, 0, *, 1)| is known to be a \lstinline|SemiRing|, \lstinline|(A, =, +, 0)| and \lstinline|(A, =, *, 1)| are automatically known to be \lstinline|CommutativeMonoid|s (and so on, transitively, because instance resolution is recursive). In our hierarchy, these substructures by themselves establish the following inheritance diagram:
-
-\vspace{5mm}
-\begin{center}
-\includegraphics{hierarchy.pdf}
-\end{center}
-\vspace{5mm}
+Fields declared with \lstinline|:>| are registered as hints for instance resolution, so that in any context where \lstinline|(A, =, +, 0, *, 1)| is known to be a \lstinline|SemiRing|, \lstinline|(A, =, +, 0)| and \lstinline|(A, =, *, 1)| are automatically known to be \lstinline|CommutativeMonoid|s (and so on, transitively, because instance resolution is recursive). In our hierarchy, these substructures by themselves establish the inheritance diagram.
 
 % note: we don't mention "super classes" because by Matthieu's terminology only parameters-of-class-type are "super classes", and for us that means only the operational classes, which we certainly don't think of as being part of the hierarchy. Matthieu calls fields of class type declared with ":>" substructures.
 
@@ -1189,17 +1183,17 @@ According to \lstinline|coqwc|, our development consists of 5660 lines of specif
 % http://lara.epfl.ch/dokuwiki/sav09:congruence_closure_algorithm_and_correctness
 % I understand that this is the algorithm underlying congruence and perhaps first-order.
 
-\paragraph{Acknowledgements.}
+\emph{Acknowledgements.}
 This research was stimulated by the new possibilities provided by the introduction of type classes
 in Coq. In fact, this seems to be the first substantial development that tries to exploit all their
 possibilities. As a consequence, we found many small bugs and unintended behavior in the type
 class implementation. All these issues were quickly solved by Matthieu Sozeau. Discussions with
 Georges Gonthier and Claudio Sacerdoti Coen have helped to
-sharpen our understanding of the relation with Canonical Structures and with Unification Hints. Finally, James McKinna suggested many corrections and improvements.
+sharpen our understanding of the relation with Canonical Structures and with Unification Hints. Finally, James McKinna suggested many improvements.
 
 
 This work has been partially funded by the FORMATH project, nr.\ 243847, of the FET program within the 7th Framework program of the European Commission.
 % MSCS recommends harvard, but does not specify which bst file to use.
-\bibliographystyle{agsm}
+\bibliographystyle{plain}
 \bibliography{alg}
 \end{document}
