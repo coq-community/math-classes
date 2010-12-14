@@ -199,7 +199,7 @@ Superficially, this instantly solves the problems described above: reflexive rel
 
 % While not observable in this example, when combined with other specialized facilities in Coq (namely coercions and/or canonical structures), this bundled representation also lets one address the problems of structure inference inheritance to some extent.
 
-Unfortunately, despite its apparent virtues, the bundled representation introduces serious problems of its own, the most immediate and prominent one being a lack of support for \emph{sharing} components between structures, which is needed to cope with overlapping multiple inheritance. 
+Unfortunately, despite its apparent virtues, the bundled representation introduces serious problems of its own, the most immediate and prominent one being a lack of support for \emph{sharing} components between structures, which is needed to cope with overlapping multiple inheritance.
 
 In our example, lack of sharing support rears its head as soon as we try to define \lstinline|EquivalenceRelation| in terms of \lstinline|ReflexiveRelation| and its hypothetical siblings bundling symmetric and transitive relations. There, we would need some way to make sure that when we `inherit' \lstinline|ReflexiveRelation|, \lstinline|SymmetricRelation|, and \lstinline|TransitiveRelation| by adding them as fields in our bundled record, they all refer to the same carrier and relation. Adding additional fields stating equalities between the three bundled carriers and relations is neither easily accomplished (because one would need to work with heterogenous equality) nor would it permit natural use of the resulting structure (because one would constantly have to rewrite things back and forth).
 
@@ -222,7 +222,7 @@ Even bundling just the operations of an algebraic structure together in a record
 
 A second problem with bundling is that as the bundled records are stacked to represent higher and higher structures, the projection paths for their components grow longer and longer, resulting in ever more unwieldy terms (coercions and notations can make this less painful). Further, if one tries to implement some semblance of sharing in a bundled representation, these projection paths additionally become non-canonical, and still more extensions have been proposed to address this symptom, e.g.\ coercion pullbacks~\cite{Hints}.
 
-Thus, bundled representations come at a substantial cost in flexibility. Historically, using bundled representations has nevertheless been an acceptable trade-off, because (1) the unbundled alternative was such a pain, and (2) the standard algebraic hierarchy (up to, say, fields and modules) is not all that wild. Further instances of the cost of sharing can be found in Section~\ref{classes}.
+Thus, bundled representations come at a substantial cost in flexibility. Historically, using bundled representations has nevertheless been an acceptable trade-off, because (1) the unbundled alternative was such a pain, and (2) the standard algebraic hierarchy (up to, say, fields and modules) is not all that wild.
 
 In the next section, we show that type-classification of structure predicates and their component parameters has the potential to remedy the problems associated with the naive unbundled predicate approach, giving us the best of both worlds.
 
@@ -516,7 +516,7 @@ Following our idiom, we introduce operational type classes for the \emph{compone
 (The categorical arrow is distinguished from the primitive function space arrow by its length.)
 
 With these in place, our type class for categories follows the usual type-theoretical definition of a
-category~\cite{saibi1995constructive,PhdSAIBI}:
+category~\cite{saibi1995constructive}:
 \begin{lstlisting}
   Class Category (O: Type) `{Arrows O} `{∀$$x y: O, Equiv (x ⟶ y)}
       `{CatId O} `{CatComp O}: Prop :=
