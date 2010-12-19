@@ -1,9 +1,12 @@
 (* This module should never be Import-ed, only Require-d. *)
 
-Require ua_homomorphisms.
+Require 
+  ua_homomorphisms
+  orders.orders theory.rings.
 Require Import
-  Morphisms Ring
-  abstract_algebra interfaces.naturals theory.rings theory.categories.
+  Morphisms Ring Arith_base
+  abstract_algebra interfaces.naturals theory.categories
+  interfaces.additional_operations.
 
 Instance nat_equiv: Equiv nat := eq.
 
@@ -13,9 +16,9 @@ Instance: RingOne nat := 1%nat.
 Instance: RingMult nat := mult.
 
 (* propers: *)
-Instance: Proper (equiv ==> equiv ==> equiv) plus.
+Instance: Proper ((=) ==> (=) ==> (=)) plus.
 Proof. unfold equiv, nat_equiv. apply _. Qed.
-Instance: Proper (equiv ==> equiv ==> equiv) mult.
+Instance: Proper ((=) ==> (=) ==> (=)) mult.
 Proof. unfold equiv, nat_equiv. apply _. Qed.
 
 (* properties: *)
@@ -39,14 +42,17 @@ Instance: Monoid _ (op:=plus) (unit:=0%nat).
 Instance: Monoid _ (op:=mult) (unit:=1%nat).
 Instance: CommutativeMonoid _ (op:=mult) (unit:=1%nat).
 Instance: CommutativeMonoid _ (op:=plus) (unit:=0%nat).
-Instance nat_semiring: SemiRing nat.
+Instance: SemiRing nat.
 
 (* misc *)
-Global Instance: ∀ x y: nat, Decision (x = y) := Peano_dec.eq_nat_dec.
+Global Instance: ∀ x y: nat, Decision (x = y) := eq_nat_dec.
 
-Add Ring nat: (theory.rings.stdlib_semiring_theory nat).
+Add Ring nat: (rings.stdlib_semiring_theory nat).
 
 Close Scope nat_scope.
+
+Instance: NaturalsToSemiRing nat :=
+  λ _ _ _ _ _, fix f (n: nat) := match n with 0%nat => 0 | S n' => f n' + 1 end.
 
 Module for_another_semiring.
 Section contents.
@@ -55,9 +61,9 @@ Section contents.
 
   Let toR := naturals_to_semiring nat R.
 
-  Add Ring R: (stdlib_semiring_theory R).
+  Add Ring R: (rings.stdlib_semiring_theory R).
 
-  Instance f_proper: Proper (equiv ==> equiv) toR.
+  Instance f_proper: Proper ((=) ==> (=)) toR.
   Proof. unfold equiv, nat_equiv. repeat intro. subst. reflexivity. Qed.
 
   Let f_preserves_0: toR 0 = 0.
@@ -101,59 +107,51 @@ Proof.
   intros. apply natural_initial. intros. 
   intros x y E. unfold equiv, nat_equiv in E. subst y. induction x. 
   replace 0%nat with (ring_zero:nat) by reflexivity.
-  do 2 rewrite preserves_0. reflexivity.
+  do 2 rewrite rings.preserves_0. reflexivity.
   rewrite S_nat_1_plus.
-  do 2 rewrite preserves_plus, preserves_1. 
+  do 2 rewrite rings.preserves_plus, rings.preserves_1. 
   rewrite IHx. reflexivity.
 Qed.
 
-Global Instance nat_Naturals: Naturals nat.
+(* [nat] is indeed a model of the naturals *)
+Instance: Naturals nat.
 
-Lemma predefined_le_coincides (x y: nat): (x <= y)%nat → x ≤ y.
-Proof.
- induction 1 as [| n _ [m []]]. exists 0. rewrite preserves_0. ring.
- exists (S m).
- change (x + naturals_to_semiring nat nat (1 + m) =
-    1 + (x + naturals_to_semiring nat nat m)).
- rewrite preserves_plus, preserves_1. ring. 
+(* Order *)
+Instance: Order nat := le.
+
+Instance: SemiRingOrder le.
+Proof with trivial.
+  repeat (split; try apply _).
+     intros x y E. apply Le.le_antisym...
+    intros E.
+    assert (y ≡ x + (y - x))%nat as F. apply le_plus_minus...
+    exists (y - x)%nat. split...
+    apply plus_le_reg_l with x.
+    rewrite <-F... rewrite Plus.plus_0_r...
+   intros [z [Ez1 Ez2]].
+   rewrite Ez2. apply le_plus_trans...
+  intros x E1 y E2.
+  change (0 * 0 <= x * y)%nat. apply mult_le_compat...
 Qed.
 
-Lemma predefined_le_coincides_rev (x y: nat): x ≤ y → (x <= y)%nat.
-Proof. intros [z []]. auto with arith. Qed.
+Instance: TotalOrder le.
+Proof. intros x y. destruct (le_ge_dec x y); intuition. Qed.
 
-Program Instance le_nat_dec (x y: nat): Decision (x ≤ y) :=
-  match Compare_dec.le_lt_dec x y with
-  | left E => left (predefined_le_coincides _ _ E)
-  | right E => right _
-  end.
+Instance le_nat_dec: Decision (x ≤ y) := le_dec.
 
-Next Obligation.
- intro. apply (Lt.lt_not_le y x). assumption.
- apply predefined_le_coincides_rev. assumption.
-Qed. 
-
-Instance: TotalOrder (sr_precedes (R:=nat)).
-Proof.
- intros x y. destruct (Compare_dec.le_lt_dec x y); [left | right];
-  apply predefined_le_coincides; auto with arith.
-Qed.
-
-Program Instance: NatDistance nat := λ x y: nat,
-  if decide (x ≤ y) then minus y x else minus x y.
-
-Next Obligation. destruct H as [x0 []]. left. rewrite Minus.minus_plus. reflexivity. Qed.
-
-Next Obligation.
- destruct (total_order x y). intuition.
- right.
- change ((y + (x - y))%nat = x).
- rewrite (Minus.le_plus_minus_r y x). reflexivity.
- apply predefined_le_coincides_rev. assumption.
+(* Misc *)
+Program Instance: CutMinus nat := λ x y, minus x y.
+Next Obligation with trivial.
+  split; intros E.
+   symmetry. rewrite commutativity.
+   apply le_plus_minus, orders.strictly_precedes_weaken...
+  apply orders.strictly_precedes_precedes in E. destruct E as [E|E].
+   rewrite E. apply minus_diag.
+  apply not_le_minus_0. apply orders.not_precedes_strictly_precedes...
 Qed.
 
 (* Two simple omissions in the standard library that we prove for nats and then
  lift to arbitrary Naturals in theory.naturals: *)
-
 Lemma Mult_mult_reg_l: ∀ n m p: nat, ~ p = 0 → mult p n = mult p m → n = m.
 Proof.
  destruct p. intuition.
@@ -162,14 +160,3 @@ Qed.
 
 Lemma Mult_nz_mult_nz (x y: nat): ~ y = 0 → ~ x = 0 → ~ y * x = 0.
 Proof. intros A B C. destruct (Mult.mult_is_O y x C); intuition. Qed.
-
-(* On occasion we will be confronted with nat's minus operation, for which
- we prove a simple conditional preservation property: *)
-
-Lemma preserves_minus `{Ring R} (f: nat → R) `{!SemiRing_Morphism f}
-  x y (P: (y <= x)%nat): f (x - y)%nat = f x + - f y.
-Proof.
- rewrite (Minus.le_plus_minus _ _ P: x = (y + (x - y)%nat)) at 2.
- rewrite preserves_plus, commutativity, associativity, plus_opp_l, plus_0_l.
- reflexivity.
-Qed.

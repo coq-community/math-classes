@@ -1,91 +1,117 @@
 Require
- theory.naturals.
+  theory.naturals. 
 Require Import
- Relation_Definitions Morphisms Ring Program
- abstract_algebra interfaces.naturals
- orders.semiring orders.semigroup orders.orders.
+  Morphisms Ring Program
+  abstract_algebra interfaces.naturals
+  orders.semirings theory.rings.
 
-Section contents.
-Context `{Naturals N}.
-Add Ring N: (rings.stdlib_semiring_theory N).
+Section naturals_order.
+Context `{Naturals N} `{!SemiRingOrder o} `{!TotalOrder o}.
 
-Lemma sg_sr_precedes (x y : N) : sg_precedes x y ↔ sr_precedes x y.
+Lemma to_semiring_nonneg `{SemiRing R} {oR : Order R} `{!SemiRingOrder oR} `{!TotalOrder oR} 
+  `{∀ z : R, LeftCancellation (+) z} n : 0 ≤ naturals_to_semiring N R n.
+Proof with trivial.
+  pattern n. apply naturals.induction; clear n.
+    intros n m E. rewrite E. reflexivity.
+   intros. rewrite preserves_0. reflexivity.
+  intros n E.
+  rewrite preserves_plus, preserves_1.
+  apply nonneg_plus_compat...
+  apply precedes_0_1.
+Qed.
+
+Lemma naturals_nonneg x : 0 ≤ x.
+Proof with trivial.
+  rewrite (naturals.to_semiring_self x).
+  apply to_semiring_nonneg.
+Qed.
+
+Lemma natural_precedes_plus {x y: N}: x ≤ y ↔ ∃ z: N, y = x + z.
 Proof with auto.
-  split; intros [z Ez].
-  exists (naturals_to_semiring N nat z).
-  rewrite naturals.to_semiring_involutive; try apply _...
-  exists (naturals_to_semiring nat N z)...
+  split; intros E.
+   apply srorder_plus in E. destruct E as [z [Ez1 Ez2]].
+   exists z...
+  destruct E as [z Ez].
+  apply srorder_plus. exists z.
+  split... apply naturals_nonneg.
 Qed.
 
-Lemma natural_precedes_with {x y: N}: x ≤ y → ∃ z: N, x + z = y.
-Proof.
-  intros E. eapply sg_sr_precedes in E. assumption.
+Section another_semiring.
+  Context `{SemiRing R} {oR : Order R} `{!SemiRingOrder oR} `{!TotalOrder oR} `{∀ z : R, LeftCancellation (+) z}
+    {f : N → R} `{!SemiRing_Morphism f}.
+
+  Instance morphism_order_preserving: OrderPreserving f.
+  Proof with trivial.
+    repeat (split; try apply _).
+    intros x y E.
+    do 2 rewrite (naturals.to_semiring_unique f).
+    apply natural_precedes_plus in E. destruct E as [z Ez].
+    apply srorder_plus.
+    exists (naturals_to_semiring N R z). split.
+     apply to_semiring_nonneg.
+    rewrite Ez. rewrite preserves_plus. reflexivity.
+  Qed.
+End another_semiring.
+
+Section another_ring.
+  Context `{Ring R} {oR : Order R} `{!RingOrder oR} `{!TotalOrder oR}.
+
+  Lemma inv_to_semiring_nonpos n : - naturals_to_semiring N R n ≤ 0.
+  Proof. apply flip_nonneg_inv. apply to_semiring_nonneg. Qed.
+
+  Lemma inv_to_sr_precedes_to_sr n : - naturals_to_semiring N R n ≤ naturals_to_semiring N R n.
+  Proof. transitivity (0:R). apply inv_to_semiring_nonpos. apply to_semiring_nonneg. Qed.
+
+  Lemma inv_to_semiring x y : - naturals_to_semiring N R x = naturals_to_semiring N R y
+    → naturals_to_semiring N R x = naturals_to_semiring N R y.
+  Proof.
+    intros E. apply (antisymmetry (≤)).
+     apply <- flip_inv. rewrite E. apply inv_to_sr_precedes_to_sr.
+    rewrite <-E. apply inv_to_sr_precedes_to_sr.
+  Qed.
+End another_ring. 
+End naturals_order.
+
+Section order_unique.
+Context `{Naturals N} `{Naturals N2} {f : N → N2} `{!SemiRing_Morphism f}
+  {o1 : Order N} `{!SemiRingOrder o1} `{!TotalOrder o1}
+  {o2 : Order N2} `{!SemiRingOrder o2} `{!TotalOrder o2}.
+
+Global Instance: OrderEmbedding f.
+Proof with trivial.
+  repeat (split; try apply _).
+   apply morphism_order_preserving.
+  intros x y E.
+  eapply poset_proper.
+    symmetry. apply (naturals.morphisms_involutive (naturals_to_semiring N2 N) f).
+   symmetry. apply (naturals.morphisms_involutive (naturals_to_semiring N2 N) f).
+  apply morphism_order_preserving...
 Qed.
+End order_unique.
 
-Lemma natural_precedes_from {x y: N} (z: N) : x + z = y → x ≤ y.
-Proof.
-  intros E. eapply sg_sr_precedes. exists z. assumption.
-Qed.
+Section other_results.
+Context `{Naturals N} `{!SemiRingOrder o} `{!TotalOrder o}.
 
-Global Instance preserves_naturals_order_back `{Naturals B} (f: N → B) `{!SemiRing_Morphism f} : 
-  OrderPreservingBack f.
-Proof.
- repeat (split; try apply _).
- intros x y E.
- rewrite <- (naturals.morphisms_involutive (naturals_to_semiring _ _) f y).
- rewrite <- (naturals.morphisms_involutive (naturals_to_semiring _ _) f x).
- apply nats_preserve_sr_order. apply _.
- assumption.
-Qed.
-
-Global Instance preserves_naturals_order `{Naturals B} (f: N → B) `{!SemiRing_Morphism f} : 
-  OrderEmbedding f.
-
-Global Instance: TotalOrder (sr_precedes (R:=N)).
-Proof.
-  intros x y. 
-  destruct (total_order (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y)) as [E|E];
-   apply preserves_naturals_order_back in E; auto; try apply _.
-Qed.
-
-Instance: AntiSymmetric (sr_precedes (R:=N)).
-Proof with auto.
-  intros x y E F. 
-  destruct (natural_precedes_with E) as [v A].
-  destruct (natural_precedes_with F) as [w B].
-  rewrite <- A in *. clear A.
-  rewrite <- associativity in B.
-  assert (v + w = 0) as C.
-  apply (left_cancellation (+) x)... rewrite right_identity. assumption.
-  destruct (naturals.zero_sum v w C) as [D _]. rewrite D.
-  ring.
-Qed.
-
-Global Instance: PartialOrder (sr_precedes (R:=N)).
-
-Global Program Instance: ∀ x y: N, Decision (x ≤ y) | 10 := λ x y,
+Global Program Instance slow_nat_le_dec: ∀ x y: N, Decision (x ≤ y) | 10 := λ x y,
   match decide (naturals_to_semiring _ nat x ≤ naturals_to_semiring _ nat y) with
   | left E => left _
   | right E => right _
   end.
-
-Next Obligation.
-  intros.
-  apply (order_preserving_back (naturals_to_semiring N nat) x y).
-  assumption. 
+Next Obligation. 
+  apply (order_preserving_back (naturals_to_semiring N nat)). 
+  assumption.
 Qed.
-
 Next Obligation.
   intros F. apply E.
-  pose proof (_ : OrderPreserving (naturals_to_semiring N nat)).
-  apply order_preserving; assumption.
+  apply (order_preserving _). assumption.
 Qed.
 
-Lemma natural_precedes_nonzero_positive x : x ≠ 0 → 1 ≤ x.
+Lemma natural_precedes_nezero_positive x : x ≠ 0 → 1 ≤ x.
 Proof with intuition.
   intros E.
-  destruct (total_order 1 x) as [| [z Ez]]...
-  destruct (naturals.one_sum _ _ Ez)...
+  destruct (total_order 1 x) as [| F]...
+  apply natural_precedes_plus in F. destruct F as [z Fz]. symmetry in Fz.
+  destruct (naturals.one_sum _ _ Fz)...
   apply orders.equiv_precedes. symmetry...
 Qed.
 
@@ -94,8 +120,52 @@ Proof with auto.
    intros z ?. 
    repeat (split; try apply _).
    intros x y E.
-   apply (order_preserving_back_ge_one ring_mult z)...
-   apply natural_precedes_nonzero_positive...
+   apply (maps.order_preserving_back_gt_0 ring_mult z)...
+   split.
+    apply naturals_nonneg. 
+   apply not_symmetry...
+Qed.
+End other_results.
+
+Instance nat_precedes `{Naturals N} : Order N | 10 :=  λ x y, ∃ z, y = x + z.
+
+Section default_order.
+Context `{Naturals N}.
+Add Ring N : (rings.stdlib_semiring_theory N).
+
+Global Instance: Proper ((=) ==> (=) ==> iff) nat_precedes.
+Proof with assumption.
+  intros x1 y1 E1 x2 y2 E2.
+  split; intros [z p]; exists z.
+   rewrite <-E1, <-E2...
+  rewrite E1, E2...
 Qed.
 
-End contents.
+Global Instance: SemiRingOrder nat_precedes.
+Proof with trivial; try ring.
+  repeat (split; try apply _).
+       intros x. exists 0...
+      intros x y z [a A] [b B]. exists (a + b). rewrite associativity, <-A, B...
+     intros x y [a A] [b B].
+     destruct (naturals.zero_sum a b) as [E1 E2].
+      apply (left_cancellation (+) x). rewrite B at 2. rewrite A...
+     rewrite A, B, E1, E2...
+    intros [a A]. exists a. split... exists a...
+   intros [a [_ A]]. rewrite A. exists a...
+  intros x _ y _. exists (x * y)...
+Qed.
+
+Notation n_to_sr := (naturals_to_semiring N nat).
+
+Global Instance: TotalOrder nat_precedes.
+Proof with trivial.
+  assert (∀ x y, n_to_sr x ≤ n_to_sr y → x ≤ y) as P.
+   intros x y E. apply srorder_plus in E. 
+   destruct E as [a [_ A]].
+   exists (naturals_to_semiring nat N a). 
+   apply (injective n_to_sr).
+   rewrite preserves_plus. rewrite (naturals.to_semiring_involutive _ _)...
+  intros x y.
+  destruct (total_order (n_to_sr x) (n_to_sr y)); intuition.
+Qed.
+End default_order.

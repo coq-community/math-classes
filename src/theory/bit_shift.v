@@ -63,7 +63,7 @@ Section shift_left_properties.
   Lemma opp_shiftl `{!Ring A} x y : (-x) ≪ y = -(x ≪ y).
   Proof.
     do 2 rewrite shiftl_correct.
-    rewrite rings.ring_opp_mult. symmetry. rewrite rings.ring_opp_mult at 1.
+    rewrite rings.opp_mult. symmetry. rewrite rings.opp_mult at 1.
     ring.
   Qed.
 
@@ -83,7 +83,7 @@ Section shift_left_properties.
   Proof with auto.
     repeat (split; try apply _).
     intros x y E. unfold flip in E. do 2 rewrite shiftl_correct in E.
-    apply (rings.right_cancellation_ne_zero ring_mult (2 ^ n))...
+    apply (rings.right_cancellation_ne_0 ring_mult (2 ^ n))...
     apply nat_pow_nonzero. apply (ne_zero 2).
   Qed.
 End shift_left_properties.
@@ -93,6 +93,7 @@ Global Program Instance default_shiftl `{SemiRing A} `{Naturals B} `{!NatPow A B
   := λ x y, x * 2 ^ y.
 Next Obligation. reflexivity. Qed.
 
+(*
 (* * Properties of Shift Right *)
 Section shift_right_properties.
   Context `{SemiRing A} `{Naturals B}.
@@ -118,7 +119,6 @@ Section shift_right_properties.
   Qed.
 End shift_right_properties.
 
-(*
   Lemma shiftl_shiftr_correct x y : x = (x ≪ y) ≫ y.
   Proof with auto.
     unfold shiftr. unfold shiftr_sig. 

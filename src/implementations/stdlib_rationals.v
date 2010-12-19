@@ -15,31 +15,38 @@ Instance Q_mult : RingMult Q := Qmult.
 Program Instance Q_mult_inv : MultInv Q := Qinv.
 
 (* properties: *)
-
 Instance: Setoid Q.
 
 Instance: Field Q.
 Proof fields.from_stdlib_field_theory Qfield.Qsft.
 
 (* order: *)
-(*
-Instance: Transitive Qle := Qle_trans.
-Instance: Reflexive Qle := Qle_refl.
-Instance Qle_PreOrder: PreOrder Qle.
-Instance: AntiSymmetric Qle := Qle_antisym.
-Instance: PartialOrder Qle.
 Instance: Order Q := Qle.
 
-Instance: RingOrder q_equiv Qplus Qmult 0%Q Qle.
+Instance: RingOrder Qle.
 Proof with auto.
- constructor; try apply _; intros.
-  apply Qplus_le_compat...
-  reflexivity.
- apply Qmult_le_0_compat...
+  repeat (split; try apply _)...
+      exact Qle_refl.
+     exact Qle_trans.
+    exact Qle_antisym.
+   intros. apply Qplus_le_compat... apply Qle_refl.
+  intros. apply Qmult_le_0_compat...
 Qed.
 
-Instance: OrdField Q.
-*)
+Instance: TotalOrder Qle.
+Proof with auto.
+  intros x y.
+  destruct (Qlt_le_dec x y)...
+  left. apply Qlt_le_weak...
+Qed.
+
+Program Instance: ∀ x y: Q, Decision (x ≤ y) := λ y x, 
+  match Qlt_le_dec x y with
+  | left _ => right _
+  | right _ => left _
+  end.
+Next Obligation. apply Qlt_not_le; trivial. Qed. 
+
 (* misc: *)
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 

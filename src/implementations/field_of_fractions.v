@@ -1,58 +1,61 @@
 Require theory.fields.
 Require Import Morphisms Ring abstract_algebra theory.rings.
 
-Section contents.
+Inductive Frac R `{e : Equiv R} `{one : RingZero R} : Type := frac { num: R; den: R; den_nonzero: den ≠ 0 }.
+  (* We used to have [den] and [den_nonzero] bundled, which did work relatively nicely with Program, but the
+   extra messyness in proofs etc turned out not to be worth it. *)
+Implicit Arguments frac [[R] [e] [one]].
+Implicit Arguments num [[R] [e] [one]].
+Implicit Arguments den [[R] [e] [one]].
+Implicit Arguments den_nonzero [[R] [e] [one]].
 
-Context R
-  `{IntegralDomain R}
-  `{∀ x y, Decision (x = y)}. (* needed to get cancellation law in transitivity proof and for the decider for Frac *)
+Section contents.
+Context `{IntegralDomain R}.
+Context `{∀ z : R, NeZero z → LeftCancellation ring_mult z}.
 
 Add Ring R: (stdlib_ring_theory R).
 
-Inductive Frac: Type := frac { num: R; den: R; den_nonzero: den ≠ 0 }.
-  (* We used to have den and den_nonzero bundled, which did work relatively nicely with Program, but the
-   extra messyness in proofs etc turned out not to be worth it. *)
+Global Program Instance Frac_equiv: Equiv (Frac R) := λ x y, num x * den y = num y * den x.
 
-Global Program Instance frac_equiv: Equiv Frac := λ x y, num x * den y = num y * den x.
-
-Instance: Setoid Frac.
+Instance: Setoid (Frac R).
 Proof with auto.
-  split; red; unfold equiv, frac_equiv.
+  split; red; unfold equiv, Frac_equiv.
     reflexivity.
    intros x y E. symmetry...
   intros [nx dx] [ny dy] [nz dz] V W. simpl in *.
-  apply (left_cancellation_ne_zero ring_mult dy)...
+  apply (left_cancellation_ne_0 ring_mult dy)...
   do 2 rewrite associativity. 
   do 2 rewrite (commutativity dy).
   rewrite V, <- W. ring.
 Qed.
 
-Global Instance: ∀ x y: Frac, Decision (x = y) := λ x y, decide (num x * den y = num y * den x).
+Global Instance Frac_dec `{∀ x y, Decision (x = y)} : ∀ x y: Frac R, Decision (x = y) 
+  := λ x y, decide (num x * den y = num y * den x).
 
 (* injection from R *)
-Program Definition inject (r: R): Frac := frac r 1 _.
-Next Obligation. intro E. apply (ne_zero 1). assumption. Qed.
+Global Program Instance Frac_inject: Inject R (Frac R) := λ r, frac r 1 _.
+Next Obligation. exact (ne_zero 1). Qed.
 
 Instance: Proper ((=) ==> (=)) inject.
-Proof. unfold inject, equiv, frac_equiv. intros x x' E. simpl. rewrite E. reflexivity. Qed.
+Proof. intros x1 x2 E. unfold equiv, Frac_equiv. simpl. rewrite E. reflexivity. Qed.
 
 (* Relations, operations and constants *)
-Global Program Instance frac_plus: RingPlus Frac :=
+Global Program Instance Frac_plus: RingPlus (Frac R) :=
   λ x y, frac (num x * den y + num y * den x) (den x * den y) _.
 Next Obligation. destruct x, y. simpl. apply mult_ne_zero; assumption. Qed.
 
-Global Instance frac_zero: RingZero Frac := inject 0.
-Global Instance frac_one: RingOne Frac := inject 1.
+Global Instance Frac_0: RingZero (Frac R) := ('0 : Frac R).
+Global Instance Frac_1: RingOne (Frac R) := ('1 : Frac R).
 
-Global Instance frac_opp: GroupInv Frac := λ x, frac (- num x) (den x) (den_nonzero x).
+Global Instance Frac_inv: GroupInv (Frac R) := λ x, frac (- num x) (den x) (den_nonzero x).
 
-Global Program Instance frac_mult: RingMult Frac := λ x y, frac (num x * num y) (den x * den y) _.
+Global Program Instance Frac_mult: RingMult (Frac R) := λ x y, frac (num x * num y) (den x * den y) _.
 Next Obligation. destruct x, y. simpl. apply mult_ne_zero; assumption. Qed.
 
-Ltac unfolds := unfold frac_opp, frac_plus, equiv, frac_equiv in *; simpl in *.
-Ltac ring_on_int := repeat intro; unfolds; try ring.
+Ltac unfolds := unfold Frac_inv, Frac_plus, equiv, Frac_equiv in *; simpl in *.
+Ltac ring_on_ring := repeat intro; unfolds; try ring.
 
-Lemma nonzero_num x : x ≠ 0 ↔ num x ≠ 0.
+Lemma Frac_nonzero_num x : x ≠ 0 ↔ num x ≠ 0.
 Proof.
   split; intros E F; apply E; unfolds.
    rewrite F. ring.
@@ -60,33 +63,33 @@ Proof.
   rewrite F. apply left_absorb.
 Qed.
 
-Global Program Instance frac_inv: MultInv Frac := λ x, frac (den x) (num x) _.
-Next Obligation.  apply nonzero_num. assumption. Qed.
+Global Program Instance Frac_mult_inv: MultInv (Frac R) := λ x, frac (den x) (num x) _.
+Next Obligation. apply Frac_nonzero_num. assumption. Qed.
 
-Instance: Proper ((=) ==> (=) ==> (=)) frac_plus.
+Instance: Proper ((=) ==> (=) ==> (=)) Frac_plus.
 Proof with try ring.
   intros x x' E y y' E'. unfolds.
   transitivity (num x * den x' * den y * den y' + num y * den y' * den x * den x')...
   rewrite E, E'...
 Qed.
 
-Instance: Proper ((=) ==> (=)) frac_opp.
+Instance: Proper ((=) ==> (=)) Frac_inv.
 Proof. 
   intros x y E. unfolds. 
-  rewrite <-ring_distr_opp_mult, E. ring. 
+  rewrite <-distr_opp_mult_l, E. ring. 
 Qed.
 
-Instance: Proper ((=) ==> (=) ==> (=)) frac_mult.
+Instance: Proper ((=) ==> (=) ==> (=)) Frac_mult.
 Proof with try ring.
   intros x y E x0 y0 E'. unfolds.
   transitivity (num x * den y * (num x0 * den y0))...
   rewrite E, E'...
 Qed.
 
-Instance: Ring Frac.
-Proof. repeat (split; try apply _); ring_on_int. Qed.
+Instance: Ring (Frac R).
+Proof. repeat (split; try apply _); ring_on_ring. Qed.
 
-Instance: Proper ((=) ==> (=)) frac_inv.
+Instance: Proper ((=) ==> (=)) Frac_mult_inv.
 Proof.
   intros [x N] [x' N'] E. unfolds.
   symmetry.
@@ -94,13 +97,13 @@ Proof.
   assumption.
 Qed.
 
-Global Instance: Field Frac.
+Global Instance: Field (Frac R).
 Proof.
   constructor; try apply _.
    unfold NeZero. unfolds.
    do 2 rewrite mult_1_r.
    apply (ne_zero 1).
-  intros [x Ex]. ring_on_int.
+  intros [x Ex]. ring_on_ring.
 Qed.
 
 (* A final word about inject *)
@@ -118,6 +121,9 @@ Proof.
   intros x y. unfolds. do 2 rewrite mult_1_r. intuition.
 Qed.
 
+(* The following is probably also true without decidable equality. However, our rationals interface 
+    uses DecMultInv, so we stick with this... *)
+Context `{∀ x y, Decision (x = y)}.
 Let inject_frac := (λ p, inject (fst p) * / inject (snd p)).
 
 Global Instance: Inverse inject_frac := λ x, (num x, den x).
@@ -127,7 +133,7 @@ Proof with auto.
   repeat (constructor; try apply _).
    intros [n d P] y E.
    rewrite <- E.
-   unfold equiv, frac_equiv, inject_frac, inject, dec_mult_inv in E |- *. simpl in *.
+   unfold equiv, Frac_equiv, inject_frac, inject, dec_mult_inv in E |- *. simpl in *.
    case (decide _); intros E2; simpl in *.
     destruct P. unfolds.
     ring_simplify in E2...

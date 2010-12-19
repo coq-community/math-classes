@@ -79,12 +79,20 @@ Section contents.
 End contents.
 
 Lemma preserves_Pminus_nat x y: (y < x)%positive → map_pos (x - y) = minus (map_pos x) (map_pos y).
-Proof with intuition.
+Proof.
  intros.
  repeat rewrite map_pos_nat_of_P.
- rewrite nat_of_P_minus_morphism...
+ rewrite nat_of_P_minus_morphism. reflexivity.
  unfold Plt in H.
- apply ZC2...
+ apply ZC2. assumption.
+Qed.
+
+Lemma preserves_minus `{Ring R} (f: nat → R) `{!SemiRing_Morphism f}
+  x y (P: (y <= x)%nat): f (x - y)%nat = f x + - f y.
+Proof.
+ rewrite (Minus.le_plus_minus _ _ P: x = (y + (x - y)%nat)) at 2.
+ rewrite preserves_plus, commutativity, associativity, plus_opp_l, plus_0_l.
+ reflexivity.
 Qed.
 
 Lemma preserves_Pminus `{Ring R} x y: (y < x)%positive → map_pos (x - y) = map_pos x + - map_pos y.

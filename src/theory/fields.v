@@ -77,19 +77,20 @@ Section field_properties.
   Proof with auto.
     intros E.
     unfold equiv, sig_equiv, sig_relation. fold equiv.
-    apply (right_cancellation_ne_zero ring_mult (//x)).
+    apply (left_cancellation_ne_0 ring_mult (//x)).
      intros G.
      destruct (ne_zero 1).
      rewrite <-(rings.mult_0_r (`x)), <-G.
      symmetry. apply mult_inverse.
-    rewrite mult_inverse, E, mult_inverse.
+    rewrite commutativity, mult_inverse. 
+    rewrite E, commutativity, mult_inverse.
     reflexivity.
   Qed.
 
   Lemma mult_inv_distr_alt `{∀ z, NeZero z → LeftCancellation ring_mult z} x (Px : x ≠ 0) y (Py : y ≠ 0) (Pxy : x * y ≠ 0) : 
     // (exist _ (x * y) Pxy) = // (exist _ x Px) * // (exist _ y Py).
   Proof with auto; try ring.
-    apply (left_cancellation_ne_zero ring_mult (x * y))...
+    apply (left_cancellation_ne_0 ring_mult (x * y))...
     transitivity ((x * // (exist _ x Px)) *  (y * // (exist _ y Py)))...
     transitivity ((x * y) * // (exist _ (x * y) Pxy))...
     do 3 rewrite mult_inverse_alt...
@@ -103,7 +104,7 @@ Section field_properties.
    intros x y E.
    destruct (decide (x = 0)) as [? | P]...
    rewrite <- (mult_0_r x) in E.
-   right. apply (left_cancellation_ne_zero ring_mult x)...
+   right. apply (left_cancellation_ne_0 ring_mult x)...
   Qed.
 
   Lemma mult_inv_nonzero x : // x ≠ 0.
@@ -122,7 +123,7 @@ Section field_properties.
 
   Lemma dec_mult_inv_correct (x : F) (P : x ≠ 0) : /x = // (exist _ x P).
   Proof with auto.
-    apply (left_cancellation_ne_zero ring_mult x)...
+    apply (left_cancellation_ne_0 ring_mult x)...
     rewrite dec_mult_inverse...
     symmetry. apply mult_inverse_alt.
   Qed.
@@ -142,7 +143,7 @@ Section field_properties.
        simpl. rewrite Ez1, Ez2... reflexivity.
       destruct E2. rewrite <- E...
      destruct E1. rewrite E...
-    apply (left_cancellation_ne_zero ring_mult x1)...
+    apply (left_cancellation_ne_0 ring_mult x1)...
     rewrite dec_mult_inverse, E, dec_mult_inverse...
     reflexivity.
   Qed.
@@ -193,7 +194,7 @@ Section field_properties.
     destruct (decide (x = 0)) as [E2|E2].
      rewrite E2 in *. rewrite dec_mult_inv_0 in E.
      apply stable. intro. apply (dec_mult_inv_nonzero y)...
-    apply (right_cancellation_ne_zero ring_mult (/x)).
+    apply (right_cancellation_ne_0 ring_mult (/x)).
      apply dec_mult_inv_nonzero...
     rewrite dec_mult_inverse, E, dec_mult_inverse...
     intros E3. rewrite E3, dec_mult_inv_0 in E. 
@@ -204,7 +205,7 @@ Section field_properties.
   Proof with auto.
     destruct (decide (x = 0)) as [E|E].
     rewrite E. do 2 rewrite dec_mult_inv_0. reflexivity.
-    apply (right_cancellation_ne_zero ring_mult (/x)).
+    apply (right_cancellation_ne_0 ring_mult (/x)).
      apply dec_mult_inv_nonzero...
     rewrite dec_mult_inverse...
     rewrite commutativity, dec_mult_inverse. reflexivity.
@@ -233,7 +234,7 @@ Section morphisms.
   Proof with auto.
     case (decide (x = 0)) as [E | E].
     rewrite E, dec_mult_inv_0, preserves_0, dec_mult_inv_0. reflexivity.
-    apply (right_cancellation_ne_zero ring_mult (f x)).
+    apply (right_cancellation_ne_0 ring_mult (f x)).
       apply injective_not_0...
     rewrite <-preserves_mult.
     rewrite commutativity, dec_mult_inverse...

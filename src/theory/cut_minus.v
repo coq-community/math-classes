@@ -1,5 +1,5 @@
 Require
-  theory.naturals theory.integers orders.orders.
+  orders.semirings.
 Require Import 
   Program Morphisms Setoid Ring
   abstract_algebra interfaces.additional_operations
@@ -7,13 +7,13 @@ Require Import
 
 (* * Properties of Cut off Minus *)
 Section cut_minus_properties.
-  Context `{SemiRing R} `{cm : !CutMinus R}.
+  Context `{SemiRing R} `{!SemiRingOrder o} `{!TotalOrder o}
+    `{∀ z, LeftCancellation (+) z}
+    `{cm : !CutMinus R}
+    `{∀ (x y : R), Decision (x = y)}.
 
-  Context `{∀ (x y : R), Decision (x ≤ y)} 
-    `{∀ (x y : R), Decision (x = y)} 
-    `{!TotalOrder (≤)} 
-    `{!AntiSymmetric (≤)} 
-    `{∀ z : R, LeftCancellation (+) z}.
+  Instance: ∀ z, RightCancellation (+) z.
+  Proof. intros z. apply rings.right_cancel_from_left. Qed.
 
   Add Ring SR: (rings.stdlib_semiring_theory R).
   Hint Resolve (@orders.precedes_flip R _ _).
@@ -30,19 +30,19 @@ Section cut_minus_properties.
     rewrite Ez1, Ez2...
   Qed.
 
-  Lemma cut_minus_precedes_neq x y : y < x → (x ∸y) + y = x.
+  Lemma cut_minus_strictly_precedes x y : y < x → (x ∸ y) + y = x.
   Proof.
     unfold cut_minus, cut_minus_sig. destruct cm. simpl. tauto.
   Qed.
-  Hint Resolve cut_minus_precedes_neq.
+  Hint Resolve cut_minus_strictly_precedes.
 
-  Lemma cut_minus_0 x y : x ≤ y → (x ∸y) = 0.
+  Lemma cut_minus_0 x y : x ≤ y → (x ∸ y) = 0.
   Proof.
     unfold cut_minus, cut_minus_sig. destruct cm. simpl. tauto.
   Qed.
   Hint Resolve cut_minus_0.
 
-  Lemma cut_minus_precedes x y : y ≤ x → (x ∸y) + y = x.
+  Lemma cut_minus_precedes x y : y ≤ x → (x ∸ y) + y = x.
   Proof.
     intros E. destruct ((proj2 (orders.strictly_precedes_precedes y x)) E) as [F|].
      rewrite F, cut_minus_0. 
@@ -74,7 +74,7 @@ Section cut_minus_properties.
     auto.
   Qed.
 
-  Lemma cut_minus_positive x y : 0 ≤ x ∸ y.
+  Lemma cut_minus_nonneg x y : 0 ≤ x ∸ y.
   Proof with auto.
     destruct (total_order x y) as [E|E].
      apply orders.equiv_precedes. symmetry...
@@ -100,7 +100,7 @@ Section cut_minus_properties.
     rewrite cut_minus_precedes.
      setoid_replace (x1 ∸ y1 + (x2 ∸ y2) + (y1 + y2)) with (((x1 ∸ y1) + y1) + ((x2 ∸ y2) + y2)) by ring.
      repeat rewrite cut_minus_precedes... reflexivity. 
-    apply semiring.sr_precedes_plus_compat...
+    apply semirings.plus_compat...
   Qed.
 
   Lemma cut_minus_plus_l_rev x y z : y ∸ z = (x + y) ∸ (x + z).
@@ -169,6 +169,8 @@ Section cut_minus_properties.
   Qed.
 
   (* * Properties of min and minus *)
+  Section min.
+  Context `{∀ (x y : R), Decision (x ≤ y)}.
   Lemma cut_minus_min1 x y z : x ∸ min y z = x ∸ y + (min x y ∸ z). 
   Proof with eauto; try ring.
     unfold min, sort.
@@ -229,6 +231,7 @@ Section cut_minus_properties.
       apply cut_minus_precedes_trans... transitivity y2...
     rewrite cut_minus_precedes_trans... symmetry. rewrite commutativity...
   Qed.
+  End min.
 
   (* The relation to ring minus *)
   Context `{GroupInv R} `{!Ring R} `{!RingMinus R}.
@@ -250,8 +253,7 @@ End cut_minus_properties.
 
 (* * Default implementation for Rings *)
 Section cut_minus_default.
-  Context `{Ring R} 
-    `{!AntiSymmetric (≤)}
+  Context `{Ring R} `{!RingOrder o}
     `{prec_dec : ∀ (x y : R), Decision (x ≤ y)} 
     `{!RingMinus R}.
 
@@ -262,12 +264,30 @@ Section cut_minus_default.
   ) _.
   Next Obligation with auto.
     case (decide (x ≤ y)); intros E; split; intros F...
-    ring_simplify. apply (antisymmetry (≤))...
-      apply orders.strictly_precedes_weaken...
-    reflexivity.
-    ring.
+       ring_simplify. apply (antisymmetry (≤))...
+       apply orders.strictly_precedes_weaken...
+      reflexivity.
+     ring.
     contradiction.
   Qed.
-
 End cut_minus_default.
-   
+
+Section order_preserving.
+  Context `{SemiRing A} {oA : Order A} `{!SemiRingOrder oA} `{!TotalOrder oA} `{!CutMinus A}  `{∀ (x y : A), Decision (x = y)}
+   `{SemiRing B} {oB : Order B} `{!SemiRingOrder oB} `{!TotalOrder oB} `{!CutMinus B} `{∀ (x y : B), Decision (x = y)}
+   `{∀ z : A, LeftCancellation (+) z} `{∀ z : B, LeftCancellation (+) z}
+     {f : A → B} `{!OrderPreserving f} `{!SemiRing_Morphism f}.
+  
+  Lemma preserves_cut_minus x y : f (x ∸ y) = f x ∸ f y.
+  Proof with auto.
+    destruct (total_order x y) as [E|E].
+     rewrite (cut_minus_0 x y E), (cut_minus_0 (f x) (f y)).
+     apply rings.preserves_0.
+     apply (order_preserving _)...
+    apply (left_cancellation (+) (f y)). do 2 rewrite (commutativity (f y)).
+    rewrite <-rings.preserves_plus.
+    rewrite (cut_minus_precedes x y E), (cut_minus_precedes (f x) (f y)).
+     reflexivity.
+    apply (order_preserving _)...
+  Qed.
+End order_preserving.

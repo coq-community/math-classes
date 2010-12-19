@@ -101,42 +101,49 @@ Notation "(→)" := (λ x y, x → y).
 
 Class Inject A B := inject: A → B.
 Notation "' x" := (inject x) (at level 20).
+Instance: Params (@inject) 3.
 
 (* Apartness *)
 Class Apart A := apart: A → A → Type.
 Instance default_apart `{Equiv A} : Apart A | 10 := λ x y, x ≠ y.
 Notation "x >< y" := (apart x y) (at level 70, no associativity).
+Instance: Params (@apart) 2.
 
-Class CStrictlyPrecedes A := cstrictly_precedes : A → A → Type.
-Instance default_cstrictly_precedes `{Equiv A} `{Order A} : CStrictlyPrecedes A | 10 := strictly_precedes.
+Class CSOrder A := cstrictly_precedes : A → A → Type.
+Instance default_cstrictly_precedes `{Equiv A} `{Order A} : CSOrder A | 10 := strictly_precedes.
 Notation "x ⋖ y" := (cstrictly_precedes x y) (at level 70, no associativity).
+Instance: Params (@cstrictly_precedes) 2.
 
-(* We define classes for binary subtraction and division. Default implementations of these
+(* We define classes for binary subtraction and division. Default implementations of
      these operations by means of their corresponding unary operations can be found in 
      theory.rings and theory.fields. *)
 Class RingMinus A `{Equiv A} `{RingPlus A} `{GroupInv A} := ring_minus_sig: ∀ x y : A, { z: A |  z = x + -y }.
 Definition ring_minus `{RingMinus A} : A → A → A := λ x y, ` (ring_minus_sig x y).
 Infix "-" := ring_minus.
-Instance: Params (@ring_minus) 2.
+Instance: Params (@ring_minus_sig) 5.
+Instance: Params (@ring_minus) 5.
 
-Class FieldDiv A `{RingMult A} `{MultInv A} `{RingZero A} 
+Class FieldDiv A `{RingMult A} `{MultInv A}  
   := field_div_sig: ∀ (x : A) (y : { x: A | x ≠ 0 }), { z: A |  z = x * //y }.
 Definition field_div `{FieldDiv A}: A → { x: A | x ≠ 0 } → A := λ x y, ` (field_div_sig x y).
 Infix "//" := field_div (at level 35, right associativity).
-Instance: Params (@field_div) 2.
+Instance: Params (@field_div_sig) 6.
+Instance: Params (@field_div) 6.
 
-(* We define a division operation that yield zero for zero elements. Default implementations for 
-    decidable fields can be found in theory.fields. *)
+(* We define a division operation that yields zero for zero elements. A default 
+    implementations for decidable fields can be found in theory.fields. *)
 Class DecMultInv A `{Equiv A} `{RingZero A} `{RingOne A} `{RingMult A} 
   := dec_mult_inv_sig : ∀ x : A, {z | (x ≠ 0 → x * z = 1) ∧ (x = 0 → z = 0)}.
 Definition dec_mult_inv `{DecMultInv A} : A → A := λ x, ` (dec_mult_inv_sig x).
 Notation "/ x" := (dec_mult_inv x).
-Instance: Params (@dec_mult_inv) 1.
+Instance: Params (@dec_mult_inv_sig) 6.
+Instance: Params (@dec_mult_inv) 6.
 
-Class DecFieldDiv A `{RingMult A} `{DecMultInv A} := dec_field_div_sig: ∀ (x y : A), { z: A |  z = x * / y }.
+Class DecFieldDiv A `{DecMultInv A} := dec_field_div_sig: ∀ (x y : A), { z: A |  z = x * / y }.
 Definition dec_field_div `{DecFieldDiv A}: A → A → A := λ x y, ` (dec_field_div_sig x y).
 Infix "/" := dec_field_div.
-Instance: Params (@dec_field_div) 2.
+Instance: Params (@dec_field_div_sig) 7.
+Instance: Params (@dec_field_div) 7.
 
 (* Common properties: *)
 Class Commutative `{Equiv B} `(m: A → A → B): Prop := commutativity: `(m x y = m y x).
@@ -160,6 +167,7 @@ Section compare_zero.
   Context `{Equiv A} `{!Order A} `{!RingZero A} (x : A).
   Class NeZero  : Prop := ne_zero: x ≠ 0.
   Class GeZero : Prop := ge_zero: 0 ≤ x.
+  Class GtZero : Prop := gt_zero: 0 < x.
 End compare_zero.
 
 Section compare_one.
@@ -173,5 +181,17 @@ Class ZeroDivisor {R} `{Equiv R} `{RingZero R} `{RingMult R} (x: R): Prop
 Class NoZeroDivisors R `{Equiv R} `{RingZero R} `{RingMult R}: Prop
   := no_zero_divisors x: ¬ ZeroDivisor x.
 
+Instance zero_product_no_zero_divisors `{ZeroProduct A} : NoZeroDivisors A.
+Proof. intros x [? [? [? E]]]. destruct (zero_product _ _ E); intuition. Qed.
+
 Class RingUnit {R} `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInverse x}: Prop
   := ring_unit_mult_inverse: x * x⁻¹ = 1.
+
+Definition NonNeg R `{RingZero R} `{Order R} := { z : R | 0 ≤ z }.
+Notation "R ⁺" := (NonNeg R) (at level 20, no associativity).
+
+Definition Pos R `{RingZero R} `{Equiv R} `{Order R} := { z : R | 0 < z }.
+Notation "R ₊" := (Pos R) (at level 20, no associativity).
+
+Definition NonPos R `{RingZero R} `{Order R} := { z : R | z ≤ 0 }.
+Notation "R ⁻" := (NonPos R) (at level 20, no associativity).

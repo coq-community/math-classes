@@ -82,7 +82,7 @@ Proof. apply jections.flip_bijection, _. Qed.
 Instance: Ring_Morphism of_Q.
 Proof. change (Ring_Morphism (inverse anyQ.to_Q)). apply _. Qed.
 
-Instance: Inverse (λ p, integers_to_ring (Z nat) t (fst p) * / integers_to_ring (Z nat) t (snd p)) := isomorphism_is_inj_inv of_Q.
+Instance: Inverse (λ p, integers_to_ring (SRpair nat) t (fst p) * / integers_to_ring (SRpair nat) t (snd p)) := isomorphism_is_inj_inv of_Q.
 Instance: Rationals t := isomorphism_is_rationals of_Q.
 
 Global Program Instance Qtype_dec_mult_inv: DecMultInv t := inv.

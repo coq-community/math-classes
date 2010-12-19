@@ -1,19 +1,19 @@
 Require 
-  orders.orders signed_binary_positive_integers.
+  orders.integers signed_binary_positive_integers.
 Require Import 
   ZSig ZSigZAxioms ZArith Program Morphisms
-  positive_integers_naturals 
+  nonneg_integers_naturals 
   abstract_algebra interfaces.integers interfaces.additional_operations
   theory.rings theory.integers theory.nat_pow
-  orders.semiring.  
+  orders.semirings.  
 
 Module ZType_Integers (Import anyZ: ZType).
 
 Module axioms := ZTypeIsZAxioms anyZ.
 
 (* 
-   We use the following inductive type to hide the actual notion of equality on t. 
-   This is needed because vm_compute will otherwise evaluate proofs...
+   We use the following inductive type to hide the actual notion of equality on [t]. 
+   This is needed because [vm_compute] will otherwise evaluate proofs...
    For example, consider [@decide (eq x y) (Decide_instance x y)]. Here 
    [eq x y] is defined as [Zeq (to_Z x) (to_Z y)] and hence vm_compute will 
    evaluate [to_Z x] and [to_Z y]. This is obviously painfully slow and unnecessary.
@@ -122,16 +122,14 @@ Qed.
 Lemma to_Z_sr_precedes_Zle x y : x ≤ y → (to_Z x <= to_Z y)%Z.
 Proof.
   intro E.
-  apply signed_binary_positive_integers.sr_precedes_Zle.
-  pose proof (order_preserving to_Z). auto.
+  pose proof (order_preserving to_Z) as P. apply P. auto.
 Qed.
 
 Lemma to_Z_Zle_sr_precedes x y : (to_Z x <= to_Z y)%Z → x ≤ y.
 Proof.
   intro. 
   rewrite <-(jections.surjective_applied' of_Z x), <-(jections.surjective_applied' of_Z y). 
-  apply (order_preserving of_Z).
-  apply signed_binary_positive_integers.Zle_sr_precedes. assumption.
+  pose proof (order_preserving of_Z) as P. apply P. assumption. 
 Qed.
 
 Lemma to_Z_sr_precedes_Zlt x y : x < y → (to_Z x < to_Z y)%Z.
@@ -167,7 +165,7 @@ Next Obligation with intuition.
   apply orders.strictly_precedes_weaken, to_Z_Zlt_sr_precedes...
 Qed.
 
-Program Instance: IntAbs t (Pos t) := abs.
+Program Instance: IntAbs t (t⁺) := abs.
 Next Obligation.
   apply to_Z_Zle_sr_precedes.
   rewrite spec_abs.
@@ -176,7 +174,7 @@ Next Obligation.
 Qed.
 
 Next Obligation with auto.
-  rewrite ZPos_to_semiring_self.
+  rewrite <-(naturals.to_semiring_unique NonNeg_inject). simpl.
   unfold_equiv. 
   rewrite (preserves_opp (abs x)).
   rewrite spec_abs.
@@ -184,7 +182,7 @@ Next Obligation with auto.
 Qed.
 
 (* Efficient division *)
-Instance Ztype_euclid (x :t) (y : {z : t | z ≠ 0}) : Euclid x y (div x (`y)) (modulo x (`y)).
+Instance Ztype_euclid (x : t) (y : {z : t | z ≠ 0}) : Euclid x y (div x (`y)) (modulo x (`y)).
 Proof with auto.
   destruct y as [y Ey].
   split; simpl. 
@@ -228,13 +226,13 @@ Qed.
 Instance: Proper ((=) ==> (=) ==> (=)) pow. 
 Proof. intros x1 y1 E1 x2 y2 E2. rewrite_equiv. rewrite E1, E2. reflexivity. Qed.
 
-Program Instance ZType_pow: NatPow t (Pos t) := pow.
+Program Instance ZType_pow: NatPow t (t⁺) := pow.
 Next Obligation with try reflexivity; auto.
   intros x n. 
   change (nat_pow_spec x n ((λ x n, pow x (`n)) x n)). (* This is stupid... pattern is not helpful either *)
   apply nat_pow_spec_from_properties.
     intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2. 
-    unfold equiv, ZPos_equiv in E2. simpl in *. rewrite_equiv.
+    unfold equiv, NonNeg_equiv in E2. simpl in *. rewrite_equiv.
     rewrite E1, E2... 
    intros x1. unfold_equiv. apply axioms.pow_0_r.
   intros x1 [n1 En1]. simpl. unfold_equiv. 
@@ -244,7 +242,7 @@ Next Obligation with try reflexivity; auto.
 Qed.
 
 (* Efficient log2 *)
-Program Instance: Log (2:t) (Pos t) := log2.
+Program Instance: Log (2:t) (t⁺) := log2.
 Next Obligation with auto.
   intros x. 
   apply to_Z_Zle_sr_precedes.
@@ -263,7 +261,7 @@ Next Obligation with auto.
 Qed.
 
 (* Efficient shiftl *)
-Program Instance: ShiftLeft t (Pos t) := λ x y, shiftl x y.
+Program Instance: ShiftLeft t (t⁺) := λ x y, shiftl x y.
 Next Obligation.
   intros x [y Ey].
   unfold additional_operations.pow, nat_pow, nat_pow_sig, ZType_pow.
@@ -275,7 +273,7 @@ Next Obligation.
 Qed. 
 (* This proof could possibly be much shorter by using the correctness of shiftl on Z *)
 
-Program Instance: ShiftRight t (Pos t) := λ x y, shiftr x y.
+Program Instance: ShiftRight t (t⁺) := λ x y, shiftr x y.
 Next Obligation. Admitted.
 
 End ZType_Integers.

@@ -85,10 +85,10 @@ Qed.
 Section cancellation.
   Context `{e : Equiv A} (op : A → A → A) `{!RingZero A}.
 
-  Lemma left_cancellation_ne_zero `{∀ z, NeZero z → LeftCancellation op z} z : z ≠ 0 → LeftCancellation op z.
+  Lemma left_cancellation_ne_0 `{∀ z, NeZero z → LeftCancellation op z} z : z ≠ 0 → LeftCancellation op z.
   Proof. auto. Qed.
 
-  Lemma right_cancellation_ne_zero `{∀ z, NeZero z → RightCancellation op z} z : z ≠ 0 → RightCancellation op z.
+  Lemma right_cancellation_ne_0 `{∀ z, NeZero z → RightCancellation op z} z : z ≠ 0 → RightCancellation op z.
   Proof. auto. Qed.
 End cancellation.
 
@@ -109,22 +109,14 @@ Section semiring_props.
     apply distribute_l.
    apply right_absorb.
   Qed.
-
-  Global Instance ring_plus_left_cancel_right `{!LeftCancellation (+) z} : RightCancellation (+) z.
-  Proof.
-    intros x y E.
-    apply (left_cancellation (+) z).
-    rewrite (commutativity z x), (commutativity z y). assumption.
-  Qed.
-
-  Global Instance ring_mult_left_cancel_right `{!LeftCancellation ring_mult z } : RightCancellation ring_mult z.
-  Proof.
-    intros x y E. 
-    apply (left_cancellation ring_mult z). 
-    rewrite (commutativity z x), (commutativity z y). assumption.
-  Qed.
-
 End semiring_props.
+
+Lemma right_cancel_from_left `{Setoid R} `{!Commutative op} `{!LeftCancellation op z} : RightCancellation op z.
+Proof.
+  intros x y E.
+  apply (left_cancellation op z).
+  rewrite (commutativity z x), (commutativity z y). assumption.
+Qed.
 
 Section semiringmor_props. 
   Context `{SemiRing_Morphism A B f}.
@@ -178,22 +170,35 @@ Section ring_props.
   Global Instance Ring_Semi: SemiRing R.
   Proof. repeat (constructor; try apply _). Qed.
 
-  (* Hm, are the following really worth having as lemmas? *)
-
   Lemma plus_opp_r x: x + -x = 0. Proof. ring. Qed.
   Lemma plus_opp_l x: -x + x = 0. Proof. ring. Qed.
   Lemma plus_mul_distribute_r x y z: (x + y) * z = x * z + y * z. Proof. ring. Qed.
   Lemma plus_mul_distribute_l x y z: x * (y + z) = x * y + x * z. Proof. ring. Qed.
   Lemma opp_swap x y: x + - y = - (y + - x). Proof. ring. Qed.
   Lemma plus_opp_distr x y: - (x + y) = - x + - y. Proof. ring. Qed.
-  Lemma ring_opp_mult a: -a = -(1) * a. Proof. ring. Qed.
-  Lemma ring_distr_opp_mult a b: -(a * b) = -a * b. Proof. ring. Qed.
-  Lemma ring_opp_mult_opp a b: -a * -b = a * b. Proof. ring. Qed.
+  Lemma opp_mult a: -a = -(1) * a. Proof. ring. Qed.
+  Lemma distr_opp_mult_l a b: -(a * b) = -a * b. Proof. ring. Qed.
+  Lemma distr_opp_mult_r a b: -(a * b) = a * -b. Proof. ring. Qed.
+  Lemma opp_mult_opp a b: -a * -b = a * b. Proof. ring. Qed.
   Lemma opp_0: -0 = 0. Proof. ring. Qed.
   Lemma ring_distr_opp a b: -(a+b) = -a+-b. Proof. ring. Qed.
 
-  Lemma equal_by_zero_sum x y: x + - y = 0 → x = y.
-  Proof. intro E. rewrite <- (plus_0_l y). rewrite <- E. ring. Qed.
+  Lemma equal_by_zero_sum x y : x + - y = 0 ↔ x = y.
+  Proof. 
+    split; intros E. 
+     rewrite <- (plus_0_l y). rewrite <- E. ring. 
+    rewrite E. ring.
+  Qed.
+
+  Lemma inv_zero_prod_l x y : -x * y = 0 ↔ x * y = 0.
+  Proof with trivial.
+    split; intros E.
+     apply (injective group_inv). rewrite distr_opp_mult_l, opp_0...
+    apply (injective group_inv). rewrite distr_opp_mult_l, inv_involutive, opp_0...
+  Qed.
+
+  Lemma inv_zero_prod_r x y : x * -y = 0 ↔ x * y = 0.
+  Proof. rewrite (commutativity x (-y)), (commutativity x y). apply inv_zero_prod_l. Qed.
 
   Global Instance: ∀ z, LeftCancellation (+) z.
   Proof.
@@ -203,7 +208,10 @@ Section ring_props.
    rewrite <- associativity.
    rewrite E.
    ring.
-  Qed.
+  Qed.  
+
+  Global Instance: ∀ z, RightCancellation (+) z.
+  Proof. intro. apply right_cancel_from_left. Qed.
 
   Lemma units_dont_divide_zero (x: R) `{!RingMultInverse x} `{!RingUnit x}: ¬ ZeroDivisor x.
     (* todo: we don't want to have to mention RingMultInverse *)
@@ -219,8 +227,9 @@ Section ring_props.
   Lemma mult_ne_zero `{!NoZeroDivisors R} (x y: R) : x ≠ 0 → y ≠ 0 → x * y ≠ 0.
   Proof. repeat intro. apply (no_zero_divisors x). split; eauto. Qed.
 
-  Global Instance ring_mult_left_cancel `{!NoZeroDivisors R} `{∀ x y, Stable (x = y)} :
-    ∀ z, NeZero z → LeftCancellation ring_mult z.
+  Context `{!NoZeroDivisors R} `{∀ x y, Stable (x = y)}.
+
+  Global Instance ring_mult_left_cancel :  ∀ z, NeZero z → LeftCancellation ring_mult z.
   Proof with intuition.
    intros z z_nonzero x y E.
    apply stable.
@@ -230,16 +239,29 @@ Section ring_props.
    rewrite distribute_l, E. ring.
   Qed.
 
+  Global Instance: ∀ z, NeZero z → RightCancellation ring_mult z.
+  Proof. intros ? ?. apply right_cancel_from_left. Qed.
 End ring_props.
 
 Section ringmor_props. 
   Context `{Ring_Morphism A B f}.
 
   Lemma preserves_opp x: f (- x) = - f x.
-  Proof. intros. apply preserves_inv. Qed.
+  Proof. apply preserves_inv. Qed.
+
+  Instance: Ring A. Proof. apply ringmor_a with f. assumption. Qed.
+  Instance: Ring B. Proof. apply ringmor_b with f. assumption. Qed.
 
   Global Instance Ring_Semi_Morphism: SemiRing_Morphism f.
-  Proof. destruct H. constructor; apply _. Qed.
+
+  Context `{!RingMinus A} `{!RingMinus B}.
+
+  Lemma preserves_minus x y : f (x - y) = f x - f y.
+  Proof. 
+    do 2 rewrite ring_minus_correct. 
+    rewrite <-preserves_opp.
+    apply preserves_plus.
+  Qed.
 
 End ringmor_props.
 

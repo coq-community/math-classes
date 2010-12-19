@@ -12,7 +12,7 @@ Definition fastZ_to_fastQ := BigQ.Qz.
 
 Instance: Proper ((=) ==> (=)) fastZ_to_fastQ.
 Proof.
-  intros x y E. unfold_equiv. simpl.
+  intros x y E. unfold_equiv. unfold Qeq. simpl.
   rewrite E. reflexivity.
 Qed.
 

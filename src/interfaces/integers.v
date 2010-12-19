@@ -1,4 +1,3 @@
-Set Automatic Introduction.
 Set Automatic Coercions Import.
 
 Require Import
@@ -8,7 +7,6 @@ Require
   varieties.ring.
 
 Section initial_maps.
-
   Variable Int: Type.
 
   Class IntegersToRing :=
@@ -35,7 +33,7 @@ End initial_maps.
 
 Instance: Params (@integers_to_ring) 8.
 
-Class Integers A {e plus mult zero one opp} `{IntegersToRing A} :=
+Class Integers A {e plus mult zero one opp} `{U : IntegersToRing A} :=
   { integers_ring:> @Ring A e plus mult zero one opp
   ; integers_to_ring_mor:> ∀ `{Ring B}, Ring_Morphism (integers_to_ring A B)
   ; integers_initial:> Initial (ring.object A) }.

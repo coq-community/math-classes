@@ -1,9 +1,8 @@
-Set Automatic Introduction.
 Set Automatic Coercions Import.
 
 Require Import
  Relation_Definitions Morphisms Program Ring
- abstract_algebra peano_naturals theory.rings orders.semigroup
+ abstract_algebra peano_naturals theory.rings
  theory.ua_transference.
 Require Export
  interfaces.naturals.
@@ -26,13 +25,11 @@ Proof.
  apply (naturals_initial _ a tt x).
 Qed.
 
-Lemma to_semiring_unique' `{Naturals N} `{SemiRing SR} (f g: N → SR) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} :
-  f = g.
+Lemma to_semiring_unique_alt `{Naturals N} `{SemiRing SR} (f g: N → SR) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} x :
+  f x = g x.
 Proof.
-  intros x y E.
   rewrite (to_semiring_unique f).
   rewrite (to_semiring_unique g).
-  rewrite E.
   reflexivity.
 Qed.
 
@@ -64,22 +61,22 @@ Lemma to_semiring_injective `{Naturals N} `{SemiRing A}
 Proof with intuition.
   constructor. 2: constructor; apply _.
   intros x y E.
-  rewrite <- (to_semiring_unique' (f ∘ g) id x x)...
-  rewrite <- (to_semiring_unique' (f ∘ g) id y y)...
+  rewrite <- (to_semiring_unique_alt (f ∘ g) id x)...
+  rewrite <- (to_semiring_unique_alt (f ∘ g) id y)...
   unfold compose. rewrite E. reflexivity.
 Qed.
 
-Instance naturals_to_naturals_injective `{Naturals N} `{Naturals N2} (f: N → N2) `{!SemiRing_Morphism f}: 
+Instance naturals_to_naturals_injective `{Naturals N} `{Naturals N2} (f: N → N2) `{!SemiRing_Morphism f}:
   Injective f.
-Proof. 
-  apply to_semiring_injective with (naturals_to_semiring N2 N); apply _. 
+Proof.
+  apply to_semiring_injective with (naturals_to_semiring N2 N); apply _.
 Qed.
 
 Section retract_is_nat.
-  Context `{Naturals N} `{SemiRing SR}.
-  Context (f : N → SR) `{!Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (inverse f)}.
+  Context `{Naturals N} `{SemiRing SR} `{oSR : Order SR} `{!SemiRingOrder oSR} `{!TotalOrder oSR}.
+  Context (f : N → SR) `{inv_f : !Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (inverse f)}.
 
-  (* If we make this an instance, then instance resolution will result in an infinite loop *)
+  (* If we make this an instance, then instance resolution will often loop *)
   Definition retract_is_nat_to_sr : NaturalsToSemiRing SR := λ R _ _ _ _ , naturals_to_semiring N R ∘ inverse f.
 
   Section for_another_semiring.
@@ -90,33 +87,33 @@ Section retract_is_nat.
     Context (h :  SR → R) `{!SemiRing_Morphism h}. 
      
     Lemma same_morphism: naturals_to_semiring N R ∘ inverse f = h.
-    Proof with auto.
-      intros x y F.
-      pose proof (to_semiring_unique (h ∘ f)) as E.
-      unfold compose in *.
-      rewrite <- E. apply sm_proper. 
-      rewrite <- F.
-      apply jections.surjective_applied.
+    Proof.
+      intros x y F. rewrite <-F.
+      transitivity ((h ∘ (f ∘ inverse f)) x).
+       symmetry. apply (to_semiring_unique (h ∘ f)).
+      unfold compose. rewrite jections.surjective_applied.
+      reflexivity.
     Qed.
   End for_another_semiring.
 
-  (* If we make this an instance, then instance resulution will result in an infinite loop *)
-  Program Definition retract_is_nat: @Naturals SR _ _ _ _ _ retract_is_nat_to_sr. 
+  (* If we make this an instance, then instance resolution will often loop *)
+  Program Definition retract_is_nat: Naturals SR (U:=retract_is_nat_to_sr). 
   Proof. 
-    esplit. (* for some reason split doesn't work... *)
+    esplit; try apply _. (* for some reason split doesn't work... *)
     intros. apply natural_initial. intros.
-    apply same_morphism. auto. 
+    apply same_morphism. assumption.
   Qed.
 End retract_is_nat.
 
-Section borrowed_from_nat.
-  Context `{Naturals N}.
+Section contents.
+Context `{Naturals N}.
 
+Section borrowed_from_nat.
   Import universal_algebra.
   Import notations.
 
   Lemma induction
-    (P: N → Prop) `{!Proper (equiv ==> iff)%signature P}:
+    (P: N → Prop) `{!Proper ((=) ==> iff) P}:
     P 0 → (∀ n, P n → P (1 + n)) → ∀ n, P n.
   Proof with auto.
    intros.
@@ -142,10 +139,8 @@ Section borrowed_from_nat.
    intuition.
   Qed.
 
-  Variables (x y z: N).
-
-  Let three_vars (_: unit) v := match v with 0%nat => x | 1%nat => y | _ => z end.
-  Let two_vars (_: unit) v := match v with 0%nat => x | _ => y end.
+  Let three_vars (x y z : N) (_: unit) v := match v with 0%nat => x | 1%nat => y | _ => z end.
+  Let two_vars (x y : N) (_: unit) v := match v with 0%nat => x | _ => y end.
   Let no_vars (_: unit) (v: nat) := 0.
 
   Local Notation x' := (Var varieties.semiring.sig _ 0 tt).
@@ -157,137 +152,68 @@ Section borrowed_from_nat.
 
   Global Instance: ∀ z : N, LeftCancellation (+) z.
   Proof.
-   intros u v w.
-    pose proof (from_nat_stmt (x' + y' === x' + z' -=> y' === z')
-      (λ _ d, match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
-    simpl in P.
+    intros x y z.
+    pose proof (from_nat_stmt (x' + y' === x' + z' -=> y' === z') (three_vars x y z)) as P.
     apply P. intro. simpl. apply Plus.plus_reg_l.
   Qed.
 
+  Global Instance: ∀ z : N, RightCancellation (+) z.
+  Proof. intro. apply right_cancel_from_left. Qed.
+
   Global Instance: ∀ z : N, NeZero z → LeftCancellation ring_mult z.
   Proof.
-   intros u E v w.
-    pose proof (from_nat_stmt ((x' === 0 -=> Ext _ False) -=> x' * y' === x' * z' -=> y' === z')
-     (λ _ d, match d with 0%nat => u | 1%nat => v | _ => w end)) as P.
+    intros z E x y.
+    pose proof (from_nat_stmt ((z' === 0 -=> Ext _ False) -=> z' * x' === z' * y' -=> x' === y') (three_vars x y z)) as P.
     apply P. intro. simpl. apply Mult_mult_reg_l. assumption.
   Qed.
 
+  Global Instance: ∀ z : N, NeZero z → RightCancellation ring_mult z.
+  Proof. intros ? ?. apply right_cancel_from_left. Qed.
+
   Global Instance: NeZero (1:N).
   Proof.
-   pose proof (from_nat_stmt (1 === 0 -=> Ext _ False) no_vars) as P.
-   apply P. discriminate.
+    pose proof (from_nat_stmt (1 === 0 -=> Ext _ False) no_vars) as P.
+    apply P. discriminate.
   Qed.
 
-  Global Instance: NeZero (2:N).
+  Lemma zero_sum x y : x + y = 0 → x = 0 ∧ y = 0.
   Proof.
-   pose proof (from_nat_stmt (2 === 0 -=> Ext _ False) no_vars) as P.
-   apply P. discriminate.
-  Qed.
-
-  Lemma zero_sum: x + y = 0 → x = 0 ∧ y = 0.
-  Proof.
-   pose proof (from_nat_stmt (x' + y' === 0 -=> Conj _ (x' === 0) (y' === 0)) two_vars) as P.
-   apply P. intro. simpl. apply Plus.plus_is_O.
+    pose proof (from_nat_stmt (x' + y' === 0 -=> Conj _ (x' === 0) (y' === 0)) (two_vars x y)) as P.
+    apply P. intro. simpl. apply Plus.plus_is_O.
   Qed.
   
-  Lemma one_sum: x + y = 1 → (x = 1 ∧ y = 0) ∨ (x = 0 ∧ y = 1).
+  Lemma one_sum x y : x + y = 1 → (x = 1 ∧ y = 0) ∨ (x = 0 ∧ y = 1).
   Proof. 
-   pose proof (from_nat_stmt (x' + y' === 1 -=> Disj _ (Conj _ (x' === 1) (y' === 0)) (Conj _ (x' === 0) (y' === 1))) two_vars) as P.
+   pose proof (from_nat_stmt (x' + y' === 1 -=> Disj _ (Conj _ (x' === 1) (y' === 0)) (Conj _ (x' === 0) (y' === 1))) (two_vars x y)) as P.
    apply P. intros. simpl. intros. edestruct Plus.plus_is_one; eauto.
   Qed.
 
-  Lemma nz_mult_nz: y ≠ 0 → x ≠ 0 → y * x ≠ 0.
-  Proof.
-   pose proof (from_nat_stmt ((y' === 0 -=> Ext _ False) -=>
-     (x' === 0 -=> Ext _ False) -=> (y' * x' === 0 -=> Ext _ False)) two_vars) as P.
-   unfold not. apply P. intro. simpl. apply Mult_nz_mult_nz.
+  Global Instance: ZeroProduct N.
+    intros x y.
+    pose proof (from_nat_stmt (x' * y' === 0 -=>Disj _ (x' === 0) (y' === 0)) (two_vars x y)) as P.
+    apply P. intros ? E. destruct (Mult.mult_is_O _ _ E); intuition.
   Qed.
 End borrowed_from_nat.
 
-Section contents.
-  Context `{Naturals N}.
-  Add Ring N: (stdlib_semiring_theory N).
+Lemma nz_one_plus_zero x : 1 + x ≠ 0.
+Proof.
+  intro E.
+  destruct (zero_sum 1 x E).
+  apply (ne_zero 1). assumption.
+Qed.  
 
-  Lemma nz_one_plus_zero x : 1 + x ≠ 0.
-  Proof.
-    intro E.
-    destruct (zero_sum 1 x E).
-    apply (ne_zero 1). assumption.
-  Qed.  
+Global Program Instance: ∀ x y: N, Decision (x = y) | 10 := λ x y,
+  match decide (naturals_to_semiring _ nat x = naturals_to_semiring _ nat y) with
+  | left E => left _
+  | right E => right _
+  end.
+Next Obligation.
+  rewrite <- (to_semiring_involutive _ nat x), <- (to_semiring_involutive _ nat y).
+  rewrite E. reflexivity.
+Qed.
 
-  Obligation Tactic := idtac.
-  Global Program Instance: ∀ x y: N, Decision (x = y) | 10 := λ x y,
-    match Peano_dec.eq_nat_dec (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y) with
-    | left E => left _
-    | right E => right _
-    end.
- 
-  Next Obligation.
-   intros.
-   rewrite <- (to_semiring_involutive _ nat x), <- (to_semiring_involutive _ nat y).
-   rewrite E. reflexivity.
-  Qed.
-
-  Next Obligation.
-   intros x y ? E ? F. apply E. rewrite F. reflexivity.
-  Qed.
-
-  Global Instance: ZeroProduct N.
-  Proof with intuition.
-   intros a b E.
-   destruct (decide (a = 0))...
-   destruct (decide (b = 0))...
-   exfalso. apply (nz_mult_nz b a)...
-  Qed.
-
-  (* NatDistance instances are all equivalent, because their behavior is fully
-   determined by the specification. *)
-
-  Program Lemma nat_distance_unique_respectful {a b: NatDistance N}:
-    ((=) ==> (=) ==> (=))%signature a b.
-  Proof with intuition.
-   intros ? ? x1 y1 E x2 y2 F.
-   destruct a as [z1 [A|A]], b as [z2 [B|B]]; simpl.
-   apply (left_cancellation (+) x1)... rewrite A, E, B...
-   destruct (zero_sum z1 z2).
-     apply (left_cancellation (+) x1)...
-     rewrite associativity, A, F, B, E. ring.
-     transitivity 0...
-   destruct (zero_sum z1 z2).
-     rewrite commutativity.
-     apply (left_cancellation (+) y1)...
-     rewrite associativity, B, <-F, A, E. ring.
-     transitivity 0...
-   apply (left_cancellation (+) x2)...
-   rewrite A, E, F, B...
-  Qed.
-
-(*  Lemma nat_distance_unique {a b: NatDistance N} x: a x = b x.
-  Proof. intro. apply nat_distance_unique_respectful; reflexivity. Qed.*)
-
-  Global Instance nat_distance_proper `{!NatDistance N}: Proper ((=) ==> (=) ==> (=)) (λ x y: N, ` (nat_distance x y)).
-    (* Program *should* allow us to write plain nat_distance instead of the
-       above eta, like in nat_distance_unique_respectful. Matthieu confirms it's a bug. *)
-  Proof. apply nat_distance_unique_respectful. Qed.
-
-  Global Program Instance: NatDistance N | 10 := λ x y: N,
-    naturals_to_semiring _ N (proj1_sig (nat_distance (naturals_to_semiring _ nat x) (naturals_to_semiring _ nat y))).
-      (* Removing the proj1_sig here results in an explosion of proof obligations. Todo: investigate. *)
-  Next Obligation.
-   intros x y.
-   destruct nat_distance as [z [F|F]]; simpl.
-   left.
-    rewrite <- (to_semiring_involutive N nat y).
-    rewrite <- F.
-    rewrite preserves_sg_op.
-    rewrite (to_semiring_involutive N nat).
-    reflexivity.
-   right.
-    rewrite <- (to_semiring_involutive N nat x).
-    rewrite <- F.
-    rewrite preserves_sg_op.
-    rewrite (to_semiring_involutive N nat).
-    reflexivity.
-  Qed.
+Next Obligation.
+  intros F. apply E. rewrite F. reflexivity.
+Qed.
 
 End contents.
