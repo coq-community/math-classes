@@ -27,12 +27,10 @@ Proof.
   exact (integers_initial _ a tt x).
 Qed.
 
-Lemma to_ring_unique' `{Integers Int} `{Ring R} (f g: Int → R) `{!Ring_Morphism f} `{!Ring_Morphism g}:
-  f = g.
+Lemma to_ring_unique_alt `{Integers Int} `{Ring R} (f g: Int → R) `{!Ring_Morphism f} `{!Ring_Morphism g} x :
+  f x = g x.
 Proof.
-  intros x y E.
   rewrite (to_ring_unique f), (to_ring_unique g).
-  rewrite E.
   reflexivity.
 Qed.
 
@@ -51,8 +49,8 @@ Lemma to_ring_injective `{Integers Int} `{Ring R} (f: R → Int) (g: Int → R) 
 Proof with intuition.
   constructor. 2: apply _.
   intros x y E.
-  rewrite <- (to_ring_unique' (f ∘ g) id x x)...
-  rewrite <- (to_ring_unique' (f ∘ g) id y y)...
+  rewrite <- (to_ring_unique_alt (f ∘ g) id x)...
+  rewrite <- (to_ring_unique_alt (f ∘ g) id y)...
   unfold compose. rewrite E...
 Qed.
 

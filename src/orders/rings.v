@@ -104,5 +104,18 @@ Proof with auto.
     rewrite E. apply flip_nonneg_inv...
   rewrite E. apply flip_nonpos_inv...
 Qed.
-
 End contents.
+
+Section another_ring.
+  Context `{Ring R} `{!RingOrder o} `{Ring R2} `{o2 : Order R2} `{!RingOrder o2} {f : R → R2} `{!Ring_Morphism f}.
+
+  Lemma preserving_back_preserves_0 : (∀ x, 0 ≤ f x → 0 ≤ x) → OrderPreservingBack f.
+  Proof with trivial.
+    intros E.
+    repeat (split; try apply _).
+    intros x y F.
+    apply flip_nonneg_minus. apply E.
+    rewrite preserves_plus, preserves_opp.
+    apply flip_nonneg_minus. apply F.
+  Qed.
+End another_ring.

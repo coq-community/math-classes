@@ -42,14 +42,9 @@ Section another_semiring.
 
   Instance morphism_order_preserving: OrderPreserving f.
   Proof with trivial.
-    repeat (split; try apply _).
-    intros x y E.
-    do 2 rewrite (naturals.to_semiring_unique f).
-    apply natural_precedes_plus in E. destruct E as [z Ez].
-    apply srorder_plus.
-    exists (naturals_to_semiring N R z). split.
-     apply to_semiring_nonneg.
-    rewrite Ez. rewrite preserves_plus. reflexivity.
+    apply preserving_preserves_0.
+    intros x E. rewrite (naturals.to_semiring_unique f).
+    apply to_semiring_nonneg.
   Qed.
 End another_semiring.
 

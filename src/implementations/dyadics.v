@@ -3,7 +3,6 @@
    for some [Integers] implementation [Z]. These numbers form a ring and can be 
    embedded into any [Rationals] implementation [Q]. 
 *)
-(*
 
 Require
   theory.integers theory.rings theory.fields theory.rationals.
@@ -23,18 +22,19 @@ Implicit Arguments expo [[Z]].
 Infix "$" := dyadic (at level 80).
 
 Section dyadics.
-  Context `{Integers Z}.
-  Add Ring Z: (rings.stdlib_ring_theory Z).
-
-  Context `{equiv_dec : ∀ (x y : Z), Decision (x = y)}  
+  Context `{Integers Z} `{!RingOrder oZ} `{!TotalOrder oZ}
+    `{equiv_dec : ∀ (x y : Z), Decision (x = y)}  
     `{precedes_dec : ∀ (x y : Z), Decision (x ≤ y)}
     `{!NatPow Z (Z⁺)} 
     `{!ShiftLeft Z (Z⁺)}
     `{!RingMinus Z}.
 
+  Add Ring Z: (rings.stdlib_ring_theory Z).
+
   Let Dyadic := Dyadic Z.
 
   Instance: Proper ((=) ==> (=) ==> (=)) (∸). Proof. apply _. Qed.
+  Instance: NeZero (2 : Z). Proof. apply _. Qed.
 
   Hint Resolve (@orders.precedes_flip Z _ _ _ _).
 
@@ -192,8 +192,8 @@ Section dyadics.
     apply stable; intros G. 
     apply (shiftl_nonzero (mant x) (expo x -- 0)); assumption.
   Qed.
-(*
-  Lemma dy_plus_proper_aux n m x1 x2 y1 y2 : n ≪ (x1 -- y1) = m ≪ (y1 --x1) → 
+
+  Lemma dy_plus_proper_aux1 n m x1 x2 y1 y2 : n ≪ (x1 -- y1) = m ≪ (y1 --x1) → 
     n ≪ (x1 -- x2 + (min x1 x2 -- min y1 y2)) = m ≪ (y1 -- y2 + (min y1 y2 -- min x1 x2)).
   Proof with auto; try reflexivity.
     intros E.
@@ -204,6 +204,13 @@ Section dyadics.
     apply cut_minus_min4.
   Qed.
 
+  Lemma dy_plus_proper_aux2 n m x1 x2 y1 y2 : n ≪ (x1 -- y1) = m ≪ (y1 --x1) → 
+    n ≪ (x1 -- x2 + (min x2 x1 -- min y2 y1)) = m ≪ (y1 -- y2 + (min y2 y1 -- min x2 x1)).
+  Proof.
+    rewrite (commutativity y2 y1), (commutativity x2 x1).
+    apply dy_plus_proper_aux1.
+  Qed.
+
   (* * Properties of plus *)
   Instance dy_plus_alt_proper: Proper ((=) ==> (=) ==> (=)) dy_plus_alt.
   Proof with auto; try reflexivity.
@@ -212,10 +219,8 @@ Section dyadics.
     do 2 rewrite shiftl_sum_base. 
     repeat rewrite <-shiftl_sum_exp.
     apply sg_mor. 
-     apply dy_plus_proper_aux... (*
-    Timeout 8 rewrite (commutativity (expo y1) (expo y2)). 
-    Timeout 6 rewrite (commutativity (x1e) (x2e)). 
-    apply dy_plus_proper_aux... *) admit.
+     apply dy_plus_proper_aux1...
+    apply dy_plus_proper_aux2...
   Qed.
 
   Instance dy_plus_proper: Proper ((=) ==> (=) ==> (=)) dy_plus.
@@ -373,7 +378,7 @@ Section dyadics.
   Qed.
 
   Global Instance: Ring Dyadic.
-*)
+
   (** 
    * Embedding into the rationals
    If we already have a [Rationals] implementation [Q], then we can embed [Dyadic]
@@ -563,7 +568,7 @@ Section dyadics.
     unfold DtoQ_alt, EtoQ. simpl. 
     apply fields.field_div_diag. reflexivity.
   Qed.
-(*
+
   Global Instance: Ring_Morphism DtoQ.
   Proof. 
     repeat (split; try apply _).
@@ -573,7 +578,7 @@ Section dyadics.
      exact DtoQ_preserves_mult.
     exact DtoQ_preserves_1.
   Qed.
-*)
+
   Global Instance: Injective DtoQ.
   Proof with auto.
     split; try apply _.
@@ -598,4 +603,3 @@ Section dyadics.
   Qed.
 
 End dyadics.
-*)

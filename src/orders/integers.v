@@ -29,28 +29,40 @@ Section another_ring.
     apply to_semiring_nonneg.
   Qed.
 
-  Instance morphism_order_preserving: OrderPreserving f.
+  Global Instance morphism_order_preserving: OrderPreserving f.
   Proof with trivial.
     apply preserving_preserves_0. apply f_preserves_0.
   Qed.
-End another_ring.
 
-Section order_unique.
-  Context `{Integers Int} {o1 : Order Int} `{!RingOrder o1} `{!TotalOrder o1}
-    `{Integers Int2} {o2 : Order Int2} `{!RingOrder o2} `{!TotalOrder o2}
-     {f : Int → Int2} `{!Ring_Morphism f}.
-
+  (* Because each morphism [f] between two [Integers] implementations is injective, we
+      obtain from the following lemma that the order on the integers is uniquely specified. *)
+  Context `{!Injective f}.
+  Let f_preserves_0_back x : 0 ≤ f x → 0 ≤ x.
+  Proof with trivial.
+    intros E.
+    rewrite (integers.to_ring_unique f) in E.
+    destruct (int_abs_sig Int nat x) as [z [Ez | Ez]].
+     rewrite <-Ez.
+     apply to_semiring_nonneg. 
+    rewrite <-Ez in E |- *.
+    setoid_replace z with (0 : nat).
+     rewrite preserves_0, opp_0. reflexivity.
+    apply (injective (f ∘ naturals_to_semiring nat Int)).
+    rewrite (naturals.to_semiring_unique _).
+    unfold compose. do 2 rewrite preserves_0.
+    rewrite preserves_inv in E.
+    apply (antisymmetry (≤)).
+     rewrite <-(naturals.to_semiring_unique (integers_to_ring Int R ∘ naturals_to_semiring nat Int)).
+     apply flip_nonpos_inv...
+    apply to_semiring_nonneg.
+  Qed.
+  
   Global Instance: OrderEmbedding f.
   Proof with trivial.
-    repeat (split; try apply _).
-     apply morphism_order_preserving.
-    intros x y E.
-    eapply poset_proper.
-     symmetry. apply (integers.morphisms_involutive (integers_to_ring Int2 Int) f).
-    symmetry. apply (integers.morphisms_involutive (integers_to_ring Int2 Int) f).
-   apply morphism_order_preserving...
-Qed.
-End order_unique.
+    split. apply _.
+    apply preserving_back_preserves_0. apply f_preserves_0_back.
+  Qed.
+End another_ring.
 
 Section other_results.
 Context `{Integers Int} `{!RingOrder o} `{!TotalOrder o} .
