@@ -145,6 +145,33 @@ Proof. intros. rewrite <-(plus_0_l z). apply plus_scompat_l; assumption. Qed.
 Lemma pos_plus_compat x y : 0 < x → 0 < y → 0 < x + y.
 Proof. intros. apply pos_plus_compat_r. apply sprecedes_weaken. trivial. trivial. Qed.
 
+Global Instance: ∀ (z : R), GtZero z → StrictlyOrderPreserving (ring_mult z).
+Proof with trivial.
+  intros z Ez.
+  split; try apply _.
+  intros x y [E1 E2]. split.
+   apply (order_preserving_ge_0 ring_mult z)... apply sprecedes_weaken...
+  intros F. apply E2.
+  apply (left_cancellation_ne_0 ring_mult z)... apply not_symmetry, neq_precedes_sprecedes...
+Qed.
+
+Global Instance: ∀ (z : R), GtZero z → StrictlyOrderPreserving (flip ring_mult z).
+Proof. 
+  intros z.
+  split; try apply _.
+  intros x y E.
+  unfold flip. do 2 rewrite (commutativity _ z).
+  apply (strictly_order_preserving (ring_mult z)). assumption.
+Qed.
+
+Lemma pos_mult_compat x y : 0 < x → 0 < y → 0 < x * y.
+Proof. 
+  intros E F.
+  rewrite <-(mult_0_r x).
+  assert (GtZero x). assumption.
+  apply (strictly_order_preserving (ring_mult x)). assumption.
+Qed.
+
 Lemma square_nonneg x : 0 ≤ x * x.
 Proof with auto.
   apply (order_preserving_back SRpair_inject).
