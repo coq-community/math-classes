@@ -87,23 +87,80 @@ Proof with auto.
   apply (order_preserving_ge_0 ring_mult z) in G.
    apply equiv_precedes.
    apply (left_cancellation_ne_0 ring_mult z).
-    apply not_symmetry, neq_precedes_precedes...
+    apply not_symmetry, neq_precedes_sprecedes...
    eapply (antisymmetry (≤))...
-  apply strictly_precedes_weaken...
+  apply sprecedes_weaken...
 Qed.
 
 Global Instance: ∀ (z : R), GtZero z → OrderPreservingBack (flip ring_mult z).
 Proof. intros. apply order_preserving_back_flip. Qed.
 
+Global Instance: ∀ (z : R), StrictlyOrderPreserving ((+) z).
+Proof with trivial.
+  intros z.
+  split; try apply _.
+  intros x y [E1 E2]. split.
+   apply (order_preserving ((+) z))...
+  intros F. apply E2.
+  apply (left_cancellation (+) z)...
+Qed.
+
+Global Instance: ∀ (z : R), StrictlyOrderPreserving (flip (+) z).
+Proof. 
+  intros z.
+  split; try apply _.
+  intros x y E.
+  unfold flip. do 2 rewrite (commutativity _ z).
+  apply (strictly_order_preserving ((+) z)). assumption.
+Qed.
+
+Lemma plus_scompat_l x1 y1 x2 y2 : x1 < y1 → x2 ≤ y2 → x1 + x2 < y1 + y2.
+Proof with auto.
+  intros E1 E2.
+  apply sprecedes_trans_l with (y1 + x2).
+   apply (strictly_order_preserving (flip (+) x2))...
+  apply (order_preserving ((+) y1))...
+Qed.
+
+Lemma plus_scompat_r x1 y1 x2 y2 : x1 ≤ y1 → x2 < y2 → x1 + x2 < y1 + y2.
+Proof with auto.
+  intros E1 E2.
+  apply sprecedes_trans_r with (y1 + x2).
+   apply (order_preserving (flip (+) x2))...
+  apply (strictly_order_preserving ((+) y1))...
+Qed.
+
+Lemma nonneg_plus_scompat_r x y z : z < x → 0 ≤ y → z < x + y.
+Proof. intros. rewrite <-(plus_0_r z). apply plus_scompat_l; assumption. Qed.
+
+Lemma nonneg_plus_scompat_l x y z : 0 ≤ x → z < y → z < x + y.
+Proof. intros. rewrite <-(plus_0_l z). apply plus_scompat_r; assumption. Qed.
+
+Lemma pos_plus_compat_r x y z : z ≤ x → 0 < y → z < x + y.
+Proof. intros. rewrite <-(plus_0_r z). apply plus_scompat_r; assumption. Qed.
+
+Lemma pos_plus_compat_l x y z : 0 < x → z ≤ y → z < x + y.
+Proof. intros. rewrite <-(plus_0_l z). apply plus_scompat_l; assumption. Qed.
+
+Lemma pos_plus_compat x y : 0 < x → 0 < y → 0 < x + y.
+Proof. intros. apply pos_plus_compat_r. apply sprecedes_weaken. trivial. trivial. Qed.
+
 Lemma square_nonneg x : 0 ≤ x * x.
 Proof with auto.
   apply (order_preserving_back SRpair_inject).
-  rewrite rings.preserves_mult.
+  rewrite preserves_mult.
   apply square_nonneg.
 Qed.
 
 Lemma precedes_0_1 : 0 ≤ 1.
 Proof. setoid_replace 1 with (1 * 1) by ring. apply square_nonneg. Qed.
+
+Lemma sprecedes_0_1 `{!NeZero (1:R)} : 0 < 1.
+Proof.
+  split. 
+   apply (precedes_0_1). 
+  apply not_symmetry. apply (ne_zero 1).
+Qed.
 
 Lemma precedes_0_2 : 0 ≤ 2.
 Proof. apply nonneg_plus_compat; apply precedes_0_1. Qed.

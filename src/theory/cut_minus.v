@@ -24,7 +24,7 @@ Section cut_minus_properties.
     unfold cut_minus, cut_minus_sig. 
     destruct cm as [z1 [Ez1 Fz1]]. destruct cm as [z2 [Ez2 Fz2]]. simpl.
     rewrite E, F in Ez1, Fz1. clear E F x1 y1.
-    destruct (orders.precedes_or_strictly_precedes x2 y2).
+    destruct (orders.precedes_or_sprecedes x2 y2).
     rewrite Fz1, Fz2...
     apply (right_cancellation (+) y2)...
     rewrite Ez1, Ez2...
@@ -44,7 +44,7 @@ Section cut_minus_properties.
 
   Lemma cut_minus_precedes x y : y ≤ x → (x ∸ y) + y = x.
   Proof.
-    intros E. destruct ((proj2 (orders.strictly_precedes_precedes y x)) E) as [F|].
+    intros E. destruct ((proj2 (orders.sprecedes_precedes y x)) E) as [F|].
      rewrite F, cut_minus_0. 
       ring. 
      reflexivity.
@@ -265,7 +265,7 @@ Section cut_minus_default.
   Next Obligation with auto.
     case (decide (x ≤ y)); intros E; split; intros F...
        ring_simplify. apply (antisymmetry (≤))...
-       apply orders.strictly_precedes_weaken...
+       apply orders.sprecedes_weaken...
       reflexivity.
      ring.
     contradiction.

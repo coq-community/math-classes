@@ -154,7 +154,7 @@ Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) 
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate.
-  apply orders.not_precedes_strictly_precedes.
+  apply orders.not_precedes_sprecedes.
   apply to_Z_Zlt_sr_precedes. assumption.
 Qed.
 
@@ -162,7 +162,7 @@ Next Obligation with intuition.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate...
   apply to_Z_Zle_sr_precedes, Zeq_le...
-  apply orders.strictly_precedes_weaken, to_Z_Zlt_sr_precedes...
+  apply orders.sprecedes_weaken, to_Z_Zlt_sr_precedes...
 Qed.
 
 Program Instance: IntAbs t (t⁺) := abs.

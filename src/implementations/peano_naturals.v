@@ -144,10 +144,10 @@ Program Instance: CutMinus nat := λ x y, minus x y.
 Next Obligation with trivial.
   split; intros E.
    symmetry. rewrite commutativity.
-   apply le_plus_minus, orders.strictly_precedes_weaken...
-  apply orders.strictly_precedes_precedes in E. destruct E as [E|E].
+   apply le_plus_minus, orders.sprecedes_weaken...
+  apply orders.sprecedes_precedes in E. destruct E as [E|E].
    rewrite E. apply minus_diag.
-  apply not_le_minus_0. apply orders.not_precedes_strictly_precedes...
+  apply not_le_minus_0. apply orders.not_precedes_sprecedes...
 Qed.
 
 (* Two simple omissions in the standard library that we prove for nats and then
@@ -155,7 +155,7 @@ Qed.
 Lemma Mult_mult_reg_l: ∀ n m p: nat, ~ p = 0 → mult p n = mult p m → n = m.
 Proof.
  destruct p. intuition.
- intros. apply Le.le_antisym; apply Mult.mult_S_le_reg_l with p; rewrite H0; constructor.
+ intros E F. apply Le.le_antisym; apply Mult.mult_S_le_reg_l with p; rewrite F; constructor.
 Qed.
 
 Lemma Mult_nz_mult_nz (x y: nat): ~ y = 0 → ~ x = 0 → ~ y * x = 0.

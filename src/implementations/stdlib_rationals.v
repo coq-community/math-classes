@@ -47,6 +47,13 @@ Program Instance: ∀ x y: Q, Decision (x ≤ y) := λ y x,
   end.
 Next Obligation. apply Qlt_not_le; trivial. Qed. 
 
+Lemma Qlt_coincides x y : (x < y)%Q ↔ x < y.
+Proof with trivial.
+  split.
+   intro. split. apply Qlt_le_weak... apply Qlt_not_eq...
+  intros [E1 E2]. destruct (proj1 (Qle_lteq _ _) E1)... destruct E2...
+Qed.
+
 (* misc: *)
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 
