@@ -88,7 +88,7 @@ Section contents.
     firstorder.
   Qed.
 
-  Lemma not_strictly_precedes_precedes `{!TotalOrder (≤)} `{∀ x y, Decision (x = y)}
+  Lemma not_sprecedes_precedes `{!TotalOrder (≤)} `{∀ x y, Decision (x = y)}
     x y : ¬y < x ↔ x ≤ y.
   Proof with auto.
     split; intros E.
@@ -99,7 +99,7 @@ Section contents.
     firstorder. 
   Qed.
 
-  Global Instance strictly_precedes_dec_slow `{∀ x y, Decision (x ≤ y)} `{∀ x y, Decision (x = y)} : 
+  Global Instance sprecedes_dec_slow `{∀ x y, Decision (x ≤ y)} `{∀ x y, Decision (x = y)} : 
     ∀ x y, Decision (x < y) | 10.
   Proof with auto.
     intros x y.
@@ -110,7 +110,7 @@ Section contents.
     right. intros F. apply E. apply sprecedes_weaken...
   Qed.
 
-  Global Instance strictly_precedes_dec `{!TotalOrder (≤)} `{∀ x y, Decision (x ≤ y)} : 
+  Global Instance sprecedes_dec `{!TotalOrder (≤)} `{∀ x y, Decision (x ≤ y)} : 
     ∀ x y, Decision (x < y) | 9.
   Proof with auto.
     intros x y.
