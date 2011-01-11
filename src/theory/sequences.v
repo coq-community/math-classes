@@ -33,7 +33,7 @@ Section contents.
     `{Equiv B} `{SemiGroupOp B} `{MonoidUnit B}
     `{Equiv C} `{SemiGroupOp C} `{MonoidUnit C}
     (f: B → C) (g: A → B): Monoid_Morphism f → Setoid_Morphism g →
-    extend (f ∘ g) = f ∘ extend g.
+    extend (f ∘ g) (free:=sq) = f ∘ extend g (free:=sq).
   Proof with try apply _.
    intros.
    pose proof (@setoidmor_a _ _ _ _ g _).
@@ -68,7 +68,7 @@ Section contents.
   Proof. apply (sequence_extend_commutes sq id). apply _. Qed.
 
   Lemma fold_map `{Setoid A} `{Monoid B} (f: A → B):
-    Setoid_Morphism f → extend f = fold sq ∘ fmap sq f.
+    Setoid_Morphism f → extend f (free:=sq) = fold sq ∘ fmap sq f.
   Proof with try apply _.
    intros.
    symmetry.

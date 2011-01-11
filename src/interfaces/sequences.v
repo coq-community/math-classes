@@ -65,7 +65,7 @@ Section practical.
         (∀ (g: free x → y), Monoid_Morphism g →  g ∘ inject x = f → g = extend f)
     ; sequence_extend_morphism: ∀ `{Setoid x} `{Monoid y} (f g: x → y),
         Setoid_Morphism f → Setoid_Morphism g →
-        f = g → extend f = extend g
+        f = g → extend f (free:=free) = extend g (free:=free)
     }.
 
   (* From this motley collection we can construct the encapsulated free/inject/extend: *)

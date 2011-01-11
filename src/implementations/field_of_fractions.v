@@ -107,7 +107,7 @@ Proof.
 Qed.
 
 (* A final word about inject *)
-Global Instance: Ring_Morphism inject.
+Global Instance: Ring_Morphism Frac_inject.
 Proof.
   repeat (constructor; try apply _); try reflexivity.
     intros x y. change ((x + y) * (1 * 1) = (x * 1 + y * 1) * 1). ring.
@@ -115,7 +115,7 @@ Proof.
   intros x y. change ((x * y) * (1 * 1) = x * y * 1). ring.
 Qed.
 
-Global Instance: Injective inject.
+Global Instance: Injective Frac_inject.
 Proof. 
   repeat (constructor; try apply _).
   intros x y. unfolds. do 2 rewrite mult_1_r. intuition.
@@ -124,7 +124,7 @@ Qed.
 (* The following is probably also true without decidable equality. However, our rationals interface 
     uses DecMultInv, so we stick with this... *)
 Context `{∀ x y, Decision (x = y)}.
-Let inject_frac := (λ p, inject (fst p) * / inject (snd p)).
+Let inject_frac := (λ p, Frac_inject (fst p) * / Frac_inject (snd p)).
 
 Global Instance: Inverse inject_frac := λ x, (num x, den x).
 
