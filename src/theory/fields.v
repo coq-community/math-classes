@@ -249,6 +249,18 @@ Section field_properties.
      intros G. destruct (zero_product b d)...
     rewrite E1, E2. ring.
   Qed.
+
+  Lemma dec_mult_inv_swap_l x y: x * /y = /(/x * y). 
+  Proof. 
+    rewrite dec_mult_inv_distr, dec_mult_inv_involutive.
+    ring.
+  Qed.
+
+  Lemma dec_mult_inv_swap_r x y: /x * y = /(x * /y). 
+  Proof. 
+    rewrite dec_mult_inv_distr, dec_mult_inv_involutive.
+    ring.
+  Qed.
 End field_properties.
 
 Definition stdlib_field_theory F `{Field F} `{!RingMinus F} `{!DecMultInv F} `{!DecFieldDiv F} :

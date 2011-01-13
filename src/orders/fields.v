@@ -28,7 +28,7 @@ Proof with trivial.
   split... apply not_symmetry...
 Qed.
 
-Lemma dec_mult_inv_flip x y : 0 < y → y ≤ x  → /x ≤ /y.
+Lemma flip_dec_mult_inv x y : 0 < y → y ≤ x  → /x ≤ /y.
 Proof with trivial.
   intros E1 E2.
   apply (order_preserving_back_gt_0 ring_mult x)...
@@ -40,5 +40,20 @@ Proof with trivial.
    apply not_symmetry, neq_precedes_sprecedes...
   apply not_symmetry, neq_precedes_sprecedes.
   apply sprecedes_trans_l with y...
+Qed.
+
+Lemma flip_dec_mult_inv_l x y : 0 < y → /y ≤ x  → /x ≤ y.
+Proof with trivial.
+  intros E1 E2.
+  rewrite <-(dec_mult_inv_involutive y).
+  apply flip_dec_mult_inv...
+  apply pos_dec_mult_inv_compat...
+Qed.
+
+Lemma flip_dec_mult_inv_r x y : 0 < y → y ≤ /x  → x ≤ /y.
+Proof with trivial.
+  intros E1 E2.
+  rewrite <-(dec_mult_inv_involutive x).
+  apply flip_dec_mult_inv...
 Qed.
 End contents.

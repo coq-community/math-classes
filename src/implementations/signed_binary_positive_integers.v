@@ -169,6 +169,7 @@ Instance: Initial (ring.object Z).
 Proof.
   apply integer_initial. intros. apply same_morphism. auto.
 Qed.
+Instance: Integers Z.
 
 Instance: Order Z := Zle.
 
@@ -187,7 +188,12 @@ Proof with intuition.
   right. apply Zorder.Zlt_le_weak...
 Qed.
 
-Instance: Integers Z.
+Lemma Zlt_coincides x y : (x < y)%Z ↔ x < y.
+Proof with trivial.
+  split.
+   intro. split. apply Zorder.Zlt_le_weak... apply Zorder.Zlt_not_eq...
+  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1)... destruct E2...
+Qed.
 
 (* * Embedding of the Peano naturals into Z *)
 Instance: Proper ((=) ==> (=)) Z_of_nat.
