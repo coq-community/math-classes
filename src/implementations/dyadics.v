@@ -10,9 +10,9 @@ Require Import
   Morphisms Ring Program RelationClasses Setoid
   abstract_algebra 
   interfaces.integers interfaces.naturals interfaces.rationals
-  interfaces.additional_operations 
+  interfaces.additional_operations
   theory.cut_minus theory.bit_shift orders.minmax orders.integers
-  nonneg_integers_naturals.
+  nonneg_integers_naturals. 
 
 Record Dyadic Z := dyadic { mant: Z; expo: Z }.
 Implicit Arguments dyadic [[Z]].
@@ -26,15 +26,18 @@ Section dyadics.
     `{equiv_dec : ∀ (x y : Z), Decision (x = y)}  
     `{precedes_dec : ∀ (x y : Z), Decision (x ≤ y)}
     `{!NatPow Z (Z⁺)} 
-    `{!ShiftLeft Z (Z⁺)}
-    `{!RingMinus Z}.
+    `{!ShiftLeft Z (Z⁺)}.
 
   Add Ring Z: (rings.stdlib_ring_theory Z).
+  Notation Dyadic := (Dyadic Z).
 
-  Let Dyadic := Dyadic Z.
-
-  Instance: Proper ((=) ==> (=) ==> (=)) (∸). Proof. apply _. Qed.
-  Instance: NeZero (2 : Z). Proof. apply _. Qed.
+  (* To speed up instance resolution we declare the following (duplicate) instances with a high priority. *)
+  Instance: SemiRing (Z⁺) | 1.
+  Instance: Proper ((=) ==> (=) ==> (=)) (@ring_plus (Z⁺) _) | 1. Proof. apply _. Qed.
+  Instance: Proper ((=) ==> (=) ==> (=)) (@ring_mult (Z⁺) _) | 1. Proof. apply _. Qed.
+  Instance: Proper ((=) ==> (=) ==> (=)) (∸) | 1. Proof. apply _. Qed.
+  Instance: Proper ((=) ==> (=) ==> (=)) (≪) | 1. Proof. apply _. Qed.
+  Instance: NeZero (2 : Z) | 1. Proof. apply _. Qed.
 
   Hint Resolve (@orders.precedes_flip Z _ _ _ _).
 
@@ -49,7 +52,7 @@ Section dyadics.
   Instance: Proper ((=) ==> (=) ==> (=)) cut_minus_NonNeg.
   Proof. intros x1 x2 E y1 y2 F. unfold_cut_minus. apply cut_minus_proper; auto. Qed.
 
-  Lemma shiftl_cut_minus_0 {x y n} : x ≤ y → n ≪ (x -- y) = n.
+  Lemma shiftl_cut_minus_0 {x y n : Z} : x ≤ y → n ≪ (x -- y) = n.
   Proof. 
     intros. assert (x -- y = 0) as E. unfold_cut_minus. apply cut_minus_0. assumption.
     rewrite E. apply right_identity.
@@ -74,11 +77,11 @@ Section dyadics.
   Proof with eauto; try reflexivity.
     intros x y z E1 E2. unfold equiv, dy_eq in *.
     destruct (total_order (expo x) (expo y)) as [F|F];
-      rewrite (shiftl_cut_minus_0 F) in E1; 
+      rewrite (shiftl_cut_minus_0 F) in E1;
       destruct (total_order (expo y) (expo z)) as [G|G];
       rewrite (shiftl_cut_minus_0 G) in E2... 
     (* expo x ≤ expo y, expo y ≤ expo z *)
-    rewrite E1, E2. repeat rewrite <-shiftl_sum_exp. 
+    rewrite E1, E2. repeat rewrite <-shiftl_sum_exp.
     apply shiftl_proper... unfold_cut_minus.
     rewrite (cut_minus_0 (expo x)). ring_simplify. 
     apply cut_minus_precedes_trans... transitivity (expo y)...
@@ -93,7 +96,7 @@ Section dyadics.
     rewrite commutativity. apply cut_minus_plus_toggle2...
     (* expo y ≤ expo x, expo z ≤ expo y *)
     rewrite <-E2, <-E1. repeat rewrite <-shiftl_sum_exp.
-    apply shiftl_proper... unfold_cut_minus. 
+    apply shiftl_proper... unfold_cut_minus.
     rewrite (cut_minus_0 (expo z)). ring_simplify. 
     symmetry. apply cut_minus_precedes_trans... transitivity (expo y)...
   Qed.
@@ -106,8 +109,7 @@ Section dyadics.
     mant x = mant y ≪ exist _ (expo y - expo x) p ↔ x = y.
   Proof with auto.
     assert (expo x ≤ expo y).
-     apply rings.flip_nonneg_minus.
-     rewrite <-rings.ring_minus_correct...
+     apply rings.flip_nonneg_minus...
     split; intros E. 
     (* → *)
     unfold equiv, dy_eq.
@@ -130,14 +132,14 @@ Section dyadics.
      mant x ≠ mant y ≪ exist _ (expo y - expo x) p ↔ x ≠ y.
    Proof. split; intros E; intro; apply E; eapply dy_eq_dec_aux; eassumption. Qed.
 
-  Global Program Instance dy_eq_dec : ∀ (x y: Dyadic), Decision (x = y) := λ x y,
-     if decide (expo x ≤ expo y) 
-     then if decide (mant x = mant y ≪ exist _ (expo y - expo x) _) then left _ else right _ 
-     else if decide (mant x ≪ exist _ (expo x - expo y) _ = mant y) then left _ else right _.
-  Next Obligation. rewrite rings.ring_minus_correct. apply rings.flip_nonneg_minus. assumption. Qed.
+   Global Program Instance dy_eq_dec : ∀ (x y: Dyadic), Decision (x = y) := λ x y,
+     if precedes_dec (expo x) (expo y) 
+     then if equiv_dec (mant x) (mant y ≪ exist _ (expo y - expo x) _) then left _ else right _ 
+     else if equiv_dec (mant x ≪ exist _ (expo x - expo y) _) (mant y) then left _ else right _.
+  Next Obligation. apply rings.flip_nonneg_minus. assumption. Qed.
   Next Obligation. eapply dy_eq_dec_aux; eauto. Qed.
   Next Obligation. eapply dy_eq_dec_aux_neg; eauto. Qed.
-  Next Obligation. rewrite rings.ring_minus_correct. apply rings.flip_nonneg_minus. auto. Qed.
+  Next Obligation. apply rings.flip_nonneg_minus. auto. Qed.
   Next Obligation. symmetry. eapply dy_eq_dec_aux. symmetry. eassumption. Qed.
   Next Obligation. apply not_symmetry. eapply dy_eq_dec_aux_neg. apply not_symmetry. eassumption. Qed.
 
@@ -150,11 +152,11 @@ Section dyadics.
 
   (** * Basic operations *)
   Global Program Instance dy_plus: RingPlus Dyadic := λ x y, 
-    if decide (expo x ≤ expo y)
+    if precedes_dec (expo x) (expo y)
     then mant x + (mant y ≪ exist _ (expo y - expo x) _) $ min (expo x) (expo y)
     else (mant x ≪ exist _ (expo x - expo y) _) + mant y $ min (expo x) (expo y).
-  Next Obligation. rewrite rings.ring_minus_correct. apply rings.flip_nonneg_minus. assumption. Qed.
-  Next Obligation. rewrite rings.ring_minus_correct. apply rings.flip_nonneg_minus. auto. Qed.
+  Next Obligation. apply rings.flip_nonneg_minus. assumption. Qed.
+  Next Obligation. apply rings.flip_nonneg_minus. auto. Qed.
 
   (* The following plus function is less efficient, because it involves computing [decide (expo x ≤ expo y)] twice.
     Yet, it is much more convinient to reason with. *)
@@ -164,7 +166,7 @@ Section dyadics.
   Lemma dy_plus_alt_correct x y : dy_plus x y = dy_plus_alt x y.
   Proof with auto; try reflexivity.
     unfold dy_plus, dy_plus_alt.
-    case (decide (expo x ≤ expo y)); intros E; 
+    case (precedes_dec (expo x) (expo y)); intros E; 
       apply dyadic_proper;
       try apply sg_mor;
       try apply shiftl_proper...
@@ -390,9 +392,6 @@ Section dyadics.
   (* We don't make (Z >-> Q) a coercion because it could be computationally expensive
    and we want to see where it's called. *)
   Context `{!Ring_Morphism (ZtoQ: Z → Q)}.
-  
-  (* We use binary division because that might have a more efficient implementation. *)
-  Context `{fd : !FieldDiv Q}.
 
   Program Definition EtoQ (n : Z⁺) : { z : Q | z ≠ 0 } := ZtoQ (1 ≪ n).
   Next Obligation with intuition.
@@ -411,7 +410,7 @@ Section dyadics.
   Qed.
  
   Program Definition DtoQ (d: Dyadic): Q := 
-    if decide (0 ≤ expo d)
+    if precedes_dec 0 (expo d)
     then ZtoQ (mant d ≪ exist _ (expo d) _)
     else ZtoQ (mant d) // (EtoQ (exist _ (-expo d) _)).
   Next Obligation. 
@@ -425,7 +424,6 @@ Section dyadics.
   Proof with auto; try reflexivity.
     intros x y E.
     unfold DtoQ_alt, EtoQ.
-    do 2 rewrite fields.field_div_correct.
     apply fields.equal_quotients. simpl.
     do 2 rewrite <-rings.preserves_mult.
     apply sm_proper.
@@ -444,8 +442,7 @@ Section dyadics.
   Lemma DtoQ_alt_correct x : DtoQ x = DtoQ_alt x.
   Proof with auto; try reflexivity.
     unfold DtoQ, DtoQ_alt. 
-    case (decide (0 ≤ expo x)); intros E.
-     rewrite fields.field_div_correct.
+    case (precedes_dec 0 (expo x)); intros E.
      setoid_replace (// EtoQ (0 -- expo x)) with 1.
      rewrite right_identity.
      apply sm_proper. apply shiftl_proper... 
@@ -455,7 +452,8 @@ Section dyadics.
       rewrite shiftl_cut_minus_0... apply rings.preserves_1.
      rewrite F. rewrite <-rings.mult_1_l. apply fields.mult_inverse_alt.
     rewrite shiftl_cut_minus_0... 
-    apply fields.field_div_proper...
+    apply sg_mor...
+    eapply mult_inv_proper; try apply _.
     unfold EtoQ, equiv, sig_equiv, sig_relation. simpl.
     apply sm_proper. apply shiftl_proper...
     unfold_cut_minus.
@@ -490,7 +488,6 @@ Section dyadics.
     ZtoQ a // EtoQ b + ZtoQ c // EtoQ d = ZtoQ (a ≪ d + c ≪ b) // EtoQ (b + d).
   Proof.
     rewrite rings.preserves_plus.
-    do 3 rewrite fields.field_div_correct.
     rewrite fields.quotients. simpl.
     repeat rewrite <-rings.preserves_mult.
     repeat rewrite <-mult_shiftl_1.
@@ -504,7 +501,6 @@ Section dyadics.
     rewrite dy_plus_alt_correct. do 3 rewrite DtoQ_alt_correct. 
     unfold dy_plus_alt, DtoQ_alt. simpl.
     rewrite EtoQ_quotients. 
-    do 2 rewrite fields.field_div_correct.
     apply fields.equal_quotients. 
     unfold EtoQ. simpl.
     do 2 rewrite <-rings.preserves_mult.
@@ -533,7 +529,6 @@ Section dyadics.
   Lemma DtoQ_preserves_group_inv x : DtoQ (-x) = -DtoQ x.
   Proof. 
     do 2 rewrite DtoQ_alt_correct. unfold DtoQ_alt. simpl.
-    do 2 rewrite fields.field_div_correct.
     rewrite opp_shiftl, preserves_inv.
     ring.
   Qed.
@@ -546,11 +541,10 @@ Section dyadics.
     rewrite mult_shiftl_1, (mult_shiftl_1 (mant x)), (mult_shiftl_1 (mant y)).
     do 4 rewrite rings.preserves_mult.
     assert (∀ (a b c : Q) d, (a * b * c) // d = (a * b) * (c // d)) as E1.
-     intros. do 2 rewrite fields.field_div_correct. ring.
+     intros. ring.
     assert (∀ (a b d e : Q) c f, (a * b) // c * (d * e) // f = (a * d) * ((b * e) // (c * f))) as E2.
-     intros. do 3 rewrite fields.field_div_correct. rewrite fields.mult_inv_distr. ring.
+     intros. rewrite fields.mult_inv_distr. ring.
     rewrite E1, E2. apply sg_mor... clear E1 E2.
-    do 2 rewrite fields.field_div_correct.
     apply fields.equal_quotients. simpl.
     do 4 rewrite <-rings.preserves_mult.
     apply sm_proper.
@@ -586,7 +580,6 @@ Section dyadics.
     unfold equiv, dy_eq. 
     do 2 rewrite DtoQ_alt_correct in E. 
     unfold DtoQ_alt, EtoQ in E. 
-    do 2 rewrite fields.field_div_correct in E.
     apply fields.equal_quotients in E. simpl in E.
     do 2 rewrite <-rings.preserves_mult in E.
     do 2 rewrite <-mult_shiftl_1 in E.
