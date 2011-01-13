@@ -44,6 +44,20 @@ Proof. intros. rewrite <-(plus_0_r 0). apply plus_compat; assumption. Qed.
 Lemma nonneg_mult_compat (x y : R) : 0 ≤ x → 0 ≤ y → 0 ≤ x * y.
 Proof. intros. apply srorder_mult; assumption. Qed.
 
+Lemma nonneg_mult_compat_both x1 y1 x2 y2 : 
+  0 ≤ x1 → 0 ≤ y1 → x1 ≤ x2 → y1 ≤ y2 → x1 * y1 ≤ x2 * y2.
+Proof with auto using nonneg_mult_compat.
+  intros E1x E1y E2x E2y. 
+  eapply srorder_plus in E2x. eapply srorder_plus in E2y.
+  destruct E2x as [a [? E3x]], E2y as [b [? E3y]].
+  rewrite E3x, E3y.
+  ring_simplify.
+  apply nonneg_plus_compat_r...
+  apply nonneg_plus_compat_r...
+  apply nonneg_plus_compat_r...
+  reflexivity.
+Qed.
+
 Global Instance mult_compat: ∀ (z : R), GeZero z → OrderPreserving (ring_mult z).
 Proof with auto.
   intros z E. 
