@@ -110,14 +110,6 @@ Proof. change (Ring_Morphism (inverse to_Z)). apply _. Qed.
 Instance: IntegersToRing t := retract_is_int_to_ring of_Z.
 Instance: Integers t := retract_is_int of_Z.
 
-(* Efficient minus *)
-Program Instance: RingMinus t := sub.
-Next Obligation.
-  unfold_equiv.
-  rewrite spec_add, spec_opp.
-  apply spec_sub.
-Qed.
-
 (* Relation between Zorder and ≤ *)
 Lemma to_Z_sr_precedes_Zle x y : x ≤ y → (to_Z x <= to_Z y)%Z.
 Proof.
@@ -198,7 +190,7 @@ Proof with auto.
   apply to_Z_Zle_sr_precedes. rewrite spec_modulo, preserves_0...
 Qed. 
 
-Obligation Tactic := idtac.
+Local Obligation Tactic := idtac.
 Program Instance: DivEuclid t := div.
 Next Obligation.
   intros x y. exists (modulo x (`y)). apply _.

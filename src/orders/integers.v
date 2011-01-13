@@ -101,7 +101,7 @@ Proof with auto.
    rewrite preserves_0, opp_0...
   intros m E. 
   rewrite preserves_plus, preserves_1.
-  rewrite plus_opp_distr, commutativity, <-ring_minus_correct.
+  rewrite plus_opp_distr, commutativity.
   apply Psuc2...
   apply inv_to_semiring_nonpos.
 Qed.

@@ -67,22 +67,20 @@ Global Instance: Naturals (Z⁺) := naturals.retract_is_nat of_nat.
 End nonneg_integers_naturals.
 
 (* 
-  For an unknown reason instance resolution fails to find this instance when it's contained in 
-  the above section. However, then its type is equivalent to the function below and it is listed
+  For an unknown reason instance resolution fails to find this instance if it is contained in 
+  the preceding section. However, in that case, its type is equivalent to the function below and it is listed
   in typeclass_instances.. Todo: further investigation.
 
   Also, it might be more elegant to use an existing instance of [CutMinus Z] (whose
   default implementation is similar to the definition below).
 *)
-Program Instance ZPos_cut_minus `{Integers Z} `{!RingOrder o} `{!TotalOrder o}
-  `{Zdec : ∀ x y : Z, Decision (x ≤ y)} `{!RingMinus Z} : CutMinus (Z⁺)
+Program Instance ZPos_cut_minus `{Integers Z} `{!RingOrder o} `{!TotalOrder o} `{Zdec : ∀ x y : Z, Decision (x ≤ y)} : CutMinus (Z⁺)
   := λ x y, (exist _ (
      if decide ('x ≤ 'y) 
      then 0:(Z⁺)
      else exist (λ z, 0 ≤ z) ('x - 'y) _
   ) _).
 Next Obligation.
-  rewrite rings.ring_minus_correct.
   apply <-rings.flip_nonneg_minus. apply orders.precedes_flip. assumption.
 Qed.
 
@@ -93,7 +91,7 @@ Next Obligation with auto.
      apply orders.sprecedes_weaken... 
     reflexivity.
    unfold equiv, NonNeg_equiv, inject, NonNeg_inject. simpl. 
-   rewrite rings.ring_minus_correct, <-associativity, rings.plus_opp_l, right_identity. 
+   rewrite <-associativity, rings.plus_opp_l, right_identity. 
    reflexivity.
   unfold equiv, NonNeg_equiv, inject, NonNeg_inject. simpl. 
   contradiction.

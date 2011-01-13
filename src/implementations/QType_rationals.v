@@ -51,12 +51,6 @@ Qed.
 Instance: Field t.
 Proof. apply (fields.from_stdlib_field_theory anyQ_field_theory). Qed.
 
-Program Instance: RingMinus t := sub.
-Next Obligation. apply sub_add_opp. Qed.
-
-Program Instance: FieldDiv t := div.
-Next Obligation. apply div_mul_inv. Qed.
-
 (* Type-classified facts about to_Q/of_Q: *)
 Instance: Setoid_Morphism to_Q.
 Proof. constructor; try apply _. intros x y. auto. Qed.

@@ -6,27 +6,6 @@ Require Import
 Require
  theory.setoids varieties.monoid.
 
-(* * Ring Minus *)
-Section ring_minus_properties.
-  Context `{Ring R} `{minus : !RingMinus R}.
-
-  Lemma ring_minus_correct x y : x - y = x + -y.
-  Proof.
-    unfold ring_minus. unfold ring_minus_sig. 
-    destruct minus as [z E]. simpl. auto.
-  Qed.
-
-  Global Instance: Proper ((=) ==> (=) ==> (=)) ring_minus.
-  Proof.
-    intros x1 y1 E1 x2 y2 E2.
-    rewrite (ring_minus_correct x1 x2). rewrite ring_minus_correct.
-    rewrite E1, E2. reflexivity.
-  Qed.
-End ring_minus_properties.
-
-Program Instance default_ring_minus `{Ring R}: RingMinus R | 10 := λ x y, x + -y.
-Next Obligation. reflexivity. Qed.
-
 Section group_props. Context `{Group}.
 
   Lemma inv_involutive x: - - x = x.
@@ -144,8 +123,8 @@ Section semiringmor_props.
   Qed.
 End semiringmor_props.
 
-Lemma stdlib_ring_theory R `{Ring R} `{minus : !RingMinus R} : 
-  Ring_theory.ring_theory 0 1 ring_plus ring_mult (@ring_minus _ _ _ _ minus) group_inv equiv.
+Lemma stdlib_ring_theory R `{Ring R} : 
+  Ring_theory.ring_theory 0 1 ring_plus ring_mult (λ x y, x - y) group_inv equiv.
 Proof.
  constructor; intros.
          apply left_identity.
@@ -155,7 +134,7 @@ Proof.
      apply commutativity.
     apply associativity.
    apply distribute_r.
-  rewrite ring_minus_correct. reflexivity.
+  reflexivity.
  apply (ginv_r x).
 Qed.
 
@@ -254,11 +233,8 @@ Section ringmor_props.
 
   Global Instance Ring_Semi_Morphism: SemiRing_Morphism f.
 
-  Context `{!RingMinus A} `{!RingMinus B}.
-
   Lemma preserves_minus x y : f (x - y) = f x - f y.
   Proof. 
-    do 2 rewrite ring_minus_correct. 
     rewrite <-preserves_opp.
     apply preserves_plus.
   Qed.

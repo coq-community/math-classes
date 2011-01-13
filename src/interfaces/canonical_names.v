@@ -77,7 +77,9 @@ Infix "*" := ring_mult.
 Notation "( x *)" := (ring_mult x) (only parsing).
   (* We don't add "(*)" and "(*x)" notations because they're too much like comments. *)
 Notation "- x" := (group_inv x).
+Notation "x - y" := (x + -y).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
+Notation "x // y" := (x * //y) (at level 35, right associativity).
 Infix "≤" := precedes.
 Notation "(≤)" := precedes (only parsing).
 Infix "<" := strictly_precedes.
@@ -114,36 +116,15 @@ Instance default_cstrictly_precedes `{Equiv A} `{Order A} : CSOrder A | 10 := st
 Notation "x ⋖ y" := (cstrictly_precedes x y) (at level 70, no associativity).
 Instance: Params (@cstrictly_precedes) 2.
 
-(* We define classes for binary subtraction and division. Default implementations of
-     these operations by means of their corresponding unary operations can be found in 
-     theory.rings and theory.fields. *)
-Class RingMinus A `{Equiv A} `{RingPlus A} `{GroupInv A} := ring_minus_sig: ∀ x y : A, { z: A |  z = x + -y }.
-Definition ring_minus `{RingMinus A} : A → A → A := λ x y, ` (ring_minus_sig x y).
-Infix "-" := ring_minus.
-Instance: Params (@ring_minus_sig) 5.
-Instance: Params (@ring_minus) 5.
-
-Class FieldDiv A `{RingMult A} `{MultInv A}  
-  := field_div_sig: ∀ (x : A) (y : { x: A | x ≠ 0 }), { z: A |  z = x * //y }.
-Definition field_div `{FieldDiv A}: A → { x: A | x ≠ 0 } → A := λ x y, ` (field_div_sig x y).
-Infix "//" := field_div (at level 35, right associativity).
-Instance: Params (@field_div_sig) 6.
-Instance: Params (@field_div) 6.
-
 (* We define a division operation that yields zero for zero elements. A default 
-    implementations for decidable fields can be found in theory.fields. *)
+    implementation for decidable fields can be found in theory.fields. *)
 Class DecMultInv A `{Equiv A} `{RingZero A} `{RingOne A} `{RingMult A} 
   := dec_mult_inv_sig : ∀ x : A, {z | (x ≠ 0 → x * z = 1) ∧ (x = 0 → z = 0)}.
 Definition dec_mult_inv `{DecMultInv A} : A → A := λ x, ` (dec_mult_inv_sig x).
 Notation "/ x" := (dec_mult_inv x).
+Notation "x / y" := (x * /y).
 Instance: Params (@dec_mult_inv_sig) 6.
 Instance: Params (@dec_mult_inv) 6.
-
-Class DecFieldDiv A `{DecMultInv A} := dec_field_div_sig: ∀ (x y : A), { z: A |  z = x * / y }.
-Definition dec_field_div `{DecFieldDiv A}: A → A → A := λ x y, ` (dec_field_div_sig x y).
-Infix "/" := dec_field_div.
-Instance: Params (@dec_field_div_sig) 7.
-Instance: Params (@dec_field_div) 7.
 
 (* Common properties: *)
 Class Commutative `{Equiv B} `(m: A → A → B): Prop := commutativity: `(m x y = m y x).

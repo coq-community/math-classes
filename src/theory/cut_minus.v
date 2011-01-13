@@ -234,7 +234,7 @@ Section cut_minus_properties.
   End min.
 
   (* The relation to ring minus *)
-  Context `{GroupInv R} `{!Ring R} `{!RingMinus R}.
+  Context `{GroupInv R} `{!Ring R}.
   Add Ring R: (rings.stdlib_ring_theory R).
 
   Lemma cut_minus_ring_minus (x y : R) : y ≤ x → x ∸ y = x - y.
@@ -254,8 +254,7 @@ End cut_minus_properties.
 (* * Default implementation for Rings *)
 Section cut_minus_default.
   Context `{Ring R} `{!RingOrder o}
-    `{prec_dec : ∀ (x y : R), Decision (x ≤ y)} 
-    `{!RingMinus R}.
+    `{prec_dec : ∀ (x y : R), Decision (x ≤ y)}.
 
   Add Ring R2: (rings.stdlib_ring_theory R).
 
