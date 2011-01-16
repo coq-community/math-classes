@@ -79,7 +79,7 @@ Proof. intros x y E. unfold_equiv. repeat f_equal. assumption. Qed.
 Instance: Proper ((=) ==> (=)) to_Z. 
 Proof. intros x y E. unfold_equiv. auto. Qed.
 
-Timeout 3 Instance: SemiRing_Morphism to_Z.
+Instance: SemiRing_Morphism to_Z.
 Proof with try apply _; auto.
   repeat (split; try apply _); unfold equiv; repeat intro...
      apply spec_add... 

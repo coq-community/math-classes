@@ -5,30 +5,42 @@ Require Import
   abstract_algebra interfaces.integers interfaces.naturals interfaces.additional_operations
   natpair_integers orders.semirings orders.naturals theory.rings.
 
+Section integers_order.
+Context `{Integers Int} `{!RingOrder o} `{!TotalOrder o}.
+
+Lemma integers_precedes_plus (x y: Int) : x ≤ y ↔ ∃ z: nat, y = x + naturals_to_semiring nat Int z.
+Proof with auto; try reflexivity.
+  split; intros E.
+   apply srorder_plus in E. destruct E as [z [Ez1 Ez2]].
+    destruct (int_abs_sig Int nat z) as [k [Ek | Ek]].
+     exists k. rewrite Ek...
+    exists (0 : nat).
+    rewrite preserves_0.
+    rewrite Ez2. apply sg_mor...
+    apply (antisymmetry (≤))...
+    rewrite <-Ek. apply flip_nonneg_inv. apply to_semiring_nonneg.
+   destruct E as [z E].
+   apply srorder_plus. exists (naturals_to_semiring nat Int z). split...
+   apply to_semiring_nonneg.
+Qed.
+
 Section another_ring.
-  Context `{Integers Int} {o : Order Int} `{!RingOrder o} `{!TotalOrder o} 
-    `{Ring R} {oR : Order R} `{!RingOrder oR} `{!TotalOrder oR}
+  Context `{Ring R} {oR : Order R} `{!RingOrder oR} `{!TotalOrder oR}
      {f : Int → R} `{!SemiRing_Morphism f}.
 
   Let f_preserves_0 x : 0 ≤ x → 0 ≤ f x.
-  Proof.
+  Proof with try reflexivity.
     intros E.
-    rewrite (integers.to_ring_unique f).
-    destruct (int_abs_sig Int nat x) as [z [Ez | Ez]].
-     rewrite <-Ez. 
-     change (0 ≤ (integers_to_ring Int R ∘ naturals_to_semiring nat Int) z).
-     rewrite (naturals.to_semiring_unique _).
+    apply integers_precedes_plus in E.
+    destruct E as [z E].
+    apply srorder_plus. exists (naturals_to_semiring nat R z). split...
      apply to_semiring_nonneg.
-    rewrite <-Ez in E |- *.
-    setoid_replace z with (0 : nat).
-     rewrite preserves_0, opp_0, preserves_0. reflexivity.
-    apply (injective (naturals_to_semiring nat Int)).
-    rewrite preserves_0.
-    apply (antisymmetry (≤)).
-     apply flip_nonpos_inv. assumption.
-    apply to_semiring_nonneg.
+    rewrite E.
+    rewrite preserves_plus, preserves_0. apply sg_mor...
+    change ((f ∘ naturals_to_semiring nat Int) z = naturals_to_semiring nat R z).
+    apply (naturals.to_semiring_unique _).
   Qed.
-
+   
   Global Instance morphism_order_preserving: OrderPreserving f.
   Proof with trivial.
     apply preserving_preserves_0. apply f_preserves_0.
@@ -63,6 +75,7 @@ Section another_ring.
     apply preserving_back_preserves_0. apply f_preserves_0_back.
   Qed.
 End another_ring.
+End integers_order.
 
 Section other_results.
 Context `{Integers Int} `{!RingOrder o} `{!TotalOrder o} .
