@@ -76,39 +76,6 @@ Proof. intros. apply order_preserving_flip. Qed.
 
 Context `{∀ z, LeftCancellation (+) z}.
 
-Global Instance: ∀ (z : R), OrderPreservingBack ((+) z).
-Proof with auto. 
-  intros z.
-  repeat (split; try apply _). 
-  intros x y E.
-  apply srorder_plus in E. destruct E as [a [Ea1 Ea2]].
-  apply srorder_plus. exists a. split...
-  apply (left_cancellation (+) z). 
-  rewrite associativity...
-Qed.
-
-Global Instance: ∀ (z : R), OrderPreservingBack (flip (+) z).
-Proof. intros. apply order_preserving_back_flip. Qed.
-
-Context `{!TotalOrder (≤)} `{∀ z, NeZero z → LeftCancellation ring_mult z}.
-
-Global Instance ring_mult_compat_back : ∀ (z : R), GtZero z → OrderPreservingBack (ring_mult z).
-Proof with auto.
-  intros z E.
-  repeat (split; try apply _). 
-  intros x y F.
-  destruct (total_order x y) as [G|G]...
-  apply (order_preserving_ge_0 ring_mult z) in G.
-   apply equiv_precedes.
-   apply (left_cancellation_ne_0 ring_mult z).
-    apply not_symmetry, neq_precedes_sprecedes...
-   eapply (antisymmetry (≤))...
-  apply sprecedes_weaken...
-Qed.
-
-Global Instance: ∀ (z : R), GtZero z → OrderPreservingBack (flip ring_mult z).
-Proof. intros. apply order_preserving_back_flip. Qed.
-
 Global Instance: ∀ (z : R), StrictlyOrderPreserving ((+) z).
 Proof with trivial.
   intros z.
@@ -158,6 +125,57 @@ Proof. intros. rewrite <-(plus_0_l z). apply plus_scompat_l; assumption. Qed.
 
 Lemma pos_plus_compat x y : 0 < x → 0 < y → 0 < x + y.
 Proof. intros. apply pos_plus_compat_r. apply sprecedes_weaken. trivial. trivial. Qed.
+
+Global Instance: ∀ (z : R), OrderPreservingBack ((+) z).
+Proof with auto. 
+  intros z.
+  split; try apply _. 
+  intros x y E.
+  apply srorder_plus in E. destruct E as [a [Ea1 Ea2]].
+  apply srorder_plus. exists a. split...
+  apply (left_cancellation (+) z). 
+  rewrite associativity...
+Qed.
+
+Global Instance: ∀ (z : R), OrderPreservingBack (flip (+) z).
+Proof. intros. apply order_preserving_back_flip. Qed.
+
+Global Instance: ∀ (z : R), StrictlyOrderPreservingBack ((+) z).
+Proof with auto.
+  intros z.
+  split; try apply _.
+  intros x y [E1 E2]. split.
+   apply (order_preserving_back (z +))...
+  intros F. apply E2. rewrite F. reflexivity.
+Qed.
+
+Global Instance: ∀ (z : R), StrictlyOrderPreservingBack (flip (+) z).
+Proof. 
+  intros z.
+  split; try apply _.
+  intros x y E.
+  apply (strictly_order_preserving_back (z +))...
+  do 2 rewrite (commutativity z). trivial.
+Qed.
+
+Context `{!TotalOrder (≤)} `{∀ z, NeZero z → LeftCancellation ring_mult z}.
+
+Global Instance ring_mult_compat_back : ∀ (z : R), GtZero z → OrderPreservingBack (ring_mult z).
+Proof with auto.
+  intros z E.
+  split; try apply _. 
+  intros x y F.
+  destruct (total_order x y) as [G|G]...
+  apply (order_preserving_ge_0 ring_mult z) in G.
+   apply equiv_precedes.
+   apply (left_cancellation_ne_0 ring_mult z).
+    apply not_symmetry, neq_precedes_sprecedes...
+   eapply (antisymmetry (≤))...
+  apply sprecedes_weaken...
+Qed.
+
+Global Instance: ∀ (z : R), GtZero z → OrderPreservingBack (flip ring_mult z).
+Proof. intros. apply order_preserving_back_flip. Qed.
 
 Global Instance: ∀ (z : R), GtZero z → StrictlyOrderPreserving (ring_mult z).
 Proof with trivial.

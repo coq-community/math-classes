@@ -147,9 +147,26 @@ Section nat_pow_properties.
   Qed. 
 End nat_pow_properties.
 
+Section preservation.
+  Context `{Naturals B} `{SemiRing A1} `{!NatPow A1 B} `{SemiRing A2} `{!NatPow A2 B} 
+    {f : A1 → A2} `{!SemiRing_Morphism f}.
+
+  Add Ring B2 : (rings.stdlib_semiring_theory B).
+
+  Lemma preserves_nat_pow x (n : B) : f (x ^ n) = (f x) ^ n.
+  Proof with auto.
+    revert n. apply naturals.induction.
+      intros ? ? E1. rewrite E1. reflexivity.
+     rewrite nat_pow_0, nat_pow_0. apply rings.preserves_1.
+    intros n E. 
+    rewrite nat_pow_S, rings.preserves_mult, E.
+    rewrite nat_pow_S. reflexivity.
+  Qed.
+End preservation.
+
 (* Very slow default implementation by translation into Peano *)
 Section nat_pow_default.
-  Context A B `{SemiRing A} `{Naturals B}.
+  Context `{SemiRing A} `{Naturals B}.
   
   Fixpoint nat_pow_rec (x: A) (n : nat) : A := match n with
   | 0 => 1
@@ -166,7 +183,7 @@ Section nat_pow_default.
   Let nat_pow_default x n := nat_pow_rec x (naturals_to_semiring B nat n).
 
   Global Program Instance: NatPow A B | 10 := nat_pow_default.
-  Next Obligation with simpl; try reflexivity.
+  Next Obligation with reflexivity.
     apply nat_pow_spec_from_properties; unfold nat_pow_default.
       intros ? ? E1 ? ? E2. rewrite E1, E2...
      intros. rewrite rings.preserves_0...

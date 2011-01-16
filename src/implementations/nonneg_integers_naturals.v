@@ -2,7 +2,7 @@ Require
   peano_naturals orders.integers theory.integers.
 Require Import
   Morphisms Ring Program RelationClasses Setoid
-  abstract_algebra interfaces.integers interfaces.naturals interfaces.additional_operations.
+  abstract_algebra interfaces.integers interfaces.naturals interfaces.additional_operations int_abs.
 Require Export
   implementations.nonneg_semiring_elements.
 
@@ -46,11 +46,11 @@ Proof with auto.
   pose proof (_ : SemiRing (Z⁺)).
   repeat (split; try apply _). 
      intros [x Ex] [y Ey]. unfold to_nat; unfold_equivs. simpl.
-     apply int_abs.abs_nonneg_plus...
-    apply int_abs.abs_0.
+     apply int_abs_nonneg_plus...
+    apply int_abs_0.
    intros [x Ex] [y Ey]. unfold to_nat; unfold_equivs. simpl.
-   apply int_abs.abs_nonneg_mult...
-  apply int_abs.abs_1.
+   apply int_abs_nonneg_mult...
+  apply int_abs_1.
 Qed.
 
 Instance: Surjective of_nat.
@@ -58,7 +58,7 @@ Proof.
   split. 2: apply _.
   intros [x Ex] y E. rewrite <- E.
   unfold to_nat, of_nat. unfold_equivs.
-  apply int_abs.abs_nonneg. assumption.
+  apply int_abs_nonneg. assumption.
 Qed.
 
 Global Instance: NaturalsToSemiRing (Z⁺) := naturals.retract_is_nat_to_sr of_nat.
@@ -88,7 +88,6 @@ Next Obligation with auto.
   case (decide ('x ≤ 'y)); intros E; split; intros F.
      rewrite left_identity. 
      apply (antisymmetry o)...
-     apply orders.sprecedes_weaken... 
     reflexivity.
    unfold equiv, NonNeg_equiv, inject, NonNeg_inject. simpl. 
    rewrite <-associativity, rings.plus_opp_l, right_identity. 

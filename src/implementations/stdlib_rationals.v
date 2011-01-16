@@ -1,9 +1,9 @@
 Require
   signed_binary_positive_integers Field Qfield theory.fields.
 Require Import
-  Ring Morphisms QArith_base
+  Ring Morphisms QArith_base Qabs Qpower
   abstract_algebra theory.rings interfaces.rationals canonical_names
-  theory.rationals.
+  theory.rationals additional_operations int_pow.
 
 (* canonical names for relations/operations/constants: *)
 Instance Q_eq: Equiv Q := Qeq.
@@ -58,7 +58,7 @@ Qed.
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 
 Instance: Proper ((=) ==> (=)) inject_Z. 
-Proof. intros x y H. rewrite H. reflexivity. Qed.
+Proof. intros x y H. unfold inject_Z. repeat red. simpl. rewrite H. reflexivity. Qed.
 
 Instance: Ring_Morphism inject_Z. 
 Proof.
@@ -89,13 +89,32 @@ Proof.
  simpl. rewrite Qmake_Qdiv. reflexivity.
 Qed.
 
-Instance Qrat: Rationals Q.
+Instance: Rationals Q.
 Proof alt_Build_Rationals _ _ inject_Z _ _.
 
-(* Relation to dec_mult_inv *)
 Program Instance Qinv_dec_mult: DecMultInv Q := Qinv.
 Next Obligation.
   split; intros E. 
    apply Qmult_inv_r; trivial.
   rewrite E. reflexivity.
+Qed.
+
+Program Instance: Abs Q := Qabs.
+Next Obligation with trivial.
+  split; intros E.
+   apply Qabs_pos...
+  apply Qabs_neg...
+Qed.
+
+Program Instance: IntPow Q Z := Qpower.
+Next Obligation with trivial.
+  apply int_pow_spec_from_properties.
+     apply _.
+    reflexivity.
+   intros y n E.
+   rewrite Qpower_plus'. reflexivity.
+   apply not_symmetry, orders.neq_precedes_sprecedes.
+   apply semirings.nonneg_plus_scompat_r...
+   apply semirings.sprecedes_0_1.
+  apply Qpower_opp.
 Qed.

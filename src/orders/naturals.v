@@ -86,6 +86,7 @@ End order_unique.
 
 Section other_results.
 Context `{Naturals N} `{!SemiRingOrder o} `{!TotalOrder o}.
+Add Ring N : (stdlib_semiring_theory N).
 
 Global Program Instance slow_nat_le_dec: ∀ x y: N, Decision (x ≤ y) | 10 := λ x y,
   match decide (naturals_to_semiring _ nat x ≤ naturals_to_semiring _ nat y) with
@@ -101,13 +102,33 @@ Next Obligation.
   apply (order_preserving _). assumption.
 Qed.
 
-Lemma natural_precedes_nezero_positive x : x ≠ 0 → 1 ≤ x.
+Lemma ne0_ge1 x : x ≠ 0 → 1 ≤ x.
 Proof with intuition.
   intros E.
   destruct (total_order 1 x) as [| F]...
   apply natural_precedes_plus in F. destruct F as [z Fz]. symmetry in Fz.
   destruct (naturals.one_sum _ _ Fz)...
   apply orders.equiv_precedes. symmetry...
+Qed.
+
+Lemma precedes_sprecedes x y : x ≤ y ↔ x < y + 1.
+Proof with trivial.
+  split; intros E.
+   apply pos_plus_compat_r... apply sprecedes_0_1.
+  destruct E as [E1 E2].
+  apply natural_precedes_plus in E1. destruct E1 as [z E1].
+  destruct (decide (z = 0)) as [E3 | E3].
+   destruct E2. rewrite E1, E3. ring.
+  apply ne0_ge1 in E3. apply natural_precedes_plus in E3. destruct E3 as [k E3].
+  apply natural_precedes_plus. exists k. 
+  apply (right_cancellation (+) 1). rewrite E1, E3. ring.
+Qed.
+
+Lemma precedes_sprecedes_alt x y : x + 1 ≤ y ↔ x < y.
+Proof with trivial.
+  split; intros E.
+   apply precedes_sprecedes in E. apply (strictly_order_preserving_back (flip (+) 1)) in E...
+  apply precedes_sprecedes. apply (strictly_order_preserving (flip (+) 1)) in E...
 Qed.
 
 Global Instance: ∀ (z : N), NeZero z → OrderPreservingBack (ring_mult z).
@@ -126,7 +147,7 @@ Instance nat_precedes `{Naturals N} : Order N | 10 :=  λ x y, ∃ z, y = x + z.
 
 Section default_order.
 Context `{Naturals N}.
-Add Ring N : (rings.stdlib_semiring_theory N).
+Add Ring N2 : (rings.stdlib_semiring_theory N).
 
 Global Instance: Proper ((=) ==> (=) ==> iff) nat_precedes.
 Proof with assumption.

@@ -20,7 +20,7 @@ Section contents.
 
   Context `{!Proper ((=) ==> (=) ==> iff) (≤)}.
 
-  Global Instance: Proper ((=) ==> (=) ==> iff) (<).
+  Global Instance sprecedes_proper: Proper ((=) ==> (=) ==> iff) (<).
   Proof. 
     intros x1 y1 E1 x2 y2 E2. 
     unfold "<". rewrite E1, E2. tauto.

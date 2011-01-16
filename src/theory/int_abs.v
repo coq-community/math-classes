@@ -8,7 +8,7 @@ Require Import
 Section contents. 
 Context `{Integers Int} `{!RingOrder oR} `{!TotalOrder oR} `{Naturals N}.
 
-Lemma abs_uniq (a b : IntAbs Int N) (z : Int) : a z = b z.
+Lemma int_abs_uniq (a b : IntAbs Int N) (z : Int) : a z = b z.
 Proof with auto.
   destruct a as [a A], b as [b B].
   unfold equiv, sig_equiv, sig_relation. simpl.
@@ -51,14 +51,14 @@ Proof with eauto; try reflexivity.
   apply (injective group_inv)...
 Qed.
 
-Lemma abs_nat (n: N) : int_abs Int N (naturals_to_semiring N Int n) = n.
+Lemma int_abs_nat (n: N) : int_abs Int N (naturals_to_semiring N Int n) = n.
 Proof with auto.
   apply (injective (naturals_to_semiring N Int)).
   unfold int_abs. destruct int_abs_sig as [a [A | A]]; simpl...
   apply inv_to_semiring...
 Qed. 
   
-Lemma abs_opp_nat (n: N) : int_abs Int N (-naturals_to_semiring N Int n) = n.
+Lemma int_abs_opp_nat (n: N) : int_abs Int N (-naturals_to_semiring N Int n) = n.
 Proof with auto.
   apply (injective (naturals_to_semiring N Int)). 
   unfold int_abs. destruct int_abs_sig as [a [A | A]]; simpl.
@@ -66,7 +66,7 @@ Proof with auto.
   apply (injective group_inv)...
 Qed. 
   
-Lemma neg_is_pos (x y: N) : 
+Lemma int_abs_neg_is_pos (x y: N) : 
   - naturals_to_semiring N Int x = naturals_to_semiring N Int y → x = 0 ∧ y = 0.
 Proof with auto using to_semiring_nonneg.
   intro E.
@@ -76,7 +76,7 @@ Proof with auto using to_semiring_nonneg.
   rewrite <-E. apply inv_to_semiring_nonpos.
 Qed. 
 
-Lemma abs_nonneg x : 0 ≤ x → naturals_to_semiring N Int (int_abs Int N x) = x.
+Lemma int_abs_nonneg x : 0 ≤ x → naturals_to_semiring N Int (int_abs Int N x) = x.
 Proof with auto.
   intros E. 
   unfold int_abs. destruct int_abs_sig as [z Ez]. simpl.
@@ -88,47 +88,47 @@ Proof with auto.
   apply inv_to_sr_precedes_to_sr.
 Qed.
 
-Lemma abs_nonneg_plus x y : 
+Lemma int_abs_nonneg_plus x y : 
   0 ≤ x → 0 ≤ y → int_abs Int N (x + y) = int_abs Int N x + int_abs Int N y.
 Proof with auto; try reflexivity.
   intros Ex Ey.
   apply (injective (naturals_to_semiring N Int)). 
   rewrite preserves_plus.
-  repeat rewrite abs_nonneg...
+  repeat rewrite int_abs_nonneg...
   apply nonneg_plus_compat...
 Qed.
 
-Lemma abs_0 : int_abs Int N 0 = 0.
+Lemma int_abs_0 : int_abs Int N 0 = 0.
 Proof with auto; try reflexivity.
   apply (injective (naturals_to_semiring N Int)). 
   rewrite preserves_0.
-  apply abs_nonneg...
+  apply int_abs_nonneg...
 Qed.
 
-Lemma abs_nonneg_mult x y : 
+Lemma int_abs_nonneg_mult x y : 
   0 ≤ x → 0 ≤ y → int_abs Int N (x * y) = int_abs Int N x * int_abs Int N y.
 Proof with auto; try reflexivity.
   intros Ex Ey.
   apply (injective (naturals_to_semiring N Int)). 
   rewrite preserves_mult.
-  repeat rewrite abs_nonneg...
+  repeat rewrite int_abs_nonneg...
   apply nonneg_mult_compat...
 Qed.
 
-Lemma abs_1 : int_abs Int N 1 = 1.
+Lemma int_abs_1 : int_abs Int N 1 = 1.
 Proof with auto.
   apply (injective (naturals_to_semiring N Int)). 
   rewrite preserves_1.
-  apply abs_nonneg... 
+  apply int_abs_nonneg... 
   apply precedes_0_1.
 Qed.
 
-Lemma abs_opp z : int_abs Int N (- z) = int_abs Int N z.
+Lemma int_abs_opp z : int_abs Int N (- z) = int_abs Int N z.
 Proof.
   unfold int_abs at 2.
-  destruct int_abs_sig as [x [E | E]]; simpl; rewrite <- E. apply abs_opp_nat.
+  destruct int_abs_sig as [x [E | E]]; simpl; rewrite <- E. apply int_abs_opp_nat.
   rewrite inv_involutive.
-  apply abs_nat.
+  apply int_abs_nat.
 Qed.
 End contents.
   

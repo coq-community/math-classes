@@ -35,7 +35,7 @@ Section another_ring.
   Qed.
 
   (* Because each morphism [f] between two [Integers] implementations is injective, we
-      obtain from the following lemma that the order on the integers is uniquely specified. *)
+      obtain, by following lemma, that the order on the integers is uniquely specified. *)
   Context `{!Injective f}.
   Let f_preserves_0_back x : 0 ≤ f x → 0 ≤ x.
   Proof with trivial.
@@ -82,6 +82,33 @@ Next Obligation.
   apply (order_preserving _). assumption.
 Qed.
 
+Add Ring nat : (stdlib_semiring_theory nat).
+
+Lemma precedes_sprecedes x y : x ≤ y ↔ x < y + 1.
+Proof with trivial.
+  split; intros E.
+   apply pos_plus_compat_r... apply sprecedes_0_1.
+  assert (∀ a b : SRpair nat, a < b + 1 → a ≤ b) as P.
+   intros a b [F1 F2].
+   unfold precedes, SRpair_order in *. simpl in *.
+   apply naturals.precedes_sprecedes.
+   split.
+    ring_simplify in F1...
+   intros F3. apply F2. 
+   unfold ring_plus, SRpair_plus, equiv, SRpair_equiv. simpl.
+   rewrite associativity, F3. ring.
+  apply (order_preserving_back (integers_to_ring _ (SRpair nat))), P.
+  rewrite <-(preserves_1 (f:=integers_to_ring Int (SRpair nat))), <-preserves_plus.
+  apply (strictly_order_preserving (integers_to_ring _ (SRpair nat)))...
+Qed.
+
+Lemma precedes_sprecedes_alt x y : x + 1 ≤ y ↔ x < y.
+Proof with trivial.
+  split; intros E.
+   apply precedes_sprecedes in E. apply (strictly_order_preserving_back (flip (+) 1)) in E...
+  apply precedes_sprecedes. apply (strictly_order_preserving (flip (+) 1)) in E...
+Qed.
+
 Lemma induction
   (P: Int → Prop) `{!Proper ((=) ==> iff) P}:
   P 0 → (∀ n, 0 ≤ n → P n → P (1 + n)) → (∀ n, n ≤ 0 → P n → P (n - 1)) → ∀ n, P n.
@@ -104,6 +131,20 @@ Proof with auto.
   rewrite plus_opp_distr, commutativity.
   apply Psuc2...
   apply inv_to_semiring_nonpos.
+Qed.
+
+Lemma induction_nonneg
+  (P: Int → Prop) `{!Proper ((=) ==> iff) P}:
+  P 0 → (∀ n, 0 ≤ n → P n → P (1 + n)) → ∀ n, 0 ≤ n → P n.
+Proof with auto.
+  intros P0 PS n. pattern n. apply induction; clear n...
+   intros ? ? E. rewrite E. reflexivity.
+  intros n E1 ? E2.
+  destruct (ne_zero 1).
+  apply (antisymmetry (≤)).
+   apply (order_preserving_back ((+) (n - 1))). ring_simplify. transitivity 0...
+  transitivity (n - 1)... apply (order_preserving_back ((+) 1)). ring_simplify.
+  transitivity 0... apply semirings.precedes_0_2.
 Qed.
 
 Lemma biinduction

@@ -87,6 +87,13 @@ Proof with auto.
   apply flip_nonpos_inv...
 Qed.
 
+Lemma nonneg_nonpos_mult x y : 0 ≤ x → y ≤ 0 → x * y ≤ 0.
+Proof with auto.
+  intros E F.
+  rewrite commutativity. 
+  apply nonpos_nonneg_mult...
+Qed.
+
 Context `{!TotalOrder o}.
 
 Lemma square_nonneg x : 0 ≤ x * x.

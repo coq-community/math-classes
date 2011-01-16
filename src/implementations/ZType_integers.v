@@ -173,18 +173,28 @@ Next Obligation with auto.
   destruct (Zabs_dec (to_Z x))...
 Qed.
 
+Program Instance: Abs t := abs.
+Next Obligation with trivial.
+  split; intros E; unfold_equiv; rewrite spec_abs.
+   apply Z.abs_eq...
+   apply to_Z_sr_precedes_Zle in E. rewrite preserves_0 in E...
+  apply to_Z_sr_precedes_Zle in E. rewrite preserves_0 in E...
+  rewrite preserves_inv.
+  apply Z.abs_neq...
+Qed.
+
 (* Efficient division *)
-Instance Ztype_euclid (x : t) (y : {z : t | z ≠ 0}) : Euclid x y (div x (`y)) (modulo x (`y)).
+Lemma Ztype_euclid (x : t) (y : {z : t | z ≠ 0}) : Euclid x y (div x (`y)) (modulo x (`y)).
 Proof with auto.
   destruct y as [y Ey].
-  split; simpl. 
+  split; simpl.
    unfold_equiv.
    apply axioms.div_mod...
   destruct (Z_mod_remainder (to_Z x) (to_Z y)) as [[Hl Hr] | [Hl Hr]].
     intro. apply Ey. apply (injective to_Z). rewrite preserves_0...
    left; split.
     apply to_Z_Zle_sr_precedes. rewrite spec_modulo, preserves_0...
-   apply to_Z_Zlt_sr_precedes. rewrite spec_modulo... 
+   apply to_Z_Zlt_sr_precedes. rewrite spec_modulo...
   right; split.
    apply to_Z_Zlt_sr_precedes. rewrite spec_modulo...
   apply to_Z_Zle_sr_precedes. rewrite spec_modulo, preserves_0...
@@ -193,12 +203,12 @@ Qed.
 Local Obligation Tactic := idtac.
 Program Instance: DivEuclid t := div.
 Next Obligation.
-  intros x y. exists (modulo x (`y)). apply _.
+  intros x y. exists (modulo x (`y)). apply Ztype_euclid.
 Qed.
 
 Program Instance: ModEuclid t := modulo.
 Next Obligation.
-  intros x y. exists (div x (`y)). apply _.
+  intros x y. exists (div x (`y)). apply Ztype_euclid.
 Qed.
 
 Lemma ZType_succ_plus_1 x : succ x = 1 + x.
@@ -214,7 +224,7 @@ Proof.
   reflexivity.
 Qed.
 
-(* Efficient nat_pow *)
+(* Efficient [nat_pow] *)
 Instance: Proper ((=) ==> (=) ==> (=)) pow. 
 Proof. intros x1 y1 E1 x2 y2 E2. rewrite_equiv. rewrite E1, E2. reflexivity. Qed.
 
@@ -233,7 +243,7 @@ Next Obligation with try reflexivity; auto.
   apply to_Z_sr_precedes_Zle...
 Qed.
 
-(* Efficient log2 *)
+(* Efficient [log 2] *)
 Program Instance: Log (2:t) (t⁺) := log2.
 Next Obligation with auto.
   intros x. 
@@ -252,7 +262,7 @@ Next Obligation with auto.
   rewrite ZType_succ_plus_1, commutativity in E2...
 Qed.
 
-(* Efficient shiftl *)
+(* Efficient [shiftl] *)
 Program Instance: ShiftLeft t (t⁺) := λ x y, shiftl x y.
 Next Obligation.
   intros x [y Ey].
@@ -266,6 +276,7 @@ Qed.
 (* This proof could possibly be much shorter by using the correctness of shiftl on Z *)
 
 Program Instance: ShiftRight t (t⁺) := λ x y, shiftr x y.
-Next Obligation. Admitted.
+Next Obligation. 
+Admitted.
 
 End ZType_Integers.

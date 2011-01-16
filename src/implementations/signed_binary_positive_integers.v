@@ -209,7 +209,7 @@ Proof.
   exact Znat.inj_mult.
 Qed.
 
-Obligation Tactic := idtac.
+Local Obligation Tactic := idtac.
 (* Efficient nat_pow *)
 Program Instance Zpow: NatPow Z (Z⁺) := Z.pow.
 Next Obligation with try reflexivity; auto with zarith.
@@ -232,4 +232,12 @@ Next Obligation.
   intros x [y Ey].
   apply Z.shiftl_mul_pow2.
   apply Ey.
+Qed.
+
+Program Instance: Abs Z := Zabs.
+Next Obligation with trivial.
+  intros x. 
+  split; intros E.
+   apply Z.abs_eq...
+  apply Z.abs_neq...
 Qed.
