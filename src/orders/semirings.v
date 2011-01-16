@@ -1,9 +1,9 @@
-Require Export
-  orders.rings.
 Require Import
   Relation_Definitions Morphisms Ring Program Setoid
   abstract_algebra theory.rings
-  implementations.semiring_pairs orders.orders orders.maps.
+  implementations.semiring_pairs.
+Require Export
+  orders.rings.
 
 Section contents.
 Context `{SemiRing R} `{!SemiRingOrder o}.
@@ -139,24 +139,6 @@ Qed.
 
 Global Instance: ∀ (z : R), OrderPreservingBack (+ z).
 Proof. intros. apply order_preserving_back_flip. Qed.
-
-Global Instance: ∀ (z : R), StrictlyOrderPreservingBack (z +).
-Proof with auto.
-  intros z.
-  split; try apply _.
-  intros x y [E1 E2]. split.
-   apply (order_preserving_back (z +))...
-  intros F. apply E2. rewrite F. reflexivity.
-Qed.
-
-Global Instance: ∀ (z : R), StrictlyOrderPreservingBack (+ z).
-Proof. 
-  intros z.
-  split; try apply _.
-  intros x y E.
-  apply (strictly_order_preserving_back (z +))...
-  do 2 rewrite (commutativity z). trivial.
-Qed.
 
 Context `{!TotalOrder (≤)} `{∀ z, NeZero z → LeftCancellation (.*.) z}.
 

@@ -1,6 +1,7 @@
 Require Import
   Relation_Definitions Morphisms Ring Program Setoid
-  abstract_algebra theory.rings
+  abstract_algebra theory.rings.
+Require Export 
   orders.orders orders.maps.
 
 Section contents.

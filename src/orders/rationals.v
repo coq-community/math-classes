@@ -3,7 +3,7 @@ Require
 Require Import
   Morphisms Ring Field Program Setoid
   abstract_algebra interfaces.naturals interfaces.rationals interfaces.integers
-  natpair_integers theory.rationals theory.fields theory.rings orders.integers.
+  natpair_integers theory.rationals theory.fields theory.rings orders.integers orders.fields.
 
 Section rationals_order.
   Context `{Rationals Q} {o : Order Q} `{!RingOrder o} `{!TotalOrder o}.
@@ -44,14 +44,14 @@ Section rationals_order.
     destruct (rationals_decompose_pos_den (SRpair nat) x) as [num [den [[E1a E1b] E2]]].
     rewrite E2 in E |- *. clear E2.
     rewrite preserves_mult, preserves_dec_mult_inv.
-    apply (maps.order_preserving_back_gt_0 (.*.) (f (i_to_r den))).
+    apply (order_preserving_back_gt_0 (.*.) (f (i_to_r den))).
      change (0 < (f ∘ i_to_r) den).
      rewrite (integers.to_ring_unique _).
      split.
       apply (order_preserving (integers_to_ring (SRpair nat) Q2)) in E1a.
       rewrite preserves_0 in E1a...
      apply not_symmetry. apply (injective_not_0). apply not_symmetry...
-    apply (maps.order_preserving_ge_0 (.*.) (i_to_r den)) in E.
+    apply (order_preserving_ge_0 (.*.) (i_to_r den)) in E.
      rewrite right_absorb. rewrite right_absorb in E.
      rewrite (commutativity (f (i_to_r num))), associativity, dec_mult_inverse, left_identity.
       rewrite (commutativity (i_to_r num)), associativity, dec_mult_inverse, left_identity in E. 
@@ -152,6 +152,13 @@ Section default_order.
     do 2 rewrite preserves_mult. 
     rewrite E1, E2, dec_mult_inv_distr. ring.
   Qed.
+
+  Global Instance: TotalOrder rationals_precedes.
+  Proof.
+    intros x y.
+    destruct (rationals_decompose_pos_den (SRpair nat) x) as [xn [xd [[E1a E1b] E2]]].
+    destruct (rationals_decompose_pos_den (SRpair nat) y) as [num [den [[E3a E3b] E4]]].
+
 
   (* Todo: prove that rationals_precedes is total *)
 End default_order.

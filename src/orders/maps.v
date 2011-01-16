@@ -22,13 +22,12 @@ Proof with trivial.
   intros E3. apply E2. apply (injective f)...
 Qed.
 
-Instance strictly_order_preserving_back_setoid `{OrderPreservingBack A B f} `{!Setoid_Morphism f} : StrictlyOrderPreservingBack f.
+Lemma strictly_order_preserving_back `(f : A → B) `{OrderPreservingBack A B f} `{proper : !Proper ((=) ==> (=)) f} x y : f x < f y → x < y.
 Proof with trivial.
-  split; try apply _.
-  intros x y [E1 E2].
+  intros [E1 E2].
   split.
    apply (order_preserving_back f)...
-  intros E3. apply E2. apply sm_proper...
+  intros E3. apply E2. apply proper...
 Qed.
 
 (* Some helper lemmas *)

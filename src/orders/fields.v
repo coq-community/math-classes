@@ -1,7 +1,8 @@
 Require Import
   Relation_Definitions Morphisms Ring Program Setoid
-  abstract_algebra orders.semirings theory.rings theory.fields
-  orders.orders orders.maps.
+  abstract_algebra theory.rings theory.fields.
+Require Export
+  orders.semirings.
 
 Section contents.
 Context `{Field F} `{!RingOrder o} `{!TotalOrder o} `{!DecMultInv F} `{∀ x y : F, Decision (x = y)}.
