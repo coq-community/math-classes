@@ -224,6 +224,10 @@ Section order_maps.
     ; strictly_order_preserving_proper_a :> Proper ((=) ==> (=) ==> iff) oA
     ; strictly_order_preserving_proper_b :> Proper ((=) ==> (=) ==> iff) oB }.
 
+  Class StrictlyOrderPreservingBack := 
+    { strictly_order_preserving_back : `(f x < f y → x < y)  
+    ; strictly_order_preserving_back_proper_a :> Proper ((=) ==> (=) ==> iff) oA
+    ; strictly_order_preserving_back_proper_b :> Proper ((=) ==> (=) ==> iff) oB }.
 End order_maps.
 
 Class SemiRingOrder `{Equiv A} `{RingPlus A} `{RingMult A} `{RingZero A} (o : Order A) :=
