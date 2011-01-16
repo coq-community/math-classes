@@ -79,13 +79,12 @@ Proof. intros x y E. unfold_equiv. repeat f_equal. assumption. Qed.
 Instance: Proper ((=) ==> (=)) to_Z. 
 Proof. intros x y E. unfold_equiv. auto. Qed.
 
-Instance: Ring_Morphism to_Z.
+Timeout 3 Instance: SemiRing_Morphism to_Z.
 Proof with try apply _; auto.
   repeat (split; try apply _); unfold equiv; repeat intro...
-  apply spec_add... 
-  apply spec_0...
-  apply spec_opp...
-  apply spec_mul... 
+     apply spec_add... 
+    apply spec_0...
+   apply spec_mul... 
   apply spec_1...
 Qed.
 
@@ -104,8 +103,8 @@ Instance: Inverse of_Z := to_Z.
 Instance: Bijective of_Z.
 Proof. apply jections.flip_bijection, _. Qed.
 
-Instance: Ring_Morphism of_Z.
-Proof. change (Ring_Morphism (inverse to_Z)). apply _. Qed.
+Instance: SemiRing_Morphism of_Z.
+Proof. change (SemiRing_Morphism (inverse to_Z)). split; apply _. Qed.
 
 Instance: IntegersToRing t := retract_is_int_to_ring of_Z.
 Instance: Integers t := retract_is_int of_Z.
@@ -168,7 +167,7 @@ Qed.
 Next Obligation with auto.
   rewrite <-(naturals.to_semiring_unique NonNeg_inject). simpl.
   unfold_equiv. 
-  rewrite (preserves_opp (abs x)).
+  rewrite (preserves_inv (abs x)).
   rewrite spec_abs.
   destruct (Zabs_dec (to_Z x))...
 Qed.

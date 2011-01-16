@@ -188,7 +188,7 @@ Section preservation.
     `{Integers B} `{oB : Order B} `{!RingOrder oB} `{!TotalOrder oB}
     `{Field A1} `{∀ z : A1, NeZero z → LeftCancellation (.*.) z} `{∀ x y : A1, Decision (x = y)} `{!DecMultInv A1} `{!IntPow A1 B}
     `{Field A2} `{∀ z : A2, NeZero z → LeftCancellation (.*.) z} `{∀ x y : A2, Decision (x = y)} `{!DecMultInv A2} `{!IntPow A2 B}
-    {f : A1 → A2} `{!OrderPreserving f} `{!Ring_Morphism f} `{!Injective f}.
+    {f : A1 → A2} `{!OrderPreserving f} `{!SemiRing_Morphism f} `{!Injective f}.
 
   Add Ring B2 : (rings.stdlib_ring_theory B).
 

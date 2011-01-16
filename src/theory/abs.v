@@ -87,7 +87,7 @@ End contents.
 Section order_preserving.
   Context `{Ring A} `{oA : Order A} `{!RingOrder oA} `{!TotalOrder oA} `{!Abs A}
     `{Ring B} `{oB : Order B} `{!RingOrder oB} `{!TotalOrder oB} `{!Abs B}
-    {f : A → B} `{!OrderPreserving f} `{!Ring_Morphism f}.
+    {f : A → B} `{!OrderPreserving f} `{!SemiRing_Morphism f}.
 
   Lemma preserves_abs x : f (abs x) = abs (f x).
   Proof with auto.
@@ -97,7 +97,7 @@ Section order_preserving.
      rewrite <-(rings.preserves_0 (f:=f)).
      apply (order_preserving _)...
     repeat rewrite abs_nonpos...
-    apply preserves_inv.
+    apply rings.preserves_inv.
     rewrite <-(rings.preserves_0 (f:=f)).
     apply (order_preserving _)...
   Qed.

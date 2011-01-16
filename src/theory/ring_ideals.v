@@ -98,10 +98,8 @@ Section ideal_congruence. Context `{Ring R}.
 
 End ideal_congruence.
 
-Section kernel_is_ideal. Context `{Ring_Morphism A B f}.
-
-  Let ringA := ringmor_a f.
-  Let ringB := ringmor_b f.
+Section kernel_is_ideal. 
+  Context `{Ring A} `{Ring B} `{f : A → B} `{!SemiRing_Morphism f}.
 
   Add Ring A: (rings.stdlib_ring_theory A).
   Add Ring B: (rings.stdlib_ring_theory B).
@@ -113,9 +111,8 @@ Section kernel_is_ideal. Context `{Ring_Morphism A B f}.
    unfold kernel, compose, flip.
    repeat split.
       exists 0. apply preserves_0.
-     intros ?? E E'. rewrite preserves_plus, preserves_opp, E, E'...
+     intros ?? E E'. rewrite preserves_plus, preserves_inv, E, E'...
     intros ?? E. rewrite preserves_mult, E...
    intros ?? E. rewrite preserves_mult, E...
   Qed.
-
 End kernel_is_ideal.

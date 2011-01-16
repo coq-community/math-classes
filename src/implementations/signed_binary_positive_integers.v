@@ -66,17 +66,9 @@ Definition map_Z `{RingPlus R} `{RingZero R} `{RingOne R} `{GroupInv R} (z: Z): 
 Instance inject: IntegersToRing Z := λ B _ _ _ _ _, @map_Z B _ _ _ _.
 
 Section for_another_ring.
-
   Context `{Ring R}.
 
   Add Ring R: (stdlib_ring_theory R).
-
-  Lemma preserves_opp x: map_Z (- x) = - map_Z x.
-  Proof with try reflexivity.
-   destruct x; simpl...
-    rewrite opp_0...
-   rewrite inv_involutive...
-  Qed.
 
   Lemma preserves_Zplus x y: map_Z (x + y) = map_Z x + map_Z y.
   Proof with try reflexivity; try assumption; try ring.
@@ -113,15 +105,14 @@ Section for_another_ring.
   Instance: Proper ((=) ==> (=)) map_Z.
   Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
 
-  Hint Resolve preserves_Zplus preserves_Zmult preserves_opp.
-  Hint Constructors Monoid_Morphism SemiGroup_Morphism Group_Morphism Ring_Morphism.
+  Hint Resolve preserves_Zplus preserves_Zmult.
+  Hint Constructors Monoid_Morphism SemiGroup_Morphism.
 
-  Global Instance map_Z_ring_mor: Ring_Morphism map_Z.
+  Global Instance map_Z_ring_mor: SemiRing_Morphism map_Z.
   Proof. repeat (constructor; auto with typeclass_instances; try reflexivity; try apply _). Qed.
 
   Section with_another_morphism.
-
-    Context map_Z' `{!Ring_Morphism (map_Z': Z → R)}.
+    Context map_Z' `{!SemiRing_Morphism (map_Z': Z → R)}.
 
     Let agree_on_0: map_Z Z0 = map_Z' Z0.
     Proof. symmetry. apply preserves_0. Qed.
@@ -162,7 +153,6 @@ Section for_another_ring.
     Qed.
 
   End with_another_morphism.
-
 End for_another_ring.
 
 Instance: Initial (ring.object Z).

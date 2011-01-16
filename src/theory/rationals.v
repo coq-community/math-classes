@@ -6,7 +6,7 @@ Require Import
 
 Section alt_Build_Rationals.
 Context A Int (inject: Int → A) `{Field A} {d: ∀ x y: A, Decision (x = y)}
-  `{Integers Int} `{!Ring_Morphism inject} `{i : !Inverse (λ p, inject (fst p) * / inject (snd p))}.
+  `{Integers Int} `{!SemiRing_Morphism inject} `{i : !Inverse (λ p, inject (fst p) * / inject (snd p))}.
 
 Global Instance: Inverse (λ p, integers_to_ring (SRpair nat) A (fst p) * / integers_to_ring (SRpair nat) A (snd p)) :=
   λ x, (integers_to_ring Int (SRpair nat) (fst (inverse _ x)), integers_to_ring Int (SRpair nat) (snd (inverse _ x))).
@@ -58,7 +58,7 @@ Proof with trivial.
   do 2 rewrite <-(integers.to_ring_unique (integers_to_ring Z Q ∘ integers_to_ring (SRpair nat) Z)) in E...
 Qed.
 
-Global Instance injective_ints `{Integers Int} `{!Ring_Morphism (f: Int → Q)}: Injective f.
+Global Instance injective_ints `{Integers Int} `{!SemiRing_Morphism (f: Int → Q)}: Injective f.
 Proof.
   split; try apply _.
   intros x y E.
@@ -81,12 +81,13 @@ End contents.
 
 Section isomorphism_is_rationals.
   Context `{Rationals Q} `{Field F} `{∀ x y: F, Decision (x = y)}.
-  Context (f : Q → F) `{!Inverse f} `{!Bijective f} `{!Ring_Morphism f} `{!Ring_Morphism (inverse f)}.
+  Context (f : Q → F) `{!Inverse f} `{!Bijective f} `{!SemiRing_Morphism f}.
 
   Definition isomorphism_is_inj_inv : Inverse (λ p, integers_to_ring (SRpair nat) F (fst p) * / integers_to_ring (SRpair nat) F (snd p)) 
     := inj_inv ∘ inverse f.
   
   Instance: Bijective (inverse f).
+  Instance: SemiRing_Morphism (inverse f).
 
   Lemma isomorphism_is_rationals: Rationals F (inj_inv:=isomorphism_is_inj_inv). 
   Proof.

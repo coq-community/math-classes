@@ -8,7 +8,7 @@ Require Import
 Section another_ring.
   Context `{Integers Int} {o : Order Int} `{!RingOrder o} `{!TotalOrder o} 
     `{Ring R} {oR : Order R} `{!RingOrder oR} `{!TotalOrder oR}
-     {f : Int → R} `{!Ring_Morphism f}.
+     {f : Int → R} `{!SemiRing_Morphism f}.
 
   Let f_preserves_0 x : 0 ≤ x → 0 ≤ f x.
   Proof.

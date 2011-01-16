@@ -60,7 +60,7 @@ Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 Instance: Proper ((=) ==> (=)) inject_Z. 
 Proof. intros x y H. unfold inject_Z. repeat red. simpl. rewrite H. reflexivity. Qed.
 
-Instance: Ring_Morphism inject_Z. 
+Instance: SemiRing_Morphism inject_Z. 
 Proof.
   repeat (split; try apply _).
   intros x y. repeat red. simpl. repeat rewrite Zmult_1_r. reflexivity.

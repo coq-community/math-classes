@@ -115,7 +115,7 @@ Qed.
 End contents.
 
 Section another_ring.
-  Context `{Ring R} `{!RingOrder o} `{Ring R2} `{o2 : Order R2} `{!RingOrder o2} {f : R → R2} `{!Ring_Morphism f}.
+  Context `{Ring R} `{!RingOrder o} `{Ring R2} `{o2 : Order R2} `{!RingOrder o2} {f : R → R2} `{!SemiRing_Morphism f}.
 
   Lemma preserving_back_preserves_0 : (∀ x, 0 ≤ f x → 0 ≤ x) → OrderPreservingBack f.
   Proof with trivial.
@@ -123,7 +123,7 @@ Section another_ring.
     repeat (split; try apply _).
     intros x y F.
     apply flip_nonneg_minus. apply E.
-    rewrite preserves_plus, preserves_opp.
+    rewrite preserves_plus, preserves_inv.
     apply flip_nonneg_minus. apply F.
   Qed.
 End another_ring.

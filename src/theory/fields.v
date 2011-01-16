@@ -240,7 +240,7 @@ Proof with auto.
 Qed.
 
 Section morphisms.
-  Context `{Field F1} `{Field F2} `{!Ring_Morphism (f : F1 → F2)} `{!DecMultInv F1} `{!DecMultInv F2}.
+  Context `{Field F1} `{Field F2} `{!SemiRing_Morphism (f : F1 → F2)} `{!DecMultInv F1} `{!DecMultInv F2}.
 
   Context `{∀ x y: F1, Decision (x = y)} `{∀ x y: F2, Decision (x = y)}.
    

@@ -34,7 +34,7 @@ Section rationals_order.
 
   Section another_rationals.
   Context `{Rationals Q2} {oQ : Order Q2} `{!RingOrder oQ} `{!TotalOrder oQ}
-     {f : Q → Q2} `{!Ring_Morphism f} `{!Injective f}.
+     {f : Q → Q2} `{!SemiRing_Morphism f} `{!Injective f}.
 
   Notation i_to_r := (integers.integers_to_ring (SRpair nat) Q).
 
@@ -152,13 +152,6 @@ Section default_order.
     do 2 rewrite preserves_mult. 
     rewrite E1, E2, dec_mult_inv_distr. ring.
   Qed.
-
-  Global Instance: TotalOrder rationals_precedes.
-  Proof.
-    intros x y.
-    destruct (rationals_decompose_pos_den (SRpair nat) x) as [xn [xd [[E1a E1b] E2]]].
-    destruct (rationals_decompose_pos_den (SRpair nat) y) as [num [den [[E3a E3b] E4]]].
-
 
   (* Todo: prove that rationals_precedes is total *)
 End default_order.

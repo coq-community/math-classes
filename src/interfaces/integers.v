@@ -12,15 +12,15 @@ Section initial_maps.
   Class IntegersToRing :=
     integers_to_ring: ∀ R `{RingMult R} `{RingPlus R} `{RingOne R} `{RingZero R} `{GroupInv R}, Int → R.
 
-  Context `{IntegersToRing} `{Ring Int} `{∀ `{Ring B}, Ring_Morphism (integers_to_ring B)}.
+  Context `{IntegersToRing} `{Ring Int} `{∀ `{Ring B}, SemiRing_Morphism (integers_to_ring B)}.
 
   Global Instance integer_initial_arrow: InitialArrow (ring.object Int).
    intro.
    exists (λ u, match u return Int → y u with tt => integers_to_ring (y tt) end).
-   abstract (apply ring.encode_morphism_only, _).
+   abstract (apply ring.encode_morphism_only; apply _).
   Defined. (* for some reason [Program] isn't cooperating here. look into it *)
 
-  Lemma integer_initial (same_morphism : ∀ `{Ring B} {h :  Int → B} `{!Ring_Morphism h}, integers_to_ring B = h) : 
+  Lemma integer_initial (same_morphism : ∀ `{Ring B} {h :  Int → B} `{!SemiRing_Morphism h}, integers_to_ring B = h) : 
     Initial (ring.object Int).
   Proof.
     intros y [x h] [] ?. simpl in *.
@@ -35,7 +35,7 @@ Instance: Params (@integers_to_ring) 8.
 
 Class Integers A {e plus mult zero one opp} `{U : IntegersToRing A} :=
   { integers_ring:> @Ring A e plus mult zero one opp
-  ; integers_to_ring_mor:> ∀ `{Ring B}, Ring_Morphism (integers_to_ring A B)
+  ; integers_to_ring_mor:> ∀ `{Ring B}, SemiRing_Morphism (integers_to_ring A B)
   ; integers_initial:> Initial (ring.object A) }.
 
 Section specializable.

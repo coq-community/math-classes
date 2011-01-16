@@ -107,11 +107,10 @@ Proof.
 Qed.
 
 (* A final word about inject *)
-Global Instance: Ring_Morphism Frac_inject.
+Global Instance: SemiRing_Morphism Frac_inject.
 Proof.
   repeat (constructor; try apply _); try reflexivity.
-    intros x y. change ((x + y) * (1 * 1) = (x * 1 + y * 1) * 1). ring.
-   intros x. unfolds. reflexivity.
+   intros x y. change ((x + y) * (1 * 1) = (x * 1 + y * 1) * 1). ring.
   intros x y. change ((x * y) * (1 * 1) = x * y * 1). ring.
 Qed.
 

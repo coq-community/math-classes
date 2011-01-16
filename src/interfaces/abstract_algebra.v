@@ -13,7 +13,6 @@ Class RightAbsorb {A} `{Equiv B} (op: A → B → B) (y: B): Prop := right_absor
   (* hm, can we generate left/right instances from right/left+commutativity without causing loops? *)
 
 Section upper_classes.
-
   Context A {e: Equiv A}.
 
   Class Setoid: Prop := setoid_eq:> Equivalence (@equiv A e).
@@ -76,7 +75,6 @@ Section upper_classes.
     ; field_0neq1:> NeZero (1:A)
     ; mult_inv_proper:> Proper (sig_relation (=) _ ==> (=)) (//)
     ; mult_inverse: `(` x * // x = 1) }.
-
 End upper_classes.
 
 Implicit Arguments inv_proper [[A] [e] [op] [unit] [inv] [Group]].
@@ -108,7 +106,6 @@ Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatC
 Implicit Arguments comp_assoc [[O] [Arrows0] [H] [CatId0] [CatComp0] [Category] [w] [x] [y] [z]].
 
 Section morphism_classes.
-
   Context {A B: Type} `{Aeq: Equiv A} `{Beq: Equiv B}.
 
   Class Setoid_Morphism (f: A → B) :=
@@ -128,24 +125,11 @@ Section morphism_classes.
     ; monmor_sgmor:> SemiGroup_Morphism f
     ; preserves_mon_unit: f mon_unit = mon_unit }.
 
-  Class Group_Morphism {Aop Bop Aunit Bunit Ainv Binv} (f: A → B):=
-    { groupmor_a: @Group A Aeq Aop Aunit Ainv
-    ; groupmor_b: @Group B Beq Bop Bunit Binv
-    ; groupmor_monoidmor:> Monoid_Morphism f
-    ; preserves_inv: `(f (- x) = - f x) }.
-
   Class SemiRing_Morphism {Aplus Amult Azero Aone Bplus Bmult Bzero Bone} (f: A → B) :=
     { semiringmor_a: @SemiRing A Aeq Aplus Amult Azero Aone
     ; semiringmor_b: @SemiRing B Beq Bplus Bmult Bzero Bone
     ; semiringmor_plus_mor:> @Monoid_Morphism Azero Bzero Aplus Bplus f
     ; semiringmor_mult_mor:> @Monoid_Morphism Aone Bone Amult Bmult f }.
-
-  Class Ring_Morphism {Aplus Amult Aopp Azero Aone Bplus Bmult Bopp Bzero Bone} (f: A → B) :=
-    { ringmor_a: @Ring A Aeq Aplus Amult Azero Aone Aopp
-    ; ringmor_b: @Ring B Beq Bplus Bmult Bzero Bone Bopp
-    ; ringmor_groupmor:> @Group_Morphism Aplus Bplus Azero Bzero Aopp Bopp f
-    ; ringmor_monoidmor:> @Monoid_Morphism Aone Bone Amult Bmult f }.
-
 End morphism_classes.
 
   (* The structure instance fields in the morphism classed used to be coercions, but
@@ -159,16 +143,10 @@ Implicit Arguments setoidmor_b [[A] [B] [Aeq] [Beq] [Setoid_Morphism]].
 Implicit Arguments monmor_a [[A] [B] [Aeq] [Beq] [Aunit] [Bunit] [Amult] [Bmult] [Monoid_Morphism]].
 Implicit Arguments monmor_b [[A] [B] [Aeq] [Beq] [Aunit] [Bunit] [Amult] [Bmult] [Monoid_Morphism]].
 
-Implicit Arguments ringmor_a [[A] [B] [Aeq] [Beq]
-   [Aplus] [Amult] [Aopp] [Azero] [Aone] [Bplus] [Bmult] [Bopp] [Bzero] [Bone] [Ring_Morphism]].
-Implicit Arguments ringmor_b [[A] [B] [Aeq] [Beq]
-   [Aplus] [Amult] [Aopp] [Azero] [Aone] [Bplus] [Bmult] [Bopp] [Bzero] [Bone] [Ring_Morphism]].
-
 (* These are only necessary because for reasons unknown ot me the [f] argument is
  made implicit by default. Waiting to hear from Matthieu about this. *)
 
 Section jections.
-
   Context `{ea: Equiv A} `{eb: Equiv B} (f: A → B) `{inv: !Inverse f}.
 
   Class Injective: Prop :=
@@ -182,7 +160,6 @@ Section jections.
   Class Bijective: Prop :=
     { bijective_injective:> Injective
     ; bijective_surjective:> Surjective }.
-
 End jections.
 
 Implicit Arguments injective [[A] [ea] [B] [eb] [Injective]].
@@ -196,7 +173,6 @@ Class PartialOrder `{e: Equiv A} (o : Order A): Prop :=
 Class TotalOrder `(o : Order A): Prop := total_order: ∀ x y: A, x ≤ y ∨ y ≤ x.
 
 Section order_maps.
-
   Context `{Equiv A} `{oA : Order A} `{Equiv B} `{oB : Order B} (f : A → B).
 
   (* It makes sense to require these maps to be [Setoid_Morphism]s, however, 
