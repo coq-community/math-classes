@@ -40,7 +40,7 @@ Section contents.
 
     Global Instance e: Equiv (x ⟶ y) := λ a b,
       (∀ v, a v ≡ b v) ∧
-      (∀ `(f: v ⟶ w), JMrelation.R equiv (fmap a f) _ equiv (fmap b f)).
+      (∀ `(f: v ⟶ w), JMrelation.R (=) (fmap a f) _ (=) (fmap b f)).
 
     Let e_refl: Reflexive e.
     Proof.
@@ -58,7 +58,7 @@ Section contents.
     Proof with intuition.
      unfold e. intros a b c [P Q] [R S]...
       transitivity (b v)...
-     apply JMrelation.transitive with _ equiv (fmap b f)...
+     apply JMrelation.transitive with _ (=) (fmap b f)...
      apply _.
     Qed.
 
@@ -71,14 +71,14 @@ Section contents.
 
   Global Program Instance: CatComp Object := λ _ _ _ x y, arrow (x ∘ y) _ _.
 
-  Global Instance: ∀ x y z: Object, Proper (equiv ==> equiv ==> equiv) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Global Instance: ∀ x y z: Object, Proper ((=) ==> (=) ==> (=)) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof with intuition; try apply _.
    unfold equiv, e.
    intros x y z a b [P Q] c d [R S].
    split; intros.
     change (a (c v) ≡ b (d v)). congruence.
-   change (JMrelation.R equiv (fmap a (fmap c f)) _ equiv (fmap b (fmap d f))).
-   apply JMrelation.transitive with _ equiv (fmap a (fmap d f))...
+   change (JMrelation.R (=) (fmap a (fmap c f)) _ (=) (fmap b (fmap d f))).
+   apply JMrelation.transitive with _ (=) (fmap a (fmap d f))...
    specialize (S _ _ f). revert S.
    generalize (fmap c f) (fmap d f).
    repeat rewrite R.

@@ -81,7 +81,7 @@ Section contents.
   Instance: MonadBind M := λ _ _ z f, gen_bind f z.
 
   Instance: ∀ `{Equiv A} `{Equiv B},
-    Proper (equiv ==> (equiv ==> equiv) ==> equiv) (@bind M _ A B).
+    Proper ((=) ==> ((=) ==> (=)) ==> (=)) (@bind M _ A B).
   Proof with intuition.
    intros A H1 B H2 x y E x0 y0 E'.
    revert x y E.
@@ -100,7 +100,7 @@ Section contents.
 
   Instance: MonadReturn M := λ _ x, Var sign _ x tt.
 
-  Instance: ∀ `{Equiv A}, Proper (equiv ==> equiv) (@ret M _ A).
+  Instance: ∀ `{Equiv A}, Proper ((=) ==> (=)) (@ret M _ A).
   Proof. repeat intro. assumption. Qed.
 
   (* What remains are the laws: *)

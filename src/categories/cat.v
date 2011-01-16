@@ -135,7 +135,7 @@ Section contents.
    rewrite e1, id_l, <- preserves_comp, e3, preserves_id...
   Defined.
 
-  Global Instance: ∀ x y z: Object, Proper (equiv ==> equiv ==> equiv) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Global Instance: ∀ x y z: Object, Proper ((=) ==> (=) ==> (=)) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof with try apply _.
    repeat intro.
    unfold e.

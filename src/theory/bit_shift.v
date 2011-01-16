@@ -67,7 +67,7 @@ Section shift_left_properties.
     ring.
   Qed.
 
-  Context `{!NoZeroDivisors A} `{!NeZero (1:A)} `{!NeZero (2:A)} `{∀z, NeZero z → RightCancellation ring_mult z}.
+  Context `{!NoZeroDivisors A} `{!NeZero (1:A)} `{!NeZero (2:A)} `{∀z, NeZero z → RightCancellation (.*.) z}.
 
   Lemma shiftl_nonzero x y: x ≠ 0 → x ≪ y ≠ 0.
   Proof with auto.
@@ -83,7 +83,7 @@ Section shift_left_properties.
   Proof with auto.
     repeat (split; try apply _).
     intros x y E. unfold flip in E. do 2 rewrite shiftl_correct in E.
-    apply (rings.right_cancellation_ne_0 ring_mult (2 ^ n))...
+    apply (rings.right_cancellation_ne_0 (.*.) (2 ^ n))...
     apply nat_pow_nonzero. apply (ne_zero 2).
   Qed.
 End shift_left_properties.
@@ -103,7 +103,7 @@ Section shift_right_properties.
     `{!NoZeroDivisors A} 
     `{!NeZero (1:A)} 
     `{!NeZero (2:A)} 
-    `{!∀ z, NeZero z → LeftCancellation ring_mult z}.
+    `{!∀ z, NeZero z → LeftCancellation (.*.) z}.
 
   Hint Resolve orders.strictly_precedes_weaken.
 

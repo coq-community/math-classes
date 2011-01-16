@@ -9,9 +9,9 @@ Instance: RingMult BinPos.positive := BinPos.Pmult.
 Instance: MonoidUnit BinPos.positive := BinPos.xH.
 
 (* propers: *)
-Instance: Proper (equiv ==> equiv ==> equiv) BinPos.Pplus.
+Instance: Proper ((=) ==> (=) ==> (=)) BinPos.Pplus.
 Proof. unfold equiv, pos_equiv. repeat intro. subst. reflexivity. Qed.
-Instance: Proper (equiv ==> equiv ==> equiv) BinPos.Pmult.
+Instance: Proper ((=) ==> (=) ==> (=)) BinPos.Pmult.
 Proof. unfold equiv, pos_equiv. repeat intro. subst. reflexivity. Qed.
 
 (* properties: *)

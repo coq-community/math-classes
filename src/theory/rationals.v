@@ -98,7 +98,7 @@ Section isomorphism_is_rationals.
       rewrite rings.preserves_mult. rewrite preserves_dec_mult_inv.
       apply sg_mor. 
       rewrite <-(to_ring_unique (inverse f ∘ integers_to_ring (SRpair nat) F)). reflexivity.
-      apply (_ : Proper ((=) ==> (=)) dec_mult_inv). 
+      apply (_ : Proper ((=) ==> (=)) (/)). 
       rewrite <-(to_ring_unique (inverse f ∘ integers_to_ring (SRpair nat) F)). reflexivity. 
      intros x y E. rewrite E. reflexivity.
     intros x y E.

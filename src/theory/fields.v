@@ -50,11 +50,11 @@ Section field_properties.
    rewrite mult_inverse...
   Qed. (* todo: should be cleanable *)
 
-  Lemma mult_inv_inj `{∀ z, NeZero z → LeftCancellation ring_mult z} x y : //x = //y → x = y.
+  Lemma mult_inv_inj `{∀ z, NeZero z → LeftCancellation (.*.) z} x y : //x = //y → x = y.
   Proof with auto.
     intros E.
     unfold equiv, sig_equiv, sig_relation. fold equiv.
-    apply (left_cancellation_ne_0 ring_mult (//x)).
+    apply (left_cancellation_ne_0 (.*.) (//x)).
      intros G.
      destruct (ne_zero 1).
      rewrite <-(rings.mult_0_r (`x)), <-G.
@@ -64,10 +64,10 @@ Section field_properties.
     reflexivity.
   Qed.
 
-  Lemma mult_inv_distr_alt `{∀ z, NeZero z → LeftCancellation ring_mult z} x (Px : x ≠ 0) y (Py : y ≠ 0) (Pxy : x * y ≠ 0) : 
+  Lemma mult_inv_distr_alt `{∀ z, NeZero z → LeftCancellation (.*.) z} x (Px : x ≠ 0) y (Py : y ≠ 0) (Pxy : x * y ≠ 0) : 
     // (exist _ (x * y) Pxy) = // (exist _ x Px) * // (exist _ y Py).
   Proof with auto; try ring.
-    apply (left_cancellation_ne_0 ring_mult (x * y))...
+    apply (left_cancellation_ne_0 (.*.) (x * y))...
     transitivity ((x * // (exist _ x Px)) *  (y * // (exist _ y Py)))...
     transitivity ((x * y) * // (exist _ (x * y) Pxy))...
     do 3 rewrite mult_inverse_alt...
@@ -81,7 +81,7 @@ Section field_properties.
    intros x y E.
    destruct (decide (x = 0)) as [? | P]...
    rewrite <- (mult_0_r x) in E.
-   right. apply (left_cancellation_ne_0 ring_mult x)...
+   right. apply (left_cancellation_ne_0 (.*.) x)...
   Qed.
 
   Lemma mult_inv_nonzero x : // x ≠ 0.
@@ -100,7 +100,7 @@ Section field_properties.
 
   Lemma dec_mult_inv_correct (x : F) (P : x ≠ 0) : /x = // (exist _ x P).
   Proof with auto.
-    apply (left_cancellation_ne_0 ring_mult x)...
+    apply (left_cancellation_ne_0 (.*.) x)...
     rewrite dec_mult_inverse...
     symmetry. apply mult_inverse_alt.
   Qed.
@@ -119,7 +119,7 @@ Section field_properties.
     apply (ne_zero _).
   Qed.
 
-  Global Instance dec_mult_inv_proper: Proper ((=) ==> (=)) dec_mult_inv.
+  Global Instance dec_mult_inv_proper: Proper ((=) ==> (=)) (/).
   Proof with auto.
     intros x1 x2 E.
     case (decide (x1 = 0)); intros E1; case (decide (x2 = 0)); intros E2.
@@ -128,7 +128,7 @@ Section field_properties.
        simpl. rewrite Ez1, Ez2... reflexivity.
       destruct E2. rewrite <- E...
      destruct E1. rewrite E...
-    apply (left_cancellation_ne_0 ring_mult x1)...
+    apply (left_cancellation_ne_0 (.*.) x1)...
     rewrite dec_mult_inverse, E, dec_mult_inverse...
     reflexivity.
   Qed.
@@ -159,13 +159,14 @@ Section field_properties.
     rewrite <-(dec_mult_inverse x), E2... ring.
   Qed.
 
-  Lemma dec_mult_inv_inj x y : /x = /y → x = y.
+  Global Instance dec_mult_inv_inj: Injective (/).
   Proof with try solve [intuition].
-    intros E.
+    repeat (split; try apply _).
+    intros x y E.
     destruct (decide (x = 0)) as [E2|E2].
      rewrite E2 in *. rewrite dec_mult_inv_0 in E.
      apply stable. intro. apply (dec_mult_inv_nonzero y)...
-    apply (right_cancellation_ne_0 ring_mult (/x)).
+    apply (right_cancellation_ne_0 (.*.) (/x)).
      apply dec_mult_inv_nonzero...
     rewrite dec_mult_inverse, E, dec_mult_inverse...
     intros E3. rewrite E3, dec_mult_inv_0 in E. 
@@ -176,7 +177,7 @@ Section field_properties.
   Proof with auto.
     destruct (decide (x = 0)) as [E|E].
     rewrite E. do 2 rewrite dec_mult_inv_0. reflexivity.
-    apply (right_cancellation_ne_0 ring_mult (/x)).
+    apply (right_cancellation_ne_0 (.*.) (/x)).
      apply dec_mult_inv_nonzero...
     rewrite dec_mult_inverse...
     rewrite commutativity, dec_mult_inverse. reflexivity.
@@ -186,8 +187,8 @@ Section field_properties.
   Lemma equal_dec_quotients (a b c d : F) : b ≠ 0 → d ≠ 0 → (a * d = c * b ↔ a * /b = c * /d).
   Proof with trivial; try ring.
    split; intro E.
-    apply (right_cancellation_ne_0 ring_mult b)...
-    apply (right_cancellation_ne_0 ring_mult d)...
+    apply (right_cancellation_ne_0 (.*.) b)...
+    apply (right_cancellation_ne_0 (.*.) d)...
     transitivity (a * d * (b * /b))...
     transitivity (c * b * (d * /d))...
     rewrite E, dec_mult_inverse, dec_mult_inverse...
@@ -227,7 +228,7 @@ Section field_properties.
 End field_properties.
 
 Definition stdlib_field_theory F `{Field F} `{!DecMultInv F} :
-  Field_theory.field_theory 0 1 ring_plus ring_mult (λ x y, x - y) group_inv (λ x y, x / y) dec_mult_inv (=).
+  Field_theory.field_theory 0 1 (+) (.*.) (λ x y, x - y) (-) (λ x y, x / y) (/) (=).
 Proof with auto.
   intros.
   constructor.
@@ -247,7 +248,7 @@ Section morphisms.
   Proof with auto.
     case (decide (x = 0)) as [E | E].
     rewrite E, dec_mult_inv_0, preserves_0, dec_mult_inv_0. reflexivity.
-    apply (right_cancellation_ne_0 ring_mult (f x)).
+    apply (right_cancellation_ne_0 (.*.) (f x)).
       apply injective_not_0...
     rewrite <-preserves_mult.
     rewrite commutativity, dec_mult_inverse...
@@ -312,7 +313,7 @@ Section non_zero_elements.
     unfold "*" at 10. unfold nonzero_mult. ring.
   Qed.
 
-  Lemma mult_inv_distr `{∀ z, NeZero z → LeftCancellation ring_mult z} (x y : {x : F | x ≠ 0}) : 
+  Lemma mult_inv_distr `{∀ z, NeZero z → LeftCancellation (.*.) z} (x y : {x : F | x ≠ 0}) : 
     // (x * y) = // x * // y.
   Proof. destruct x, y. apply mult_inv_distr_alt. Qed. 
 
@@ -332,7 +333,7 @@ Section from_stdlib_field_theory.
   Proof with auto.
    destruct ftheory.
    repeat (constructor; try assumption); repeat intro
-   ; unfold equiv, mon_unit, sg_op, group_inv; try field...
+   ; unfold equiv, mon_unit, sg_op, ring_plus, ring_mult, mult_inv, group_inv; try field...
    destruct x as [x Ex].
    unfold mult_inv, ring_mult.
    simpl.
@@ -341,8 +342,8 @@ Section from_stdlib_field_theory.
   Qed.
 End from_stdlib_field_theory.
 
-Program Instance dec_mult_inv_default `{Field F} `{∀ x y: F, Decision (equiv x y)} : DecMultInv F | 10
-  := λ x, exist _ (if decide (equiv x 0) then 0 else // x) _.
+Program Instance dec_mult_inv_default `{Field F} `{∀ x y: F, Decision (x = y)} : DecMultInv F | 10
+  := λ x, exist _ (if decide (x = 0) then 0 else // x) _.
 Next Obligation.
   case (decide _); split; try solve [intuition].
   intros E. apply mult_inverse_alt.

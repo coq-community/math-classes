@@ -28,7 +28,7 @@ Section algebras.
   Defined.
 
   Instance rec_impl_proper: ∀ o,
-    Proper (@setoids.product_eq I _ (fun _ => op_type_equiv _ _ _) ==> equiv) (rec_impl o).
+    Proper (@setoids.product_eq I _ (fun _ => op_type_equiv _ _ _) ==> (=)) (rec_impl o).
   Proof with auto.
    induction o; simpl. repeat intro...
    intros ? ? Y x0 y0 ?. apply IHo.
@@ -37,10 +37,10 @@ Section algebras.
 
   Global Instance product_ops: AlgebraOps sig carrier := λ o, rec_impl (sig o) (λ i, algebra_op o).
 
-  Instance: ∀ o: sig, Proper equiv (algebra_op o: op_type carrier (sig o)).
+  Instance: ∀ o: sig, Proper (=) (algebra_op o: op_type carrier (sig o)).
   Proof. intro. apply rec_impl_proper. intro. apply (algebra_propers _). Qed.
 
-  Instance product_e sort: Equiv (carrier sort) := equiv. (* hint; shouldn't be needed *)
+  Instance product_e sort: Equiv (carrier sort) := (=). (* hint; shouldn't be needed *)
 
   Global Instance product_algebra: Algebra sig carrier.
 
@@ -82,7 +82,7 @@ Section varieties.
    | ne_list.cons _ _ => λ f g, ∀ tuple, nqe (f tuple) (λ i, g i (tuple i))
    end. (* todo: rename *)
 
-  Instance nqe_proper t: Proper (equiv ==> (λ x y, ∀ i, x i = y i) ==> iff) (@nqe t).
+  Instance nqe_proper t: Proper ((=) ==> (λ x y, ∀ i, x i = y i) ==> iff) (@nqe t).
   Proof with auto; try reflexivity.
    induction t; simpl; intros ? ? P ? ? E.
     intuition. rewrite <- (P i), <- E... rewrite (P i), E...

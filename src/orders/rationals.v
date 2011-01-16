@@ -20,11 +20,11 @@ Section rationals_order.
      exists (-num). exists (-den). split.
       split.
        apply rings.flip_nonpos_inv...
-      intros G. apply E1. apply (injective group_inv). rewrite <-G. symmetry. apply opp_0.
+      intros G. apply E1. apply (injective (-)). rewrite <-G. symmetry. apply opp_0.
      do 2 rewrite preserves_inv. rewrite E2. field.
      split.
       intros G. apply E1.
-      apply (injective (integers_to_ring Z Q)). apply (injective group_inv).
+      apply (injective (integers_to_ring Z Q)). apply (injective (-)).
       rewrite G. rewrite preserves_0. symmetry. apply opp_0.
      apply injective_not_0...
     exists num. exists den. split...
@@ -44,14 +44,14 @@ Section rationals_order.
     destruct (rationals_decompose_pos_den (SRpair nat) x) as [num [den [[E1a E1b] E2]]].
     rewrite E2 in E |- *. clear E2.
     rewrite preserves_mult, preserves_dec_mult_inv.
-    apply (maps.order_preserving_back_gt_0 ring_mult (f (i_to_r den))).
+    apply (maps.order_preserving_back_gt_0 (.*.) (f (i_to_r den))).
      change (0 < (f ∘ i_to_r) den).
      rewrite (integers.to_ring_unique _).
      split.
       apply (order_preserving (integers_to_ring (SRpair nat) Q2)) in E1a.
       rewrite preserves_0 in E1a...
      apply not_symmetry. apply (injective_not_0). apply not_symmetry...
-    apply (maps.order_preserving_ge_0 ring_mult (i_to_r den)) in E.
+    apply (maps.order_preserving_ge_0 (.*.) (i_to_r den)) in E.
      rewrite right_absorb. rewrite right_absorb in E.
      rewrite (commutativity (f (i_to_r num))), associativity, dec_mult_inverse, left_identity.
       rewrite (commutativity (i_to_r num)), associativity, dec_mult_inverse, left_identity in E. 
@@ -132,9 +132,9 @@ Section default_order.
       apply naturals.zero_sum with (d1 * n2).
       apply (injective n_to_sr).
       rewrite preserves_plus, preserves_mult, preserves_mult, preserves_0.
-      apply (left_cancellation_ne_0 ring_mult (/n_to_sr d1)).
+      apply (left_cancellation_ne_0 (.*.) (/n_to_sr d1)).
        apply dec_mult_inv_nonzero. apply injective_not_0...
-      apply (left_cancellation_ne_0 ring_mult (/n_to_sr d2)).
+      apply (left_cancellation_ne_0 (.*.) (/n_to_sr d2)).
        apply dec_mult_inv_nonzero. apply injective_not_0...
       ring_simplify. replace (zero) with (0 : Q) by reflexivity. 
       rewrite B2. field.

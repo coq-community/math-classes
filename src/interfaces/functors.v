@@ -131,7 +131,7 @@ Section setoid_functor.
     ; sfunctor_makes_morphisms `{Equiv v} `{Equiv w} (f: v → w):>
         Setoid_Morphism f → Setoid_Morphism (sfmap f)
     ; sfunctor_morphism `{Setoid v} `{Setoid w}:>
-        Proper ((equiv ==> equiv) ==> (equiv ==> equiv)) (@sfmap _ v w)
+        Proper (((=) ==> (=)) ==> ((=) ==> (=))) (@sfmap _ v w)
     ; sfunctor_id `{Setoid v}: sfmap id = id
     ; sfunctor_comp `{Equiv a} `{Equiv b} `{Equiv c} (f: b → c) (g: a → b):
         Setoid_Morphism f → Setoid_Morphism g →

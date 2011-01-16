@@ -8,7 +8,7 @@ Require Import
 (* * Properties of Int Pow *)
 Section int_pow_properties.
 Context `{Field A} 
-  `{∀ z, NeZero z → LeftCancellation ring_mult z}
+  `{∀ z, NeZero z → LeftCancellation (.*.) z}
   `{∀ x y, Decision (x = y)} `{!DecMultInv A}
   `{Integers B} `{oB : Order B} `{!RingOrder oB} `{!TotalOrder oB}.
 
@@ -53,7 +53,7 @@ Proof with eauto.
    eapply nat_pow_spec_unique...
    eapply nat_pow_spec_proper... reflexivity.
    apply Ez2. rewrite <-E2...
-  apply fields.dec_mult_inv_inj.
+  apply (injective (/)).
   eapply nat_pow_spec_unique...
   eapply nat_pow_spec_proper... apply inv_proper... 
   reflexivity.
@@ -73,7 +73,7 @@ Proof with auto.
   unfold pow, int_pow, int_pow_sig. 
   destruct (ip x n) as [z2 [Ez2 Fz2]]. destruct ip as [z1 [Ez1 Fz1]]. simpl.
   destruct (total_order 0 n).
-   apply fields.dec_mult_inv_inj.
+   apply (injective (/)).
    eapply nat_pow_spec_unique.
     apply Fz1, rings.flip_nonneg_inv...
    eapply (nat_pow_spec_proper _ _ (reflexivity _)).
@@ -163,7 +163,7 @@ Proof with auto.
    rewrite <-associativity.
    rewrite int_pow_S... rewrite E. rewrite int_pow_S... ring.
   intros ? ? E.
-  apply (rings.left_cancellation_ne_0 ring_mult x)... rewrite associativity.
+  apply (rings.left_cancellation_ne_0 (.*.) x)... rewrite associativity.
   rewrite <-int_pow_S... rewrite <-int_pow_S...
   setoid_replace (1 + (n - 1 + m)) with (n + m) by ring.
   setoid_replace (1 + (n - 1)) with n by ring...
@@ -186,8 +186,8 @@ End int_pow_properties.
 Section preservation.
   Context 
     `{Integers B} `{oB : Order B} `{!RingOrder oB} `{!TotalOrder oB}
-    `{Field A1} `{∀ z : A1, NeZero z → LeftCancellation ring_mult z} `{∀ x y : A1, Decision (x = y)} `{!DecMultInv A1} `{!IntPow A1 B}
-    `{Field A2} `{∀ z : A2, NeZero z → LeftCancellation ring_mult z} `{∀ x y : A2, Decision (x = y)} `{!DecMultInv A2} `{!IntPow A2 B}
+    `{Field A1} `{∀ z : A1, NeZero z → LeftCancellation (.*.) z} `{∀ x y : A1, Decision (x = y)} `{!DecMultInv A1} `{!IntPow A1 B}
+    `{Field A2} `{∀ z : A2, NeZero z → LeftCancellation (.*.) z} `{∀ x y : A2, Decision (x = y)} `{!DecMultInv A2} `{!IntPow A2 B}
     {f : A1 → A2} `{!OrderPreserving f} `{!Ring_Morphism f} `{!Injective f}.
 
   Add Ring B2 : (rings.stdlib_ring_theory B).
@@ -209,7 +209,7 @@ Section preservation.
      repeat rewrite int_pow_of_0...
      apply rings.preserves_0.
     assert (f x ≠ 0). apply rings.injective_not_0...
-    apply (rings.left_cancellation_ne_0 ring_mult (f x))...
+    apply (rings.left_cancellation_ne_0 (.*.) (f x))...
     rewrite <-int_pow_S, <-rings.preserves_mult, <-int_pow_S...
     setoid_replace (1 + (n - 1)) with n by ring...
   Qed.
@@ -218,7 +218,7 @@ End preservation.
 (* Very slow default implementation by translation into Peano *)
 Section int_pow_default.
   Context `{Field A} 
-    `{∀ z, NeZero z → LeftCancellation ring_mult z}
+    `{∀ z, NeZero z → LeftCancellation (.*.) z}
     `{∀ x y, Decision (x = y)} `{!DecMultInv A}
     `{Integers B} `{oB : Order B} `{!RingOrder oB} `{!TotalOrder oB}.
 

@@ -28,7 +28,7 @@ Section contents.
 
   Context
     (e_e: ∀ s, Equivalence (e s))
-    (e_proper: ∀ s, Proper (equiv ==> equiv ==> iff) (e s)).
+    (e_proper: ∀ s, Proper ((=) ==> (=) ==> iff) (e s)).
 
   (* We can show that that equivalence lifted to arbitrary operation types still respects the setoid equality: *)
 
@@ -36,7 +36,7 @@ Section contents.
   Let lifted_e := @op_type_equiv (sorts σ) v e.
   Let lifted_normal := @op_type_equiv (sorts σ) v ve.
 
-  Instance lifted_e_proper o: Proper (equiv ==> equiv ==> iff) (lifted_e o).
+  Instance lifted_e_proper o: Proper ((=) ==> (=) ==> iff) (lifted_e o).
   Proof with intuition.
    induction o; simpl. intuition.
    repeat intro.
@@ -72,7 +72,7 @@ Section contents.
    simpl.
    unfold algebra_op, ua_products.product_ops, algebra_op.
    set (f := λ _: bool, vo o).
-   assert (∀ b, Proper equiv (f b)).
+   assert (∀ b, Proper (=) (f b)).
     intro.
     unfold f.
     apply algebra_propers.
@@ -120,7 +120,7 @@ Section contents.
   (* This justifies the following definition of a congruence: *)
 
   Class Congruence: Prop :=
-    { congruence_proper:> ∀ s: sorts σ, Proper (equiv ==> equiv ==> iff) (e s)
+    { congruence_proper:> ∀ s: sorts σ, Proper ((=) ==> (=) ==> iff) (e s)
     ; congruence_quotient:> Algebra σ v (e:=e) }.
 
 End contents.
@@ -251,7 +251,7 @@ Section first_iso.
    generalize (subset_closed image o).
    unfold algebra_op.
    generalize (H o) (H1 o) (preserves σ A B f o)
-     (_: Proper equiv (H o)) (_: Proper equiv (H1 o)).
+     (_: Proper (=) (H o)) (_: Proper (=) (H1 o)).
    induction (σ o); simpl; intros ? ? ? ? ?.
     intros [? E]. change (f _ x = f _ o0). rewrite E...
    intros ? [x [? E]]. apply IHo0... simpl in *. rewrite <- E...
@@ -266,7 +266,7 @@ Section first_iso.
    generalize (subset_closed image o).
    unfold algebra_op.
    generalize (H o) (H1 o) (preserves σ A B f o)
-     (_: Proper equiv (H o)) (_: Proper equiv (H1 o)).
+     (_: Proper (=) (H o)) (_: Proper (=) (H1 o)).
    induction (σ o); simpl...
    apply IHo0...
   Qed.

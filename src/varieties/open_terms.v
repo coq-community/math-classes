@@ -69,7 +69,7 @@ Section contents.
 
   (* The implementation is proper: *)
 
-  Instance app_tree_proper: ∀ o, Proper (equiv ==> equiv)%signature (@app_tree o).
+  Instance app_tree_proper: ∀ o, Proper ((=) ==> (=)) (@app_tree o).
   Proof with auto.
    induction o; repeat intro...
    apply IHo, e_sub...

@@ -72,13 +72,17 @@ Infix "&" := sg_op (at level 50, left associativity).
 Infix "+" := ring_plus.
 Notation "(+)" := ring_plus (only parsing).
 Notation "( x +)" := (ring_plus x) (only parsing).
-Notation "(+ x )" := (λ y, ring_plus y x) (only parsing).
+Notation "(+ x )" := (flip ring_plus x) (only parsing).
 Infix "*" := ring_mult.
-Notation "( x *)" := (ring_mult x) (only parsing).
-  (* We don't add "(*)" and "(*x)" notations because they're too much like comments. *)
+Notation "( x *.)" := (ring_mult x) (only parsing).
+Notation "(.*.)" := ring_mult (only parsing).
+Notation "(.* x )" := (flip ring_mult x) (only parsing).
+  (* We don't add "( * )", "( * x )" and "( x * )" notations because they conflict with comments. *)
 Notation "- x" := (group_inv x).
+Notation "(-)" := group_inv (only parsing).
 Notation "x - y" := (x + -y).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
+Notation "(//)" := mult_inv (only parsing).
 Notation "x // y" := (x * //y) (at level 35, right associativity).
 Infix "≤" := precedes.
 Notation "(≤)" := precedes (only parsing).
@@ -111,6 +115,7 @@ Instance default_apart `{Equiv A} : Apart A | 10 := λ x y, x ≠ y.
 Notation "x >< y" := (apart x y) (at level 70, no associativity).
 Instance: Params (@apart) 2.
 
+(* Informative strict order (as we have on the reals in CoRN for example) *)
 Class CSOrder A := cstrictly_precedes : A → A → Type.
 Instance default_cstrictly_precedes `{Equiv A} `{Order A} : CSOrder A | 10 := strictly_precedes.
 Notation "x ⋖ y" := (cstrictly_precedes x y) (at level 70, no associativity).
@@ -122,6 +127,7 @@ Class DecMultInv A `{Equiv A} `{RingZero A} `{RingOne A} `{RingMult A}
   := dec_mult_inv_sig : ∀ x : A, {z | (x ≠ 0 → x * z = 1) ∧ (x = 0 → z = 0)}.
 Definition dec_mult_inv `{DecMultInv A} : A → A := λ x, ` (dec_mult_inv_sig x).
 Notation "/ x" := (dec_mult_inv x).
+Notation "(/)" := dec_mult_inv (only parsing).
 Notation "x / y" := (x * /y).
 Instance: Params (@dec_mult_inv_sig) 6.
 Instance: Params (@dec_mult_inv) 6.

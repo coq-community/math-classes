@@ -65,7 +65,7 @@ Section encode_with_ops.
   Context A `{Ring A}.
 
   Global Instance encode_operations: AlgebraOps sig (λ _, A) := λ o,
-    match o with plus => ring_plus | mult => ring_mult | zero => 0:A | one => 1:A | opp => group_inv end.
+    match o with plus => (+) | mult => (.*.) | zero => 0:A | one => 1:A | opp => (-) end.
 
   Global Instance encode_algebra_and_ops: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.

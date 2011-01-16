@@ -35,7 +35,7 @@ Section nat_pow_spec_properties.
   Proof.
     intros E F.
     destruct semirings.not_precedes_1_0.
-    apply (order_preserving_back ((+) n)).
+    apply (order_preserving_back (n +)).
     rewrite commutativity, F, right_identity.
     eapply nat_pow_spec_nonneg; eassumption.
   Qed.

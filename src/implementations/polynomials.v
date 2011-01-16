@@ -20,7 +20,7 @@ Section contents.
 
   Definition all (l: list Prop): Prop := fold_left and l True.
 
-  Definition poly_eq_zero: poly → Prop := all ∘ map (equiv 0).
+  Definition poly_eq_zero: poly → Prop := all ∘ map ((=) 0).
 
   Global Instance poly_eq: Equiv poly :=
     fix F p q :=
@@ -53,7 +53,7 @@ Section contents.
     | h :: t, h' :: t' => h + h' :: F t t'
     end.
 
-  Global Instance: GroupInv poly := map group_inv.
+  Global Instance: GroupInv poly := map (-).
 
   Fixpoint poly_mult_cr (q: poly) (c: R): poly :=
     match q with

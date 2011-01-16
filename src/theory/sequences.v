@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require Import
   Program
   theory.categories
@@ -95,7 +93,7 @@ Section semiring_folds.
 
   (* These are implicitly Monoid_Morphisms, and we also easily have: *)
 
-  Lemma distribute_sum (a: R): (a *) ∘ sum = sum ∘ fmap sq (a *).
+  Lemma distribute_sum (a: R): (a *.) ∘ sum = sum ∘ fmap sq (a *.).
   Proof with try apply _.
    unfold sum, fold.
    rewrite <- extend_comp...

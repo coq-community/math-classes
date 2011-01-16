@@ -25,9 +25,9 @@ Section structure.
 
   Class Monad {Me: ∀ A, Equiv A → Equiv (M A)} `{MonadReturn M} `{MonadBind M}: Prop :=
     (* Propers: *)
-    { ret_proper:> ∀ `{Equiv A}, Proper (equiv ==> equiv) (@ret _ _ A)
+    { ret_proper:> ∀ `{Equiv A}, Proper ((=) ==> (=)) (@ret _ _ A)
     ; bind_proper:> ∀ `{Equiv A} `{Equiv B},
-       Proper (equiv ==> (equiv ==> equiv) ==> equiv) (@bind _ _ A B)
+       Proper ((=) ==> ((=) ==> (=)) ==> (=)) (@bind _ _ A B)
 
     ; mon_setoid: ∀ `{Setoid A}, Setoid (M A)
 

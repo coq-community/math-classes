@@ -60,7 +60,7 @@ Proof with trivial.
    ring.
   intros [z [Ez1 Ez2]].
   rewrite Ez2, <-(plus_0_r x) at 1.
-  apply (order_preserving ((+) x))...
+  apply (order_preserving (x +))...
 Qed.
 
 Global Instance: SemiRingOrder o.

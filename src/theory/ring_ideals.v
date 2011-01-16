@@ -10,7 +10,7 @@ Section ideal_congruence. Context `{Ring R}.
 
   Add Ring R: (rings.stdlib_ring_theory R).
 
-  Context (P: R → Prop) `{!Proper (equiv ==> iff) P}.
+  Context (P: R → Prop) `{!Proper ((=) ==> iff) P}.
 
   (* P is an ideal if: *)
 
@@ -54,24 +54,24 @@ Section ideal_congruence. Context `{Ring R}.
    assert (x + - z = (x + -y) + (y + - z)) as E by ring. rewrite E...
   Qed.
 
-  Instance cong_proper: Proper (equiv ==> equiv ==> iff) congruence.
+  Instance cong_proper: Proper ((=) ==> (=) ==> iff) congruence.
   Proof. intros ? ? E ? ? E'. unfold congruence. rewrite E, E'. intuition. Qed.
 
-  Instance: Proper (congruence ==> congruence ==> congruence) ring_plus.
+  Instance: Proper (congruence ==> congruence ==> congruence) (+).
   Proof.
    unfold congruence. repeat intro. 
    assert (x + x0 + - (y + y0) = (x + - y) + (x0 + - y0)) as E by ring.
    rewrite E. intuition.
   Qed.
 
-  Instance: Proper (congruence ==> congruence ==> congruence) ring_mult.
+  Instance: Proper (congruence ==> congruence ==> congruence) (.*.).
   Proof.
    unfold congruence. repeat intro. 
    assert (x * x0 + - (y * y0) = ((x + -y) * x0) + (y * (x0 + - y0))) as E by ring.
    rewrite E. intuition.
   Qed.
 
-  Instance: Proper (congruence ==> congruence) group_inv.
+  Instance: Proper (congruence ==> congruence) (-).
   Proof.
    unfold congruence. repeat intro.
    assert (- x + - - y = -(x + -y)) as E by ring.

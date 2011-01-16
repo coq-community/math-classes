@@ -160,14 +160,14 @@ Section borrowed_from_nat.
   Global Instance: ∀ z : N, RightCancellation (+) z.
   Proof. intro. apply right_cancel_from_left. Qed.
 
-  Global Instance: ∀ z : N, NeZero z → LeftCancellation ring_mult z.
+  Global Instance: ∀ z : N, NeZero z → LeftCancellation (.*.) z.
   Proof.
     intros z E x y.
     pose proof (from_nat_stmt ((z' === 0 -=> Ext _ False) -=> z' * x' === z' * y' -=> x' === y') (three_vars x y z)) as P.
     apply P. intro. simpl. apply Mult_mult_reg_l. assumption.
   Qed.
 
-  Global Instance: ∀ z : N, NeZero z → RightCancellation ring_mult z.
+  Global Instance: ∀ z : N, NeZero z → RightCancellation (.*.) z.
   Proof. intros ? ?. apply right_cancel_from_left. Qed.
 
   Global Instance: NeZero (1:N).

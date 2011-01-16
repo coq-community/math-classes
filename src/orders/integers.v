@@ -105,8 +105,8 @@ Qed.
 Lemma precedes_sprecedes_alt x y : x + 1 ≤ y ↔ x < y.
 Proof with trivial.
   split; intros E.
-   apply precedes_sprecedes in E. apply (strictly_order_preserving_back (flip (+) 1)) in E...
-  apply precedes_sprecedes. apply (strictly_order_preserving (flip (+) 1)) in E...
+   apply precedes_sprecedes in E. apply (strictly_order_preserving_back (+ 1)) in E...
+  apply precedes_sprecedes. apply (strictly_order_preserving (+ 1)) in E...
 Qed.
 
 Lemma induction
@@ -142,8 +142,8 @@ Proof with auto.
   intros n E1 ? E2.
   destruct (ne_zero 1).
   apply (antisymmetry (≤)).
-   apply (order_preserving_back ((+) (n - 1))). ring_simplify. transitivity 0...
-  transitivity (n - 1)... apply (order_preserving_back ((+) 1)). ring_simplify.
+   apply (order_preserving_back ((n - 1) +)). ring_simplify. transitivity 0...
+  transitivity (n - 1)... apply (order_preserving_back (1 +)). ring_simplify.
   transitivity 0... apply semirings.precedes_0_2.
 Qed.
 

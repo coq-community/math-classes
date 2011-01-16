@@ -1,16 +1,15 @@
-Set Automatic Introduction.
-
 Require Import
   Ring Program Morphisms
-  abstract_algebra canonical_names.
+  abstract_algebra.
 Require
- theory.setoids varieties.monoid.
+  theory.setoids varieties.monoid.
 
-Section group_props. Context `{Group}.
+Section group_props. 
+  Context `{Group}.
 
   Lemma inv_involutive x: - - x = x.
   Proof.
-   rewrite <- (monoid_left_id _ x) at 2.
+   rewrite <- (left_identity x) at 2.
    rewrite <- (ginv_l (- x)).
    rewrite <- associativity.
    rewrite ginv_l.
@@ -18,7 +17,7 @@ Section group_props. Context `{Group}.
    reflexivity.
   Qed.
 
-  Global Instance: Injective group_inv.
+  Global Instance: Injective (-).
   Proof.
    constructor.
     intros x y E.
@@ -46,7 +45,7 @@ Proof.
  reflexivity.
 Qed.
 
-Lemma stdlib_semiring_theory R `{SemiRing R} : Ring_theory.semi_ring_theory 0 1 ring_plus ring_mult equiv.
+Lemma stdlib_semiring_theory R `{SemiRing R} : Ring_theory.semi_ring_theory 0 1 (+) (.*.) (=).
 Proof with try reflexivity.
   constructor; intros.
          apply left_identity.
@@ -59,8 +58,8 @@ Proof with try reflexivity.
   apply distribute_r.
 Qed.
 
-(* Coq does not allow us to apply [left_cancellation ring_mult z] for a [z] for which we do not have [NeZero z]
-    in our context. Therefore we need [left_cancellation_ne_zero] to help us out. *)
+(* Coq does not allow us to apply [left_cancellation (.*.\) z] for a [z] for which we do not have [NeZero z]
+    in our context. Therefore we need [left_cancellation_ne_0] to help us out. *)
 Section cancellation.
   Context `{e : Equiv A} (op : A → A → A) `{!RingZero A}.
 
@@ -74,15 +73,15 @@ End cancellation.
 Section semiring_props.
   Context `{SemiRing R}.
 
-  Global Instance plus_0_r: RightIdentity ring_plus 0 := right_identity.
-  Global Instance plus_0_l: LeftIdentity ring_plus 0 := left_identity.
-  Global Instance mult_1_l: LeftIdentity ring_mult 1 := left_identity.
-  Global Instance mult_1_r: RightIdentity ring_mult 1 := right_identity.
+  Global Instance plus_0_r: RightIdentity (+) 0 := right_identity.
+  Global Instance plus_0_l: LeftIdentity (+) 0 := left_identity.
+  Global Instance mult_1_l: LeftIdentity (.*.) 1 := left_identity.
+  Global Instance mult_1_r: RightIdentity (.*.) 1 := right_identity.
 
-  Global Instance mult_0_r: RightAbsorb ring_mult 0.
+  Global Instance mult_0_r: RightAbsorb (.*.) 0.
   Proof. intro. rewrite commutativity. apply left_absorb. Qed.
 
-  Global Instance: Monoid_Morphism (r *).
+  Global Instance: ∀ r : R, Monoid_Morphism (r *.).
   Proof.
    repeat (constructor; try apply _).
     apply distribute_l.
@@ -101,15 +100,19 @@ Section semiringmor_props.
   Context `{SemiRing_Morphism A B f}.
 
   Lemma preserves_0: f 0 = 0.
-  Proof. intros. apply (@preserves_mon_unit _ _ _ _ _ _ _ _ f _). Qed.
+  Proof (@preserves_mon_unit _ _ _ _ _ _ _ _ f _). 
   Lemma preserves_1: f 1 = 1.
-  Proof. intros. apply (@preserves_mon_unit _ _ _ _ _ _ _ _ f _). Qed.
+  Proof (@preserves_mon_unit _ _ _ _ _ _ _ _ f _).
   Lemma preserves_mult: ∀ x y, f (x * y) = f x * f y.
   Proof. intros. apply preserves_sg_op. Qed.
   Lemma preserves_plus: ∀ x y, f (x + y) = f x + f y.
   Proof. intros. apply preserves_sg_op. Qed.
 
-  Context `{!Setoid B} `{!Injective f}.
+  Context `{!SemiRing B}.
+  Lemma preserves_2: f 2 = 2.
+  Proof. unfold "2". rewrite preserves_plus. rewrite preserves_1. reflexivity. Qed.
+
+  Context `{!Injective f}.
   Lemma injective_not_0 x : x ≠ 0 → f x ≠ 0.
   Proof.
     intros E G. apply E. 
@@ -124,7 +127,7 @@ Section semiringmor_props.
 End semiringmor_props.
 
 Lemma stdlib_ring_theory R `{Ring R} : 
-  Ring_theory.ring_theory 0 1 ring_plus ring_mult (λ x y, x - y) group_inv equiv.
+  Ring_theory.ring_theory 0 1 (+) (.*.) (λ x y, x - y) (-) (=).
 Proof.
  constructor; intros.
          apply left_identity.
@@ -143,7 +146,7 @@ Section ring_props.
 
   Add Ring R: (stdlib_ring_theory R).
 
-  Instance: LeftAbsorb ring_mult 0.
+  Instance: LeftAbsorb (.*.) 0.
   Proof. intro. ring. Qed.
 
   Global Instance Ring_Semi: SemiRing R.
@@ -172,8 +175,8 @@ Section ring_props.
   Lemma inv_zero_prod_l x y : -x * y = 0 ↔ x * y = 0.
   Proof with trivial.
     split; intros E.
-     apply (injective group_inv). rewrite distr_opp_mult_l, opp_0...
-    apply (injective group_inv). rewrite distr_opp_mult_l, inv_involutive, opp_0...
+     apply (injective (-)). rewrite distr_opp_mult_l, opp_0...
+    apply (injective (-)). rewrite distr_opp_mult_l, inv_involutive, opp_0...
   Qed.
 
   Lemma inv_zero_prod_r x y : x * -y = 0 ↔ x * y = 0.
@@ -208,7 +211,7 @@ Section ring_props.
 
   Context `{!NoZeroDivisors R} `{∀ x y, Stable (x = y)}.
 
-  Global Instance ring_mult_left_cancel :  ∀ z, NeZero z → LeftCancellation ring_mult z.
+  Global Instance ring_mult_left_cancel :  ∀ z, NeZero z → LeftCancellation (.*.) z.
   Proof with intuition.
    intros z z_nonzero x y E.
    apply stable.
@@ -218,7 +221,7 @@ Section ring_props.
    rewrite distribute_l, E. ring.
   Qed.
 
-  Global Instance: ∀ z, NeZero z → RightCancellation ring_mult z.
+  Global Instance: ∀ z, NeZero z → RightCancellation (.*.) z.
   Proof. intros ? ?. apply right_cancel_from_left. Qed.
 End ring_props.
 
@@ -254,7 +257,7 @@ Section from_stdlib_ring_theory.
   Definition from_stdlib_ring_theory: @Ring R e pl mu zero one op.
   Proof.
    repeat (constructor; try assumption); repeat intro
-   ; unfold equiv, mon_unit, sg_op, group_inv; ring.
+   ; unfold equiv, mon_unit, sg_op, ring_mult, ring_plus, group_inv; ring.
   Qed.
 
 End from_stdlib_ring_theory.

@@ -21,7 +21,7 @@ Section upper_classes.
   Class SemiGroup {op: SemiGroupOp A}: Prop :=
     { sg_setoid:> Setoid
     ; sg_ass:> Associative sg_op
-    ; sg_mor:> Proper (e ==> e ==> e)%signature sg_op }.
+    ; sg_mor:> Proper ((=) ==> (=) ==> (=)) sg_op }.
 
   Class Monoid {op: SemiGroupOp A} {unit: MonoidUnit A}: Prop :=
     { monoid_semigroup:> SemiGroup
@@ -34,7 +34,7 @@ Section upper_classes.
 
   Class Group {op: SemiGroupOp A} {unit: MonoidUnit A} {inv: GroupInv A}: Prop :=
     { group_monoid:> Monoid
-    ; inv_proper:> Proper (e ==> e) inv (* todo: use Setoid_Morphism *)
+    ; inv_proper:> Proper ((=) ==> (=)) (-) (* todo: use Setoid_Morphism *)
     ; ginv_l: `(- x & x = mon_unit)
     ; ginv_r: `(x & - x = mon_unit) }.
 
@@ -47,15 +47,15 @@ Section upper_classes.
   Class SemiRing: Prop :=
     { semiring_mult_monoid:> CommutativeMonoid (op:=mult) (unit:=one)
     ; semiring_plus_monoid:> CommutativeMonoid (op:=plus) (unit:=zero)
-    ; semiring_distr:> Distribute mult plus
-    ; semiring_left_absorb:> LeftAbsorb ring_mult 0 }.
+    ; semiring_distr:> Distribute (.*.) (+)
+    ; semiring_left_absorb:> LeftAbsorb (.*.) 0 }.
 
   Context {inv: GroupInv A}.
 
   Class Ring: Prop :=
     { ring_group:> AbGroup (op:=plus) (unit:=zero)
     ; ring_monoid:> CommutativeMonoid (op:=mult) (unit:=one)
-    ; ring_dist:> Distribute mult plus }.
+    ; ring_dist:> Distribute (.*.) (+) }.
 
     (* For now, we follow CoRN/ring_theory's example in having Ring and SemiRing
     require commutative multiplication. *)
@@ -74,7 +74,7 @@ Section upper_classes.
   Class Field {mult_inv: MultInv A}: Prop :=
     { field_ring:> Ring
     ; field_0neq1:> NeZero (1:A)
-    ; mult_inv_proper:> Proper (sig_relation (=) _ ==> (=)) mult_inv
+    ; mult_inv_proper:> Proper (sig_relation (=) _ ==> (=)) (//)
     ; mult_inverse: `(` x * // x = 1) }.
 
 End upper_classes.
@@ -96,7 +96,7 @@ End cancellation.
 Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatComp O}: Prop :=
   { arrow_equiv:> ∀ x y, Setoid (x ⟶ y)
   ; comp_proper:> ∀ x y z,
-    Proper (equiv ==> equiv ==> equiv)%signature (comp: (y ⟶ z) → (x ⟶ y) → x ⟶ z)
+    Proper ((=) ==> (=) ==> (=)) (comp: (y ⟶ z) → (x ⟶ y) → x ⟶ z)
   ; comp_assoc w x y z (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
       c ◎ (b ◎ a) = (c ◎ b) ◎ a
   ; id_l `(a: x ⟶ y): cat_id ◎ a = a
@@ -114,7 +114,7 @@ Section morphism_classes.
   Class Setoid_Morphism (f: A → B) :=
     { setoidmor_a: Setoid A
     ; setoidmor_b: Setoid B
-    ; sm_proper:> Proper (equiv ==> equiv) f }.
+    ; sm_proper:> Proper ((=) ==> (=)) f }.
 
   Class SemiGroup_Morphism {Aop Bop} (f: A → B) :=
     { sgmor_a: @SemiGroup A Aeq Aop

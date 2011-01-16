@@ -63,7 +63,7 @@ Section contents. Variable et: EquationalTheory.
 
   (* The implementation is proper: *)
 
-  Instance app_tree_proper: ∀ o, Proper (equiv ==> equiv)%signature (@app_tree o).
+  Instance app_tree_proper: ∀ o, Proper ((=) ==> (=)) (@app_tree o).
   Proof with auto.
    induction o; repeat intro...
    apply IHo, e_sub...
@@ -142,7 +142,7 @@ Section contents. Variable et: EquationalTheory.
 
     (* And with those two somewhat subtle lemmas, we show that eval_in_other is a setoid morphism: *)
 
-    Instance prep_proper: Proper (equiv ==> equiv) (@eval_in_other o).
+    Instance prep_proper: Proper ((=) ==> (=)) (@eval_in_other o).
     Proof with intuition.
      intros o x y H.
      induction H; simpl...

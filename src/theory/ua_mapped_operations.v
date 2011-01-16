@@ -16,8 +16,8 @@ Section contents.
       `{∀ a, Equiv (A a)} `{∀ a, Equiv (B a)}
       (ab: ∀ a, A a → B a)
       (ba: ∀ a, B a → A a)
-      `{∀ a, Proper (equiv ==> equiv) (ab a)}
-      `{∀ a, Proper (equiv ==> equiv) (ba a)}.
+      `{∀ a, Proper ((=) ==> (=)) (ab a)}
+      `{∀ a, Proper ((=) ==> (=)) (ba a)}.
 
     Fixpoint map_op {o: OpType Sorts}: op_type A o → op_type B o :=
       match o return op_type A o → op_type B o with
