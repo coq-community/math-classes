@@ -65,6 +65,24 @@ Section obvious.
 
 End obvious.
 
+Definition bool_decide (P : Prop) `{dec : !Decision P} : bool := if dec then true else false.
+
+Lemma bool_decide_true `{dec : !Decision P} : bool_decide P ≡ true ↔ P.
+Proof with trivial.
+  unfold bool_decide.
+  split; intros E.
+   destruct dec... discriminate.
+  destruct dec... contradiction.
+Qed.
+
+Lemma bool_decide_false `{dec : !Decision P} : bool_decide P ≡ false ↔ ¬P.
+Proof with trivial.
+  unfold bool_decide.
+  split; intros E.
+   destruct dec... discriminate.
+  destruct dec... contradiction.
+Qed.
+
 Lemma not_symmetry `{Symmetric A R} (x y: A): ~ R x y → ~ R y x.
 Proof. firstorder. Qed.
   (* Also see Coq bug #2358. A totally different approach would be to define negated relations such as inequality as separate relations rather than notations, so that the existing [symmetry] will work for them. However, this most likely breaks other things. *)
