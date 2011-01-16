@@ -181,6 +181,19 @@ Proof with auto.
    rewrite left_absorb. apply fields.dec_mult_inv_0.
   apply rings.flip_nonpos_inv...
 Qed.
+
+Lemma int_pow_nonzero (x : A) (n : B) : x ≠ 0 → x ^ n ≠ 0.
+Proof with eauto.
+  intros nonneg.
+  pattern n. apply integers.induction; clear n.
+     intros x1 x2 E. rewrite E. reflexivity.
+    intros. rewrite int_pow_0. apply (ne_zero 1).
+   intros n E1 ? E2. rewrite int_pow_S_nonneg in E2...
+   apply (no_zero_divisors x); split...
+  intros n ? E1 E2. apply E1.
+  setoid_replace n with (1 + (n - 1)) by ring.
+  rewrite int_pow_S, E2... ring. 
+Qed. 
 End int_pow_properties.
 
 Section preservation.

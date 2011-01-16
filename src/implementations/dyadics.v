@@ -12,7 +12,7 @@ Require Import
   interfaces.integers interfaces.naturals interfaces.rationals
   interfaces.additional_operations
   theory.cut_minus theory.bit_shift orders.minmax orders.integers
-  nonneg_integers_naturals. 
+  nonneg_integers_naturals theory.int_pow orders.rationals. 
 
 Record Dyadic Z := dyadic { mant: Z; expo: Z }.
 Implicit Arguments dyadic [[Z]].
@@ -386,78 +386,63 @@ Section dyadics.
    If we already have a [Rationals] implementation [Q], then we can embed [Dyadic]
    into it. That is, we have an injective ring morphism [DtoQ : Dyadic → Q].
   *)
-  Context `{Rationals Q}.
+  Context `{Rationals Q} `{!SemiRing_Morphism (ZtoQ: Z → Q)}.
   Add Ring Q: (rings.stdlib_ring_theory Q).
 
-  (* We don't make (Z >-> Q) a coercion because it could be computationally expensive
-   and we want to see where it's called. *)
-  Context `{!Ring_Morphism (ZtoQ: Z → Q)}.
-
-  Program Definition EtoQ (n : Z⁺) : { z : Q | z ≠ 0 } := ZtoQ (1 ≪ n).
-  Next Obligation with intuition.
-    intros E. 
-    apply (shiftl_nonzero (1:Z) n).
-     apply (ne_zero 1).
-    apply (injective ZtoQ).
-    rewrite rings.preserves_0...
-  Qed.
-
-  Global Instance EtoQ_proper: Proper ((=) ==> (=)) EtoQ.
-  Proof.
-    intros x y E.
-    unfold EtoQ. unfold equiv, sig_equiv, sig_relation. simpl.
-    rewrite E. reflexivity.
-  Qed.
- 
-  Program Definition DtoQ (d: Dyadic): Q := 
-    if precedes_dec 0 (expo d)
-    then ZtoQ (mant d ≪ exist _ (expo d) _)
-    else ZtoQ (mant d) // (EtoQ (exist _ (-expo d) _)).
+  Program Definition DtoQ (x : Dyadic) : Q := 
+    if precedes_dec 0 (expo x)
+    then ZtoQ (mant x ≪ exist _ (expo x) _)
+    else ZtoQ (mant x) // (ZtoQ (1 ≪ (exist _ (-expo x) _))).
   Next Obligation. 
    apply rings.flip_nonpos_inv.
    apply orders.precedes_flip. assumption.
   Qed.
+  Next Obligation.
+    apply rings.injective_not_0.
+    apply (shiftl_nonzero (1:Z)).
+    apply (ne_zero 1).
+  Qed.
 
-  Definition DtoQ_alt (d: Dyadic): Q := ZtoQ (mant d ≪ (expo d -- 0)) // EtoQ (0 -- expo d).
+  Definition DtoQ_alt (x : Dyadic) : Q := ZtoQ (mant x) * 2 ^ (expo x).
+
+  Lemma ZtoQ_shift (x : Z) (n : Z⁺) : ZtoQ (x ≪ n) = ZtoQ x * 2 ^ ('n : Z).
+  Proof.
+    rewrite shiftl_correct.
+    rewrite rings.preserves_mult, nat_pow.preserves_nat_pow, rings.preserves_2.
+    rewrite <-int_pow_nat_pow.
+    rewrite <-(naturals.to_semiring_unique NonNeg_inject).
+    reflexivity.
+  Qed.
 
   Global Instance: Proper ((=) ==> (=)) DtoQ_alt.
   Proof with auto; try reflexivity.
-    intros x y E.
-    unfold DtoQ_alt, EtoQ.
-    apply fields.equal_quotients. simpl.
-    do 2 rewrite <-rings.preserves_mult.
-    apply sm_proper.
-    do 2 rewrite mult_shiftl.
-    do 2 rewrite right_identity.
-    unfold equiv, dy_eq in E.
-    destruct (total_order (expo x) (expo y)) as [F|F]; rewrite (shiftl_cut_minus_0 F) in E.
-     rewrite E. do 3 rewrite <-shiftl_sum_exp.
-     apply shiftl_proper... 
-     unfold_cut_minus. ring_simplify. apply cut_minus_zeros_precedes...
-    rewrite <-E. do 3 rewrite <-shiftl_sum_exp.
-    apply shiftl_proper... 
-    unfold_cut_minus. symmetry. ring_simplify. apply cut_minus_zeros_precedes...
+    assert (∀ x y, expo x ≤ expo y → x = y → DtoQ_alt x = DtoQ_alt y).
+     intros [xm xe] [ym ye] E F.
+     unfold DtoQ_alt.
+     unfold equiv, dy_eq in F. simpl in *.
+     rewrite (shiftl_cut_minus_0 E) in F.
+     rewrite F. rewrite ZtoQ_shift.
+     unfold inject, NonNeg_inject, cut_minus_NonNeg. simpl.
+     rewrite <-associativity, <-int_pow_exp_sum.
+      rewrite cut_minus_precedes...
+     apply (ne_zero (2 : Q)).
+    intros [xm xe] [ym ye] F.
+    destruct (total_order xe ye) as [E|E]...
+    symmetry. symmetry in F...
   Qed.
   
   Lemma DtoQ_alt_correct x : DtoQ x = DtoQ_alt x.
   Proof with auto; try reflexivity.
-    unfold DtoQ, DtoQ_alt. 
-    case (precedes_dec 0 (expo x)); intros E.
-     setoid_replace (// EtoQ (0 -- expo x)) with 1.
-     rewrite right_identity.
-     apply sm_proper. apply shiftl_proper... 
-     unfold_cut_minus. rewrite cut_minus_rightidentity...
-     assert (EtoQ (0 -- expo x) = 1) as F.
-      unfold EtoQ, equiv, sig_equiv, sig_relation. simpl.
-      rewrite shiftl_cut_minus_0... apply rings.preserves_1.
-     rewrite F. rewrite <-rings.mult_1_l. apply fields.mult_inverse_alt.
-    rewrite shiftl_cut_minus_0... 
+    unfold DtoQ, DtoQ_alt.
+    destruct x as [xn xe]. simpl. 
+    case (precedes_dec 0 xe); intros E.
+     rewrite ZtoQ_shift...
     apply sg_mor...
-    eapply mult_inv_proper; try apply _.
-    unfold EtoQ, equiv, sig_equiv, sig_relation. simpl.
-    apply sm_proper. apply shiftl_proper...
-    unfold_cut_minus.
-    rewrite cut_minus_ring_inv...
+    rewrite <-fields.dec_mult_inv_correct.
+    rewrite int_pow_mult_inv_alt.
+    apply fields.dec_mult_inv_proper.
+    rewrite ZtoQ_shift...
+    rewrite rings.preserves_1, left_identity. reflexivity.
   Qed.
 
   Global Instance: Proper ((=) ==> (=)) DtoQ.
@@ -466,71 +451,29 @@ Section dyadics.
     rewrite E. reflexivity.
   Qed.
 
-  Lemma EtoQ_plus_mult x y :  EtoQ (x + y) = (EtoQ x) * (EtoQ y).
-  Proof.
-    intros.
-    unfold equiv, sig_equiv, sig_relation, EtoQ. simpl.
-    rewrite <-rings.preserves_mult.
-    rewrite <-mult_shiftl_1.
-    rewrite shiftl_sum_exp.
-    reflexivity.
-  Qed.
-
-  Lemma EtoQ_zero_one : EtoQ 0 = 1.
-  Proof.
-    unfold equiv, sig_equiv, sig_relation, EtoQ. simpl.
-    rewrite right_identity.
-    rewrite rings.preserves_1.
-    reflexivity.
-  Qed.
-
-  Lemma EtoQ_quotients a b c d : 
-    ZtoQ a // EtoQ b + ZtoQ c // EtoQ d = ZtoQ (a ≪ d + c ≪ b) // EtoQ (b + d).
-  Proof.
-    rewrite rings.preserves_plus.
-    rewrite fields.quotients. simpl.
-    repeat rewrite <-rings.preserves_mult.
-    repeat rewrite <-mult_shiftl_1.
-    rewrite EtoQ_plus_mult. 
-    reflexivity.
-  Qed.
-
   Lemma DtoQ_preserves_plus x y : DtoQ (x + y) = DtoQ x + DtoQ y.
-  Proof. 
-    unfold ring_plus at 1. 
-    rewrite dy_plus_alt_correct. do 3 rewrite DtoQ_alt_correct. 
-    unfold dy_plus_alt, DtoQ_alt. simpl.
-    rewrite EtoQ_quotients. 
-    apply fields.equal_quotients. 
-    unfold EtoQ. simpl.
-    do 2 rewrite <-rings.preserves_mult.
-    apply sm_proper.
-    do 2 rewrite <-mult_shiftl_1.
-    do 3 rewrite shiftl_sum_base.
-    repeat rewrite <-shiftl_sum_exp.
-    apply sg_mor; apply shiftl_proper; try reflexivity; unfold_cut_minus; 
-      destruct (total_order (expo x) (expo y)) as [F|F]. 
-       rewrite (cut_minus_0 _ _ F), (min_l _ _ F). ring.
-      rewrite (min_r _ _ F). 
-      symmetry. rewrite associativity, <-cut_minus_zeros_precedes. ring. assumption.
-     rewrite (min_l _ _ F).
-     symmetry. rewrite associativity, <-cut_minus_zeros_precedes. ring. assumption.
-    rewrite (cut_minus_0 _ _ F), (min_r _ _ F). ring.
+  Proof with auto.
+    assert (∀ x y, expo x ≤ expo y → DtoQ (x + y) = DtoQ x + DtoQ y).
+     intros [xn xe] [yn ye] E.
+     unfold ring_plus at 1. 
+     rewrite dy_plus_alt_correct. do 3 rewrite DtoQ_alt_correct. 
+     unfold dy_plus_alt, DtoQ_alt. simpl in *.
+     rewrite shiftl_cut_minus_0...
+     rewrite rings.preserves_plus. rewrite ZtoQ_shift.
+     unfold inject, NonNeg_inject. simpl.
+     rewrite min_l...
+     ring_simplify.
+     rewrite <-associativity, <-int_pow_exp_sum.
+      rewrite cut_minus_precedes... reflexivity.
+     apply (ne_zero (2 : Q)).
+    destruct (total_order (expo x) (expo y)) as [E|E]...
+    rewrite commutativity, (commutativity (DtoQ x))...
   Qed.
   
   Lemma DtoQ_preserves_0 : DtoQ 0 = 0.
   Proof. 
     rewrite DtoQ_alt_correct. unfold DtoQ_alt. simpl.
-    apply fields.field_div_0_l.
-    rewrite left_absorb.
-    rewrite rings.preserves_0. reflexivity.
-  Qed.
-  
-  Lemma DtoQ_preserves_group_inv x : DtoQ (-x) = -DtoQ x.
-  Proof. 
-    do 2 rewrite DtoQ_alt_correct. unfold DtoQ_alt. simpl.
-    rewrite opp_shiftl, preserves_inv.
-    ring.
+    rewrite rings.preserves_0. ring.
   Qed.
 
   Lemma DtoQ_preserves_mult x y : DtoQ (x * y) = DtoQ x * DtoQ y.
@@ -538,37 +481,24 @@ Section dyadics.
     do 3 rewrite DtoQ_alt_correct. 
     unfold ring_mult at 1. unfold dy_mult at 1.
     unfold DtoQ_alt. simpl.
-    rewrite mult_shiftl_1, (mult_shiftl_1 (mant x)), (mult_shiftl_1 (mant y)).
-    do 4 rewrite rings.preserves_mult.
-    assert (∀ (a b c : Q) d, (a * b * c) // d = (a * b) * (c // d)) as E1.
-     intros. ring.
-    assert (∀ (a b d e : Q) c f, (a * b) // c * (d * e) // f = (a * d) * ((b * e) // (c * f))) as E2.
-     intros. rewrite fields.mult_inv_distr. ring.
-    rewrite E1, E2. apply sg_mor... clear E1 E2.
-    apply fields.equal_quotients. simpl.
-    do 4 rewrite <-rings.preserves_mult.
-    apply sm_proper.
-    do 3 rewrite <-mult_shiftl_1. 
-    repeat rewrite <-shiftl_sum_exp.
-    rewrite <-mult_shiftl_1, <-shiftl_sum_exp.
-    apply shiftl_proper...
-    unfold_cut_minus.
-    repeat rewrite <-cut_minus_zero_plus_toggle. ring.
+    destruct x as [xn xe], y as [yn ye]. simpl.
+    rewrite rings.preserves_mult.
+    rewrite int_pow_exp_sum. ring.
+    apply (ne_zero (2 : Q)).
   Qed. 
 
   Lemma DtoQ_preserves_1 : DtoQ 1 = 1.
   Proof.
-    rewrite DtoQ_alt_correct. 
-    unfold DtoQ_alt, EtoQ. simpl. 
-    apply fields.field_div_diag. reflexivity.
+    rewrite DtoQ_alt_correct.
+    unfold DtoQ_alt. simpl.
+    rewrite int_pow_0, rings.preserves_1. ring. 
   Qed.
 
-  Global Instance: Ring_Morphism DtoQ.
+  Global Instance: SemiRing_Morphism DtoQ.
   Proof. 
     repeat (split; try apply _).
-        exact DtoQ_preserves_plus.
-       exact DtoQ_preserves_0.
-      exact DtoQ_preserves_group_inv.
+       exact DtoQ_preserves_plus.
+      exact DtoQ_preserves_0.
      exact DtoQ_preserves_mult.
     exact DtoQ_preserves_1.
   Qed.
@@ -576,23 +506,24 @@ Section dyadics.
   Global Instance: Injective DtoQ.
   Proof with auto.
     split; try apply _.
-    intros x y E.
-    unfold equiv, dy_eq. 
-    do 2 rewrite DtoQ_alt_correct in E. 
-    unfold DtoQ_alt, EtoQ in E. 
-    apply fields.equal_quotients in E. simpl in E.
-    do 2 rewrite <-rings.preserves_mult in E.
-    do 2 rewrite <-mult_shiftl_1 in E.
-    do 2 rewrite <-shiftl_sum_exp in E.
-    apply (injective ZtoQ) in E.
-    destruct (total_order (expo x) (expo y)) as [F|F]; rewrite (shiftl_cut_minus_0 F).
-     apply (shiftl_inj (expo x -- 0 + (0 -- expo y))). unfold flip.
-     rewrite E, <-shiftl_sum_exp. apply shiftl_proper. reflexivity.
-     unfold_cut_minus. rewrite <-cut_minus_zeros_precedes... ring.
-    apply (shiftl_inj (expo y -- 0 + (0 -- expo x))). unfold flip.
-    rewrite <-E, <-shiftl_sum_exp. apply shiftl_proper. reflexivity.
-    unfold_cut_minus. symmetry. 
-    rewrite <-cut_minus_zeros_precedes... ring.
+    assert (∀ x y, expo x ≤ expo y → DtoQ x = DtoQ y → x = y).
+     intros [xn xe] [yn ye] E F.
+     unfold equiv, dy_eq. 
+     do 2 rewrite DtoQ_alt_correct in F. 
+     unfold DtoQ_alt in F. simpl in *.
+     apply (injective ZtoQ).
+     rewrite shiftl_cut_minus_0...
+     rewrite ZtoQ_shift.
+     apply (rings.right_cancellation_ne_0 (.*.) (2 ^ xe)).
+      apply int_pow_nonzero.
+      apply (ne_zero (2 : Q)).
+     unfold inject, NonNeg_inject. simpl.
+     rewrite <-associativity, <-int_pow_exp_sum.
+     rewrite cut_minus_precedes... 
+     apply (ne_zero (2 : Q)).
+     intros x y F.
+     destruct (total_order (expo x) (expo y)) as [E|E]...
+     symmetry. symmetry in F...
   Qed.
 
 End dyadics.
