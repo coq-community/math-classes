@@ -11,8 +11,9 @@ Require Import
   abstract_algebra 
   interfaces.integers interfaces.naturals interfaces.rationals
   interfaces.additional_operations
-  theory.cut_minus theory.bit_shift orders.minmax orders.integers
-  nonneg_integers_naturals theory.int_pow orders.rationals. 
+  orders.minmax orders.integers orders.rationals
+  nonneg_integers_naturals 
+  theory.cut_minus theory.bit_shift theory.int_pow theory.nat_pow theory.abs. 
 
 Record Dyadic Z := dyadic { mant: Z; expo: Z }.
 Implicit Arguments dyadic [[Z]].
@@ -379,6 +380,34 @@ Section dyadics.
 
   Global Instance: Ring Dyadic.
 
+  Global Program Instance dy_nat_pow: NatPow (Dyadic) (Z⁺) := λ x n,
+    (mant x) ^ n $ 'n * expo x.
+  Next Obligation with auto; try reflexivity.
+    change (nat_pow_spec x n ((λ x n, mant x ^ n $ ' n * expo x) x n)).
+    apply nat_pow_spec_from_properties.
+      intros x1 y1 E1 x2 y2 E2. rewrite E2. clear x n x2 E2.
+      assert (∀ a b, expo a ≤ expo b → a = b 
+         → (mant a ^ y2 $ ' y2 * expo a) = (mant b ^ y2 $ ' y2 * expo b)).
+       unfold equiv, dy_eq in E1 |- *. simpl.
+       intros [am ae] [bm be] E F. destruct y1 as [ym ye]. simpl in *.
+       rewrite shiftl_cut_minus_0, shiftl_correct in F...
+       rewrite shiftl_cut_minus_0, shiftl_correct.
+        rewrite F, nat_pow_base_mult, <-nat_pow_exp_mult.
+        apply sg_mor... apply nat_pow_proper...
+        unfold_cut_minus.
+        rewrite commutativity.
+        apply cut_minus_mult_distr_l. destruct y2...
+       apply semirings.mult_compat... destruct y2...
+      destruct (total_order (expo x1) (expo y1))...
+      symmetry in E1 |- *...
+     intros [xm xe]. simpl.
+     rewrite nat_pow_0, rings.preserves_0, left_absorb...
+    intros [xm xe] m. simpl.
+    rewrite nat_pow_S.
+    rewrite rings.preserves_plus, rings.preserves_1.
+    rewrite distribute_r, left_identity...
+  Qed.
+
   (** 
    * Embedding into the rationals
    If we already have a [Rationals] implementation [Q], then we can embed [Dyadic]
@@ -411,7 +440,7 @@ Section dyadics.
      apply (ne_zero (2:Q)).
     intros x y F.
     destruct (total_order (expo x) (expo y))...
-    symmetry. symmetry in F...
+    symmetry in F |- *...
   Qed.
 
   Lemma DtoQ_slow_preserves_plus x y : DtoQ_slow (x + y) = DtoQ_slow x + DtoQ_slow y.
@@ -481,7 +510,7 @@ Section dyadics.
      apply (ne_zero (2:Q)).
      intros x y F.
      destruct (total_order (expo x) (expo y)) as [E|E]...
-     symmetry. symmetry in F...
+     symmetry in F |- *...
   Qed.
 
   Program Definition DtoQ (x : Dyadic) : Q := 
@@ -581,5 +610,92 @@ Section dyadics.
     apply (order_preserving_back DtoQ_slow). 
     rewrite rings.preserves_0, rings.preserves_mult.
     apply ringorder_mult; rewrite <-(rings.preserves_0 (f:=DtoQ_slow))...
+  Qed.
+
+  Lemma nonneg_mant (x : Dyadic) : 0 ≤ x ↔ 0 ≤ mant x.
+  Proof with auto.
+    split; intros E.
+     unfold precedes, dy_precedes, DtoQ_slow in E. simpl in *.
+     apply (order_preserving_back ZtoQ).
+     apply (maps.order_preserving_back_flip_gt_0 (.*.) (2 ^ (expo x))). 
+      apply int_pow_nonneg. apply semirings.sprecedes_0_2.
+     unfold flip. rewrite rings.preserves_0, left_absorb in E |- *...
+    unfold precedes, dy_precedes, DtoQ_slow. simpl.
+    apply (order_preserving ZtoQ) in E.
+    apply (maps.order_preserving_flip_ge_0 (.*.) (2 ^ (expo x))) in E. 
+     unfold flip in E. rewrite rings.preserves_0, left_absorb in E |- *...
+    apply int_pow_nonneg. apply semirings.sprecedes_0_2.
+  Qed.
+
+  Lemma nonpos_mant (x : Dyadic) : x ≤ 0 ↔ mant x ≤ 0.
+  Proof with auto.
+    split; intros E.
+     apply rings.flip_nonpos_inv, nonneg_mant in E.
+     apply rings.flip_nonpos_inv...
+    apply rings.flip_nonpos_inv, nonneg_mant.
+    apply rings.flip_nonpos_inv in E...
+  Qed.
+
+  Global Program Instance dy_abs `{!Abs Z} : Abs Dyadic := λ x, abs (mant x) $ expo x.
+  Next Obligation with auto; try reflexivity.
+    split; intros E.
+     rewrite abs_nonneg. 
+      destruct x...
+     apply nonneg_mant...
+     rewrite abs_nonpos. 
+     destruct x...
+    apply nonpos_mant...
+  Qed.
+
+  Lemma dy_precedes_dec_aux (x y : Dyadic) p : 
+    mant x ≤ mant y ≪ exist _ (expo y - expo x) p → x ≤ y.
+  Proof with auto.
+    destruct x as [xm xe], y as [ym ye].
+    intros E. unfold precedes, dy_precedes, DtoQ_slow. simpl in *.
+    apply (order_preserving ZtoQ) in E.
+    rewrite ZtoQ_shift in E.
+    setoid_replace ye with ((ye - xe) + xe) by ring.
+    rewrite int_pow_exp_sum.
+     rewrite associativity. 
+     apply (maps.order_preserving_flip_ge_0 (.*.) (2 ^  xe))...
+     apply int_pow_nonneg. apply semirings.sprecedes_0_2.
+    apply (ne_zero (2:Q)).
+  Qed.
+
+  Local Obligation Tactic := idtac.
+  Global Program Instance dy_precedes_dec : ∀ (x y: Dyadic), Decision (x ≤ y) := λ x y,
+     if precedes_dec (expo x) (expo y) 
+     then if precedes_dec (mant x) (mant y ≪ exist _ (expo y - expo x) _) then left _ else right _ 
+     else if precedes_dec (mant x ≪ exist _ (expo x - expo y) _) (mant y) then left _ else right _.
+  Next Obligation. intros. apply rings.flip_nonneg_minus. assumption. Qed.
+  Next Obligation with eassumption. 
+    intros x y E1 E2. eapply dy_precedes_dec_aux... 
+  Qed.
+  Next Obligation with eassumption.
+    intros x y E1 E2.
+    apply orders.not_precedes_sprecedes.
+    apply orders.not_precedes_sprecedes in E2. apply rings.flip_inv_strict in E2.
+    destruct E2 as [E2a E2b]. split.
+     apply rings.flip_inv.
+     eapply dy_precedes_dec_aux.
+     simpl. rewrite opp_shiftl...
+    intros E3. apply E2b. apply inv_proper.
+    apply dy_eq_dec_aux. symmetry...
+  Qed.
+  Next Obligation. intros. apply rings.flip_nonneg_minus. auto. Qed.
+  Next Obligation with eassumption. 
+    intros x y E1 E2. 
+    apply orders.sprecedes_precedes in E2. destruct E2 as [E2 | E2].
+     apply orders.equiv_precedes. symmetry in E2 |- *. eapply dy_eq_dec_aux...
+    apply rings.flip_inv.
+    eapply dy_precedes_dec_aux.
+    simpl. rewrite opp_shiftl. apply (proj1 (rings.flip_inv _ _)). eapply E2.
+  Qed.
+  Next Obligation with eassumption. 
+    intros x y E1 E2.
+    apply orders.not_precedes_sprecedes in E2. destruct E2 as [E2a E2b].
+    apply orders.not_precedes_sprecedes. split.
+     eapply dy_precedes_dec_aux... 
+    eapply dy_eq_dec_aux_neg...
   Qed.
 End dyadics.

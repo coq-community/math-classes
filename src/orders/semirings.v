@@ -206,8 +206,14 @@ Qed.
 Lemma precedes_0_2 : 0 ≤ 2.
 Proof. apply nonneg_plus_compat; apply precedes_0_1. Qed.
 
+Lemma sprecedes_0_2 `{!NeZero (1:R)} : 0 < 2.
+Proof. apply pos_plus_compat; apply sprecedes_0_1. Qed.
+
 Lemma precedes_1_2 : 1 ≤ 2.
 Proof. apply nonneg_plus_compat_l. apply precedes_0_1. reflexivity. Qed.
+
+Lemma sprecedes_1_2 `{!NeZero (1:R)} : 1 < 2.
+Proof. apply pos_plus_compat_l. apply sprecedes_0_1. reflexivity. Qed.
 
 Lemma not_precedes_1_0 `{!NeZero (1:R)} : ¬1 ≤ 0.
 Proof.

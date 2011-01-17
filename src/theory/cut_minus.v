@@ -92,6 +92,27 @@ Section cut_minus_properties.
     apply semirings.plus_compat...
   Qed.
 
+  Lemma cut_minus_mult_distr_l (x y z : R) : 0 ≤ x →  x * (y ∸ z) = x * y ∸ x * z.
+  Proof with auto.
+    intros E.
+    destruct (total_order y z).
+     repeat rewrite cut_minus_0...
+      ring.
+     apply semirings.mult_compat...
+    apply (right_cancellation (+) (x * z)). 
+    rewrite <-distribute_l.
+    repeat rewrite cut_minus_precedes...
+     reflexivity.
+    apply semirings.mult_compat...
+  Qed.
+
+  Lemma cut_minus_mult_distr_r (x y z : R) : 0 ≤ x →  (y ∸ z) * x = y * x ∸ z * x.
+  Proof with auto.
+    intros E.
+    do 3 rewrite (commutativity _ x).
+    apply cut_minus_mult_distr_l...
+  Qed.
+
   Lemma cut_minus_plus_l_rev x y z : y ∸ z = (x + y) ∸ (x + z).
   Proof with auto; try reflexivity.
     destruct (total_order y z) as [E|E].

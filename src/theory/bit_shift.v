@@ -50,13 +50,13 @@ Section shift_left_properties.
   Proof. do 3 rewrite shiftl_correct. ring. Qed.
 
   Lemma shiftl_sum_exp x y z: x ≪ (y + z) = x ≪ y ≪ z.
-  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_sum. ring. Qed.
+  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_plus. ring. Qed.
 
   Lemma mult_r_shiftl_shiftl x y z1 z2 : (x * (y ≪ z1)) ≪ z2 = (x * y) ≪ (z1 + z2).
-  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_sum. ring. Qed.
+  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_plus. ring. Qed.
 
   Lemma mult_l_shiftl_shiftl x y z1 z2 : ((x ≪ z1) * y) ≪ z2 = (x * y) ≪ (z1 + z2).
-  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_sum. ring. Qed.
+  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_plus. ring. Qed.
 
   Context `{GroupInv A} .
 

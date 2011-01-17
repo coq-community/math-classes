@@ -19,6 +19,17 @@ Proof with auto.
   rewrite <-(inv_involutive x), <-(inv_involutive y)...
 Qed.
 
+Lemma flip_inv_strict x y : x < y ↔ -y < -x.
+Proof with auto.
+  assert (∀ a b, a < b → -b < -a).
+   intros a b [E1 E2].
+   split.
+    apply ->flip_inv...
+   intros E3. apply E2. apply (injective (-)). symmetry...
+  split; intros...
+  rewrite <-(inv_involutive x), <-(inv_involutive y)...
+Qed.
+
 Lemma flip_nonneg_inv x : 0 ≤ x ↔ -x ≤ 0. 
 Proof with eauto.
   split; intros E.
@@ -30,6 +41,19 @@ Lemma flip_nonpos_inv x : x ≤ 0 ↔ 0 ≤ -x.
 Proof with auto.
   rewrite <-(inv_involutive x) at 1. 
   split; intros; apply flip_nonneg_inv; auto.
+Qed.
+
+Lemma flip_pos_inv x : 0 < x ↔ -x < 0. 
+Proof with eauto.
+  split; intros E.
+   rewrite <- opp_0... apply ->flip_inv_strict...
+  apply flip_inv_strict. rewrite opp_0...
+Qed.
+
+Lemma flip_neg_inv x : x < 0 ↔ 0 < -x. 
+Proof with auto.
+  rewrite <-(inv_involutive x) at 1. 
+  split; intros; apply flip_pos_inv; auto.
 Qed.
 
 Lemma flip_nonneg_minus (x y : R) : 0 ≤ y + -x ↔ x ≤ y.

@@ -194,6 +194,24 @@ Proof with eauto.
   setoid_replace n with (1 + (n - 1)) by ring.
   rewrite int_pow_S, E2... ring. 
 Qed. 
+
+Context `{oA : Order A} `{!RingOrder oA} `{!TotalOrder oA}.
+
+Lemma int_pow_nonneg (x : A) (n : B) : 0 < x → 0 < x ^ n.
+Proof with auto.
+  intros nonneg.
+  pattern n. apply integers.induction; clear n.
+     intros x1 x2 E. rewrite E. reflexivity.
+    intros. rewrite int_pow_0. apply semirings.sprecedes_0_1.
+   intros n E1 E2. rewrite int_pow_S_nonneg...
+   apply semirings.pos_mult_compat...
+  intros n E1 E2.
+  assert (GtZero x)...
+  apply (maps.strictly_order_preserving_back (x *.)). unfold flip.
+  rewrite <-int_pow_S.
+   rewrite right_absorb. setoid_replace (1 + (n - 1)) with n by ring...
+  apply not_symmetry. apply orders.neq_precedes_sprecedes...
+Qed. 
 End int_pow_properties.
 
 Section preservation.

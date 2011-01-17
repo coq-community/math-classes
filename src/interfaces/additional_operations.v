@@ -12,7 +12,7 @@ Infix "^" := pow.
 Notation "(^)" := pow (only parsing).
 Instance: Params (@pow) 3.
 
-Inductive nat_pow_spec `{Equiv A} `{Equiv B} `{RingOne A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B}  : A → B → A → Prop := 
+Inductive nat_pow_spec `{Equiv A} `{Equiv B} `{RingOne A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} : A → B → A → Prop := 
   | nat_pow_spec_0 : `(nat_pow_spec x 0 1)
   | nat_pow_spec_S : `(nat_pow_spec x n y → nat_pow_spec x (1 + n) (x * y))
   | nat_pow_spec_proper': `(x1 = x2 → n1 = n2 → y1 = y2 → nat_pow_spec x1 n1 y1 → nat_pow_spec x2 n2 y2). 
@@ -31,8 +31,7 @@ Instance int_pow `{IntPow A B} : Pow A B := λ x n, ` (int_pow_sig x n).
 Instance: Params (@int_pow_sig) 17.
 Instance: Params (@int_pow) 17.
 
-Class ShiftLeft A B `{NatPow A B} `{RingPlus A} 
-  := shiftl_sig: ∀ (x : A) (y : B), { z : A | z = x * 2 ^ y }.
+Class ShiftLeft A B `{NatPow A B} `{RingPlus A} := shiftl_sig: ∀ (x : A) (y : B), { z : A | z = x * 2 ^ y }.
 Definition shiftl `{ShiftLeft A B}: A → B → A := λ x y, ` (shiftl_sig x y).
 Infix "≪" := shiftl (at level 33, left associativity).
 Notation "(≪)" := shiftl (only parsing).

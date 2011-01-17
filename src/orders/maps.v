@@ -54,7 +54,15 @@ Section order_preserving_ops.
     0 ≤ z → OrderPreserving (op z).
   Proof. auto. Qed.
 
+  Lemma order_preserving_flip_ge_0 (op : R → R → R) `{!RingZero R} `{∀ z, GeZero z → OrderPreserving (flip op z)} z : 
+    0 ≤ z → OrderPreserving (flip op z).
+  Proof. auto. Qed.
+
   Lemma order_preserving_back_gt_0 (op : R → R → R) `{!RingZero R} `{∀ z, GtZero z → OrderPreservingBack (op z)} z : 
     0 < z → OrderPreservingBack (op z).
+  Proof. auto. Qed.
+
+  Lemma order_preserving_back_flip_gt_0 (op : R → R → R) `{!RingZero R} `{∀ z, GtZero z → OrderPreservingBack (flip op z)} z : 
+    0 < z → OrderPreservingBack (flip op z).
   Proof. auto. Qed.
 End order_preserving_ops. 

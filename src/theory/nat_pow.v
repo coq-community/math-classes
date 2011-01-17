@@ -88,7 +88,7 @@ Section nat_pow_properties.
   End nat_pow_spec_from_properties.
 
   Context `{np : !NatPow A B}.
-  Global Instance: Proper ((=) ==> (=) ==> (=)) (^).
+  Global Instance nat_pow_proper: Proper ((=) ==> (=) ==> (=)) (^).
   Proof with eauto.
     intros x1 x2 E y1 y2 F. 
     unfold pow, nat_pow, nat_pow_sig. do 2 destruct np. simpl.
@@ -123,27 +123,50 @@ Section nat_pow_properties.
     intros n E. rewrite nat_pow_S. rewrite E. ring.
   Qed.
   
-  Lemma nat_pow_exp_sum (x y: B) (n: A) : 
-    n ^ (x + y) = n ^ x * n ^ y.
+  Lemma nat_pow_exp_plus (x : A) (n m : B) : 
+    x ^ (n + m) = x ^ n * x ^ m.
   Proof with auto.
-    pattern x. apply naturals.induction; clear x.
-      intros ? ? E. rewrite E. tauto.
+    pattern n. apply naturals.induction; clear n.
+      intros ? ? E. rewrite E. reflexivity.
      rewrite nat_pow_0, left_identity. ring.
-    intros x E. 
+    intros n E. 
     rewrite <-associativity.
     do 2 rewrite nat_pow_S.
     rewrite E. ring.
   Qed.
   
+  Lemma nat_pow_base_mult (x y : A) (n : B) : 
+    (x * y) ^ n = x ^ n * y ^ n.
+  Proof with auto.
+    pattern n. apply naturals.induction; clear n.
+      intros ? ? E. rewrite E. reflexivity.
+     repeat rewrite nat_pow_0. ring.
+    intros n E. 
+    repeat rewrite nat_pow_S.
+    rewrite E. ring.
+  Qed.
+
+  Lemma nat_pow_exp_mult (x : A) (n m : B) : 
+    x ^ (n * m) = (x ^ n) ^ m.
+  Proof with auto.
+    pattern m. apply naturals.induction; clear m.
+      intros ? ? E. rewrite E. reflexivity.
+     rewrite right_absorb. repeat rewrite nat_pow_0. reflexivity.
+    intros m E. 
+    rewrite nat_pow_S, <-E.
+    rewrite distribute_l, right_identity.
+    rewrite nat_pow_exp_plus. reflexivity.
+  Qed.
+
   Context `{!NoZeroDivisors A} `{!NeZero (1:A) }.
 
-  Lemma nat_pow_nonzero (x: B) (n: A) : n ≠ 0 → n ^ x ≠ 0.
+  Lemma nat_pow_nonzero (x : A) (n : B) : x ≠ 0 → x ^ n ≠ 0.
   Proof with eauto.
-    pattern x. apply naturals.induction; clear x.
-      intros x1 x2 E. rewrite E. tauto.
+    pattern n. apply naturals.induction; clear n.
+      intros x1 x2 E. rewrite E. reflexivity.
      intros. rewrite nat_pow_0. apply (ne_zero 1).
-    intros x E F G. rewrite nat_pow_S in G.
-    apply (no_zero_divisors n); split... 
+    intros n E F G. rewrite nat_pow_S in G.
+    apply (no_zero_divisors x); split... 
   Qed. 
 End nat_pow_properties.
 
