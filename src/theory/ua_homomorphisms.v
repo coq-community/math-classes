@@ -38,7 +38,7 @@ Section contents. Variable σ: Signature.
 
     Global Instance Preservation_proper n:
       Proper (op_type_equiv _ _ _ ==> op_type_equiv _ B n ==> iff) (@Preservation n).
-        (* todo: use equiv in the signature and see why things break *)
+        (* todo: use (=) in the signature and see why things break *)
     Proof with auto.
      induction n; simpl; intros x y E x' y' E'.
       split; intro F. rewrite <- E, <- E'... rewrite E, E'...
@@ -46,7 +46,7 @@ Section contents. Variable σ: Signature.
     Qed.
 
     Global Instance Preservation_proper'' n:
-      Proper (eq ==> equiv ==> iff) (@Preservation n).
+      Proper (eq ==> (=) ==> iff) (@Preservation n).
     Proof with auto.
      induction n; simpl; intros x y E x' y' E'.
       split; intro F. rewrite <- E, <- E'... rewrite E, E'...
@@ -69,7 +69,7 @@ Section contents. Variable σ: Signature.
 
   Lemma Preservation_proper' (f g: ∀ a, A a → B a)
    `{∀ i, Equivalence (ea i)} `{∀ i, Equivalence (eb i)} `{∀ a, Setoid_Morphism (@f a)}:
-    (∀ a (x: A a), f a x = g a x) → ∀ (n: OpType) x y, Proper equiv x → Proper equiv y →
+    (∀ a (x: A a), f a x = g a x) → ∀ (n: OpType) x y, Proper (=) x → Proper (=) y →
       @Preservation f n x y →
       @Preservation g n x y.
   Proof.
@@ -151,7 +151,7 @@ Implicit Arguments inverse [[A] [B] [Inverse]].
     intro. fold (inverse (f a)). apply _.
    intro.
    generalize (ao o) (bo o) (preserves _ _ f o)
-     (algebra_propers o: Proper equiv (ao o)) (algebra_propers o: Proper equiv (bo o)).
+     (algebra_propers o: Proper (=) (ao o)) (algebra_propers o: Proper (=) (bo o)).
    induction (σ o); simpl.
     intros.
     apply (injective (f t)).

@@ -1,9 +1,9 @@
 Require
   signed_binary_positive_integers Field Qfield theory.fields.
 Require Import
-  Ring Morphisms QArith_base
+  Ring Morphisms QArith_base Qabs Qpower
   abstract_algebra theory.rings interfaces.rationals canonical_names
-  theory.rationals.
+  theory.rationals additional_operations int_pow.
 
 (* canonical names for relations/operations/constants: *)
 Instance Q_eq: Equiv Q := Qeq.
@@ -15,38 +15,52 @@ Instance Q_mult : RingMult Q := Qmult.
 Program Instance Q_mult_inv : MultInv Q := Qinv.
 
 (* properties: *)
-
 Instance: Setoid Q.
 
 Instance: Field Q.
 Proof fields.from_stdlib_field_theory Qfield.Qsft.
 
 (* order: *)
-(*
-Instance: Transitive Qle := Qle_trans.
-Instance: Reflexive Qle := Qle_refl.
-Instance Qle_PreOrder: PreOrder Qle.
-Instance: AntiSymmetric Qle := Qle_antisym.
-Instance: PartialOrder Qle.
 Instance: Order Q := Qle.
 
-Instance: RingOrder q_equiv Qplus Qmult 0%Q Qle.
+Instance: RingOrder Qle.
 Proof with auto.
- constructor; try apply _; intros.
-  apply Qplus_le_compat...
-  reflexivity.
- apply Qmult_le_0_compat...
+  repeat (split; try apply _)...
+      exact Qle_refl.
+     exact Qle_trans.
+    exact Qle_antisym.
+   intros. apply Qplus_le_compat... apply Qle_refl.
+  intros. apply Qmult_le_0_compat...
 Qed.
 
-Instance: OrdField Q.
-*)
+Instance: TotalOrder Qle.
+Proof with auto.
+  intros x y.
+  destruct (Qlt_le_dec x y)...
+  left. apply Qlt_le_weak...
+Qed.
+
+Program Instance: ∀ x y: Q, Decision (x ≤ y) := λ y x, 
+  match Qlt_le_dec x y with
+  | left _ => right _
+  | right _ => left _
+  end.
+Next Obligation. apply Qlt_not_le; trivial. Qed. 
+
+Lemma Qlt_coincides x y : (x < y)%Q ↔ x < y.
+Proof with trivial.
+  split.
+   intro. split. apply Qlt_le_weak... apply Qlt_not_eq...
+  intros [E1 E2]. destruct (proj1 (Qle_lteq _ _) E1)... destruct E2...
+Qed.
+
 (* misc: *)
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 
 Instance: Proper ((=) ==> (=)) inject_Z. 
-Proof. intros x y H. rewrite H. reflexivity. Qed.
+Proof. intros x y H. unfold inject_Z. repeat red. simpl. rewrite H. reflexivity. Qed.
 
-Instance: Ring_Morphism inject_Z. 
+Instance: SemiRing_Morphism inject_Z. 
 Proof.
   repeat (split; try apply _).
   intros x y. repeat red. simpl. repeat rewrite Zmult_1_r. reflexivity.
@@ -75,13 +89,32 @@ Proof.
  simpl. rewrite Qmake_Qdiv. reflexivity.
 Qed.
 
-Instance Qrat: Rationals Q.
+Instance: Rationals Q.
 Proof alt_Build_Rationals _ _ inject_Z _ _.
 
-(* Relation to dec_mult_inv *)
 Program Instance Qinv_dec_mult: DecMultInv Q := Qinv.
 Next Obligation.
   split; intros E. 
    apply Qmult_inv_r; trivial.
   rewrite E. reflexivity.
+Qed.
+
+Program Instance: Abs Q := Qabs.
+Next Obligation with trivial.
+  split; intros E.
+   apply Qabs_pos...
+  apply Qabs_neg...
+Qed.
+
+Program Instance: IntPow Q Z := Qpower.
+Next Obligation with trivial.
+  apply int_pow_spec_from_properties.
+     apply _.
+    reflexivity.
+   intros y n E.
+   rewrite Qpower_plus'. reflexivity.
+   apply not_symmetry, orders.neq_precedes_sprecedes.
+   apply semirings.nonneg_plus_scompat_r...
+   apply semirings.sprecedes_0_1.
+  apply Qpower_opp.
 Qed.

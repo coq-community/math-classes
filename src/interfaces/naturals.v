@@ -50,29 +50,7 @@ Class Naturals A {e plus mult zero one} `{U: NaturalsToSemiRing A} :=
   ; naturals_to_semiring_mor:> ∀ `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
   ; naturals_initial:> Initial (semiring.object A) }.
 
-Implicit Arguments naturals_to_semiring_mor [[e] [plus] [mult] [zero] [one] [U] [Naturals] [e0] [plus0] [mult0] [zero0] [one0] ].
-  (* todo: really necessary? *)
-
 (* Specializable operations: *)
-
 Class NatDistance N `{Equiv N} `{RingPlus N}
-  := nat_distance: ∀ (x y: N), { z: N | x + z = y ∨ y + z = x }.
-
-(* Order: *)
-
-(* The following NaturalsToSemiRing instance really belongs in implementations.peano_naturals, but
- having it there would mean that sr_precedes (and things built on it, like interfaces.integers must also
- depend on that implementation, which is undesireable. *)
-
-Instance: NaturalsToSemiRing nat :=
-  λ _ _ _ _ _, fix f (n: nat) := match n with 0%nat => 0 | S n' => f n' + 1 end.
-
-(* We give this order a low priority because it does not make a lot of sense for 
-  semirings in general. Yet, it makes more sense than sg_precedes, so it has priority
-  9 instead of 10. *)
-Instance sr_precedes `{SemiRing R} : Order R | 9 :=
-  λ x y: R, ∃ z: nat, x + naturals_to_semiring nat R z = y.
-Instance: Params (@sr_precedes) 7.
-
-(* Notice that it is also possible to use sg_precedes instead of sr_precedes for the naturals.
-  However, now we have the same order for the naturals and the integers *)
+  := nat_distance_sig : ∀ (x y: N), { z: N | x + z = y ∨ y + z = x }.
+Definition nat_distance `{NatDistance N} : N → N → N := λ x y, proj1_sig (nat_distance_sig x y).

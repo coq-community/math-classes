@@ -163,13 +163,13 @@ Section eqs.
 
 End eqs.
 
-Instance: ∀ `{Equiv A}, Proper (equiv ==> equiv) (ret Expr).
+Instance: ∀ `{Equiv A}, Proper ((=) ==> (=)) (ret Expr).
  repeat intro.
  assumption.
 Qed.
 
 Instance bind_proper: ∀ `{Equiv A} `{Equiv B},
- Proper (equiv ==> pointwise_relation A equiv ==> equiv) (@expr_bind A B).
+ Proper ((=) ==> pointwise_relation A (=) ==> (=)) (@expr_bind A B).
 Proof.
  intros A H B H0 x y E.
 (*

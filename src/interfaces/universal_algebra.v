@@ -128,9 +128,9 @@ Section for_signature. Variable σ: Signature.
 
     Global Instance: Equiv Vars :=
      @pointwise_dependent_relation (sorts σ) (λ a, V → A a)
-      (λ _, pointwise_relation _ equiv).
+      (λ _, pointwise_relation _ (=)).
 
-    Global Instance: Equivalence (equiv: relation Vars).
+    Global Instance: Equivalence ((=): relation Vars).
 
   End Vars.
 
@@ -157,7 +157,7 @@ Section for_signature. Variable σ: Signature.
       end.
 
     Global Instance eval_proper {V} (n: OpType):
-      Proper (equiv ==> eq ==> equiv) (@eval V n).
+      Proper ((=) ==> eq ==> (=)) (@eval V n).
     Proof with auto.
      intros x y E a _ [].
      induction a.
@@ -204,7 +204,7 @@ Section for_signature. Variable σ: Signature.
      constructor.
       intro. unfold Setoid. apply _.
      intro.
-     change (Proper equiv (app_tree (Op V o))).
+     change (Proper (=) (app_tree (Op V o))).
      generalize (Op V o).
      induction (operation_type σ o). reflexivity.
      simpl. repeat intro. subst. apply IHo0.
@@ -229,7 +229,7 @@ Section for_signature. Variable σ: Signature.
        | Disj a b => F a ∨ F b
        end.
 
-    Global Instance eval_stmt_proper: Proper (equiv ==> eq ==> iff) eval_stmt.
+    Global Instance eval_stmt_proper: Proper ((=) ==> eq ==> iff) eval_stmt.
     Proof with auto.
      intros v v' ve s s' se. subst.
      induction s'; simpl; try solve [intuition].

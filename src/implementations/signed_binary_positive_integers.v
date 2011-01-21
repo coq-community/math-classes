@@ -7,7 +7,7 @@ Require Import
   theory.categories theory.rings 
   signed_binary_positives
   interfaces.additional_operations
-  positive_integers_naturals.
+  nonneg_integers_naturals.
 
 (* canonical names: *)
 Instance z_equiv: Equiv BinInt.Z := eq.
@@ -66,17 +66,9 @@ Definition map_Z `{RingPlus R} `{RingZero R} `{RingOne R} `{GroupInv R} (z: Z): 
 Instance inject: IntegersToRing Z := λ B _ _ _ _ _, @map_Z B _ _ _ _.
 
 Section for_another_ring.
-
   Context `{Ring R}.
 
   Add Ring R: (stdlib_ring_theory R).
-
-  Lemma preserves_opp x: map_Z (- x) = - map_Z x.
-  Proof with try reflexivity.
-   destruct x; simpl...
-    rewrite opp_0...
-   rewrite inv_involutive...
-  Qed.
 
   Lemma preserves_Zplus x y: map_Z (x + y) = map_Z x + map_Z y.
   Proof with try reflexivity; try assumption; try ring.
@@ -110,18 +102,17 @@ Section for_another_ring.
    rewrite preserves_Pmult...
   Qed.
 
-  Instance: Proper (equiv ==> equiv)%signature map_Z.
+  Instance: Proper ((=) ==> (=)) map_Z.
   Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
 
-  Hint Resolve preserves_Zplus preserves_Zmult preserves_opp.
-  Hint Constructors Monoid_Morphism SemiGroup_Morphism Group_Morphism Ring_Morphism.
+  Hint Resolve preserves_Zplus preserves_Zmult.
+  Hint Constructors Monoid_Morphism SemiGroup_Morphism.
 
-  Global Instance map_Z_ring_mor: Ring_Morphism map_Z.
+  Global Instance map_Z_ring_mor: SemiRing_Morphism map_Z.
   Proof. repeat (constructor; auto with typeclass_instances; try reflexivity; try apply _). Qed.
 
   Section with_another_morphism.
-
-    Context map_Z' `{!Ring_Morphism (map_Z': Z → R)}.
+    Context map_Z' `{!SemiRing_Morphism (map_Z': Z → R)}.
 
     Let agree_on_0: map_Z Z0 = map_Z' Z0.
     Proof. symmetry. apply preserves_0. Qed.
@@ -162,15 +153,37 @@ Section for_another_ring.
     Qed.
 
   End with_another_morphism.
-
 End for_another_ring.
 
 Instance: Initial (ring.object Z).
 Proof.
   apply integer_initial. intros. apply same_morphism. auto.
 Qed.
-
 Instance: Integers Z.
+
+Instance: Order Z := Zle.
+
+Instance: RingOrder Zle.
+Proof.
+  repeat (split; try apply _).
+    exact Zorder.Zle_antisym.
+   intros x y E. apply Zorder.Zplus_le_compat_l. assumption.
+  intros x E y F. apply Zorder.Zmult_le_0_compat; assumption.
+Qed.
+
+Instance: TotalOrder Zle.
+Proof with intuition. 
+  intros x y.
+  destruct (Zorder.Zle_or_lt x y)...
+  right. apply Zorder.Zlt_le_weak...
+Qed.
+
+Lemma Zlt_coincides x y : (x < y)%Z ↔ x < y.
+Proof with trivial.
+  split.
+   intro. split. apply Zorder.Zlt_le_weak... apply Zorder.Zlt_not_eq...
+  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1)... destruct E2...
+Qed.
 
 (* * Embedding of the Peano naturals into Z *)
 Instance: Proper ((=) ==> (=)) Z_of_nat.
@@ -186,71 +199,35 @@ Proof.
   exact Znat.inj_mult.
 Qed.
 
-(* * The order <= from the stdlib corresponds to our ≤ *)
-(* Figure out whether the standard library contains lemmas to make the following proofs shorter.
-  Hopefully such lemmas exist, because these proofs look horrible... *)
-Lemma sr_precedes_Zle (x y : Z) : x ≤ y → (x <= y)%Z.
-Proof with auto with zarith.
-  intros [z Ez].
-  rewrite <-(naturals.to_semiring_unique Z_of_nat) in Ez.
-  generalize dependent x. induction z; intros.
-  apply Zorder.Zeq_le. rewrite <-Ez...
-  apply Zorder.Zle_succ_le.
-  apply IHz. rewrite Znat.inj_S in Ez. rewrite <-Ez.
-  apply Zplus_succ_comm.
-Qed.
-
-Lemma Zle_sr_precedes (x y : Z) : (x <= y)%Z → x ≤ y.
-Proof with auto with zarith.
-  intros E.
-  destruct (Zorder.Zle_lt_or_eq x y E) as [E2 | E2].
-  destruct (Zcompare.Zcompare_Gt_spec y x) as [z Ez].
-    apply Zcompare.Zcompare_Gt_Lt_antisym.
-    pose proof (Zcompare.Zlt_compare x y E2).
-    destruct ((x ?= y)%Z); try contradiction...
-  exists (nat_of_P z).
-  rewrite <-(naturals.to_semiring_unique Z_of_nat)...
-  rewrite <-Znat.Zpos_eq_Z_of_nat_o_nat_of_P, <-Ez.
-  replace ((y + - x)%Z) with (y + -x) by reflexivity. ring.
-  exists (0%nat).
-  rewrite <-(naturals.to_semiring_unique Z_of_nat)...
-  rewrite Znat.inj_0. rewrite E2. apply right_identity.
-Qed.
-
-Lemma sr_precedes_Zlt (x y : Z) : x < y → (x < y)%Z.
-Proof with auto.
-  intros [E1 E2].
-  destruct (Zorder.Zle_lt_or_eq x y)... 
-  apply sr_precedes_Zle...
-  contradiction.
-Qed.
-
-Lemma Zlt_sr_precedes (x y : Z) : (x < y)%Z → x < y.
-Proof with auto.
-  intros E.
-  split. apply Zle_sr_precedes, Zorder.Zlt_le_weak...
-  apply Zorder.Zlt_not_eq...
-Qed.
-
-Obligation Tactic := idtac.
+Local Obligation Tactic := idtac.
 (* Efficient nat_pow *)
-Program Instance Zpow: NatPow Z (Pos Z) := Z.pow.
+Program Instance Zpow: NatPow Z (Z⁺) := Z.pow.
 Next Obligation with try reflexivity; auto with zarith.
   intros x n. 
-  change (nat_pow_spec x n ((λ x n, Z.pow x (`n)) x n)). (* This is stupid... pattern is not helpful either *)
-  apply nat_pow.nat_pow_spec_from_properties.
-  intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2. 
-  unfold equiv, ZPos_equiv in E2. simpl in *. rewrite E1, E2... 
-  intros x1. rewrite preserves_0. apply Z.pow_0_r.
-  intros x1 n1. rewrite preserves_plus, preserves_1. 
+  pose proof (@nat_pow.nat_pow_spec_from_properties _ _ _ _ _ _ _ (Z⁺) _ _ _ _ _ _ _ (λ (x : Z) (n : Z⁺), Z.pow x ('n))) as P. (* Fix me! *)
+  apply P. 
+  (* change (nat_pow_spec x n ((λ x n, Z.pow x ('n)) x n)).  This is stupid... pattern is not helpful either *)
+  (* apply nat_pow.nat_pow_spec_from_properties. *)
+    intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2. 
+    unfold equiv, NonNeg_equiv in E2. simpl in *. rewrite E1, E2...
+   intros x1. apply Z.pow_0_r.
+  intros x1 n1. rewrite preserves_plus, preserves_1.  
   rewrite <-(Z.pow_1_r x1) at 2. apply Z.pow_add_r...
-  destruct n1. simpl. apply sr_precedes_Zle...
+  destruct n1...
 Qed.
 
 (* Efficient shiftl *)
-Program Instance: ShiftLeft Z (Pos Z) := λ x y, Z.shiftl x y. 
+Program Instance: ShiftLeft Z (Z⁺) := λ x y, Z.shiftl x y. 
 Next Obligation.
   intros x [y Ey].
   apply Z.shiftl_mul_pow2.
-  simpl. apply sr_precedes_Zle. assumption.
+  apply Ey.
+Qed.
+
+Program Instance: Abs Z := Zabs.
+Next Obligation with trivial.
+  intros x. 
+  split; intros E.
+   apply Z.abs_eq...
+  apply Z.abs_neq...
 Qed.

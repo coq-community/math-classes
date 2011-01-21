@@ -14,14 +14,14 @@ Section contents.
   Implicit Arguments ab [[a]].
   Implicit Arguments ba [[a]].
 
-  Let ab_proper a: Proper (equiv ==> equiv) (@ab a).
+  Let ab_proper a: Proper ((=) ==> (=)) (@ab a).
   Proof. apply _. Qed.
 
-  Let ba_proper a: Proper (equiv ==> equiv) (@ba a).
+  Let ba_proper a: Proper ((=) ==> (=)) (@ba a).
   Proof. apply _. Qed.
 
-  Let epA: ∀ V n, Proper (equiv ==> eq ==> equiv) (@eval _ A _ V n) := _.
-  Let epB: ∀ V n, Proper (equiv ==> eq ==> equiv) (@eval _ B _ V n) := _.
+  Let epA: ∀ V n, Proper ((=) ==> eq ==> (=)) (@eval _ A _ V n) := _.
+  Let epB: ∀ V n, Proper ((=) ==> eq ==> (=)) (@eval _ B _ V n) := _.
     (* hints. shouldn't be necessary *)
 
   Let ab_ba: ∀ b (a: B b), ab (ba a) = a := proj1 i.
@@ -34,7 +34,7 @@ Section contents.
     set (eval et (λ (a: sorts et) (i : nat), ba (v a i)) t2).
     pose proof (@epA nat (ne_list.cons y t1) (λ a i, ba (v a i))
          (λ a i, ba (v a i)) (reflexivity _) t2 t2 (reflexivity _)
-         : Proper (equiv ==> op_type_equiv (sorts et) A t1)%signature o).
+         : Proper ((=) ==> op_type_equiv (sorts et) A t1)%signature o).
     rewrite (IHt2 v).
     subst o.
     rewrite (IHt1 v (ba (eval et v t3)) (ba (eval et v t3)))...

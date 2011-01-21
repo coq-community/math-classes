@@ -1,19 +1,19 @@
 Require 
-  orders.orders signed_binary_positive_integers.
+  orders.integers signed_binary_positive_integers.
 Require Import 
   ZSig ZSigZAxioms ZArith Program Morphisms
-  positive_integers_naturals 
+  nonneg_integers_naturals 
   abstract_algebra interfaces.integers interfaces.additional_operations
   theory.rings theory.integers theory.nat_pow
-  orders.semiring.  
+  orders.semirings.  
 
 Module ZType_Integers (Import anyZ: ZType).
 
 Module axioms := ZTypeIsZAxioms anyZ.
 
 (* 
-   We use the following inductive type to hide the actual notion of equality on t. 
-   This is needed because vm_compute will otherwise evaluate proofs...
+   We use the following inductive type to hide the actual notion of equality on [t]. 
+   This is needed because [vm_compute] will otherwise evaluate proofs...
    For example, consider [@decide (eq x y) (Decide_instance x y)]. Here 
    [eq x y] is defined as [Zeq (to_Z x) (to_Z y)] and hence vm_compute will 
    evaluate [to_Z x] and [to_Z y]. This is obviously painfully slow and unnecessary.
@@ -79,13 +79,12 @@ Proof. intros x y E. unfold_equiv. repeat f_equal. assumption. Qed.
 Instance: Proper ((=) ==> (=)) to_Z. 
 Proof. intros x y E. unfold_equiv. auto. Qed.
 
-Instance: Ring_Morphism to_Z.
+Instance: SemiRing_Morphism to_Z.
 Proof with try apply _; auto.
   repeat (split; try apply _); unfold equiv; repeat intro...
-  apply spec_add... 
-  apply spec_0...
-  apply spec_opp...
-  apply spec_mul... 
+     apply spec_add... 
+    apply spec_0...
+   apply spec_mul... 
   apply spec_1...
 Qed.
 
@@ -104,34 +103,24 @@ Instance: Inverse of_Z := to_Z.
 Instance: Bijective of_Z.
 Proof. apply jections.flip_bijection, _. Qed.
 
-Instance: Ring_Morphism of_Z.
-Proof. change (Ring_Morphism (inverse to_Z)). apply _. Qed.
+Instance: SemiRing_Morphism of_Z.
+Proof. change (SemiRing_Morphism (inverse to_Z)). split; apply _. Qed.
 
 Instance: IntegersToRing t := retract_is_int_to_ring of_Z.
 Instance: Integers t := retract_is_int of_Z.
-
-(* Efficient minus *)
-Program Instance: RingMinus t := sub.
-Next Obligation.
-  unfold_equiv.
-  rewrite spec_add, spec_opp.
-  apply spec_sub.
-Qed.
 
 (* Relation between Zorder and ≤ *)
 Lemma to_Z_sr_precedes_Zle x y : x ≤ y → (to_Z x <= to_Z y)%Z.
 Proof.
   intro E.
-  apply signed_binary_positive_integers.sr_precedes_Zle.
-  pose proof (order_preserving to_Z). auto.
+  pose proof (order_preserving to_Z) as P. apply P. auto.
 Qed.
 
 Lemma to_Z_Zle_sr_precedes x y : (to_Z x <= to_Z y)%Z → x ≤ y.
 Proof.
   intro. 
   rewrite <-(jections.surjective_applied' of_Z x), <-(jections.surjective_applied' of_Z y). 
-  apply (order_preserving of_Z).
-  apply signed_binary_positive_integers.Zle_sr_precedes. assumption.
+  pose proof (order_preserving of_Z) as P. apply P. assumption. 
 Qed.
 
 Lemma to_Z_sr_precedes_Zlt x y : x < y → (to_Z x < to_Z y)%Z.
@@ -156,7 +145,7 @@ Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) 
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate.
-  apply orders.not_precedes_strictly_precedes.
+  apply orders.not_precedes_sprecedes.
   apply to_Z_Zlt_sr_precedes. assumption.
 Qed.
 
@@ -164,10 +153,10 @@ Next Obligation with intuition.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate...
   apply to_Z_Zle_sr_precedes, Zeq_le...
-  apply orders.strictly_precedes_weaken, to_Z_Zlt_sr_precedes...
+  apply orders.sprecedes_weaken, to_Z_Zlt_sr_precedes...
 Qed.
 
-Program Instance: IntAbs t (Pos t) := abs.
+Program Instance: IntAbs t (t⁺) := abs.
 Next Obligation.
   apply to_Z_Zle_sr_precedes.
   rewrite spec_abs.
@@ -176,39 +165,49 @@ Next Obligation.
 Qed.
 
 Next Obligation with auto.
-  rewrite ZPos_to_semiring_self.
+  rewrite <-(naturals.to_semiring_unique NonNeg_inject). simpl.
   unfold_equiv. 
-  rewrite (preserves_opp (abs x)).
+  rewrite (preserves_inv (abs x)).
   rewrite spec_abs.
   destruct (Zabs_dec (to_Z x))...
 Qed.
 
+Program Instance: Abs t := abs.
+Next Obligation with trivial.
+  split; intros E; unfold_equiv; rewrite spec_abs.
+   apply Z.abs_eq...
+   apply to_Z_sr_precedes_Zle in E. rewrite preserves_0 in E...
+  apply to_Z_sr_precedes_Zle in E. rewrite preserves_0 in E...
+  rewrite preserves_inv.
+  apply Z.abs_neq...
+Qed.
+
 (* Efficient division *)
-Instance Ztype_euclid (x :t) (y : {z : t | z ≠ 0}) : Euclid x y (div x (`y)) (modulo x (`y)).
+Lemma Ztype_euclid (x : t) (y : {z : t | z ≠ 0}) : Euclid x y (div x (`y)) (modulo x (`y)).
 Proof with auto.
   destruct y as [y Ey].
-  split; simpl. 
+  split; simpl.
    unfold_equiv.
    apply axioms.div_mod...
   destruct (Z_mod_remainder (to_Z x) (to_Z y)) as [[Hl Hr] | [Hl Hr]].
     intro. apply Ey. apply (injective to_Z). rewrite preserves_0...
    left; split.
     apply to_Z_Zle_sr_precedes. rewrite spec_modulo, preserves_0...
-   apply to_Z_Zlt_sr_precedes. rewrite spec_modulo... 
+   apply to_Z_Zlt_sr_precedes. rewrite spec_modulo...
   right; split.
    apply to_Z_Zlt_sr_precedes. rewrite spec_modulo...
   apply to_Z_Zle_sr_precedes. rewrite spec_modulo, preserves_0...
 Qed. 
 
-Obligation Tactic := idtac.
+Local Obligation Tactic := idtac.
 Program Instance: DivEuclid t := div.
 Next Obligation.
-  intros x y. exists (modulo x (`y)). apply _.
+  intros x y. exists (modulo x (`y)). apply Ztype_euclid.
 Qed.
 
 Program Instance: ModEuclid t := modulo.
 Next Obligation.
-  intros x y. exists (div x (`y)). apply _.
+  intros x y. exists (div x (`y)). apply Ztype_euclid.
 Qed.
 
 Lemma ZType_succ_plus_1 x : succ x = 1 + x.
@@ -224,17 +223,17 @@ Proof.
   reflexivity.
 Qed.
 
-(* Efficient nat_pow *)
+(* Efficient [nat_pow] *)
 Instance: Proper ((=) ==> (=) ==> (=)) pow. 
 Proof. intros x1 y1 E1 x2 y2 E2. rewrite_equiv. rewrite E1, E2. reflexivity. Qed.
 
-Program Instance ZType_pow: NatPow t (Pos t) := pow.
+Program Instance ZType_pow: NatPow t (t⁺) := pow.
 Next Obligation with try reflexivity; auto.
   intros x n. 
   change (nat_pow_spec x n ((λ x n, pow x (`n)) x n)). (* This is stupid... pattern is not helpful either *)
   apply nat_pow_spec_from_properties.
     intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2. 
-    unfold equiv, ZPos_equiv in E2. simpl in *. rewrite_equiv.
+    unfold equiv, NonNeg_equiv in E2. simpl in *. rewrite_equiv.
     rewrite E1, E2... 
    intros x1. unfold_equiv. apply axioms.pow_0_r.
   intros x1 [n1 En1]. simpl. unfold_equiv. 
@@ -243,8 +242,8 @@ Next Obligation with try reflexivity; auto.
   apply to_Z_sr_precedes_Zle...
 Qed.
 
-(* Efficient log2 *)
-Program Instance: Log (2:t) (Pos t) := log2.
+(* Efficient [log 2] *)
+Program Instance: Log (2:t) (t⁺) := log2.
 Next Obligation with auto.
   intros x. 
   apply to_Z_Zle_sr_precedes.
@@ -262,8 +261,8 @@ Next Obligation with auto.
   rewrite ZType_succ_plus_1, commutativity in E2...
 Qed.
 
-(* Efficient shiftl *)
-Program Instance: ShiftLeft t (Pos t) := λ x y, shiftl x y.
+(* Efficient [shiftl] *)
+Program Instance: ShiftLeft t (t⁺) := λ x y, shiftl x y.
 Next Obligation.
   intros x [y Ey].
   unfold additional_operations.pow, nat_pow, nat_pow_sig, ZType_pow.
@@ -275,7 +274,8 @@ Next Obligation.
 Qed. 
 (* This proof could possibly be much shorter by using the correctness of shiftl on Z *)
 
-Program Instance: ShiftRight t (Pos t) := λ x y, shiftr x y.
-Next Obligation. Admitted.
+Program Instance: ShiftRight t (t⁺) := λ x y, shiftr x y.
+Next Obligation. 
+Admitted.
 
 End ZType_Integers.

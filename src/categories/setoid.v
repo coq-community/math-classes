@@ -14,7 +14,7 @@ Section contents.
   Global Instance: Arrows Object := λ A B, sig (@Setoid_Morphism A B _ _).
 
   Global Program Instance: ∀ x y: Object, Equiv (x ⟶ y)
-    := λ _ _, respectful equiv equiv.
+    := λ _ _, respectful (=) (=).
 
   Global Instance: ∀ x y: Object, Setoid (x ⟶ y).
   Proof with intuition.
@@ -30,7 +30,7 @@ Section contents.
   Global Program Instance: CatComp Object := λ _ _ _, compose.
   Next Obligation. destruct x, x0. apply _. Qed.
 
-  Global Instance: ∀ x y z: Object, Proper (equiv ==> equiv ==> equiv) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Global Instance: ∀ x y z: Object, Proper ((=) ==> (=) ==> (=)) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof. repeat intro. simpl. firstorder. Qed.
 
   Global Instance: Category Object.

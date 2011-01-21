@@ -67,7 +67,7 @@ Section contents.
   Global Instance: CatComp Object := λ _ _ _ m n, arrow (λ a, m a ◎ n a) _.
 
   Global Instance: ∀ x y z: Object,
-    Proper (equiv ==> equiv ==> equiv) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+    Proper ((=) ==> (=) ==> (=)) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof.
     intros ????? Hx ?? Hy a.
     simpl. rewrite (Hx a), (Hy a). reflexivity.

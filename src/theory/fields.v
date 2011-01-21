@@ -8,32 +8,9 @@ Section field_properties.
   Context `{Field F} `{div : !FieldDiv F}.
   Add Ring R: (stdlib_ring_theory F).
 
-  Lemma field_div_correct x y : x // y = x * //y.
-  Proof.
-    unfold field_div, field_div_sig. 
-    destruct div as [z E]. assumption.
-  Qed.
-
-  Lemma field_div_inverse x  : `x // x = 1.
-  Proof.
-    rewrite field_div_correct. apply mult_inverse.
-  Qed.
-
-  Global Instance field_div_proper: Proper ((=) ==> (=) ==> (=)) field_div.
-  Proof.
-    intros x1 y1 E1 x2 y2 E2.
-    rewrite (field_div_correct x1 x2). rewrite (field_div_correct y1 y2).
-    rewrite E1, E2. reflexivity.
-  Qed.
-
   Lemma mult_inverse_alt (x : F) (P : x ≠ 0) : x * // exist _ x P = 1.
   Proof. 
     rewrite <-(mult_inverse (exist _ x P)). reflexivity. 
-  Qed.
-
-  Lemma field_div_inverse_alt (x : F) (P : x ≠ 0) : x // exist _ x P = 1.
-  Proof. 
-    rewrite field_div_correct. apply mult_inverse_alt.
   Qed.
 
   Instance: NoZeroDivisors F.
@@ -48,12 +25,12 @@ Section field_properties.
 
   Lemma field_div_0_l x y : x = 0 → x // y = 0.
   Proof.
-    intros E. rewrite E, field_div_correct. apply left_absorb.
+    intros E. rewrite E. apply left_absorb.
   Qed.
 
   Lemma field_div_diag x y : x = `y → x // y = 1.
   Proof.
-    intros E. rewrite E. apply field_div_inverse.
+    intros E. rewrite E. apply mult_inverse.
   Qed.
 
   Lemma equal_quotients (a c: F) b d: a * ` d = c * ` b ↔ a *// b = c *// d.
@@ -73,23 +50,24 @@ Section field_properties.
    rewrite mult_inverse...
   Qed. (* todo: should be cleanable *)
 
-  Lemma mult_inv_inj `{∀ z, NeZero z → LeftCancellation ring_mult z} x y : //x = //y → x = y.
+  Lemma mult_inv_inj `{∀ z, NeZero z → LeftCancellation (.*.) z} x y : //x = //y → x = y.
   Proof with auto.
     intros E.
     unfold equiv, sig_equiv, sig_relation. fold equiv.
-    apply (right_cancellation_ne_zero ring_mult (//x)).
+    apply (left_cancellation_ne_0 (.*.) (//x)).
      intros G.
      destruct (ne_zero 1).
      rewrite <-(rings.mult_0_r (`x)), <-G.
      symmetry. apply mult_inverse.
-    rewrite mult_inverse, E, mult_inverse.
+    rewrite commutativity, mult_inverse. 
+    rewrite E, commutativity, mult_inverse.
     reflexivity.
   Qed.
 
-  Lemma mult_inv_distr_alt `{∀ z, NeZero z → LeftCancellation ring_mult z} x (Px : x ≠ 0) y (Py : y ≠ 0) (Pxy : x * y ≠ 0) : 
+  Lemma mult_inv_distr_alt `{∀ z, NeZero z → LeftCancellation (.*.) z} x (Px : x ≠ 0) y (Py : y ≠ 0) (Pxy : x * y ≠ 0) : 
     // (exist _ (x * y) Pxy) = // (exist _ x Px) * // (exist _ y Py).
   Proof with auto; try ring.
-    apply (left_cancellation_ne_zero ring_mult (x * y))...
+    apply (left_cancellation_ne_0 (.*.) (x * y))...
     transitivity ((x * // (exist _ x Px)) *  (y * // (exist _ y Py)))...
     transitivity ((x * y) * // (exist _ (x * y) Pxy))...
     do 3 rewrite mult_inverse_alt...
@@ -103,7 +81,7 @@ Section field_properties.
    intros x y E.
    destruct (decide (x = 0)) as [? | P]...
    rewrite <- (mult_0_r x) in E.
-   right. apply (left_cancellation_ne_zero ring_mult x)...
+   right. apply (left_cancellation_ne_0 (.*.) x)...
   Qed.
 
   Lemma mult_inv_nonzero x : // x ≠ 0.
@@ -122,7 +100,7 @@ Section field_properties.
 
   Lemma dec_mult_inv_correct (x : F) (P : x ≠ 0) : /x = // (exist _ x P).
   Proof with auto.
-    apply (left_cancellation_ne_zero ring_mult x)...
+    apply (left_cancellation_ne_0 (.*.) x)...
     rewrite dec_mult_inverse...
     symmetry. apply mult_inverse_alt.
   Qed.
@@ -133,7 +111,15 @@ Section field_properties.
     destruct dec_inv as [z [E1 E2]]. apply E2. reflexivity.
   Qed.
 
-  Global Instance dec_mult_inv_proper: Proper ((=) ==> (=)) dec_mult_inv.
+  Lemma dec_mult_inv_1: / 1 = 1.
+  Proof. 
+    unfold dec_mult_inv, dec_mult_inv_sig. 
+    destruct dec_inv as [z [E1 E2]]. simpl.
+    rewrite <-E1. ring.
+    apply (ne_zero _).
+  Qed.
+
+  Global Instance dec_mult_inv_proper: Proper ((=) ==> (=)) (/).
   Proof with auto.
     intros x1 x2 E.
     case (decide (x1 = 0)); intros E1; case (decide (x2 = 0)); intros E2.
@@ -142,23 +128,9 @@ Section field_properties.
        simpl. rewrite Ez1, Ez2... reflexivity.
       destruct E2. rewrite <- E...
      destruct E1. rewrite E...
-    apply (left_cancellation_ne_zero ring_mult x1)...
+    apply (left_cancellation_ne_0 (.*.) x1)...
     rewrite dec_mult_inverse, E, dec_mult_inverse...
     reflexivity.
-  Qed.
-
-  Context `{dec_div : !DecFieldDiv F}.
-  Lemma dec_field_div_correct x y : x / y = x * /y.
-  Proof.
-    unfold dec_field_div, dec_field_div_sig. 
-    destruct dec_div as [z E]. assumption.
-  Qed.
-
-  Global Instance dec_field_div_proper: Proper ((=) ==> (=) ==> (=)) dec_field_div.
-  Proof.
-    intros x1 y1 E1 x2 y2 E2.
-    rewrite (dec_field_div_correct x1 x2), (dec_field_div_correct y1 y2).
-    rewrite E1, E2. reflexivity.
   Qed.
 
   Lemma dec_mult_inv_distr (x y: F): / (x * y) = / x * / y.
@@ -187,13 +159,14 @@ Section field_properties.
     rewrite <-(dec_mult_inverse x), E2... ring.
   Qed.
 
-  Lemma dec_mult_inv_inj x y : /x = /y → x = y.
+  Global Instance dec_mult_inv_inj: Injective (/).
   Proof with try solve [intuition].
-    intros E.
+    repeat (split; try apply _).
+    intros x y E.
     destruct (decide (x = 0)) as [E2|E2].
      rewrite E2 in *. rewrite dec_mult_inv_0 in E.
      apply stable. intro. apply (dec_mult_inv_nonzero y)...
-    apply (right_cancellation_ne_zero ring_mult (/x)).
+    apply (right_cancellation_ne_0 (.*.) (/x)).
      apply dec_mult_inv_nonzero...
     rewrite dec_mult_inverse, E, dec_mult_inverse...
     intros E3. rewrite E3, dec_mult_inv_0 in E. 
@@ -204,28 +177,70 @@ Section field_properties.
   Proof with auto.
     destruct (decide (x = 0)) as [E|E].
     rewrite E. do 2 rewrite dec_mult_inv_0. reflexivity.
-    apply (right_cancellation_ne_zero ring_mult (/x)).
+    apply (right_cancellation_ne_0 (.*.) (/x)).
      apply dec_mult_inv_nonzero...
     rewrite dec_mult_inverse...
     rewrite commutativity, dec_mult_inverse. reflexivity.
     apply dec_mult_inv_nonzero...
   Qed.
+
+  Lemma equal_dec_quotients (a b c d : F) : b ≠ 0 → d ≠ 0 → (a * d = c * b ↔ a * /b = c * /d).
+  Proof with trivial; try ring.
+   split; intro E.
+    apply (right_cancellation_ne_0 (.*.) b)...
+    apply (right_cancellation_ne_0 (.*.) d)...
+    transitivity (a * d * (b * /b))...
+    transitivity (c * b * (d * /d))...
+    rewrite E, dec_mult_inverse, dec_mult_inverse...
+   transitivity (a * d * 1)...
+   rewrite <-(dec_mult_inverse b)...
+   transitivity (a * / b * d * b)...
+   rewrite E.
+   transitivity (c * (d * / d) * b)...
+   rewrite dec_mult_inverse...
+  Qed.
+
+  Lemma dec_quotients (a c b d : F) : b ≠ 0 → d ≠ 0 → a * /b + c * /d = (a * d + c * b) * / (b * d).
+  Proof with auto.
+    intros A B.
+    assert (a * / b = (a * d) * / (b * d)) as E1.
+     apply ->equal_dec_quotients...
+      ring.
+     intros G. destruct (zero_product b d)...
+    assert (c * / d = (b * c) * / (b * d)) as E2.
+     apply ->equal_dec_quotients...
+      ring.
+     intros G. destruct (zero_product b d)...
+    rewrite E1, E2. ring.
+  Qed.
+
+  Lemma dec_mult_inv_swap_l x y: x * /y = /(/x * y). 
+  Proof. 
+    rewrite dec_mult_inv_distr, dec_mult_inv_involutive.
+    ring.
+  Qed.
+
+  Lemma dec_mult_inv_swap_r x y: /x * y = /(x * /y). 
+  Proof. 
+    rewrite dec_mult_inv_distr, dec_mult_inv_involutive.
+    ring.
+  Qed.
 End field_properties.
 
-Definition stdlib_field_theory F `{Field F} `{!RingMinus F} `{!DecMultInv F} `{!DecFieldDiv F} :
-  Field_theory.field_theory 0 1 ring_plus ring_mult ring_minus group_inv dec_field_div dec_mult_inv (=).
+Definition stdlib_field_theory F `{Field F} `{!DecMultInv F} :
+  Field_theory.field_theory 0 1 (+) (.*.) (λ x y, x - y) (-) (λ x y, x / y) (/) (=).
 Proof with auto.
   intros.
   constructor.
      apply (theory.rings.stdlib_ring_theory _).
     apply field_0neq1.
-   apply dec_field_div_correct.
+   reflexivity.
   intros.
   rewrite commutativity. apply dec_mult_inverse...
 Qed.
 
 Section morphisms.
-  Context `{Field F1} `{Field F2} `{!Ring_Morphism (f : F1 → F2)} `{!DecMultInv F1} `{!DecMultInv F2}.
+  Context `{Field F1} `{Field F2} `{!SemiRing_Morphism (f : F1 → F2)} `{!DecMultInv F1} `{!DecMultInv F2}.
 
   Context `{∀ x y: F1, Decision (x = y)} `{∀ x y: F2, Decision (x = y)}.
    
@@ -233,7 +248,7 @@ Section morphisms.
   Proof with auto.
     case (decide (x = 0)) as [E | E].
     rewrite E, dec_mult_inv_0, preserves_0, dec_mult_inv_0. reflexivity.
-    apply (right_cancellation_ne_zero ring_mult (f x)).
+    apply (right_cancellation_ne_0 (.*.) (f x)).
       apply injective_not_0...
     rewrite <-preserves_mult.
     rewrite commutativity, dec_mult_inverse...
@@ -298,7 +313,7 @@ Section non_zero_elements.
     unfold "*" at 10. unfold nonzero_mult. ring.
   Qed.
 
-  Lemma mult_inv_distr `{∀ z, NeZero z → LeftCancellation ring_mult z} (x y : {x : F | x ≠ 0}) : 
+  Lemma mult_inv_distr `{∀ z, NeZero z → LeftCancellation (.*.) z} (x y : {x : F | x ≠ 0}) : 
     // (x * y) = // x * // y.
   Proof. destruct x, y. apply mult_inv_distr_alt. Qed. 
 
@@ -318,7 +333,7 @@ Section from_stdlib_field_theory.
   Proof with auto.
    destruct ftheory.
    repeat (constructor; try assumption); repeat intro
-   ; unfold equiv, mon_unit, sg_op, group_inv; try field...
+   ; unfold equiv, mon_unit, sg_op, ring_plus, ring_mult, mult_inv, group_inv; try field...
    destruct x as [x Ex].
    unfold mult_inv, ring_mult.
    simpl.
@@ -327,16 +342,9 @@ Section from_stdlib_field_theory.
   Qed.
 End from_stdlib_field_theory.
 
-(* Default implementations *)
-Program Instance default_field_div `{Field F} : FieldDiv F | 10 := λ x y, x * // y.
-Next Obligation. reflexivity. Qed.
-
-Program Instance dec_mult_inv_default `{Field F} `{∀ x y: F, Decision (equiv x y)} : DecMultInv F | 10
-  := λ x, exist _ (if decide (equiv x 0) then 0 else // x) _.
+Program Instance dec_mult_inv_default `{Field F} `{∀ x y: F, Decision (x = y)} : DecMultInv F | 10
+  := λ x, exist _ (if decide (x = 0) then 0 else // x) _.
 Next Obligation.
   case (decide _); split; try solve [intuition].
   intros E. apply mult_inverse_alt.
 Qed.
-
-Program Instance default_dec_field_div `{Field F} `{!DecMultInv F} : DecFieldDiv F | 10 := λ x y, x * / y.
-Next Obligation. reflexivity. Qed.

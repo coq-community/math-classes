@@ -12,11 +12,11 @@ Definition fastZ_to_fastQ := BigQ.Qz.
 
 Instance: Proper ((=) ==> (=)) fastZ_to_fastQ.
 Proof.
-  intros x y E. unfold_equiv. simpl.
+  intros x y E. unfold_equiv. unfold Qeq. simpl.
   rewrite E. reflexivity.
 Qed.
 
-Instance: Ring_Morphism fastZ_to_fastQ.
+Instance: SemiRing_Morphism fastZ_to_fastQ.
 Proof. repeat (split; try apply _). Qed.
 
 Instance fastQ_to_frac: Inverse (λ p, fastZ_to_fastQ (fst p) * / fastZ_to_fastQ (snd p)) 

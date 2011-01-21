@@ -18,7 +18,7 @@ Section subalgebras.
     | ne_list.cons _ _ => λ d, ∀ z, P _ z → op_closed (d z)
     end.
 
-  Global Instance op_closed_proper: ∀ `{∀ s, Proper (equiv ==> iff) (P s)} o, Proper (equiv ==> iff) (@op_closed o).
+  Global Instance op_closed_proper: ∀ `{∀ s, Proper ((=) ==> iff) (P s)} o, Proper ((=) ==> iff) (@op_closed o).
   Proof with intuition.
    induction o; simpl; intros x y E.
     rewrite E...
@@ -28,7 +28,7 @@ Section subalgebras.
   Qed.
 
   Class ClosedSubset: Prop :=
-    { subset_proper:> ∀ s, Proper (equiv ==> iff) (P s)
+    { subset_proper:> ∀ s, Proper ((=) ==> iff) (P s)
     ; subset_closed: ∀ o, op_closed (algebra_op o) }.
 
   (* Now suppose P is closed in this way. *)

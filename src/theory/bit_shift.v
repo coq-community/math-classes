@@ -50,24 +50,24 @@ Section shift_left_properties.
   Proof. do 3 rewrite shiftl_correct. ring. Qed.
 
   Lemma shiftl_sum_exp x y z: x ≪ (y + z) = x ≪ y ≪ z.
-  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_sum. ring. Qed.
+  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_plus. ring. Qed.
 
   Lemma mult_r_shiftl_shiftl x y z1 z2 : (x * (y ≪ z1)) ≪ z2 = (x * y) ≪ (z1 + z2).
-  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_sum. ring. Qed.
+  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_plus. ring. Qed.
 
   Lemma mult_l_shiftl_shiftl x y z1 z2 : ((x ≪ z1) * y) ≪ z2 = (x * y) ≪ (z1 + z2).
-  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_sum. ring. Qed.
+  Proof. do 3 rewrite shiftl_correct. rewrite nat_pow_exp_plus. ring. Qed.
 
   Context `{GroupInv A} .
 
   Lemma opp_shiftl `{!Ring A} x y : (-x) ≪ y = -(x ≪ y).
   Proof.
     do 2 rewrite shiftl_correct.
-    rewrite rings.ring_opp_mult. symmetry. rewrite rings.ring_opp_mult at 1.
+    rewrite rings.opp_mult. symmetry. rewrite rings.opp_mult at 1.
     ring.
   Qed.
 
-  Context `{!NoZeroDivisors A} `{!NeZero (1:A)} `{!NeZero (2:A)} `{∀z, NeZero z → RightCancellation ring_mult z}.
+  Context `{!NoZeroDivisors A} `{!NeZero (1:A)} `{!NeZero (2:A)} `{∀z, NeZero z → RightCancellation (.*.) z}.
 
   Lemma shiftl_nonzero x y: x ≠ 0 → x ≪ y ≠ 0.
   Proof with auto.
@@ -83,7 +83,7 @@ Section shift_left_properties.
   Proof with auto.
     repeat (split; try apply _).
     intros x y E. unfold flip in E. do 2 rewrite shiftl_correct in E.
-    apply (rings.right_cancellation_ne_zero ring_mult (2 ^ n))...
+    apply (rings.right_cancellation_ne_0 (.*.) (2 ^ n))...
     apply nat_pow_nonzero. apply (ne_zero 2).
   Qed.
 End shift_left_properties.
@@ -93,6 +93,7 @@ Global Program Instance default_shiftl `{SemiRing A} `{Naturals B} `{!NatPow A B
   := λ x y, x * 2 ^ y.
 Next Obligation. reflexivity. Qed.
 
+(*
 (* * Properties of Shift Right *)
 Section shift_right_properties.
   Context `{SemiRing A} `{Naturals B}.
@@ -102,7 +103,7 @@ Section shift_right_properties.
     `{!NoZeroDivisors A} 
     `{!NeZero (1:A)} 
     `{!NeZero (2:A)} 
-    `{!∀ z, NeZero z → LeftCancellation ring_mult z}.
+    `{!∀ z, NeZero z → LeftCancellation (.*.) z}.
 
   Hint Resolve orders.strictly_precedes_weaken.
 
@@ -118,7 +119,6 @@ Section shift_right_properties.
   Qed.
 End shift_right_properties.
 
-(*
   Lemma shiftl_shiftr_correct x y : x = (x ≪ y) ≫ y.
   Proof with auto.
     unfold shiftr. unfold shiftr_sig. 

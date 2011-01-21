@@ -1,9 +1,9 @@
 Require Import 
-  BigZ BigQ fast_integers positive_integers_naturals
+  BigZ BigQ fast_integers nonneg_integers_naturals
   fast_rationals
   abstract_algebra interfaces.integers interfaces.rationals 
-  interfaces.additional_operations interfaces.appfield
-  dyadics dyadics_appfield.
+  interfaces.additional_operations (* interfaces.appfield *)
+  dyadics (* dyadics_appfield *).
 
 Check (_ : Integers fastZ).
 Check (_ : ∀ (x y : fastZ), Decision (x = y)).
@@ -23,7 +23,7 @@ Check (_ : CutMinus (Pos fastZ)).
 
 Definition D : Dyadic fastZ := (233123124123412343%bigZ) $ (12314%bigZ).
 Definition E : Dyadic fastZ := (2151453412523525234%bigZ) $ (-13152%bigZ).
-Program Definition Y : Pos fastZ := 256%bigZ.
+Program Definition Y : fastZ⁺ := 256%bigZ.
 Next Obligation. Admitted.
 
 Time Eval vm_compute in (D + E).

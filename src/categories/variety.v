@@ -37,7 +37,7 @@ Section contents.
   Next Obligation. destruct f, g. apply _. Qed.
 
   Global Program Instance: ∀ (x y: Object), Equiv (x ⟶ y)
-    := λ _ _ x y, ∀ b, pointwise_relation _ equiv (x b) (y b).
+    := λ _ _ x y, ∀ b, pointwise_relation _ (=) (x b) (y b).
 
   Global Instance: ∀ (x y: Object), Setoid (x ⟶ y).
   Proof.
@@ -47,7 +47,7 @@ Section contents.
    intros ? ? ? E F ? ?. rewrite (E _ _). apply F.
   Qed.
 
-  Instance: ∀ (x y z: Object), Proper (equiv ==> equiv ==> equiv) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Instance: ∀ (x y z: Object), Proper ((=) ==> (=) ==> (=)) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof.
    intros ??? [? [??]] ? E ?? F ??. simpl.
    unfold compose. rewrite (F _ _), (E _ _). reflexivity.

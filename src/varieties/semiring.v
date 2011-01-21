@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require
   theory.rings categories.variety.
 Require Import
@@ -49,7 +47,7 @@ Section from_instance.
   Context A `{SemiRing A}.
 
   Instance implementation: AlgebraOps sig (λ _, A) := λ o,
-    match o with plus => ring_plus | mult => ring_mult | zero => 0: A | one => 1:A end.
+    match o with plus => (+) | mult => (.*.) | zero => 0: A | one => 1:A end.
 
   Global Instance: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.

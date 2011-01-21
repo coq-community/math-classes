@@ -10,7 +10,7 @@ Section ideal_congruence. Context `{Ring R}.
 
   Add Ring R: (rings.stdlib_ring_theory R).
 
-  Context (P: R → Prop) `{!Proper (equiv ==> iff) P}.
+  Context (P: R → Prop) `{!Proper ((=) ==> iff) P}.
 
   (* P is an ideal if: *)
 
@@ -54,24 +54,24 @@ Section ideal_congruence. Context `{Ring R}.
    assert (x + - z = (x + -y) + (y + - z)) as E by ring. rewrite E...
   Qed.
 
-  Instance cong_proper: Proper (equiv ==> equiv ==> iff) congruence.
+  Instance cong_proper: Proper ((=) ==> (=) ==> iff) congruence.
   Proof. intros ? ? E ? ? E'. unfold congruence. rewrite E, E'. intuition. Qed.
 
-  Instance: Proper (congruence ==> congruence ==> congruence) ring_plus.
+  Instance: Proper (congruence ==> congruence ==> congruence) (+).
   Proof.
    unfold congruence. repeat intro. 
    assert (x + x0 + - (y + y0) = (x + - y) + (x0 + - y0)) as E by ring.
    rewrite E. intuition.
   Qed.
 
-  Instance: Proper (congruence ==> congruence ==> congruence) ring_mult.
+  Instance: Proper (congruence ==> congruence ==> congruence) (.*.).
   Proof.
    unfold congruence. repeat intro. 
    assert (x * x0 + - (y * y0) = ((x + -y) * x0) + (y * (x0 + - y0))) as E by ring.
    rewrite E. intuition.
   Qed.
 
-  Instance: Proper (congruence ==> congruence) group_inv.
+  Instance: Proper (congruence ==> congruence) (-).
   Proof.
    unfold congruence. repeat intro.
    assert (- x + - - y = -(x + -y)) as E by ring.
@@ -98,10 +98,8 @@ Section ideal_congruence. Context `{Ring R}.
 
 End ideal_congruence.
 
-Section kernel_is_ideal. Context `{Ring_Morphism A B f}.
-
-  Let ringA := ringmor_a f.
-  Let ringB := ringmor_b f.
+Section kernel_is_ideal. 
+  Context `{Ring A} `{Ring B} `{f : A → B} `{!SemiRing_Morphism f}.
 
   Add Ring A: (rings.stdlib_ring_theory A).
   Add Ring B: (rings.stdlib_ring_theory B).
@@ -113,9 +111,8 @@ Section kernel_is_ideal. Context `{Ring_Morphism A B f}.
    unfold kernel, compose, flip.
    repeat split.
       exists 0. apply preserves_0.
-     intros ?? E E'. rewrite preserves_plus, preserves_opp, E, E'...
+     intros ?? E E'. rewrite preserves_plus, preserves_inv, E, E'...
     intros ?? E. rewrite preserves_mult, E...
    intros ?? E. rewrite preserves_mult, E...
   Qed.
-
 End kernel_is_ideal.

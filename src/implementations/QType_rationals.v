@@ -51,17 +51,11 @@ Qed.
 Instance: Field t.
 Proof. apply (fields.from_stdlib_field_theory anyQ_field_theory). Qed.
 
-Program Instance: RingMinus t := sub.
-Next Obligation. apply sub_add_opp. Qed.
-
-Program Instance: FieldDiv t := div.
-Next Obligation. apply div_mul_inv. Qed.
-
 (* Type-classified facts about to_Q/of_Q: *)
 Instance: Setoid_Morphism to_Q.
 Proof. constructor; try apply _. intros x y. auto. Qed.
 
-Instance: Ring_Morphism to_Q.
+Instance: SemiRing_Morphism to_Q.
 Proof. repeat (constructor; try apply _); intros; qify; reflexivity. Qed.
 
 Instance: Inverse to_Q := of_Q.
@@ -79,10 +73,10 @@ Instance: Inverse of_Q := to_Q.
 Instance: Bijective of_Q.
 Proof. apply jections.flip_bijection, _. Qed.
 
-Instance: Ring_Morphism of_Q.
-Proof. change (Ring_Morphism (inverse anyQ.to_Q)). apply _. Qed.
+Instance: SemiRing_Morphism of_Q.
+Proof. change (SemiRing_Morphism (inverse anyQ.to_Q)). split; apply _. Qed.
 
-Instance: Inverse (λ p, integers_to_ring (Z nat) t (fst p) * / integers_to_ring (Z nat) t (snd p)) := isomorphism_is_inj_inv of_Q.
+Instance: Inverse (λ p, integers_to_ring (SRpair nat) t (fst p) * / integers_to_ring (SRpair nat) t (snd p)) := isomorphism_is_inj_inv of_Q.
 Instance: Rationals t := isomorphism_is_rationals of_Q.
 
 Global Program Instance Qtype_dec_mult_inv: DecMultInv t := inv.

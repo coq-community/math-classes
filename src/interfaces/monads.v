@@ -27,7 +27,7 @@ Section structure.
     (* Propers: *)
     { ret_proper:> ∀ `{Setoid A}, Proper (equiv ==> equiv) (@ret _ _ A)
     ; bind_proper:> ∀ `{Setoid A} `{Setoid B},
-       Proper (equiv ==> (equiv ==> equiv) ==> equiv) (@bind _ _ A B)
+       Proper ((=) ==> ((=) ==> (=)) ==> (=)) (@bind _ _ A B)
 
     ; mon_setoid: ∀ `{Setoid A}, Setoid (M A)
 

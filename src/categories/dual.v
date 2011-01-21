@@ -15,11 +15,11 @@ Section contents.
   Global Instance e: ∀ x y, Equiv (flipA x y) := λ x y, Aeq y x. 
 
   Global Instance: ∀ (x y: Object), Equivalence (e x y).
-  Proof. intros. change (Equivalence (equiv: Equiv (A y x))). apply _. Qed.
+  Proof. intros. change (Equivalence ((=): Equiv (A y x))). apply _. Qed.
 
   Global Instance: ∀ (x y: Object), Setoid (x ⟶ y).
 
-  Instance: ∀ (x y z: Object), Proper (equiv ==> equiv ==> equiv) (@comp Object flipA _ x y z).
+  Instance: ∀ (x y z: Object), Proper ((=) ==> (=) ==> (=)) (@comp Object flipA _ x y z).
   Proof.
    intros x y z ? ? E ? ? F.
    change (Acomp z y x x1 x0 = Acomp z y x y1 y0).

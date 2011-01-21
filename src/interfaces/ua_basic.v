@@ -70,12 +70,12 @@ Section with_sorts. Variable Sorts: Set.
 
     (* This is the closest i've been able to get to reflexivity thus far: *)
   Lemma sig_type_refl `{∀ a, Reflexive (e a)} (o: OpType) a (x: op_type (ne_list.cons a o)) y:
-    Proper equiv x → op_type_equiv o (x y) (x y).
+    Proper (=) x → op_type_equiv o (x y) (x y).
   Proof. intro H0. apply H0. reflexivity. Qed.
 
 (*
     Lemma sig_type_refl' (o: OpType) a (x: op_type (function a o)):
-      Proper equiv x → op_type_equiv _ x x.
+      Proper (=) x → op_type_equiv _ x x.
     Proof. intro H0. apply H0. Qed.
 *)
 
