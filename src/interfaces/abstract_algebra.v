@@ -12,6 +12,9 @@ Class LeftAbsorb `{Equiv A} {B} (op: A → B → A) (x: A): Prop := left_absorb:
 Class RightAbsorb {A} `{Equiv B} (op: A → B → B) (y: B): Prop := right_absorb: ∀ x, op x y = y.
   (* hm, can we generate left/right instances from right/left+commutativity without causing loops? *)
 
+Class LeftInverse {A} {B} `{Equiv C} (op: A → B → C) (inv: B → A) (unit: C)  := left_inverse: forall x, op (inv x) x = unit.
+Class RightInverse {A} {B} `{Equiv C} (op: A → B → C) (inv: A → B) (unit: C)  := right_inverse: forall x, op x (inv x) = unit.
+
 Section upper_classes.
   Context A {e: Equiv A}.
 
@@ -34,8 +37,8 @@ Section upper_classes.
   Class Group {op: SemiGroupOp A} {unit: MonoidUnit A} {inv: GroupInv A}: Prop :=
     { group_monoid:> Monoid
     ; inv_proper:> Proper ((=) ==> (=)) (-) (* todo: use Setoid_Morphism *)
-    ; ginv_l: `(- x & x = mon_unit)
-    ; ginv_r: `(x & - x = mon_unit) }.
+    ; ginv_l:> LeftInverse sg_op group_inv mon_unit
+    ; ginv_r:> RightInverse sg_op group_inv mon_unit }.
 
   Class AbGroup {op unit inv}: Prop :=
     { abgroup_group:> @Group op unit inv
@@ -97,8 +100,8 @@ Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatC
     Proper ((=) ==> (=) ==> (=)) (comp: (y ⟶ z) → (x ⟶ y) → x ⟶ z)
   ; comp_assoc w x y z (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
       c ◎ (b ◎ a) = (c ◎ b) ◎ a
-  ; id_l `(a: x ⟶ y): cat_id ◎ a = a
-  ; id_r `(a: x ⟶ y): a ◎ cat_id = a }.
+  ; id_l :> `(LeftIdentity (comp (x:=x)(y:=y)) cat_id)
+  ; id_r :> `(RightIdentity (comp (y:=x)(z:=y)) cat_id) }.
       (* note: no equality on objects. *)
 
 (* todo: use my comp everywhere *)

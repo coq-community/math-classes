@@ -10,7 +10,7 @@ Section natural_transformations_id_comp.
     `{!NaturalTransformation (m:f⇛g)} `{!NaturalTransformation (n:g⇛h)}.
 
   Global Instance id_transformation: NaturalTransformation (λ a, cat_id: f a ⟶ f a).
-  Proof. intros ???. rewrite id_l, id_r; reflexivity. Qed.
+  Proof. intros ???. rewrite left_identity, right_identity; reflexivity. Qed.
 
   Global Instance compose_transformation: NaturalTransformation (λ a, n a ◎ m a).
   Proof.
@@ -74,16 +74,16 @@ Section contents.
     simpl. rewrite (Hx a), (Hy a). reflexivity.
   Qed.
 
-  Let id_l' (x y: Object) (F: x ⟶ y): cat_id ◎ F = F.
-  Proof. intro. simpl. apply id_l. Qed.
+  Global Instance: forall x y: Object, LeftIdentity (comp: _ → _ → x ⟶ y) cat_id.
+  Proof. repeat intro. simpl. apply left_identity. Qed.
 
-  Let id_r' (x y: Object) (F: x ⟶ y): F ◎ cat_id = F.
-  Proof. intro. simpl. apply id_r. Qed.
+  Global Instance: forall x y: Object, RightIdentity (comp: _ → _ → x ⟶ y) cat_id.
+  Proof. repeat intro. simpl. apply right_identity. Qed.
 
   Lemma comp_assoc' (w x y z: Object) (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z): c ◎ (b ◎ a) = (c ◎ b) ◎ a.
   Proof. intro. simpl. apply comp_assoc. Qed.
 
-  Global Instance: Category Object := { comp_assoc := comp_assoc'; id_l := id_l'; id_r := id_r'}.
+  Global Instance: Category Object := { comp_assoc := comp_assoc' }.
 
 End contents.
 

@@ -286,8 +286,8 @@ Section dyadics.
   Qed.
 
   Program Instance: Group Dyadic.
-  Next Obligation. apply dyadic_ginv. Qed.
-  Next Obligation. rewrite commutativity. apply dyadic_ginv. Qed.
+  Next Obligation. intro. apply dyadic_ginv. Qed.
+  Next Obligation. intro. rewrite commutativity. apply dyadic_ginv. Qed.
 
   Program Instance: AbGroup Dyadic.
   

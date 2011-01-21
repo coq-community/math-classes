@@ -10,9 +10,9 @@ Section group_props.
   Lemma inv_involutive x: - - x = x.
   Proof.
    rewrite <- (left_identity x) at 2.
-   rewrite <- (ginv_l (- x)).
+   rewrite <- (left_inverse (- x)).
    rewrite <- associativity.
-   rewrite ginv_l.
+   rewrite left_inverse.
    rewrite right_identity.
    reflexivity.
   Qed.
@@ -26,37 +26,37 @@ Section group_props.
   Qed.
 
   Lemma inv_0: - mon_unit = mon_unit.
-  Proof. rewrite <- (ginv_l mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
+  Proof. rewrite <- (left_inverse mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
 
   Global Instance: ∀ z : G, LeftCancellation sg_op z.
   Proof.
    intros z x y E.
-   rewrite <-(left_identity x), <-(ginv_l z), <-associativity.
+   rewrite <-(left_identity x), <-(left_inverse z), <-associativity.
    rewrite E.
-   rewrite associativity, ginv_l, left_identity.
+   rewrite associativity, left_inverse, left_identity.
    reflexivity.
   Qed.  
 
   Global Instance: ∀ z : G, RightCancellation sg_op z.
   Proof.
    intros z x y E.
-   rewrite <-(right_identity x), <-(ginv_r z), associativity.
+   rewrite <-(right_identity x), <-(right_inverse z), associativity.
    rewrite E.
-   rewrite <-associativity, ginv_r, right_identity.
+   rewrite <-associativity, right_inverse, right_identity.
    reflexivity.
   Qed.  
 
   Lemma sg_inv_distr `{!AbGroup G} x y: - (x & y) = - x & - y.
   Proof.
    rewrite <- (left_identity (- x & - y)).
-   rewrite <- (ginv_l (x & y)).
+   rewrite <- (left_inverse (x & y)).
    rewrite <- associativity.
    rewrite <- associativity.
    rewrite (commutativity (- x) (- y)).
    rewrite (associativity y).
-   rewrite ginv_r.
+   rewrite right_inverse.
    rewrite left_identity.
-   rewrite ginv_r.
+   rewrite right_inverse.
    rewrite right_identity.
    reflexivity.
   Qed.
@@ -69,7 +69,7 @@ Section groupmor_props.
   Proof.
     apply (left_cancellation sg_op (f x)).
     rewrite <-preserves_sg_op.
-    do 2 rewrite ginv_r.
+    do 2 rewrite right_inverse.
     apply preserves_mon_unit.
   Qed.
 End groupmor_props.
@@ -167,7 +167,7 @@ Proof.
     apply associativity.
    apply distribute_r.
   reflexivity.
- apply (ginv_r x).
+ apply (right_inverse x).
 Qed.
 
 Section ring_props. 

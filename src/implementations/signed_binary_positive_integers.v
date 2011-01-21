@@ -37,6 +37,8 @@ Instance: LeftIdentity BinInt.Zplus 0 := BinInt.Zplus_0_l.
 Instance: RightIdentity BinInt.Zplus 0 := BinInt.Zplus_0_r.
 Instance: LeftIdentity BinInt.Zmult 1 := BinInt.Zmult_1_l.
 Instance: RightIdentity BinInt.Zmult 1 := BinInt.Zmult_1_r.
+Instance: LeftInverse BinInt.Zplus BinInt.Zopp 0 := BinInt.Zplus_opp_l.
+Instance: RightInverse BinInt.Zplus BinInt.Zopp 0 := BinInt.Zplus_opp_r.
 
 (* structures: *)
 Instance: Equivalence (@eq BinInt.Z). (* this should not be necessary, seems like a regression bug *)
@@ -46,8 +48,7 @@ Instance: SemiGroup _ (op:=BinInt.Zmult).
 Instance: Monoid _ (op:=BinInt.Zplus) (unit:=BinInt.Z0).
 Instance: Monoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH).
 Instance: CommutativeMonoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH).
-Instance: @Group _ _ (BinInt.Zplus) (BinInt.Z0) _
-  := { ginv_l := BinInt.Zplus_opp_l; ginv_r := BinInt.Zplus_opp_r }.
+Instance: @Group _ _ (BinInt.Zplus) (BinInt.Z0) _.
 Instance: AbGroup BinInt.Z (op:=BinInt.Zplus) (unit:=BinInt.Z0).
 Program Instance: Ring BinInt.Z.
 

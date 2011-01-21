@@ -57,25 +57,25 @@ Section for_φAdjunction.
   Proof with try reflexivity; try apply _.
    intros x' x h.
    change (φ cat_id ◎ h = fmap G (fmap F h) ◎ φ cat_id).
-   rewrite <- φ_adjunction_natural_left, <- φ_adjunction_natural_right, id_l, id_r...
+   rewrite <- φ_adjunction_natural_left, <- φ_adjunction_natural_right, left_identity, right_identity...
   Qed.
 
   Global Instance: NaturalTransformation ε.
   Proof with try reflexivity; try apply _.
    intros d d' f.
    change ((φ ⁻¹) cat_id ◎ fmap F (fmap G f) = f ◎ (φ ⁻¹) cat_id).
-   rewrite <- φ_adjunction_natural_left_inv, <- φ_adjunction_natural_right_inv, id_l, id_r...
+   rewrite <- φ_adjunction_natural_left_inv, <- φ_adjunction_natural_right_inv, left_identity, right_identity...
   Qed.
 
   Lemma φ_in_terms_of_η `(f: F x ⟶ a): φ f = fmap G f ◎ η x.
   Proof.
-   rewrite <- (id_r f) at 1.
+   rewrite <- (right_identity f) at 1.
    rewrite φ_adjunction_natural_left. reflexivity. apply _.
   Qed.
 
   Lemma φ_in_terms_of_ε `(g: x ⟶ G a): φ⁻¹ g = ε a ◎ fmap F g.
   Proof.
-   rewrite <- (id_l g) at 1.
+   rewrite <- (left_identity g) at 1.
    apply φ_adjunction_natural_right_inv.
   Qed.
 
@@ -213,7 +213,7 @@ Section for_ηεAdjunction.
     simpl in Q.
     rewrite Q.
     symmetry.
-    apply id_l.
+    apply left_identity.
    intros y E. rewrite E. clear E f.
    rewrite preserves_comp...
    rewrite comp_assoc.
@@ -225,7 +225,7 @@ Section for_ηεAdjunction.
    simpl in Q.
    rewrite Q.
    symmetry.
-   apply id_r.
+   apply right_identity.
   Qed.
 
   Instance ηεAdjunction_φAdjunction: φAdjunction F G φ.

@@ -85,13 +85,13 @@ Section contents.
     Definition is_iso {x y: X} (a: x ⟶ y): Prop := ex (iso_arrows a).
 
     Definition isos_unique (x y: X) (a: x ⟶ y) (b b': y ⟶ x): iso_arrows a b → iso_arrows a b' → b = b'.
-    Proof. intros [P Q] [R S]. rewrite <- id_l. rewrite <- S, <- comp_assoc, P. apply id_r. Qed.
+    Proof. intros [P Q] [R S]. rewrite <- left_identity. rewrite <- S, <- comp_assoc, P. apply right_identity. Qed.
 
     Definition iso: Equiv X := λ x y, ex (uncurry (@iso_arrows x y)).
     Definition isoT: X → X → Type := λ x y, sig (uncurry (@iso_arrows x y)).
 
     Program Instance: Reflexive iso := λ x, ex_intro _ (cat_id, cat_id) _.
-    Next Obligation. split; apply id_l. Qed.
+    Next Obligation. split; apply left_identity. Qed.
 
     Instance: Symmetric iso.
     Proof. intros ? ? [[f f'] ?]. exists (f', f). unfold uncurry. apply (hetero_symmetric). assumption. Qed.
@@ -101,8 +101,8 @@ Section contents.
      intros ? ? ? [[f f'] [U V]] [[g g'] [W Z]].
      exists (g ◎ f, f' ◎ g').
      split; simpl in *.
-      rewrite <- comp_assoc, (comp_assoc g' f' f), U, id_l...
-     rewrite <- comp_assoc, (comp_assoc f g g'), Z, id_l...
+      rewrite <- comp_assoc, (comp_assoc g' f' f), U, left_identity...
+     rewrite <- comp_assoc, (comp_assoc f g g'), Z, left_identity...
     Qed.
 
     Global Instance iso_equivalence: Equivalence iso.
@@ -115,19 +115,19 @@ Section contents.
         bd ◎ ab = cd ◎ ac.
     Proof. (* shows that you only need one half of the diagram to commute for the other half to commute as well*)
      intros [H1 H4] [H2 H5] H3.
-     rewrite <- (id_l (comp bd ab)).
+     rewrite <- (left_identity (comp bd ab)).
      rewrite <- H2.
      rewrite <- comp_assoc.
      rewrite (comp_assoc ab bd dc).
      rewrite <- H3.
      rewrite <- comp_assoc.
      rewrite H4.
-     rewrite id_r.
+     rewrite right_identity.
      reflexivity.
     Qed.
 
     Program Definition refl_arrows (x: X): isoT x x := (cat_id, cat_id).
-    Next Obligation. split; apply id_l. Qed.
+    Next Obligation. split; apply left_identity. Qed.
 
   End isomorphy.
 
@@ -190,7 +190,7 @@ Section contents.
      rewrite (Q cat_id)... rewrite Q...
       rewrite comp_assoc.
       repeat rewrite tuple_round_trip...
-     rewrite id_r...
+     rewrite right_identity...
     Qed.
 
   End products.
@@ -240,12 +240,12 @@ Section contents.
        apply (R' (factor _ inject' ◎ factor' _ inject)).
        rewrite preserves_comp...
        rewrite <- comp_assoc, <- E'...
-      rewrite preserves_id, id_l...
+      rewrite preserves_id, left_identity...
      rewrite (R cat_id)...
       apply (R (factor' _ inject ◎ factor _ inject')).
       rewrite preserves_comp...
       rewrite <- comp_assoc, <- E...
-     rewrite preserves_id, id_l...
+     rewrite preserves_id, left_identity...
     Qed.
 
   End freedom.

@@ -35,8 +35,8 @@ Section contents.
 
   Global Instance: Category Object.
   Proof.
-   constructor; try apply _; intros; intros ? ? E; simpl; unfold compose;
-    destruct a; try destruct b; try destruct c; simpl; rewrite E; reflexivity.
+   constructor; try apply _; intros; [idtac|intro|intro]; intros ? ? E; simpl; unfold compose;
+    try destruct a; try destruct b; try destruct c; try destruct y0; try destruct x0; simpl; rewrite E; reflexivity.
   Qed.
 
   Global Instance: Producer Object := λ _ c, object (∀ i, c i) (λ x y, ∀ i, x i = y i) _.

@@ -53,7 +53,7 @@ Section contents.
      intro a.
      exists (λ v, refl_arrows (a v)).
      intros ???. simpl.
-     rewrite id_l, id_r. reflexivity.
+     rewrite left_identity, right_identity. reflexivity.
     Qed.
 
     Program Let sym_arrows (a b: x → y) (v: x) (p: isoT (a v) (b v)): isoT (b v) (a v)
@@ -79,8 +79,8 @@ Section contents.
 
     Next Obligation. Proof with assumption.
      destruct H as [? H1], H0 as [? H2]. unfold uncurry. simpl in *.
-     split. rewrite <- comp_assoc, (comp_assoc a0 a2 a1), H0, id_l...
-     rewrite <- comp_assoc, (comp_assoc a1 a a0), H1, id_l...
+     split. rewrite <- comp_assoc, (comp_assoc a0 a2 a1), H0, left_identity...
+     rewrite <- comp_assoc, (comp_assoc a1 a a0), H1, left_identity...
     Qed.
 
     Let e_trans: Transitive e.
@@ -129,10 +129,10 @@ Section contents.
    split; simpl in *.
     rewrite <- comp_assoc.
     rewrite (comp_assoc _ (fmap x0 _) (fmap x0 _)).
-    rewrite <- preserves_comp, e2, preserves_id, id_l...
+    rewrite <- preserves_comp, e2, preserves_id, left_identity...
    rewrite <- comp_assoc.
    rewrite (comp_assoc (fmap x0 _) _ _).
-   rewrite e1, id_l, <- preserves_comp, e3, preserves_id...
+   rewrite e1, left_identity, <- preserves_comp, e3, preserves_id...
   Defined.
 
   Global Instance: ∀ x y z: Object, Proper ((=) ==> (=) ==> (=)) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
@@ -170,20 +170,22 @@ Section contents.
      because unification isn't smart enough to resolve and use that coercion. This is
      likely due to Coq bug #2229. *)
 
-  Next Obligation. split; apply id_l. Qed.
+  Next Obligation. split; apply left_identity. Qed.
 
-  Let id_l' (x y: Object) (a: x ⟶ y): cat_id ◎ a = a.
+  Global Instance: forall x y: Object, LeftIdentity (comp: _ → _ → (x⟶y)) cat_id.
   Proof.
+   intros ?? a.
    exists (id_lr_arrows _ _ a).
    intros ? ? ?. simpl. unfold compose, id.
-   rewrite id_r, id_l. reflexivity.
+   rewrite right_identity, left_identity. reflexivity.
   Qed.
 
-  Let id_r' (x y: Object) (a: x ⟶ y): a ◎ cat_id = a.
+  Global Instance: forall x y: Object, RightIdentity (comp: _ → _ → (x⟶y)) cat_id.
   Proof.
+   intros ?? a.
    exists (id_lr_arrows _ _ a).
    intros ? ? ?. simpl. unfold compose, id.
-   rewrite id_r, id_l. reflexivity.
+   rewrite right_identity, left_identity. reflexivity.
   Qed.
 
   Section comp_assoc.
@@ -192,18 +194,18 @@ Section contents.
 
     Program Let comp_assoc_arrows (v: w): isoT (c (b (a v))) (c (b (a v))) :=
       (fmap c (fmap b (fmap a cat_id)), fmap c (fmap b (fmap a cat_id))).
-    Next Obligation. unfold uncurry. simpl. split; repeat rewrite preserves_id; try apply _; apply id_l. Qed.
+    Next Obligation. unfold uncurry. simpl. split; repeat rewrite preserves_id; try apply _; apply left_identity. Qed.
 
     Lemma comp_assoc': c ◎ (b ◎ a) = (c ◎ b) ◎ a.
     Proof.
      exists comp_assoc_arrows.
      simpl. intros ? ? ?. unfold compose.
      repeat rewrite preserves_id; try apply _. (* todo: remove need for [try apply _] *)
-     rewrite id_l, id_r. reflexivity.
+     rewrite left_identity, right_identity. reflexivity.
     Qed.
 
   End comp_assoc.
 
-  Global Instance: Category Object := { comp_assoc := comp_assoc'; id_l := id_l'; id_r := id_r' } .
+  Global Instance: Category Object := { comp_assoc := comp_assoc' }.
 
 End contents.
