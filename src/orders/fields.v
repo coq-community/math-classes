@@ -52,9 +52,19 @@ Proof with trivial.
 Qed.
 
 Lemma flip_dec_mult_inv_r x y : 0 < y → y ≤ /x  → x ≤ /y.
-Proof with trivial.
+Proof.
   intros E1 E2.
   rewrite <-(dec_mult_inv_involutive x).
-  apply flip_dec_mult_inv...
+  now apply flip_dec_mult_inv.
+Qed.
+
+Lemma precedes_0_half : 0 ≤ 1/2.
+Proof.
+  apply (order_preserving_back_gt_0 (.*.) 2).
+   apply sprecedes_0_2.
+  ring_simplify.
+  rewrite dec_mult_inverse.
+   apply precedes_0_1.
+  apply (ne_zero 2).
 Qed.
 End contents.
