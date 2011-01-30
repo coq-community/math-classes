@@ -87,7 +87,7 @@ Proof. intros x y. destruct (total_order ('x) ('y)); intuition. Qed.
 Global Instance: OrderEmbedding NonNeg_inject.
 Proof. repeat (split; try apply _); intuition. Qed.
 
-Instance: SemiRingOrder NonNeg_order.
+Global Instance: SemiRingOrder NonNeg_order.
 Proof with intuition.
   split; try apply _.
    intros x y. split; intros E. 

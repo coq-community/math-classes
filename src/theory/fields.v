@@ -5,7 +5,7 @@ Require Import
   abstract_algebra theory.rings.
 
 Section field_properties. 
-  Context `{Field F} `{div : !FieldDiv F}.
+  Context `{Field F}.
   Add Ring R: (stdlib_ring_theory F).
 
   Lemma mult_inverse_alt (x : F) (P : x ≠ 0) : x * // exist _ x P = 1.
@@ -113,13 +113,12 @@ Section field_properties.
 
   Lemma dec_mult_inv_1: / 1 = 1.
   Proof. 
-    unfold dec_mult_inv, dec_mult_inv_sig. 
-    destruct dec_inv as [z [E1 E2]]. simpl.
-    rewrite <-E1. ring.
+    rewrite <-(rings.mult_1_l (/1)).
+    apply dec_mult_inverse.
     apply (ne_zero _).
   Qed.
 
-  Global Instance dec_mult_inv_proper: Proper ((=) ==> (=)) (/).
+  Global Instance dec_mult_inv_proper: Proper ((=) ==> (=)) (/) | 1.
   Proof with auto.
     intros x1 x2 E.
     case (decide (x1 = 0)); intros E1; case (decide (x2 = 0)); intros E2.
@@ -152,25 +151,30 @@ Section field_properties.
    transitivity ((x * /y) * y)... rewrite E1...
   Qed.
 
-  Lemma dec_mult_inv_nonzero x : x ≠ 0 → / x ≠ 0.
+  Lemma dec_mult_inv_zero x : /x = 0 ↔ x = 0.
   Proof with auto.
-    intros E1 E2.
-    apply (ne_zero 1). 
-    rewrite <-(dec_mult_inverse x), E2... ring.
+    split; intros E.
+     destruct (decide (x = 0))...
+     destruct (ne_zero 1). 
+     rewrite <-(dec_mult_inverse x), E... ring.
+    rewrite E. apply dec_mult_inv_0.
   Qed.
+
+  Lemma dec_mult_inv_nonzero x : / x ≠ 0 ↔ x ≠ 0.
+  Proof. firstorder using dec_mult_inv_zero. Qed.
 
   Global Instance dec_mult_inv_inj: Injective (/).
   Proof with try solve [intuition].
     repeat (split; try apply _).
-    intros x y E.
-    destruct (decide (x = 0)) as [E2|E2].
+    intros x y E. 
+    destruct (decide (y = 0)) as [E2|E2].
      rewrite E2 in *. rewrite dec_mult_inv_0 in E.
-     apply stable. intro. apply (dec_mult_inv_nonzero y)...
-    apply (right_cancellation_ne_0 (.*.) (/x)).
+     apply dec_mult_inv_zero...
+    apply (right_cancellation_ne_0 (.*.) (/y)).
      apply dec_mult_inv_nonzero...
-    rewrite dec_mult_inverse, E, dec_mult_inverse...
-    intros E3. rewrite E3, dec_mult_inv_0 in E. 
-    apply (dec_mult_inv_nonzero x)...
+    rewrite dec_mult_inverse...
+    rewrite <-E. apply dec_mult_inverse...
+    apply dec_mult_inv_nonzero. rewrite E. apply dec_mult_inv_nonzero...
   Qed.
 
   Lemma dec_mult_inv_involutive x : / / x = x.

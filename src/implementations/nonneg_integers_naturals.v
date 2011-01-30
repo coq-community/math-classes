@@ -64,34 +64,24 @@ Qed.
 Global Instance: NaturalsToSemiRing (Z⁺) := naturals.retract_is_nat_to_sr of_nat.
 Global Instance: Naturals (Z⁺) := naturals.retract_is_nat of_nat.
 
-End nonneg_integers_naturals.
-
-(* 
-  For an unknown reason instance resolution fails to find this instance if it is contained in 
-  the preceding section. However, in that case, its type is equivalent to the function below and it is listed
-  in typeclass_instances.. Todo: further investigation.
-
-  Also, it might be more elegant to use an existing instance of [CutMinus Z] (whose
-  default implementation is similar to the definition below).
-*)
-Program Instance ZPos_cut_minus `{Integers Z} `{!RingOrder o} `{!TotalOrder o} `{Zdec : ∀ x y : Z, Decision (x ≤ y)} : CutMinus (Z⁺)
-  := λ x y, (exist _ (
-     if decide ('x ≤ 'y) 
-     then 0:(Z⁺)
-     else exist (λ z, 0 ≤ z) ('x - 'y) _
-  ) _).
+Global Program Instance ZPos_cut_minus: CutMinus (Z⁺) := λ x y, if decide ('x ≤ 'y) then 0 else exist (λ z, 0 ≤ z) ('x - 'y) _.
 Next Obligation.
-  apply <-rings.flip_nonneg_minus. apply orders.precedes_flip. assumption.
+  apply <-rings.flip_nonneg_minus. 
+  now apply orders.precedes_flip.
 Qed.
 
-Next Obligation with auto.
-  case (decide ('x ≤ 'y)); intros E; split; intros F.
-     rewrite left_identity. 
-     apply (antisymmetry o)...
-    reflexivity.
-   unfold equiv, NonNeg_equiv, inject, NonNeg_inject. simpl. 
-   rewrite <-associativity, rings.plus_opp_l, right_identity. 
+Global Instance: CutMinusSpec (Z⁺) ZPos_cut_minus.
+Proof.
+  split; intros [x Ex] [y Ey] E1; unfold cut_minus, ZPos_cut_minus; unfold_equivs.
+   case (decide (x ≤ y)); intros E2.
+    rewrite left_identity.
+    now apply (antisymmetry o).
+   simpl. ring.
+  case (decide (x ≤ y)); intros E2.
    reflexivity.
-  unfold equiv, NonNeg_equiv, inject, NonNeg_inject. simpl. 
-  contradiction.
+  simpl.
+  apply (antisymmetry o).
+   now apply rings.flip_nonpos_minus.
+  now apply rings.flip_nonneg_minus, orders.precedes_flip.
 Qed.
+End nonneg_integers_naturals.

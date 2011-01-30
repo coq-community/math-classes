@@ -15,7 +15,7 @@ Section rationals_order.
   Lemma rationals_decompose_pos_den x : ∃ num, ∃ den, 
     0 < den ∧ x = integers_to_ring Z Q num * / integers_to_ring Z Q den.
   Proof with trivial.
-    destruct (rationals_decompose Z x) as [num [den [E1 E2]]].
+    destruct (rationals_decompose Q Z x) as [num [den [E1 E2]]].
     destruct (total_order den 0).
      exists (-num). exists (-den). split.
       split.

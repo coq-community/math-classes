@@ -1,78 +1,63 @@
 Require Import 
   Program Morphisms abstract_algebra.
 
-Class Abs A `{Equiv A} `{Order A} `{RingZero A} `{GroupInv A} 
-  := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
-Definition abs `{Abs A} := λ x : A, ` (abs_sig x).
-Instance: Params (@abs_sig) 6.
-Instance: Params (@abs) 6.
-
-Class Pow A B := pow: A → B → A.
+Class Pow (A B : Type) := pow : A → B → A.
 Infix "^" := pow.
 Notation "(^)" := pow (only parsing).
-Instance: Params (@pow) 3.
 
-Inductive nat_pow_spec `{Equiv A} `{Equiv B} `{RingOne A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} : A → B → A → Prop := 
-  | nat_pow_spec_0 : `(nat_pow_spec x 0 1)
-  | nat_pow_spec_S : `(nat_pow_spec x n y → nat_pow_spec x (1 + n) (x * y))
-  | nat_pow_spec_proper': `(x1 = x2 → n1 = n2 → y1 = y2 → nat_pow_spec x1 n1 y1 → nat_pow_spec x2 n2 y2). 
+(* If we make [nat_pow_proper] a coercion, Coq is unable to find it. However, if we make a global instance in theory.nat_pow, it works? *)
+Class NatPowSpec A B (pw : Pow A B) `{eA : Equiv A} `{eB : Equiv B} `{RingOne A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} := {
+  nat_pow_proper : Proper ((=) ==> (=) ==> (=)) (^) ; 
+  nat_pow_0 : ∀ x, x ^ 0 = 1 ;
+  nat_pow_S : ∀ x n, x ^ (1 + n) = x * x ^ n
+}.
 
-Class NatPow A B `{Equiv A} `{Equiv B} `{RingOne A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} 
-  := nat_pow_sig (x : A) (n : B) : { y : A | nat_pow_spec x n y }.
-Instance nat_pow `{NatPow A B} : Pow A B := λ x n, ` (nat_pow_sig x n).
-Instance: Params (@nat_pow_sig) 10.
-Instance: Params (@nat_pow) 10.
+Class IntPowSpec A B (pow : Pow A B) `{Equiv A} `{Equiv B} `{RingZero A} `{RingOne A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} := {
+  int_pow_proper : Proper ((=) ==> (=) ==> (=)) (^) ;
+  int_pow_0 : ∀ x, x ^ 0 = 1 ;
+  int_pow_base_0 : ∀ (n : B), n ≠ 0 → 0 ^ n = 0 ;
+  int_pow_S : ∀ x n, x ≠ 0 → x ^ (1 + n) = x * x ^ n
+}.
 
-(* [0 ^ x] is undefined in case [x] is negative. However, we take the easy way, and let it yield [0]. *)
-Class IntPow A B `{Equiv A} `{Equiv B} `{Order B} `{RingOne A} `{RingMult A} `{DecMultInv A} 
-    `{RingZero B} `{RingOne B} `{RingPlus B} `{GroupInv B} 
-  := int_pow_sig: ∀ (x : A) (n : B), { y : A | (0 ≤ n → nat_pow_spec x n y) ∧ (n ≤ 0 → nat_pow_spec x (-n) (/ y)) }.
-Instance int_pow `{IntPow A B} : Pow A B := λ x n, ` (int_pow_sig x n).
-Instance: Params (@int_pow_sig) 17.
-Instance: Params (@int_pow) 17.
-
-Class ShiftLeft A B `{NatPow A B} `{RingPlus A} := shiftl_sig: ∀ (x : A) (y : B), { z : A | z = x * 2 ^ y }.
-Definition shiftl `{ShiftLeft A B}: A → B → A := λ x y, ` (shiftl_sig x y).
+Class ShiftL A B := shiftl: A → B → A.
 Infix "≪" := shiftl (at level 33, left associativity).
 Notation "(≪)" := shiftl (only parsing).
-Instance: Params (@shiftl_sig) 12.
-Instance: Params (@shiftl) 12.
 
-Class Log `(b : A) B  `{NatPow A B} `{RingZero A} `{RingPlus A} `{Order A} 
-  := log_sig: ∀ (x : {z : A | 0 < z }), { z : B | b ^ z ≤ `x < b ^ (z + 1) }.
-Definition log  `(b : A) `{Log A b N}: {z | 0 < z } → N := λ x, ` (log_sig x).
-Instance: Params (@log_sig) 15.
-Instance: Params (@log) 15.
+Class ShiftLSpec A B (sl : ShiftL A B) `{Equiv A} `{Equiv B} `{RingOne A} `{RingPlus A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} := {
+  shiftl_proper : Proper ((=) ==> (=) ==> (=)) (≪) ;
+  shiftl_0 :> RightIdentity (≪) 0 ;
+  shiftl_S : ∀ x n, x ≪ (1 + n) = 2 * x ≪ n
+}.
 
-Definition Euclid `{Equiv A} `{Order A} `{RingZero A} `{RingPlus A} `{RingMult A} `{GroupInv A} `{!Abs A} 
-  a (b : { z : A | z ≠ 0}) q r := a = `b * q + r ∧ (0 ≤ r < `b ∨ `b < r ≤ 0).
-
-Class DivEuclid A `{Equiv A} `{Order A} `{RingZero A} `{RingPlus A} `{RingMult A} `{GroupInv A} `{!Abs A} 
-  := div_euclid_sig (a : A) (b : { z : A | z ≠ 0}) : { q : A | ∃ r, Euclid a b q r }.
-Class ModEuclid A `{Equiv A} `{Order A} `{RingZero A} `{RingPlus A} `{RingMult A} `{GroupInv A} `{!Abs A} 
-  := mod_euclid_sig (a : A) (b : { z : A | z ≠ 0}) : { r : A | ∃ q, Euclid a b q r }.
-
-Definition div_euclid `{DivEuclid A} : A → { z : A | z ≠ 0} → A := λ x y, ` (div_euclid_sig x y).
-Instance: Params (@div_euclid_sig) 9.
-Instance: Params (@div_euclid) 9.
-
-Definition mod_euclid `{ModEuclid A} : A → { z : A | z ≠ 0} → A := λ x y, ` (mod_euclid_sig x y).
-Instance: Params (@mod_euclid_sig) 9.
-Instance: Params (@mod_euclid) 9.
-
-Class ShiftRight A B `{NatPow A B} `{RingPlus A} `{Order A}
-  := shiftr_sig: ∀ (x : A) (y : B), { z : A | x ≤ z * 2 ^ y < 2 * x }.
-
-Definition shiftr `{ShiftRight A B}: A → B → A := λ x y, proj1_sig (shiftr_sig x y).
+Class ShiftR A B := shiftr: A → B → A.
 Infix "≫" := shiftr (at level 33, left associativity).
 Notation "(≫)" := shiftr (only parsing).
-Instance: Params (@shiftr_sig) 13.
-Instance: Params (@shiftr) 13.
 
-Class CutMinus A `{Equiv A} `{RingZero A} `{RingPlus A} `{Order A}
-  := cut_minus_sig: ∀ (x y : A), { z : A | (y ≤ x → z + y = x) ∧ (x ≤ y → z =0) }.
-Definition cut_minus `{CutMinus A} : A → A → A := λ x y, ` (cut_minus_sig x y).
+Class ShiftRSpec A B (sl : ShiftR A B) `{Equiv A} `{Order A} `{Equiv B} `{RingZero A} `{RingOne A} `{RingPlus A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} := {
+  shiftr_proper : Proper ((=) ==> (=) ==> (=)) (≫) ;
+  shiftr_0 :> RightIdentity (≫) 0 ;
+  shiftr_S : ∀ x n, x ≠ 0 → ∃ r, x ≫ n = 2 * x ≫ (1 + n) + r ∧ 0 ≤ r < 2 
+}.
+
+Class DivEuclid A := div_euclid : A → A → A.
+Class ModEuclid A := mod_euclid : A → A → A.
+Infix "`div`" := div_euclid (at level 30).
+Infix "`mod`" := mod_euclid (at level 30).
+
+Class EuclidSpec A (d : DivEuclid A) (m : ModEuclid A) `{Equiv A} `{Order A} `{RingZero A} `{RingPlus A} `{RingMult A} `{GroupInv A} := {
+  div_euclid_proper :> Proper ((=) ==> (=) ==> (=)) div_euclid ;
+  mod_euclid_proper :> Proper ((=) ==> (=) ==> (=)) mod_euclid ;
+  div_mod : ∀ x y, y ≠ 0 → x = y * x `div` y + x `mod` y ;
+  mod_euclid_rem : ∀ x y, y ≠ 0 → 0 ≤ x `mod` y < y ∨ y < x `mod` y ≤ 0 ;
+  div_euclid_0 : ∀ x, x `div` 0 = 0 ;
+  mod_euclid_0 : ∀ x, x `mod` 0 = 0
+}.
+
+Class CutMinus A := cut_minus : A → A → A.
 Infix "∸" := cut_minus (at level 50, left associativity).
 Notation "(∸)" := cut_minus (only parsing).
-Instance: Params (@cut_minus_sig) 6.
-Instance: Params (@cut_minus) 6.
+
+Class CutMinusSpec A (cm : CutMinus A) `{Equiv A} `{RingZero A} `{RingPlus A} `{Order A} := {
+  cut_minus_precedes : ∀ x y, y ≤ x → cut_minus x y + y = x ;
+  cut_minus_0 : ∀ x y, x ≤ y → cut_minus x y = 0
+}.

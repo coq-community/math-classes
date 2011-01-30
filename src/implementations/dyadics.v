@@ -3,7 +3,6 @@
    for some [Integers] implementation [Z]. These numbers form a ring and can be 
    embedded into any [Rationals] implementation [Q]. 
 *)
-
 Require
   theory.integers theory.rings theory.fields theory.rationals.
 Require Import
@@ -26,8 +25,7 @@ Section dyadics.
   Context `{Integers Z} `{!RingOrder oZ} `{!TotalOrder oZ}
     `{equiv_dec : ∀ (x y : Z), Decision (x = y)}  
     `{precedes_dec : ∀ (x y : Z), Decision (x ≤ y)}
-    `{!NatPow Z (Z⁺)} 
-    `{!ShiftLeft Z (Z⁺)}.
+    `{!ShiftLSpec Z (Z⁺) sl}.
 
   Add Ring Z: (rings.stdlib_ring_theory Z).
   Notation Dyadic := (Dyadic Z).
@@ -49,7 +47,7 @@ Section dyadics.
   Infix "--" := cut_minus_NonNeg (at level 50, left associativity).
 
   Ltac unfold_cut_minus := unfold equiv, NonNeg_equiv, inject, NonNeg_inject, cut_minus_NonNeg; simpl.
-
+  
   Instance: Proper ((=) ==> (=) ==> (=)) cut_minus_NonNeg.
   Proof. intros x1 x2 E y1 y2 F. unfold_cut_minus. apply cut_minus_proper; auto. Qed.
 
@@ -77,22 +75,22 @@ Section dyadics.
       destruct (total_order ye ze) as [G|G];
       rewrite (shiftl_cut_minus_0 G) in E2... 
        (* expo x ≤ expo y, expo y ≤ expo z *)
-       rewrite E1, E2. repeat rewrite <-shiftl_sum_exp.
-       apply shiftl_proper... unfold_cut_minus.
+       rewrite E1, E2. repeat rewrite <-shiftl_plus_exp.
+       apply shiftl_proper... unfold_cut_minus. 
        rewrite (cut_minus_0 xe). ring_simplify. 
        apply cut_minus_precedes_trans... 
        transitivity ye...
       (* expo x ≤ expo y, expo y ≤ expo z *)
-      rewrite E1, <-E2. repeat rewrite <-shiftl_sum_exp. 
+      rewrite E1, <-E2. repeat rewrite <-shiftl_plus_exp. 
       apply shiftl_proper... unfold_cut_minus. 
       apply cut_minus_plus_toggle1...
      (* expo y ≤ expo x, expo y ≤ expo z *)
      apply (shiftl_inj (xe -- ye))... unfold flip.
-     rewrite shiftl_order, E1, E2. repeat rewrite <-shiftl_sum_exp. 
+     rewrite shiftl_order, E1, E2. repeat rewrite <-shiftl_plus_exp. 
      apply shiftl_proper... unfold_cut_minus. 
      rewrite commutativity. apply cut_minus_plus_toggle2...
     (* expo y ≤ expo x, expo z ≤ expo y *)
-    rewrite <-E2, <-E1. repeat rewrite <-shiftl_sum_exp.
+    rewrite <-E2, <-E1. repeat rewrite <-shiftl_plus_exp.
     apply shiftl_proper... unfold_cut_minus.
     rewrite (cut_minus_0 ze). ring_simplify. 
     symmetry. apply cut_minus_precedes_trans... 
@@ -111,14 +109,14 @@ Section dyadics.
      apply rings.flip_nonneg_minus...
     split; intros E. 
      unfold equiv, dy_eq.
-     rewrite E, <-shiftl_sum_exp.
+     rewrite E, <-shiftl_plus_exp.
      apply shiftl_proper. reflexivity.
      unfold_cut_minus.
      rewrite cut_minus_0, cut_minus_ring_minus...
      ring. 
     unfold equiv, dy_eq in E.
     apply (shiftl_inj (xe -- ye)). unfold flip.
-    rewrite E, <-shiftl_sum_exp.
+    rewrite E, <-shiftl_plus_exp.
     apply shiftl_proper. reflexivity.
     unfold_cut_minus.
     rewrite (cut_minus_0 xe ye), (cut_minus_ring_minus ye xe)...
@@ -193,11 +191,11 @@ Section dyadics.
 
   Lemma dy_plus_proper_aux n m x1 x2 y1 y2 : n ≪ (x1 -- y1) = m ≪ (y1 --x1) → 
     n ≪ (x1 -- x2 + (min x1 x2 -- min y1 y2)) = m ≪ (y1 -- y2 + (min y1 y2 -- min x1 x2)).
-  Proof with auto; try reflexivity.
+  Proof.
     intros E.
     apply (shiftl_inj (x1 -- y1)). unfold flip. 
     rewrite shiftl_order. rewrite E. 
-    repeat rewrite <-shiftl_sum_exp. apply shiftl_proper...
+    do 2 rewrite <-shiftl_plus_exp. apply shiftl_proper; try reflexivity.
     unfold_cut_minus.
     apply cut_minus_min4.
   Qed.
@@ -207,19 +205,19 @@ Section dyadics.
   Proof with auto; try reflexivity.
     intros [x1m x1e] [y1m y1e] E1 [x2m x2e] [y2m y2e] E2.
     unfold equiv, dy_eq, dy_plus_slow in *. simpl in *.
-    do 2 rewrite shiftl_sum_base. 
-    repeat rewrite <-shiftl_sum_exp.
+    do 2 rewrite shiftl_plus_base. 
+    do 4 rewrite <-shiftl_plus_exp.
     apply sg_mor. 
      apply dy_plus_proper_aux...
     rewrite (commutativity y1e y2e), (commutativity x1e x2e).
-    apply dy_plus_proper_aux...
+    now apply dy_plus_proper_aux.
   Qed.
 
   Instance dy_plus_proper: Proper ((=) ==> (=) ==> (=)) dy_plus.
   Proof.
     intros ? ? E1 ? ? E2. 
     do 2 rewrite dy_plus_slow_correct.
-    apply dy_plus_slow_proper; assumption.
+    now apply dy_plus_slow_proper.
   Qed.
 
   Instance: Associative dy_plus.
@@ -227,40 +225,42 @@ Section dyadics.
     intros [xm xe] [ym ye] [zm ze]. do 4 rewrite dy_plus_slow_correct. 
     unfold equiv, dy_eq, dy_plus_slow. simpl. 
     apply shiftl_proper.
-     repeat rewrite shiftl_sum_base. 
-     repeat rewrite <-shiftl_sum_exp. 
+     do 2 rewrite shiftl_plus_base. 
+     do 4 rewrite <-shiftl_plus_exp. 
      rewrite associativity.
      repeat apply sg_mor; apply shiftl_proper; unfold_cut_minus...
        apply cut_minus_min1.
       apply cut_minus_min2.
      rewrite (commutativity ye ze), (commutativity xe ye).
-     symmetry. apply cut_minus_min1.
-    rewrite associativity...
+     symmetry. now apply cut_minus_min1.
+    now rewrite associativity.
   Qed.
 
   Instance: Commutative dy_plus.
-  Proof with auto; try reflexivity. 
-    intros [xm xe] [ym ye]. do 2 rewrite dy_plus_slow_correct.
+  Proof. 
+    intros [xm xe] [ym ye]. 
+    do 2 rewrite dy_plus_slow_correct.
     unfold dy_plus, equiv, dy_eq. simpl.
-    apply shiftl_proper...
-     apply commutativity...
-    rewrite commutativity...
+    apply shiftl_proper.
+     now apply commutativity.
+    now rewrite commutativity.
   Qed.
 
   Instance: SemiGroup Dyadic (op:=dy_plus).
 
   Lemma dyadic_left_identity (x : Dyadic) : 0 + x = x.
-  Proof with auto; try reflexivity.
+  Proof.
     destruct x as [xm xe]. rewrite dy_plus_slow_correct.
     unfold equiv, dy_eq, sg_op, dy_plus_slow. simpl.
     rewrite left_absorb, left_identity. 
-    rewrite <-shiftl_sum_exp.
-    apply shiftl_proper... unfold_cut_minus.
+    rewrite <-shiftl_plus_exp.
+    apply shiftl_proper. reflexivity. 
+    unfold_cut_minus.
     destruct (total_order xe 0) as [F|F].
-     rewrite min_r... 
-     rewrite cut_minus_rightabsorb... ring.
-    rewrite min_l... 
-    rewrite cut_minus_leftabsorb... ring.
+     rewrite min_r; auto.
+     rewrite cut_minus_rightabsorb; auto. ring.
+    rewrite min_l; auto.
+    rewrite cut_minus_leftabsorb; auto. ring.
   Qed.
 
   Program Instance: Monoid Dyadic (op:=dy_plus) (unit:=dy_0).
@@ -280,8 +280,8 @@ Section dyadics.
   Proof.
     destruct x as [xm xe]. rewrite dy_plus_slow_correct.
     unfold equiv, dy_eq, sg_op, dy_plus_slow. simpl.
-    rewrite left_absorb. rewrite shiftl_sum_base. 
-    do 2 rewrite <-shiftl_sum_exp.
+    rewrite left_absorb. rewrite shiftl_plus_base. 
+    do 2 rewrite <-shiftl_plus_exp.
     rewrite opp_shiftl. ring.
   Qed.
 
@@ -380,32 +380,45 @@ Section dyadics.
 
   Global Instance: Ring Dyadic.
 
-  Global Program Instance dy_nat_pow: NatPow (Dyadic) (Z⁺) := λ x n,
-    (mant x) ^ n $ 'n * expo x.
-  Next Obligation with auto; try reflexivity.
-    change (nat_pow_spec x n ((λ x n, mant x ^ n $ ' n * expo x) x n)).
-    apply nat_pow_spec_from_properties.
-      intros x1 y1 E1 x2 y2 E2. rewrite E2. clear x n x2 E2.
+  Global Instance dy_pow: Pow Dyadic (Z⁺) := λ x n, (mant x) ^ n $ 'n * expo x.
+
+  Global Instance: NatPowSpec Dyadic (Z⁺) dy_pow.
+  Proof with try easy.
+    split; unfold pow, dy_pow.
+       intros x1 y1 E1 x2 y2 E2. 
+       rewrite E2. clear x2 E2.
       assert (∀ a b, expo a ≤ expo b → a = b 
          → (mant a ^ y2 $ ' y2 * expo a) = (mant b ^ y2 $ ' y2 * expo b)).
        unfold equiv, dy_eq in E1 |- *. simpl.
        intros [am ae] [bm be] E F. destruct y1 as [ym ye]. simpl in *.
-       rewrite shiftl_cut_minus_0, shiftl_correct in F...
-       rewrite shiftl_cut_minus_0, shiftl_correct.
+       rewrite shiftl_cut_minus_0, shiftl_nat_pow in F...
+       rewrite shiftl_cut_minus_0, shiftl_nat_pow.
         rewrite F, nat_pow_base_mult, <-nat_pow_exp_mult.
         apply sg_mor... apply nat_pow_proper...
         unfold_cut_minus.
         rewrite commutativity.
-        apply cut_minus_mult_distr_l. destruct y2...
-       apply semirings.mult_compat... destruct y2...
-      destruct (total_order (expo x1) (expo y1))...
-      symmetry in E1 |- *...
-     intros [xm xe]. simpl.
-     rewrite nat_pow_0, rings.preserves_0, left_absorb...
-    intros [xm xe] m. simpl.
+        apply cut_minus_mult_distr_l. now destruct y2.
+       apply semirings.mult_compat... now destruct y2.
+      destruct (total_order (expo x1) (expo y1)).
+       now auto.
+      now symmetry in E1 |- *; auto.
+     intros x.
+     now rewrite nat_pow_0, rings.preserves_0, left_absorb.
+    intros [xm xe] n.
     rewrite nat_pow_S.
     rewrite rings.preserves_plus, rings.preserves_1.
-    rewrite distribute_r, left_identity...
+    now rewrite distribute_r, left_identity.
+  Qed.
+
+  Global Instance dy_shiftl: ShiftL Dyadic Z := λ x n, mant x $ n + expo x.
+
+  Global Instance: ShiftLSpec Dyadic Z dy_shiftl.
+  Proof with try easy.
+    split; unfold shiftl, dy_shiftl.
+      admit.
+     intros [xm xe]. simpl. now rewrite left_identity.
+    intros [xm xe] n. simpl.
+    admit.
   Qed.
 
   (** 
@@ -418,11 +431,9 @@ Section dyadics.
 
   Lemma ZtoQ_shift (x : Z) (n : Z⁺) : ZtoQ (x ≪ n) = ZtoQ x * 2 ^ ('n : Z).
   Proof.
-    rewrite shiftl_correct.
+    rewrite shiftl_nat_pow.
     rewrite rings.preserves_mult, nat_pow.preserves_nat_pow, rings.preserves_2.
-    rewrite <-int_pow_nat_pow.
-    rewrite <-(naturals.to_semiring_unique NonNeg_inject).
-    reflexivity.
+    now rewrite <-int_pow_nat_pow.
   Qed.
 
   Definition DtoQ_slow (x : Dyadic) : Q := ZtoQ (mant x) * 2 ^ (expo x).
@@ -435,7 +446,7 @@ Section dyadics.
      rewrite (shiftl_cut_minus_0 E) in F.
      rewrite F. rewrite ZtoQ_shift.
      unfold inject, NonNeg_inject, cut_minus_NonNeg. simpl.
-     rewrite <-associativity, <-int_pow_exp_sum.
+     rewrite <-associativity, <-int_pow_exp_plus.
       rewrite cut_minus_precedes...
      apply (ne_zero (2:Q)).
     intros x y F.
@@ -454,8 +465,8 @@ Section dyadics.
      unfold inject, NonNeg_inject. simpl.
      rewrite min_l...
      ring_simplify.
-     rewrite <-associativity, <-int_pow_exp_sum.
-      rewrite cut_minus_precedes... reflexivity.
+     rewrite <-associativity, <-int_pow_exp_plus.
+      now rewrite cut_minus_precedes.
      apply (ne_zero (2:Q)).
     destruct (total_order (expo x) (expo y)) as [E|E]...
     rewrite commutativity, (commutativity (DtoQ_slow x))...
@@ -472,7 +483,7 @@ Section dyadics.
     unfold ring_mult at 1. unfold dy_mult at 1. unfold DtoQ_slow. simpl.
     destruct x as [xn xe], y as [yn ye]. simpl.
     rewrite rings.preserves_mult.
-    rewrite int_pow_exp_sum. ring.
+    rewrite int_pow_exp_plus. ring.
     apply (ne_zero (2:Q)).
   Qed. 
 
@@ -505,7 +516,7 @@ Section dyadics.
       apply int_pow_nonzero.
       apply (ne_zero (2 : Q)).
      unfold inject, NonNeg_inject. simpl.
-     rewrite <-associativity, <-int_pow_exp_sum.
+     rewrite <-associativity, <-int_pow_exp_plus.
      rewrite cut_minus_precedes... 
      apply (ne_zero (2:Q)).
      intros x y F.
@@ -618,7 +629,7 @@ Section dyadics.
      unfold precedes, dy_precedes, DtoQ_slow in E. simpl in *.
      apply (order_preserving_back ZtoQ).
      apply (maps.order_preserving_back_flip_gt_0 (.*.) (2 ^ (expo x))). 
-      apply int_pow_nonneg. apply semirings.sprecedes_0_2.
+      apply int_pow_pos. apply semirings.sprecedes_0_2.
      unfold flip. rewrite rings.preserves_0, left_absorb in E |- *...
     unfold precedes, dy_precedes, DtoQ_slow. simpl.
     apply (order_preserving ZtoQ) in E.
@@ -637,14 +648,14 @@ Section dyadics.
   Qed.
 
   Global Program Instance dy_abs `{!Abs Z} : Abs Dyadic := λ x, abs (mant x) $ expo x.
-  Next Obligation with auto; try reflexivity.
+  Next Obligation.
     split; intros E.
      rewrite abs_nonneg. 
-      destruct x...
-     apply nonneg_mant...
-     rewrite abs_nonpos. 
-     destruct x...
-    apply nonpos_mant...
+      now destruct x.
+     now apply nonneg_mant.
+    rewrite abs_nonpos. 
+     now destruct x.
+    now apply nonpos_mant.
   Qed.
 
   Lemma dy_precedes_dec_aux (x y : Dyadic) p : 
@@ -655,9 +666,9 @@ Section dyadics.
     apply (order_preserving ZtoQ) in E.
     rewrite ZtoQ_shift in E.
     setoid_replace ye with ((ye - xe) + xe) by ring.
-    rewrite int_pow_exp_sum.
+    rewrite int_pow_exp_plus.
      rewrite associativity. 
-     apply (maps.order_preserving_flip_ge_0 (.*.) (2 ^  xe))...
+     apply (maps.order_preserving_flip_ge_0 (.*.) (2 ^ xe))...
      apply int_pow_nonneg. apply semirings.sprecedes_0_2.
     apply (ne_zero (2:Q)).
   Qed.

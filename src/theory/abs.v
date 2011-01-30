@@ -1,54 +1,53 @@
 Require Import
   Morphisms Ring
-  abstract_algebra
-  orders.semirings interfaces.additional_operations.
+  abstract_algebra orders.semirings.
 
 Section contents.
 Context `{Ring R} `{oR : Order R} `{!RingOrder oR} `{!TotalOrder oR} `{a : !Abs R}.
 Add Ring R : (rings.stdlib_ring_theory R).
 
 Global Instance abs_proper: Proper ((=) ==> (=)) abs.
-Proof with trivial.
+Proof.
   intros x y E.
   unfold abs, abs_sig. destruct (a x) as [z1 [Ez1 Fz1]]. destruct (a y) as [z2 [Ez2 Fz2]].
   simpl.
   rewrite <-E in Ez2, Fz2.
   destruct (total_order 0 x).
-   rewrite Ez1, Ez2... reflexivity.
-  rewrite Fz1, Fz2... reflexivity.
+   now rewrite Ez1, Ez2.
+  now rewrite Fz1, Fz2.
 Qed.
 
 Lemma abs_nonneg (x : R) : 0 ≤ x → abs x = x.
-Proof with auto.
-  intros E. unfold abs, abs_sig. destruct (a x) as [z1 [Ez1 Fz1]]...
+Proof.
+  intros E. unfold abs, abs_sig. destruct (a x) as [z1 [Ez1 Fz1]]. auto.
 Qed.
 
 Lemma abs_nonpos (x : R) : x ≤ 0 → abs x = -x.
-Proof with auto.
-  intros E. unfold abs, abs_sig. destruct (a x) as [z1 [Ez1 Fz1]]...
+Proof.
+  intros E. unfold abs, abs_sig. destruct (a x) as [z1 [Ez1 Fz1]]. auto.
 Qed.
 
 Lemma abs_nonneg_plus (x y : R) :
   0 ≤ x → 0 ≤ y → abs (x + y) = abs x + abs y.
-Proof with auto.
+Proof.
   intros Ex Ey.
-  repeat rewrite abs_nonneg...
+  repeat rewrite abs_nonneg; auto.
    reflexivity.
-  apply nonneg_plus_compat...
+  now apply nonneg_plus_compat.
 Qed.
 
 Lemma abs_nonpos_plus (x y : R) :
   x ≤ 0 → y ≤ 0 → abs (x + y) = abs x + abs y.
-Proof with auto.
+Proof.
   intros Ex Ey.
-  repeat rewrite abs_nonpos...
+  repeat rewrite abs_nonpos; auto.
    ring.
-  apply nonpos_plus_compat...
+  now apply nonpos_plus_compat.
 Qed.
 
 Lemma abs_0 : abs 0 = 0.
 Proof.
-  rewrite abs_nonneg; reflexivity.
+  now rewrite abs_nonneg.
 Qed.
 
 Lemma abs_mult (x y : R) : abs (x * y) = abs x * abs y.

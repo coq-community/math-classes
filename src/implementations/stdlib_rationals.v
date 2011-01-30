@@ -1,5 +1,5 @@
 Require
-  signed_binary_positive_integers Field Qfield theory.fields.
+  stdlib_binary_integers Field Qfield theory.fields.
 Require Import
   Ring Morphisms QArith_base Qabs Qpower
   abstract_algebra theory.rings interfaces.rationals canonical_names
@@ -58,12 +58,12 @@ Qed.
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 
 Instance: Proper ((=) ==> (=)) inject_Z. 
-Proof. intros x y H. unfold inject_Z. repeat red. simpl. rewrite H. reflexivity. Qed.
+Proof. intros x y H. unfold inject_Z. repeat red. simpl. now rewrite H. Qed.
 
 Instance: SemiRing_Morphism inject_Z. 
 Proof.
   repeat (split; try apply _).
-  intros x y. repeat red. simpl. repeat rewrite Zmult_1_r. reflexivity.
+  intros x y. repeat red. simpl. now repeat rewrite Zmult_1_r.
 Qed.
 
 Instance: Injective inject_Z.
@@ -77,7 +77,7 @@ Let inject p := inject_Z (fst p) * / inject_Z (snd p).
 Instance: Setoid_Morphism inject.
 Proof.
  constructor; try apply _.
- intros ?? E. unfold inject. rewrite E. reflexivity.
+ intros ?? E. unfold inject. now rewrite E.
 Qed.
 
 Instance: Inverse inject := λ x, (Qnum x, Zpos (Qden x)).
@@ -85,14 +85,14 @@ Instance: Inverse inject := λ x, (Qnum x, Zpos (Qden x)).
 Instance: Surjective (λ p, inject_Z (fst p) * / inject_Z (snd p)).
 Proof.
  constructor. 2: apply _.
- intros [num den] q E. rewrite <- E. unfold Basics.compose, id.
- simpl. rewrite Qmake_Qdiv. reflexivity.
+ intros [n d] q E. rewrite <- E. unfold Basics.compose, id.
+ simpl. now rewrite Qmake_Qdiv.
 Qed.
 
 Instance: Rationals Q.
-Proof alt_Build_Rationals _ _ inject_Z _ _.
+Proof alt_Build_Rationals inject_Z.
 
-Program Instance Qinv_dec_mult: DecMultInv Q := Qinv.
+Program Instance Q_inv_dec_mult: DecMultInv Q := Qinv.
 Next Obligation.
   split; intros E. 
    apply Qmult_inv_r; trivial.
@@ -102,19 +102,17 @@ Qed.
 Program Instance: Abs Q := Qabs.
 Next Obligation with trivial.
   split; intros E.
-   apply Qabs_pos...
-  apply Qabs_neg...
+   now apply Qabs_pos.
+  now apply Qabs_neg.
 Qed.
 
-Program Instance: IntPow Q Z := Qpower.
-Next Obligation with trivial.
-  apply int_pow_spec_from_properties.
+Instance Q_pow: Pow Q Z := Qpower.
+
+Instance: IntPowSpec Q Z Q_pow.
+Proof.
+  split.
      apply _.
     reflexivity.
-   intros y n E.
-   rewrite Qpower_plus'. reflexivity.
-   apply not_symmetry, orders.neq_precedes_sprecedes.
-   apply semirings.nonneg_plus_scompat_r...
-   apply semirings.sprecedes_0_1.
-  apply Qpower_opp.
+   exact Qpower_0. 
+  intros. now apply Qpower_plus.
 Qed.

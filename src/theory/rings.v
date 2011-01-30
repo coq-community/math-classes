@@ -192,7 +192,7 @@ Section ring_props.
   Lemma distr_opp_mult_r a b: -(a * b) = a * -b. Proof. ring. Qed.
   Lemma opp_mult_opp a b: -a * -b = a * b. Proof. ring. Qed.
   Lemma opp_0: -0 = 0. Proof. ring. Qed.
-  Lemma ring_distr_opp a b: -(a+b) = -a+-b. Proof. ring. Qed.
+  Lemma distr_opp a b: -(a+b) = -a+-b. Proof. ring. Qed.
 
   Lemma equal_by_zero_sum x y : x + - y = 0 ↔ x = y.
   Proof. 
@@ -201,15 +201,25 @@ Section ring_props.
     rewrite E. ring.
   Qed.
 
-  Lemma inv_zero_prod_l x y : -x * y = 0 ↔ x * y = 0.
+  Lemma flip_opp_zero x : -x = 0 ↔ x = 0.
+  Proof.
+    split; intros E.
+     apply (injective (-)). rewrite E, opp_0. reflexivity.
+    rewrite E, opp_0. reflexivity.
+  Qed.
+  
+  Lemma flip_opp_nonzero x : -x ≠ 0 ↔ x ≠ 0.
+  Proof. firstorder using flip_opp_zero. Qed.
+
+  Lemma opp_zero_prod_l x y : -x * y = 0 ↔ x * y = 0.
   Proof with trivial.
     split; intros E.
      apply (injective (-)). rewrite distr_opp_mult_l, opp_0...
     apply (injective (-)). rewrite distr_opp_mult_l, inv_involutive, opp_0...
   Qed.
 
-  Lemma inv_zero_prod_r x y : x * -y = 0 ↔ x * y = 0.
-  Proof. rewrite (commutativity x (-y)), (commutativity x y). apply inv_zero_prod_l. Qed.
+  Lemma opp_zero_prod_r x y : x * -y = 0 ↔ x * y = 0.
+  Proof. rewrite (commutativity x (-y)), (commutativity x y). apply opp_zero_prod_l. Qed.
 
   Lemma units_dont_divide_zero (x: R) `{!RingMultInverse x} `{!RingUnit x}: ¬ ZeroDivisor x.
     (* todo: we don't want to have to mention RingMultInverse *)

@@ -8,8 +8,7 @@ Require Import
 (* * Properties of Cut off Minus *)
 Section cut_minus_properties.
   Context `{SemiRing R} `{!SemiRingOrder o} `{!TotalOrder o}
-    `{∀ z, LeftCancellation (+) z}
-    `{cm : !CutMinus R}.
+    `{∀ z, LeftCancellation (+) z} `{!CutMinusSpec R cm}.
 
   Instance: ∀ z, RightCancellation (+) z.
   Proof. intros z. apply rings.right_cancel_from_left. Qed.
@@ -17,51 +16,35 @@ Section cut_minus_properties.
   Add Ring SR: (rings.stdlib_semiring_theory R).
   Hint Resolve (@orders.precedes_flip R _ _).
 
-  Global Instance cut_minus_proper: Proper ((=) ==> (=) ==> (=)) cut_minus.
+  Global Instance cut_minus_proper: Proper ((=) ==> (=) ==> (=)) cut_minus | 1.
   Proof with auto; try reflexivity.
     intros x1 x2 E y1 y2 F.
-    unfold cut_minus, cut_minus_sig. 
-    destruct cm as [z1 [Ez1 Fz1]]. destruct cm as [z2 [Ez2 Fz2]]. simpl.
-    rewrite E, F in Ez1, Fz1. clear E F x1 y1.
     destruct (total_order x2 y2).
-    rewrite Fz1, Fz2...
-    apply (right_cancellation (+) y2)...
-    rewrite Ez1, Ez2...
+     rewrite cut_minus_0, cut_minus_0... rewrite E, F...
+    apply (right_cancellation (+) y2).
+    rewrite cut_minus_precedes...
+    rewrite <-E, <-F. apply cut_minus_precedes... rewrite E, F...
   Qed.
 
-  Lemma cut_minus_0 x y : x ≤ y → (x ∸ y) = 0.
-  Proof.
-    unfold cut_minus, cut_minus_sig. destruct cm. simpl. tauto.
-  Qed.
   Hint Resolve cut_minus_0.
-
-  Lemma cut_minus_precedes x y : y ≤ x → (x ∸ y) + y = x.
-  Proof.
-    unfold cut_minus, cut_minus_sig. destruct cm. simpl. tauto.
-  Qed.  
   Hint Resolve cut_minus_precedes.
 
   Lemma cut_minus_diag x : x ∸ x = 0.
   Proof. 
-    apply cut_minus_0. reflexivity.
+    now apply cut_minus_0.
   Qed.
 
   Lemma cut_minus_rightidentity x : 0 ≤ x → x ∸ 0 = x.
   Proof.
     intros E.
-    rewrite <-(rings.plus_0_r (x ∸ 0)).
-    auto.
+    rewrite <-(rings.plus_0_r (x ∸ 0)). auto.
   Qed.
 
   Lemma cut_minus_leftabsorb x : 0 ≤ x → 0 ∸ x = 0.
-  Proof.
-    auto.
-  Qed.
+  Proof. auto. Qed.
 
   Lemma cut_minus_rightabsorb x : x ≤ 0 → x ∸ 0 = 0.
-  Proof.
-    auto.
-  Qed.
+  Proof. auto. Qed.
 
   Lemma cut_minus_nonneg x y : 0 ≤ x ∸ y.
   Proof with auto.
@@ -258,31 +241,32 @@ Section cut_minus_properties.
     intros E. rewrite <-(rings.plus_0_l (-x)). 
     rewrite cut_minus_ring_minus... ring.
   Qed.
-
 End cut_minus_properties.
 
 (* * Default implementation for Rings *)
+Global Instance default_cut_minus `{RingOrder R} `{GroupInv R} `{prec_dec : ∀ (x y : R), Decision (x ≤ y)} : CutMinus R | 10 
+  := λ x y, if decide(x ≤ y) then 0 else x - y.
+(* Put back into the section once #2490 is fixed. Having [RingOrder] as an argument forces Coq to pick the right instance. *)
 Section cut_minus_default.
-  Context `{Ring R} `{!RingOrder o}
-    `{prec_dec : ∀ (x y : R), Decision (x ≤ y)}.
+  Context `{Ring R} `{!RingOrder o} `{prec_dec : ∀ (x y : R), Decision (x ≤ y)}.
 
   Add Ring R2: (rings.stdlib_ring_theory R).
-
-  Global Program Instance default_cut_minus: CutMinus R | 10 := λ x y, exist _ ( 
-    if decide(x ≤ y) then 0 else x - y
-  ) _.
-  Next Obligation with auto.
-    case (decide (x ≤ y)); intros E; split; intros F...
-       ring_simplify. apply (antisymmetry (≤))...
-      reflexivity.
+  
+  Global Instance: CutMinusSpec R default_cut_minus.
+  Proof with trivial.
+    split; unfold cut_minus, default_cut_minus; intros x y ?.
+     case (decide (x ≤ y)); intros E.
+      ring_simplify. apply (antisymmetry (≤))...
      ring.
+    case (decide (x ≤ y)); intros E.
+     reflexivity.
     contradiction.
   Qed.
 End cut_minus_default.
 
 Section order_preserving.
-  Context `{SemiRing A} {oA : Order A} `{!SemiRingOrder oA} `{!TotalOrder oA} `{!CutMinus A}  `{∀ (x y : A), Decision (x = y)}
-   `{SemiRing B} {oB : Order B} `{!SemiRingOrder oB} `{!TotalOrder oB} `{!CutMinus B} `{∀ (x y : B), Decision (x = y)}
+  Context `{SemiRing A} {oA : Order A} `{!SemiRingOrder oA} `{!TotalOrder oA} `{!CutMinusSpec A cmA} `{∀ (x y : A), Decision (x = y)}
+   `{SemiRing B} {oB : Order B} `{!SemiRingOrder oB} `{!TotalOrder oB} `{!CutMinusSpec B cmB} `{∀ (x y : B), Decision (x = y)}
    `{∀ z : A, LeftCancellation (+) z} `{∀ z : B, LeftCancellation (+) z}
      {f : A → B} `{!OrderPreserving f} `{!SemiRing_Morphism f}.
   

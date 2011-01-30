@@ -132,6 +132,11 @@ Notation "x / y" := (x * /y).
 Instance: Params (@dec_mult_inv_sig) 6.
 Instance: Params (@dec_mult_inv) 6.
 
+Class Abs A `{Equiv A} `{Order A} `{RingZero A} `{GroupInv A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
+Definition abs `{Abs A} := λ x : A, ` (abs_sig x).
+Instance: Params (@abs_sig) 6.
+Instance: Params (@abs) 6.
+
 (* Common properties: *)
 Class Commutative `{Equiv B} `(m: A → A → B): Prop := commutativity: `(m x y = m y x).
 Class Associative `{Equiv A} (m: A → A → A): Prop := associativity: `(m x (m y z) = m (m x y) z).

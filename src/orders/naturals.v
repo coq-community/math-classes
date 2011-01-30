@@ -40,7 +40,7 @@ Section another_semiring.
   Context `{SemiRing R} {oR : Order R} `{!SemiRingOrder oR} `{!TotalOrder oR} `{∀ z : R, LeftCancellation (+) z}
     {f : N → R} `{!SemiRing_Morphism f}.
 
-  Instance morphism_order_preserving: OrderPreserving f.
+  Global Instance morphism_order_preserving: OrderPreserving f.
   Proof with trivial.
     apply preserving_preserves_0.
     intros x E. rewrite (naturals.to_semiring_unique f).
@@ -75,12 +75,11 @@ Context `{Naturals N} `{Naturals N2} {f : N → N2} `{!SemiRing_Morphism f}
 Global Instance: OrderEmbedding f.
 Proof with trivial.
   repeat (split; try apply _).
-   apply morphism_order_preserving.
   intros x y E.
   eapply poset_proper.
-    symmetry. apply (naturals.morphisms_involutive (naturals_to_semiring N2 N) f).
-   symmetry. apply (naturals.morphisms_involutive (naturals_to_semiring N2 N) f).
-  apply morphism_order_preserving...
+    symmetry. now apply (naturals.morphisms_involutive (naturals_to_semiring N2 N) f).
+   symmetry. now apply (naturals.morphisms_involutive (naturals_to_semiring N2 N) f).
+  now apply (order_preserving _).
 Qed.
 End order_unique.
 

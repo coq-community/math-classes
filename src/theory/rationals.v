@@ -4,80 +4,97 @@ Require Import
   theory.naturals theory.integers theory.fields theory.jections
   natpair_integers.
 
-Section alt_Build_Rationals.
-Context A Int (inject: Int → A) `{Field A} {d: ∀ x y: A, Decision (x = y)}
-  `{Integers Int} `{!SemiRing_Morphism inject} `{i : !Inverse (λ p, inject (fst p) * / inject (snd p))}.
+Section another_integers. 
+  Context Q `{Rationals Q} Z `{Integers Z}.
 
-Global Instance: Inverse (λ p, integers_to_ring (SRpair nat) A (fst p) * / integers_to_ring (SRpair nat) A (snd p)) :=
-  λ x, (integers_to_ring Int (SRpair nat) (fst (inverse _ x)), integers_to_ring Int (SRpair nat) (snd (inverse _ x))).
+  Global Instance: Inverse (λ p, integers_to_ring Z Q (fst p) * / integers_to_ring Z Q (snd p)) :=
+    λ x, (integers_to_ring (SRpair nat) Z (fst (inverse _ x)), integers_to_ring (SRpair nat) Z (snd (inverse _ x))).
 
-Lemma alt_Build_Rationals: Surjective (λ p, inject (fst p) * / inject (snd p)) → Injective inject → Rationals A.
-Proof with auto.
-  intros sur ?.
-  repeat (split; try apply _).
+  Global Instance rationals_frac_ints: Surjective (λ p, integers_to_ring Z Q (fst p) * / integers_to_ring Z Q (snd p)).
+  Proof.
+    repeat (split; try apply _).
+     intros x y E. unfold compose, id. simpl.
+     rewrite <-E.
+     change ((integers_to_ring Z Q ∘ integers_to_ring (SRpair nat) Z) (fst (inverse _ x)) *
+       / (integers_to_ring Z Q ∘ integers_to_ring (SRpair nat) Z) (snd (inverse _ x)) = x). 
+     do 2 rewrite (integers.to_ring_unique_alt (integers_to_ring Z Q ∘ integers_to_ring (SRpair nat) Z) 
+       (integers_to_ring (SRpair nat) Q)).
+     apply (rationals_frac _). reflexivity.
+    intros x y E. rewrite E. reflexivity.
+  Qed.
+
+  Lemma rationals_decompose' (x : Q) : ∃ num, ∃ den, 
+    x = integers_to_ring Z Q num * / integers_to_ring Z Q den.
+  Proof.
+    set (i := inverse (λ p, integers_to_ring Z Q (fst p) * / integers_to_ring Z Q (snd p))).
+    exists (fst (i x)) (snd (i x)).
+    symmetry.
+    apply rationals_frac_ints. reflexivity.
+  Qed.
+
+  Lemma rationals_decompose (x : Q) : ∃ num, ∃ den, 
+    den ≠ 0 ∧ x = integers_to_ring Z Q num * / integers_to_ring Z Q den.
+  Proof with trivial.
+    destruct (rationals_decompose' x) as [n [d E]].
+    destruct (decide (d = 0)) as [F|F].
+     exists (0:Z) (1:Z). split.
+      apply (ne_zero _).
+     rewrite rings.preserves_0, left_absorb.
+     rewrite E, F, rings.preserves_0. 
+     rewrite dec_mult_inv_0, right_absorb. reflexivity.
+    exists n d. split...
+  Qed.
+
+  Global Instance injective_ints `{!SemiRing_Morphism (f: Z → Q)}: Injective f.
+  Proof.
+    split; try apply _.
     intros x y E.
-    unfold Basics.compose, id. simpl.
-    change ((integers_to_ring (SRpair nat) A ∘ integers_to_ring Int (SRpair nat)) (fst (i x)) *
-      / (integers_to_ring (SRpair nat) A ∘ integers_to_ring Int (SRpair nat)) (snd (i x)) = y).
-    do 2 rewrite (integers.to_ring_unique_alt (integers_to_ring (SRpair nat) A ∘ integers_to_ring Int (SRpair nat)) inject).
-    apply sur...
-   intros x y E. rewrite E. reflexivity.
-  intros x y ?.
-  apply (injective (inject ∘ integers_to_ring (SRpair nat) Int)).
-  do 2 rewrite (integers.to_ring_unique (inject ∘ integers_to_ring (SRpair nat) Int))...
-Qed.
-End alt_Build_Rationals.
+    apply (injective (integers_to_ring Z (SRpair nat))).
+    eapply (rationals_embed_ints _).
+    do 2 rewrite (integers.to_ring_unique_alt f (integers_to_ring (SRpair nat) Q ∘ integers_to_ring Z (SRpair nat))) in E. 
+    assumption.
+  Qed.
+End another_integers.
 
-Section contents. 
-Context `{Rationals Q}.
-
-Notation i_to_r := (integers_to_ring (SRpair nat) Q).
-
-Lemma rationals_decompose_nat (x : Q) : ∃ num, ∃ den, 
-  x = integers_to_ring (SRpair nat) Q num * / integers_to_ring (SRpair nat) Q den.
-Proof.
-  set (i := inverse (λ p, i_to_r (fst p) * / i_to_r (snd p))).
-  exists (fst (i x)) (snd (i x)).
-  symmetry.
-  apply (rationals_frac _). reflexivity.
-Qed.
-
-Lemma rationals_decompose Z `{Integers Z} (x : Q) : ∃ num, ∃ den, 
-  den ≠ 0 ∧ x = integers_to_ring Z Q num * / integers_to_ring Z Q den.
-Proof with trivial.
-  destruct (rationals_decompose_nat x) as [num [den E]].
-  destruct (decide (den = 0)) as [F|F].
-   exists (0:Z) (1:Z). split.
-    apply (ne_zero _).
-   rewrite rings.preserves_0, left_absorb.
-   rewrite E, F, rings.preserves_0. 
-   rewrite dec_mult_inv_0, right_absorb. reflexivity.
-  exists (integers_to_ring _ Z num) (integers_to_ring _ Z den).
-  split.
-   apply rings.injective_not_0...
-  do 2 rewrite <-(integers.to_ring_unique (integers_to_ring Z Q ∘ integers_to_ring (SRpair nat) Z)) in E...
-Qed.
-
-Global Instance injective_ints `{Integers Int} `{!SemiRing_Morphism (f: Int → Q)}: Injective f.
-Proof.
-  split; try apply _.
-  intros x y E.
-  apply (injective (integers_to_ring Int (SRpair nat))).
-  eapply (rationals_embed_ints _).
-  do 2 rewrite (integers.to_ring_unique_alt f (i_to_r ∘ integers_to_ring Int (SRpair nat))) in E. 
-  assumption.
-Qed.
-
-Global Instance injective_nats `{Naturals N} `{!SemiRing_Morphism (f: N → Q)}: Injective f.
+Global Instance injective_nats `{Rationals Q} `{Naturals N} `{!SemiRing_Morphism (f: N → Q)}: Injective f.
 Proof with auto.
   split; try apply _.
   intros x y E.
   apply (injective (naturals_to_semiring N (SRpair nat))).
   eapply (rationals_embed_ints _).
-  do 2 rewrite (naturals.to_semiring_unique_alt f (i_to_r ∘ naturals_to_semiring N (SRpair nat))) in E. 
+  do 2 rewrite (naturals.to_semiring_unique_alt f (integers_to_ring (SRpair nat) Q ∘ naturals_to_semiring N (SRpair nat))) in E. 
   assumption.
 Qed.
-End contents.
+
+Section another_field.
+  Context Q `{Rationals Q} F `{Field F} `{∀ x y, Decision (x = y)}.
+
+  Definition rationals_to_field (x : Q) : F := 
+    ((integers_to_ring (SRpair nat) F ∘ fst ∘ inverse _) x) * / ((integers_to_ring (SRpair nat) F ∘ snd ∘ inverse _) x).
+End another_field.
+  
+Section alt_Build_Rationals.
+  Context `(inject: Int → A) `{Field A} `{∀ x y: A, Decision (x = y)}
+    `{Integers Int} `{!SemiRing_Morphism inject} `{i : !Inverse (λ p, inject (fst p) * / inject (snd p))}.
+
+  Global Instance: Inverse (λ p, integers_to_ring (SRpair nat) A (fst p) * / integers_to_ring (SRpair nat) A (snd p)) :=
+    λ x, (integers_to_ring Int (SRpair nat) (fst (inverse _ x)), integers_to_ring Int (SRpair nat) (snd (inverse _ x))).
+
+  Lemma alt_Build_Rationals `{sur : !Surjective (λ p, inject (fst p) * / inject (snd p))} `{!Injective inject} : Rationals A.
+  Proof with auto.
+    repeat (split; try apply _).
+      intros x y E.
+      unfold compose, id. simpl.
+      change ((integers_to_ring (SRpair nat) A ∘ integers_to_ring Int (SRpair nat)) (fst (i x)) *
+        / (integers_to_ring (SRpair nat) A ∘ integers_to_ring Int (SRpair nat)) (snd (i x)) = y).
+      do 2 rewrite (integers.to_ring_unique_alt (integers_to_ring (SRpair nat) A ∘ integers_to_ring Int (SRpair nat)) inject).
+      apply sur...
+     intros x y E. rewrite E. reflexivity.
+    intros x y ?.
+    apply (injective (inject ∘ integers_to_ring (SRpair nat) Int)).
+    do 2 rewrite (integers.to_ring_unique (inject ∘ integers_to_ring (SRpair nat) Int))...
+  Qed.
+End alt_Build_Rationals.
 
 Section isomorphism_is_rationals.
   Context `{Rationals Q} `{Field F} `{∀ x y: F, Decision (x = y)}.

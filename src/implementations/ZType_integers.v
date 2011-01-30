@@ -1,5 +1,5 @@
 Require 
-  orders.integers signed_binary_positive_integers.
+  orders.integers stdlib_binary_integers.
 Require Import 
   ZSig ZSigZAxioms ZArith Program Morphisms
   nonneg_integers_naturals 
@@ -164,12 +164,12 @@ Next Obligation.
   apply Zabs_pos.
 Qed.
 
-Next Obligation with auto.
+Next Obligation.
   rewrite <-(naturals.to_semiring_unique NonNeg_inject). simpl.
   unfold_equiv. 
   rewrite (preserves_inv (abs x)).
   rewrite spec_abs.
-  destruct (Zabs_dec (to_Z x))...
+  destruct (Zabs_dec (to_Z x)); auto.
 Qed.
 
 Program Instance: Abs t := abs.
@@ -183,34 +183,29 @@ Next Obligation with trivial.
 Qed.
 
 (* Efficient division *)
-Lemma Ztype_euclid (x : t) (y : {z : t | z ≠ 0}) : Euclid x y (div x (`y)) (modulo x (`y)).
-Proof with auto.
-  destruct y as [y Ey].
-  split; simpl.
-   unfold_equiv.
-   apply axioms.div_mod...
-  destruct (Z_mod_remainder (to_Z x) (to_Z y)) as [[Hl Hr] | [Hl Hr]].
-    intro. apply Ey. apply (injective to_Z). rewrite preserves_0...
-   left; split.
-    apply to_Z_Zle_sr_precedes. rewrite spec_modulo, preserves_0...
-   apply to_Z_Zlt_sr_precedes. rewrite spec_modulo...
-  right; split.
-   apply to_Z_Zlt_sr_precedes. rewrite spec_modulo...
-  apply to_Z_Zle_sr_precedes. rewrite spec_modulo, preserves_0...
-Qed. 
+Instance ZType_div: DivEuclid t := div.
+Instance ZType_mod: ModEuclid t := modulo.
 
-Local Obligation Tactic := idtac.
-Program Instance: DivEuclid t := div.
-Next Obligation.
-  intros x y. exists (modulo x (`y)). apply Ztype_euclid.
+Instance: EuclidSpec t ZType_div ZType_mod.
+Proof.
+  split; unfold div_euclid, ZType_div.
+       intros ? ? E1 ? ? E2. rewrite_equiv. now rewrite E1, E2.
+      intros ? ? E1 ? ? E2. rewrite_equiv. now rewrite E1, E2.
+     intros x y E. rewrite_equiv. now apply axioms.div_mod.
+    intros x y Ey. 
+    destruct (Z_mod_remainder (to_Z x) (to_Z y)) as [[Hl Hr] | [Hl Hr]].
+      intro. apply Ey. apply (injective to_Z). now rewrite preserves_0.
+     left; split.
+      apply to_Z_Zle_sr_precedes. now rewrite spec_modulo, preserves_0.
+     apply to_Z_Zlt_sr_precedes. now rewrite spec_modulo.
+    right; split.
+     apply to_Z_Zlt_sr_precedes. now rewrite spec_modulo.
+    apply to_Z_Zle_sr_precedes. now rewrite spec_modulo, preserves_0.
+   intros x. unfold_equiv. rewrite spec_div. rewrite preserves_0. now apply Zdiv_0_r.
+  intros x. unfold_equiv. rewrite spec_modulo. rewrite preserves_0. now apply Zmod_0_r.
 Qed.
 
-Program Instance: ModEuclid t := modulo.
-Next Obligation.
-  intros x y. exists (div x (`y)). apply Ztype_euclid.
-Qed.
-
-Lemma ZType_succ_plus_1 x : succ x = 1 + x.
+Lemma ZType_succ_1_plus x : succ x = 1 + x.
 Proof.
   unfold_equiv. rewrite spec_succ, preserves_plus, preserves_1. 
   rewrite commutativity. reflexivity.
@@ -224,24 +219,27 @@ Proof.
 Qed.
 
 (* Efficient [nat_pow] *)
-Instance: Proper ((=) ==> (=) ==> (=)) pow. 
-Proof. intros x1 y1 E1 x2 y2 E2. rewrite_equiv. rewrite E1, E2. reflexivity. Qed.
+Program Instance ZType_pow: Pow t (t⁺) := pow.
 
-Program Instance ZType_pow: NatPow t (t⁺) := pow.
-Next Obligation with try reflexivity; auto.
-  intros x n. 
-  change (nat_pow_spec x n ((λ x n, pow x (`n)) x n)). (* This is stupid... pattern is not helpful either *)
-  apply nat_pow_spec_from_properties.
-    intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2. 
-    unfold equiv, NonNeg_equiv in E2. simpl in *. rewrite_equiv.
-    rewrite E1, E2... 
+Instance: NatPowSpec t (t⁺) ZType_pow.
+Proof.
+  split.
+    intros x1 y1 E1 [x2] [y2] E2.
+    rewrite_equiv. apply axioms.pow_wd.
+     easy.
+    now apply ZType_eq_correct.
    intros x1. unfold_equiv. apply axioms.pow_0_r.
-  intros x1 [n1 En1]. simpl. unfold_equiv. 
-  rewrite <-ZType_succ_plus_1.
-  apply axioms.pow_succ_r.
-  apply to_Z_sr_precedes_Zle...
+  intros x [n ?]. unfold_equiv.
+  unfold "^", ZType_pow. simpl.
+  rewrite <-axioms.pow_succ_r.
+  apply sm_proper. 
+   rewrite_equiv. apply axioms.pow_wd.
+    easy.
+   apply ZType_eq_correct. symmetry. now apply ZType_succ_1_plus.
+  now apply to_Z_sr_precedes_Zle.
 Qed.
 
+(*
 (* Efficient [log 2] *)
 Program Instance: Log (2:t) (t⁺) := log2.
 Next Obligation with auto.
@@ -260,22 +258,24 @@ Next Obligation with auto.
   rewrite ZType_two_2 in E1, E2. 
   rewrite ZType_succ_plus_1, commutativity in E2...
 Qed.
+*)
 
 (* Efficient [shiftl] *)
-Program Instance: ShiftLeft t (t⁺) := λ x y, shiftl x y.
-Next Obligation.
+Program Instance ZType_shiftl: ShiftL t (t⁺) := shiftl.
+
+Instance: ShiftLSpec t (t⁺) ZType_shiftl.
+Proof.
+  apply bit_shift.shiftl_spec_from_nat_pow.
   intros x [y Ey].
-  unfold additional_operations.pow, nat_pow, nat_pow_sig, ZType_pow.
+  unfold additional_operations.pow, ZType_pow, additional_operations.shiftl, ZType_shiftl.
   unfold_equiv. simpl.
   rewrite rings.preserves_mult, spec_pow.
   rewrite spec_shiftl, Z.shiftl_mul_pow2.
    rewrite <-ZType_two_2, spec_2. reflexivity.
   apply to_Z_sr_precedes_Zle in Ey. rewrite preserves_0 in Ey. assumption.
 Qed. 
-(* This proof could possibly be much shorter by using the correctness of shiftl on Z *)
 
-Program Instance: ShiftRight t (t⁺) := λ x y, shiftr x y.
-Next Obligation. 
-Admitted.
+(* Efficient [shiftr] *)
+Program Instance: ShiftR t (t⁺) := shiftr.
 
 End ZType_Integers.

@@ -1,7 +1,7 @@
 Require
   theory.integers theory.int_abs.
 Require Import
-  Morphisms Ring Program Setoid
+  Morphisms Ring Program Setoid workaround_tactics
   abstract_algebra interfaces.integers interfaces.naturals interfaces.additional_operations
   natpair_integers orders.semirings orders.naturals theory.rings.
 
@@ -212,7 +212,7 @@ Proof with trivial; try reflexivity.
    change (a = (i_to_r ∘ naturals_to_semiring nat Int) (pos a ∸ neg a)).
    rewrite (naturals.to_semiring_unique_alt _ SRpair_inject).
    unfold equiv, SRpair_equiv, precedes, SRpair_order in *. simpl in *.
-   rewrite right_identity, cut_minus.cut_minus_precedes...
+   rewrite right_identity. posed_rewrite cut_minus_precedes...
    rewrite right_identity in A. rewrite left_identity in A...
   intros x y.
   destruct (total_order (i_to_r x) (i_to_r y)); intuition.

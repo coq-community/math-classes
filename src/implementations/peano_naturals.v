@@ -140,12 +140,13 @@ Proof. intros x y. destruct (le_ge_dec x y); intuition. Qed.
 Instance le_nat_dec: Decision (x ≤ y) := le_dec.
 
 (* Misc *)
-Program Instance: CutMinus nat := λ x y, minus x y.
-Next Obligation with trivial.
-  split; intros E.
+Instance nat_cut_minus: CutMinus nat := minus.
+Instance: CutMinusSpec nat nat_cut_minus.
+Proof with trivial.
+  split.
    symmetry. rewrite commutativity.
    apply le_plus_minus...
-  apply orders.sprecedes_precedes in E. destruct E as [E|E].
+  intros x y E. apply orders.sprecedes_precedes in E. destruct E as [E|E].
    rewrite E. apply minus_diag.
   apply not_le_minus_0. apply orders.not_precedes_sprecedes...
 Qed.

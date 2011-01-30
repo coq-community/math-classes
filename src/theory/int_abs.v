@@ -9,17 +9,17 @@ Section contents.
 Context `{Integers Int} `{!RingOrder oR} `{!TotalOrder oR} `{Naturals N}.
 
 Lemma int_abs_uniq (a b : IntAbs Int N) (z : Int) : a z = b z.
-Proof with auto.
+Proof.
   destruct a as [a A], b as [b B].
   unfold equiv, sig_equiv, sig_relation. simpl.
   apply (injective (naturals_to_semiring N Int)).
   destruct A as [A|A], B as [B|B]; rewrite <-A in B; clear A.
-     symmetry...
-    symmetry. apply inv_to_semiring...
-   apply inv_to_semiring. symmetry...
-  apply (injective (-)). symmetry...
+     now symmetry.
+    symmetry. now apply inv_to_semiring.
+   apply inv_to_semiring. now symmetry.
+  apply (injective (-)). now symmetry.
 Qed.
-
+ 
 Global Program Instance slow_int_abs: IntAbs Int N | 10 :=
   λ x, exist _ (int_abs (SRpair N) N (integers_to_ring Int (SRpair N) x)) _.
 Next Obligation.
@@ -104,6 +104,18 @@ Proof with auto; try reflexivity.
   rewrite preserves_0.
   apply int_abs_nonneg...
 Qed.
+
+Lemma int_abs_zero x : int_abs Int N x = 0 ↔ x = 0.
+Proof with auto; try reflexivity.
+  split; intros E.
+   unfold int_abs in E. destruct int_abs_sig as [z [E1 | E1]]; simpl in E.
+    rewrite <-E1, E, preserves_0...
+   rewrite <-E1, E, preserves_0... apply opp_0.
+  rewrite E. apply int_abs_0.
+Qed.
+
+Lemma int_abs_nonzero x : int_abs Int N x ≠ 0 ↔ x ≠ 0.
+Proof. firstorder using int_abs_zero. Qed.
 
 Lemma int_abs_nonneg_mult x y : 
   0 ≤ x → 0 ≤ y → int_abs Int N (x * y) = int_abs Int N x * int_abs Int N y.
