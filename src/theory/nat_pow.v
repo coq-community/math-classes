@@ -82,6 +82,21 @@ Proof.
   intros n E F G. rewrite nat_pow_S in G.
   apply (no_zero_divisors x); split; eauto.
 Qed. 
+
+Context `{oA : Order A} `{!SemiRingOrder oA} `{!TotalOrder oA} 
+  `{∀ z : A, LeftCancellation (+) z}
+  `{∀ z : A, NeZero z → LeftCancellation (.*.) z}.
+
+Lemma nat_pow_pos (x : A) (n : B) : 0 < x → 0 < x ^ n.
+Proof.
+  intros nonneg.
+  pattern n. apply naturals.induction; clear n.
+    intros x1 x2 E. now rewrite E.
+   rewrite nat_pow_0. now apply semirings.sprecedes_0_1.
+  intros n E. rewrite nat_pow_S.
+  now apply semirings.pos_mult_compat.
+Qed.
+
 End nat_pow_properties.
 
 Section preservation.

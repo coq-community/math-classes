@@ -80,7 +80,7 @@ Proof.
   now apply naturals.naturals_nonneg.
 Qed.
 
-Instance: RightIdentity (^) (1:B).
+Global Instance int_pow_1: RightIdentity (^) (1:B).
 Proof. 
   intro. assert ((1:B) = 1 + 0) as E by ring. rewrite E.
   rewrite int_pow_S_nonneg, int_pow_0. 
@@ -88,7 +88,7 @@ Proof.
   reflexivity.
 Qed.
 
-Instance: LeftAbsorb (^) 1.
+Global Instance Int_pow_of_1: LeftAbsorb (^) 1.
 Proof with auto. 
   intro n. 
   pattern n. apply integers.induction; clear n.
