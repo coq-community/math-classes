@@ -1,7 +1,7 @@
 Require Import 
   Program Morphisms abstract_algebra.
 
-Class Pow (A B : Type) := pow : A → B → A.
+Class Pow A B := pow : A → B → A.
 Infix "^" := pow.
 Notation "(^)" := pow (only parsing).
 
@@ -36,7 +36,7 @@ Notation "(≫)" := shiftr (only parsing).
 Class ShiftRSpec A B (sl : ShiftR A B) `{Equiv A} `{Order A} `{Equiv B} `{RingZero A} `{RingOne A} `{RingPlus A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} := {
   shiftr_proper : Proper ((=) ==> (=) ==> (=)) (≫) ;
   shiftr_0 :> RightIdentity (≫) 0 ;
-  shiftr_S : ∀ x n, x ≠ 0 → ∃ r, x ≫ n = 2 * x ≫ (1 + n) + r ∧ 0 ≤ r < 2 
+  shiftr_S : ∀ x n, ∃ r, x ≫ n = 2 * x ≫ (1 + n) + r ∧ 0 ≤ r < 2 
 }.
 
 Class DivEuclid A := div_euclid : A → A → A.
