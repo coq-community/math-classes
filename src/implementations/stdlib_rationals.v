@@ -1,5 +1,5 @@
 Require
-  stdlib_binary_integers Field Qfield theory.fields.
+  stdlib_binary_integers Field QArith.Qfield theory.fields.
 Require Import
   Ring Morphisms QArith_base Qabs Qpower
   abstract_algebra theory.rings interfaces.rationals canonical_names
