@@ -97,7 +97,7 @@ End shift_left_naturals.
 Section default_shiftl.
   Context `{SemiRing A} `{Naturals B} `{!NatPowSpec A B pw}.
 
-  Global Instance default_shiftl: ShiftL A B := λ x n, x * 2 ^ n.
+  Global Instance default_shiftl: ShiftL A B | 10 := λ x n, x * 2 ^ n.
 
   Global Instance: ShiftLSpec A B default_shiftl.
   Proof. now apply shiftl_spec_from_nat_pow. Qed.
@@ -147,7 +147,7 @@ End shift_left_integers.
 Section default_shiftl_integers.
   Context `{Field A} `{Integers B} `{!IntPowSpec A B ipw} `{∀ x y : A, Decision (x = y)} `{!NeZero (2:A)}.
 
-  Global Instance default_shiftl_int: ShiftL A B := λ x n, x * 2 ^ n.
+  Global Instance default_shiftl_int: ShiftL A B | 9 := λ x n, x * 2 ^ n.
 
   Global Instance: ShiftLSpec A B default_shiftl_int.
   Proof. now apply shiftl_spec_from_int_pow. Qed.
