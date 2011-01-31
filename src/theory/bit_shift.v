@@ -104,15 +104,29 @@ Section default_shiftl.
 End default_shiftl.
 
 Section shift_left_integers.
-  Context `{Field A} `{Integers B} `{!ShiftLSpec A B sl} `{∀ x y : A, Decision (x = y)} `{!IntPowSpec A B ipw} `{!NeZero (2:A)}.
+  Context `{Field A} `{Integers B} `{∀ x y : A, Decision (x = y)} `{!NeZero (2:A)}.
 
   Add Ring A: (rings.stdlib_semiring_theory A).
   Add Ring B: (rings.stdlib_ring_theory B).
 
+  Lemma shiftl_spec_from_int_pow `{!IntPowSpec A B ip} (sl : ShiftL A B) :
+    (∀ x n, x ≪ n = x * 2 ^ n) → ShiftLSpec A B sl.
+  Proof.
+    intros spec.
+    split.
+      intros ? ? E1 ? ? E2.
+      do 2 rewrite spec. now rewrite E1, E2.
+     intro x. rewrite spec, int_pow_0. ring.
+    intros x n. do 2 rewrite spec. rewrite int_pow_S. ring.
+    apply (ne_zero (2:A)).
+  Qed.
+
+  Context `{!ShiftLSpec A B sl}.
+
   Global Instance: Proper ((=) ==> (=) ==> (=)) (≪) | 1.
   Proof. apply shiftl_proper. Qed.
 
-  Lemma shiftl_int_pow x n : x ≪ n = x * 2 ^ n.
+  Lemma shiftl_int_pow `{!IntPowSpec A B ipw} x n : x ≪ n = x * 2 ^ n.
   Proof. 
     revert n. apply integers.induction.
        solve_proper.
@@ -129,3 +143,12 @@ Section shift_left_integers.
     apply (ne_zero (2:A)).
   Qed.
 End shift_left_integers.
+
+Section default_shiftl_integers.
+  Context `{Field A} `{Integers B} `{!IntPowSpec A B ipw} `{∀ x y : A, Decision (x = y)} `{!NeZero (2:A)}.
+
+  Global Instance default_shiftl_int: ShiftL A B := λ x n, x * 2 ^ n.
+
+  Global Instance: ShiftLSpec A B default_shiftl_int.
+  Proof. now apply shiftl_spec_from_int_pow. Qed.
+End default_shiftl_integers.
