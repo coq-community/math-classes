@@ -94,6 +94,19 @@ Section shift_left_naturals.
   Qed.
 End shift_left_naturals.
 
+Section preservation.
+  Context `{Naturals B} `{SemiRing A1} `{!ShiftLSpec A1 B sl1} `{SemiRing A2} `{!ShiftLSpec A2 B sl2} 
+    {f : A1 → A2} `{!SemiRing_Morphism f}.
+
+  Lemma preserves_shiftl x (n : B) : f (x ≪ n) = (f x) ≪ n.
+  Proof.
+    do 2 rewrite shiftl_nat_pow.
+    rewrite rings.preserves_mult.
+    rewrite preserves_nat_pow.
+    now rewrite rings.preserves_2.
+  Qed.
+End preservation.
+
 Section default_shiftl.
   Context `{SemiRing A} `{Naturals B} `{!NatPowSpec A B pw}.
 
@@ -143,6 +156,31 @@ Section shift_left_integers.
     apply (ne_zero (2:A)).
   Qed.
 End shift_left_integers.
+
+Section preservation_integers.
+  Context `{Integers B} `{Ring A1} `{!ShiftLSpec A1 B sl1} `{Ring A2} `{!ShiftLSpec A2 B sl2} 
+    {f : A1 → A2} `{!SemiRing_Morphism f} `{!LeftCancellation (.*.) (2:A2)}.
+
+  Add Ring Ba: (rings.stdlib_ring_theory B).
+
+  Lemma preserves_shiftl_int x (n : B) : f (x ≪ n) = (f x) ≪ n.
+  Proof.
+    revert n. apply integers.induction.
+       solve_proper.
+      now do 2 rewrite shiftl_0.
+     intros n _ IH.
+     do 2 rewrite shiftl_S.
+     now rewrite rings.preserves_mult, rings.preserves_2, IH.
+    intros n _ IH.
+    apply (left_cancellation (.*.) 2).
+    rewrite <-(rings.preserves_2 (f:=f)) at 1. 
+    rewrite <-rings.preserves_mult, <-shiftl_S.
+    setoid_replace (1 + (n - 1)) with n by ring.
+    rewrite IH.
+    setoid_replace n with (1 + (n - 1)) at 1 by ring.
+    now rewrite shiftl_S.
+  Qed.
+End preservation_integers.
 
 Section default_shiftl_integers.
   Context `{Field A} `{Integers B} `{!IntPowSpec A B ipw} `{∀ x y : A, Decision (x = y)} `{!NeZero (2:A)}.
