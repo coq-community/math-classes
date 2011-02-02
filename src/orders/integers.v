@@ -47,7 +47,7 @@ Section another_ring.
   Qed.
 
   (* Because each morphism [f] between two [Integers] implementations is injective, we
-      obtain, by following lemma, that the order on the integers is uniquely specified. *)
+      obtain, by the following lemma, that the order on the integers is uniquely specified. *)
   Context `{!Injective f}.
   Let f_preserves_0_back x : 0 ≤ f x → 0 ≤ x.
   Proof with trivial.

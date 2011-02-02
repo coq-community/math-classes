@@ -76,14 +76,14 @@ Proof. apply jections.flip_bijection, _. Qed.
 Instance: SemiRing_Morphism of_Q.
 Proof. change (SemiRing_Morphism (inverse anyQ.to_Q)). split; apply _. Qed.
 
-Instance: Inverse (λ p, integers_to_ring (SRpair nat) t (fst p) * / integers_to_ring (SRpair nat) t (snd p)) := isomorphism_is_inj_inv of_Q.
-Instance: Rationals t := isomorphism_is_rationals of_Q.
+Instance: RationalsToFrac t := iso_to_frac of_Q.
+Instance: Rationals t := iso_is_rationals of_Q.
 
-Global Program Instance Qtype_dec_mult_inv: DecMultInv t := inv.
+Program Instance Qtype_dec_mult_inv: DecMultInv t := inv.
 Next Obligation.
   split; intros E. 
-   rewrite commutativity. apply mul_inv_diag_l; trivial.
-  rewrite E. unfold_equiv. qify. reflexivity.
+   rewrite commutativity. now apply mul_inv_diag_l.
+  rewrite E. unfold_equiv. now qify.
 Qed.
 
 End QType_Rationals.

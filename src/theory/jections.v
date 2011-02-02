@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require Import
   Relation_Definitions Morphisms Setoid Program Basics
   abstract_algebra canonical_names workaround_tactics.
@@ -7,6 +5,9 @@ Require setoids.
 
 Local Notation "f ⁻¹" := (inverse f) (at level 30).
   (* Seems to work well, but conflicts with identical notation for multiplicative inverses. Todo: Find solution. *)
+
+Instance id_injective `{Setoid A} : Injective (@id A).
+Proof. split; try apply _. easy. Qed.
 
 Section compositions.
 

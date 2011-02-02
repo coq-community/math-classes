@@ -121,7 +121,7 @@ Proof with auto.
   rewrite rings.preserves_0, rings.preserves_1...
 Qed.
 
-Instance zero_product: ZeroProduct Int.
+Global Instance zero_product: ZeroProduct Int.
 Proof with trivial.
   intros x y E.
   destruct (zero_product (integers_to_ring Int (SRpair nat) x) (integers_to_ring Int (SRpair nat) y)).

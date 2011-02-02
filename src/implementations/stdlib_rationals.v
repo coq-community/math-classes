@@ -2,8 +2,8 @@ Require
   stdlib_binary_integers Field QArith.Qfield theory.fields.
 Require Import
   Ring Morphisms QArith_base Qabs Qpower
-  abstract_algebra theory.rings interfaces.rationals canonical_names
-  theory.rationals additional_operations int_pow.
+  abstract_algebra interfaces.rationals field_of_fractions
+  theory.rings  theory.rationals additional_operations int_pow.
 
 (* canonical names for relations/operations/constants: *)
 Instance Q_eq: Equiv Q := Qeq.
@@ -72,31 +72,25 @@ Proof.
  intros x y. change (x * 1 = y * 1 → x = y). do 2 rewrite mult_1_r. intuition.
 Qed.
 
-Let inject p := inject_Z (fst p) * / inject_Z (snd p).
+Program Definition Q_to_fracZ (x : Q) : Frac Z := frac (Qnum x) (Zpos (Qden x)) _.
 
-Instance: Setoid_Morphism inject.
-Proof.
- constructor; try apply _.
- intros ?? E. unfold inject. now rewrite E.
-Qed.
+Instance: Proper ((=) ==> (=)) Q_to_fracZ.
+Proof. intros ? ? E. easy. Qed.
 
-Instance: Inverse inject := λ x, (Qnum x, Zpos (Qden x)).
+Instance: SemiRing_Morphism Q_to_fracZ.
+Proof. repeat (split; try apply _). Qed.
 
-Instance: Surjective (λ p, inject_Z (fst p) * / inject_Z (snd p)).
-Proof.
- constructor. 2: apply _.
- intros [n d] q E. rewrite <- E. unfold Basics.compose, id.
- simpl. now rewrite Qmake_Qdiv.
-Qed.
+Instance: Injective Q_to_fracZ.
+Proof. split; try apply _. intros ? ? E. easy. Qed.
 
-Instance: Rationals Q.
-Proof alt_Build_Rationals inject_Z.
+Instance: RationalsToFrac Q := alt_to_frac Q_to_fracZ.
+Instance: Rationals Q := alt_Build_Rationals Q_to_fracZ inject_Z.
 
 Program Instance Q_inv_dec_mult: DecMultInv Q := Qinv.
 Next Obligation.
   split; intros E. 
-   apply Qmult_inv_r; trivial.
-  rewrite E. reflexivity.
+   now apply Qmult_inv_r.
+  now rewrite E.
 Qed.
 
 Program Instance: Abs Q := Qabs.

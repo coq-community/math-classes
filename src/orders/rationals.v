@@ -1,5 +1,3 @@
-Require
-  theory.naturals.
 Require Import
   Morphisms Ring Field Program Setoid
   abstract_algebra interfaces.naturals interfaces.rationals interfaces.integers
@@ -13,22 +11,22 @@ Section rationals_order.
   Context  Z `{Integers Z} {oZ : Order Z} `{!RingOrder oZ} `{!TotalOrder oZ}.
 
   Lemma rationals_decompose_pos_den x : ∃ num, ∃ den, 
-    0 < den ∧ x = integers_to_ring Z Q num * / integers_to_ring Z Q den.
-  Proof with trivial.
-    destruct (rationals_decompose Q Z x) as [num [den [E1 E2]]].
+    0 < den ∧ x = integers_to_ring Z Q num / integers_to_ring Z Q den.
+  Proof.
+    destruct (rationals_decompose x) as [num [den [E1 E2]]].
     destruct (total_order den 0).
      exists (-num). exists (-den). split.
       split.
-       apply rings.flip_nonpos_inv...
-      intros G. apply E1. apply (injective (-)). rewrite <-G. symmetry. apply opp_0.
-     do 2 rewrite preserves_inv. rewrite E2. field.
+       now apply rings.flip_nonpos_inv.
+      intros G. apply E1. apply (injective (-)). rewrite <-G. symmetry. now apply opp_0.
+     rewrite 2!preserves_inv. rewrite E2. field.
      split.
       intros G. apply E1.
       apply (injective (integers_to_ring Z Q)). apply (injective (-)).
-      rewrite G. rewrite preserves_0. symmetry. apply opp_0.
-     apply injective_not_0...
-    exists num. exists den. split...
-    split... apply not_symmetry...
+      rewrite G. rewrite preserves_0. symmetry. now apply opp_0.
+     now apply injective_not_0.
+    exists num. exists den. split; try assumption.
+    split; try assumption. now apply not_symmetry.
   Qed.
   End another_integers.
 
@@ -39,7 +37,7 @@ Section rationals_order.
   Notation i_to_r := (integers.integers_to_ring (SRpair nat) Q).
 
   Let f_preserves_0 x : 0 ≤ x → 0 ≤ f x.
-  Proof with trivial.
+  Proof.
     intros E.
     destruct (rationals_decompose_pos_den (SRpair nat) x) as [num [den [[E1a E1b] E2]]].
     rewrite E2 in E |- *. clear E2.
@@ -49,8 +47,8 @@ Section rationals_order.
      rewrite (integers.to_ring_unique _).
      split.
       apply (order_preserving (integers_to_ring (SRpair nat) Q2)) in E1a.
-      rewrite preserves_0 in E1a...
-     apply not_symmetry. apply (injective_not_0). apply not_symmetry...
+      now rewrite preserves_0 in E1a.
+     apply not_symmetry. apply (injective_not_0). now apply not_symmetry.
     apply (order_preserving_ge_0 (.*.) (i_to_r den)) in E.
      rewrite right_absorb. rewrite right_absorb in E.
      rewrite (commutativity (f (i_to_r num))), associativity, dec_mult_inverse, left_identity.
@@ -60,16 +58,16 @@ Section rationals_order.
        rewrite <-(preserves_0 (f:=integers_to_ring (SRpair nat) Q2)).
        apply (order_preserving _).
        apply (order_preserving_back i_to_r).
-       rewrite preserves_0...
-      apply (injective_not_0). apply not_symmetry...
+       now rewrite preserves_0.
+      apply (injective_not_0). now apply not_symmetry.
      change ((f ∘ i_to_r) den ≠ 0).
-     apply (injective_not_0). apply not_symmetry...
+     apply (injective_not_0). now apply not_symmetry.
     apply (order_preserving i_to_r) in E1a.
-    rewrite preserves_0 in E1a...
+    now rewrite preserves_0 in E1a.
   Qed.
 
-  Instance morphism_order_preserving: OrderPreserving f.
-  Proof with trivial.
+  Global Instance morphism_order_preserving: OrderPreserving f.
+  Proof.
     apply semirings.preserving_preserves_0. apply f_preserves_0.
   Qed.
   End another_rationals.
@@ -87,7 +85,7 @@ Section default_order.
   Instance field_precedes_proper: Proper ((=) ==> (=) ==> iff) rationals_precedes.
   Proof with assumption.
     intros x x' E y y' E'. unfold rationals_precedes.
-    split; intros [n [d U]]; exists n d.
+    split; intros [n [d d_nonzero]]; exists n d.
      rewrite <-E, <-E'...
     rewrite E, E'...
   Qed.

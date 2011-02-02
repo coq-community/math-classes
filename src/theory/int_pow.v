@@ -147,6 +147,35 @@ Proof with eauto.
   rewrite int_pow_S, E2... ring. 
 Qed. 
 
+Lemma int_pow_exp_mult (x : A) (n m : B) : 
+  x ^ (n * m) = (x ^ n) ^ m.
+Proof.
+  destruct (decide (x = 0)) as [Ex|Ex].
+   rewrite Ex.
+   destruct (decide (n = 0)) as [En|En].
+    rewrite En, left_absorb, int_pow_0. now rewrite left_absorb.
+   destruct (decide (m = 0)) as [Em|Em].
+    now rewrite Em, right_absorb, 2!int_pow_0.
+   rewrite 3!int_pow_base_0; auto.
+    reflexivity.
+   intros E. now destruct (zero_product n m E).
+  pattern m. apply integers.biinduction; clear m.
+    solve_proper.
+   rewrite right_absorb. now rewrite 2!int_pow_0.
+  intros m. split; intros E.
+   rewrite int_pow_S, <-E.
+    rewrite distribute_l, right_identity.
+    now rewrite int_pow_exp_plus.
+   now apply int_pow_nonzero.
+  rewrite int_pow_S in E.
+  rewrite distribute_l, right_identity, int_pow_exp_plus in E.
+    apply (rings.left_cancellation_ne_0 (.*.) (x ^ n)).
+     now apply int_pow_nonzero.
+    now rewrite E.
+   easy.
+  now apply int_pow_nonzero.
+Qed.
+
 Context `{oA : Order A} `{!RingOrder oA} `{!TotalOrder oA}.
 
 Lemma int_pow_pos (x : A) (n : B) : 0 < x → 0 < x ^ n.

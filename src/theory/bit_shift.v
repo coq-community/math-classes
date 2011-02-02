@@ -141,17 +141,14 @@ Section shift_left_integers.
 
   Lemma shiftl_int_pow `{!IntPowSpec A B ipw} x n : x ≪ n = x * 2 ^ n.
   Proof. 
-    revert n. apply integers.induction.
-       solve_proper.
-      rewrite shiftl_0, int_pow_0. ring.
-     intros n E1 E2. rewrite shiftl_S, E2, int_pow_S. ring.
+    revert n. apply integers.biinduction.
+      solve_proper.
+     rewrite shiftl_0, int_pow_0. ring.
+    intros n; split; intros IH. 
+     rewrite shiftl_S, IH, int_pow_S. ring.
      apply (ne_zero (2:A)). 
-    intros n E1 E2.
     apply (left_cancellation (.*.) 2).
-    rewrite <-shiftl_S.
-    setoid_replace (1 + (n - 1)) with n by ring.
-    rewrite E2.
-    setoid_replace n with (1 + (n - 1)) at 1 by ring.
+    rewrite <-shiftl_S, IH.
     rewrite int_pow_S. ring.
     apply (ne_zero (2:A)).
   Qed.
@@ -165,19 +162,15 @@ Section preservation_integers.
 
   Lemma preserves_shiftl_int x (n : B) : f (x ≪ n) = (f x) ≪ n.
   Proof.
-    revert n. apply integers.induction.
-       solve_proper.
-      now do 2 rewrite shiftl_0.
-     intros n _ IH.
+    revert n. apply integers.biinduction.
+      solve_proper.
+     now do 2 rewrite shiftl_0.
+    intros n; split; intros IH.
      do 2 rewrite shiftl_S.
      now rewrite rings.preserves_mult, rings.preserves_2, IH.
-    intros n _ IH.
     apply (left_cancellation (.*.) 2).
     rewrite <-(rings.preserves_2 (f:=f)) at 1. 
-    rewrite <-rings.preserves_mult, <-shiftl_S.
-    setoid_replace (1 + (n - 1)) with n by ring.
-    rewrite IH.
-    setoid_replace n with (1 + (n - 1)) at 1 by ring.
+    rewrite <-rings.preserves_mult, <-shiftl_S, IH.
     now rewrite shiftl_S.
   Qed.
 End preservation_integers.

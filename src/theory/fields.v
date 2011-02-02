@@ -244,21 +244,28 @@ Proof with auto.
 Qed.
 
 Section morphisms.
-  Context `{Field F1} `{Field F2} `{!SemiRing_Morphism (f : F1 → F2)} `{!DecMultInv F1} `{!DecMultInv F2}.
+  Context `{Field F1} `{Field F2} `{!SemiRing_Morphism (f : F1 → F2)} `{∀ z : F2, NeZero z → LeftCancellation (.*.) z}.
 
-  Context `{∀ x y: F1, Decision (x = y)} `{∀ x y: F2, Decision (x = y)}.
+  Lemma preserves_mult_inv `{!Injective f} x xP fxP : f (// exist _ x xP) = // exist _ (f x) fxP.
+  Proof.
+    apply (left_cancellation_ne_0 (.*.) (f x)).
+     now apply injective_not_0.
+    rewrite <-preserves_mult, 2!mult_inverse_alt.
+    now apply preserves_1.
+  Qed.
+
+  Context  `{!DecMultInv F1} `{!DecMultInv F2} `{∀ x y: F1, Decision (x = y)} `{∀ x y: F2, Decision (x = y)}.
    
   Lemma preserves_dec_mult_inv `{!Injective f} x : f (/x) = /(f x).
-  Proof with auto.
+  Proof.
     case (decide (x = 0)) as [E | E].
-    rewrite E, dec_mult_inv_0, preserves_0, dec_mult_inv_0. reflexivity.
-    apply (right_cancellation_ne_0 (.*.) (f x)).
-      apply injective_not_0...
-    rewrite <-preserves_mult.
-    rewrite commutativity, dec_mult_inverse...
-    rewrite commutativity, dec_mult_inverse.
-    apply preserves_1.
-    apply injective_not_0...
+     now rewrite E, dec_mult_inv_0, preserves_0, dec_mult_inv_0.
+    apply (left_cancellation_ne_0 (.*.) (f x)).
+     now apply injective_not_0.
+    rewrite <-preserves_mult, 2!dec_mult_inverse.
+      apply preserves_1.
+     now apply injective_not_0.
+    easy.
   Qed.
 End morphisms.
 

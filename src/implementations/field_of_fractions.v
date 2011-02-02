@@ -17,7 +17,8 @@ Add Ring R: (stdlib_ring_theory R).
 
 Global Program Instance Frac_equiv: Equiv (Frac R) := λ x y, num x * den y = num y * den x.
 
-Instance: Setoid (Frac R).
+(* Global with a high priority to avoid "Evar ??? not declared" messages... *)
+Global Instance: Setoid (Frac R) | 1.
 Proof with auto.
   split; red; unfold equiv, Frac_equiv.
     reflexivity.
@@ -119,27 +120,4 @@ Proof.
   repeat (constructor; try apply _).
   intros x y. unfolds. do 2 rewrite mult_1_r. intuition.
 Qed.
-
-(* The following is probably also true without decidable equality. However, our rationals interface 
-    uses DecMultInv, so we stick with this... *)
-Context `{∀ x y, Decision (x = y)}.
-Let inject_frac := (λ p, Frac_inject (fst p) * / Frac_inject (snd p)).
-
-Global Instance: Inverse inject_frac := λ x, (num x, den x).
-
-Global Instance: Surjective inject_frac.
-Proof with auto. 
-  repeat (constructor; try apply _).
-   intros [n d P] y E.
-   rewrite <- E.
-   unfold equiv, Frac_equiv, inject_frac, inject, dec_mult_inv in E |- *. simpl in *.
-   case (decide _); intros E2; simpl in *.
-    destruct P. unfolds.
-    ring_simplify in E2...
-   ring.
-  intros ?? E.
-  unfold inject_frac.
-  rewrite E. reflexivity.
-Qed.
-
 End contents.
