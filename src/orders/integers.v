@@ -170,11 +170,11 @@ Proof with auto.
 Qed.
 End other_results.
 
+Instance int_precedes `{Integers Z} : Order Z | 10 :=  λ x y, ∃ z, y = x + naturals_to_semiring nat Z z.
+
 Section default_order.
 Context `{Integers Int}.
 Add Ring Int2 : (rings.stdlib_ring_theory Int).
-
-Global Instance int_precedes : Order Int | 9 :=  λ x y, ∃ z, y = x + naturals_to_semiring nat Int z.
 
 Global Instance: Proper ((=) ==> (=) ==> iff) int_precedes.
 Proof with assumption.

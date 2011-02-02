@@ -248,7 +248,7 @@ Section preservation.
     `{Integers B} `{oB : Order B} `{!RingOrder oB} `{!TotalOrder oB}
     `{Field A1} `{∀ x y : A1, Decision (x = y)} `{!DecMultInv A1} `{!IntPowSpec A1 B ip1}
     `{Field A2} `{∀ x y : A2, Decision (x = y)} `{!DecMultInv A2} `{!IntPowSpec A2 B ip2}
-    {f : A1 → A2} `{!OrderPreserving f} `{!SemiRing_Morphism f} `{!Injective f}.
+    {f : A1 → A2} `{!SemiRing_Morphism f} `{!Injective f}.
 
   Add Ring B2 : (rings.stdlib_ring_theory B).
 

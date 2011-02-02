@@ -73,14 +73,14 @@ Section rationals_order.
   End another_rationals.
 End rationals_order.
 
+Global Instance rationals_precedes `{Rationals Q} : Order Q | 10 := λ x y,
+    ∃ num, ∃ den, y = x + naturals_to_semiring nat Q num / naturals_to_semiring nat Q den.
+
 Section default_order. 
   Context `{Rationals Q}.
 
   Add Field F: (stdlib_field_theory Q).
   Notation n_to_sr := (naturals_to_semiring nat Q).
-
-  Global Instance rationals_precedes: Order Q | 9 := λ x y,
-    ∃ num, ∃ den, y = x + n_to_sr num * / n_to_sr den.
 
   Instance field_precedes_proper: Proper ((=) ==> (=) ==> iff) rationals_precedes.
   Proof with assumption.
