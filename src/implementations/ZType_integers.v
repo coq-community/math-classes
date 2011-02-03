@@ -1,7 +1,7 @@
 Require 
-  orders.integers stdlib_binary_integers.
+  orders.integers stdlib_binary_integers stdlib_binary_naturals.
 Require Import 
-  ZSig ZSigZAxioms ZArith Program Morphisms
+  ZSig ZSigZAxioms NArith ZArith Program Morphisms
   nonneg_integers_naturals 
   abstract_algebra interfaces.integers interfaces.additional_operations
   theory.rings theory.integers theory.nat_pow
@@ -190,6 +190,23 @@ Proof.
   unfold_equiv. unfold "^", ZType_pow. simpl.
   rewrite <-axioms.pow_succ_r; try easy.
   now rewrite ZType_succ_1_plus.
+Qed.
+
+Program Instance ZType_Npow: Pow t N := pow_N.
+
+Instance: NatPowSpec t N ZType_Npow.
+Proof.
+  split; unfold "^", ZType_Npow.
+    intros x1 y1 E1 x2 y2 E2. unfold_equiv.
+    now rewrite 2!spec_pow_N, E1, E2.
+   intros x1. unfold_equiv. 
+   now rewrite spec_pow_N, preserves_1.
+  intros x n. unfold_equiv.
+  rewrite spec_mul, 2!spec_pow_N.
+  rewrite preserves_plus, Z.pow_add_r.
+    now rewrite preserves_1, Z.pow_1_r.
+   easy.
+  now apply Z_of_N_le_0.
 Qed.
 
 (*
