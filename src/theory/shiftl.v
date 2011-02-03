@@ -31,8 +31,8 @@ Section shift_left_naturals.
   Lemma shiftl_nat_pow `{!NatPowSpec A B np} x n : x ≪ n = x * 2 ^ n.
   Proof.
     revert n. apply naturals.induction.
-      intros ? ? E1. rewrite E1. reflexivity.
-     rewrite nat_pow_0. do 2 rewrite right_identity. reflexivity.
+      solve_proper.
+     rewrite nat_pow_0. now rewrite 2!right_identity.
     intros ? E. rewrite nat_pow_S, shiftl_S, E. ring.
   Qed.
 
@@ -40,35 +40,35 @@ Section shift_left_naturals.
   Proof. intro. rewrite shiftl_nat_pow. ring. Qed.
 
   Lemma shiftl_order x y z: x ≪ y ≪ z  = x ≪ z ≪ y.
-  Proof. do 4 rewrite shiftl_nat_pow. ring. Qed.
+  Proof. rewrite 4!shiftl_nat_pow. ring. Qed.
 
   Lemma shiftl_order_4a x y1 y2 y3: x ≪ y1 ≪ y2 ≪ y3  = x ≪ y3 ≪ y2 ≪ y1.
-  Proof. do 6 rewrite shiftl_nat_pow. ring. Qed.
+  Proof. rewrite 6!shiftl_nat_pow. ring. Qed.
 
   Lemma shiftl_order_4b x y1 y2 y3: x ≪ y1 ≪ y2 ≪ y3  = x ≪ y2 ≪ y3 ≪ y1.
-  Proof. do 6 rewrite shiftl_nat_pow. ring. Qed.
+  Proof. rewrite 6!shiftl_nat_pow. ring. Qed.
 
   Lemma mult_shiftl x y z: x * (y ≪ z) = (x * y) ≪ z.
-  Proof. do 2 rewrite shiftl_nat_pow. ring. Qed.
+  Proof. rewrite 2!shiftl_nat_pow. ring. Qed.
 
   Lemma mult_shiftl_1 x y: x ≪ y = x * (1 ≪ y).
-  Proof. do 2 rewrite shiftl_nat_pow. ring. Qed.
+  Proof. rewrite 2!shiftl_nat_pow. ring. Qed.
 
   Lemma shiftl_plus_base x y z: (x + y) ≪ z  = x ≪ z + y ≪ z.
-  Proof. do 3 rewrite shiftl_nat_pow. ring. Qed.
+  Proof. rewrite 3!shiftl_nat_pow. ring. Qed.
 
   Lemma shiftl_plus_exp x y z: x ≪ (y + z) = x ≪ y ≪ z.
-  Proof. do 3 rewrite shiftl_nat_pow. rewrite nat_pow_exp_plus. ring. Qed.
+  Proof. rewrite 3!shiftl_nat_pow. rewrite nat_pow_exp_plus. ring. Qed.
 
   Lemma mult_r_shiftl_shiftl x y z1 z2 : (x * (y ≪ z1)) ≪ z2 = (x * y) ≪ (z1 + z2).
-  Proof. do 3 rewrite shiftl_nat_pow. rewrite nat_pow_exp_plus. ring. Qed.
+  Proof. rewrite 3!shiftl_nat_pow. rewrite nat_pow_exp_plus. ring. Qed.
 
   Lemma mult_l_shiftl_shiftl x y z1 z2 : ((x ≪ z1) * y) ≪ z2 = (x * y) ≪ (z1 + z2).
-  Proof. do 3 rewrite shiftl_nat_pow. rewrite nat_pow_exp_plus. ring. Qed.
+  Proof. rewrite 3!shiftl_nat_pow. rewrite nat_pow_exp_plus. ring. Qed.
 
   Lemma opp_shiftl `{GroupInv A} `{!Ring A} x y : (-x) ≪ y = -(x ≪ y).
   Proof.
-    do 2 rewrite shiftl_nat_pow.
+    rewrite 2!shiftl_nat_pow.
     rewrite rings.opp_mult. symmetry. rewrite rings.opp_mult at 1.
     ring.
   Qed.

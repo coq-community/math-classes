@@ -12,7 +12,7 @@ Require Import
   interfaces.additional_operations
   orders.minmax orders.integers orders.rationals
   nonneg_integers_naturals stdlib_rationals
-  theory.rationals theory.bit_shift theory.int_pow theory.nat_pow theory.abs. 
+  theory.rationals theory.shiftl theory.int_pow theory.nat_pow theory.abs. 
 
 Record Dyadic Z := dyadic { mant: Z; expo: Z }.
 Implicit Arguments dyadic [[Z]].

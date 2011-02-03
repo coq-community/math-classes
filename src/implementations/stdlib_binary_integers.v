@@ -1,6 +1,6 @@
 (* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
 Require 
-  interfaces.naturals theory.naturals peano_naturals theory.bit_shift.
+  interfaces.naturals theory.naturals peano_naturals theory.shiftl.
 Require Import
   BinInt Morphisms Ring Program Arith ZBinary
   abstract_algebra interfaces.integers
@@ -245,7 +245,7 @@ Program Instance Z_shiftl: ShiftL Z (Z⁺) := Z.shiftl.
 
 Instance: ShiftLSpec Z (Z⁺) Z_shiftl.
 Proof.
-  apply bit_shift.shiftl_spec_from_nat_pow.
+  apply shiftl.shiftl_spec_from_nat_pow.
   intros x [n En].
   apply Z.shiftl_mul_pow2.
   now apply En.

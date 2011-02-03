@@ -235,7 +235,7 @@ Program Instance ZType_shiftl: ShiftL t (t⁺) := shiftl.
 
 Instance: ShiftLSpec t (t⁺) ZType_shiftl.
 Proof.
-  apply bit_shift.shiftl_spec_from_nat_pow.
+  apply shiftl.shiftl_spec_from_nat_pow.
   intros x [y Ey].
   unfold additional_operations.pow, ZType_pow, additional_operations.shiftl, ZType_shiftl.
   unfold_equiv. simpl.
