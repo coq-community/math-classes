@@ -31,26 +31,27 @@ Qed.
 Lemma nat_distance_unique {a b: NatDistance N} {x y : N} : a x y = b x y.
 Proof. apply nat_distance_unique_respectful; reflexivity. Qed.
 
-Context `{nd : !NatDistance N}.
+Context `{!NatDistance N}.
 
 Global Instance nat_distance_proper : Proper ((=) ==> (=) ==> (=)) nat_distance.
 Proof. apply nat_distance_unique_respectful. Qed.
 End contents.
 
-(* We can make an instance of [NatDistance] using [CutMinus] *)
-Program Instance natdistancecut_minus `{Naturals N} `{!SemiRingOrder oN} `{!TotalOrder oN} `{!CutMinusSpec N cm} : NatDistance N 
-  := λ x y, if decide (x ≤ y) then y ∸ x else x ∸ y.
+(* An existing instance of [CutMinus] allows to create an instance of [NatDistance] *)
+Program Instance natdistancecut_minus `{Naturals N} `{!SemiRingOrder oN} 
+       `{!TotalOrder oN} `{!CutMinusSpec N cm} `{∀ x y, Decision (x ≤ y)} : NatDistance N 
+  := λ x y, if decide_rel (≤) x y then y ∸ x else x ∸ y.
 Next Obligation. 
   left. rewrite commutativity.
-  apply cut_minus_precedes. assumption.
+  now apply cut_minus_precedes.
 Qed.
-
 Next Obligation.
   right. rewrite commutativity.
-  apply cut_minus_precedes, orders.precedes_flip. assumption.
+  now apply cut_minus_precedes, orders.precedes_flip.
 Qed.
 
-(* Using that we can make a default instance, because we have a [CutMinus] for [nat] *)
+(* Using the preceding instance we can make an instance for arbitrary models of the naturals
+    by translation into [nat] on which we already have a [CutMinus] instance. *)
 Global Program Instance natdistance_default `{Naturals N} : NatDistance N | 10 := λ x y: N,
   naturals_to_semiring nat N (nat_distance (naturals_to_semiring N nat x) (naturals_to_semiring N nat y)).
 Next Obligation.
@@ -60,12 +61,10 @@ Next Obligation.
    rewrite <- (naturals.to_semiring_involutive N nat y).
    rewrite <- F.
    rewrite rings.preserves_plus.
-   rewrite (naturals.to_semiring_involutive N nat).
-   reflexivity.
+   now rewrite (naturals.to_semiring_involutive N nat).
   right.
   rewrite <- (naturals.to_semiring_involutive N nat x).
   rewrite <- F.
   rewrite rings.preserves_plus.
-  rewrite (naturals.to_semiring_involutive N nat).
-  reflexivity.
+  now rewrite (naturals.to_semiring_involutive N nat).
 Qed.

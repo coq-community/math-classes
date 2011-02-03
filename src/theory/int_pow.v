@@ -283,7 +283,7 @@ Section int_pow_default.
   Add Ring B3 : (rings.stdlib_ring_theory B).
 
   Global Instance int_pow_default: Pow A B | 10 := λ x n,
-    match (decide (0 ≤ n)) with
+    match (decide_rel (≤) 0 n) with
     | left _ => x ^ int_abs B nat n
     | right _ => /(x ^ int_abs B nat n)
     end.
@@ -292,17 +292,17 @@ Section int_pow_default.
   Proof with try contradiction; auto using semirings.precedes_0_1.
     split; unfold pow, int_pow_default.
        intros ? ? E1 ? ? E2.
-       now (case (decide _); case (decide _); rewrite E1, E2)...
-      intros x. case (decide _); intros E.
+       now (case (decide_rel _); case (decide_rel _); rewrite E1, E2)...
+      intros x. case (decide_rel _); intros E.
       rewrite int_abs_0. 
        now apply nat_pow_0.
       now destruct E.
-     intros n ?. case (decide _); intros E.
+     intros n ?. case (decide_rel _); intros E.
       now apply nat_pow_base_0, int_abs_nonzero.
      rewrite nat_pow_base_0. 
      apply fields.dec_mult_inv_0.
      now apply int_abs_nonzero.
-    intros x n E. case (decide _); case (decide _); intros E1 E2.
+    intros x n E. case (decide_rel _); case (decide_rel _); intros E1 E2.
        rewrite int_abs_nonneg_plus, int_abs_1...
        now rewrite nat_pow_S.
       setoid_replace n with (-(1):B).

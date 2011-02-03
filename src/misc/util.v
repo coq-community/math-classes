@@ -74,11 +74,17 @@ Lemma bool_decide_false `{dec : !Decision P} : bool_decide P ≡ false ↔ ¬P.
 Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
 
 (* 
-  Because vm_compute evaluates terms in Prop eagerly and does not remove dead code we 
-  need the following hack. Suppose we have (x = x) =def  (f x = f y), now:
+  Because [vm_compute] evaluates terms in [Prop] eagerly and does not remove dead code we 
+  need the decide_rel hack. Suppose we have [(x = y) =def  (f x = f y)], now:
      bool_decide (x = y) → bool_decide (f x = f y) → ...
-  So, as we see, the dead code f x and f y is actually evaluated, which is an utter waste.
+  As we see, the dead code [f x] and [f y] is actually evaluated, which is of course an utter waste. 
+  Therefore we introduce decide_rel and bool_decide_rel.
+     bool_decide_rel (=) x y → bool_decide_rel (λ a b, f a = f b) x y → ...
+  Now the definition of equality remains under a lambda and our problem does not occur anymore!
 *)
+
+Definition decide_rel `(R : relation A) {dec : ∀ x y, Decision (R x y)} (x : A) (y : A) : Decision (R x y)
+  := dec x y.
 
 Definition bool_decide_rel `(R : relation A) {dec : ∀ x y, Decision (R x y)} : A → A → bool 
   := λ x y, if dec x y then true else false.

@@ -31,7 +31,7 @@ Proof with auto.
 Qed.
 
 Global Instance Frac_dec `{∀ x y, Decision (x = y)} : ∀ x y: Frac R, Decision (x = y) 
-  := λ x y, decide (num x * den y = num y * den x).
+  := λ x y, decide_rel (=) (num x * den y) (num y * den x).
 
 (* injection from R *)
 Global Program Instance Frac_inject: Inject R (Frac R) := λ r, frac r 1 _.

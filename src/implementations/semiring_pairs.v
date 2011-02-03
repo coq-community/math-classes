@@ -32,7 +32,7 @@ Proof with auto.
 Qed.
 
 Global Instance SRpair_dec `{∀ x y : SR, Decision (x = y)} : ∀ x y : SRpair SR, Decision (x = y)
-  := λ x y, decide (pos x + neg y = pos y + neg x).
+  := λ x y, decide_rel (=) (pos x + neg y) (pos y + neg x).
 
 Instance: Proper ((=) ==> (=) ==> (=)) C.
 Proof.
@@ -195,7 +195,7 @@ Proof with trivial; try ring.
 Qed. 
 
 Global Program Instance SRpair_le_dec `{∀ x y: SR, Decision (x ≤ y)} : ∀ x y : SRpair SR, Decision (x ≤ y) := λ x y,
-  match decide (pos x + neg y ≤ pos y + neg x) with
+  match decide_rel (≤) (pos x + neg y) (pos y + neg x) with
   | left E => left _
   | right E => right _
   end. 

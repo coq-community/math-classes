@@ -63,7 +63,7 @@ Proof. split. trivial. apply _. Qed.
 
 (* Misc *)
 Global Instance NonNeg_equiv_dec `{∀ x y : R, Decision (x = y)} : ∀ x y: R⁺, Decision (x = y) 
-  := λ x y, decide ('x = 'y).
+  := λ x y, decide_rel (=) ('x) ('y).
 
 (* Order *)
 Global Instance NonNeg_order: Order (R⁺) := λ x y, 'x ≤ 'y.
@@ -106,7 +106,7 @@ Proof with intuition.
 Qed.
 
 Global Program Instance NonNeg_precedes_dec `{∀ x y : R, Decision (x ≤ y)} : ∀ x y: R⁺, Decision (x ≤ y) := λ x y, 
-  match (decide ('x ≤ 'y)) with 
+  match decide_rel (≤) ('x) ('y) with 
   | left E => left _
   | right E => right _
   end.

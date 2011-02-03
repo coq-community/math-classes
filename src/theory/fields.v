@@ -354,8 +354,8 @@ Section from_stdlib_field_theory.
 End from_stdlib_field_theory.
 
 Program Instance dec_mult_inv_default `{Field F} `{∀ x y: F, Decision (x = y)} : DecMultInv F | 10
-  := λ x, exist _ (if decide (x = 0) then 0 else // x) _.
+  := λ x, exist _ (if decide_rel (=) x 0 then 0 else // x) _.
 Next Obligation.
-  case (decide _); split; try solve [intuition].
+  case (decide_rel _); split; try solve [intuition].
   intros E. apply mult_inverse_alt.
 Qed.
