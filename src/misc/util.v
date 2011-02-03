@@ -67,22 +67,30 @@ End obvious.
 
 Definition bool_decide (P : Prop) `{dec : !Decision P} : bool := if dec then true else false.
 
-Lemma bool_decide_true `{dec : !Decision P} : bool_decide P ≡ true ↔ P.
-Proof with trivial.
-  unfold bool_decide.
-  split; intros E.
-   destruct dec... discriminate.
-  destruct dec... contradiction.
-Qed.
+Lemma bool_decide_true `{dec : Decision P} : bool_decide P ≡ true ↔ P.
+Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
 
 Lemma bool_decide_false `{dec : !Decision P} : bool_decide P ≡ false ↔ ¬P.
-Proof with trivial.
-  unfold bool_decide.
-  split; intros E.
-   destruct dec... discriminate.
-  destruct dec... contradiction.
-Qed.
+Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
 
-Lemma not_symmetry `{Symmetric A R} (x y: A): ~ R x y → ~ R y x.
+(* 
+  Because vm_compute evaluates terms in Prop eagerly and does not remove dead code we 
+  need the following hack. Suppose we have (x = x) =def  (f x = f y), now:
+     bool_decide (x = y) → bool_decide (f x = f y) → ...
+  So, as we see, the dead code f x and f y is actually evaluated, which is an utter waste.
+*)
+
+Definition bool_decide_rel `(R : relation A) {dec : ∀ x y, Decision (R x y)} : A → A → bool 
+  := λ x y, if dec x y then true else false.
+
+Lemma bool_decide_rel_true `(R : relation A) {dec : ∀ x y, Decision (R x y)} : 
+  ∀ x y, bool_decide_rel R x y ≡ true ↔ R x y.
+Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder. Qed.
+
+Lemma bool_decide_rel_false `(R : relation A)`{dec : ∀ x y, Decision (R x y)} : 
+  ∀ x y, bool_decide_rel R x y ≡ false ↔ ¬R x y.
+Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder. Qed.
+
+Lemma not_symmetry `{Symmetric A R} (x y: A): ¬R x y → ¬R y x.
 Proof. firstorder. Qed.
   (* Also see Coq bug #2358. A totally different approach would be to define negated relations such as inequality as separate relations rather than notations, so that the existing [symmetry] will work for them. However, this most likely breaks other things. *)
