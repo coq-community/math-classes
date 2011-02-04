@@ -261,6 +261,33 @@ Section ringmor_props.
   Qed.
 End ringmor_props.
 
+Section from_another_ring.
+  Context `{Ring A} `{Setoid B} 
+   `{plus : RingPlus B} `{RingZero B} `{mult : RingMult B} `{RingOne B} `{opp : GroupInv B}
+    (f : B → A) `{!Injective f}
+    (plus_correct : ∀ x y, f (x + y) = f x + f y) (zero_correct : f 0 = 0) 
+    (mult_correct : ∀ x y, f (x * y) = f x * f y) (one_correct : f 1 = 1) (opp_correct : ∀ x, f (-x) = -f x).
+
+  Add Ring A : (stdlib_ring_theory A).
+
+  Instance: Proper ((=) ==> (=) ==> (=)) plus.
+  Proof. intros ? ? E1 ? ? E2. apply (injective f). rewrite 2!plus_correct. apply sg_mor; now apply sm_proper. Qed.
+
+  Instance: Proper ((=) ==> (=) ==> (=)) mult.
+  Proof. intros ? ? E1 ? ? E2. apply (injective f). rewrite 2!mult_correct. apply sg_mor; now apply sm_proper. Qed.
+
+  Instance: Proper ((=) ==> (=)) opp.
+  Proof. intros ? ? E1. apply (injective f). rewrite 2!opp_correct. apply inv_proper. now apply sm_proper. Qed.
+
+  Lemma embed_ring: Ring B.
+  Proof.
+    repeat split; try apply _; repeat intro; apply (injective f);
+      repeat (rewrite plus_correct || rewrite zero_correct 
+      || rewrite mult_correct || rewrite one_correct 
+      || rewrite opp_correct); ring.
+  Qed.
+End from_another_ring.
+  
 Section from_stdlib_ring_theory.
   Context
     `(H: @ring_theory R zero one pl mu mi op e)
@@ -296,3 +323,40 @@ Section morphism_composition.
    apply semiringmor_b.
   Qed.
 End morphism_composition.
+
+Instance semigroup_morphism_proper {A B eA eB opA opB} : 
+  Proper ((=) ==> iff) (@SemiGroup_Morphism A B eA eB opA opB) | 1.
+Proof.
+  assert (∀ (f g : A → B), g = f → SemiGroup_Morphism f → SemiGroup_Morphism g) as P.
+   intros f g E [? ? ? ?].
+   split; try apply _.
+    eapply setoids.morphism_proper; eauto.
+   intros x y. now rewrite (E (x & y)), (E x), (E y).
+  intros f g ?; split; intros Mor.
+   apply P with f. destruct Mor. now symmetry. apply _.
+  now apply P with g.
+Qed.
+
+Instance monoid_morphism_proper {A B eA eB opA uA opB uB} : 
+  Proper ((=) ==> iff) (@Monoid_Morphism A B eA eB opA uA opB uB) | 1.
+Proof.
+  assert (∀ (f g : A → B), g = f → Monoid_Morphism f → Monoid_Morphism g) as P.
+   intros f g E [? ? ? ?].
+   split; try apply _.
+    eapply semigroup_morphism_proper; eauto.
+   now rewrite (E mon_unit mon_unit).
+  intros f g ?; split; intros Mor.
+   apply P with f. destruct Mor. now symmetry. apply _.
+  now apply P with g. 
+Qed.
+
+Instance semiring_morphism_proper {A B eA eB pA mA zA oA pB mB zB oB} : 
+  Proper ((=) ==> (=)) (@SemiRing_Morphism A B eA eB pA mA zA oA pB mB zB oB).
+Proof.
+  assert (∀ (f g : A → B), g = f → SemiRing_Morphism f → SemiRing_Morphism g) as P.
+   intros f g E [? ? ? ?].
+   split; try apply _; eapply monoid_morphism_proper; eauto.
+  intros f g ?; split; intros Mor.
+   apply P with f. destruct Mor. now symmetry. apply _.
+  now apply P with g.
+Qed.

@@ -9,19 +9,20 @@ Section naturals_order.
 Context `{Naturals N} `{!SemiRingOrder o} `{!TotalOrder o}.
 
 Lemma to_semiring_nonneg `{SemiRing R} {oR : Order R} `{!SemiRingOrder oR} `{!TotalOrder oR} 
-  `{∀ z : R, LeftCancellation (+) z} n : 0 ≤ naturals_to_semiring N R n.
-Proof with trivial.
+     `{∀ z : R, LeftCancellation (+) z} {f : N → R} `{!SemiRing_Morphism f} n : 
+  0 ≤ f n.
+Proof.
   pattern n. apply naturals.induction; clear n.
-    intros n m E. rewrite E. reflexivity.
+    solve_proper.
    intros. rewrite preserves_0. reflexivity.
   intros n E.
   rewrite preserves_plus, preserves_1.
-  apply nonneg_plus_compat...
+  apply nonneg_plus_compat; try assumption.
   apply precedes_0_1.
 Qed.
 
 Lemma naturals_nonneg x : 0 ≤ x.
-Proof with trivial.
+Proof.
   rewrite (naturals.to_semiring_self x).
   apply to_semiring_nonneg.
 Qed.
@@ -41,9 +42,9 @@ Section another_semiring.
     {f : N → R} `{!SemiRing_Morphism f}.
 
   Global Instance morphism_order_preserving: OrderPreserving f.
-  Proof with trivial.
+  Proof.
     apply preserving_preserves_0.
-    intros x E. rewrite (naturals.to_semiring_unique f).
+    intros x E.
     apply to_semiring_nonneg.
   Qed.
 End another_semiring.
@@ -73,7 +74,7 @@ Context `{Naturals N} `{Naturals N2} {f : N → N2} `{!SemiRing_Morphism f}
   {o2 : Order N2} `{!SemiRingOrder o2} `{!TotalOrder o2}.
 
 Global Instance: OrderEmbedding f.
-Proof with trivial.
+Proof.
   repeat (split; try apply _).
   intros x y E.
   eapply poset_proper.
@@ -124,10 +125,10 @@ Proof with trivial.
 Qed.
 
 Lemma precedes_sprecedes_alt x y : x + 1 ≤ y ↔ x < y.
-Proof with trivial.
+Proof.
   split; intros E.
-   apply precedes_sprecedes in E. apply (strictly_order_preserving_back (+ 1)) in E...
-  apply precedes_sprecedes. apply (strictly_order_preserving (+ 1)) in E...
+   apply precedes_sprecedes in E. now apply (strictly_order_preserving_back (+ 1)) in E.
+  apply precedes_sprecedes. now apply (strictly_order_preserving (+ 1)) in E.
 Qed.
 
 Global Instance: ∀ (z : N), NeZero z → OrderPreservingBack ((.*.) z).

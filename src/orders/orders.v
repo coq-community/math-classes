@@ -88,8 +88,8 @@ Section contents.
     firstorder.
   Qed.
 
-  Lemma not_sprecedes_precedes `{!TotalOrder (≤)} `{∀ x y, Decision (x = y)}
-    x y : ¬y < x ↔ x ≤ y.
+  Lemma not_sprecedes_precedes `{!TotalOrder (≤)} `{∀ x y, Decision (x = y)} x y : 
+    ¬y < x ↔ x ≤ y.
   Proof with auto.
     split; intros E.
      destruct (sprecedes_or_equiv x y) as [|[|]].
