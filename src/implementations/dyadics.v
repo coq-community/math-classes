@@ -131,6 +131,22 @@ Proof.
   now transitivity (DtoStdQ y).
 Qed.
 
+Instance: Proper ((=) ==> (=)) DtoStdQ.
+Proof. now repeat red. Qed.
+
+Instance: Injective DtoStdQ.
+Proof. now repeat (split; try apply _). Qed.
+
+Global Instance: Ring Dyadic.
+Proof.
+  apply (rings.embed_ring DtoStdQ).
+       exact DtoQ_slow_preserves_plus.
+      exact DtoQ_slow_preserves_0.
+     exact DtoQ_slow_preserves_mult.
+    exact DtoQ_slow_preserves_1.
+   exact DtoQ_slow_preserves_opp.
+Qed.
+
 Global Instance dyadic_proper: Proper ((=) ==> (=) ==> (=)) dyadic.
 Proof.
   intros ? ? E1 ? ? E2.
@@ -138,33 +154,13 @@ Proof.
   now rewrite E1, E2.
 Qed.
 
-Instance: Proper ((=) ==> (=) ==> (=)) dy_plus.
+Instance: SemiRing_Morphism DtoStdQ.
 Proof.
-  repeat intro. unfold equiv, dy_equiv.
-  rewrite 2!DtoQ_slow_preserves_plus.
-  now apply sg_mor.
-Qed.
-
-Instance: Proper ((=) ==> (=) ==> (=)) dy_mult.
-Proof.
-  repeat intro. unfold equiv, dy_equiv.
-  rewrite 2!DtoQ_slow_preserves_mult.
-  now apply sg_mor.
-Qed.
-
-Instance: Proper ((=) ==> (=)) dy_opp.
-Proof.
-  repeat intro. unfold equiv, dy_equiv.
-  rewrite 2!DtoQ_slow_preserves_opp.
-  now apply inv_proper.
-Qed.
-
-Global Instance: Ring Dyadic.
-Proof.
-  repeat (split; try apply _); repeat intro; unfold equiv, dy_equiv;
-    repeat (rewrite DtoQ_slow_preserves_plus 
-      || rewrite DtoQ_slow_preserves_mult || rewrite DtoQ_slow_preserves_opp
-      || rewrite DtoQ_slow_preserves_1 || rewrite DtoQ_slow_preserves_0); ring.
+  repeat (split; try apply _).
+     exact DtoQ_slow_preserves_plus.
+    exact DtoQ_slow_preserves_0.
+   exact DtoQ_slow_preserves_mult.
+  exact DtoQ_slow_preserves_1.
 Qed.
 
 Global Instance: Injective dy_inject.
@@ -193,7 +189,7 @@ Proof.
   intros x y. unfold sg_op at 2, dy_mult. simpl.
   now setoid_replace (0 + 0) with 0 by ring.
 Qed.
-     
+
 Lemma dy_eq_dec_aux (x y : Dyadic) p : 
   mant x = mant y ≪ exist _ (expo y - expo x) p ↔ x = y.
 Proof.
@@ -288,31 +284,14 @@ Proof.
   now rewrite E1, E2.
 Qed.
 
-Instance: PartialOrder dy_precedes.
-Proof.
-  repeat (split; try apply _); unfold dy_precedes.
-    intros x. reflexivity.
-   intros x y z E1 E2. now transitivity (DtoStdQ y).
-  intros x y E1 E2. 
-  unfold dy_precedes, equiv, dy_equiv, DtoQ_slow in *. simpl in *.
-  now apply (antisymmetry (≤)).
-Qed.
-
-Global Instance: TotalOrder dy_precedes.
-Proof.
-  intros x y. destruct (total_order (DtoStdQ x) (DtoStdQ y)); [left | right]; assumption.
-Qed.
+Instance: OrderEmbedding DtoStdQ.
+Proof. now repeat (split; try apply _). Qed.
 
 Global Instance: RingOrder dy_precedes.
-Proof.
-  repeat (split; try apply _); unfold "≤", dy_precedes.
-   intros x y E.
-   rewrite 2!DtoQ_slow_preserves_plus.
-   now apply ringorder_plus.
-  intros x E1 y E2.
-  rewrite DtoQ_slow_preserves_0, DtoQ_slow_preserves_mult.
-  apply ringorder_mult; now rewrite <-DtoQ_slow_preserves_0.
-Qed.
+Proof rings.embed_ringorder DtoStdQ.
+
+Global Instance: TotalOrder dy_precedes.
+Proof maps.embed_totalorder DtoStdQ.
 
 Lemma nonneg_mant (x : Dyadic) : 0 ≤ x ↔ 0 ≤ mant x.
 Proof.
@@ -429,18 +408,6 @@ Section DtoQ.
   Qed.
 End DtoQ.
 
-Section two_rationals.
-  Context Q1 `{Rationals Q1} `{!IntPowSpec Q1 Z ipw1} `{!SemiRing_Morphism (ZtoQ1 : Z → Q1)}.
-  Context Q2 `{Rationals Q2} `{!IntPowSpec Q2 Z ipw2} `{!SemiRing_Morphism (ZtoQ2 : Z → Q2)}.
-
-  Lemma equality_coincides_aux (x : Dyadic)  : 
-    ZtoQ2 (mant x) * 2 ^ expo x = rationals_to_rationals Q1 Q2 (ZtoQ1 (mant x) * 2 ^ expo x).
-  Proof.
-    rewrite rings.preserves_mult, (preserves_int_pow 2), rings.preserves_2.
-    now rewrite (integers.to_ring_unique_alt ZtoQ2 (rationals_to_rationals Q1 Q2 ∘ ZtoQ1)). 
-  Qed.
-End two_rationals.
-
 Section embed_rationals.
   Context `{Rationals Q} `{!IntPowSpec Q Z ipw} `{!SemiRing_Morphism (ZtoQ: Z → Q)}.
   Context `{oQ : Order Q} `{!RingOrder oQ} `{!TotalOrder oQ}.
@@ -449,28 +416,22 @@ Section embed_rationals.
 
   Notation DtoQ' := (DtoQ ZtoQ).
   Notation DtoQ_slow' := (DtoQ_slow ZtoQ).
-  Notation QtoStdQ := (rationals_to_rationals Q StdQ).
   Notation StdQtoQ := (rationals_to_rationals StdQ Q).
 
-  Instance: Proper ((=) ==> (=)) DtoQ_slow'.
+  Lemma DtoQ_slow_correct : DtoQ_slow' = StdQtoQ ∘ DtoStdQ.
   Proof.
-    intros ? ? E.
-    unfold equiv, dy_equiv in E. unfold DtoQ_slow in *.
-    apply (injective QtoStdQ). 
-    now rewrite 2!(equality_coincides_aux Q StdQ) in E.
+    intros x y E. rewrite <-E. clear y E.
+    unfold DtoQ_slow, compose.
+    rewrite rings.preserves_mult, (preserves_int_pow 2), rings.preserves_2.
+    now rewrite (integers.to_ring_unique_alt ZtoQ (StdQtoQ ∘ ZtoStdQ)). 
   Qed.
 
   Global Instance: Injective DtoQ_slow'.
-  Proof.
-    repeat (split; try apply _).
-    intros ? ? E.  
-    unfold equiv, dy_equiv. unfold DtoQ_slow in *.
-    apply (injective StdQtoQ).
-    now rewrite <-2!(equality_coincides_aux StdQ Q).
-  Qed.
+  Proof. rewrite DtoQ_slow_correct. apply _. Qed.
 
-  Lemma DtoQ_slow_correct x : DtoQ' x = DtoQ_slow' x.
+  Lemma DtoQ_correct : DtoQ' = DtoQ_slow'.
   Proof.
+    intros x y E. rewrite <-E. clear y E.
     unfold DtoQ, DtoQ_slow.
     destruct x as [xm xe]. simpl. 
     case (precedes_dec 0 xe); intros E.
@@ -480,53 +441,21 @@ Section embed_rationals.
     now rewrite rings.preserves_1, left_identity.
   Qed.
 
-  Instance: Proper ((=) ==> (=)) DtoQ'.
-  Proof.
-    intros x y E. rewrite 2!DtoQ_slow_correct.
-    now rewrite E.
-  Qed.
-
   Global Instance: Injective DtoQ'.
-  Proof.
-    repeat (split; try apply _).
-    intros x y E.
-    apply (injective DtoQ_slow').
-    now rewrite <-2!DtoQ_slow_correct.
-  Qed.
+  Proof. rewrite DtoQ_correct. apply _. Qed.
 
   Global Instance: SemiRing_Morphism DtoQ_slow'.
-  Proof. 
-    repeat (split; try apply _).
-       exact DtoQ_slow_preserves_plus.
-      exact DtoQ_slow_preserves_0.
-     exact DtoQ_slow_preserves_mult.
-    exact DtoQ_slow_preserves_1.
-  Qed.
+  Proof. apply (rings.semiring_morphism_proper _ _ DtoQ_slow_correct), _. Qed. 
 
   Global Instance: SemiRing_Morphism DtoQ'.
-  Proof.
-    repeat (split; try apply _); intros; rewrite ?DtoQ_slow_correct.
-       now apply DtoQ_slow_preserves_plus.
-      now apply DtoQ_slow_preserves_0.
-     now apply DtoQ_slow_preserves_mult.
-    now  apply DtoQ_slow_preserves_1.
-  Qed.
+  Proof. apply (rings.semiring_morphism_proper _ _ DtoQ_correct), _. Qed. 
 
   Global Instance: OrderEmbedding DtoQ_slow'.
-  Proof.
-    repeat (split; try apply _); unfold "≤", dy_precedes, DtoQ_slow; intros x y E.
-     apply (order_preserving StdQtoQ) in E.
-     now rewrite <-2!(equality_coincides_aux StdQ Q) in E.
-    apply (order_preserving QtoStdQ) in E.
-    now rewrite 2!(equality_coincides_aux Q StdQ).
-  Qed.
+  Proof. apply (maps.order_embedding_proper _ _ DtoQ_slow_correct). apply _. Qed.
 
   Global Instance: OrderEmbedding DtoQ'.
-  Proof with trivial.
-    repeat (split; try apply _).
-     intros. rewrite 2!DtoQ_slow_correct. now apply (order_preserving DtoQ_slow').
-    intros. apply (order_preserving_back DtoQ_slow'). now rewrite <-2!DtoQ_slow_correct.
-  Qed.
+  Proof. apply (maps.order_embedding_proper _ _ DtoQ_correct). apply _. Qed. 
+
 End embed_rationals.
   
 End dyadics.
