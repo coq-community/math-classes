@@ -77,22 +77,19 @@ Instance: Integers t := retract_is_int of_Z.
 Instance ZType_le: Order t := le.
 
 Instance: Proper ((=) ==> (=) ==> iff) ZType_le.
-Proof. intros ? ? E1 ? ? E2. unfold ZType_le, le. unfold equiv, ZType_equiv, eq in *. now rewrite E1, E2. Qed.
-
-Instance: RingOrder ZType_le.
-Proof.
-  repeat (split; try apply _); red; unfold "≤", ZType_le, le.
-      intros x. reflexivity.
-     intros x y z E1 E2. now transitivity (to_Z y).
-    intros x y E1 E2. unfold_equiv. now apply (antisymmetry (≤)).
-   intros x y E. rewrite 2!preserves_plus. 
-   change (to_Z z + to_Z x ≤ to_Z z + to_Z y). now apply ringorder_plus.
-  intros x E1 y E2. rewrite preserves_mult. rewrite preserves_0 in E1, E2 |- *.
-  change (0 ≤ to_Z x * to_Z y). now apply ringorder_mult.
+Proof. 
+  intros ? ? E1 ? ? E2. unfold ZType_le, le. unfold equiv, ZType_equiv, eq in *. 
+  now rewrite E1, E2. 
 Qed.
 
+Instance: OrderEmbedding to_Z.
+Proof. now repeat (split; try apply _). Qed.
+
+Instance: RingOrder ZType_le.
+Proof rings.embed_ringorder to_Z.
+
 Instance: TotalOrder ZType_le.
-Proof. intros x y. now (destruct (total_order (to_Z x) (to_Z y)); [left | right]). Qed.
+Proof maps.embed_totalorder to_Z.
 
 Lemma ZType_lt_coincides x y : lt x y ↔ x < y.
 Proof. unfold lt. now rewrite stdlib_binary_integers.Zlt_coincides. Qed.
