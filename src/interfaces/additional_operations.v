@@ -1,5 +1,5 @@
 Require Import 
-  Program Morphisms abstract_algebra.
+  Morphisms abstract_algebra.
 
 Class Pow A B := pow : A → B → A.
 Infix "^" := pow.
@@ -33,10 +33,10 @@ Class ShiftR A B := shiftr: A → B → A.
 Infix "≫" := shiftr (at level 33, left associativity).
 Notation "(≫)" := shiftr (only parsing).
 
-Class ShiftRSpec A B (sl : ShiftR A B) `{Equiv A} `{Order A} `{Equiv B} `{RingZero A} `{RingOne A} `{RingPlus A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} := {
+Class ShiftRSpec A B (sl : ShiftR A B) `{Equiv A} `{Equiv B} `{RingOne A} `{RingPlus A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} := {
   shiftr_proper : Proper ((=) ==> (=) ==> (=)) (≫) ;
   shiftr_0 :> RightIdentity (≫) 0 ;
-  shiftr_S : ∀ x n, ∃ r, x ≫ n = 2 * x ≫ (1 + n) + r ∧ 0 ≤ r < 2 
+  shiftr_S : ∀ x n, x ≫ n = 2 * x ≫ (1 + n) ∨ x ≫ n = 2 * x ≫ (1 + n) + 1
 }.
 
 Class DivEuclid A := div_euclid : A → A → A.
@@ -44,9 +44,9 @@ Class ModEuclid A := mod_euclid : A → A → A.
 Infix "`div`" := div_euclid (at level 30).
 Infix "`mod`" := mod_euclid (at level 30).
 
-Class EuclidSpec A (d : DivEuclid A) (m : ModEuclid A) `{Equiv A} `{Order A} `{RingZero A} `{RingPlus A} `{RingMult A} `{GroupInv A} := {
-  div_euclid_proper :> Proper ((=) ==> (=) ==> (=)) div_euclid ;
-  mod_euclid_proper :> Proper ((=) ==> (=) ==> (=)) mod_euclid ;
+Class EuclidSpec A (d : DivEuclid A) (m : ModEuclid A) `{Equiv A} `{Order A} `{RingZero A} `{RingPlus A} `{RingMult A} := {
+  div_euclid_proper : Proper ((=) ==> (=) ==> (=)) div_euclid ;
+  mod_euclid_proper : Proper ((=) ==> (=) ==> (=)) mod_euclid ;
   div_mod : ∀ x y, y ≠ 0 → x = y * x `div` y + x `mod` y ;
   mod_euclid_rem : ∀ x y, y ≠ 0 → 0 ≤ x `mod` y < y ∨ y < x `mod` y ≤ 0 ;
   div_euclid_0 : ∀ x, x `div` 0 = 0 ;
