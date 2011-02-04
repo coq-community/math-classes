@@ -31,7 +31,7 @@ Section rationals_order.
   End another_integers.
 
   Section another_rationals.
-  Context `{Rationals Q2} {oQ : Order Q2} `{!RingOrder oQ} `{!TotalOrder oQ}
+  Context `{Rationals Q2} {o2 : Order Q2} `{!RingOrder o2} `{!TotalOrder o2}
      {f : Q → Q2} `{!SemiRing_Morphism f} `{!Injective f}.
 
   Notation i_to_r := (integers.integers_to_ring (SRpair nat) Q).
@@ -66,12 +66,29 @@ Section rationals_order.
     now rewrite preserves_0 in E1a.
   Qed.
 
-  Global Instance morphism_order_preserving: OrderPreserving f.
+  Instance morphism_order_preserving: OrderPreserving f.
   Proof.
     apply semirings.preserving_preserves_0. apply f_preserves_0.
   Qed.
   End another_rationals.
 End rationals_order.
+
+Section rationals_order_isomorphic.
+  Context `{Rationals Q1} {o1 : Order Q1} `{!RingOrder o1} `{!TotalOrder o1}
+    `{Rationals Q2} {o2 : Order Q2} `{!RingOrder o2} `{!TotalOrder o2}
+     {f : Q1 → Q2} `{!SemiRing_Morphism f} `{!Injective f}.
+
+  Global Instance: OrderEmbedding f.
+  Proof.
+    split.
+     apply morphism_order_preserving.
+    split; try apply _.
+    intros x y E.
+    rewrite <-(to_rationals_involutive x (Q2:=Q2)), <-(to_rationals_involutive y (Q2:=Q2)).
+    rewrite <-2!(to_rationals_unique f).
+    now apply morphism_order_preserving.
+  Qed.
+End rationals_order_isomorphic.
 
 Global Instance rationals_precedes `{Rationals Q} : Order Q | 10 := λ x y,
     ∃ num, ∃ den, y = x + naturals_to_semiring nat Q num / naturals_to_semiring nat Q den.
