@@ -121,3 +121,39 @@ Proof.
   intros x y. unfolds. do 2 rewrite mult_1_r. intuition.
 Qed.
 End contents.
+
+Section morphisms.
+Context `{IntegralDomain R1} `{∀ z : R1, NeZero z → LeftCancellation (.*.) z}.
+Context `{IntegralDomain R2} `{∀ z : R2, NeZero z → LeftCancellation (.*.) z}.
+Context `(f : R1 → R2) `{!SemiRing_Morphism f} `{!Injective f}.
+
+Program Definition Frac_lift (x : Frac R1) : Frac R2 := frac (f (num x)) (f (den x)) _.
+Next Obligation.
+  apply injective_not_0.
+  apply den_nonzero.
+Qed.
+
+Instance: Proper ((=) ==>(=)) Frac_lift.
+Proof.
+  intros x y E.
+  unfold equiv, Frac_equiv, Frac_lift in *. simpl.
+  now rewrite <-2!preserves_mult, E.
+Qed.
+
+Global Instance: SemiRing_Morphism Frac_lift.
+Proof.
+  repeat (split; try apply _); unfold equiv, Frac_equiv, Frac_lift in *; simpl.
+     intros x y. now rewrite preserves_plus, ?preserves_mult.
+    now rewrite preserves_0, preserves_1.
+   intros x y. now rewrite ?preserves_mult.
+  now rewrite preserves_1.
+Qed.
+
+Global Instance: Injective Frac_lift.
+Proof.
+  split; try apply _.
+  intros x  y E.
+  unfold equiv, Frac_equiv, Frac_lift in *. simpl in *.
+  apply (injective f). now rewrite 2!preserves_mult.
+Qed.
+End morphisms.
