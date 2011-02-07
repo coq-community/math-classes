@@ -145,7 +145,7 @@ Context `{!TotalOrder (≤)} `{∀ z, NeZero z → LeftCancellation (.*.) z}.
 Global Instance ring_mult_compat_back : ∀ (z : R), GtZero z → OrderPreservingBack (z *.).
 Proof.
   intros z E.
-  split; try apply _. 
+  repeat (split; try apply _). 
   intros x y F.
   destruct (total_order x y) as [G|G]. easy.
   apply (order_preserving_ge_0 (.*.) z) in G.
@@ -174,7 +174,7 @@ Proof.
   intros z.
   split; try apply _.
   intros x y E.
-  unfold flip. do 2 rewrite (commutativity _ z).
+  unfold flip. rewrite 2!(commutativity _ z).
   now apply (strictly_order_preserving (z *.)).
 Qed.
 

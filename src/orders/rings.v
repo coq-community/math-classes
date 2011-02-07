@@ -146,7 +146,7 @@ Section another_ring.
   Proof.
     split.
       apply (embed_partialorder f).
-     split; try apply _. intros x y E. 
+     repeat (split; try apply _). intros x y E. 
      apply (order_preserving_back f). rewrite 2!preserves_plus.
      apply ringorder_plus. now apply (order_preserving f).
     intros x E1 y E2. 

@@ -172,7 +172,7 @@ Qed.
 
 Instance: ∀ z : SRpair SR, OrderPreserving ((+) z).
 Proof with trivial; try ring.
-  split; try apply _.
+  repeat (split; try apply _).
   unfold precedes, SRpair_order.
   destruct z as [zp zn]. intros [xp xn] [yp yn] E. simpl in *.
   apply srorder_plus in E. destruct E as [c [Ec1 Ec2]].

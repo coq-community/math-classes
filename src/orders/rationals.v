@@ -82,11 +82,11 @@ Section rationals_order_isomorphic.
   Proof.
     split.
      apply morphism_order_preserving.
-    split; try apply _.
+    repeat (split; try apply _).
     intros x y E.
     rewrite <-(to_rationals_involutive x (Q2:=Q2)), <-(to_rationals_involutive y (Q2:=Q2)).
     rewrite <-2!(to_rationals_unique f).
-    now apply morphism_order_preserving.
+    now apply (morphism_order_preserving (f:=rationals_to_rationals Q2 Q1)).
   Qed.
 End rationals_order_isomorphic.
 

@@ -52,7 +52,7 @@ Section with_rationals.
 
   Notation DtoQ_slow' := (DtoQ_slow ZtoQ).
 
-  Lemma ZtoQ_shift (x n : Z) Pn : ZtoQ (x ≪ (exist _ n Pn)) = ZtoQ x * 2 ^ n.
+  Lemma ZtoQ_shift (x n : Z) Pn : ZtoQ (x ≪ exist _ n Pn) = ZtoQ x * 2 ^ n.
   Proof.
     rewrite shiftl_nat_pow.
     rewrite rings.preserves_mult, nat_pow.preserves_nat_pow, rings.preserves_2.
