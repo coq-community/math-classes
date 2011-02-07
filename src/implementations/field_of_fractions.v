@@ -48,12 +48,12 @@ Next Obligation. destruct x, y. simpl. apply mult_ne_zero; assumption. Qed.
 Global Instance Frac_0: RingZero (Frac R) := ('0 : Frac R).
 Global Instance Frac_1: RingOne (Frac R) := ('1 : Frac R).
 
-Global Instance Frac_inv: GroupInv (Frac R) := λ x, frac (- num x) (den x) (den_nonzero x).
+Global Instance Frac_opp: GroupInv (Frac R) := λ x, frac (- num x) (den x) (den_nonzero x).
 
 Global Program Instance Frac_mult: RingMult (Frac R) := λ x y, frac (num x * num y) (den x * den y) _.
 Next Obligation. destruct x, y. simpl. apply mult_ne_zero; assumption. Qed.
 
-Ltac unfolds := unfold Frac_inv, Frac_plus, equiv, Frac_equiv in *; simpl in *.
+Ltac unfolds := unfold Frac_opp, Frac_plus, equiv, Frac_equiv in *; simpl in *.
 Ltac ring_on_ring := repeat intro; unfolds; try ring.
 
 Lemma Frac_nonzero_num x : x ≠ 0 ↔ num x ≠ 0.
@@ -74,7 +74,7 @@ Proof with try ring.
   rewrite E, E'...
 Qed.
 
-Instance: Proper ((=) ==> (=)) Frac_inv.
+Instance: Proper ((=) ==> (=)) Frac_opp.
 Proof. 
   intros x y E. unfolds. 
   rewrite <-distr_opp_mult_l, E. ring. 

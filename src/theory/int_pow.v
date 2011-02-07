@@ -48,7 +48,7 @@ Proof with auto; try reflexivity.
     rewrite E3, left_absorb.
     rewrite int_pow_base_0, fields.dec_mult_inv_0...
     intros E4. destruct semirings.not_precedes_1_0. 
-    apply rings.flip_nonpos_inv.
+    apply rings.flip_nonpos_opp.
     apply (order_preserving_back (n +)). 
     rewrite E4. now ring_simplify.
    apply (rings.left_cancellation_ne_0 (.*.) (/x))...
@@ -56,13 +56,13 @@ Proof with auto; try reflexivity.
    rewrite <-fields.dec_mult_inv_distr, <-int_pow_S...
    setoid_replace (1 + (n - 1)) with n by ring.
    rewrite associativity, (commutativity (/x)), fields.dec_mult_inverse... ring.
-  now apply rings.flip_nonpos_inv.
+  now apply rings.flip_nonpos_opp.
 Qed.
 
 Lemma int_pow_mult_inv_alt (x : A) (n : B) : x ^ n = /(x ^ (-n)).
 Proof.
   rewrite <-int_pow_mult_inv.
-  now rewrite rings.inv_involutive.
+  now rewrite rings.opp_involutive.
 Qed.
 
 Lemma int_pow_nat_pow `{Naturals N} `{!NatPowSpec A N pw} {f : N → B} `{!SemiRing_Morphism f} (x : A) (n : N) :
@@ -119,19 +119,6 @@ Proof with auto.
   rewrite <-int_pow_S... rewrite <-int_pow_S...
   setoid_replace (1 + (n - 1 + m)) with (n + m) by ring.
   setoid_replace (1 + (n - 1)) with n by ring...
-Qed.
-
-Lemma int_pow_of_0 (n : B) : n ≠ 0 → 0 ^ n = 0.
-Proof with auto.
-  pattern n. apply integers.induction; clear n.
-     solve_proper.
-    intro E. now destruct E.
-   intros. rewrite int_pow_S_nonneg... ring.
-  intros n ? ? ?. rewrite int_pow_mult_inv_alt.
-  setoid_replace (-(n - 1)) with (1 - n) by ring.
-  rewrite int_pow_S_nonneg. 
-   rewrite left_absorb. apply fields.dec_mult_inv_0.
-  now apply rings.flip_nonpos_inv.
 Qed.
 
 Lemma int_pow_nonzero (x : A) (n : B) : x ≠ 0 → x ^ n ≠ 0.
@@ -204,7 +191,7 @@ Proof with auto.
     rewrite E2.
     rewrite int_pow_0.
     apply semirings.precedes_0_1.
-   now rewrite int_pow_of_0.
+   now rewrite int_pow_base_0.
   now apply int_pow_pos.
 Qed. 
 
@@ -321,8 +308,8 @@ Section int_pow_default.
      rewrite (int_abs_nonneg_plus 1 (-(1 + n))), int_abs_1...
       rewrite nat_pow_S. 
       rewrite fields.dec_mult_inv_distr, associativity.
-      now rewrite fields.dec_mult_inverse, left_identity...
-     apply rings.flip_nonpos_inv.
+      now rewrite fields.dec_mult_inverse, left_identity.
+     apply rings.flip_nonpos_opp.
      now apply orders.not_precedes_sprecedes.
   Qed.
 End int_pow_default.

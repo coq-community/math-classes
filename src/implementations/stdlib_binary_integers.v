@@ -15,7 +15,7 @@ Instance Z_plus: RingPlus BinInt.Z := BinInt.Zplus.
 Instance Z_0: RingZero BinInt.Z := BinInt.Z0.
 Instance Z_1: RingOne BinInt.Z := BinInt.Zpos BinPos.xH.
 Instance Z_mult: RingMult BinInt.Z := BinInt.Zmult.
-Instance Z_inv: GroupInv BinInt.Z := BinInt.Zopp.
+Instance Z_opp: GroupInv BinInt.Z := BinInt.Zopp.
   (* some day we'd like to do this with [Existing Instance] *)
 
 (* propers: *)
@@ -137,7 +137,7 @@ Section for_another_ring.
     Proof with try reflexivity.
      intros.
      replace (Zneg p) with (- (Zpos p))...
-     do 2 rewrite preserves_inv.
+     rewrite 2!preserves_opp.
      rewrite <- agree_on_positive...
     Qed.
 
@@ -201,7 +201,7 @@ Next Obligation.
    left. 
    now apply Z.abs_eq.
   right.
-  rewrite Z.abs_neq. now apply inv_involutive. easy.
+  rewrite Z.abs_neq. now apply opp_involutive. easy.
 Qed.
 
 (* * Embedding N into Z *)
@@ -220,7 +220,7 @@ Next Obligation.
    left. 
    now apply Z.abs_eq.
   right.
-  rewrite Z.abs_neq. now apply inv_involutive. easy.
+  rewrite Z.abs_neq. now apply opp_involutive. easy.
 Qed.
 
 (* Efficient nat_pow *)

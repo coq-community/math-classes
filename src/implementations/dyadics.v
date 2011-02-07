@@ -3,8 +3,6 @@
    for some [Integers] implementation [Z]. These numbers form a ring and can be 
    embedded into any [Rationals] implementation [Q]. 
 *)
-Require
-  theory.integers theory.rings theory.fields.
 Require Import
   Morphisms Ring Program RelationClasses Setoid
   abstract_algebra 
@@ -86,7 +84,7 @@ Section with_rationals.
   Lemma DtoQ_slow_preserves_opp x : DtoQ_slow' (-x) = -DtoQ_slow' x.
   Proof.
     unfold DtoQ_slow. simpl.
-    rewrite rings.preserves_inv. ring.
+    rewrite rings.preserves_opp. ring.
   Qed.
 
   Lemma DtoQ_slow_preserves_mult x y : DtoQ_slow' (x * y) = DtoQ_slow' x * DtoQ_slow' y.
@@ -310,7 +308,7 @@ Qed.
 
 Lemma nonpos_mant (x : Dyadic) : x ≤ 0 ↔ mant x ≤ 0.
 Proof.
-  rewrite 2!rings.flip_nonpos_inv.
+  rewrite 2!rings.flip_nonpos_opp.
   apply nonneg_mant.
 Qed.
 
@@ -355,9 +353,9 @@ Qed.
 Next Obligation.
   intros x y E1 E2.
   apply orders.not_precedes_sprecedes.
-  apply orders.not_precedes_sprecedes in E2. apply rings.flip_inv_strict in E2.
+  apply orders.not_precedes_sprecedes in E2. apply rings.flip_opp_strict in E2.
   destruct E2 as [E2a E2b]. split.
-   apply rings.flip_inv.
+   apply rings.flip_opp.
    eapply dy_precedes_dec_aux.
    simpl. rewrite opp_shiftl. eassumption.
   intros E3. apply E2b. apply inv_proper.
@@ -371,9 +369,9 @@ Next Obligation.
   apply orders.sprecedes_precedes in E2. destruct E2 as [E2 | E2].
    apply orders.equiv_precedes. symmetry in E2 |- *. 
    eapply dy_eq_dec_aux. eassumption.
-  apply rings.flip_inv.
+  apply rings.flip_opp.
   eapply dy_precedes_dec_aux.
-  simpl. rewrite opp_shiftl. apply (proj1 (rings.flip_inv _ _)). eapply E2.
+  simpl. rewrite opp_shiftl. apply (proj1 (rings.flip_opp _ _)). eapply E2.
 Qed.
 Next Obligation. 
   intros x y E1 E2.
@@ -397,7 +395,7 @@ Section DtoQ.
     then ZtoQ (mant x ≪ exist _ (expo x) _)
     else ZtoQ (mant x) // (ZtoQ (1 ≪ (exist _ (-expo x) _))).
   Next Obligation. 
-    apply rings.flip_nonpos_inv.
+    apply rings.flip_nonpos_opp.
     now apply orders.precedes_flip.
   Qed.
   Next Obligation.

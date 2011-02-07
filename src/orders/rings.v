@@ -8,7 +8,7 @@ Section contents.
 Context `{Ring R} `{!RingOrder o}.
 Add Ring R : (stdlib_ring_theory R).
 
-Lemma flip_inv x y : x ≤ y ↔ -y ≤ -x.
+Lemma flip_opp x y : x ≤ y ↔ -y ≤ -x.
 Proof.
   assert (∀ a b, a ≤ b → -b ≤ -a).
    intros a b E.
@@ -16,44 +16,44 @@ Proof.
    setoid_replace (-a) with (-a + -b + b) at 2 by ring.
    now apply (order_preserving _).
   split; intros; auto.
-  rewrite <-(inv_involutive x), <-(inv_involutive y); auto.
+  rewrite <-(opp_involutive x), <-(opp_involutive y); auto.
 Qed.
 
-Lemma flip_inv_strict x y : x < y ↔ -y < -x.
+Lemma flip_opp_strict x y : x < y ↔ -y < -x.
 Proof.
   assert (∀ a b, a < b → -b < -a).
    intros a b [E1 E2].
    split.
-    now apply ->flip_inv.
+    now apply ->flip_opp.
    intros E3. apply E2. apply (injective (-)). now symmetry.
   split; intros; auto.
-  rewrite <-(inv_involutive x), <-(inv_involutive y); auto.
+  rewrite <-(opp_involutive x), <-(opp_involutive y); auto.
 Qed.
 
-Lemma flip_nonneg_inv x : 0 ≤ x ↔ -x ≤ 0. 
+Lemma flip_nonneg_opp x : 0 ≤ x ↔ -x ≤ 0. 
 Proof.
   split; intros E.
-   rewrite <- opp_0. now apply ->flip_inv.
-  apply flip_inv. now rewrite opp_0.
+   rewrite <- opp_0. now apply ->flip_opp.
+  apply flip_opp. now rewrite opp_0.
 Qed.
 
-Lemma flip_nonpos_inv x : x ≤ 0 ↔ 0 ≤ -x. 
+Lemma flip_nonpos_opp x : x ≤ 0 ↔ 0 ≤ -x. 
 Proof.
-  rewrite <-(inv_involutive x) at 1. 
-  split; intros; now apply flip_nonneg_inv.
+  rewrite <-(opp_involutive x) at 1. 
+  split; intros; now apply flip_nonneg_opp.
 Qed.
 
-Lemma flip_pos_inv x : 0 < x ↔ -x < 0. 
+Lemma flip_pos_opp x : 0 < x ↔ -x < 0. 
 Proof.
   split; intros E.
-   rewrite <- opp_0. now apply ->flip_inv_strict.
-  apply flip_inv_strict. now rewrite opp_0.
+   rewrite <- opp_0. now apply ->flip_opp_strict.
+  apply flip_opp_strict. now rewrite opp_0.
 Qed.
 
-Lemma flip_neg_inv x : x < 0 ↔ 0 < -x. 
+Lemma flip_neg_opp x : x < 0 ↔ 0 < -x. 
 Proof.
-  rewrite <-(inv_involutive x) at 1. 
-  split; intros; now apply flip_pos_inv.
+  rewrite <-(opp_involutive x) at 1. 
+  split; intros; now apply flip_pos_opp.
 Qed.
 
 Lemma flip_nonneg_minus (x y : R) : 0 ≤ y + -x ↔ x ≤ y.
@@ -70,10 +70,10 @@ Qed.
 Lemma flip_nonpos_minus (x y : R) : y + -x ≤ 0 ↔ y ≤ x.
 Proof.
   split; intros E.
-   apply flip_nonneg_minus, flip_nonneg_inv.
+   apply flip_nonneg_minus, flip_nonneg_opp.
    now rewrite <-opp_swap.
   rewrite opp_swap.
-  now apply flip_nonneg_inv, flip_nonneg_minus.
+  now apply flip_nonneg_opp, flip_nonneg_minus.
 Qed.
 
 Lemma precedes_plus x y : x ≤ y ↔ ∃ z, 0 ≤ z ∧ y = x + z.
@@ -100,16 +100,16 @@ Lemma nonpos_mult x y : x ≤ 0 → y ≤ 0 → 0 ≤ x * y.
 Proof.
   intros E F.
   setoid_replace (x * y) with (-x * -y) by ring.
-  apply ringorder_mult; apply flip_nonpos_inv; assumption.
+  apply ringorder_mult; apply flip_nonpos_opp; assumption.
 Qed.
 
 Lemma nonpos_nonneg_mult x y : x ≤ 0 → 0 ≤ y → x * y ≤ 0.
 Proof with auto.
   intros E F. 
-  apply flip_nonpos_inv. 
+  apply flip_nonpos_opp. 
   rewrite rings.distr_opp_mult_l. 
   apply ringorder_mult...
-  apply flip_nonpos_inv...
+  apply flip_nonpos_opp...
 Qed.
 
 Lemma nonneg_nonpos_mult x y : 0 ≤ x → y ≤ 0 → x * y ≤ 0.
@@ -126,15 +126,15 @@ Proof.
   destruct (total_order 0 x).
    now apply ringorder_mult.
   setoid_replace (x * x) with (-x * -x) by ring.
-  now apply ringorder_mult; apply flip_nonpos_inv.
+  now apply ringorder_mult; apply flip_nonpos_opp.
 Qed.
 
 Lemma eq_opp_self (z : R) : z = -z → z = 0.
 Proof.
   intros E.
   apply (antisymmetry (≤)); destruct (total_order 0 z); try easy.
-   rewrite E. now apply flip_nonneg_inv.
-  rewrite E. now apply flip_nonpos_inv.
+   rewrite E. now apply flip_nonneg_opp.
+  rewrite E. now apply flip_nonpos_opp.
 Qed.
 End contents.
 
@@ -161,7 +161,7 @@ Section another_ring.
     repeat (split; try apply _).
     intros x y F.
     apply flip_nonneg_minus. apply E.
-    rewrite preserves_plus, preserves_inv.
+    rewrite preserves_plus, preserves_opp.
     apply flip_nonneg_minus. apply F.
   Qed.
 End another_ring.

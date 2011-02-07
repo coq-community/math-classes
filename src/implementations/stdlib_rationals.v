@@ -9,7 +9,7 @@ Require Import
 Instance Q_eq: Equiv Q := Qeq.
 Instance Q_0 : RingZero Q := 0%Q.
 Instance Q_1 : RingOne Q := 1%Q.
-Instance Q_inv : GroupInv Q := Qopp.
+Instance Q_opp : GroupInv Q := Qopp.
 Instance Q_plus : RingPlus Q := Qplus.
 Instance Q_mult : RingMult Q := Qmult.
 Program Instance Q_mult_inv : MultInv Q := Qinv.
@@ -86,7 +86,7 @@ Proof. split; try apply _. intros ? ? E. easy. Qed.
 Instance: RationalsToFrac Q := alt_to_frac Q_to_fracZ.
 Instance: Rationals Q := alt_Build_Rationals Q_to_fracZ inject_Z.
 
-Program Instance Q_inv_dec_mult: DecMultInv Q := Qinv.
+Program Instance Q_dec_mult_inv: DecMultInv Q := Qinv.
 Next Obligation.
   split; intros E. 
    now apply Qmult_inv_r.

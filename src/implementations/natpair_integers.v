@@ -92,7 +92,7 @@ Section for_another_ring.
      intros [p n] z' E. rewrite <- E. clear E z'.
      rewrite SRpair_splits.
      preservation.
-     do 2 rewrite rings.preserves_inv.
+     rewrite 2!rings.preserves_opp.
      rewrite (agree_on_nat p p), (agree_on_nat n n)...
      unfold integers_to_ring, z_to_ring. simpl. 
      rewrite rings.preserves_0.

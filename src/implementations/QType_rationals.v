@@ -15,7 +15,7 @@ Instance QType_plus: RingPlus t := add.
 Instance QType_0: RingZero t := zero.
 Instance QType_1: RingOne t := one.
 Instance QType_mult: RingMult t := mul.
-Instance QType_inv: GroupInv t := opp.
+Instance QType_opp: GroupInv t := opp.
 Instance QType_mult_inv: MultInv t := λ x, inv (proj1_sig x).
 
 Instance: Setoid t.

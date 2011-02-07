@@ -236,7 +236,7 @@ Section cut_minus_properties.
     apply (right_cancellation (+) y)... ring_simplify...
   Qed.
 
-  Lemma cut_minus_ring_inv (x : R) : x ≤ 0 → 0 ∸ x = -x.
+  Lemma cut_minus_opp (x : R) : x ≤ 0 → 0 ∸ x = -x.
   Proof with auto.
     intros E. rewrite <-(rings.plus_0_l (-x)). 
     rewrite cut_minus_ring_minus... ring.

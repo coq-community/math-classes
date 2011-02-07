@@ -52,18 +52,18 @@ End another_semiring.
 Section another_ring.
   Context `{Ring R} {oR : Order R} `{!RingOrder oR} `{!TotalOrder oR}.
 
-  Lemma inv_to_semiring_nonpos n : - naturals_to_semiring N R n ≤ 0.
-  Proof. apply flip_nonneg_inv. apply to_semiring_nonneg. Qed.
+  Lemma opp_to_semiring_nonpos n : - naturals_to_semiring N R n ≤ 0.
+  Proof. apply flip_nonneg_opp. apply to_semiring_nonneg. Qed.
 
-  Lemma inv_to_sr_precedes_to_sr n : - naturals_to_semiring N R n ≤ naturals_to_semiring N R n.
-  Proof. transitivity (0:R). apply inv_to_semiring_nonpos. apply to_semiring_nonneg. Qed.
+  Lemma opp_to_sr_precedes_to_sr n : - naturals_to_semiring N R n ≤ naturals_to_semiring N R n.
+  Proof. transitivity (0:R). apply opp_to_semiring_nonpos. apply to_semiring_nonneg. Qed.
 
-  Lemma inv_to_semiring x y : - naturals_to_semiring N R x = naturals_to_semiring N R y
+  Lemma opp_to_semiring x y : - naturals_to_semiring N R x = naturals_to_semiring N R y
     → naturals_to_semiring N R x = naturals_to_semiring N R y.
   Proof.
     intros E. apply (antisymmetry (≤)).
-     apply <- flip_inv. rewrite E. apply inv_to_sr_precedes_to_sr.
-    rewrite <-E. apply inv_to_sr_precedes_to_sr.
+     apply <- flip_opp. rewrite E. apply opp_to_sr_precedes_to_sr.
+    rewrite <-E. apply opp_to_sr_precedes_to_sr.
   Qed.
 End another_ring. 
 End naturals_order.
@@ -94,12 +94,11 @@ Global Program Instance slow_nat_le_dec: ∀ x y: N, Decision (x ≤ y) | 10 := 
   | right E => right _
   end.
 Next Obligation. 
-  apply (order_preserving_back (naturals_to_semiring N nat)). 
-  assumption.
+  now apply (order_preserving_back (naturals_to_semiring N nat)). 
 Qed.
 Next Obligation.
   intros F. apply E.
-  apply (order_preserving _). assumption.
+  now apply (order_preserving _).
 Qed.
 
 Lemma ne0_ge1 x : x ≠ 0 → 1 ≤ x.
@@ -150,11 +149,11 @@ Context `{Naturals N}.
 Add Ring N2 : (rings.stdlib_semiring_theory N).
 
 Global Instance: Proper ((=) ==> (=) ==> iff) nat_precedes.
-Proof with assumption.
+Proof.
   intros x1 y1 E1 x2 y2 E2.
   split; intros [z p]; exists z.
-   rewrite <-E1, <-E2...
-  rewrite E1, E2...
+   now rewrite <-E1, <-E2.
+  now rewrite E1, E2.
 Qed.
 
 Global Instance: SemiRingOrder nat_precedes.
@@ -174,13 +173,13 @@ Qed.
 Notation n_to_sr := (naturals_to_semiring N nat).
 
 Global Instance: TotalOrder nat_precedes.
-Proof with trivial.
+Proof.
   assert (∀ x y, n_to_sr x ≤ n_to_sr y → x ≤ y) as P.
    intros x y E. apply srorder_plus in E. 
    destruct E as [a [_ A]].
    exists (naturals_to_semiring nat N a). 
    apply (injective n_to_sr).
-   rewrite preserves_plus. rewrite (naturals.to_semiring_involutive _ _)...
+   rewrite preserves_plus. now rewrite (naturals.to_semiring_involutive _ _).
   intros x y.
   destruct (total_order (n_to_sr x) (n_to_sr y)); intuition.
 Qed.

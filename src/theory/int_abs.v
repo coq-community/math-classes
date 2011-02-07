@@ -15,8 +15,8 @@ Proof.
   apply (injective (naturals_to_semiring N Int)).
   destruct A as [A|A], B as [B|B]; rewrite <-A in B; clear A.
      now symmetry.
-    symmetry. now apply inv_to_semiring.
-   apply inv_to_semiring. now symmetry.
+    symmetry. now apply opp_to_semiring.
+   apply opp_to_semiring. now symmetry.
   apply (injective (-)). now symmetry.
 Qed.
  
@@ -30,7 +30,7 @@ Next Obligation.
     reflexivity.
    rewrite (naturals.to_semiring_unique _). assumption.
   apply (injective (integers_to_ring Int (SRpair N))).
-  rewrite preserves_inv. 
+  rewrite preserves_opp. 
   transitivity (-(integers_to_ring Int (SRpair N) ∘ (naturals_to_semiring N Int)) z).
     reflexivity.
    rewrite (naturals.to_semiring_unique _). assumption.
@@ -46,8 +46,8 @@ Proof with eauto; try reflexivity.
   simpl. rewrite E in A. clear E z.
   apply (injective (naturals_to_semiring N Int)).
   destruct A as [A|A], B as [B|B]; rewrite <-B in A; clear B z'...
-    symmetry. apply inv_to_semiring. symmetry...
-   apply inv_to_semiring...
+    symmetry. apply opp_to_semiring. symmetry...
+   apply opp_to_semiring...
   apply (injective (-))...
 Qed.
 
@@ -55,14 +55,14 @@ Lemma int_abs_nat (n: N) : int_abs Int N (naturals_to_semiring N Int n) = n.
 Proof with auto.
   apply (injective (naturals_to_semiring N Int)).
   unfold int_abs. destruct int_abs_sig as [a [A | A]]; simpl...
-  apply inv_to_semiring...
+  apply opp_to_semiring...
 Qed. 
   
 Lemma int_abs_opp_nat (n: N) : int_abs Int N (-naturals_to_semiring N Int n) = n.
 Proof with auto.
   apply (injective (naturals_to_semiring N Int)). 
   unfold int_abs. destruct int_abs_sig as [a [A | A]]; simpl.
-   symmetry. apply inv_to_semiring. symmetry...
+   symmetry. apply opp_to_semiring. symmetry...
   apply (injective (-))...
 Qed. 
   
@@ -72,8 +72,8 @@ Proof with auto using to_semiring_nonneg.
   intro E.
   split; apply (injective (naturals_to_semiring N Int)); rewrite rings.preserves_0; 
       apply (antisymmetry (≤))...
-   apply flip_nonpos_inv. rewrite E...
-  rewrite <-E. apply inv_to_semiring_nonpos.
+   apply flip_nonpos_opp. rewrite E...
+  rewrite <-E. apply opp_to_semiring_nonpos.
 Qed. 
 
 Lemma int_abs_nonneg x : 0 ≤ x → naturals_to_semiring N Int (int_abs Int N x) = x.
@@ -85,7 +85,7 @@ Proof with auto.
   apply (antisymmetry (≤)).
    apply flip_nonneg_minus.
    apply nonneg_plus_compat...
-  apply inv_to_sr_precedes_to_sr.
+  apply opp_to_sr_precedes_to_sr.
 Qed.
 
 Lemma int_abs_nonneg_plus x y : 
@@ -139,7 +139,7 @@ Lemma int_abs_opp z : int_abs Int N (- z) = int_abs Int N z.
 Proof.
   unfold int_abs at 2.
   destruct int_abs_sig as [x [E | E]]; simpl; rewrite <- E. apply int_abs_opp_nat.
-  rewrite inv_involutive.
+  rewrite opp_involutive.
   apply int_abs_nat.
 Qed.
 End contents.

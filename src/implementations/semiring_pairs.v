@@ -48,15 +48,15 @@ Proof. intros x1 x2 E. unfold inject, equiv, SRpair_equiv. simpl. rewrite E. ref
 
 (* Relations, operations and constants *)
 Global Instance SRpair_plus: RingPlus (SRpair SR) := λ x y, C (pos x + pos y) (neg x + neg y).
-Global Instance SRpair_inv: GroupInv (SRpair SR) := λ x, C (neg x) (pos x).
+Global Instance SRpair_opp: GroupInv (SRpair SR) := λ x, C (neg x) (pos x).
 Global Instance SRpair_0: RingZero (SRpair SR) := ('0 : SRpair SR).
 Global Instance SRpair_mult: RingMult (SRpair SR) := λ x y, C (pos x * pos y + neg x * neg y) (pos x * neg y + neg x * pos y).
 Global Instance SRpair_1: RingOne (SRpair SR) := ('1 : SRpair SR).
 
-Ltac unfolds := unfold SRpair_inv, SRpair_plus, equiv, SRpair_equiv in *; simpl in *.
+Ltac unfolds := unfold SRpair_opp, SRpair_plus, equiv, SRpair_equiv in *; simpl in *.
 Ltac ring_on_sr := repeat intro; unfolds; try ring.
 
-Instance: Proper ((=) ==> (=)) SRpair_inv.
+Instance: Proper ((=) ==> (=)) SRpair_opp.
 Proof. 
   intros x y E. unfolds. 
   rewrite commutativity, <- E. ring.

@@ -16,7 +16,7 @@ Instance ZType_plus : RingPlus t := add.
 Instance ZType_0 : RingZero t := zero.
 Instance ZType_1 : RingOne t := one.
 Instance ZType_mult : RingMult t := mul.
-Instance ZType_inv: GroupInv t := opp.
+Instance ZType_opp: GroupInv t := opp.
 
 Instance: Setoid t | 10.
 
@@ -124,7 +124,7 @@ Qed.
 Next Obligation.
   rewrite <-(naturals.to_semiring_unique NonNeg_inject). simpl.
   unfold_equiv. 
-  rewrite (preserves_inv (abs x)).
+  rewrite preserves_opp.
   rewrite spec_abs.
   destruct (Zabs_dec (to_Z x)); auto.
 Qed.
@@ -135,7 +135,7 @@ Next Obligation.
    apply Z.abs_eq.
    apply (order_preserving to_Z) in E.
    now rewrite preserves_0 in E.
-  rewrite preserves_inv.
+  rewrite preserves_opp.
   apply Z.abs_neq.
   apply (order_preserving to_Z) in E.
   now rewrite preserves_0 in E.

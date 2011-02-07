@@ -1,78 +1,7 @@
-Require Import
-  Ring Program Morphisms
-  abstract_algebra.
 Require
-  theory.setoids varieties.monoid.
-
-Section group_props. 
-  Context `{Group G}.
-
-  Lemma inv_involutive x: - - x = x.
-  Proof.
-   rewrite <- (left_identity x) at 2.
-   rewrite <- (ginv_l (- x)).
-   rewrite <- associativity.
-   rewrite ginv_l.
-   rewrite right_identity.
-   reflexivity.
-  Qed.
-
-  Global Instance: Injective (-).
-  Proof.
-   constructor.
-    intros x y E.
-    rewrite <- (inv_involutive x), <- (inv_involutive y), E. reflexivity.
-   constructor; apply _.
-  Qed.
-
-  Lemma inv_0: - mon_unit = mon_unit.
-  Proof. rewrite <- (ginv_l mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
-
-  Global Instance: ∀ z : G, LeftCancellation sg_op z.
-  Proof.
-   intros z x y E.
-   rewrite <-(left_identity x), <-(ginv_l z), <-associativity.
-   rewrite E.
-   rewrite associativity, ginv_l, left_identity.
-   reflexivity.
-  Qed.  
-
-  Global Instance: ∀ z : G, RightCancellation sg_op z.
-  Proof.
-   intros z x y E.
-   rewrite <-(right_identity x), <-(ginv_r z), associativity.
-   rewrite E.
-   rewrite <-associativity, ginv_r, right_identity.
-   reflexivity.
-  Qed.  
-
-  Lemma sg_inv_distr `{!AbGroup G} x y: - (x & y) = - x & - y.
-  Proof.
-   rewrite <- (left_identity (- x & - y)).
-   rewrite <- (ginv_l (x & y)).
-   rewrite <- associativity.
-   rewrite <- associativity.
-   rewrite (commutativity (- x) (- y)).
-   rewrite (associativity y).
-   rewrite ginv_r.
-   rewrite left_identity.
-   rewrite ginv_r.
-   rewrite right_identity.
-   reflexivity.
-  Qed.
-End group_props.
-
-Section groupmor_props. 
-  Context `{Group A} `{Group B} {f : A → B} `{!Monoid_Morphism f}.
-
-  Lemma preserves_inv x: f (- x) = - f x.
-  Proof.
-    apply (left_cancellation sg_op (f x)).
-    rewrite <-preserves_sg_op.
-    do 2 rewrite ginv_r.
-    apply preserves_mon_unit.
-  Qed.
-End groupmor_props.
+  varieties.monoid theory.groups.
+Require Import
+  Ring Program Morphisms abstract_algebra.
 
 Lemma stdlib_semiring_theory R `{SemiRing R} : Ring_theory.semi_ring_theory 0 1 (+) (.*.) (=).
 Proof with try reflexivity.
@@ -138,21 +67,22 @@ Section semiringmor_props.
   Lemma injective_not_0 x : x ≠ 0 → f x ≠ 0.
   Proof.
     intros E G. apply E. 
-    apply (injective f). rewrite preserves_0. assumption.
+    apply (injective f). now rewrite preserves_0.
   Qed.
 
   Lemma injective_not_1 x : x ≠ 1 → f x ≠ 1.
   Proof.
     intros E G. apply E. 
-    apply (injective f). rewrite preserves_1. assumption.
+    apply (injective f). now rewrite preserves_1.
   Qed.
 End semiringmor_props.
 
-Lemma right_cancel_from_left `{Setoid R} `{!Commutative op} `{!LeftCancellation op z} : RightCancellation op z.
+Lemma right_cancel_from_left `{Setoid R} {op : R → R → R} `{!Commutative op} `{!LeftCancellation op z} : 
+  RightCancellation op z.
 Proof.
   intros x y E.
   apply (left_cancellation op z).
-  rewrite (commutativity z x), (commutativity z y). assumption.
+  now rewrite (commutativity z x), (commutativity z y).
 Qed.
 
 Lemma stdlib_ring_theory R `{Ring R} : 
@@ -181,6 +111,7 @@ Section ring_props.
   Global Instance Ring_Semi: SemiRing R.
   Proof. repeat (constructor; try apply _). Qed.
 
+  Lemma opp_involutive x: - -x = x. Proof. ring. Qed.
   Lemma plus_opp_r x: x + -x = 0. Proof. ring. Qed.
   Lemma plus_opp_l x: -x + x = 0. Proof. ring. Qed.
   Lemma plus_mul_distribute_r x y z: (x + y) * z = x * z + y * z. Proof. ring. Qed.
@@ -204,18 +135,18 @@ Section ring_props.
   Lemma flip_opp_zero x : -x = 0 ↔ x = 0.
   Proof.
     split; intros E.
-     apply (injective (-)). rewrite E, opp_0. reflexivity.
-    rewrite E, opp_0. reflexivity.
+     apply (injective (-)). now rewrite E, opp_0.
+    now rewrite E, opp_0.
   Qed.
   
   Lemma flip_opp_nonzero x : -x ≠ 0 ↔ x ≠ 0.
   Proof. firstorder using flip_opp_zero. Qed.
 
   Lemma opp_zero_prod_l x y : -x * y = 0 ↔ x * y = 0.
-  Proof with trivial.
+  Proof.
     split; intros E.
-     apply (injective (-)). rewrite distr_opp_mult_l, opp_0...
-    apply (injective (-)). rewrite distr_opp_mult_l, inv_involutive, opp_0...
+     apply (injective (-)). now rewrite distr_opp_mult_l, opp_0.
+    apply (injective (-)). now rewrite distr_opp_mult_l, opp_involutive, opp_0.
   Qed.
 
   Lemma opp_zero_prod_r x y : x * -y = 0 ↔ x * y = 0.
@@ -237,7 +168,7 @@ Section ring_props.
 
   Context `{!NoZeroDivisors R} `{∀ x y, Stable (x = y)}.
 
-  Global Instance ring_mult_left_cancel :  ∀ z, NeZero z → LeftCancellation (.*.) z.
+  Global Instance ring_mult_left_cancel:  ∀ z, NeZero z → LeftCancellation (.*.) z.
   Proof with intuition.
    intros z z_nonzero x y E.
    apply stable.
@@ -254,9 +185,12 @@ End ring_props.
 Section ringmor_props. 
   Context `{Ring A} `{Ring B} {f : A → B} `{!SemiRing_Morphism f}.
 
+  Lemma preserves_opp x : f (- x) = - f x.
+  Proof. apply groups.preserves_inv. Qed.
+
   Lemma preserves_minus x y : f (x - y) = f x - f y.
   Proof.
-    rewrite <-preserves_inv.
+    rewrite <-preserves_opp.
     apply preserves_plus.
   Qed.
 End ringmor_props.
@@ -324,38 +258,12 @@ Section morphism_composition.
   Qed.
 End morphism_composition.
 
-Instance semigroup_morphism_proper {A B eA eB opA opB} : 
-  Proper ((=) ==> iff) (@SemiGroup_Morphism A B eA eB opA opB) | 1.
-Proof.
-  assert (∀ (f g : A → B), g = f → SemiGroup_Morphism f → SemiGroup_Morphism g) as P.
-   intros f g E [? ? ? ?].
-   split; try apply _.
-    eapply setoids.morphism_proper; eauto.
-   intros x y. now rewrite (E (x & y)), (E x), (E y).
-  intros f g ?; split; intros Mor.
-   apply P with f. destruct Mor. now symmetry. apply _.
-  now apply P with g.
-Qed.
-
-Instance monoid_morphism_proper {A B eA eB opA uA opB uB} : 
-  Proper ((=) ==> iff) (@Monoid_Morphism A B eA eB opA uA opB uB) | 1.
-Proof.
-  assert (∀ (f g : A → B), g = f → Monoid_Morphism f → Monoid_Morphism g) as P.
-   intros f g E [? ? ? ?].
-   split; try apply _.
-    eapply semigroup_morphism_proper; eauto.
-   now rewrite (E mon_unit mon_unit).
-  intros f g ?; split; intros Mor.
-   apply P with f. destruct Mor. now symmetry. apply _.
-  now apply P with g. 
-Qed.
-
 Instance semiring_morphism_proper {A B eA eB pA mA zA oA pB mB zB oB} : 
   Proper ((=) ==> (=)) (@SemiRing_Morphism A B eA eB pA mA zA oA pB mB zB oB).
 Proof.
   assert (∀ (f g : A → B), g = f → SemiRing_Morphism f → SemiRing_Morphism g) as P.
    intros f g E [? ? ? ?].
-   split; try apply _; eapply monoid_morphism_proper; eauto.
+   split; try apply _; eapply groups.monoid_morphism_proper; eauto.
   intros f g ?; split; intros Mor.
    apply P with f. destruct Mor. now symmetry. apply _.
   now apply P with g.

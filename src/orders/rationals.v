@@ -17,9 +17,9 @@ Section rationals_order.
     destruct (total_order den 0).
      exists (-num). exists (-den). split.
       split.
-       now apply rings.flip_nonpos_inv.
+       now apply rings.flip_nonpos_opp.
       intros G. apply E1. apply (injective (-)). rewrite <-G. symmetry. now apply opp_0.
-     rewrite 2!preserves_inv. rewrite E2. field.
+     rewrite 2!preserves_opp. rewrite E2. field.
      split.
       intros G. apply E1.
       apply (injective (integers_to_ring Z Q)). apply (injective (-)).

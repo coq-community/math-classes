@@ -18,7 +18,7 @@ Proof with auto; try reflexivity.
     rewrite preserves_0.
     rewrite Ez2. apply sg_mor...
     apply (antisymmetry (≤))...
-    rewrite <-Ek. apply flip_nonneg_inv. apply to_semiring_nonneg.
+    rewrite <-Ek. apply flip_nonneg_opp. apply to_semiring_nonneg.
    destruct E as [z E].
    apply srorder_plus. exists (naturals_to_semiring nat Int z). split...
    apply to_semiring_nonneg.
@@ -62,10 +62,10 @@ Section another_ring.
     apply (injective (f ∘ naturals_to_semiring nat Int)).
     rewrite (naturals.to_semiring_unique _).
     unfold compose. do 2 rewrite preserves_0.
-    rewrite preserves_inv in E.
+    rewrite preserves_opp in E.
     apply (antisymmetry (≤)).
      rewrite <-(naturals.to_semiring_unique (integers_to_ring Int R ∘ naturals_to_semiring nat Int)).
-     now apply flip_nonpos_inv.
+     now apply flip_nonpos_opp.
     apply to_semiring_nonneg.
   Qed.
   
@@ -142,7 +142,7 @@ Proof with auto.
   rewrite preserves_plus, preserves_1.
   rewrite plus_opp_distr, commutativity.
   apply Psuc2...
-  apply inv_to_semiring_nonpos.
+  apply opp_to_semiring_nonpos.
 Qed.
 
 Lemma induction_nonneg
