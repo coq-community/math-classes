@@ -119,7 +119,7 @@ Context `{Setoid A} `{Setoid B}.
 CoInductive ForAllIf (PA : Stream A → Prop) (PB : Stream B → Prop) : Stream A → Stream B → Prop :=
   ext_if : ∀ s1 s2, (PA s1 → PB s2) → ForAllIf PA PB (tl s1) (tl s2) → ForAllIf PA PB s1 s2.
 
-Global Instance ExtIF_proper `{!Proper ((=) ==> iff) (PA : Stream A → Prop)} `{!Proper ((=) ==> iff) (PB : Stream B → Prop)} : 
+Global Instance ForAllIf_proper `{!Proper ((=) ==> iff) (PA : Stream A → Prop)} `{!Proper ((=) ==> iff) (PB : Stream B → Prop)} : 
   Proper ((=) ==> (=) ==> iff) (ForAllIf PA PB).
 Proof.
   assert (∀ x1 y1 x2 y2, x1 = y1 → x2 = y2 → ForAllIf PA PB x1 x2 → ForAllIf PA PB y1 y2) as P.
