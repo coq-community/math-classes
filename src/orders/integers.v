@@ -99,7 +99,7 @@ Add Ring nat : (stdlib_semiring_theory nat).
 Lemma precedes_sprecedes x y : x ≤ y ↔ x < y + 1.
 Proof.
   split; intros E.
-   apply pos_plus_compat_r. easy. apply sprecedes_0_1.
+   apply pos_plus_scompat_r. easy. apply sprecedes_0_1.
   assert (∀ a b : SRpair nat, a < b + 1 → a ≤ b) as P.
    intros a b [F1 F2].
    unfold precedes, SRpair_order in *. simpl in *.

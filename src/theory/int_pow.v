@@ -166,23 +166,24 @@ Qed.
 Context `{oA : Order A} `{!RingOrder oA} `{!TotalOrder oA}.
 
 Lemma int_pow_pos (x : A) (n : B) : 0 < x → 0 < x ^ n.
-Proof with auto.
+Proof.
   intros nonneg.
-  pattern n. apply integers.induction; clear n.
-     solve_proper.
-    intros. rewrite int_pow_0. apply semirings.sprecedes_0_1.
-   intros n E1 E2. rewrite int_pow_S_nonneg...
-   apply semirings.pos_mult_compat...
-  intros n E1 E2.
-  assert (GtZero x)...
+  pattern n. apply integers.biinduction; clear n.
+    solve_proper.
+   intros. rewrite int_pow_0. apply semirings.sprecedes_0_1.
+  intros n; split; intros E.
+   rewrite int_pow_S.
+    now apply semirings.pos_mult_scompat.
+   apply not_symmetry. now apply orders.neq_precedes_sprecedes.
+  assert (GtZero x) by auto.
   apply (maps.strictly_order_preserving_back (x *.)). unfold flip.
   rewrite <-int_pow_S.
-   rewrite right_absorb. setoid_replace (1 + (n - 1)) with n by ring...
-  apply not_symmetry. apply orders.neq_precedes_sprecedes...
+   now rewrite right_absorb.
+  apply not_symmetry. now apply orders.neq_precedes_sprecedes.
 Qed. 
 
 Lemma int_pow_nonneg (x : A) (n : B) : 0 ≤ x → 0 ≤ x ^ n.
-Proof with auto.
+Proof.
   intros E.
   apply orders.sprecedes_precedes in E.
   destruct E as [E|E].
@@ -196,38 +197,104 @@ Proof with auto.
 Qed. 
 
 Lemma int_pow_ge1 (x : A) (n : B) : 1 ≤ x → 0 ≤ n → 1 ≤ x ^ n.
-Proof with auto using semirings.precedes_0_1.
-  intros E1 E2.
-  pattern n. apply integers.induction_nonneg...
-    intros ? ? E. now rewrite E...
+Proof.
+  intros.
+  pattern n. apply integers.induction_nonneg; trivial.
+    solve_proper.
    now rewrite int_pow_0.
-  intros ? E3 E4.
+  intros.
   rewrite int_pow_S.
    rewrite <-rings.mult_1_r.
-   apply semirings.nonneg_mult_compat_both...
+   apply semirings.mult_compat; auto using semirings.precedes_0_1.
   apply not_symmetry, orders.neq_precedes_sprecedes.
-  apply orders.sprecedes_trans_l with 1...
+  apply orders.sprecedes_trans_l with 1; trivial.
   now apply semirings.sprecedes_0_1.
 Qed.
 
-Lemma int_pow_exp_precedes (x : A) (n m : B) : 1 ≤ x → n ≤ m → x ^ n ≤ x ^ m.
+Lemma int_pow_gt1 (x : A) (n : B) : 1 < x → 0 < n → 1 < x ^ n.
 Proof.
-  intros ? E2.
+  intros E1 E2.
+  apply integers.precedes_sprecedes_alt in E2.
+  apply srorder_plus in E2. destruct E2 as [z [Ez1 Ez2]]. ring_simplify in Ez2.
+  rewrite Ez2.
+  pattern z. apply integers.induction_nonneg; try assumption.
+    solve_proper.
+   now rewrite left_identity, right_identity.
+  intros.
+  rewrite <-associativity, int_pow_S.
+   apply semirings.gt1_mult_scompat_l; firstorder.
+  apply not_symmetry, orders.neq_precedes_sprecedes.
+  apply orders.sprecedes_trans_r with 1; trivial.
+  now apply semirings.precedes_0_1.
+Qed.
+
+Lemma int_pow_exp_precedes (x : A) (n m : B) : 
+  1 ≤ x → n ≤ m → x ^ n ≤ x ^ m.
+Proof.
+  intros ? E.
   assert (0 < x) as [? ?]. 
    apply orders.sprecedes_trans_l with 1.
     now apply semirings.sprecedes_0_1.
    easy.
-  apply srorder_plus in E2. destruct E2 as [z [E2a E2b]].
-  rewrite E2b.
+  apply srorder_plus in E. destruct E as [z [Ea Eb]].
+  rewrite Eb.
   rewrite int_pow_exp_plus.
    rewrite <-rings.mult_1_r.
-   apply semirings.nonneg_mult_compat_both.
+   apply semirings.mult_compat.
       now apply int_pow_nonneg.
      apply semirings.precedes_0_1.
     now ring_simplify.
    now apply int_pow_ge1.
-   now apply not_symmetry.
-Qed. 
+  now apply not_symmetry.
+Qed.
+
+Lemma int_pow_exp_sprecedes (x : A) (n m : B) : 
+  1 < x → n < m → x ^ n < x ^ m.
+Proof.
+  intros E1 E2.
+  apply integers.precedes_sprecedes_alt in E2.
+  apply srorder_plus in E2. destruct E2 as [z [Ea Eb]].
+  rewrite Eb.
+  rewrite <-associativity, int_pow_exp_plus.
+   rewrite <-(rings.mult_1_r (x ^ n)) at 1.
+   assert (GtZero (x ^ n)).
+    apply int_pow_pos. transitivity 1; trivial. apply semirings.sprecedes_0_1.
+   apply (strictly_order_preserving ((x^n) *.)).
+   apply int_pow_gt1; trivial.
+   apply integers.precedes_sprecedes_alt.
+   rewrite commutativity. now apply (order_preserving (1+)).
+  apply not_symmetry, orders.sprecedes_trans_r with 1; trivial.
+  now apply semirings.precedes_0_1.
+Qed.
+
+Lemma int_pow_exp_precedes_back (x : A) (n m : B) : 
+  1 < x → x ^ n ≤ x ^ m → n ≤ m.
+Proof.
+  intros ? E1.
+  destruct (total_order n m) as [E2|E2]; trivial. 
+  apply orders.sprecedes_precedes in E2. destruct E2 as [E2|E2].
+   now rewrite E2.
+  contradict E1.
+  apply orders.not_precedes_sprecedes.
+  now apply int_pow_exp_sprecedes.
+Qed.
+
+Lemma int_pow_exp_sprecedes_back (x : A) (n m : B) : 
+  1 < x → x ^ n < x ^ m → n < m.
+Proof.
+  intros ? E1.
+  destruct (orders.precedes_or_sprecedes m n) as [E2|E2]; trivial.
+  contradict E1.
+  apply orders.not_sprecedes_precedes. 
+  apply int_pow_exp_precedes; firstorder.
+Qed.
+
+Lemma int_pow_inj (x : A) (n m : B) : 
+  1 < x → x ^ n = x ^ m → n = m.
+Proof.
+  intros ? E.
+  apply (antisymmetry (≤)); apply int_pow_exp_precedes_back with x; trivial; rewrite E; reflexivity.
+Qed.
 End int_pow_properties.
 
 Section preservation.

@@ -94,7 +94,7 @@ Proof.
     intros x1 x2 E. now rewrite E.
    rewrite nat_pow_0. now apply semirings.sprecedes_0_1.
   intros n E. rewrite nat_pow_S.
-  now apply semirings.pos_mult_compat.
+  now apply semirings.pos_mult_scompat.
 Qed.
 
 End nat_pow_properties.

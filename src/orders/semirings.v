@@ -24,7 +24,7 @@ Proof. intro. apply order_preserving_flip. Qed.
 Lemma plus_compat x1 y1 x2 y2 : x1 ≤ y1 → x2 ≤ y2 → x1 + x2 ≤ y1 + y2.
 Proof.
   intros E1 E2.
-  apply transitivity with (y1 + x2).
+  transitivity (y1 + x2).
    now apply (order_preserving (+ x2)).
   now apply (order_preserving (y1 +)).
 Qed.
@@ -41,24 +41,7 @@ Proof. apply nonneg_plus_compat_r. Qed.
 Lemma nonpos_plus_compat x y : x ≤ 0 → y ≤ 0 → x + y ≤ 0.
 Proof. intros. rewrite <-(plus_0_r 0). now apply plus_compat. Qed.
 
-Lemma nonneg_mult_compat (x y : R) : 0 ≤ x → 0 ≤ y → 0 ≤ x * y.
-Proof. intros. now apply srorder_mult. Qed.
-
-Lemma nonneg_mult_compat_both x1 y1 x2 y2 : 
-  0 ≤ x1 → 0 ≤ y1 → x1 ≤ x2 → y1 ≤ y2 → x1 * y1 ≤ x2 * y2.
-Proof with auto using nonneg_mult_compat.
-  intros E1x E1y E2x E2y. 
-  eapply srorder_plus in E2x. eapply srorder_plus in E2y.
-  destruct E2x as [a [? E3x]], E2y as [b [? E3y]].
-  rewrite E3x, E3y.
-  ring_simplify.
-  apply nonneg_plus_compat_r...
-  apply nonneg_plus_compat_r...
-  apply nonneg_plus_compat_r...
-  reflexivity.
-Qed.
-
-Global Instance mult_compat: ∀ (z : R), GeZero z → OrderPreserving (z*.).
+Global Instance: ∀ (z : R), GeZero z → OrderPreserving (z*.).
 Proof.
   intros z E. 
   repeat (split; try apply _).
@@ -73,6 +56,33 @@ Qed.
 
 Global Instance: ∀ (z : R), GeZero z → OrderPreserving (.*z).
 Proof. intros. apply order_preserving_flip. Qed.
+
+Lemma mult_compat x1 y1 x2 y2 : 
+  0 ≤ x1 → 0 ≤ x2 → x1 ≤ y1 → x2 ≤ y2 → x1 * x2 ≤ y1 * y2.
+Proof.
+  intros E1x E1y E2x E2y.
+  transitivity (y1 * x2).
+   assert (GeZero x2) by easy.
+   now apply (order_preserving (.* x2)).
+  assert (GeZero y1) by (red; now transitivity x1).
+  now apply (order_preserving (y1 *.)).
+Qed.
+
+Lemma nonneg_mult_compat (x y : R) : 0 ≤ x → 0 ≤ y → 0 ≤ x * y.
+Proof. intros. now apply srorder_mult. Qed.
+
+Lemma ge1_mult_compat_r x y z : 0 ≤ x → z ≤ x → 1 ≤ y → z ≤ x * y.
+Proof. 
+  intros.
+  transitivity x.
+   easy.
+  rewrite <-(mult_1_r x) at 1.
+  assert (GeZero x) by easy.
+  now apply (order_preserving (x *.)).
+Qed.
+
+Lemma ge1_mult_compat_l x y z : 0 ≤ x → 1 ≤ y → z ≤ x → z ≤ y * x.
+Proof. intros. rewrite commutativity. now apply ge1_mult_compat_r. Qed.
 
 Context `{∀ z, LeftCancellation (+) z}.
 
@@ -117,14 +127,14 @@ Proof. intros. rewrite <-(plus_0_r z). now apply plus_scompat_l. Qed.
 Lemma nonneg_plus_scompat_l x y z : 0 ≤ x → z < y → z < x + y.
 Proof. intros. rewrite <-(plus_0_l z). now apply plus_scompat_r. Qed.
 
-Lemma pos_plus_compat_r x y z : z ≤ x → 0 < y → z < x + y.
+Lemma pos_plus_scompat_r x y z : z ≤ x → 0 < y → z < x + y.
 Proof. intros. rewrite <-(plus_0_r z). now apply plus_scompat_r. Qed.
 
-Lemma pos_plus_compat_l x y z : 0 < x → z ≤ y → z < x + y.
+Lemma pos_plus_scompat_l x y z : 0 < x → z ≤ y → z < x + y.
 Proof. intros. rewrite <-(plus_0_l z). now apply plus_scompat_l. Qed.
 
-Lemma pos_plus_compat x y : 0 < x → 0 < y → 0 < x + y.
-Proof. intros. apply pos_plus_compat_r. now apply sprecedes_weaken. easy. Qed.
+Lemma pos_plus_scompat x y : 0 < x → 0 < y → 0 < x + y.
+Proof. intros. apply pos_plus_scompat_r. now apply sprecedes_weaken. easy. Qed.
 
 Global Instance: ∀ (z : R), OrderPreservingBack (z +).
 Proof. 
@@ -142,7 +152,7 @@ Proof. intros. apply order_preserving_back_flip. Qed.
 
 Context `{!TotalOrder (≤)} `{∀ z, NeZero z → LeftCancellation (.*.) z}.
 
-Global Instance ring_mult_compat_back : ∀ (z : R), GtZero z → OrderPreservingBack (z *.).
+Global Instance: ∀ (z : R), GtZero z → OrderPreservingBack (z *.).
 Proof.
   intros z E.
   repeat (split; try apply _). 
@@ -178,7 +188,7 @@ Proof.
   now apply (strictly_order_preserving (z *.)).
 Qed.
 
-Lemma pos_mult_compat x y : 0 < x → 0 < y → 0 < x * y.
+Lemma pos_mult_scompat x y : 0 < x → 0 < y → 0 < x * y.
 Proof. 
   intros E F.
   rewrite <-(mult_0_r x).
@@ -207,13 +217,13 @@ Lemma precedes_0_2 : 0 ≤ 2.
 Proof. apply nonneg_plus_compat; apply precedes_0_1. Qed.
 
 Lemma sprecedes_0_2 `{!NeZero (1:R)} : 0 < 2.
-Proof. apply pos_plus_compat; apply sprecedes_0_1. Qed.
+Proof. apply pos_plus_scompat; apply sprecedes_0_1. Qed.
 
 Lemma precedes_1_2 : 1 ≤ 2.
 Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. easy. Qed.
 
 Lemma sprecedes_1_2 `{!NeZero (1:R)} : 1 < 2.
-Proof. apply pos_plus_compat_l. now apply sprecedes_0_1. easy. Qed.
+Proof. apply pos_plus_scompat_l. now apply sprecedes_0_1. easy. Qed.
 
 Lemma not_precedes_1_0 `{!NeZero (1:R)} : ¬1 ≤ 0.
 Proof.
@@ -238,6 +248,24 @@ Proof.
   eapply (antisymmetry (≤)); eauto.
   apply precedes_0_2.
 Qed.
+
+Lemma ge1_mult_compat x y : 1 ≤ x → 1 ≤ y → 1 ≤ x * y.
+Proof. 
+  intros.
+  apply ge1_mult_compat_r; trivial. 
+  transitivity 1; trivial. apply precedes_0_1.
+Qed.
+
+Lemma gt1_mult_scompat_l x y : 1 < x → 1 ≤ y → 1 < x * y.
+Proof. 
+  intros. 
+  apply sprecedes_trans_l with x; trivial.
+  apply ge1_mult_compat_r; try easy.
+  transitivity 1. apply precedes_0_1. firstorder.
+Qed.
+
+Lemma gt1_mult_scompat_r x y : 1 ≤ x → 1 < y → 1 < x * y.
+Proof. intros. rewrite commutativity. now apply gt1_mult_scompat_l. Qed.
 
 Section another_semiring.
   Context `{SemiRing R2} `{o2 : Order R2}.

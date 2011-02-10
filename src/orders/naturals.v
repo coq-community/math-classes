@@ -113,7 +113,7 @@ Qed.
 Lemma precedes_sprecedes x y : x ≤ y ↔ x < y + 1.
 Proof with trivial.
   split; intros E.
-   apply pos_plus_compat_r... apply sprecedes_0_1.
+   apply pos_plus_scompat_r... apply sprecedes_0_1.
   destruct E as [E1 E2].
   apply natural_precedes_plus in E1. destruct E1 as [z E1].
   destruct (decide (z = 0)) as [E3 | E3].

@@ -13,15 +13,15 @@ Global Instance Pos_inject: Inject (R₊) R := @proj1_sig R _.
 
 (* Operations *)
 Global Program Instance Pos_plus: RingPlus (R₊) := λ x y, exist _ (x + y) _. 
-Next Obligation with auto.
+Next Obligation.
   destruct x as [x Hx], y as [y Hy].
-  apply pos_plus_compat...
+  now apply pos_plus_scompat.
 Qed.
 
 Global Program Instance Pos_mult: RingMult (R₊) := λ x y, exist _ (x * y) _. 
 Next Obligation with auto.
   destruct x as [x Hx], y as [y Hy].
-  apply pos_mult_compat...
+  now apply pos_mult_scompat.
 Qed.
 
 Global Program Instance Pos_1: RingOne (R₊) := exist _ 1 _.
@@ -32,21 +32,21 @@ Global Instance Pos_equiv: Equiv (R₊) := λ x y, 'x = 'y.
 
 Local Ltac unfold_equivs := unfold equiv, Pos_equiv, inject, Pos_inject in *; simpl in *.
 
-Instance: Proper ((=) ==> (=) ==> (=)) Pos_plus.
+Global Instance: Proper ((=) ==> (=) ==> (=)) Pos_plus.
 Proof.
   intros [x1 Ex1] [y1 Ey1] E1 [x2 Ex2] [y2 Ey2] E2. unfold_equivs.
-  rewrite E1, E2. reflexivity.
+  now rewrite E1, E2.
 Qed.
 
-Instance: Proper ((=) ==> (=) ==> (=)) Pos_mult.
+Global Instance: Proper ((=) ==> (=) ==> (=)) Pos_mult.
 Proof.
   intros [x1 Ex1] [y1 Ey1] E1 [x2 Ex2] [y2 Ey2] E2. unfold_equivs. 
-  rewrite E1, E2. reflexivity.
+  now rewrite E1, E2.
 Qed.
 
 Instance: Proper ((=) ==> (=)) Pos_inject.
-Proof. repeat intro. assumption. Qed.
+Proof. now repeat intro. Qed.
 
 Global Instance: Injective Pos_inject.
-Proof. repeat (split; try apply _). easy. Qed.
+Proof. now repeat (split; try apply _). Qed.
 End positive_semiring_elements.
