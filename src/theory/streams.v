@@ -88,6 +88,9 @@ Qed.
 Lemma ForAll_tl (P : Stream A → Prop) s : ForAll P s → ForAll P (tl s).
 Proof. apply (ForAll_Str_nth_tl 1). Qed.
 
+Lemma ForAll_True (s : Stream A) : ForAll (λ _, True) s.
+Proof. revert s. cofix. intros. constructor; trivial. Qed.
+
 Definition EventuallyForAll (P : Stream A → Prop) := ForAll (λ s, P s → P (tl s)).
 
 Lemma EventuallyForAll_tl P s : EventuallyForAll P s → EventuallyForAll P (tl s).
