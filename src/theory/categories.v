@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require Import
   Relation_Definitions Morphisms Setoid Program abstract_algebra setoids interfaces.functors theory.jections.
 
@@ -21,7 +19,7 @@ End NaturalTransformation.
 Section UniversalArrow.
   Context `{Category D} `{Category C} `{!Functor (F: D → C) Fa}.
   Class UniversalArrow `(u: c ⟶ F r) (wit: ∀ `(f: c ⟶ F d), r ⟶ d): Prop :=
-    universal_arrow: ∀ (d: D) (f: c ⟶ F d), is_sole ((f =) ∘ (◎ u) ∘ fmap F) (wit _ f).
+    universal_arrow: ∀ (d: D) (f: c ⟶ F d), is_sole ((f =) ∘ (◎ u) ∘ fmap F) (wit f).
       (* Todo: Consider an operational type class for wit. *)
 End UniversalArrow.
 
@@ -35,12 +33,12 @@ Section adjunction.
 
   (* 1. The definition based on φ (MacLane p79): *)
 
-  Class φAdjunction (φ: ∀ `(F c ⟶ d), (c ⟶ G d)) `{∀ c d, Inverse (φ c d)}: Prop :=
+  Class φAdjunction (φ: ∀ `(F c ⟶ d), (c ⟶ G d)) `{∀ c d, Inverse (@φ c d)}: Prop :=
     { φ_adjunction_left_functor: Functor F _
     ; φ_adjunction_right_functor: Functor G _
     ; φ_adjunction_bijective: ∀ c d, Bijective (@φ c d)
-    ; φ_adjunction_natural_left `(f: F c ⟶ d) `(k: d ⟶ d'): φ _ _ (k ◎ f) = fmap G k ◎ φ _ _ f
-    ; φ_adjunction_natural_right `(f: F c ⟶ d) `(h: c' ⟶ c): φ _ _ (f ◎ fmap F h) = φ _ _ f ◎ h }.
+    ; φ_adjunction_natural_left `(f: F c ⟶ d) `(k: d ⟶ d'): φ (k ◎ f) = fmap G k ◎ φ f
+    ; φ_adjunction_natural_right `(f: F c ⟶ d) `(h: c' ⟶ c): φ (f ◎ fmap F h) = φ f ◎ h }.
 
   (* 2. The definition based on a universal η (MacLane p81 Theorem 2 (i)): *)
 
@@ -48,7 +46,7 @@ Section adjunction.
     { η_adjunction_left_functor: Functor F _
     ; η_adjunction_right_functor: Functor G _
     ; η_adjunction_natural: NaturalTransformation η
-    ; η_adjunction_universal: ∀ c: C, UniversalArrow (η c: c ⟶ G (F c)) (uniwit c) }.
+    ; η_adjunction_universal: ∀ c: C, UniversalArrow (η c: c ⟶ G (F c)) (@uniwit c) }.
 
   (* We could symmetically define εAdjunction based on universal ε, as
     in MacLane p81 Theorem 2 (iii), but that would be boring. *)

@@ -72,7 +72,7 @@ Section contents.
     := fix F {s} (t: Term sign A s): Term sign B s :=
       match t with
       | Var v tt => f v
-      | App o z x y => App _ _ _ z (F _ x) (F _ y)
+      | App o z x y => App _ _ _ z (F x) (F y)
       | Op o => Op _ _ o
       end.
 

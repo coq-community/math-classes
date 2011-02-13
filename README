@@ -1,8 +1,6 @@
 Compilation
 
-  Known to compile with Coq trunk 13806. However, the following is required
-    svn diff -r 13717:13716 | patch -p0
-  due to bug #2481.
+  Known to compile with Coq trunk 13841.
 
   Warning: This development assumes a case sensitive file system.
 

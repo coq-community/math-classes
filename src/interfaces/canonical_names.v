@@ -146,7 +146,7 @@ Class Distribute `{Equiv A} (f g: A → A → A): Prop :=
   { distribute_l: `(f a (g b c) = g (f a b) (f a c))
   ; distribute_r: `(f (g a b) c = g (f a c) (f b c)) }.
 Class HeteroSymmetric {A} {T: A → A → Type} (R: ∀ {x y}, T x y → T y x → Prop): Prop :=
-  hetero_symmetric `(a: T x y) (b: T y x): R _ _ a b → R _ _ b a.
+  hetero_symmetric `(a: T x y) (b: T y x): R a b → R b a.
 
 Implicit Arguments inverse [[A] [B] [Inverse]].
 Implicit Arguments antisymmetry [[A] [ea] [AntiSymmetric]].
