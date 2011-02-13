@@ -302,6 +302,14 @@ Section preservation.
   Context `{SemiRing B} {leB : Order B} `{!SemiRingOrder leB}.
   Context `{!SemiRing_Morphism (f : A → B)}.
 
+  Lemma preserves_powers_help (a c : A) (n : nat) :
+    f (Str_nth n (powers_help a c)) = Str_nth n (powers_help (f a) (f c)).
+  Proof.
+    rewrite 2!(Str_nth_powers_help _ id).
+    rewrite rings.preserves_mult.
+    now rewrite preserves_nat_pow.
+  Qed.
+
   Lemma preserves_powers (a : A) (n : nat) :
     f (Str_nth n (powers a)) = Str_nth n (powers (f a)).
   Proof.
