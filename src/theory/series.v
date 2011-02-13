@@ -1,7 +1,7 @@
 Require Import 
   Program Morphisms Ring Factorial workaround_tactics
-  abstract_algebra interfaces.additional_operations interfaces.naturals
-  theory.nat_pow theory.streams.
+  abstract_algebra interfaces.additional_operations interfaces.naturals interfaces.integers
+  theory.nat_pow theory.int_pow theory.streams.
 
 Section series.
 Context `{SemiRing A} `{!SemiRingOrder leA}.
@@ -175,24 +175,49 @@ Section powers.
 
   CoFixpoint powers_help (c : A) : Stream A := Cons c (powers_help (c * a)).
   
-  Lemma Str_nth_powers_help (n : nat) (c : A) : Str_nth n (powers_help c) = c * a ^ n.
+  Definition powers : Stream A := powers_help 1.
+
+  Section with_nat_pow.
+  Context `{Naturals N} `{!NatPowSpec A N pw} (f : nat → N) `{!SemiRing_Morphism f}.
+
+  Lemma Str_nth_powers_help (n : nat) (c : A) : Str_nth n (powers_help c) = c * a ^ (f n).
   Proof.
     revert c.
     induction n; intros c; unfold Str_nth in *; simpl.
-     change (c = c * a ^ 0).
+     change O with (0 : nat).
+     rewrite rings.preserves_0.
      rewrite nat_pow_0. ring.
-    rewrite peano_naturals.S_nat_1_plus, nat_pow_S.
+    rewrite peano_naturals.S_nat_1_plus. 
+    rewrite rings.preserves_plus, rings.preserves_1. 
+    rewrite nat_pow_S.
     rewrite IHn. ring.
   Qed.
 
-  Definition powers : Stream A := powers_help 1.
-
-  Lemma Str_nth_powers (n : nat) : Str_nth n powers = a ^ n.
+  Lemma Str_nth_powers (n : nat) : Str_nth n powers = a ^ (f n).
   Proof.
     unfold powers.
     rewrite Str_nth_powers_help.
     ring.
   Qed.
+  End with_nat_pow.
+
+  Section with_int_pow. 
+  Context `{!GroupInv A} `{!MultInv A} `{!Field A} `{∀ x y, Decision (x = y)} `{!DecMultInv A}
+     `{Integers Z} `{!IntPowSpec A Z pw} (f : nat → Z) `{!SemiRing_Morphism f}.
+
+  Lemma Str_nth_powers_help_int_pow (n : nat) (c : A) : Str_nth n (powers_help c) = c * a ^ (f n).
+  Proof.
+    rewrite (Str_nth_powers_help id). unfold id.
+    now rewrite int_pow_nat_pow.
+  Qed.
+
+  Lemma Str_nth_powers_int_pow (n : nat) : Str_nth n powers = a ^ (f n).
+  Proof.
+    unfold powers.
+    rewrite Str_nth_powers_help_int_pow.
+    ring.
+  Qed.
+  End with_int_pow.
 End powers.
 
 Global Instance powers_proper: Proper ((=) ==> (=)) powers.
@@ -200,7 +225,7 @@ Proof.
   intros ? ? E.
   apply stream_eq_Str_nth.
   intros n.
-  now rewrite 2!Str_nth_powers, E.
+  now rewrite 2!(Str_nth_powers _ id), E.
 Qed.
 
 Section positives.
@@ -280,7 +305,7 @@ Section preservation.
   Lemma preserves_powers (a : A) (n : nat) :
     f (Str_nth n (powers a)) = Str_nth n (powers (f a)).
   Proof.
-    rewrite 2!Str_nth_powers.
+    rewrite 2!(Str_nth_powers _ id).
     apply preserves_nat_pow.
   Qed.
 

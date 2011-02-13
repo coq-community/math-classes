@@ -88,7 +88,7 @@ Proof.
   reflexivity.
 Qed.
 
-Global Instance Int_pow_of_1: LeftAbsorb (^) 1.
+Global Instance int_pow_base_1: LeftAbsorb (^) 1.
 Proof with auto. 
   intro n. 
   pattern n. apply integers.induction; clear n.
