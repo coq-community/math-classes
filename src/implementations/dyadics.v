@@ -429,7 +429,7 @@ Section embed_rationals.
     case (precedes_dec 0 xe); intros E.
      now rewrite ZtoQ_shift.
     rewrite <-fields.dec_mult_inv_correct.
-    rewrite int_pow_mult_inv_alt, ZtoQ_shift.
+    rewrite int_pow_opp_alt, ZtoQ_shift.
     now rewrite rings.preserves_1, left_identity.
   Qed.
 

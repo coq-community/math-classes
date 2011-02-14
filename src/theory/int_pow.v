@@ -1,16 +1,18 @@
 Require
   theory.naturals orders.semirings orders.integers orders.fields.
 Require Import 
-  Program Morphisms Setoid Ring
+  Program Morphisms Setoid Ring Field
   abstract_algebra interfaces.naturals interfaces.integers interfaces.additional_operations
   theory.nat_pow theory.int_abs.
+
+(* This file compiles way too slow. Figure out some way to speed it up. *)
 
 (* * Properties of Int Pow *)
 Section int_pow_properties.
 Context `{Field A} `{∀ x y, Decision (x = y)} `{!DecMultInv A}
   `{Integers B} `{oB : Order B} `{!RingOrder oB} `{!TotalOrder oB} `{!IntPowSpec A B ipw}.
 
-Add Ring A : (rings.stdlib_ring_theory A).
+Add Field A : (fields.stdlib_field_theory A).
 Add Ring B : (rings.stdlib_ring_theory B).
 
 Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 1.
@@ -18,51 +20,57 @@ Proof. apply int_pow_proper. Qed.
 
 Lemma int_pow_S_nonneg (x : A) (n : B) : 0 ≤ n → x ^ (1+n) = x * x ^ n.
 Proof.
-  intros E1.
-  destruct (decide (x = 0)) as [Ex|Ex].
+  intros En.
+  destruct (decide (x = 0)) as [Ex | Ex].
    rewrite Ex. rewrite int_pow_base_0. ring.
-   intros E2. destruct semirings.not_precedes_1_0. 
-   rewrite <-E2. now apply semirings.nonneg_plus_compat_r.
+   intros E. destruct semirings.not_precedes_1_0. 
+   rewrite <-E. now apply semirings.nonneg_plus_compat_r.
   now rewrite int_pow_S.
 Qed.
 
-Lemma int_pow_mult_inv (x : A) (n : B) : x ^ (-n) = /(x ^ n).
-Proof with auto; try reflexivity.
-  pattern n. apply integers.induction; clear n.
-     solve_proper.
-    now rewrite rings.opp_0, int_pow_0, fields.dec_mult_inv_1.
-   intros n E1 E2.
-   rewrite int_pow_S_nonneg, fields.dec_mult_inv_distr, <-E2...
-   destruct (decide (x = 0)) as [E3|E3].
-    rewrite E3, int_pow_base_0, fields.dec_mult_inv_0. ring.
-    rewrite commutativity. apply rings.flip_opp_nonzero. apply not_symmetry.
-    apply integers.precedes_sprecedes in E1. now destruct E1.
-   apply (rings.left_cancellation_ne_0 (.*.) x)...
-   rewrite <-int_pow_S...
-   setoid_replace (1 - (1 + n)) with (-n) by ring.
-   rewrite associativity, fields.dec_mult_inverse... ring.
-  intros n E1 E2.
-  setoid_replace (-(n - 1)) with (1 + -n) by ring.
-  rewrite int_pow_S_nonneg, E2...
-   destruct (decide (x = 0)) as [E3|E3].
-    rewrite E3, left_absorb.
-    rewrite int_pow_base_0, fields.dec_mult_inv_0...
-    intros E4. destruct semirings.not_precedes_1_0. 
-    apply rings.flip_nonpos_opp.
-    apply (order_preserving_back (n +)). 
-    rewrite E4. now ring_simplify.
-   apply (rings.left_cancellation_ne_0 (.*.) (/x))...
-    now apply fields.dec_mult_inv_nonzero.
-   rewrite <-fields.dec_mult_inv_distr, <-int_pow_S...
-   setoid_replace (1 + (n - 1)) with n by ring.
-   rewrite associativity, (commutativity (/x)), fields.dec_mult_inverse... ring.
-  now apply rings.flip_nonpos_opp.
+Lemma int_pow_opp (x : A) (n : B) : x ^ (-n) = /(x ^ n).
+Proof.
+  destruct (decide (x = 0)) as [Ex | Ex].
+   rewrite Ex.
+   destruct (decide (n = 0)) as [En | En].
+    now rewrite En, rings.opp_0, int_pow_0, fields.dec_mult_inv_1.
+   rewrite 2!int_pow_base_0; trivial.
+    now rewrite fields.dec_mult_inv_0.
+   now apply rings.flip_opp_nonzero.
+  pattern n. apply integers.biinduction; clear n.
+    solve_proper.
+   now rewrite rings.opp_0, int_pow_0, fields.dec_mult_inv_1.
+  intros n.
+  setoid_replace (-n) with (1 - (1 + n)) by ring.
+  rewrite 2!int_pow_S, fields.dec_mult_inv_distr; trivial.
+  split; intros E.
+   rewrite <-E. now field.
+  rewrite E, associativity, fields.dec_mult_inverse; trivial.
+  ring.
 Qed.
 
-Lemma int_pow_mult_inv_alt (x : A) (n : B) : x ^ n = /(x ^ (-n)).
+Lemma int_pow_opp_alt (x : A) (n : B) : x ^ n = /(x ^ (-n)).
 Proof.
-  rewrite <-int_pow_mult_inv.
+  rewrite <-int_pow_opp.
   now rewrite rings.opp_involutive.
+Qed.
+
+Lemma int_pow_mult_inv (x : A) (n : B) : (/x) ^ n = /(x ^ n).
+Proof.
+  destruct (decide (x = 0)) as [Ex | Ex].
+   rewrite Ex, fields.dec_mult_inv_0.
+   destruct (decide (n = 0)) as [En | En].
+    now rewrite En, int_pow_0, fields.dec_mult_inv_1.
+   now rewrite int_pow_base_0, fields.dec_mult_inv_0.
+  revert n. apply integers.biinduction.
+    solve_proper.
+   now rewrite 2!int_pow_0, fields.dec_mult_inv_1.
+  intros n.
+  assert (/x ≠ 0) by now apply fields.dec_mult_inv_nonzero.
+  rewrite 2!int_pow_S, fields.dec_mult_inv_distr; trivial.
+  split; intros E.
+   now rewrite E.
+  now apply (rings.left_cancellation_ne_0 (.*.) (/x)).
 Qed.
 
 Lemma int_pow_nat_pow `{Naturals N} `{!NatPowSpec A N pw} {f : N → B} `{!SemiRing_Morphism f} (x : A) (n : N) :
@@ -89,49 +97,40 @@ Proof.
 Qed.
 
 Global Instance int_pow_base_1: LeftAbsorb (^) 1.
-Proof with auto. 
-  intro n. 
-  pattern n. apply integers.induction; clear n.
-     solve_proper.
-    now apply int_pow_0.
-   intros n E F.
-   rewrite int_pow_S_nonneg... 
-   rewrite F. ring.
-  intros n E F. 
-  setoid_replace n with (1 + (n - 1)) in F by ring.
-  rewrite int_pow_S in F. 
-   now ring_simplify in F.
+Proof. 
+  intro n. pattern n. apply integers.biinduction; clear n.
+    solve_proper.
+   now apply int_pow_0.
+  intros n. rewrite int_pow_S, left_identity.
+   easy.
   now apply (ne_zero 1).
 Qed.
 
 Lemma int_pow_exp_plus (n m : B) (x : A) : 
   x ≠ 0 → x ^ (n + m) = x ^ n * x ^ m.
-Proof with auto.
+Proof.
   intros nonneg.
-  pattern n. apply integers.induction; clear n.
-     solve_proper.
-    rewrite int_pow_0, left_identity. ring.
-   intros ? ? E. 
-   rewrite <-associativity.
-   rewrite int_pow_S... rewrite E. rewrite int_pow_S... ring.
-  intros ? ? E.
-  apply (rings.left_cancellation_ne_0 (.*.) x)... rewrite associativity.
-  rewrite <-int_pow_S... rewrite <-int_pow_S...
-  setoid_replace (1 + (n - 1 + m)) with (n + m) by ring.
-  setoid_replace (1 + (n - 1)) with n by ring...
+  pattern n. apply integers.biinduction; clear n.
+    solve_proper.
+   rewrite int_pow_0, left_identity. ring.
+  intros n. rewrite <-associativity, 2!int_pow_S; trivial.
+  split; intros E.
+   rewrite E. ring.
+  apply (rings.left_cancellation_ne_0 (.*.) x); trivial.
+  rewrite E. ring.
 Qed.
 
 Lemma int_pow_nonzero (x : A) (n : B) : x ≠ 0 → x ^ n ≠ 0.
 Proof with eauto.
   intros nonneg.
-  pattern n. apply integers.induction; clear n.
-     solve_proper.
-    intros. rewrite int_pow_0. apply (ne_zero 1).
-   intros n E1 ? E2. rewrite int_pow_S_nonneg in E2...
-   apply (no_zero_divisors x); split...
-  intros n ? E1 E2. apply E1.
-  setoid_replace n with (1 + (n - 1)) by ring.
-  rewrite int_pow_S, E2... ring. 
+  pattern n. apply integers.biinduction; clear n.
+    solve_proper.
+   rewrite int_pow_0. apply (ne_zero 1).
+  intros n. rewrite int_pow_S; trivial.
+  split; intros E1 E2; destruct E1.
+   apply (rings.left_cancellation_ne_0 (.*.) x); trivial.
+   now rewrite right_absorb.
+  rewrite E2. ring.
 Qed. 
 
 Lemma int_pow_exp_mult (x : A) (n m : B) : 
@@ -140,11 +139,11 @@ Proof.
   destruct (decide (x = 0)) as [Ex|Ex].
    rewrite Ex.
    destruct (decide (n = 0)) as [En|En].
-    rewrite En, left_absorb, int_pow_0. now rewrite left_absorb.
+    rewrite En, left_absorb, int_pow_0. 
+    now rewrite left_absorb.
    destruct (decide (m = 0)) as [Em|Em].
     now rewrite Em, right_absorb, 2!int_pow_0.
-   rewrite 3!int_pow_base_0; auto.
-    reflexivity.
+   rewrite 3!int_pow_base_0; try easy.
    intros E. now destruct (zero_product n m E).
   pattern m. apply integers.biinduction; clear m.
     solve_proper.
@@ -188,8 +187,8 @@ Proof.
   apply orders.sprecedes_precedes in E.
   destruct E as [E|E].
    rewrite <-E.
-   destruct (decide (n = 0)) as [E2|E2].
-    rewrite E2.
+   destruct (decide (n = 0)) as [En|En].
+    rewrite En.
     rewrite int_pow_0.
     apply semirings.precedes_0_1.
    now rewrite int_pow_base_0.
@@ -198,8 +197,7 @@ Qed.
 
 Lemma int_pow_ge1 (x : A) (n : B) : 1 ≤ x → 0 ≤ n → 1 ≤ x ^ n.
 Proof.
-  intros.
-  pattern n. apply integers.induction_nonneg; trivial.
+  intros. pattern n. apply integers.induction_nonneg; trivial.
     solve_proper.
    now rewrite int_pow_0.
   intros.
@@ -213,9 +211,9 @@ Qed.
 
 Lemma int_pow_gt1 (x : A) (n : B) : 1 < x → 0 < n → 1 < x ^ n.
 Proof.
-  intros E1 E2.
-  apply integers.precedes_sprecedes_alt in E2.
-  apply srorder_plus in E2. destruct E2 as [z [Ez1 Ez2]]. ring_simplify in Ez2.
+  intros Ex En.
+  apply integers.precedes_sprecedes_alt in En.
+  apply srorder_plus in En. destruct En as [z [Ez1 Ez2]]. ring_simplify in Ez2.
   rewrite Ez2.
   pattern z. apply integers.induction_nonneg; try assumption.
     solve_proper.
@@ -307,25 +305,24 @@ Section preservation.
   Add Ring B2 : (rings.stdlib_ring_theory B).
 
   Lemma preserves_int_pow x (n : B) : f (x ^ n) = (f x) ^ n.
-  Proof with auto.
-    revert n. apply integers.induction.
-       solve_proper.
-      rewrite int_pow_0, int_pow_0. now apply rings.preserves_1.
-     intros n E F. 
-     rewrite int_pow_S_nonneg, rings.preserves_mult, F...
-     now rewrite int_pow_S_nonneg.
-    intros n E F.
-    destruct (decide (x = 0)) as [G|G].
-     rewrite G. rewrite rings.preserves_0. 
-     assert (n - 1 ≠ 0).
-      apply orders.neq_precedes_sprecedes, integers.precedes_sprecedes_alt.
-      ring_simplify...
-     repeat rewrite int_pow_base_0...
+  Proof.
+    destruct (decide (x = 0)) as [Ex | Ex].
+     rewrite Ex, rings.preserves_0.
+     destruct (decide (n = 0)) as [En|En].
+      rewrite En, 2!int_pow_0.
+      now apply rings.preserves_1.
+     rewrite 2!int_pow_base_0; trivial.
      now apply rings.preserves_0.
-    assert (f x ≠ 0). apply rings.injective_not_0...
-    apply (rings.left_cancellation_ne_0 (.*.) (f x))...
-    rewrite <-int_pow_S, <-rings.preserves_mult, <-int_pow_S...
-    now setoid_replace (1 + (n - 1)) with n by ring.
+    revert n. apply integers.biinduction.
+      solve_proper.
+     rewrite int_pow_0, int_pow_0. 
+     now apply rings.preserves_1.
+    intros n. 
+    assert (f x ≠ 0) by now apply rings.injective_not_0.
+    rewrite 2!int_pow_S, rings.preserves_mult; trivial.
+    split; intros E.
+     now rewrite E.
+    now apply (rings.left_cancellation_ne_0 (.*.) (f x)).
   Qed.
 End preservation.
 
