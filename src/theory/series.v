@@ -220,6 +220,14 @@ Section powers.
   End with_int_pow.
 End powers.
 
+Global Instance powers_help_proper: Proper ((=) ==> (=) ==> (=)) powers_help.
+Proof.
+  intros ? ? E1 ? ? E2.
+  apply stream_eq_Str_nth.
+  intros n.
+  now rewrite 2!(Str_nth_powers_help _ id), E1, E2.
+Qed.
+
 Global Instance powers_proper: Proper ((=) ==> (=)) powers.
 Proof.
   intros ? ? E.
