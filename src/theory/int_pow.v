@@ -55,6 +55,26 @@ Proof.
   now rewrite rings.opp_involutive.
 Qed.
 
+Lemma int_pow_mult (x y : A) (n : B) : (x * y) ^ n = x ^ n * y ^ n.
+Proof.
+  destruct (decide (x * y = 0)) as [Exy | Exy].
+   rewrite Exy.
+   destruct (decide (n = 0)) as [En | En].
+    rewrite En, 3!int_pow_0. ring.
+   destruct (zero_product x y Exy) as [E|E]; rewrite E, int_pow_base_0; trivial; ring.
+  revert n. apply integers.biinduction.
+    solve_proper.
+   rewrite 3!int_pow_0. ring.
+  intros n.
+  rewrite 3!int_pow_S; trivial.
+    split; intros E.
+     rewrite E. ring.
+    apply (rings.left_cancellation_ne_0 (.*.) (x * y)); trivial.
+    rewrite E. ring.
+   intros E. apply Exy. rewrite E. ring.
+  intros E. apply Exy. rewrite E. ring.
+Qed.
+
 Lemma int_pow_mult_inv (x : A) (n : B) : (/x) ^ n = /(x ^ n).
 Proof.
   destruct (decide (x = 0)) as [Ex | Ex].
