@@ -2,16 +2,12 @@
 
 This functor should nicely compose with the one forgetting variety laws. *)
 
-Set Automatic Coercions Import.
-
 Require Import
   Morphisms Setoid abstract_algebra universal_algebra interfaces.functors
-  ua_homomorphisms theory.categories.
-Require
+  ua_homomorphisms theory.categories
   categories.setoid categories.product categories.algebra.
 
 Section contents.
-
   Variable sign: Signature.
 
   Notation TargetObject := (product.Object (λ _: sorts sign, setoid.Object)).

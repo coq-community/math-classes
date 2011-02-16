@@ -1,10 +1,7 @@
-Set Automatic Introduction.
-Set Automatic Coercions Import.
-
 Require Import
   Relation_Definitions Morphisms Setoid Program
-  abstract_algebra ChoiceFacts interfaces.functors theory.categories.
-Require categories.cat.
+  abstract_algebra ChoiceFacts interfaces.functors 
+  theory.categories categories.cat.
 
 Axiom dependent_functional_choice: DependentFunctionalChoice.
 

@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require
   ne_list.
 Require Import

@@ -1,11 +1,8 @@
 Require Import
   Setoid Morphisms
-  Unicode.Utf8
-  canonical_names
-  universal_algebra.
+  abstract_algebra universal_algebra.
 
 Section contents.
-
   Variable Sorts: Set.
 
   Section map_op.

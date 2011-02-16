@@ -1,13 +1,12 @@
-(* To be imported qualified. *)
-
-Set Automatic Introduction.
 Set Automatic Coercions Import.
 
-Require
-  categories.variety categories.product forget_algebra forget_variety.
+(* To be imported qualified. *)
 Require Import
   Program Morphisms
-  abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
+  abstract_algebra universal_algebra ua_homomorphisms workaround_tactics
+  categories.cat.
+Require
+  categories.variety categories.product forget_algebra forget_variety.
 
 Inductive op := mult | one.
 

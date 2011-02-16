@@ -1,9 +1,6 @@
 Global Generalizable All Variables.
 Global Set Automatic Introduction.
 
-Set Automatic Coercions Import.
-  (* Needed to recover old behavior. Todo: Figure out why the behavior was changed; what was wrong with it? *)
-
 Require Import
  RelationClasses Relation_Definitions Morphisms Setoid Program.
 Require Export Unicode.Utf8 Utf8_core.

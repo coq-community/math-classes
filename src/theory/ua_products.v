@@ -1,8 +1,7 @@
-Set Automatic Coercions Import.
-
 Require Import
   Morphisms Setoid abstract_algebra Program
-  universal_algebra ua_homomorphisms theory.categories.
+  universal_algebra ua_homomorphisms 
+  theory.categories categories.variety.
 Require setoids.
 
 Section algebras.

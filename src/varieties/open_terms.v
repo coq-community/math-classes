@@ -1,13 +1,9 @@
-Set Automatic Introduction.
-
 Require Import
   RelationClasses Relation_Definitions List Morphisms
   universal_algebra abstract_algebra canonical_names
-  theory.categories.
-Require categories.variety.
+  theory.categories categories.variety.
 
 Section contents.
-
   Context
     (operation: Set) (operation_type: operation → OpType unit).
 

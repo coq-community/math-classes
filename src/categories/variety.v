@@ -4,9 +4,6 @@ Hm, this file is almost identical to categories/algebra because the morphism are
 factor out the commonality.
 
  *)
-
-Set Automatic Introduction.
-
 Require Import Morphisms abstract_algebra Program universal_algebra ua_homomorphisms.
 
 Section contents.

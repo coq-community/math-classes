@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 (** We prove the equivalence of the two definitions of adjunction. *)
 
 Require Import

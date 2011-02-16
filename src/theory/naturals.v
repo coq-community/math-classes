@@ -1,9 +1,8 @@
-Set Automatic Coercions Import.
-
 Require Import
+ workaround_tactics
  Relation_Definitions Morphisms Program Ring
  abstract_algebra peano_naturals theory.rings
- theory.ua_transference.
+ categories.variety theory.ua_transference.
 Require Export
  interfaces.naturals.
 
@@ -11,9 +10,9 @@ Lemma to_semiring_involutive N `{Naturals N} N2 `{Naturals N2}: ∀ a: N,
  naturals_to_semiring N2 N (naturals_to_semiring N N2 a) = a.
 Proof.
   intros a.
-  pose proof (proj2 (@categories.initials_unique' (variety.Object semiring.theory)
-    _ _ _ _ _ (semiring.object N) (semiring.object N2) _ naturals_initial _ naturals_initial) tt a) as P.
-  apply P. (* todo: separate pose necessary due to Coq bug *)
+  apply_simplified (proj2 (@categories.initials_unique' (variety.Object semiring.theory)
+    _ _ _ _ _ (semiring.object N) (semiring.object N2) _ naturals_initial _ naturals_initial) tt a).
+  (* todo: separate pose necessary due to Coq bug *)
 Qed.
 
 Lemma to_semiring_unique `{Naturals N} `{SemiRing SR} (f: N → SR) `{!SemiRing_Morphism f}:
@@ -29,8 +28,7 @@ Lemma to_semiring_unique_alt `{Naturals N} `{SemiRing SR} (f g: N → SR) `{!Sem
   f x = g x.
 Proof.
   rewrite (to_semiring_unique f).
-  rewrite (to_semiring_unique g).
-  reflexivity.
+  now rewrite (to_semiring_unique g).
 Qed.
 
 Lemma morphisms_involutive `{Naturals N} `{Naturals N2} (f: N → N2) (g: N2 → N) 
@@ -47,13 +45,13 @@ Lemma to_semiring_twice N `{Naturals N} N2 `{Naturals N2} SR `{SemiRing SR} x :
 Proof.
   replace (naturals_to_semiring N2 SR (naturals_to_semiring N N2 x))
     with ((naturals_to_semiring N2 SR  ∘ naturals_to_semiring N N2) x) by reflexivity.
-  apply to_semiring_unique; apply _.
+  apply (to_semiring_unique _).
 Qed.
 
 Lemma to_semiring_self `{Naturals N} x : x = naturals_to_semiring N N x.
 Proof.
   replace x with (id x) by auto.
-  apply to_semiring_unique; apply _.
+  apply (to_semiring_unique _).
 Qed.
 
 Lemma to_semiring_injective `{Naturals N} `{SemiRing A}  
@@ -63,7 +61,7 @@ Proof with intuition.
   intros x y E.
   rewrite <- (to_semiring_unique_alt (f ∘ g) id x)...
   rewrite <- (to_semiring_unique_alt (f ∘ g) id y)...
-  unfold compose. rewrite E. reflexivity.
+  unfold compose. now rewrite E.
 Qed.
 
 Instance naturals_to_naturals_injective `{Naturals N} `{Naturals N2} (f: N → N2) `{!SemiRing_Morphism f}:
@@ -91,8 +89,7 @@ Section retract_is_nat.
       intros x y F. rewrite <-F.
       transitivity ((h ∘ (f ∘ inverse f)) x).
        symmetry. apply (to_semiring_unique (h ∘ f)).
-      unfold compose. rewrite jections.surjective_applied.
-      reflexivity.
+      unfold compose. now rewrite jections.surjective_applied.
     Qed.
   End for_another_semiring.
 
@@ -101,7 +98,7 @@ Section retract_is_nat.
   Proof. 
     esplit; try apply _. (* for some reason split doesn't work... *)
     intros. apply natural_initial. intros.
-    apply same_morphism. assumption.
+    now apply same_morphism.
   Qed.
 End retract_is_nat.
 
@@ -153,8 +150,8 @@ Section borrowed_from_nat.
   Global Instance: ∀ z : N, LeftCancellation (+) z.
   Proof.
     intros x y z.
-    pose proof (from_nat_stmt (x' + y' === x' + z' -=> y' === z') (three_vars x y z)) as P.
-    apply P. intro. simpl. apply Plus.plus_reg_l.
+    apply_simplified (from_nat_stmt (x' + y' === x' + z' -=> y' === z') (three_vars x y z)).
+    intro. simpl. apply Plus.plus_reg_l.
   Qed.
 
   Global Instance: ∀ z : N, RightCancellation (+) z.
@@ -163,8 +160,8 @@ Section borrowed_from_nat.
   Global Instance: ∀ z : N, NeZero z → LeftCancellation (.*.) z.
   Proof.
     intros z E x y.
-    pose proof (from_nat_stmt ((z' === 0 -=> Ext _ False) -=> z' * x' === z' * y' -=> x' === y') (three_vars x y z)) as P.
-    apply P. intro. simpl. apply Mult_mult_reg_l. assumption.
+    apply_simplified (from_nat_stmt ((z' === 0 -=> Ext _ False) -=> z' * x' === z' * y' -=> x' === y') (three_vars x y z)).
+    intro. simpl. now apply Mult_mult_reg_l. easy.
   Qed.
 
   Global Instance: ∀ z : N, NeZero z → RightCancellation (.*.) z.
@@ -173,25 +170,26 @@ Section borrowed_from_nat.
   Global Instance: NeZero (1:N).
   Proof.
     pose proof (from_nat_stmt (1 === 0 -=> Ext _ False) no_vars) as P.
-    apply P. discriminate.
+    now apply P.
   Qed.
 
   Lemma zero_sum x y : x + y = 0 → x = 0 ∧ y = 0.
   Proof.
-    pose proof (from_nat_stmt (x' + y' === 0 -=> Conj _ (x' === 0) (y' === 0)) (two_vars x y)) as P.
-    apply P. intro. simpl. apply Plus.plus_is_O.
+    apply_simplified (from_nat_stmt (x' + y' === 0 -=> Conj _ (x' === 0) (y' === 0)) (two_vars x y)).
+    intro. simpl. apply Plus.plus_is_O.
   Qed.
   
   Lemma one_sum x y : x + y = 1 → (x = 1 ∧ y = 0) ∨ (x = 0 ∧ y = 1).
   Proof. 
-   pose proof (from_nat_stmt (x' + y' === 1 -=> Disj _ (Conj _ (x' === 1) (y' === 0)) (Conj _ (x' === 0) (y' === 1))) (two_vars x y)) as P.
-   apply P. intros. simpl. intros. edestruct Plus.plus_is_one; eauto.
+   apply_simplified (from_nat_stmt (x' + y' === 1 -=> Disj _ (Conj _ (x' === 1) (y' === 0)) (Conj _ (x' === 0) (y' === 1))) (two_vars x y)).
+   intros. simpl. intros. edestruct Plus.plus_is_one; eauto.
   Qed.
 
   Global Instance: ZeroProduct N.
+  Proof.
     intros x y.
-    pose proof (from_nat_stmt (x' * y' === 0 -=>Disj _ (x' === 0) (y' === 0)) (two_vars x y)) as P.
-    apply P. intros ? E. destruct (Mult.mult_is_O _ _ E); intuition.
+    apply_simplified (from_nat_stmt (x' * y' === 0 -=>Disj _ (x' === 0) (y' === 0)) (two_vars x y)).
+    intros ? E. destruct (Mult.mult_is_O _ _ E); intuition.
   Qed.
 End borrowed_from_nat.
 
@@ -199,8 +197,8 @@ Lemma nz_one_plus_zero x : 1 + x ≠ 0.
 Proof.
   intro E.
   destruct (zero_sum 1 x E).
-  apply (ne_zero 1). assumption.
-Qed.  
+  now apply (ne_zero 1).
+Qed.
 
 Global Program Instance: ∀ x y: N, Decision (x = y) | 10 := λ x y,
   match decide (naturals_to_semiring _ nat x = naturals_to_semiring _ nat y) with
@@ -209,11 +207,11 @@ Global Program Instance: ∀ x y: N, Decision (x = y) | 10 := λ x y,
   end.
 Next Obligation.
   rewrite <- (to_semiring_involutive _ nat x), <- (to_semiring_involutive _ nat y).
-  rewrite E. reflexivity.
+  now rewrite E.
 Qed.
 
 Next Obligation.
-  intros F. apply E. rewrite F. reflexivity.
+  intros F. apply E. now rewrite F.
 Qed.
 
 End contents.

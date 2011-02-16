@@ -1,13 +1,10 @@
-Set Automatic Introduction.
-
-Require
-  Unicode.Utf8.
 Require Import
   Morphisms Setoid Program
   canonical_names abstract_algebra
   universal_algebra.
 
-Section contents. Variable σ: Signature.
+Section contents. 
+  Variable σ: Signature.
 
   Notation OpType := (OpType (sorts σ)).
 

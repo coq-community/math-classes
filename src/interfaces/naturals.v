@@ -1,9 +1,6 @@
-Set Automatic Coercions Import.
-
 Require Import
  Relation_Definitions Morphisms
- abstract_algebra theory.categories.
-Require
+ abstract_algebra theory.categories
  varieties.semiring categories.variety.
 
 Module bad.
@@ -12,7 +9,6 @@ Module bad.
 End bad.
 
 Section initial_maps.
-
   Variable A: Type.
 
   Class NaturalsToSemiRing :=
@@ -40,7 +36,6 @@ Section initial_maps.
      apply (@semiring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
     reflexivity.
   Qed.
-
 End initial_maps.
 
 Instance: Params (@naturals_to_semiring) 7.
