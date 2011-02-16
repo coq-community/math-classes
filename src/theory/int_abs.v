@@ -11,7 +11,7 @@ Context `{Integers Int} `{!RingOrder oR} `{!TotalOrder oR} `{Naturals N}.
 Lemma int_abs_uniq (a b : IntAbs Int N) (z : Int) : a z = b z.
 Proof.
   destruct a as [a A], b as [b B].
-  unfold equiv, sig_equiv, sig_relation. simpl.
+  unfold equiv, sig_equiv. simpl.
   apply (injective (naturals_to_semiring N Int)).
   destruct A as [A|A], B as [B|B]; rewrite <-A in B; clear A.
      now symmetry.

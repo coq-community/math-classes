@@ -22,9 +22,8 @@ Notation "x ≠ y":= (¬x = y): type_scope.
 Infix "≡" := eq (at level 70, no associativity).
   (* Hm, we could define a very low priority Equiv instance for Leibniz equality.. *)
 
-Instance ext_eq `{Equiv A} `{Equiv B}: Equiv (A → B)
-  := ((=) ==> (=))%signature.
-
+Definition ext_equiv `{Equiv A} `{Equiv B}: Equiv (A → B) := ((=) ==> (=))%signature.
+Hint Extern 10 (Equiv (_ → _)) => apply @ext_equiv : typeclass_instances. (* Due to bug #2491 *)
 (** Interestingly, most of the development works fine if this is defined as
   ∀ x, f x = g x.
 However, in the end that version was just not strong enough for comfortable rewriting
@@ -63,6 +62,8 @@ Instance ringplus_is_semigroupop `{f: RingPlus A}: SemiGroupOp A := f.
 Instance ringmult_is_semigroupop `{f: RingMult A}: SemiGroupOp A := f.
 Instance ringone_is_monoidunit `{c: RingOne A}: MonoidUnit A := c.
 Instance ringzero_is_monoidunit `{c: RingZero A}: MonoidUnit A := c.
+
+Hint Extern 10 (Equiv (_ ⟶ _)) => apply @ext_equiv : typeclass_instances.
 
 (* Notations: *)
 Notation "0" := ring_zero.

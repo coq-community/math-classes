@@ -39,9 +39,9 @@ Section semiring_props.
   Global Instance mult_0_r: RightAbsorb (.*.) 0.
   Proof. intro. rewrite commutativity. apply left_absorb. Qed.
 
-  Global Instance: ∀ r : R, Monoid_Morphism (r *.).
+  Global Instance: ∀ r : R, @Monoid_Morphism R R _ _ (0:R) (0:R) (+) (+) (r *.).
   Proof.
-   repeat (constructor; try apply _).
+   repeat (constructor; try apply _). 
     apply distribute_l.
    apply right_absorb.
   Qed.
@@ -51,9 +51,9 @@ Section semiringmor_props.
   Context `{SemiRing_Morphism A B f}.
 
   Lemma preserves_0: f 0 = 0.
-  Proof (@preserves_mon_unit _ _ _ _ _ _ _ _ f _). 
+  Proof (preserves_mon_unit (f:=f)). 
   Lemma preserves_1: f 1 = 1.
-  Proof (@preserves_mon_unit _ _ _ _ _ _ _ _ f _).
+  Proof (preserves_mon_unit (f:=f)).
   Lemma preserves_mult: ∀ x y, f (x * y) = f x * f y.
   Proof. intros. apply preserves_sg_op. Qed.
   Lemma preserves_plus: ∀ x y, f (x + y) = f x + f y.

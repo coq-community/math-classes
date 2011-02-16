@@ -1,4 +1,3 @@
-Set Automatic Introduction.
 Set Automatic Coercions Import.
 
 Require Import
@@ -23,12 +22,12 @@ Section algebras.
     end.
 
   Let u (s: sorts sig): Equiv (forall i : I, carriers i s).
-   apply setoids.product_eq.
+   apply setoids.product_equiv.
    intro. apply _.
   Defined.
 
   Instance rec_impl_proper: ∀ o,
-    Proper (@setoids.product_eq I _ (fun _ => op_type_equiv _ _ _) ==> (=)) (rec_impl o).
+    Proper (@setoids.product_equiv I _ (fun _ => op_type_equiv _ _ _) ==> (=)) (rec_impl o).
   Proof with auto.
    induction o; simpl. repeat intro...
    intros ? ? Y x0 y0 ?. apply IHo.

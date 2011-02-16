@@ -14,15 +14,15 @@ Global Instance NonNeg_inject: Inject (R⁺) R := @proj1_sig R _.
 
 (* Operations *)
 Global Program Instance NonNeg_plus: RingPlus (R⁺) := λ x y, exist _ (x + y) _. 
-Next Obligation with auto.
+Next Obligation.
   destruct x as [x Hx], y as [y Hy].
-  apply nonneg_plus_compat...
+  now apply nonneg_plus_compat.
 Qed.
 
 Global Program Instance NonNeg_mult: RingMult (R⁺) := λ x y, exist _ (x * y) _. 
-Next Obligation with auto.
+Next Obligation.
   destruct x as [x Hx], y as [y Hy].
-  apply nonneg_mult_compat...
+  now apply nonneg_mult_compat.
 Qed.
 
 Global Program Instance NonNeg_0: RingZero (R⁺) := exist _ 0 _.
@@ -39,13 +39,13 @@ Local Ltac unfold_equivs := unfold equiv, NonNeg_equiv, inject, NonNeg_inject in
 Instance: Proper ((=) ==> (=) ==> (=)) NonNeg_plus.
 Proof.
   intros [x1 Ex1] [y1 Ey1] E1 [x2 Ex2] [y2 Ey2] E2. unfold_equivs.
-  rewrite E1, E2. reflexivity.
+  now rewrite E1, E2.
 Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) NonNeg_mult.
 Proof.
   intros [x1 Ex1] [y1 Ey1] E1 [x2 Ex2] [y2 Ey2] E2. unfold_equivs. 
-  rewrite E1, E2. reflexivity.
+  now rewrite E1, E2.
 Qed.
 
 (* It is indeed a semiring *)
@@ -78,7 +78,7 @@ Proof.
     intros x. reflexivity.
    intros x y z. apply transitivity.
   intros x y ? ?. apply (injective NonNeg_inject). 
-  apply (antisymmetry (≤)); assumption.
+  now apply (antisymmetry (≤)).
 Qed.
 
 Global Instance: TotalOrder NonNeg_order.

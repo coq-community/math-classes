@@ -53,7 +53,7 @@ Section field_properties.
   Lemma mult_inv_inj `{∀ z, NeZero z → LeftCancellation (.*.) z} x y : //x = //y → x = y.
   Proof with auto.
     intros E.
-    unfold equiv, sig_equiv, sig_relation. fold equiv.
+    unfold equiv, sig_equiv. fold equiv.
     apply (left_cancellation_ne_0 (.*.) (//x)).
      intros G.
      destruct (ne_zero 1).
@@ -284,7 +284,7 @@ Section non_zero_elements.
   Global Instance nonzero_mult: RingMult { x : F | x ≠ 0 } := λ x y, 
     exist (λ x, x ≠ 0) (`x *  `y) (mult_ne_zero_sig x y).
 
-  Ltac solve := repeat intro; unfold equiv, sig_equiv, sig_relation in *; simpl in *.
+  Ltac solve := repeat intro; unfold equiv, sig_equiv in *; simpl in *.
 
   Instance: Proper ((=) ==> (=) ==> (=)) nonzero_mult.
   Proof.

@@ -19,15 +19,15 @@ Add Ring SR : (rings.stdlib_semiring_theory SR).
 Global Instance SRpair_equiv : Equiv (SRpair SR) := λ x y, pos x + neg y = pos y + neg x.
 
 Instance: Setoid (SRpair SR).
-Proof with auto.
+Proof.
   split; red; unfold equiv, SRpair_equiv.
     reflexivity.
-   intros. symmetry...
+   intros. now symmetry.
   intros x y z E E'.
   rewrite commutativity.
   rewrite (commutativity (pos z)).
   apply (left_cancellation (+) (pos y)).
-  do 2 rewrite associativity.
+  rewrite 2!associativity.
   rewrite <- E, E'. ring.
 Qed.
 
@@ -37,13 +37,13 @@ Global Instance SRpair_dec `{∀ x y : SR, Decision (x = y)} : ∀ x y : SRpair 
 Instance: Proper ((=) ==> (=) ==> (=)) C.
 Proof.
   intros x1 y1 E1 x2 y2 E2. unfold equiv, SRpair_equiv. simpl.
-  rewrite E1, E2. reflexivity.
+  now rewrite E1, E2.
 Qed.
 
 (* injection from SR *)
 Global Instance SRpair_inject: Inject SR (SRpair SR) := λ r, C r 0.
 
-Global Instance: Proper ((=) ==> (=)) inject.
+Global Instance: Proper ((=) ==> (=)) SRpair_inject.
 Proof. intros x1 x2 E. unfold inject, equiv, SRpair_equiv. simpl. rewrite E. reflexivity. Qed.
 
 (* Relations, operations and constants *)
@@ -74,37 +74,37 @@ Proof with try ring.
   intros E x. unfolds.
   transitivity (pos x * (pos y1 + neg y2) + neg x * (pos y2 + neg y1))...
   transitivity (pos x * (pos y2 + neg y1) + neg x * (pos y1 + neg y2))...
-  rewrite E. reflexivity.
+  now rewrite E.
 Qed.
 
 Instance: Commutative SRpair_mult. 
 Proof. repeat intro. ring_on_sr. Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) SRpair_mult.
-Proof with auto.
+Proof.
   intros x1 y1 E1 x2 y2 E2.
   transitivity (x1 * y2).
-   apply SRpair_mult_compat_r...
+   now apply SRpair_mult_compat_r.
  rewrite commutativity.
  rewrite (commutativity y1).
- apply SRpair_mult_compat_r...
+ now apply SRpair_mult_compat_r.
 Qed.
 
 Global Instance: Ring (SRpair SR).
 Proof. repeat (split; try apply _); ring_on_sr. Qed.
 
 (* A final word about inject *)
-Global Instance: SemiRing_Morphism inject.
+Global Instance: SemiRing_Morphism SRpair_inject.
 Proof.
   repeat (constructor; try apply _); try reflexivity.
    intros x y. change (x + y + (0 + 0) = x + y + 0). ring.
   intros x y. change (x * y + (x * 0 + 0 * y) = x * y + 0 * 0 + 0). ring.
 Qed.
 
-Global Instance: Injective inject.
+Global Instance: Injective SRpair_inject.
 Proof. 
   repeat (constructor; try apply _).
-  intros x y. unfolds. do 2 rewrite rings.plus_0_r. auto.
+  intros x y. unfolds. now rewrite 2!rings.plus_0_r.
 Qed.
 
 Lemma SRpair_splits n m : C n m = 'n + -'m.
@@ -131,21 +131,21 @@ Proof with trivial; try ring.
   split; repeat intro; eapply E; eauto; symmetry; eauto.
 Qed.
 
-Instance: OrderPreserving inject.
+Instance: OrderPreserving SRpair_inject.
 Proof.
   repeat (split; try apply _).
   intros x y E. unfold precedes, SRpair_order. simpl.
-  do 2 rewrite rings.plus_0_r. assumption.
+  now rewrite 2!rings.plus_0_r.
 Qed.
 
-Instance SRpair_order_back: OrderPreservingBack inject.
+Instance SRpair_order_back: OrderPreservingBack SRpair_inject.
 Proof.
   repeat (split; try apply _).
   intros x y E. unfold precedes, SRpair_order in E. simpl in E.
-  do 2 rewrite rings.plus_0_r in E. assumption.
+  now rewrite 2!rings.plus_0_r in E.
 Qed.
 
-Global Instance: OrderEmbedding inject.
+Global Instance: OrderEmbedding SRpair_inject.
 
 Instance: Reflexive SRpair_order.
 Proof. intros [? ?]. unfold SRpair_order. reflexivity. Qed.
@@ -191,7 +191,7 @@ Proof with trivial; try ring.
   destruct E1 as [a [Ea1 Ea2]], E2 as [b [Eb1 Eb2]].
   rewrite Ea2, Eb2. ring_simplify.
   apply srorder_plus. exists (a * b). split... 
-  apply srorder_mult; assumption.
+  now apply srorder_mult.
 Qed. 
 
 Global Program Instance SRpair_le_dec `{∀ x y: SR, Decision (x ≤ y)} : ∀ x y : SRpair SR, Decision (x ≤ y) := λ x y,

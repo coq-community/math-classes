@@ -73,8 +73,8 @@ Section upper_classes.
   Class Field {mult_inv: MultInv A}: Prop :=
     { field_ring:> Ring
     ; field_0neq1:> NeZero (1:A)
-    ; mult_inv_proper:> Proper (sig_relation (=) _ ==> (=)) (//)
-    ; mult_inverse: `(` x * // x = 1) }.
+    ; mult_inv_proper:> Proper ((=) ==> (=)) (//)
+    ; mult_inverse: `( `x * // x = 1) }.
 End upper_classes.
 
 Implicit Arguments inv_proper [[A] [e] [op] [unit] [inv] [Group]].

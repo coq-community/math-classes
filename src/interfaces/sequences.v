@@ -1,10 +1,8 @@
-Set Automatic Introduction.
 Set Automatic Coercions Import.
 
 Require Import
  Morphisms List Program
- abstract_algebra theory.categories forget_algebra forget_variety theory.rings interfaces.functors
- canonical_names.
+ abstract_algebra theory.categories forget_algebra forget_variety theory.rings interfaces.functors.
 Require
  categories.setoid categories.product varieties.monoid categories.algebra.
 Require categories.cat theory.setoids.
@@ -29,7 +27,6 @@ a bit awkward to work with. Hence, let us define a more down to earth
 version. *)
 
 Section practical.
-
   (* Here, again, are the ingredients, this time in somewhat more raw form: *)
 
   Class ExtendToSeq (free: Type → Type) :=

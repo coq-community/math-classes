@@ -7,7 +7,6 @@ they yield subalgebras. We now expand on this result and show that they
 also yield subvarieties (by showing that the laws still hold in the subalgebra). *)
 
 Section contents.
-
   Context `{InVariety et A} `{@ClosedSubset et A _ _ P}. (* todo: why so ugly? *)
 
   Definition Pvars (vars: Vars et (carrier P) nat): Vars et A nat
@@ -74,7 +73,7 @@ Section contents.
    generalize (@variety_laws et A _ _ _ s H1 (Pvars vars)). clear H1.
    destruct s as [x [? [t t0]]].
    induction x as [A| [x1 [t1 t2]]]; simpl in *; intros.
-    unfold equiv, util.sig_equiv, util.sig_relation.
+    unfold equiv, util.sig_equiv.
     rewrite (heq_eval_const vars t).
     rewrite (heq_eval_const vars t0)...
    apply IHx, H1.

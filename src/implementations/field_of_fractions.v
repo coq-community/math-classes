@@ -1,13 +1,13 @@
 Require theory.fields.
 Require Import Morphisms Ring abstract_algebra theory.rings.
 
-Inductive Frac R `{e : Equiv R} `{one : RingZero R} : Type := frac { num: R; den: R; den_nonzero: den ≠ 0 }.
+Inductive Frac R `{e : Equiv R} `{zero : RingZero R} : Type := frac { num: R; den: R; den_nonzero: den ≠ 0 }.
   (* We used to have [den] and [den_nonzero] bundled, which did work relatively nicely with Program, but the
    extra messyness in proofs etc turned out not to be worth it. *)
-Implicit Arguments frac [[R] [e] [one]].
-Implicit Arguments num [[R] [e] [one]].
-Implicit Arguments den [[R] [e] [one]].
-Implicit Arguments den_nonzero [[R] [e] [one]].
+Implicit Arguments frac [[R] [e] [zero]].
+Implicit Arguments num [[R] [e] [zero]].
+Implicit Arguments den [[R] [e] [zero]].
+Implicit Arguments den_nonzero [[R] [e] [zero]].
 
 Section contents.
 Context `{IntegralDomain R}.
@@ -15,7 +15,7 @@ Context `{∀ z : R, NeZero z → LeftCancellation (.*.) z}.
 
 Add Ring R: (stdlib_ring_theory R).
 
-Global Program Instance Frac_equiv: Equiv (Frac R) := λ x y, num x * den y = num y * den x.
+Global Instance Frac_equiv: Equiv (Frac R) := λ x y, num x * den y = num y * den x.
 
 (* Global with a high priority to avoid "Evar ??? not declared" messages... *)
 Global Instance: Setoid (Frac R) | 1.
@@ -37,13 +37,13 @@ Global Instance Frac_dec `{∀ x y, Decision (x = y)} : ∀ x y: Frac R, Decisio
 Global Program Instance Frac_inject: Inject R (Frac R) := λ r, frac r 1 _.
 Next Obligation. exact (ne_zero 1). Qed.
 
-Instance: Proper ((=) ==> (=)) inject.
-Proof. intros x1 x2 E. unfold equiv, Frac_equiv. simpl. rewrite E. reflexivity. Qed.
+Instance: Proper ((=) ==> (=)) Frac_inject.
+Proof. intros x1 x2 E. unfold equiv, Frac_equiv. simpl. now rewrite E. Qed.
 
 (* Relations, operations and constants *)
 Global Program Instance Frac_plus: RingPlus (Frac R) :=
   λ x y, frac (num x * den y + num y * den x) (den x * den y) _.
-Next Obligation. destruct x, y. simpl. apply mult_ne_zero; assumption. Qed.
+Next Obligation. destruct x, y. simpl. now apply mult_ne_zero. Qed.
 
 Global Instance Frac_0: RingZero (Frac R) := ('0 : Frac R).
 Global Instance Frac_1: RingOne (Frac R) := ('1 : Frac R).
@@ -94,8 +94,7 @@ Instance: Proper ((=) ==> (=)) Frac_mult_inv.
 Proof.
   intros [x N] [x' N'] E. unfolds.
   symmetry.
-  rewrite (commutativity (den x')), (commutativity (den x)).
-  assumption.
+  now rewrite (commutativity (den x')), (commutativity (den x)).
 Qed.
 
 Global Instance: Field (Frac R).
