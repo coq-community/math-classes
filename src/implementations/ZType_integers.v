@@ -170,7 +170,7 @@ Qed.
 
 Lemma ZType_two_2 : two = 2.
 Proof.
-  unfold_equiv. rewrite spec_2. unfold "2". 
+  unfold_equiv. rewrite spec_2.
   now rewrite preserves_plus, preserves_1.
 Qed.
 

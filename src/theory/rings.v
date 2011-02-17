@@ -4,7 +4,7 @@ Require Import
   Ring Program Morphisms abstract_algebra.
 
 Lemma stdlib_semiring_theory R `{SemiRing R} : Ring_theory.semi_ring_theory 0 1 (+) (.*.) (=).
-Proof with try reflexivity.
+Proof.
   constructor; intros.
          apply left_identity.
         apply commutativity.
@@ -61,7 +61,7 @@ Section semiringmor_props.
 
   Context `{!SemiRing B}.
   Lemma preserves_2: f 2 = 2.
-  Proof. unfold "2". rewrite preserves_plus. rewrite preserves_1. reflexivity. Qed.
+  Proof. rewrite preserves_plus. now rewrite preserves_1. Qed.
 
   Context `{!Injective f}.
   Lemma injective_not_0 x : x ≠ 0 → f x ≠ 0.
@@ -82,7 +82,7 @@ Lemma right_cancel_from_left `{Setoid R} {op : R → R → R} `{!Commutative op}
 Proof.
   intros x y E.
   apply (left_cancellation op z).
-  now rewrite (commutativity z x), (commutativity z y).
+  now rewrite 2!(commutativity z _).
 Qed.
 
 Lemma stdlib_ring_theory R `{Ring R} : 

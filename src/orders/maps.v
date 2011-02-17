@@ -1,5 +1,5 @@
 Require Import 
-  Morphisms Setoid Program 
+  Program Morphisms Setoid 
   abstract_algebra orders.orders theory.setoids.
 
 Instance order_iso_injective `{OrderIsomorphism A B f} `{!PartialOrder (precedes (A:=A))} `{!PartialOrder (precedes (A:=B))} : 
@@ -36,23 +36,25 @@ Section order_preserving_ops.
   Context `{Equiv R} `{Order R}.
 
   Lemma order_preserving_flip `{!Commutative op} `{!Proper ((=) ==> (=) ==> (=)) op} `{!OrderPreserving (op z)} : 
-    OrderPreserving (flip op z).
+    OrderPreserving (λ y, op y z).
   Proof.
     pose proof (order_morphism_mor (op z)).
     pose proof (setoidmor_a (op z)).
     repeat (split; try apply _).
-    intros x y E. unfold flip.
+     solve_proper.
+    intros x y E.
     rewrite 2!(commutativity _ z).
     now apply order_preserving.
   Qed.
 
   Lemma order_preserving_back_flip `{!Commutative op} `{!Proper ((=) ==> (=) ==> (=)) op} `{!OrderPreservingBack (op z) } : 
-    OrderPreservingBack (flip op z).
+    OrderPreservingBack (λ y, op y z).
   Proof.
     pose proof (order_morphism_mor (op z)).
     pose proof (setoidmor_a (op z)).
     repeat (split; try apply _).
-    intros x y E. unfold flip in E.
+     solve_proper.
+    intros x y E.
     apply (order_preserving_back (op z)).
     now rewrite 2!(commutativity z).
   Qed.
@@ -61,16 +63,16 @@ Section order_preserving_ops.
     0 ≤ z → OrderPreserving (op z).
   Proof. auto. Qed.
 
-  Lemma order_preserving_flip_ge_0 (op : R → R → R) `{!RingZero R} `{∀ z, GeZero z → OrderPreserving (flip op z)} z : 
-    0 ≤ z → OrderPreserving (flip op z).
+  Lemma order_preserving_flip_ge_0 (op : R → R → R) `{!RingZero R} `{∀ z, GeZero z → OrderPreserving (λ y, op y z)} z : 
+    0 ≤ z → OrderPreserving (λ y, op y z).
   Proof. auto. Qed.
 
   Lemma order_preserving_back_gt_0 (op : R → R → R) `{!RingZero R} `{∀ z, GtZero z → OrderPreservingBack (op z)} z : 
     0 < z → OrderPreservingBack (op z).
   Proof. auto. Qed.
 
-  Lemma order_preserving_back_flip_gt_0 (op : R → R → R) `{!RingZero R} `{∀ z, GtZero z → OrderPreservingBack (flip op z)} z : 
-    0 < z → OrderPreservingBack (flip op z).
+  Lemma order_preserving_back_flip_gt_0 (op : R → R → R) `{!RingZero R} `{∀ z, GtZero z → OrderPreservingBack (λ y, op y z)} z : 
+    0 < z → OrderPreservingBack (λ y, op y z).
   Proof. auto. Qed.
 End order_preserving_ops. 
 
