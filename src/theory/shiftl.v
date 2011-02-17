@@ -5,6 +5,21 @@ Require Import
   abstract_algebra interfaces.naturals interfaces.integers interfaces.additional_operations
   theory.nat_pow theory.int_pow.
 
+Section shift_left.
+  Context `{SemiRing A} `{SemiRing B} `{!ShiftLSpec A B sl}.
+
+  Add Ring A1 : (rings.stdlib_semiring_theory A).
+
+  Global Instance: Proper ((=) ==> (=) ==> (=)) (≪) | 1.
+  Proof. apply shiftl_proper. Qed.
+
+  Lemma shiftl_1 x : x ≪ (1:B) = 2 * x.
+  Proof. now rewrite <-(rings.plus_0_r 1), shiftl_S, shiftl_0. Qed.
+
+  Lemma shiftl_2 x : x ≪ (2:B) = 4 * x.
+  Proof. rewrite shiftl_S, shiftl_1. ring. Qed.
+End shift_left.
+
 (* * Properties of [shiftl] on the naturals *)
 Section shift_left_naturals.
   Context `{SemiRing A} `{Naturals B}.
@@ -24,9 +39,6 @@ Section shift_left_naturals.
   Qed.
 
   Context `{!ShiftLSpec A B sl}.
-
-  Global Instance: Proper ((=) ==> (=) ==> (=)) (≪) | 1.
-  Proof. apply shiftl_proper. Qed.
 
   Lemma shiftl_nat_pow `{!NatPowSpec A B np} x n : x ≪ n = x * 2 ^ n.
   Proof.
@@ -119,8 +131,7 @@ End default_shiftl.
 Section shift_left_integers.
   Context `{Field A} `{Integers B} `{∀ x y : A, Decision (x = y)} `{!NeZero (2:A)}.
 
-  Add Ring A: (rings.stdlib_semiring_theory A).
-  Add Ring B: (rings.stdlib_ring_theory B).
+  Add Ring A3: (rings.stdlib_semiring_theory A).
 
   Lemma shiftl_spec_from_int_pow `{!IntPowSpec A B ip} (sl : ShiftL A B) :
     (∀ x n, x ≪ n = x * 2 ^ n) → ShiftLSpec A B sl.
@@ -135,9 +146,6 @@ Section shift_left_integers.
   Qed.
 
   Context `{!ShiftLSpec A B sl}.
-
-  Global Instance: Proper ((=) ==> (=) ==> (=)) (≪) | 1.
-  Proof. apply shiftl_proper. Qed.
 
   Lemma shiftl_int_pow `{!IntPowSpec A B ipw} x n : x ≪ n = x * 2 ^ n.
   Proof. 
@@ -157,8 +165,6 @@ End shift_left_integers.
 Section preservation_integers.
   Context `{Integers B} `{Ring A1} `{!ShiftLSpec A1 B sl1} `{Ring A2} `{!ShiftLSpec A2 B sl2} 
     {f : A1 → A2} `{!SemiRing_Morphism f} `{!LeftCancellation (.*.) (2:A2)}.
-
-  Add Ring Ba: (rings.stdlib_ring_theory B).
 
   Lemma preserves_shiftl_int x (n : B) : f (x ≪ n) = (f x) ≪ n.
   Proof.
