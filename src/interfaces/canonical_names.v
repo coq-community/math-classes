@@ -20,7 +20,9 @@ Infix "≡" := eq (at level 70, no associativity).
   (* Hm, we could define a very low priority Equiv instance for Leibniz equality.. *)
 
 Definition ext_equiv `{Equiv A} `{Equiv B}: Equiv (A → B) := ((=) ==> (=))%signature.
-Hint Extern 10 (Equiv (_ → _)) => apply @ext_equiv : typeclass_instances. (* Due to bug #2491 *)
+Hint Extern 10 (Equiv (_ → _)) => apply @ext_equiv : typeclass_instances. 
+Hint Extern 10 (Equiv (relation _)) => apply @ext_equiv : typeclass_instances. (* Due to bug #2491 *)
+
 (** Interestingly, most of the development works fine if this is defined as
   ∀ x, f x = g x.
 However, in the end that version was just not strong enough for comfortable rewriting
