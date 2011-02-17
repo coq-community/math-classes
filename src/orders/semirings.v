@@ -203,16 +203,16 @@ Proof with auto.
   apply square_nonneg.
 Qed.
 
-Lemma precedes_0_1 : 0 ≤ 1.
-Proof. setoid_replace 1 with (1 * 1) by ring. apply square_nonneg. Qed.
+Lemma precedes_0_1 : GeZero 1.
+Proof. red. setoid_replace 1 with (1 * 1) by ring. apply square_nonneg. Qed.
 
-Lemma precedes_0_2 : 0 ≤ 2.
+Lemma precedes_0_2 : GeZero 2.
 Proof. apply nonneg_plus_compat; apply precedes_0_1. Qed.
 
-Lemma precedes_0_3 : 0 ≤ 3.
+Lemma precedes_0_3 : GeZero 3.
 Proof. apply nonneg_plus_compat. apply precedes_0_1. apply precedes_0_2. Qed.
 
-Lemma precedes_0_4 : 0 ≤ 4.
+Lemma precedes_0_4 : GeZero 4.
 Proof. apply nonneg_plus_compat. apply precedes_0_1. apply precedes_0_3. Qed.
 
 Lemma precedes_1_2 : 1 ≤ 2.
@@ -233,16 +233,16 @@ Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. apply precedes_2_3. Q
 Lemma precedes_3_4 : 3 ≤ 4.
 Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. easy. Qed.
 
-Lemma sprecedes_0_1 `{!NeZero (1:R)} : 0 < 1.
+Lemma sprecedes_0_1 `{!NeZero (1:R)} : GtZero 1.
 Proof. split. apply precedes_0_1. apply not_symmetry, (ne_zero 1). Qed.
 
-Lemma sprecedes_0_2 `{!NeZero (1:R)} : 0 < 2.
+Lemma sprecedes_0_2 `{!NeZero (1:R)} : GtZero 2.
 Proof. apply pos_plus_scompat; apply sprecedes_0_1. Qed.
 
-Lemma sprecedes_0_3 `{!NeZero (1:R)} : 0 < 3.
+Lemma sprecedes_0_3 `{!NeZero (1:R)} : GtZero 3.
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_0_2. Qed.
 
-Lemma sprecedes_0_4 `{!NeZero (1:R)} : 0 < 4.
+Lemma sprecedes_0_4 `{!NeZero (1:R)} : GtZero 4.
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_0_3. Qed.
 
 Lemma sprecedes_1_2 `{!NeZero (1:R)} : 1 < 2.
@@ -306,5 +306,15 @@ Section another_semiring.
     now rewrite Ez2, preserves_plus.
   Qed.
 End another_semiring.
-
 End contents.
+
+(* If we make these real instances Coq loops while using instances as 
+    [∀ z, GtZero z → OrderPreservingBack (z *.)]. TODO: investigate. *)
+Hint Extern 10 (GeZero 1) => eapply @precedes_0_1 : typeclass_instances. 
+Hint Extern 10 (GeZero 2) => eapply @precedes_0_2 : typeclass_instances. 
+Hint Extern 10 (GeZero 3) => eapply @precedes_0_3 : typeclass_instances. 
+Hint Extern 10 (GeZero 4) => eapply @precedes_0_4 : typeclass_instances. 
+Hint Extern 10 (GtZero 1) => eapply @sprecedes_0_1 : typeclass_instances. 
+Hint Extern 10 (GtZero 2) => eapply @sprecedes_0_2 : typeclass_instances. 
+Hint Extern 10 (GtZero 3) => eapply @sprecedes_0_3 : typeclass_instances. 
+Hint Extern 10 (GtZero 4) => eapply @sprecedes_0_4 : typeclass_instances. 

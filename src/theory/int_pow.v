@@ -223,7 +223,7 @@ Proof.
   intros.
   rewrite int_pow_S.
    rewrite <-rings.mult_1_r.
-   apply semirings.mult_compat; auto using semirings.precedes_0_1.
+   apply semirings.mult_compat; try apply semirings.precedes_0_1; auto.
   apply not_symmetry, orders.neq_precedes_sprecedes.
   apply orders.sprecedes_trans_l with 1; trivial.
   now apply semirings.sprecedes_0_1.
@@ -360,10 +360,10 @@ Section int_pow_default.
     end.
 
   Global Instance: IntPowSpec A B int_pow_default.
-  Proof with try contradiction; auto using semirings.precedes_0_1.
+  Proof.
     split; unfold pow, int_pow_default.
        intros ? ? E1 ? ? E2.
-       now (case (decide_rel _); case (decide_rel _); rewrite E1, E2)...
+       now (case (decide_rel _); case (decide_rel _); rewrite E1, E2).
       intros x. case (decide_rel _); intros E.
       rewrite int_abs_0. 
        now apply nat_pow_0.
@@ -374,8 +374,10 @@ Section int_pow_default.
      apply fields.dec_mult_inv_0.
      now apply int_abs_nonzero.
     intros x n E. case (decide_rel _); case (decide_rel _); intros E1 E2.
-       rewrite int_abs_nonneg_plus, int_abs_1...
-       now rewrite nat_pow_S.
+       rewrite int_abs_nonneg_plus, int_abs_1.
+         now rewrite nat_pow_S.
+        apply (ge_zero 1).
+       easy.
       setoid_replace n with (-(1):B).
        rewrite rings.plus_opp_r, int_abs_0, nat_pow_0. 
        rewrite int_abs_opp, int_abs_1, right_identity. 
@@ -384,15 +386,18 @@ Section int_pow_default.
        apply orders.not_precedes_sprecedes in E1.
        apply integers.precedes_sprecedes_alt in E1. 
        apply (order_preserving_back (+1)).
-       ring_simplify...
+       now ring_simplify.
       apply (order_preserving_back (1+)). now rewrite rings.plus_opp_r.
-     destruct E2. apply semirings.nonneg_plus_compat_l...
+     destruct E2. apply semirings.nonneg_plus_compat_l.
+       apply (ge_zero 1).
+      easy.
      rewrite <-int_abs_opp, <-(int_abs_opp n).
      setoid_replace (-n) with (1 - (1 + n)) by ring.
-     rewrite (int_abs_nonneg_plus 1 (-(1 + n))), int_abs_1...
-      rewrite nat_pow_S. 
-      rewrite fields.dec_mult_inv_distr, associativity.
-      now rewrite fields.dec_mult_inverse, left_identity.
+     rewrite (int_abs_nonneg_plus 1 (-(1 + n))), int_abs_1.
+       rewrite nat_pow_S. 
+       rewrite fields.dec_mult_inv_distr, associativity.
+       now rewrite fields.dec_mult_inverse, left_identity.
+      apply (ge_zero 1).
      apply rings.flip_nonpos_opp.
      now apply orders.not_precedes_sprecedes.
   Qed.
