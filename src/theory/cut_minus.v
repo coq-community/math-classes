@@ -51,7 +51,7 @@ Section cut_minus_properties.
     destruct (total_order x y) as [E|E].
      apply orders.equiv_precedes. symmetry...
     apply (order_preserving_back (+ y))...
-    unfold flip. rewrite cut_minus_precedes; ring_simplify...
+    rewrite cut_minus_precedes; ring_simplify...
   Qed.
 
   Lemma cut_minus_precedes_trans x y z : y ≤ x → z ≤ y → (x ∸ y) + (y ∸ z) = x ∸ z.
@@ -59,7 +59,7 @@ Section cut_minus_properties.
     intros. 
     apply (right_cancellation (+) z)...
     rewrite <-associativity. 
-    repeat rewrite cut_minus_precedes... 
+    rewrite ?cut_minus_precedes... 
     transitivity y...
   Qed.
   Hint Resolve cut_minus_precedes_trans.
@@ -71,7 +71,7 @@ Section cut_minus_properties.
     apply (right_cancellation (+) (y1 + y2))...
     rewrite cut_minus_precedes.
      setoid_replace (x1 ∸ y1 + (x2 ∸ y2) + (y1 + y2)) with (((x1 ∸ y1) + y1) + ((x2 ∸ y2) + y2)) by ring.
-     repeat rewrite cut_minus_precedes... reflexivity. 
+     rewrite ?cut_minus_precedes... reflexivity. 
     apply semirings.plus_compat...
   Qed.
 
@@ -79,12 +79,12 @@ Section cut_minus_properties.
   Proof.
     intros E.
     destruct (total_order y z).
-     repeat rewrite cut_minus_0; trivial.
+     rewrite ?cut_minus_0; trivial.
       ring.
      now apply (maps.order_preserving_ge_0 (.*.) x).
     apply (right_cancellation (+) (x * z)). 
     rewrite <-distribute_l.
-    repeat rewrite cut_minus_precedes; try easy.
+    rewrite ?cut_minus_precedes; try easy.
     now apply (maps.order_preserving_ge_0 (.*.) x).
   Qed.
 
@@ -98,11 +98,11 @@ Section cut_minus_properties.
   Lemma cut_minus_plus_l_rev x y z : y ∸ z = (x + y) ∸ (x + z).
   Proof with auto; try reflexivity.
     destruct (total_order y z) as [E|E].
-     repeat rewrite cut_minus_0... 
+     rewrite ?cut_minus_0... 
      apply (order_preserving (x +))...
     apply (right_cancellation (+) (x + z))...
     setoid_replace (y ∸ z + (x + z)) with ((y ∸ z + z) + x) by ring.
-    repeat rewrite cut_minus_precedes... 
+    rewrite ?cut_minus_precedes... 
      apply commutativity.
     apply (order_preserving (x +))...
   Qed.
@@ -154,7 +154,7 @@ Section cut_minus_properties.
   Lemma cut_minus_zeros_precedes x y : x ≤ y → (y ∸ x) + (x ∸ 0) + (0 ∸ y) = (y ∸ 0) + (0 ∸ x).
   Proof with auto; try reflexivity.
     intros E.
-    repeat rewrite <-cut_minus_zero_plus_toggle.
+    rewrite <-?cut_minus_zero_plus_toggle.
     apply (right_cancellation (+) x)...
     setoid_replace (y ∸ x + (x + (0 ∸ x)) + (0 ∸ y) + x) with ((y ∸ x + x) + (x + (0 ∸ x)) + (0 ∸ y)) by ring.
     rewrite (cut_minus_precedes y x)... ring.
@@ -162,7 +162,7 @@ Section cut_minus_properties.
 
   (* * Properties of min and minus *)
   Section min.
-  Context `{prec_decide : ∀ (x y : R), Decision (x ≤ y)}.
+  Context `{∀ (x y : R), Decision (x ≤ y)}.
   Lemma cut_minus_min1 x y z : x ∸ min y z = x ∸ y + (min x y ∸ z). 
   Proof with eauto; try ring.
     unfold min, sort.
@@ -177,7 +177,7 @@ Section cut_minus_properties.
   Proof.
     rewrite <-cut_minus_min1. 
     rewrite (commutativity x y), <-cut_minus_min1.
-    rewrite commutativity. reflexivity.
+    now rewrite commutativity.
   Qed.
 
   Lemma cut_minus_min3 x y z : (x + min y z) ∸ min (x + y) (x + z) = min (x + y) (x + z) ∸ (x + min y z).
@@ -239,7 +239,7 @@ Section order_preserving.
      rewrite (cut_minus_0 x y E), (cut_minus_0 (f x) (f y)).
      apply rings.preserves_0.
      now apply (order_preserving _).
-    apply (left_cancellation (+) (f y)). do 2 rewrite (commutativity (f y)).
+    apply (left_cancellation (+) (f y)). rewrite 2!(commutativity (f y)).
     rewrite <-rings.preserves_plus.
     rewrite (cut_minus_precedes x y E), (cut_minus_precedes (f x) (f y)).
      reflexivity.

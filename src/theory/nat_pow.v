@@ -45,7 +45,7 @@ Proof.
    rewrite nat_pow_0, left_identity. ring.
   intros n E. 
   rewrite <-associativity.
-  do 2 rewrite nat_pow_S.
+  rewrite 2!nat_pow_S.
   rewrite E. ring.
 Qed.
   
@@ -54,9 +54,9 @@ Lemma nat_pow_base_mult (x y : A) (n : B) :
 Proof.
   pattern n. apply naturals.induction; clear n.
     solve_proper.
-   repeat rewrite nat_pow_0. ring.
+   rewrite ?nat_pow_0. ring.
   intros n E. 
-  repeat rewrite nat_pow_S.
+  rewrite ?nat_pow_S.
   rewrite E. ring.
 Qed.
 
@@ -65,7 +65,7 @@ Lemma nat_pow_exp_mult (x : A) (n m : B) :
 Proof.
   pattern m. apply naturals.induction; clear m.
     solve_proper.
-   rewrite right_absorb. now repeat rewrite nat_pow_0.
+   rewrite right_absorb. now rewrite ?nat_pow_0.
   intros m E. 
   rewrite nat_pow_S, <-E.
   rewrite distribute_l, right_identity.
@@ -91,7 +91,7 @@ Lemma nat_pow_pos (x : A) (n : B) : 0 < x → 0 < x ^ n.
 Proof.
   intros nonneg.
   pattern n. apply naturals.induction; clear n.
-    intros x1 x2 E. now rewrite E.
+    solve_proper.
    rewrite nat_pow_0. now apply semirings.sprecedes_0_1.
   intros n E. rewrite nat_pow_S.
   now apply semirings.pos_mult_scompat.
@@ -125,10 +125,10 @@ Section exp_preservation.
     revert n. apply naturals.induction.
       solve_proper.
      rewrite rings.preserves_0.
-     now do 2 rewrite nat_pow_0.
+     now rewrite 2!nat_pow_0.
     intros n E.
     rewrite rings.preserves_plus, rings.preserves_1. 
-    do 2 rewrite nat_pow_S.
+    rewrite 2!nat_pow_S.
     now rewrite E.
   Qed.
 End exp_preservation.

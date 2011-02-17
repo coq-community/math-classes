@@ -293,11 +293,11 @@ Proof.
    apply (order_preserving_back ZtoStdQ).
    apply (maps.order_preserving_back_flip_gt_0 (.*.) (2 ^ (expo x))). 
     apply int_pow_pos. now apply semirings.sprecedes_0_2.
-   unfold flip. now rewrite rings.preserves_0, left_absorb in E |- *.
+   now rewrite rings.preserves_0, left_absorb in E |- *.
   unfold precedes, dy_precedes, DtoQ_slow. simpl.
   apply (order_preserving ZtoStdQ) in E.
   apply (maps.order_preserving_flip_ge_0 (.*.) (2 ^ (expo x))) in E. 
-   unfold flip in E. now rewrite rings.preserves_0, left_absorb in E |- *.
+   now rewrite rings.preserves_0, left_absorb in E |- *.
   apply int_pow_nonneg. now apply semirings.sprecedes_0_2.
 Qed.
 
@@ -325,7 +325,7 @@ Proof.
   intros E. unfold precedes, dy_precedes, DtoQ_slow. simpl in *.
   apply (order_preserving ZtoStdQ) in E.
   rewrite ZtoQ_shift in E.
-  apply (maps.order_preserving_flip_ge_0 (.*.) (2 ^ xe)) in E. unfold flip in E.
+  apply (maps.order_preserving_flip_ge_0 (.*.) (2 ^ xe)) in E.
    rewrite <-associativity, <-int_pow_exp_plus in E.
     now setoid_replace ((ye - xe) + xe) with ye in E by ring.
    now apply (ne_zero (2:StdQ)).

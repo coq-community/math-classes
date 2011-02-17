@@ -63,13 +63,13 @@ Proof. intros x y H. unfold inject_Z. repeat red. simpl. now rewrite H. Qed.
 Instance: SemiRing_Morphism inject_Z. 
 Proof.
   repeat (split; try apply _).
-  intros x y. repeat red. simpl. now repeat rewrite Zmult_1_r.
+  intros x y. repeat red. simpl. now rewrite ?Zmult_1_r.
 Qed.
 
 Instance: Injective inject_Z.
 Proof.
  constructor. 2: apply _.
- intros x y. change (x * 1 = y * 1 → x = y). do 2 rewrite mult_1_r. intuition.
+ intros x y. change (x * 1 = y * 1 → x = y). rewrite 2!mult_1_r. intuition.
 Qed.
 
 Program Definition Q_to_fracZ (x : Q) : Frac Z := frac (Qnum x) (Zpos (Qden x)) _.

@@ -64,8 +64,8 @@ Proof.
   intros x y E.
   rewrite <- (rings.plus_0_r x), <- (rings.plus_0_r y).
   change ('x = ('y : SRpair N)).
-  do 2 rewrite <-NtoZ_uniq.
-  do 2 rewrite <-(naturals.to_semiring_unique (integers_to_ring Int (SRpair N) ∘ naturals_to_semiring N Int)).
+  rewrite <-2!NtoZ_uniq.
+   rewrite <-2!(naturals.to_semiring_unique (integers_to_ring Int (SRpair N) ∘ naturals_to_semiring N Int)).
   unfold compose. rewrite E. reflexivity.
 Qed.
 

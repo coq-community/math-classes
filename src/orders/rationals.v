@@ -130,8 +130,8 @@ Section default_order.
     exists (n1 * d2 + n2 * d1) (d1 * d2).
     rewrite B2, B1.
     rewrite preserves_plus.
-    repeat rewrite preserves_mult.
-    field. split; apply injective_not_0...
+    rewrite ?preserves_mult.
+    field. split; now apply injective_not_0.
   Qed.
 
   Instance: AntiSymmetric rationals_precedes.
@@ -164,7 +164,7 @@ Section default_order.
      intros x y [n [d E]]. exists n d. rewrite E. ring.
     intros x [n1 [d1 E1]] y [n2 [d2 E2]].
     exists (n1 * n2) (d1 * d2).
-    do 2 rewrite preserves_mult. 
+    rewrite 2!preserves_mult. 
     rewrite E1, E2, dec_mult_inv_distr. ring.
   Qed.
 

@@ -64,7 +64,7 @@ Section groupmor_props.
   Proof.
     apply (left_cancellation sg_op (f x)).
     rewrite <-preserves_sg_op.
-    do 2 rewrite ginv_r.
+    rewrite 2!ginv_r.
     apply preserves_mon_unit.
   Qed.
 End groupmor_props.

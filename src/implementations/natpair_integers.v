@@ -43,8 +43,8 @@ Section for_another_ring.
    apply rings.equal_by_zero_sum.
    transitivity (n_to_sr xp + n_to_sr yn + - (n_to_sr xn + n_to_sr yp))...
    apply rings.equal_by_zero_sum.
-   do 2 rewrite <- rings.preserves_plus. rewrite E. 
-   rewrite commutativity. reflexivity.
+   rewrite <-2!rings.preserves_plus. rewrite E. 
+   now rewrite commutativity.
   Qed.
 
   Ltac derive_preservation := unfold integers_to_ring, z_to_ring; simpl; preservation; ring.

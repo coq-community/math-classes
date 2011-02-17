@@ -10,7 +10,7 @@ Section field_properties.
 
   Lemma mult_inverse_alt (x : F) (P : x ≠ 0) : x * // exist _ x P = 1.
   Proof. 
-    rewrite <-(mult_inverse (exist _ x P)). reflexivity. 
+    now rewrite <-(mult_inverse (exist _ x P)). 
   Qed.
 
   Instance: NoZeroDivisors F.
@@ -60,8 +60,7 @@ Section field_properties.
      rewrite <-(rings.mult_0_r (`x)), <-G.
      symmetry. apply mult_inverse.
     rewrite commutativity, mult_inverse. 
-    rewrite E, commutativity, mult_inverse.
-    reflexivity.
+    now rewrite E, commutativity, mult_inverse.
   Qed.
 
   Lemma mult_inv_distr_alt `{∀ z, NeZero z → LeftCancellation (.*.) z} x (Px : x ≠ 0) y (Py : y ≠ 0) (Pxy : x * y ≠ 0) : 
@@ -70,7 +69,7 @@ Section field_properties.
     apply (left_cancellation_ne_0 (.*.) (x * y))...
     transitivity ((x * // (exist _ x Px)) *  (y * // (exist _ y Py)))...
     transitivity ((x * y) * // (exist _ (x * y) Pxy))...
-    do 3 rewrite mult_inverse_alt...
+    rewrite 3!mult_inverse_alt...
   Qed.
 
   (* Properties of fields with decidable equality *)
@@ -81,7 +80,7 @@ Section field_properties.
    intros x y E.
    destruct (decide (x = 0)) as [? | P]...
    rewrite <- (mult_0_r x) in E.
-   right. apply (left_cancellation_ne_0 (.*.) x)...
+   right. now apply (left_cancellation_ne_0 (.*.) x).
   Qed.
 
   Lemma mult_inv_nonzero x : // x ≠ 0.
@@ -108,7 +107,7 @@ Section field_properties.
   Lemma dec_mult_inv_0: / 0 = 0.
   Proof. 
     unfold dec_mult_inv, dec_mult_inv_sig. 
-    destruct dec_inv as [z [E1 E2]]. apply E2. reflexivity.
+    destruct dec_inv as [z [E1 E2]]. now apply E2.
   Qed.
 
   Lemma dec_mult_inv_1: / 1 = 1.
@@ -124,12 +123,11 @@ Section field_properties.
     case (decide (x1 = 0)); intros E1; case (decide (x2 = 0)); intros E2.
        unfold dec_mult_inv, dec_mult_inv_sig.
        destruct (dec_inv x1) as [z1 [? Ez1]], (dec_inv x2) as [z2 [? Ez2]].
-       simpl. rewrite Ez1, Ez2... reflexivity.
-      destruct E2. rewrite <- E...
-     destruct E1. rewrite E...
+       simpl. now rewrite Ez1, Ez2.
+      destruct E2. now rewrite <-E.
+     destruct E1. now rewrite E.
     apply (left_cancellation_ne_0 (.*.) x1)...
-    rewrite dec_mult_inverse, E, dec_mult_inverse...
-    reflexivity.
+    now rewrite dec_mult_inverse, E, dec_mult_inverse.
   Qed.
 
   Lemma dec_mult_inv_distr (x y: F): / (x * y) = / x * / y.
@@ -180,7 +178,7 @@ Section field_properties.
   Lemma dec_mult_inv_involutive x : / / x = x.
   Proof with auto.
     destruct (decide (x = 0)) as [E|E].
-    rewrite E. do 2 rewrite dec_mult_inv_0. reflexivity.
+     rewrite E. now rewrite 2!dec_mult_inv_0.
     apply (right_cancellation_ne_0 (.*.) (/x)).
      apply dec_mult_inv_nonzero...
     rewrite dec_mult_inverse...

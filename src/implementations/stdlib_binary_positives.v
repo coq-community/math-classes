@@ -34,7 +34,6 @@ Proof.
 Qed.
 
 Section contents.
-
   Context `{SemiRing R}.
 
   Add Ring R: (stdlib_semiring_theory R).
@@ -84,7 +83,7 @@ Proof.
  repeat rewrite map_pos_nat_of_P.
  rewrite nat_of_P_minus_morphism. reflexivity.
  unfold Plt in H.
- apply ZC2. assumption.
+ now apply ZC2.
 Qed.
 
 Lemma preserves_minus `{Ring R} (f: nat → R) `{!SemiRing_Morphism f}
@@ -103,6 +102,6 @@ Proof with try apply _; intuition.
  rewrite preserves_minus...
   rewrite map_pos_tri...
   rewrite map_pos_tri...
- do 2 rewrite map_pos_nat_of_P.
+ rewrite 2!map_pos_nat_of_P.
  apply lt_le_weak, nat_of_P_lt_Lt_compare_morphism...
 Qed.

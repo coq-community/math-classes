@@ -195,7 +195,7 @@ Proof.
     now apply semirings.pos_mult_scompat.
    apply not_symmetry. now apply orders.neq_precedes_sprecedes.
   assert (GtZero x) by auto.
-  apply (maps.strictly_order_preserving_back (x *.)). unfold flip.
+  apply (maps.strictly_order_preserving_back (x *.)).
   rewrite <-int_pow_S.
    now rewrite right_absorb.
   apply not_symmetry. now apply orders.neq_precedes_sprecedes.
@@ -384,7 +384,7 @@ Section int_pow_default.
        apply orders.not_precedes_sprecedes in E1.
        apply integers.precedes_sprecedes_alt in E1. 
        apply (order_preserving_back (+1)).
-       unfold flip. ring_simplify...
+       ring_simplify...
       apply (order_preserving_back (1+)). now rewrite rings.plus_opp_r.
      destruct E2. apply semirings.nonneg_plus_compat_l...
      rewrite <-int_abs_opp, <-(int_abs_opp n).

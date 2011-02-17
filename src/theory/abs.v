@@ -31,7 +31,7 @@ Lemma abs_nonneg_plus (x y : R) :
   0 ≤ x → 0 ≤ y → abs (x + y) = abs x + abs y.
 Proof.
   intros Ex Ey.
-  repeat rewrite abs_nonneg; auto.
+  rewrite ?abs_nonneg; trivial.
    reflexivity.
   now apply nonneg_plus_compat.
 Qed.
@@ -40,7 +40,7 @@ Lemma abs_nonpos_plus (x y : R) :
   x ≤ 0 → y ≤ 0 → abs (x + y) = abs x + abs y.
 Proof.
   intros Ex Ey.
-  repeat rewrite abs_nonpos; auto.
+  rewrite ?abs_nonpos; trivial.
    ring.
   now apply nonpos_plus_compat.
 Qed.
@@ -53,7 +53,7 @@ Qed.
 Lemma abs_mult (x y : R) : abs (x * y) = abs x * abs y.
 Proof with try ring; auto.
   destruct (total_order 0 x) as [Ex|Ex]; destruct (total_order 0 y) as [Ey|Ey].
-     repeat rewrite abs_nonneg...
+     rewrite ?abs_nonneg...
      apply nonneg_mult_compat...
     rewrite (abs_nonneg x), (abs_nonpos y), (abs_nonpos (x * y))...
     apply nonneg_nonpos_mult...
@@ -91,11 +91,11 @@ Section order_preserving.
   Lemma preserves_abs x : f (abs x) = abs (f x).
   Proof with auto.
     destruct (total_order 0 x).
-     repeat rewrite abs_nonneg...
+     rewrite ?abs_nonneg...
       reflexivity.
      rewrite <-(rings.preserves_0 (f:=f)).
      apply (order_preserving _)...
-    repeat rewrite abs_nonpos...
+    rewrite ?abs_nonpos...
     apply rings.preserves_opp.
     rewrite <-(rings.preserves_0 (f:=f)).
     apply (order_preserving _)...

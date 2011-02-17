@@ -18,9 +18,9 @@ Section shift_left_naturals.
     intros spec.
     split.
       intros ? ? E1 ? ? E2.
-      do 2 rewrite spec. now rewrite E1, E2.
+      rewrite 2!spec. now rewrite E1, E2.
      intro x. rewrite spec, nat_pow_0. ring.
-    intros x n. do 2 rewrite spec. rewrite nat_pow_S. ring.
+    intros x n. rewrite 2!spec. rewrite nat_pow_S. ring.
   Qed.
 
   Context `{!ShiftLSpec A B sl}.
@@ -88,7 +88,7 @@ Section shift_left_naturals.
   Lemma shiftl_inj n : Injective (flip shiftl n).
   Proof with auto.
     repeat (split; try apply _).
-    intros x y E. unfold flip in E. do 2 rewrite shiftl_nat_pow in E.
+    intros x y E. unfold flip in E. rewrite 2!shiftl_nat_pow in E.
     apply (rings.right_cancellation_ne_0 (.*.) (2 ^ n))...
     apply nat_pow_nonzero. apply (ne_zero 2).
   Qed.
@@ -100,7 +100,7 @@ Section preservation.
 
   Lemma preserves_shiftl x (n : B) : f (x ≪ n) = (f x) ≪ n.
   Proof.
-    do 2 rewrite shiftl_nat_pow.
+    rewrite 2!shiftl_nat_pow.
     rewrite rings.preserves_mult.
     rewrite preserves_nat_pow.
     now rewrite rings.preserves_2.
@@ -128,9 +128,9 @@ Section shift_left_integers.
     intros spec.
     split.
       intros ? ? E1 ? ? E2.
-      do 2 rewrite spec. now rewrite E1, E2.
+      rewrite 2!spec. now rewrite E1, E2.
      intro x. rewrite spec, int_pow_0. ring.
-    intros x n. do 2 rewrite spec. rewrite int_pow_S. ring.
+    intros x n. rewrite 2!spec. rewrite int_pow_S. ring.
     apply (ne_zero (2:A)).
   Qed.
 
@@ -164,9 +164,9 @@ Section preservation_integers.
   Proof.
     revert n. apply integers.biinduction.
       solve_proper.
-     now do 2 rewrite shiftl_0.
+     now rewrite 2!shiftl_0.
     intros n; split; intros IH.
-     do 2 rewrite shiftl_S.
+     rewrite 2!shiftl_S.
      now rewrite rings.preserves_mult, rings.preserves_2, IH.
     apply (left_cancellation (.*.) 2).
     rewrite <-(rings.preserves_2 (f:=f)) at 1. 

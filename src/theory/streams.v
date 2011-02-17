@@ -47,7 +47,7 @@ Proof.
   rewrite E1. clear E1 n.
   induction m.
    easy.
-  simpl. do 2 rewrite <-tl_nth_tl.
+  simpl. rewrite <-2!tl_nth_tl.
   now rewrite IHm.
 Qed.
 

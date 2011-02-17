@@ -22,11 +22,11 @@ Global Instance: Setoid (Frac R) | 1.
 Proof with auto.
   split; red; unfold equiv, Frac_equiv.
     reflexivity.
-   intros x y E. symmetry...
+   intros x y E. now symmetry.
   intros [nx dx] [ny dy] [nz dz] V W. simpl in *.
   apply (left_cancellation_ne_0 (.*.) dy)...
-  do 2 rewrite associativity. 
-  do 2 rewrite (commutativity dy).
+  rewrite 2!associativity. 
+  rewrite 2!(commutativity dy).
   rewrite V, <- W. ring.
 Qed.
 
@@ -101,7 +101,7 @@ Global Instance: Field (Frac R).
 Proof.
   constructor; try apply _.
    unfold NeZero. unfolds.
-   do 2 rewrite mult_1_r.
+   rewrite 2!mult_1_r.
    apply (ne_zero 1).
   intros [x Ex]. ring_on_ring.
 Qed.
@@ -117,7 +117,7 @@ Qed.
 Global Instance: Injective Frac_inject.
 Proof. 
   repeat (constructor; try apply _).
-  intros x y. unfolds. do 2 rewrite mult_1_r. intuition.
+  intros x y. unfolds. rewrite 2!mult_1_r. intuition.
 Qed.
 End contents.
 

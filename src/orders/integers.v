@@ -61,7 +61,7 @@ Section another_ring.
      now rewrite preserves_0, opp_0.
     apply (injective (f ∘ naturals_to_semiring nat Int)).
     rewrite (naturals.to_semiring_unique _).
-    unfold compose. do 2 rewrite preserves_0.
+    unfold compose. rewrite 2!preserves_0.
     rewrite preserves_opp in E.
     apply (antisymmetry (≤)).
      rewrite <-(naturals.to_semiring_unique (integers_to_ring Int R ∘ naturals_to_semiring nat Int)).
@@ -129,7 +129,7 @@ Proof with auto.
   destruct (int_abs_sig Int nat n) as [m [E|E]].
    rewrite <-E. clear E. pattern m. 
    apply naturals.induction; clear m.
-     intros ? ? E. rewrite E. tauto.
+     solve_proper.
     now rewrite preserves_0.
    intros m E. 
    rewrite preserves_plus, preserves_1.
@@ -150,7 +150,7 @@ Lemma induction_nonneg
   P 0 → (∀ n, 0 ≤ n → P n → P (1 + n)) → ∀ n, 0 ≤ n → P n.
 Proof with auto.
   intros P0 PS n. pattern n. apply induction; clear n...
-   intros ? ? E. rewrite E. reflexivity.
+   solve_proper.
   intros n E1 ? E2.
   destruct (ne_zero 1).
   apply (antisymmetry (≤)).

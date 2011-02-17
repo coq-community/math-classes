@@ -126,7 +126,7 @@ Section for_another_ring.
        rewrite IHp.
        rewrite xI_in_ring_terms.
        rewrite agree_on_1.
-       do 2 rewrite <- preserves_sg_op...
+        rewrite <-2!preserves_sg_op...
       rewrite IHp.
       rewrite xO_in_ring_terms.
       rewrite <- preserves_sg_op...
@@ -167,8 +167,8 @@ Instance: RingOrder Zle.
 Proof.
   repeat (split; try apply _).
     exact Zorder.Zle_antisym.
-   intros x y E. apply Zorder.Zplus_le_compat_l. assumption.
-  intros x E y F. apply Zorder.Zmult_le_0_compat; assumption.
+   intros x y E. now apply Zorder.Zplus_le_compat_l.
+  intros x E y F. now apply Zorder.Zmult_le_0_compat.
 Qed.
 
 Instance: TotalOrder Zle.
@@ -181,8 +181,8 @@ Qed.
 Lemma Zlt_coincides x y : (x < y)%Z ↔ x < y.
 Proof with trivial.
   split.
-   intro. split. apply Zorder.Zlt_le_weak... apply Zorder.Zlt_not_eq...
-  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1)... destruct E2...
+   intro. split. apply Zorder.Zlt_le_weak... now apply Zorder.Zlt_not_eq.
+  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1)... now destruct E2.
 Qed.
 
 (* * Embedding of the Peano naturals into [Z] *)
