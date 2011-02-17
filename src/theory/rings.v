@@ -64,13 +64,13 @@ Section semiringmor_props.
   Proof. rewrite preserves_plus. now rewrite preserves_1. Qed.
 
   Context `{!Injective f}.
-  Lemma injective_not_0 x : x ≠ 0 → f x ≠ 0.
+  Lemma injective_ne_0 x : x ≠ 0 → f x ≠ 0.
   Proof.
     intros E G. apply E. 
     apply (injective f). now rewrite preserves_0.
   Qed.
 
-  Lemma injective_not_1 x : x ≠ 1 → f x ≠ 1.
+  Lemma injective_ne_1 x : x ≠ 1 → f x ≠ 1.
   Proof.
     intros E G. apply E. 
     apply (injective f). now rewrite preserves_1.

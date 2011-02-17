@@ -30,7 +30,7 @@ Section another_integers.
     change (QtoFrac x = (QtoFrac ∘ ZtoQ) (num (QtoFrac x)) / (QtoFrac ∘ ZtoQ) (den (QtoFrac x))).
     rewrite 2!(to_ring_unique_alt (QtoFrac ∘ ZtoQ) Frac_inject).
     assert (Frac_inject (den (QtoFrac x)) ≠ 0) as P.
-     apply injective_not_0. apply den_nonzero.
+     apply injective_ne_0. apply den_nonzero.
     rewrite (dec_mult_inv_correct _ P).
     unfold equiv, Frac_equiv. simpl. ring.
   Qed.
@@ -47,7 +47,7 @@ Section another_integers.
 
   Global Program Instance to_frac_inverse: Inverse f := λ x, ZtoQ (num x) // exist _ (ZtoQ (den x)) _.
   Next Obligation.
-    apply injective_not_0.
+    apply injective_ne_0.
     apply den_nonzero.
   Qed.
 
@@ -59,7 +59,7 @@ Section another_integers.
     rewrite <-E. clear E.
     rewrite commutativity.
     apply (left_cancellation_ne_0 (.*.) (f (ZtoQ (den x)))).
-     do 2 apply injective_not_0. apply den_nonzero.
+     do 2 apply injective_ne_0. apply den_nonzero.
     rewrite <-preserves_mult, associativity.
     rewrite mult_inverse_alt, left_identity.
     change ((f ∘ ZtoQ) (num x) = (f ∘ ZtoQ) (den x) * x).
@@ -167,7 +167,7 @@ Section alt_Build_Rationals.
   Program Instance alt_to_frac: RationalsToFrac F := λ B _ _ _ _ _ _ _ _ x, 
     frac (integers_to_ring Z B (num (F_to_fracZ x))) (integers_to_ring Z B (den (F_to_fracZ x))) _.
   Next Obligation.
-    apply injective_not_0.
+    apply injective_ne_0.
     apply den_nonzero.
   Qed.
 

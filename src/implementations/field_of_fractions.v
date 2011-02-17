@@ -128,7 +128,7 @@ Context `(f : R1 → R2) `{!SemiRing_Morphism f} `{!Injective f}.
 
 Program Definition Frac_lift (x : Frac R1) : Frac R2 := frac (f (num x)) (f (den x)) _.
 Next Obligation.
-  apply injective_not_0.
+  apply injective_ne_0.
   apply den_nonzero.
 Qed.
 

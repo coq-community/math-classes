@@ -338,7 +338,7 @@ Section preservation.
      rewrite int_pow_0, int_pow_0. 
      now apply rings.preserves_1.
     intros n. 
-    assert (f x ≠ 0) by now apply rings.injective_not_0.
+    assert (f x ≠ 0) by now apply rings.injective_ne_0.
     rewrite 2!int_pow_S, rings.preserves_mult; trivial.
     split; intros E.
      now rewrite E.

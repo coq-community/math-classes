@@ -24,7 +24,7 @@ Section rationals_order.
       intros G. apply E1.
       apply (injective (integers_to_ring Z Q)). apply (injective (-)).
       rewrite G. rewrite preserves_0. symmetry. now apply opp_0.
-     now apply injective_not_0.
+     now apply injective_ne_0.
     exists num. exists den. split; try assumption.
     split; try assumption. now apply not_symmetry.
   Qed.
@@ -48,7 +48,7 @@ Section rationals_order.
      split.
       apply (order_preserving (integers_to_ring (SRpair nat) Q2)) in E1a.
       now rewrite preserves_0 in E1a.
-     apply not_symmetry. apply (injective_not_0). now apply not_symmetry.
+     apply not_symmetry. apply (injective_ne_0). now apply not_symmetry.
     apply (order_preserving_ge_0 (.*.) (i_to_r den)) in E.
      rewrite right_absorb. rewrite right_absorb in E.
      rewrite (commutativity (f (i_to_r num))), associativity, dec_mult_inverse, left_identity.
@@ -59,9 +59,9 @@ Section rationals_order.
        apply (order_preserving _).
        apply (order_preserving_back i_to_r).
        now rewrite preserves_0.
-      apply (injective_not_0). now apply not_symmetry.
+      apply (injective_ne_0). now apply not_symmetry.
      change ((f ∘ i_to_r) den ≠ 0).
-     apply (injective_not_0). now apply not_symmetry.
+     apply (injective_ne_0). now apply not_symmetry.
     apply (order_preserving i_to_r) in E1a.
     now rewrite preserves_0 in E1a.
   Qed.
@@ -131,7 +131,7 @@ Section default_order.
     rewrite B2, B1.
     rewrite preserves_plus.
     rewrite ?preserves_mult.
-    field. split; now apply injective_not_0.
+    field. split; now apply injective_ne_0.
   Qed.
 
   Instance: AntiSymmetric rationals_precedes.
@@ -148,12 +148,12 @@ Section default_order.
       apply (injective n_to_sr).
       rewrite preserves_plus, preserves_mult, preserves_mult, preserves_0.
       apply (left_cancellation_ne_0 (.*.) (/n_to_sr d1)).
-       apply dec_mult_inv_nonzero. apply injective_not_0...
+       apply dec_mult_inv_nonzero. apply injective_ne_0...
       apply (left_cancellation_ne_0 (.*.) (/n_to_sr d2)).
-       apply dec_mult_inv_nonzero. apply injective_not_0...
+       apply dec_mult_inv_nonzero. apply injective_ne_0...
       ring_simplify. replace (zero) with (0 : Q) by reflexivity. 
       rewrite B2. field.
-      split; apply injective_not_0...
+      split; apply injective_ne_0...
      rewrite F. rewrite preserves_0. ring.
     contradiction.
   Qed.
@@ -183,9 +183,9 @@ Section default_order.
      rewrite preserves_mult, <-F, <-F, <-F.
      unfold compose. rewrite <-xd_ge0, <-yd_ge0, <-Ez1.
      transitivity ((i_to_r yn * i_to_r xd) / (i_to_r yd * i_to_r xd)).
-      field. split; apply injective_not_0; apply not_symmetry...
+      field. split; apply injective_ne_0; apply not_symmetry...
      rewrite <-preserves_mult, Ex2, preserves_plus, preserves_mult.
-     field. split; apply injective_not_0; apply not_symmetry...
+     field. split; apply injective_ne_0; apply not_symmetry...
     intros x y.
     destruct (rationals_decompose_pos_den (SRpair nat) x) as [xn [xd [E1x E2x]]].
     destruct (rationals_decompose_pos_den (SRpair nat) y) as [yn [yd [E1y E2y]]].

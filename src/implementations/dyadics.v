@@ -393,7 +393,7 @@ Section DtoQ.
     now apply orders.precedes_flip.
   Qed.
   Next Obligation.
-    apply rings.injective_not_0.
+    apply rings.injective_ne_0.
     pose proof (shiftl_nonzero (A:=Z) (B:=Z⁺)) as P.
     apply P.
     apply (ne_zero 1).
