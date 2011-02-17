@@ -101,7 +101,7 @@ Proof.
   intros z.
   split; try apply _.
   intros x y E.
-  unfold flip. do 2 rewrite (commutativity _ z).
+  rewrite 2!(commutativity _ z).
   now apply (strictly_order_preserving (z +)).
 Qed.
 
@@ -184,7 +184,7 @@ Proof.
   intros z.
   split; try apply _.
   intros x y E.
-  unfold flip. rewrite 2!(commutativity _ z).
+  rewrite 2!(commutativity _ z).
   now apply (strictly_order_preserving (z *.)).
 Qed.
 
@@ -206,48 +206,71 @@ Qed.
 Lemma precedes_0_1 : 0 ≤ 1.
 Proof. setoid_replace 1 with (1 * 1) by ring. apply square_nonneg. Qed.
 
-Lemma sprecedes_0_1 `{!NeZero (1:R)} : 0 < 1.
-Proof.
-  split. 
-   apply (precedes_0_1). 
-  apply not_symmetry. apply (ne_zero 1).
-Qed.
-
 Lemma precedes_0_2 : 0 ≤ 2.
 Proof. apply nonneg_plus_compat; apply precedes_0_1. Qed.
 
-Lemma sprecedes_0_2 `{!NeZero (1:R)} : 0 < 2.
-Proof. apply pos_plus_scompat; apply sprecedes_0_1. Qed.
+Lemma precedes_0_3 : 0 ≤ 3.
+Proof. apply nonneg_plus_compat. apply precedes_0_1. apply precedes_0_2. Qed.
+
+Lemma precedes_0_4 : 0 ≤ 4.
+Proof. apply nonneg_plus_compat. apply precedes_0_1. apply precedes_0_3. Qed.
 
 Lemma precedes_1_2 : 1 ≤ 2.
 Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. easy. Qed.
 
-Lemma sprecedes_1_2 `{!NeZero (1:R)} : 1 < 2.
-Proof. apply pos_plus_scompat_l. now apply sprecedes_0_1. easy. Qed.
+Lemma precedes_1_3 : 1 ≤ 3.
+Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. apply precedes_1_2. Qed.
 
-Lemma not_precedes_1_0 `{!NeZero (1:R)} : ¬1 ≤ 0.
-Proof.
-  intros E.
-  apply (ne_zero (1:R)).
-  eapply (antisymmetry (≤)); eauto.
-  apply precedes_0_1.
-Qed.
+Lemma precedes_1_4 : 1 ≤ 4.
+Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. apply precedes_1_3. Qed.
+
+Lemma precedes_2_3 : 2 ≤ 3.
+Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. easy. Qed.
+
+Lemma precedes_2_4 : 2 ≤ 4.
+Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. apply precedes_2_3. Qed.
+
+Lemma precedes_3_4 : 3 ≤ 4.
+Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. easy. Qed.
+
+Lemma sprecedes_0_1 `{!NeZero (1:R)} : 0 < 1.
+Proof. split. apply precedes_0_1. apply not_symmetry, (ne_zero 1). Qed.
+
+Lemma sprecedes_0_2 `{!NeZero (1:R)} : 0 < 2.
+Proof. apply pos_plus_scompat; apply sprecedes_0_1. Qed.
+
+Lemma sprecedes_0_3 `{!NeZero (1:R)} : 0 < 3.
+Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_0_2. Qed.
+
+Lemma sprecedes_0_4 `{!NeZero (1:R)} : 0 < 4.
+Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_0_3. Qed.
+
+Lemma sprecedes_1_2 `{!NeZero (1:R)} : 1 < 2.
+Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. easy. Qed.
+
+Lemma sprecedes_1_3 `{!NeZero (1:R)} : 1 < 3.
+Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_1_2. Qed.
+
+Lemma sprecedes_1_4 `{!NeZero (1:R)} : 1 < 4.
+Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_1_3. Qed.
+
+Lemma sprecedes_2_3 `{!NeZero (1:R)} : 2 < 3.
+Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. easy. Qed.
+
+Lemma sprecedes_2_4 `{!NeZero (1:R)} : 2 < 4.
+Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_2_3. Qed.
+
+Lemma sprecedes_3_4 `{!NeZero (1:R)} : 3 < 4.
+Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. easy. Qed.
 
 Global Instance ne_0_2 `{!NeZero (1:R)} : NeZero (2 : R).
-Proof.
-  intro E.
-  apply not_precedes_1_0.
-  rewrite <-E.
-  apply precedes_1_2.
-Qed.
+Proof. red. apply not_symmetry, neq_precedes_sprecedes, sprecedes_0_2. Qed.
+
+Lemma not_precedes_1_0 `{!NeZero (1:R)} : ¬1 ≤ 0.
+Proof. apply not_precedes_sprecedes, sprecedes_0_1. Qed.
 
 Lemma not_precedes_2_0 `{!NeZero (1:R)} : ¬2 ≤ 0.
-Proof.
-  intros E.
-  apply (ne_zero (2:R)).
-  eapply (antisymmetry (≤)); eauto.
-  apply precedes_0_2.
-Qed.
+Proof. apply not_precedes_sprecedes, sprecedes_0_2. Qed.
 
 Lemma ge1_mult_compat x y : 1 ≤ x → 1 ≤ y → 1 ≤ x * y.
 Proof. 
