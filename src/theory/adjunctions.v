@@ -6,8 +6,6 @@ Require Import
   workaround_tactics theory.jections.
 Require dual.
 
-Notation "f ⁻¹" := (inverse f) (at level 30). (* todo: move *)
-
 Hint Unfold id compose: typeclass_instances. (* todo: move *)
 
 Lemma equal_because_sole `{Setoid T} (P: T → Prop) x: is_sole P x → forall y z, P y → P z → y = z.

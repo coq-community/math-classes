@@ -3,17 +3,13 @@ Require Import
   abstract_algebra canonical_names workaround_tactics.
 Require setoids.
 
-Local Notation "f ⁻¹" := (inverse f) (at level 30).
-  (* Seems to work well, but conflicts with identical notation for multiplicative inverses. Todo: Find solution. *)
-
 Instance id_injective `{Setoid A} : Injective (@id A).
 Proof. split; try apply _. easy. Qed.
 
 Section compositions.
+  Context `{Equiv A} `{Equiv B} `{Equiv C} (g: A → B) (f: B → C) `{!Inverse f} `{!Inverse g}.
 
-  Context `{Equiv A} `{Equiv B} `{Equiv C} (g: A → B) (f: B → C) {fi: Inverse f} {gi: Inverse g}.
-
-  Global Instance: Inverse (f ∘ g) := gi ∘ fi.
+  Global Instance: Inverse (f ∘ g) := g⁻¹ ∘ f⁻¹.
 
   Global Instance: Injective f → Injective g → Injective (f ∘ g).
   Proof. firstorder. Qed.
@@ -24,7 +20,7 @@ Section compositions.
    pose proof (setoidmor_b f).
    pose proof (setoidmor_a f).
    intros x y E. unfold compose.
-   posed_rewrite (surjective g (fi x) (fi x))...
+   posed_rewrite (surjective g (f⁻¹ x) (f⁻¹ x))...
    posed_rewrite (surjective f x x)...
   Qed.
 
@@ -42,8 +38,7 @@ Proof.
  destruct (bijective_surjective).
  apply surjective.
  destruct surjective_mor.
- apply sm_proper.
- assumption.
+ now apply sm_proper.
 Qed.
   (* recall that "f ∘ f ⁻¹ = id" is just surjective. *)
 
@@ -102,7 +97,7 @@ Proof with intuition.
  apply bijective_applied.
 Qed.
 
-Hint Extern 4 (Bijective (inverse _)) => apply flip_bijection_pseudoinstance: typeclass_instances.
+Hint Extern 4 (Bijective (_ ⁻¹)) => apply flip_bijection_pseudoinstance: typeclass_instances.
   (* We use this instead of making flip_bijection_pseudoinstance a real instance, because
    otherwise it gets applied too eagerly, resulting in cycles. *)
 
@@ -117,9 +112,7 @@ Proof.
  pose proof (setoidmor_a f).
  pose proof (setoidmor_b f).
  intros. apply (injective f).
- posed_rewrite (surjective f y y).
- assumption.
- reflexivity.
+ now posed_rewrite (surjective f y y).
 Qed.
 
 Lemma cancel_left' `{Bijective A B f} x y: f ⁻¹ x = y → x = f y.
@@ -148,6 +141,6 @@ Proof with try apply _; intuition.
  repeat constructor...
   intros x y F. unfold compose.
   rewrite <- F.
-  rewrite (E (inverse f x) (inverse f x))... apply P...
+  rewrite (E (f⁻¹ x) (f⁻¹ x))... apply P...
  repeat intro. rewrite (E x x), (E y y)...
 Qed. 

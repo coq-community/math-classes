@@ -72,22 +72,22 @@ Qed.
 
 Section retract_is_nat.
   Context `{Naturals N} `{SemiRing SR} `{oSR : Order SR} `{!SemiRingOrder oSR} `{!TotalOrder oSR}.
-  Context (f : N → SR) `{inv_f : !Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (inverse f)}.
+  Context (f : N → SR) `{inv_f : !Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (f⁻¹)}.
 
   (* If we make this an instance, then instance resolution will often loop *)
-  Definition retract_is_nat_to_sr : NaturalsToSemiRing SR := λ R _ _ _ _ , naturals_to_semiring N R ∘ inverse f.
+  Definition retract_is_nat_to_sr : NaturalsToSemiRing SR := λ R _ _ _ _ , naturals_to_semiring N R ∘ f⁻¹.
 
   Section for_another_semiring.
     Context `{SemiRing R}.
 
-    Instance: SemiRing_Morphism (naturals_to_semiring N R ∘ inverse f).
+    Instance: SemiRing_Morphism (naturals_to_semiring N R ∘ f⁻¹).
 
     Context (h :  SR → R) `{!SemiRing_Morphism h}. 
      
-    Lemma same_morphism: naturals_to_semiring N R ∘ inverse f = h.
+    Lemma same_morphism: naturals_to_semiring N R ∘ f⁻¹ = h.
     Proof.
       intros x y F. rewrite <-F.
-      transitivity ((h ∘ (f ∘ inverse f)) x).
+      transitivity ((h ∘ (f ∘ f⁻¹)) x).
        symmetry. apply (to_semiring_unique (h ∘ f)).
       unfold compose. now rewrite jections.surjective_applied.
     Qed.

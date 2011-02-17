@@ -58,7 +58,7 @@ Instance compose_morphisms (A B C: Type)
   {P: Setoid_Morphism f} {Q: Setoid_Morphism g}: Setoid_Morphism (g ∘ f).
 Proof. destruct P, Q. constructor; apply _. Qed.
 
-Instance: ∀ `{Setoid_Morphism A B f} `{!Inverse f}, Bijective f → Setoid_Morphism (inverse f).
+Instance: ∀ `{Setoid_Morphism A B f} `{!Inverse f}, Bijective f → Setoid_Morphism (f⁻¹).
 Proof.
  intros.
  pose proof (setoidmor_a f).

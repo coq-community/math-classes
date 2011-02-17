@@ -68,7 +68,7 @@ Instance: Bijective of_Z.
 Proof. apply jections.flip_bijection, _. Qed.
 
 Instance: SemiRing_Morphism of_Z.
-Proof. change (SemiRing_Morphism (inverse to_Z)). split; apply _. Qed.
+Proof. change (SemiRing_Morphism (to_Z⁻¹)). split; apply _. Qed.
 
 Instance: IntegersToRing t := retract_is_int_to_ring of_Z.
 Instance: Integers t := retract_is_int of_Z.

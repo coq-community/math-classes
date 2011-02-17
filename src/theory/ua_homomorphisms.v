@@ -1,6 +1,6 @@
 Require Import
   Morphisms Setoid Program
-  canonical_names abstract_algebra
+  abstract_algebra
   universal_algebra.
 
 Section contents. 
@@ -15,7 +15,8 @@ Section contents.
     `{ea: ∀ a, Equiv (A a)} `{eb: ∀ a, Equiv (B a)}
     `{ai: AlgebraOps σ A} `{bi: AlgebraOps σ B}.
 
-  Section with_f. Context (f: ∀ a, A a → B a).
+  Section with_f. 
+    Context (f: ∀ a, A a → B a).
 
     Implicit Arguments f [[a]].
 
@@ -132,8 +133,6 @@ End homo.
    apply (IHo0 _ (o2 (g _ x)))...
   Qed.
 
-Implicit Arguments inverse [[A] [B] [Inverse]].
-
   Lemma invert_homomorphism A B f
     `{∀ a, Equiv (A a)} `{∀ a, Equiv (B a)}
     {ao: AlgebraOps σ A} {bo: AlgebraOps σ B}
@@ -145,7 +144,7 @@ Implicit Arguments inverse [[A] [B] [Inverse]].
    intros.
    destruct H2.
    constructor...
-    intro. fold (inverse (f a)). apply _.
+    intro. fold ((f a)⁻¹). apply _.
    intro.
    generalize (ao o) (bo o) (preserves _ _ f o)
      (algebra_propers o: Proper (=) (ao o)) (algebra_propers o: Proper (=) (bo o)).

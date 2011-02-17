@@ -154,7 +154,7 @@ Section jections.
     ; injective_mor:> Setoid_Morphism f }.
 
   Class Surjective: Prop :=
-    { surjective: f ∘ inverse f = id (* a.k.a. "split-epi" *)
+    { surjective: f ∘ (f ⁻¹) = id (* a.k.a. "split-epi" *)
     ; surjective_mor:> Setoid_Morphism f }.
 
   Class Bijective: Prop :=
@@ -206,26 +206,7 @@ Class SemiRingOrder `{Equiv A} `{RingPlus A} `{RingMult A} `{RingZero A} (o : Or
   ; srorder_plus : `(x ≤ y ↔ ∃ z, 0 ≤ z ∧ y = x + z)
   ; srorder_mult: `(0 ≤ x → ∀ y, 0 ≤ y → 0 ≤ x * y) }.
 
-(*
-Class OrdSemiRing A `{Equiv A} `{RingPlus A} `{RingMult A} `{RingZero A} `{RingOne A} `{Order A} : Prop :=
-  { ordsr_sr :> SemiRing A 
-  ; ordsr_order :> SemiRingOrder (≤)
-  ; ordsr_cancel :> ∀ z : A, LeftCancellation (+) z }.
-*)
-
 Class RingOrder `{Equiv A} `{RingPlus A} `{RingMult A} `{RingZero A} (o : Order A) :=
   { ringorder_partialorder:> PartialOrder (≤)
   ; ringorder_plus :> ∀ z, OrderPreserving ((+) z)
   ; ringorder_mult: `(0 ≤ x → ∀ y, 0 ≤ y → 0 ≤ x * y) }.
-
-(*
-Class OrdRing A `{Equiv A} `{RingPlus A} `{RingMult A} `{GroupInv A} `{RingZero A} `{RingOne A} `{Order A} : Prop :=
-  { ordring_ring:> Ring A 
-  ; ordring_order:> RingOrder (≤) }.
-
-Class OrdField A `{Equiv A} `{RingPlus A} `{RingMult A} `{GroupInv A} `{RingZero A} `{RingOne A} `{!MultInv A} `{Order A} : Prop :=
-  { ordfield_field:> Field A
-  ; ordfield_order:> RingOrder (≤) }.
-
-Instance ordfield_is_ordring `{OrdField A} : OrdRing A.
-*)

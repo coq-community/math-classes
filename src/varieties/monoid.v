@@ -1,5 +1,3 @@
-Set Automatic Coercions Import.
-
 (* To be imported qualified. *)
 Require Import
   Program Morphisms
@@ -151,7 +149,7 @@ Section specialized.
   Qed.
 
   Global Instance: ∀ `{H: Monoid_Morphism A B f} `{!Inverse f},
-    Bijective f → Monoid_Morphism (inverse f).
+    Bijective f → Monoid_Morphism (f⁻¹).
   Proof.
    intros.
    pose proof (encode_morphism_and_ops (f:=f)) as P.

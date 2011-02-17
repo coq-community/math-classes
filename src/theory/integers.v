@@ -66,29 +66,28 @@ Proof.
   change ('x = ('y : SRpair N)).
   rewrite <-2!NtoZ_uniq.
    rewrite <-2!(naturals.to_semiring_unique (integers_to_ring Int (SRpair N) ∘ naturals_to_semiring N Int)).
-  unfold compose. rewrite E. reflexivity.
+  unfold compose. now rewrite E.
 Qed.
 
 Section retract_is_int.
   Context `{Integers Int} `{Ring Int2} `{o2 : Order Int2} `{!RingOrder o2} `{!TotalOrder o2}.
-  Context (f : Int → Int2) `{!Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (inverse f)}.
+  Context (f : Int → Int2) `{!Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (f⁻¹)}.
 
   (* If we make this an instance, then instance resolution will often loop *)
-  Definition retract_is_int_to_ring : IntegersToRing Int2 := λ R _ _ _ _ _, integers_to_ring Int R ∘ inverse f.
+  Definition retract_is_int_to_ring : IntegersToRing Int2 := λ R _ _ _ _ _, integers_to_ring Int R ∘ f⁻¹.
 
   Section for_another_ring.
     Context `{Ring R}.
 
-    Instance: SemiRing_Morphism (integers_to_ring Int R ∘ inverse f).
+    Instance: SemiRing_Morphism (integers_to_ring Int R ∘ f⁻¹).
     Context (h :  Int2 → R) `{!SemiRing_Morphism h}. 
       
-    Lemma same_morphism: integers_to_ring Int R ∘ inverse f = h.
+    Lemma same_morphism: integers_to_ring Int R ∘ f⁻¹ = h.
     Proof with auto.
       intros x y F. rewrite <-F.
-      transitivity ((h ∘ (f ∘ inverse f)) x).
+      transitivity ((h ∘ (f ∘ f⁻¹)) x).
        symmetry. unfold compose. apply (to_ring_unique (h ∘ f)).
-      unfold compose. rewrite jections.surjective_applied.
-      reflexivity.
+      unfold compose. now rewrite jections.surjective_applied.
     Qed.
   End for_another_ring.
   

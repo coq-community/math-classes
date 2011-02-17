@@ -91,7 +91,6 @@ Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z) (at level 70, y at next level)
 Notation "x ≤ y < z" := (x ≤ y /\ y < z) (at level 70, y at next level).
 Notation "x < y < z" := (x < y /\ y < z) (at level 70, y at next level).
 Notation "x < y ≤ z" := (x < y /\ y ≤ z) (at level 70, y at next level).
-Notation "x ⁻¹" := (ring_mult_inverse x) (at level 30).
 Infix "◎" := comp (at level 40, left associativity).
   (* Taking over ∘ is just a little too zealous at this point. With our current
    approach, it would require changing all (nondependent) function types A → B
@@ -150,6 +149,8 @@ Class HeteroSymmetric {A} {T: A → A → Type} (R: ∀ {x y}, T x y → T y x �
 Implicit Arguments inverse [[A] [B] [Inverse]].
 Implicit Arguments antisymmetry [[A] [ea] [AntiSymmetric]].
 
+Notation "f ⁻¹" := (inverse f) (at level 30).
+
 (* Some things that hold in N, Z, Q, etc, and which we like to refer to by a common name: *)
 Class ZeroProduct A `{Equiv A} `{!RingMult A} `{!RingZero A}: Prop :=
   zero_product: `(x * y = 0 → x = 0 ∨ y = 0).
@@ -170,13 +171,13 @@ Class ZeroDivisor {R} `{Equiv R} `{RingZero R} `{RingMult R} (x: R): Prop
   := zero_divisor: x ≠ 0 ∧ ∃ y, y ≠ 0 ∧ x * y = 0.
 
 Class NoZeroDivisors R `{Equiv R} `{RingZero R} `{RingMult R}: Prop
-  := no_zero_divisors x: ¬ ZeroDivisor x.
+  := no_zero_divisors x: ¬ZeroDivisor x.
 
 Instance zero_product_no_zero_divisors `{ZeroProduct A} : NoZeroDivisors A.
 Proof. intros x [? [? [? E]]]. destruct (zero_product _ _ E); intuition. Qed.
 
-Class RingUnit {R} `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInverse x}: Prop
-  := ring_unit_mult_inverse: x * x⁻¹ = 1.
+Class RingUnit `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInverse x}: Prop
+  := ring_unit_mult_inverse: x * ring_mult_inverse x = 1.
 
 Definition NonNeg R `{RingZero R} `{Order R} := { z : R | 0 ≤ z }.
 Notation "R ⁺" := (NonNeg R) (at level 20, no associativity).

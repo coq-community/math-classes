@@ -72,7 +72,7 @@ Instance: Bijective of_Q.
 Proof. apply jections.flip_bijection, _. Qed.
 
 Instance: SemiRing_Morphism of_Q.
-Proof. change (SemiRing_Morphism (inverse anyQ.to_Q)). split; apply _. Qed.
+Proof. change (SemiRing_Morphism (to_Q⁻¹)). split; apply _. Qed.
 
 Instance: RationalsToFrac t := iso_to_frac of_Q.
 Instance: Rationals t := iso_is_rationals of_Q.

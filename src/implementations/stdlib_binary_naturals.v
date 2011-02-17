@@ -90,7 +90,7 @@ Instance: Bijective N_of_nat.
 Proof. apply jections.flip_bijection, _. Qed.
 
 Instance: SemiRing_Morphism N_of_nat.
-Proof. change (SemiRing_Morphism (inverse nat_of_N)). split; apply _. Qed.
+Proof. change (SemiRing_Morphism (nat_of_N⁻¹)). split; apply _. Qed.
 
 Instance: NaturalsToSemiRing N := retract_is_nat_to_sr N_of_nat.
 Instance: Naturals N := retract_is_nat N_of_nat.

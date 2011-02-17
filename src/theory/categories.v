@@ -4,10 +4,7 @@ Require Import
 Notation "x ⇛ y" := (∀ a, x a ⟶ y a) (at level 90, right associativity).
   (* Transformations (polymorphic arrows). Couldn't find an "arrow with dot over it" unicode character. *)
 
-Notation "f ⁻¹" := (inverse f) (at level 30). (* todo: move *)
-
 (* Natural transformations: *)
-
 Definition id_nat_trans `{Arrows D} `{!CatId D} `(F: C → D): F ⇛ F := λ _, cat_id.
 
 Section NaturalTransformation.
