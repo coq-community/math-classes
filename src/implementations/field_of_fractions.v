@@ -11,14 +11,13 @@ Implicit Arguments den_nonzero [[R] [e] [zero]].
 
 Section contents.
 Context `{IntegralDomain R}.
-Context `{∀ z : R, NeZero z → LeftCancellation (.*.) z}.
+Context `{∀ z : R, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
 
 Add Ring R: (stdlib_ring_theory R).
 
 Global Instance Frac_equiv: Equiv (Frac R) := λ x y, num x * den y = num y * den x.
 
-(* Global with a high priority to avoid "Evar ??? not declared" messages... *)
-Global Instance: Setoid (Frac R) | 1.
+Instance: Setoid (Frac R).
 Proof with auto.
   split; red; unfold equiv, Frac_equiv.
     reflexivity.
@@ -35,7 +34,7 @@ Global Instance Frac_dec `{∀ x y, Decision (x = y)} : ∀ x y: Frac R, Decisio
 
 (* injection from R *)
 Program Definition Frac_inject: R → Frac R := λ r, frac r 1 _.
-Next Obligation. exact (ne_zero 1). Qed.
+Next Obligation. exact (ne_0 1). Qed.
 
 Global Instance: Inject Frac_inject.
 
@@ -99,12 +98,12 @@ Proof.
   now rewrite (commutativity (den x')), (commutativity (den x)).
 Qed.
 
-Global Instance: Field (Frac R).
+Definition Frac_field: Field (Frac R).
 Proof.
   constructor; try apply _.
-   unfold NeZero. unfolds.
+   red. unfolds.
    rewrite 2!mult_1_r.
-   apply (ne_zero 1).
+   apply (ne_0 1).
   intros [x Ex]. ring_on_ring.
 Qed.
 
@@ -123,9 +122,15 @@ Proof.
 Qed.
 End contents.
 
+(* By declaring (Frac R) as a Field, instance resolution will go like: 
+    LeftCancellation (.*.) z => Field (Frac R) => LeftCancellation (.*.) z => .. 
+  so we have to make it a little less eager *)
+Hint Extern 10 (Field (Frac _)) => apply @Frac_field : typeclass_instances. 
+Typeclasses Opaque Frac_equiv.
+
 Section morphisms.
-Context `{IntegralDomain R1} `{∀ z : R1, NeZero z → LeftCancellation (.*.) z}.
-Context `{IntegralDomain R2} `{∀ z : R2, NeZero z → LeftCancellation (.*.) z}.
+Context `{IntegralDomain R1} `{∀ z : R1, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
+Context `{IntegralDomain R2} `{∀ z : R2, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
 Context `(f : R1 → R2) `{!SemiRing_Morphism f} `{!Injective f}.
 
 Program Definition Frac_lift (x : Frac R1) : Frac R2 := frac (f (num x)) (f (den x)) _.

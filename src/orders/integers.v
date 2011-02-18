@@ -152,7 +152,7 @@ Proof with auto.
   intros P0 PS n. pattern n. apply induction; clear n...
    solve_proper.
   intros n E1 ? E2.
-  destruct (ne_zero 1).
+  destruct (ne_0 1).
   apply (antisymmetry (≤)).
    apply (order_preserving_back ((n - 1) +)). ring_simplify. now transitivity 0.
   transitivity (n - 1)... apply (order_preserving_back (1 +)). ring_simplify.

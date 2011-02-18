@@ -61,7 +61,7 @@ Section upper_classes.
 
   Class IntegralDomain: Prop :=
     { intdom_ring: Ring 
-    ; intdom_nontrivial:> NeZero (1:A)
+    ; intdom_nontrivial:> PropHolds (1 ≠ 0)
     ; intdom_nozeroes:> NoZeroDivisors A }.
 
   (* For a strange reason Ring instances of Integers are sometimes obtained by
@@ -72,7 +72,7 @@ Section upper_classes.
 
   Class Field {mult_inv: MultInv A}: Prop :=
     { field_ring:> Ring
-    ; field_0neq1:> NeZero (1:A)
+    ; field_nontrivial:> PropHolds (1 ≠ 0)
     ; mult_inv_proper:> Proper ((=) ==> (=)) (//)
     ; mult_inverse: `( `x * // x = 1) }.
 End upper_classes.
@@ -80,7 +80,6 @@ End upper_classes.
 Implicit Arguments inv_proper [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments ginv_l [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments ginv_r [[A] [e] [op] [unit] [inv] [Group]].
-Implicit Arguments field_0neq1 [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv] [Field]].
 Implicit Arguments mult_inverse [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv0] [Field]].
 Implicit Arguments sg_mor [[A] [e] [op] [SemiGroup]].
 

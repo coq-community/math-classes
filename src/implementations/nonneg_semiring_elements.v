@@ -12,6 +12,7 @@ Add Ring R : (rings.stdlib_semiring_theory R).
 (* * Embedding of R⁺ into R *)
 Definition NonNeg_inject: R⁺ → R := @proj1_sig R _.
 Global Instance: Inject NonNeg_inject.
+
 (* Operations *)
 Global Program Instance NonNeg_plus: RingPlus (R⁺) := λ x y, exist _ (x + y) _. 
 Next Obligation.

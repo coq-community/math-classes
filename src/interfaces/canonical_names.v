@@ -11,9 +11,11 @@ Class Equiv A := equiv: relation A.
 (* We use this virtually everywhere, and so use "=" for it: *)
 Infix "=" := equiv: type_scope.
 Notation "(=)" := equiv (only parsing).
-Notation "( f =)" := (equiv f) (only parsing).
-Notation "(= f )" := (λ g, equiv g f) (only parsing).
+Notation "( x =)" := (equiv x) (only parsing).
+Notation "(= x )" := (λ y, equiv y x) (only parsing).
 Notation "x ≠ y":= (¬x = y): type_scope.
+Notation "( x ≠)" := (λ y, x ≠ y) (only parsing).
+Notation "(≠ x )" := (λ y, y ≠ x) (only parsing).
 
 (* TODO: r13842 is horribly slow, figure out why? 
 Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 0.
@@ -92,8 +94,12 @@ Notation "(//)" := mult_inv (only parsing).
 Notation "x // y" := (x * //y) (at level 35, right associativity).
 Infix "≤" := precedes.
 Notation "(≤)" := precedes (only parsing).
+Notation "( x ≤)" := (precedes x) (only parsing).
+Notation "(≤ x )" := (λ y, y ≤ x) (only parsing).
 Infix "<" := strictly_precedes.
 Notation "(<)" := strictly_precedes (only parsing).
+Notation "( x <)" := (strictly_precedes x) (only parsing).
+Notation "(< x )" := (λ y, y < x) (only parsing).
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z) (at level 70, y at next level).
 Notation "x ≤ y < z" := (x ≤ y /\ y < z) (at level 70, y at next level).
 Notation "x < y < z" := (x < y /\ y < z) (at level 70, y at next level).
@@ -168,18 +174,6 @@ Notation "f ⁻¹" := (inverse f) (at level 30).
 Class ZeroProduct A `{Equiv A} `{!RingMult A} `{!RingZero A}: Prop :=
   zero_product: `(x * y = 0 → x = 0 ∨ y = 0).
 
-Section compare_zero.
-  Context `{Equiv A} `{!Order A} `{!RingZero A} (x : A).
-  Class NeZero  : Prop := ne_zero: x ≠ 0.
-  Class GeZero : Prop := ge_zero: 0 ≤ x.
-  Class GtZero : Prop := gt_zero: 0 < x.
-End compare_zero.
-
-Section compare_one.
-  Context `{Equiv A} `{!Order A} `{!RingOne A} (x : A).
-  Class GeOne : Prop := ge_one: 1 ≤ x.
-End compare_one.
-
 Class ZeroDivisor {R} `{Equiv R} `{RingZero R} `{RingMult R} (x: R): Prop
   := zero_divisor: x ≠ 0 ∧ ∃ y, y ≠ 0 ∧ x * y = 0.
 
@@ -192,11 +186,11 @@ Proof. intros x [? [? [? E]]]. destruct (zero_product _ _ E); intuition. Qed.
 Class RingUnit `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInverse x}: Prop
   := ring_unit_mult_inverse: x * ring_mult_inverse x = 1.
 
-Definition NonNeg R `{RingZero R} `{Order R} := { z : R | 0 ≤ z }.
+Definition NonNeg R `{RingZero R} `{Order R} := sig (0 ≤).
 Notation "R ⁺" := (NonNeg R) (at level 20, no associativity).
 
-Definition Pos R `{RingZero R} `{Equiv R} `{Order R} := { z : R | 0 < z }.
+Definition Pos R `{RingZero R} `{Equiv R} `{Order R} := sig (0 <).
 Notation "R ₊" := (Pos R) (at level 20, no associativity).
 
-Definition NonPos R `{RingZero R} `{Order R} := { z : R | z ≤ 0 }.
+Definition NonPos R `{RingZero R} `{Order R} := sig (≤ 0).
 Notation "R ⁻" := (NonPos R) (at level 20, no associativity).

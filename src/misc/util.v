@@ -1,5 +1,5 @@
 Require Import
-  Program Setoid canonical_names.
+  Program Morphisms Setoid canonical_names.
 
 Instance inject_coerce `{Inject A B f} : Coerce A B := f.
 Instance coerce_compose `{Inject A B f} `{g : Coerce B C} : Coerce A C | 10 := λ x , g (f x).
@@ -61,6 +61,11 @@ Section obvious.
   Global Instance obvious_sum_dst_r `{Obvious (A → B)}: Obvious (A → C+B). 
   Proof. repeat intro. intuition. Defined.
 End obvious.
+
+Class PropHolds (P : Prop) := prop_holds: P.
+
+Instance: Proper (iff ==> iff) PropHolds.
+Proof. now repeat intro. Qed.
 
 Definition bool_decide (P : Prop) `{dec : !Decision P} : bool := if dec then true else false.
 

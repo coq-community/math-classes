@@ -157,17 +157,17 @@ Section borrowed_from_nat.
   Global Instance: ∀ z : N, RightCancellation (+) z.
   Proof. intro. apply right_cancel_from_left. Qed.
 
-  Global Instance: ∀ z : N, NeZero z → LeftCancellation (.*.) z.
+  Global Instance: ∀ z : N, PropHolds (z ≠ 0) → LeftCancellation (.*.) z.
   Proof.
     intros z E x y.
     apply_simplified (from_nat_stmt ((z' === 0 -=> Ext _ False) -=> z' * x' === z' * y' -=> x' === y') (three_vars x y z)).
     intro. simpl. now apply Mult_mult_reg_l. easy.
   Qed.
 
-  Global Instance: ∀ z : N, NeZero z → RightCancellation (.*.) z.
+  Global Instance: ∀ z : N, PropHolds (z ≠ 0) → RightCancellation (.*.) z.
   Proof. intros ? ?. apply right_cancel_from_left. Qed.
 
-  Global Instance: NeZero (1:N).
+  Global Instance: PropHolds ((1:N) ≠ 0).
   Proof.
     pose proof (from_nat_stmt (1 === 0 -=> Ext _ False) no_vars) as P.
     now apply P.
@@ -197,7 +197,7 @@ Lemma nz_one_plus_zero x : 1 + x ≠ 0.
 Proof.
   intro E.
   destruct (zero_sum 1 x E).
-  now apply (ne_zero 1).
+  now apply (ne_0 1).
 Qed.
 
 Global Program Instance: ∀ x y: N, Decision (x = y) | 10 := λ x y,

@@ -130,7 +130,7 @@ Proof.
   apply precedes_sprecedes. now apply (strictly_order_preserving (+ 1)) in E.
 Qed.
 
-Global Instance: ∀ (z : N), NeZero z → OrderPreservingBack ((.*.) z).
+Global Instance: ∀ (z : N), PropHolds (z ≠ 0) → OrderPreservingBack ((.*.) z).
 Proof with auto.
    intros z ?. 
    repeat (split; try apply _).

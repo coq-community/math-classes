@@ -50,20 +50,20 @@ Section field_properties.
    rewrite mult_inverse...
   Qed. (* todo: should be cleanable *)
 
-  Lemma mult_inv_inj `{∀ z, NeZero z → LeftCancellation (.*.) z} x y : //x = //y → x = y.
+  Lemma mult_inv_inj `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} x y : //x = //y → x = y.
   Proof with auto.
     intros E.
     unfold equiv, sig_equiv. fold equiv.
     apply (left_cancellation_ne_0 (.*.) (//x)).
      intros G.
-     destruct (ne_zero 1).
+     destruct (ne_0 1).
      rewrite <-(rings.mult_0_r (`x)), <-G.
      symmetry. apply mult_inverse.
     rewrite commutativity, mult_inverse. 
     now rewrite E, commutativity, mult_inverse.
   Qed.
 
-  Lemma mult_inv_distr_alt `{∀ z, NeZero z → LeftCancellation (.*.) z} x (Px : x ≠ 0) y (Py : y ≠ 0) (Pxy : x * y ≠ 0) : 
+  Lemma mult_inv_distr_alt `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} x (Px : x ≠ 0) y (Py : y ≠ 0) (Pxy : x * y ≠ 0) : 
     // (exist _ (x * y) Pxy) = // (exist _ x Px) * // (exist _ y Py).
   Proof with auto; try ring.
     apply (left_cancellation_ne_0 (.*.) (x * y))...
@@ -86,7 +86,7 @@ Section field_properties.
   Lemma mult_inv_nonzero x : // x ≠ 0.
   Proof with auto.
     intro E.
-    apply (ne_zero 1). 
+    apply (ne_0 1). 
     rewrite <-(mult_inverse x), E. ring.
   Qed.
 
@@ -114,7 +114,7 @@ Section field_properties.
   Proof. 
     rewrite <-(rings.mult_1_l (/1)).
     apply dec_mult_inverse.
-    apply (ne_zero _).
+    apply (ne_0 1).
   Qed.
 
   Global Instance dec_mult_inv_proper: Proper ((=) ==> (=)) (/) | 1.
@@ -143,7 +143,7 @@ Section field_properties.
   Proof with auto; try ring.
    intro E1.
    case (decide (y = 0)); intros E2.
-    exfalso. apply (ne_zero 1).
+    exfalso. apply (ne_0 1).
     rewrite <- E1, E2, dec_mult_inv_0...
    transitivity ((y * /y) * x). rewrite dec_mult_inverse...
    transitivity ((x * /y) * y)... rewrite E1...
@@ -153,7 +153,7 @@ Section field_properties.
   Proof with auto.
     split; intros E.
      destruct (decide (x = 0))...
-     destruct (ne_zero 1). 
+     destruct (ne_0 1). 
      rewrite <-(dec_mult_inverse x), E... ring.
     rewrite E. apply dec_mult_inv_0.
   Qed.
@@ -235,14 +235,14 @@ Proof with auto.
   intros.
   constructor.
      apply (theory.rings.stdlib_ring_theory _).
-    apply field_0neq1.
+    apply (ne_0 _).
    reflexivity.
   intros.
   rewrite commutativity. apply dec_mult_inverse...
 Qed.
 
 Section morphisms.
-  Context `{Field F1} `{Field F2} `{!SemiRing_Morphism (f : F1 → F2)} `{∀ z : F2, NeZero z → LeftCancellation (.*.) z}.
+  Context `{Field F1} `{Field F2} `{!SemiRing_Morphism (f : F1 → F2)} `{∀ z : F2, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
 
   Lemma preserves_mult_inv `{!Injective f} x xP fxP : f (// exist _ x xP) = // exist _ (f x) fxP.
   Proof.
@@ -273,11 +273,11 @@ Section non_zero_elements.
   Add Ring R2 : (stdlib_ring_theory F).
 
   Global Program Instance nonzero_one: RingOne { q : F | q ≠ 0 } := exist (λ x, x ≠ 0) 1 _.
-  Next Obligation. intro E. apply field_0neq1. assumption. Qed.
+  Next Obligation. now apply (ne_0 _). Qed.
 
   (* I am not using Program because now we can easily refer to this proof obligation *) 
   Lemma mult_ne_zero_sig (x y : {q : F | q ≠ 0}) : (λ x, x ≠ 0) (`x * `y).
-  Proof. destruct x, y. apply mult_ne_zero; assumption. Qed.
+  Proof. destruct x, y. now apply mult_ne_zero. Qed.
  
   Global Instance nonzero_mult: RingMult { x : F | x ≠ 0 } := λ x y, 
     exist (λ x, x ≠ 0) (`x *  `y) (mult_ne_zero_sig x y).
@@ -287,7 +287,7 @@ Section non_zero_elements.
   Instance: Proper ((=) ==> (=) ==> (=)) nonzero_mult.
   Proof.
     intros [??] [??] E1 [??] [??] E2. solve. 
-    rewrite E1, E2. reflexivity.
+    now rewrite E1, E2.
   Qed.
 
   Instance: Associative nonzero_mult.
@@ -322,7 +322,7 @@ Section non_zero_elements.
     unfold "*" at 10. unfold nonzero_mult. ring.
   Qed.
 
-  Lemma mult_inv_distr `{∀ z, NeZero z → LeftCancellation (.*.) z} (x y : {x : F | x ≠ 0}) : 
+  Lemma mult_inv_distr `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} (x y : {x : F | x ≠ 0}) : 
     // (x * y) = // x * // y.
   Proof. destruct x, y. apply mult_inv_distr_alt. Qed. 
 

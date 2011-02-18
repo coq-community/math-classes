@@ -35,13 +35,13 @@ Proof. intros. rewrite <-(plus_0_r z). now apply plus_compat. Qed.
 Lemma nonneg_plus_compat_l x y z : 0 ≤ x → z ≤ y → z ≤ x + y.
 Proof. intros. rewrite <-(plus_0_l z). now apply plus_compat. Qed.
 
-Lemma nonneg_plus_compat x y : 0 ≤ x → 0 ≤ y → 0 ≤ x + y.
+Global Instance nonneg_plus_compat x y : PropHolds (0 ≤ x) → PropHolds (0 ≤ y) → PropHolds (0 ≤ x + y).
 Proof. apply nonneg_plus_compat_r. Qed.
 
 Lemma nonpos_plus_compat x y : x ≤ 0 → y ≤ 0 → x + y ≤ 0.
 Proof. intros. rewrite <-(plus_0_r 0). now apply plus_compat. Qed.
 
-Global Instance: ∀ (z : R), GeZero z → OrderPreserving (z*.).
+Global Instance: ∀ (z : R), PropHolds (0 ≤ z) → OrderPreserving (z *.).
 Proof.
   intros z E. 
   repeat (split; try apply _).
@@ -54,7 +54,7 @@ Proof.
   now apply srorder_mult.
 Qed.
 
-Global Instance: ∀ (z : R), GeZero z → OrderPreserving (.*z).
+Global Instance: ∀ (z : R), PropHolds (0 ≤ z) → OrderPreserving (.* z).
 Proof. intros. apply order_preserving_flip. Qed.
 
 Lemma mult_compat x1 y1 x2 y2 : 
@@ -62,13 +62,12 @@ Lemma mult_compat x1 y1 x2 y2 :
 Proof.
   intros E1x E1y E2x E2y.
   transitivity (y1 * x2).
-   assert (GeZero x2) by easy.
-   now apply (order_preserving (.* x2)).
-  assert (GeZero y1) by (red; now transitivity x1).
-  now apply (order_preserving (y1 *.)).
+   now apply (order_preserving_flip_ge_0 (.*.) x2).
+  apply (order_preserving_ge_0 (.*.) y1); trivial.
+  now transitivity x1.
 Qed.
 
-Lemma nonneg_mult_compat (x y : R) : 0 ≤ x → 0 ≤ y → 0 ≤ x * y.
+Global Instance nonneg_mult_compat (x y : R) : PropHolds (0 ≤ x) → PropHolds (0 ≤ y) → PropHolds (0 ≤ x * y).
 Proof. intros. now apply srorder_mult. Qed.
 
 Lemma ge1_mult_compat_r x y z : 0 ≤ x → z ≤ x → 1 ≤ y → z ≤ x * y.
@@ -77,8 +76,7 @@ Proof.
   transitivity x.
    easy.
   rewrite <-(mult_1_r x) at 1.
-  assert (GeZero x) by easy.
-  now apply (order_preserving (x *.)).
+  now apply (order_preserving_ge_0 (.*.) x).
 Qed.
 
 Lemma ge1_mult_compat_l x y z : 0 ≤ x → 1 ≤ y → z ≤ x → z ≤ y * x.
@@ -133,7 +131,7 @@ Proof. intros. rewrite <-(plus_0_r z). now apply plus_scompat_r. Qed.
 Lemma pos_plus_scompat_l x y z : 0 < x → z ≤ y → z < x + y.
 Proof. intros. rewrite <-(plus_0_l z). now apply plus_scompat_l. Qed.
 
-Lemma pos_plus_scompat x y : 0 < x → 0 < y → 0 < x + y.
+Global Instance pos_plus_scompat x y : PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x + y).
 Proof. intros. apply pos_plus_scompat_r. now apply sprecedes_weaken. easy. Qed.
 
 Global Instance: ∀ (z : R), OrderPreservingBack (z +).
@@ -150,9 +148,9 @@ Qed.
 Global Instance: ∀ (z : R), OrderPreservingBack (+ z).
 Proof. intros. apply order_preserving_back_flip. Qed.
 
-Context `{!TotalOrder (≤)} `{∀ z, NeZero z → LeftCancellation (.*.) z}.
+Context `{!TotalOrder (≤)} `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
 
-Global Instance: ∀ (z : R), GtZero z → OrderPreservingBack (z *.).
+Global Instance: ∀ (z : R), PropHolds (0 < z) → OrderPreservingBack (z *.).
 Proof.
   intros z E.
   repeat (split; try apply _). 
@@ -161,15 +159,15 @@ Proof.
   apply (order_preserving_ge_0 (.*.) z) in G.
    apply equiv_precedes.
    apply (left_cancellation_ne_0 (.*.) z).
-   now apply not_symmetry, neq_precedes_sprecedes.
+    now apply not_symmetry, neq_precedes_sprecedes.
    now eapply (antisymmetry (≤)).
   now apply sprecedes_weaken.
 Qed.
 
-Global Instance: ∀ (z : R), GtZero z → OrderPreservingBack (.* z).
+Global Instance: ∀ (z : R), PropHolds (0 < z) → OrderPreservingBack (.* z).
 Proof. intros. apply order_preserving_back_flip. Qed.
 
-Global Instance: ∀ (z : R), GtZero z → StrictlyOrderPreserving (z *.).
+Global Instance: ∀ (z : R), PropHolds (0 < z) → StrictlyOrderPreserving (z *.).
 Proof.
   intros z Ez.
   split; try apply _.
@@ -179,7 +177,7 @@ Proof.
   apply (left_cancellation_ne_0 (.*.) z). now apply not_symmetry, neq_precedes_sprecedes. easy.
 Qed.
 
-Global Instance: ∀ (z : R), GtZero z → StrictlyOrderPreserving (.* z).
+Global Instance: ∀ (z : R), PropHolds (0 < z) → StrictlyOrderPreserving (.* z).
 Proof. 
   intros z.
   split; try apply _.
@@ -188,11 +186,11 @@ Proof.
   now apply (strictly_order_preserving (z *.)).
 Qed.
 
-Lemma pos_mult_scompat x y : 0 < x → 0 < y → 0 < x * y.
+Global Instance pos_mult_scompat x y : PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x * y).
 Proof. 
   intros E F.
   rewrite <-(mult_0_r x).
-  assert (GtZero x) by assumption.
+  assert (PropHolds (0 < x)) by assumption.
   now apply (strictly_order_preserving (x *.)).
 Qed.
 
@@ -203,16 +201,16 @@ Proof with auto.
   apply square_nonneg.
 Qed.
 
-Lemma precedes_0_1 : GeZero 1.
+Global Instance precedes_0_1 : PropHolds (0 ≤ 1).
 Proof. red. setoid_replace 1 with (1 * 1) by ring. apply square_nonneg. Qed.
 
-Lemma precedes_0_2 : GeZero 2.
+Global Instance precedes_0_2 : PropHolds (0 ≤ 2).
 Proof. apply nonneg_plus_compat; apply precedes_0_1. Qed.
 
-Lemma precedes_0_3 : GeZero 3.
+Global Instance precedes_0_3 : PropHolds (0 ≤ 3).
 Proof. apply nonneg_plus_compat. apply precedes_0_1. apply precedes_0_2. Qed.
 
-Lemma precedes_0_4 : GeZero 4.
+Global Instance precedes_0_4 : PropHolds (0 ≤ 4).
 Proof. apply nonneg_plus_compat. apply precedes_0_1. apply precedes_0_3. Qed.
 
 Lemma precedes_1_2 : 1 ≤ 2.
@@ -233,43 +231,45 @@ Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. apply precedes_2_3. Q
 Lemma precedes_3_4 : 3 ≤ 4.
 Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. easy. Qed.
 
-Lemma sprecedes_0_1 `{!NeZero (1:R)} : GtZero 1.
-Proof. split. apply precedes_0_1. apply not_symmetry, (ne_zero 1). Qed.
+Context `{!PropHolds (1 ≠ 0)}.
 
-Lemma sprecedes_0_2 `{!NeZero (1:R)} : GtZero 2.
+Global Instance sprecedes_0_1 : PropHolds (0 < 1).
+Proof. split. apply precedes_0_1. now apply not_symmetry. Qed.
+
+Global Instance sprecedes_0_2 : PropHolds (0 < 2).
 Proof. apply pos_plus_scompat; apply sprecedes_0_1. Qed.
 
-Lemma sprecedes_0_3 `{!NeZero (1:R)} : GtZero 3.
+Global Instance sprecedes_0_3 : PropHolds (0 < 3).
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_0_2. Qed.
 
-Lemma sprecedes_0_4 `{!NeZero (1:R)} : GtZero 4.
+Global Instance sprecedes_0_4 : PropHolds (0 < 4).
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_0_3. Qed.
 
-Lemma sprecedes_1_2 `{!NeZero (1:R)} : 1 < 2.
+Lemma sprecedes_1_2 : 1 < 2.
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. easy. Qed.
 
-Lemma sprecedes_1_3 `{!NeZero (1:R)} : 1 < 3.
+Lemma sprecedes_1_3 : 1 < 3.
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_1_2. Qed.
 
-Lemma sprecedes_1_4 `{!NeZero (1:R)} : 1 < 4.
+Lemma sprecedes_1_4 : 1 < 4.
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_1_3. Qed.
 
-Lemma sprecedes_2_3 `{!NeZero (1:R)} : 2 < 3.
+Lemma sprecedes_2_3 : 2 < 3.
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. easy. Qed.
 
-Lemma sprecedes_2_4 `{!NeZero (1:R)} : 2 < 4.
+Lemma sprecedes_2_4 : 2 < 4.
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_2_3. Qed.
 
-Lemma sprecedes_3_4 `{!NeZero (1:R)} : 3 < 4.
+Lemma sprecedes_3_4 : 3 < 4.
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. easy. Qed.
 
-Global Instance ne_0_2 `{!NeZero (1:R)} : NeZero (2 : R).
+Global Instance ne_0_2 : PropHolds (2 ≠ 0).
 Proof. red. apply not_symmetry, neq_precedes_sprecedes, sprecedes_0_2. Qed.
 
-Lemma not_precedes_1_0 `{!NeZero (1:R)} : ¬1 ≤ 0.
+Lemma not_precedes_1_0 : ¬1 ≤ 0.
 Proof. apply not_precedes_sprecedes, sprecedes_0_1. Qed.
 
-Lemma not_precedes_2_0 `{!NeZero (1:R)} : ¬2 ≤ 0.
+Lemma not_precedes_2_0 : ¬2 ≤ 0.
 Proof. apply not_precedes_sprecedes, sprecedes_0_2. Qed.
 
 Lemma ge1_mult_compat x y : 1 ≤ x → 1 ≤ y → 1 ≤ x * y.
@@ -307,14 +307,3 @@ Section another_semiring.
   Qed.
 End another_semiring.
 End contents.
-
-(* If we make these real instances Coq loops while using instances as 
-    [∀ z, GtZero z → OrderPreservingBack (z *.)]. TODO: investigate. *)
-Hint Extern 10 (GeZero 1) => eapply @precedes_0_1 : typeclass_instances. 
-Hint Extern 10 (GeZero 2) => eapply @precedes_0_2 : typeclass_instances. 
-Hint Extern 10 (GeZero 3) => eapply @precedes_0_3 : typeclass_instances. 
-Hint Extern 10 (GeZero 4) => eapply @precedes_0_4 : typeclass_instances. 
-Hint Extern 10 (GtZero 1) => eapply @sprecedes_0_1 : typeclass_instances. 
-Hint Extern 10 (GtZero 2) => eapply @sprecedes_0_2 : typeclass_instances. 
-Hint Extern 10 (GtZero 3) => eapply @sprecedes_0_3 : typeclass_instances. 
-Hint Extern 10 (GtZero 4) => eapply @sprecedes_0_4 : typeclass_instances. 

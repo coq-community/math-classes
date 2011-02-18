@@ -123,7 +123,7 @@ Proof.
    now apply int_pow_0.
   intros n. rewrite int_pow_S, left_identity.
    easy.
-  now apply (ne_zero 1).
+  now apply (rings.ne_0 1).
 Qed.
 
 Lemma int_pow_exp_plus (n m : B) (x : A) : 
@@ -140,15 +140,15 @@ Proof.
   rewrite E. ring.
 Qed.
 
-Lemma int_pow_nonzero (x : A) (n : B) : x ≠ 0 → x ^ n ≠ 0.
+Global Instance int_pow_nonzero (x : A) (n : B) : PropHolds (x ≠ 0) → PropHolds (x ^ n ≠ 0).
 Proof with eauto.
-  intros nonneg.
+  intros nonneg. unfold PropHolds.
   pattern n. apply integers.biinduction; clear n.
     solve_proper.
-   rewrite int_pow_0. apply (ne_zero 1).
+   rewrite int_pow_0. apply (rings.ne_0 1).
   intros n. rewrite int_pow_S; trivial.
   split; intros E1 E2; destruct E1.
-   apply (rings.left_cancellation_ne_0 (.*.) x); trivial.
+   apply (left_cancellation (.*.) x).
    now rewrite right_absorb.
   rewrite E2. ring.
 Qed. 
@@ -184,9 +184,9 @@ Qed.
 
 Context `{oA : Order A} `{!RingOrder oA} `{!TotalOrder oA}.
 
-Lemma int_pow_pos (x : A) (n : B) : 0 < x → 0 < x ^ n.
+Global Instance int_pow_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ^ n).
 Proof.
-  intros nonneg.
+   intros nonneg. unfold PropHolds.
   pattern n. apply integers.biinduction; clear n.
     solve_proper.
    intros. rewrite int_pow_0. apply semirings.sprecedes_0_1.
@@ -194,14 +194,13 @@ Proof.
    rewrite int_pow_S.
     now apply semirings.pos_mult_scompat.
    apply not_symmetry. now apply orders.neq_precedes_sprecedes.
-  assert (GtZero x) by auto.
   apply (maps.strictly_order_preserving_back (x *.)).
   rewrite <-int_pow_S.
    now rewrite right_absorb.
   apply not_symmetry. now apply orders.neq_precedes_sprecedes.
 Qed. 
 
-Lemma int_pow_nonneg (x : A) (n : B) : 0 ≤ x → 0 ≤ x ^ n.
+Global Instance int_pow_nonneg (x : A) (n : B) : PropHolds (0 ≤ x) → PropHolds (0 ≤ x ^ n).
 Proof.
   intros E.
   apply orders.sprecedes_precedes in E.
@@ -211,7 +210,7 @@ Proof.
     rewrite En.
     rewrite int_pow_0.
     apply semirings.precedes_0_1.
-   now rewrite int_pow_base_0.
+   unfold PropHolds. now rewrite int_pow_base_0.
   now apply int_pow_pos.
 Qed. 
 
@@ -275,8 +274,8 @@ Proof.
   rewrite Eb.
   rewrite <-associativity, int_pow_exp_plus.
    rewrite <-(rings.mult_1_r (x ^ n)) at 1.
-   assert (GtZero (x ^ n)).
-    apply int_pow_pos. transitivity 1; trivial. apply semirings.sprecedes_0_1.
+   assert (PropHolds (0 < x ^ n)).
+    apply int_pow_pos. red. transitivity 1; trivial. apply semirings.sprecedes_0_1.
    apply (strictly_order_preserving ((x^n) *.)).
    apply int_pow_gt1; trivial.
    apply integers.precedes_sprecedes_alt.
@@ -338,11 +337,11 @@ Section preservation.
      rewrite int_pow_0, int_pow_0. 
      now apply rings.preserves_1.
     intros n. 
-    assert (f x ≠ 0) by now apply rings.injective_ne_0.
+    assert (PropHolds (f x ≠ 0)) by now apply rings.injective_ne_0.
     rewrite 2!int_pow_S, rings.preserves_mult; trivial.
     split; intros E.
      now rewrite E.
-    now apply (rings.left_cancellation_ne_0 (.*.) (f x)).
+    now apply (left_cancellation (.*.) (f x)).
   Qed.
 End preservation.
 
@@ -376,7 +375,7 @@ Section int_pow_default.
     intros x n E. case (decide_rel _); case (decide_rel _); intros E1 E2.
        rewrite int_abs_nonneg_plus, int_abs_1.
          now rewrite nat_pow_S.
-        apply (ge_zero 1).
+        apply (rings.ge_0 1).
        easy.
       setoid_replace n with (-(1):B).
        rewrite rings.plus_opp_r, int_abs_0, nat_pow_0. 
@@ -389,7 +388,7 @@ Section int_pow_default.
        now ring_simplify.
       apply (order_preserving_back (1+)). now rewrite rings.plus_opp_r.
      destruct E2. apply semirings.nonneg_plus_compat_l.
-       apply (ge_zero 1).
+       apply (rings.ge_0 1).
       easy.
      rewrite <-int_abs_opp, <-(int_abs_opp n).
      setoid_replace (-n) with (1 - (1 + n)) by ring.
@@ -397,7 +396,7 @@ Section int_pow_default.
        rewrite nat_pow_S. 
        rewrite fields.dec_mult_inv_distr, associativity.
        now rewrite fields.dec_mult_inverse, left_identity.
-      apply (ge_zero 1).
+      apply (rings.ge_0 1).
      apply rings.flip_nonpos_opp.
      now apply orders.not_precedes_sprecedes.
   Qed.

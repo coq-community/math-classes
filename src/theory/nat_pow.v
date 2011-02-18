@@ -72,22 +72,23 @@ Proof.
   now rewrite nat_pow_exp_plus.
 Qed.
 
-Context `{!NoZeroDivisors A} `{!NeZero (1:A) }.
+Context `{!NoZeroDivisors A} `{!PropHolds ((1:A) ≠ 0)}.
 
-Lemma nat_pow_nonzero (x : A) (n : B) : x ≠ 0 → x ^ n ≠ 0.
+Global Instance nat_pow_nonzero (x : A) (n : B) : PropHolds (x ≠ 0) → PropHolds (x ^ n ≠ 0).
 Proof.
   pattern n. apply naturals.induction; clear n.
     solve_proper.
-   intros. rewrite nat_pow_0. now apply (ne_zero 1).
+   intros. rewrite nat_pow_0. now apply (rings.ne_0 1).
   intros n E F G. rewrite nat_pow_S in G.
+  unfold PropHolds in *.
   apply (no_zero_divisors x); split; eauto.
 Qed. 
 
 Context `{oA : Order A} `{!SemiRingOrder oA} `{!TotalOrder oA} 
   `{∀ z : A, LeftCancellation (+) z}
-  `{∀ z : A, NeZero z → LeftCancellation (.*.) z}.
+  `{∀ z : A, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
 
-Lemma nat_pow_pos (x : A) (n : B) : 0 < x → 0 < x ^ n.
+Global Instance nat_pow_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ^ n).
 Proof.
   intros nonneg.
   pattern n. apply naturals.induction; clear n.

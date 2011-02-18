@@ -85,24 +85,18 @@ Section shift_left_naturals.
     ring.
   Qed.
 
-  Context `{!NoZeroDivisors A} `{!NeZero (1:A)} `{!NeZero (2:A)} `{∀z, NeZero z → RightCancellation (.*.) z}.
+  Context `{!NoZeroDivisors A} `{!PropHolds ((1:A) ≠ 0)} `{!PropHolds ((2:A) ≠ 0)} 
+    `{∀z, PropHolds (z ≠ 0) → RightCancellation (.*.) z}.
 
-  Lemma shiftl_nonzero x y: x ≠ 0 → x ≪ y ≠ 0.
-  Proof with auto.
-    intros E1 E2. rewrite shiftl_nat_pow in E2. 
-    apply (no_zero_divisors x). split... 
-    exists (2 ^ y); split...
-    apply nat_pow_nonzero.
-    apply (ne_zero 2).
-  Qed.
+  Global Instance shiftl_nonzero x y: PropHolds (x ≠ 0) → PropHolds (x ≪ y ≠ 0).
+  Proof. intros E. rewrite shiftl_nat_pow. apply _. Qed.
 
   (* x ≪ b = y ≪ b → x = y *)
   Lemma shiftl_inj n : Injective (flip shiftl n).
   Proof with auto.
     repeat (split; try apply _).
     intros x y E. unfold flip in E. rewrite 2!shiftl_nat_pow in E.
-    apply (rings.right_cancellation_ne_0 (.*.) (2 ^ n))...
-    apply nat_pow_nonzero. apply (ne_zero 2).
+    now apply (right_cancellation (.*.) (2 ^ n)).
   Qed.
 End shift_left_naturals.
 
@@ -129,7 +123,7 @@ Section default_shiftl.
 End default_shiftl.
 
 Section shift_left_integers.
-  Context `{Field A} `{Integers B} `{∀ x y : A, Decision (x = y)} `{!NeZero (2:A)}.
+  Context `{Field A} `{Integers B} `{∀ x y : A, Decision (x = y)} `{!PropHolds ((2:A) ≠ 0)}.
 
   Add Ring A3: (rings.stdlib_semiring_theory A).
 
@@ -142,7 +136,7 @@ Section shift_left_integers.
       rewrite 2!spec. now rewrite E1, E2.
      intro x. rewrite spec, int_pow_0. ring.
     intros x n. rewrite 2!spec. rewrite int_pow_S. ring.
-    apply (ne_zero (2:A)).
+    apply (rings.ne_0 (2:A)).
   Qed.
 
   Context `{!ShiftLSpec A B sl}.
@@ -154,11 +148,11 @@ Section shift_left_integers.
      rewrite shiftl_0, int_pow_0. ring.
     intros n; split; intros IH. 
      rewrite shiftl_S, IH, int_pow_S. ring.
-     apply (ne_zero (2:A)). 
+     apply (rings.ne_0 (2:A)). 
     apply (left_cancellation (.*.) 2).
     rewrite <-shiftl_S, IH.
     rewrite int_pow_S. ring.
-    apply (ne_zero (2:A)).
+    apply (rings.ne_0 (2:A)).
   Qed.
 End shift_left_integers.
 
@@ -182,7 +176,7 @@ Section preservation_integers.
 End preservation_integers.
 
 Section default_shiftl_integers.
-  Context `{Field A} `{Integers B} `{!IntPowSpec A B ipw} `{∀ x y : A, Decision (x = y)} `{!NeZero (2:A)}.
+  Context `{Field A} `{Integers B} `{!IntPowSpec A B ipw} `{∀ x y : A, Decision (x = y)} `{!PropHolds ((2:A) ≠ 0)}.
 
   Global Instance default_shiftl_int: ShiftL A B | 9 := λ x n, x * 2 ^ n.
 

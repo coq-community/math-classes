@@ -3,6 +3,10 @@ Require
 Require Import
   Ring Program Morphisms abstract_algebra.
 
+Definition ne_0 `(x : R) `{Equiv R} `{RingZero R} `{p : PropHolds (x ≠ 0)} : x ≠ 0 := p.
+Definition ge_0 `(x : R) `{Equiv R} `{Order R} `{RingZero R} `{p : PropHolds (0 ≤ x)} : 0 ≤ x := p.
+Definition gt_0 `(x : R) `{Equiv R} `{Order R} `{RingZero R} `{p : PropHolds (0 < x)} : 0 < x := p.
+
 Lemma stdlib_semiring_theory R `{SemiRing R} : Ring_theory.semi_ring_theory 0 1 (+) (.*.) (=).
 Proof.
   constructor; intros.
@@ -16,20 +20,27 @@ Proof.
   apply distribute_r.
 Qed.
 
-(* Coq does not allow us to apply [left_cancellation (.*.\) z] for a [z] for which we do not have [NeZero z]
-    in our context. Therefore we need [left_cancellation_ne_0] to help us out. *)
+(* It's not possible to apply [left_cancellation (.*.) z] directly in case no [PropHolds (0 ≠ z)]
+   instance is present. *)
 Section cancellation.
   Context `{e : Equiv A} (op : A → A → A) `{!RingZero A}.
 
-  Lemma left_cancellation_ne_0 `{∀ z, NeZero z → LeftCancellation op z} z : z ≠ 0 → LeftCancellation op z.
+  Lemma left_cancellation_ne_0 `{∀ z, PropHolds (z ≠ 0) → LeftCancellation op z} z : z ≠ 0 → LeftCancellation op z.
   Proof. auto. Qed.
 
-  Lemma right_cancellation_ne_0 `{∀ z, NeZero z → RightCancellation op z} z : z ≠ 0 → RightCancellation op z.
+  Lemma right_cancellation_ne_0 `{∀ z, PropHolds (z ≠ 0) → RightCancellation op z} z : z ≠ 0 → RightCancellation op z.
   Proof. auto. Qed.
 End cancellation.
 
 Section semiring_props.
   Context `{SemiRing R}.
+
+  Global Instance mult_ne_zero `{NoZeroDivisors R} x y : PropHolds (x ≠ 0) → PropHolds (y ≠ 0) → PropHolds (x * y ≠ 0).
+  Proof.
+    intros Ex Ey Exy.
+    unfold PropHolds in *.
+    apply (no_zero_divisors x); split; eauto.
+  Qed.
 
   Global Instance plus_0_r: RightIdentity (+) 0 := right_identity.
   Global Instance plus_0_l: LeftIdentity (+) 0 := left_identity.
@@ -163,22 +174,19 @@ Section ring_props.
    rewrite xz_zero...
   Qed.
 
-  Lemma mult_ne_zero `{!NoZeroDivisors R} (x y: R) : x ≠ 0 → y ≠ 0 → x * y ≠ 0.
-  Proof. repeat intro. apply (no_zero_divisors x). split; eauto. Qed.
-
   Context `{!NoZeroDivisors R} `{∀ x y, Stable (x = y)}.
 
-  Global Instance ring_mult_left_cancel:  ∀ z, NeZero z → LeftCancellation (.*.) z.
+  Global Instance ring_mult_left_cancel:  ∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z.
   Proof with intuition.
    intros z z_nonzero x y E.
    apply stable.
    intro U.
-   apply (mult_ne_zero z (x +- y) (ne_zero z)). 
-    intro. apply U. apply equal_by_zero_sum...
+   apply (mult_ne_zero z (x +- y) (ne_0 z)). 
+    intro. apply U. now apply equal_by_zero_sum.
    rewrite distribute_l, E. ring.
   Qed.
 
-  Global Instance: ∀ z, NeZero z → RightCancellation (.*.) z.
+  Global Instance: ∀ z, PropHolds (z ≠ 0) → RightCancellation (.*.) z.
   Proof. intros ? ?. apply right_cancel_from_left. Qed.
 End ring_props.
 

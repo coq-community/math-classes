@@ -64,6 +64,6 @@ Proof.
   ring_simplify.
   rewrite dec_mult_inverse.
    apply precedes_0_1.
-  apply (ne_zero 2).
+  apply (ne_0 2).
 Qed.
 End contents.

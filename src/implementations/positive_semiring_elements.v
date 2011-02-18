@@ -3,8 +3,8 @@ Require Import
   abstract_algebra orders.semirings.
 
 Section positive_semiring_elements.
-Context `{SemiRing R} `{!SemiRingOrder o} `{!TotalOrder o} `{!NeZero (1:R)}
-  `{∀ z : R, LeftCancellation (+) z} `{∀ z : R, NeZero z → LeftCancellation ring_mult z}.
+Context `{SemiRing R} `{!SemiRingOrder o} `{!TotalOrder o} `{!PropHolds (1 ≠ 0)}
+  `{∀ z : R, LeftCancellation (+) z} `{∀ z : R, PropHolds (z ≠ 0) → LeftCancellation ring_mult z}.
 
 Add Ring R : (rings.stdlib_semiring_theory R).
 
