@@ -15,6 +15,11 @@ Notation "( f =)" := (equiv f) (only parsing).
 Notation "(= f )" := (λ g, equiv g f) (only parsing).
 Notation "x ≠ y":= (¬x = y): type_scope.
 
+(* TODO: r13842 is horribly slow, figure out why? 
+Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 0.
+Instance equiv_rewrite_relation `{Equiv A} : RewriteRelation (=) | 0.
+Since r13842 Coq chooses an incorrect default relation, so we override it. *)
+
 (* For Leibniz equality we use "≡": *)
 Infix "≡" := eq (at level 70, no associativity).
   (* Hm, we could define a very low priority Equiv instance for Leibniz equality.. *)
@@ -105,9 +110,15 @@ Notation "(◎ f )" := (λ g, comp g f) (only parsing).
 
 Notation "(→)" := (λ x y, x → y).
 
-Class Inject A B := inject: A → B.
-Notation "' x" := (inject x) (at level 20).
-Instance: Params (@inject) 3.
+(* We have to distinguish between coerce and inject because instance resolution 
+  performs unbounded depth first search. So, if we define composition of Inject directly 
+  it will loop. Also we let Inject be a proposition to avoid long chains of projections.
+  Note: we don't use Injective because in case of two isomorphic structures, just
+  one direction can be used for a coercion, otherwise we would introduce cycles. *)
+Class Coerce A B := coerce: A → B.
+Notation "' x" := (coerce x) (at level 20).
+Instance: Params (@coerce) 3.
+Class Inject `(f : A → B) := {}.
 
 (* Apartness *)
 Class Apart A := apart: A → A → Type.

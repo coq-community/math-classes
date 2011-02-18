@@ -74,10 +74,10 @@ Section for_another_ring.
   Section for_another_morphism.
     Context (f : Z → R) `{!SemiRing_Morphism f}.
 
-    Definition g : N → R := f ∘ inject.
+    Definition g : N → R := f ∘ coerce.
 
     Instance: Proper ((=) ==> (=)) g.
-    Proof. intros x y E. unfold g. rewrite E. reflexivity. Qed.
+    Proof. intros x y E. unfold g. now rewrite E. Qed.
 
     Instance: SemiRing_Morphism g.
 
@@ -107,7 +107,7 @@ Proof. apply integer_initial. intros. apply same_morphism. auto. Qed.
 Global Instance: Integers Z.
 
 Lemma NtoZ_uniq x : naturals_to_semiring N Z x = 'x.
-Proof. symmetry. apply (naturals.to_semiring_unique inject x). Qed. 
+Proof. symmetry. apply (naturals.to_semiring_unique coerce x). Qed. 
 
 Context `{!NatDistance N}.
 Global Program Instance simpleZ_abs : IntAbs Z N := λ x, nat_distance (pos x) (neg x).
@@ -137,12 +137,12 @@ Global Instance: ZeroProduct Z.
 Proof with auto.
   intros x y E.
   destruct (simpleZ_abs x) as [a [A|A]], (simpleZ_abs y) as [b [B|B]]; rewrite <-A, <-B in E |- *.
-     apply zero_product_aux...
+     now apply zero_product_aux.
     destruct (zero_product_aux a b) as [C|C]...
-     apply rings.opp_zero_prod_r...
+     now apply rings.opp_zero_prod_r.
     right. rewrite C. apply rings.opp_0.
    destruct (zero_product_aux a b) as [C|C]...
-    apply rings.opp_zero_prod_l...
+    now apply rings.opp_zero_prod_l.
    left. rewrite C. apply rings.opp_0.
   rewrite rings.opp_mult_opp in E. 
   destruct (zero_product_aux a b) as [C|C]...

@@ -1,5 +1,8 @@
 Require Import
-  Setoid canonical_names.
+  Program Setoid canonical_names.
+
+Instance inject_coerce `{Inject A B f} : Coerce A B := f.
+Instance coerce_compose `{Inject A B f} `{g : Coerce B C} : Coerce A C | 10 := λ x , g (f x).
 
 Section pointwise_dependent_relation. 
   Context A (B: A → Type) (R: ∀ a, relation (B a)).

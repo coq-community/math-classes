@@ -57,6 +57,8 @@ Qed.
 (* misc: *)
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 
+Instance: Inject inject_Z.
+
 Instance: Proper ((=) ==> (=)) inject_Z. 
 Proof. intros x y H. unfold inject_Z. repeat red. simpl. now rewrite H. Qed.
 

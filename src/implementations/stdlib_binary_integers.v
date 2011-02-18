@@ -186,6 +186,8 @@ Proof with trivial.
 Qed.
 
 (* * Embedding of the Peano naturals into [Z] *)
+Instance: Inject Z_of_nat.
+
 Instance: SemiRing_Morphism Z_of_nat.
 Proof.
   repeat (split; try apply _).
@@ -205,6 +207,8 @@ Next Obligation.
 Qed.
 
 (* * Embedding N into Z *)
+Instance: Inject Z_of_N.
+
 Instance: SemiRing_Morphism Z_of_N.
  Proof.
    repeat (split; try apply _).
@@ -230,7 +234,7 @@ Instance: NatPowSpec Z (Z⁺) Z_pow.
 Proof.
   split; unfold pow, Z_pow.
     intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2.
-    unfold equiv, NonNeg_equiv, inject, NonNeg_inject in E2.
+    unfold equiv, NonNeg_equiv, sig_equiv in E2.
     simpl in *. now rewrite E1, E2.
    intros. now apply Z.pow_0_r.
   intros x n.

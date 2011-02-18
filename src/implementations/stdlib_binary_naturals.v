@@ -67,6 +67,11 @@ Proof with trivial.
   intros [E1 E2]. now apply N.T.le_neq_lt.
 Qed.
 
+(* Defining both as a coercion introduces cycles, so we define [nat_of_N] since
+  it's more often used *)
+(* Instance: Inject N_of_nat. *)
+Instance: Inject nat_of_N.
+
 Instance: SemiRing_Morphism nat_of_N.
 Proof. 
   repeat (split; try apply _); repeat intro.

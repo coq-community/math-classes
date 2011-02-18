@@ -41,10 +41,11 @@ Proof.
 Qed.
 
 (* injection from SR *)
-Global Instance SRpair_inject: Inject SR (SRpair SR) := λ r, C r 0.
+Definition SRpair_inject: SR → SRpair SR := λ r, C r 0.
+Global Instance: Inject SRpair_inject.
 
 Global Instance: Proper ((=) ==> (=)) SRpair_inject.
-Proof. intros x1 x2 E. unfold inject, equiv, SRpair_equiv. simpl. rewrite E. reflexivity. Qed.
+Proof. intros x1 x2 E. unfold equiv, SRpair_equiv. simpl. now rewrite E. Qed.
 
 (* Relations, operations and constants *)
 Global Instance SRpair_plus: RingPlus (SRpair SR) := λ x y, C (pos x + pos y) (neg x + neg y).

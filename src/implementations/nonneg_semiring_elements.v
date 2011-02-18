@@ -10,8 +10,8 @@ Context `{SemiRing R} `{!SemiRingOrder o} `{!TotalOrder o} `{∀ z : R, LeftCanc
 Add Ring R : (rings.stdlib_semiring_theory R).
 
 (* * Embedding of R⁺ into R *)
-Global Instance NonNeg_inject: Inject (R⁺) R := @proj1_sig R _.
-
+Definition NonNeg_inject: R⁺ → R := @proj1_sig R _.
+Global Instance: Inject NonNeg_inject.
 (* Operations *)
 Global Program Instance NonNeg_plus: RingPlus (R⁺) := λ x y, exist _ (x + y) _. 
 Next Obligation.
@@ -32,9 +32,9 @@ Global Program Instance NonNeg_1: RingOne (R⁺) := exist _ 1 _.
 Next Obligation. apply precedes_0_1. Qed.
 
 (* * Equalitity *)
-Global Instance NonNeg_equiv: Equiv (R⁺) := λ x y, 'x = 'y.
+Global Instance NonNeg_equiv: Equiv (R⁺) := sig_equiv _.
 
-Local Ltac unfold_equivs := unfold equiv, NonNeg_equiv, inject, NonNeg_inject in *; simpl in *.
+Local Ltac unfold_equivs := unfold equiv, NonNeg_equiv, sig_equiv in *; simpl in *.
 
 Instance: Proper ((=) ==> (=) ==> (=)) NonNeg_plus.
 Proof.
@@ -69,7 +69,7 @@ Global Instance NonNeg_equiv_dec `{∀ x y : R, Decision (x = y)} : ∀ x y: R�
 Global Instance NonNeg_order: Order (R⁺) := λ x y, 'x ≤ 'y.
 
 Global Instance: Proper ((=) ==> (=) ==> iff) NonNeg_order.
-Proof. intros x1 y1 E1 x2 y2 E2. unfold NonNeg_order. rewrite E1, E2. reflexivity. Qed.
+Proof. intros x1 y1 E1 x2 y2 E2. unfold NonNeg_order. now rewrite E1, E2. Qed.
 
 Instance: PartialOrder NonNeg_order.
 Proof. 
@@ -88,21 +88,21 @@ Global Instance: OrderEmbedding NonNeg_inject.
 Proof. repeat (split; try apply _); intuition. Qed.
 
 Global Instance: SemiRingOrder NonNeg_order.
-Proof with intuition.
+Proof.
   split; try apply _.
    intros x y. split; intros E. 
     apply (order_preserving NonNeg_inject) in E.
     apply srorder_plus in E. destruct E as [z [Ez1 Ez2]].
-    exists (exist _ z Ez1)... 
+    exists (exist _ z Ez1); intuition.
    destruct E as [z [Ez1 Ez2]].
    rewrite Ez2.
    apply (order_preserving_back NonNeg_inject).
    rewrite rings.preserves_plus.
-   apply nonneg_plus_compat_r...
+   now apply nonneg_plus_compat_r.
   intros x E1 y E2.
   apply (order_preserving_back NonNeg_inject).
   rewrite rings.preserves_0, rings.preserves_mult.
-  apply srorder_mult...
+  now apply srorder_mult.
 Qed.
 
 Global Program Instance NonNeg_precedes_dec `{∀ x y : R, Decision (x ≤ y)} : ∀ x y: R⁺, Decision (x ≤ y) := λ x y, 

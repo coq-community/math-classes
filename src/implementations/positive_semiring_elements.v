@@ -9,7 +9,8 @@ Context `{SemiRing R} `{!SemiRingOrder o} `{!TotalOrder o} `{!NeZero (1:R)}
 Add Ring R : (rings.stdlib_semiring_theory R).
 
 (* * Embedding of R₊ into R *)
-Global Instance Pos_inject: Inject (R₊) R := @proj1_sig R _.
+Definition Pos_inject: R₊ → R := @proj1_sig R _.
+Global Instance: Inject Pos_inject.
 
 (* Operations *)
 Global Program Instance Pos_plus: RingPlus (R₊) := λ x y, exist _ (x + y) _. 
@@ -28,9 +29,9 @@ Global Program Instance Pos_1: RingOne (R₊) := exist _ 1 _.
 Next Obligation. apply sprecedes_0_1. Qed.
 
 (* * Equalitity *)
-Global Instance Pos_equiv: Equiv (R₊) := λ x y, 'x = 'y.
+Global Instance Pos_equiv: Equiv (R₊) := sig_equiv _.
 
-Local Ltac unfold_equivs := unfold equiv, Pos_equiv, inject, Pos_inject in *; simpl in *.
+Local Ltac unfold_equivs := unfold equiv, Pos_equiv, sig_equiv in *; simpl in *.
 
 Global Instance: Proper ((=) ==> (=) ==> (=)) Pos_plus.
 Proof.

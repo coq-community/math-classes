@@ -40,6 +40,8 @@ Proof. repeat split; repeat intro; axioms.zify; auto with zarith. Qed.
 
 Instance: Ring t | 10 := rings.from_stdlib_ring_theory ZType_ring_theory.
 
+Instance: Inject to_Z.
+
 Instance: Proper ((=) ==> (=)) to_Z. 
 Proof. intros x y E. easy. Qed.
 
