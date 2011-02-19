@@ -1,8 +1,9 @@
 Require Import
   Program Morphisms Setoid canonical_names.
 
-Instance inject_coerce `{Inject A B f} : Coerce A B := f.
-Instance coerce_compose `{Inject A B f} `{g : Coerce B C} : Coerce A C | 10 := λ x , g (f x).
+Instance coerce1 `{Inject A B f} : Coerce A B | 3 := f.
+Instance coerce2 `{Inject A B f} `{Inject B C g} : Coerce A C | 5 := λ x , g (f x).
+Instance coerce3 `{Inject A B f} `{Inject B C g} `{Inject C D h} : Coerce A D | 7 := λ x , h (g (f x)).
 
 Section pointwise_dependent_relation. 
   Context A (B: A → Type) (R: ∀ a, relation (B a)).
