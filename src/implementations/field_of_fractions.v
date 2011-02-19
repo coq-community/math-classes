@@ -66,7 +66,7 @@ Proof.
 Qed.
 
 Global Program Instance Frac_mult_inv: MultInv (Frac R) := λ x, frac (den x) (num x) _.
-Next Obligation. apply Frac_nonzero_num. assumption. Qed.
+Next Obligation. apply Frac_nonzero_num. now destruct x. Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) Frac_plus.
 Proof with try ring.

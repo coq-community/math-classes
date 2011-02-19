@@ -36,7 +36,8 @@ However, in the end that version was just not strong enough for comfortable rewr
 in setoid-pervasive contexts. *)
 
 (* Other canonically named relations/operations/constants: *)
-Class Decision P := decide: sumbool P (~ P).
+Class Decision P := decide: sumbool P (¬P).
+
 Class SemiGroupOp A := sg_op: A → A → A.
 Class MonoidUnit A := mon_unit: A.
 Class RingPlus A := ring_plus: A → A → A.
@@ -44,24 +45,31 @@ Class RingMult A := ring_mult: A → A → A.
 Class RingOne A := ring_one: A.
 Class RingZero A := ring_zero: A.
 Class GroupInv A := group_inv: A → A.
-Class MultInv A `{Equiv A} `{RingZero A} := mult_inv: { x: A | x ≠ ring_zero } → A.
+Definition NonZero R `{RingZero R} `{Equiv R} := sig (≠ ring_zero).
+Class MultInv A `{Equiv A} `{RingZero A} := mult_inv: NonZero A → A.
+
+Class Order A := precedes: relation A.
+Definition strictly_precedes `{Equiv A} `{Order A} : Order A := λ (x y : A),  precedes x y ∧ x ≠ y.
+Definition NonNeg R `{RingZero R} `{Order R} := sig (precedes ring_zero).
+Definition Pos R `{RingZero R} `{Equiv R} `{Order R} := sig (strictly_precedes ring_zero).
+Definition NonPos R `{RingZero R} `{Order R} := sig (λ y, precedes y ring_zero).
+
 Class Arrows (O: Type): Type := Arrow: O → O → Type.
 Infix "⟶" := Arrow (at level 90, right associativity).
 Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
 Class CatComp O `{Arrows O} := comp: ∀ {x y z}, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
-Class Order A := precedes: relation A.
-Definition strictly_precedes `{Equiv A} `{Order A} : Order A := λ (x y : A),  precedes x y ∧ x ≠ y.
 Class RalgebraAction A B := ralgebra_action: A → B → B.
 Class RingMultInverse {R} (x: R): Type := ring_mult_inverse: R.
+
 Implicit Arguments ring_mult_inverse [[R] [RingMultInverse]].
 Implicit Arguments cat_id [[O] [H] [CatId] [x]].
 Implicit Arguments decide [[Decision]].
 
-Instance: Params (@precedes) 2.
-Instance: Params (@strictly_precedes) 3.
 Instance: Params (@ring_mult) 2.
 Instance: Params (@ring_plus) 2.
 Instance: Params (@equiv) 2.
+Instance: Params (@precedes) 2.
+Instance: Params (@strictly_precedes) 3.
 
 Instance ringplus_is_semigroupop `{f: RingPlus A}: SemiGroupOp A := f.
 Instance ringmult_is_semigroupop `{f: RingMult A}: SemiGroupOp A := f.
@@ -71,6 +79,11 @@ Instance ringzero_is_monoidunit `{c: RingZero A}: MonoidUnit A := c.
 Hint Extern 10 (Equiv (_ ⟶ _)) => apply @ext_equiv : typeclass_instances.
 
 (* Notations: *)
+Notation "R ₀" := (NonZero R) (at level 20, no associativity).
+Notation "R ⁺" := (NonNeg R) (at level 20, no associativity).
+Notation "R ₊" := (Pos R) (at level 20, no associativity).
+Notation "R ⁻" := (NonPos R) (at level 20, no associativity).
+
 Notation "0" := ring_zero.
 Notation "1" := ring_one.
 Infix "&" := sg_op (at level 50, left associativity).
@@ -185,12 +198,3 @@ Proof. intros x [? [? [? E]]]. destruct (zero_product _ _ E); intuition. Qed.
 
 Class RingUnit `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInverse x}: Prop
   := ring_unit_mult_inverse: x * ring_mult_inverse x = 1.
-
-Definition NonNeg R `{RingZero R} `{Order R} := sig (0 ≤).
-Notation "R ⁺" := (NonNeg R) (at level 20, no associativity).
-
-Definition Pos R `{RingZero R} `{Equiv R} `{Order R} := sig (0 <).
-Notation "R ₊" := (Pos R) (at level 20, no associativity).
-
-Definition NonPos R `{RingZero R} `{Order R} := sig (≤ 0).
-Notation "R ⁻" := (NonPos R) (at level 20, no associativity).

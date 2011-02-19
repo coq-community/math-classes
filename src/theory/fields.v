@@ -8,10 +8,18 @@ Section field_properties.
   Context `{Field F}.
   Add Ring R: (stdlib_ring_theory F).
 
-  Lemma mult_inverse_alt (x : F) (P : x ≠ 0) : x * // exist _ x P = 1.
-  Proof. 
-    now rewrite <-(mult_inverse (exist _ x P)). 
+  Global Instance: ∀ (x : F ₀), PropHolds (`x ≠ 0).
+  Proof. now intros [x Px]. Qed.
+
+  Global Instance mult_inv_nonzero x : PropHolds (// x ≠ 0).
+  Proof.
+    intro E.
+    apply (ne_0 1). 
+    rewrite <-(mult_inverse x), E. ring.
   Qed.
+
+  Lemma mult_inverse_alt (x : F) (Px : x ≠ 0) : x * // exist _ x Px = 1.
+  Proof. now rewrite <-(mult_inverse (exist _ x Px)). Qed.
 
   Instance: NoZeroDivisors F.
   Proof.
@@ -24,51 +32,43 @@ Section field_properties.
   Global Instance: IntegralDomain F.
 
   Lemma field_div_0_l x y : x = 0 → x // y = 0.
-  Proof.
-    intros E. rewrite E. apply left_absorb.
-  Qed.
+  Proof. intros E. rewrite E. apply left_absorb. Qed.
 
   Lemma field_div_diag x y : x = `y → x // y = 1.
-  Proof.
-    intros E. rewrite E. apply mult_inverse.
-  Qed.
+  Proof. intros E. rewrite E. apply mult_inverse. Qed.
 
-  Lemma equal_quotients (a c: F) b d: a * ` d = c * ` b ↔ a *// b = c *// d.
+  Lemma equal_quotients (a c: F) b d : a * `d = c * `b ↔ a // b = c // d.
   Proof with try ring.
    split; intro E.
-    transitivity (1 * (a * // b))...
+    transitivity (1 * (a // b))...
     rewrite <- (mult_inverse d).
-    transitivity (// d * (a * `d) * // b)...
+    transitivity (// d * (a * `d) // b)...
     rewrite E.
-    transitivity (// d * c * (`b * // b))...
+    transitivity (// d * c * (`b // b))...
     rewrite mult_inverse...
    transitivity (a * `d * 1)...
    rewrite <- (mult_inverse b).
-   transitivity (a * // b * `d * ` b)...
+   transitivity (a // b * `d * `b)...
    rewrite E.
-   transitivity (c * (`d * // d) * `b)...
+   transitivity (c * (`d // d) * `b)...
    rewrite mult_inverse...
   Qed. (* todo: should be cleanable *)
 
-  Lemma mult_inv_inj `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} x y : //x = //y → x = y.
-  Proof with auto.
+  Lemma mult_inv_inj `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} x y : // x = // y → x = y.
+  Proof.
     intros E.
     unfold equiv, sig_equiv. fold equiv.
-    apply (left_cancellation_ne_0 (.*.) (//x)).
-     intros G.
-     destruct (ne_0 1).
-     rewrite <-(rings.mult_0_r (`x)), <-G.
-     symmetry. apply mult_inverse.
+    apply (left_cancellation (.*.) (//x)).
     rewrite commutativity, mult_inverse. 
     now rewrite E, commutativity, mult_inverse.
   Qed.
 
   Lemma mult_inv_distr_alt `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} x (Px : x ≠ 0) y (Py : y ≠ 0) (Pxy : x * y ≠ 0) : 
-    // (exist _ (x * y) Pxy) = // (exist _ x Px) * // (exist _ y Py).
+    // exist _ (x * y) Pxy = // exist _ x Px * // exist _ y Py.
   Proof with auto; try ring.
     apply (left_cancellation_ne_0 (.*.) (x * y))...
-    transitivity ((x * // (exist _ x Px)) *  (y * // (exist _ y Py)))...
-    transitivity ((x * y) * // (exist _ (x * y) Pxy))...
+    transitivity ((x // exist _ x Px) *  (y // exist _ y Py))...
+    transitivity ((x * y) // exist _ (x * y) Pxy)...
     rewrite 3!mult_inverse_alt...
   Qed.
 
@@ -79,25 +79,18 @@ Section field_properties.
   Proof with auto.
    intros x y E.
    destruct (decide (x = 0)) as [? | P]...
-   rewrite <- (mult_0_r x) in E.
+   rewrite <-(mult_0_r x) in E.
    right. now apply (left_cancellation_ne_0 (.*.) x).
   Qed.
 
-  Lemma mult_inv_nonzero x : // x ≠ 0.
-  Proof with auto.
-    intro E.
-    apply (ne_0 1). 
-    rewrite <-(mult_inverse x), E. ring.
-  Qed.
-
-  Lemma dec_mult_inverse (x: F) : x ≠ 0 → x * / x = 1.
+  Lemma dec_mult_inverse (x: F) : x ≠ 0 → x / x = 1.
   Proof.
     intro E. 
     unfold dec_mult_inv, dec_mult_inv_sig. 
     destruct dec_inv as [z [E1 E2]]. auto.
   Qed.
 
-  Lemma dec_mult_inv_correct (x : F) (P : x ≠ 0) : /x = // (exist _ x P).
+  Lemma dec_mult_inv_correct (x : F) (Px : x ≠ 0) : / x = // exist _ x Px.
   Proof with auto.
     apply (left_cancellation_ne_0 (.*.) x)...
     rewrite dec_mult_inverse...
@@ -139,7 +132,7 @@ Section field_properties.
     apply mult_inv_distr_alt.
   Qed.
 
-  Lemma equal_by_one_quotient (x y: F): x */ y = 1 → x = y.
+  Lemma equal_by_one_quotient (x y : F) : x / y = 1 → x = y.
   Proof with auto; try ring.
    intro E1.
    case (decide (y = 0)); intros E2.
@@ -149,7 +142,7 @@ Section field_properties.
    transitivity ((x * /y) * y)... rewrite E1...
   Qed.
 
-  Lemma dec_mult_inv_zero x : /x = 0 ↔ x = 0.
+  Lemma dec_mult_inv_zero x : / x = 0 ↔ x = 0.
   Proof with auto.
     split; intros E.
      destruct (decide (x = 0))...
@@ -186,7 +179,7 @@ Section field_properties.
     apply dec_mult_inv_nonzero...
   Qed.
 
-  Lemma equal_dec_quotients (a b c d : F) : b ≠ 0 → d ≠ 0 → (a * d = c * b ↔ a * /b = c * /d).
+  Lemma equal_dec_quotients (a b c d : F) : b ≠ 0 → d ≠ 0 → (a * d = c * b ↔ a / b = c / d).
   Proof with trivial; try ring.
    split; intro E.
     apply (right_cancellation_ne_0 (.*.) b)...
@@ -202,31 +195,25 @@ Section field_properties.
    rewrite dec_mult_inverse...
   Qed.
 
-  Lemma dec_quotients (a c b d : F) : b ≠ 0 → d ≠ 0 → a * /b + c * /d = (a * d + c * b) * / (b * d).
+  Lemma dec_quotients (a c b d : F) : b ≠ 0 → d ≠ 0 → a / b + c / d = (a * d + c * b) / (b * d).
   Proof with auto.
     intros A B.
-    assert (a * / b = (a * d) * / (b * d)) as E1.
+    assert (a / b = (a * d) / (b * d)) as E1.
      apply ->equal_dec_quotients...
       ring.
      intros G. destruct (zero_product b d)...
-    assert (c * / d = (b * c) * / (b * d)) as E2.
+    assert (c / d = (b * c) / (b * d)) as E2.
      apply ->equal_dec_quotients...
       ring.
      intros G. destruct (zero_product b d)...
     rewrite E1, E2. ring.
   Qed.
 
-  Lemma dec_mult_inv_swap_l x y: x * /y = /(/x * y). 
-  Proof. 
-    rewrite dec_mult_inv_distr, dec_mult_inv_involutive.
-    ring.
-  Qed.
+  Lemma dec_mult_inv_swap_l x y: x / y = / (/ x * y). 
+  Proof. rewrite dec_mult_inv_distr, dec_mult_inv_involutive. ring. Qed.
 
-  Lemma dec_mult_inv_swap_r x y: /x * y = /(x * /y). 
-  Proof. 
-    rewrite dec_mult_inv_distr, dec_mult_inv_involutive.
-    ring.
-  Qed.
+  Lemma dec_mult_inv_swap_r x y: / x * y = / (x / y). 
+  Proof. rewrite dec_mult_inv_distr, dec_mult_inv_involutive. ring. Qed.
 End field_properties.
 
 Definition stdlib_field_theory F `{Field F} `{!DecMultInv F} :
@@ -235,7 +222,7 @@ Proof with auto.
   intros.
   constructor.
      apply (theory.rings.stdlib_ring_theory _).
-    apply (ne_0 _).
+    apply (ne_0 1).
    reflexivity.
   intros.
   rewrite commutativity. apply dec_mult_inverse...
@@ -244,7 +231,7 @@ Qed.
 Section morphisms.
   Context `{Field F1} `{Field F2} `{!SemiRing_Morphism (f : F1 → F2)} `{∀ z : F2, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
 
-  Lemma preserves_mult_inv `{!Injective f} x xP fxP : f (// exist _ x xP) = // exist _ (f x) fxP.
+  Lemma preserves_mult_inv `{!Injective f} x Px Pfx : f (// exist _ x Px) = // exist _ (f x) Pfx.
   Proof.
     apply (left_cancellation_ne_0 (.*.) (f x)).
      now apply injective_ne_0.
@@ -253,8 +240,8 @@ Section morphisms.
   Qed.
 
   Context  `{!DecMultInv F1} `{!DecMultInv F2} `{∀ x y: F1, Decision (x = y)} `{∀ x y: F2, Decision (x = y)}.
-   
-  Lemma preserves_dec_mult_inv `{!Injective f} x : f (/x) = /(f x).
+
+  Lemma preserves_dec_mult_inv `{!Injective f} x : f (/ x) = / f x.
   Proof.
     case (decide (x = 0)) as [E | E].
      now rewrite E, dec_mult_inv_0, preserves_0, dec_mult_inv_0.
@@ -266,67 +253,6 @@ Section morphisms.
     easy.
   Qed.
 End morphisms.
-
-(* The non zero elements of a field form a CommutativeMonoid. *)
-Section non_zero_elements.
-  Context `{Field F}.
-  Add Ring R2 : (stdlib_ring_theory F).
-
-  Global Program Instance nonzero_one: RingOne { q : F | q ≠ 0 } := exist (λ x, x ≠ 0) 1 _.
-  Next Obligation. now apply (ne_0 _). Qed.
-
-  (* I am not using Program because now we can easily refer to this proof obligation *) 
-  Lemma mult_ne_zero_sig (x y : {q : F | q ≠ 0}) : (λ x, x ≠ 0) (`x * `y).
-  Proof. destruct x, y. now apply mult_ne_zero. Qed.
- 
-  Global Instance nonzero_mult: RingMult { x : F | x ≠ 0 } := λ x y, 
-    exist (λ x, x ≠ 0) (`x *  `y) (mult_ne_zero_sig x y).
-
-  Ltac solve := repeat intro; unfold equiv, sig_equiv in *; simpl in *.
-
-  Instance: Proper ((=) ==> (=) ==> (=)) nonzero_mult.
-  Proof.
-    intros [??] [??] E1 [??] [??] E2. solve. 
-    now rewrite E1, E2.
-  Qed.
-
-  Instance: Associative nonzero_mult.
-  Proof. solve. apply associativity. Qed.
-
-  Instance: Commutative nonzero_mult.
-  Proof. solve. apply commutativity. Qed.
-
-  Instance: LeftIdentity nonzero_mult nonzero_one.
-  Proof. solve. apply left_identity. Qed.
-
-  Instance: RightIdentity nonzero_mult nonzero_one.
-  Proof. solve. apply right_identity. Qed.
-
-  Global Instance: CommutativeMonoid { x : F | x ≠ 0 } (op:=nonzero_mult) (unit:=nonzero_one).
-  Proof. repeat (split; try apply _). Qed.
-
-  Lemma nonzero_mult_proj_dist (x y : {x : F | x ≠ 0}) : `x * `y = ` (x * y).
-  Proof. reflexivity. Qed.
-
-  Lemma nonzero_mult_proj_one (x y : {x : F | x ≠ 0}) : `1 = 1.
-  Proof. reflexivity. Qed.
-
-  Lemma quotients a c (b d : { q : F | q ≠ 0 }) :
-    a * //b + c * //d = (a * `d + c * `b) * // (b * d).
-  Proof with auto.
-    assert (a * // b = (a * `d) * // exist _ (`b * `d) (mult_ne_zero_sig b d)) as E1.
-      apply equal_quotients. simpl. ring.
-    assert (c * // d = (`b * c) * // exist _ (`b * `d) (mult_ne_zero_sig b d)) as E2.
-      apply equal_quotients. simpl. ring.
-    rewrite E1, E2. 
-    unfold "*" at 10. unfold nonzero_mult. ring.
-  Qed.
-
-  Lemma mult_inv_distr `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} (x y : {x : F | x ≠ 0}) : 
-    // (x * y) = // x * // y.
-  Proof. destruct x, y. apply mult_inv_distr_alt. Qed. 
-
-End non_zero_elements.
 
 Section from_stdlib_field_theory.
   Context `(ftheory : @field_theory F zero one pl mu mi op div rinv e)

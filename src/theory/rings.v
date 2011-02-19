@@ -256,13 +256,12 @@ Section morphism_composition.
 
   Global Instance id_semiring_morphism `{!SemiRing A}: SemiRing_Morphism id.
 
-  Global Instance compose_semiring_morphisms
-    `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: SemiRing_Morphism (g ∘ f).
+  Global Instance compose_semiring_morphisms `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} : 
+    SemiRing_Morphism (g ∘ f).
   Proof.
-   fold (g ∘ f).
-   constructor; try apply _.
-    apply semiringmor_a.
-   apply semiringmor_b.
+    constructor; try apply _.
+     apply semiringmor_a.
+    apply semiringmor_b.
   Qed.
 End morphism_composition.
 
