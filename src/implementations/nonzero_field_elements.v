@@ -1,5 +1,5 @@
 Require Import 
-  Program Morphisms Ring
+  Setoid Program Morphisms Ring
   abstract_algebra 
   theory.fields.
 
@@ -37,13 +37,11 @@ Global Instance: SemiGroup_Morphism NonZero_inject (Bop:=(.*.)).
 Proof. repeat (split; try apply _); now repeat intro. Qed.
 
 Lemma quotients (a c : F) (b d : F ₀) :
-  a * //b + c * //d = (a * `d + c * `b) * // (b * d).
+  a // b + c // d = (a * `d + c * `b) // (b * d).
 Proof.
-  assert (a * // b = (a * `d) * // (b * d)) as E1.
-    apply equal_quotients. simpl. ring.
-  assert (c * // d = (`b * c) * // (b * d)) as E2.
-    apply equal_quotients. simpl. ring.
-  rewrite E1, E2. ring. 
+  setoid_replace (a // b) with ((a * `d) // (b * d)) by (apply equal_quotients; simpl; ring).
+  setoid_replace (c // d) with ((`b * c) // (b * d)) by (apply equal_quotients; simpl; ring).
+  ring. 
 Qed.
 
 Lemma mult_inv_distr `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} (x y : F ₀) : 

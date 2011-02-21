@@ -129,15 +129,9 @@ Notation "(◎ f )" := (λ g, comp g f) (only parsing).
 
 Notation "(→)" := (λ x y, x → y).
 
-(* We have to distinguish between coerce and inject because instance resolution 
-  performs unbounded depth first search. So, if we define composition of Inject directly 
-  it will loop. Also we let Inject be a proposition to avoid long chains of projections.
-  Note: we don't use Injective because in case of two isomorphic structures, just
-  one direction can be used for a coercion, otherwise we would introduce cycles. *)
 Class Coerce A B := coerce: A → B.
 Notation "' x" := (coerce x) (at level 20).
 Instance: Params (@coerce) 3.
-Class Inject `(f : A → B) := {}.
 
 (* Apartness *)
 Class Apart A := apart: A → A → Type.

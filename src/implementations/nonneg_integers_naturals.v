@@ -12,7 +12,7 @@ Context Z `{Integers Z} `{!RingOrder o} `{!TotalOrder o}.
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
 (* We show that [Z⁺] is an instance of the naturals by constructing a retract to [nat] *)
-Program Definition of_nat (x : nat) : Z⁺ := exist (λ x, 0 ≤ x) (naturals_to_semiring nat Z x) _.
+Program Definition of_nat (x : nat) : Z⁺ := exist (0 ≤) (naturals_to_semiring nat Z x) _.
 Next Obligation. apply naturals.to_semiring_nonneg. Qed.
 
 Local Ltac unfold_equivs := unfold equiv, NonNeg_equiv, sig_equiv in *; simpl in *.

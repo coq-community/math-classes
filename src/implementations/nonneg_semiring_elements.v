@@ -10,26 +10,25 @@ Context `{SemiRing R} `{!SemiRingOrder o} `{!TotalOrder o} `{∀ z : R, LeftCanc
 Add Ring R : (rings.stdlib_semiring_theory R).
 
 (* * Embedding of R⁺ into R *)
-Definition NonNeg_inject: R⁺ → R := @proj1_sig R _.
-Global Instance: Inject NonNeg_inject.
+Global Instance NonNeg_inject: Coerce (R⁺) R := @proj1_sig R _.
 
 (* Operations *)
-Global Program Instance NonNeg_plus: RingPlus (R⁺) := λ x y, exist _ (x + y) _. 
+Global Program Instance NonNeg_plus: RingPlus (R⁺) := λ x y, (x + y : R). 
 Next Obligation.
   destruct x as [x Hx], y as [y Hy].
   now apply nonneg_plus_compat.
 Qed.
 
-Global Program Instance NonNeg_mult: RingMult (R⁺) := λ x y, exist _ (x * y) _. 
+Global Program Instance NonNeg_mult: RingMult (R⁺) := λ x y, (x * y : R). 
 Next Obligation.
   destruct x as [x Hx], y as [y Hy].
   now apply nonneg_mult_compat.
 Qed.
 
-Global Program Instance NonNeg_0: RingZero (R⁺) := exist _ 0 _.
+Global Program Instance NonNeg_0: RingZero (R⁺) := (0 : R).
 Next Obligation. reflexivity. Qed. 
 
-Global Program Instance NonNeg_1: RingOne (R⁺) := exist _ 1 _.
+Global Program Instance NonNeg_1: RingOne (R⁺) := (1 : R).
 Next Obligation. apply precedes_0_1. Qed.
 
 (* * Equalitity *)
@@ -54,10 +53,10 @@ Global Instance: SemiRing (R⁺).
 Proof. repeat (split; try apply _); repeat intro; unfold_equivs; ring. Qed.
 
 Instance: Proper ((=) ==> (=)) NonNeg_inject.
-Proof. repeat intro. assumption. Qed.
+Proof. now repeat intro. Qed.
 
 Global Instance: SemiRing_Morphism NonNeg_inject.
-Proof. repeat (split; try apply _); intros; unfold_equivs; reflexivity. Qed.
+Proof. repeat (split; try apply _); now repeat intro. Qed.
 
 Global Instance: Injective NonNeg_inject.
 Proof. split. trivial. apply _. Qed.
@@ -72,21 +71,14 @@ Global Instance NonNeg_order: Order (R⁺) := λ x y, 'x ≤ 'y.
 Global Instance: Proper ((=) ==> (=) ==> iff) NonNeg_order.
 Proof. intros x1 y1 E1 x2 y2 E2. unfold NonNeg_order. now rewrite E1, E2. Qed.
 
-Instance: PartialOrder NonNeg_order.
-Proof. 
-  unfold NonNeg_order.
-  repeat (split; try apply _).
-    intros x. reflexivity.
-   intros x y z. apply transitivity.
-  intros x y ? ?. apply (injective NonNeg_inject). 
-  now apply (antisymmetry (≤)).
-Qed.
-
-Global Instance: TotalOrder NonNeg_order.
-Proof. intros x y. destruct (total_order ('x) ('y)); intuition. Qed.
-
 Global Instance: OrderEmbedding NonNeg_inject.
 Proof. repeat (split; try apply _); intuition. Qed.
+
+Instance: PartialOrder NonNeg_order.
+Proof maps.embed_partialorder NonNeg_inject.
+
+Global Instance: TotalOrder NonNeg_order.
+Proof maps.embed_totalorder NonNeg_inject.
 
 Global Instance: SemiRingOrder NonNeg_order.
 Proof.
@@ -111,5 +103,7 @@ Global Program Instance NonNeg_precedes_dec `{∀ x y : R, Decision (x ≤ y)} :
   | left E => left _
   | right E => right _
   end.
-
 End nonneg_semiring_elements.
+
+Typeclasses Opaque NonNeg_equiv.
+Typeclasses Opaque NonNeg_order.

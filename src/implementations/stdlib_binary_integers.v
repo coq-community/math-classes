@@ -186,7 +186,7 @@ Proof with trivial.
 Qed.
 
 (* * Embedding of the Peano naturals into [Z] *)
-Instance: Inject Z_of_nat.
+Instance inject_nat_Z: Coerce nat Z := Z_of_nat.
 
 Instance: SemiRing_Morphism Z_of_nat.
 Proof.
@@ -207,7 +207,7 @@ Next Obligation.
 Qed.
 
 (* * Embedding N into Z *)
-Instance: Inject Z_of_N.
+Instance inject_N_Z: Coerce BinNat.N Z := Z_of_N.
 
 Instance: SemiRing_Morphism Z_of_N.
  Proof.

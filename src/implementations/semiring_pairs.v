@@ -41,8 +41,7 @@ Proof.
 Qed.
 
 (* injection from SR *)
-Definition SRpair_inject: SR → SRpair SR := λ r, C r 0.
-Global Instance: Inject SRpair_inject.
+Global Instance SRpair_inject: Coerce SR (SRpair SR) := λ r, C r 0.
 
 Global Instance: Proper ((=) ==> (=)) SRpair_inject.
 Proof. intros x1 x2 E. unfold equiv, SRpair_equiv. simpl. now rewrite E. Qed.
@@ -168,7 +167,7 @@ Qed.
 Instance: AntiSymmetric SRpair_order.
 Proof. 
   intros [xp xn] [yp yn] E1 E2. 
-  unfold equiv, SRpair_equiv. apply (antisymmetry (≤)); assumption.
+  unfold equiv, SRpair_equiv. now apply (antisymmetry (≤)).
 Qed.
 
 Instance: ∀ z : SRpair SR, OrderPreserving ((+) z).
@@ -208,3 +207,6 @@ Proof.
   apply total_order.
 Qed.
 End semiring_pairs.
+
+Typeclasses Opaque SRpair_equiv.
+Typeclasses Opaque SRpair_order.

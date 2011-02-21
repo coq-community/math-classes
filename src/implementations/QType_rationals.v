@@ -50,7 +50,7 @@ Instance: Field t.
 Proof. apply (fields.from_stdlib_field_theory anyQ_field_theory). Qed.
 
 (* Type-classified facts about to_Q/of_Q: *)
-Instance: Inject to_Q.
+Instance inject_QType_Q: Coerce t Q := to_Q.
 
 Instance: Setoid_Morphism to_Q.
 Proof. constructor; try apply _. intros x y. auto. Qed.
@@ -58,6 +58,7 @@ Proof. constructor; try apply _. intros x y. auto. Qed.
 Instance: SemiRing_Morphism to_Q.
 Proof. repeat (constructor; try apply _); intros; qify; reflexivity. Qed.
 
+Instance inject_Q_QType: Coerce Q t := of_Q.
 Instance: Inverse to_Q := of_Q.
 
 Instance: Surjective to_Q.

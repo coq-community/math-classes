@@ -35,9 +35,7 @@ Global Program Instance dy_plus: RingPlus Dyadic := λ x y,
 Next Obligation. now apply rings.flip_nonneg_minus. Qed.
 Next Obligation. apply rings.flip_nonneg_minus. now apply orders.precedes_flip. Qed.
 
-Definition dy_inject: Z → Dyadic := λ x, x $ 0.
-Global Instance: Inject dy_inject.
-
+Global Instance dy_inject: Coerce Z Dyadic := λ x, x $ 0.
 Global Instance dy_opp: GroupInv Dyadic := λ x, -mant x $ expo x.
 Global Instance dy_mult: RingMult Dyadic := λ x y, mant x * mant y $ expo x + expo y.
 Global Instance dy_0: RingZero Dyadic := ('0:Dyadic).
@@ -388,8 +386,6 @@ Section DtoQ.
     apply P.
     apply (rings.ne_0 1).
   Qed.
-  
-  Global Instance: Inject DtoQ.
 End DtoQ.
 
 Section embed_rationals.

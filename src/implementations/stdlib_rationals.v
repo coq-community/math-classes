@@ -45,7 +45,7 @@ Program Instance: ∀ x y: Q, Decision (x ≤ y) := λ y x,
   | left _ => right _
   | right _ => left _
   end.
-Next Obligation. apply Qlt_not_le; trivial. Qed. 
+Next Obligation. now apply Qlt_not_le. Qed. 
 
 Lemma Qlt_coincides x y : (x < y)%Q ↔ x < y.
 Proof with trivial.
@@ -57,7 +57,7 @@ Qed.
 (* misc: *)
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 
-Instance: Inject inject_Z.
+Instance inject_Z_Q: Coerce Z Q := inject_Z.
 
 Instance: Proper ((=) ==> (=)) inject_Z. 
 Proof. intros x y H. unfold inject_Z. repeat red. simpl. now rewrite H. Qed.
