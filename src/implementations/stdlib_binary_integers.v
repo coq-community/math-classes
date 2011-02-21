@@ -234,7 +234,7 @@ Instance: NatPowSpec Z (Z⁺) Z_pow.
 Proof.
   split; unfold pow, Z_pow.
     intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2.
-    unfold equiv, NonNeg_equiv, sig_equiv in E2.
+    unfold equiv, sig_equiv in E2.
     simpl in *. now rewrite E1, E2.
    intros. now apply Z.pow_0_r.
   intros x n.

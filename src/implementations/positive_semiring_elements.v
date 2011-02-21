@@ -28,9 +28,7 @@ Global Program Instance Pos_1: RingOne (R₊) := (1 : R).
 Next Obligation. apply sprecedes_0_1. Qed.
 
 (* * Equalitity *)
-Global Instance Pos_equiv: Equiv (R₊) := sig_equiv _.
-
-Local Ltac unfold_equivs := unfold equiv, Pos_equiv, sig_equiv in *; simpl in *.
+Local Ltac unfold_equivs := unfold equiv, sig_equiv in *; simpl in *.
 
 Global Instance: Proper ((=) ==> (=) ==> (=)) Pos_plus.
 Proof.
@@ -50,5 +48,3 @@ Proof. now repeat intro. Qed.
 Global Instance: Injective Pos_inject.
 Proof. now repeat (split; try apply _). Qed.
 End positive_semiring_elements.
-
-Typeclasses Opaque Pos_equiv.

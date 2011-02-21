@@ -32,9 +32,7 @@ Global Program Instance NonNeg_1: RingOne (R⁺) := (1 : R).
 Next Obligation. apply precedes_0_1. Qed.
 
 (* * Equalitity *)
-Global Instance NonNeg_equiv: Equiv (R⁺) := sig_equiv _.
-
-Local Ltac unfold_equivs := unfold equiv, NonNeg_equiv, sig_equiv in *; simpl in *.
+Local Ltac unfold_equivs := unfold equiv, sig_equiv in *; simpl in *.
 
 Instance: Proper ((=) ==> (=) ==> (=)) NonNeg_plus.
 Proof.
@@ -105,5 +103,4 @@ Global Program Instance NonNeg_precedes_dec `{∀ x y : R, Decision (x ≤ y)} :
   end.
 End nonneg_semiring_elements.
 
-Typeclasses Opaque NonNeg_equiv.
 Typeclasses Opaque NonNeg_order.
