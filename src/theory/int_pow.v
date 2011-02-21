@@ -276,7 +276,7 @@ Proof.
    rewrite <-(rings.mult_1_r (x ^ n)) at 1.
    assert (PropHolds (0 < x ^ n)).
     apply int_pow_pos. red. transitivity 1; trivial. apply semirings.sprecedes_0_1.
-   apply (strictly_order_preserving ((x^n) *.)).
+   apply (strictly_order_preserving (x^n *.)).
    apply int_pow_gt1; trivial.
    apply integers.precedes_sprecedes_alt.
    rewrite commutativity. now apply (order_preserving (1+)).
@@ -355,7 +355,7 @@ Section int_pow_default.
   Global Instance int_pow_default: Pow A B | 10 := λ x n,
     match (decide_rel (≤) 0 n) with
     | left _ => x ^ int_abs B nat n
-    | right _ => /(x ^ int_abs B nat n)
+    | right _ => /x ^ int_abs B nat n
     end.
 
   Global Instance: IntPowSpec A B int_pow_default.
@@ -364,8 +364,7 @@ Section int_pow_default.
        intros ? ? E1 ? ? E2.
        now (case (decide_rel _); case (decide_rel _); rewrite E1, E2).
       intros x. case (decide_rel _); intros E.
-      rewrite int_abs_0. 
-       now apply nat_pow_0.
+       now rewrite int_abs_0. 
       now destruct E.
      intros n ?. case (decide_rel _); intros E.
       now apply nat_pow_base_0, int_abs_nonzero.
@@ -374,7 +373,7 @@ Section int_pow_default.
      now apply int_abs_nonzero.
     intros x n E. case (decide_rel _); case (decide_rel _); intros E1 E2.
        rewrite int_abs_nonneg_plus, int_abs_1.
-         now rewrite nat_pow_S.
+         reflexivity.
         apply (rings.ge_0 1).
        easy.
       setoid_replace n with (-(1):B).

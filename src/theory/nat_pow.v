@@ -136,21 +136,27 @@ End exp_preservation.
 
 (* Very slow default implementation by translation into Peano *)
 Section nat_pow_default.
-  Context `{SemiRing A} `{Naturals B}.
+  Context `{SemiRing A}.
   
-  Fixpoint nat_pow_rec (x: A) (n : nat) : A := match n with
-  | 0 => 1
-  | S n => x * nat_pow_rec x n
-  end.
+  Global Instance nat_pow_peano: Pow A nat := 
+    fix nat_pow_rec (x: A) (n : nat) : A := match n with
+    | 0 => 1
+    | S n => x * nat_pow_rec x n
+    end.
 
-  Instance: Proper ((=) ==> (=) ==> (=)) nat_pow_rec.
+  Instance: Proper ((=) ==> (=) ==> (=)) nat_pow_peano.
   Proof.
-    intros x y E a ? [].
+    intros ? ? E a ? [].
     induction a; try easy.
     simpl. now rewrite IHa, E.
   Qed.
 
-  Global Instance nat_pow_default: Pow A B | 10 := λ x n, nat_pow_rec x (naturals_to_semiring B nat n).
+  Global Instance: NatPowSpec A nat nat_pow_peano.
+  Proof. split; try apply _; easy. Qed.
+
+  Context `{Naturals B}.
+
+  Global Instance nat_pow_default: Pow A B | 10 := λ x n, nat_pow_peano x (naturals_to_semiring B nat n).
   Global Instance: NatPowSpec A B nat_pow_default.
   Proof.
     split; unfold pow, nat_pow_default.
