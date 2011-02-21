@@ -1,14 +1,11 @@
 (* To be imported qualified. *)
-
-Set Automatic Introduction.
-
 Require Import
   Morphisms Setoid abstract_algebra Program.
 
-Instance ext_eq_trans `{Setoid A} `{Setoid B}: Transitive (equiv: relation (A → B)).
+Instance ext_equiv_trans `{Setoid A} `{Setoid B}: Transitive (_ : Equiv (A → B)).
 Proof. intros ? y ???? w ?. transitivity (y w); firstorder. Qed.
 
-Instance ext_eq_sym `{Setoid A} `{Setoid B}: Symmetric (equiv: relation (A → B)).
+Instance ext_equiv_sym `{Setoid A} `{Setoid B}: Symmetric (_ : Equiv (A → B)).
 Proof. firstorder. Qed.
 
 Instance: Equiv Prop := iff.
@@ -18,10 +15,9 @@ Instance sig_Setoid `{Setoid A} (P: A → Prop): Setoid (sig P).
 Instance sigT_Setoid `{Setoid A} (P: A → Type): Setoid (sigT P).
 
 Section simple_product.
-
   Context `{Setoid A} `{Setoid B}.
 
-  Global Instance: Equiv (A * B) := λ p q, fst p = fst q ∧ snd p = snd q.
+  Global Instance prod_equiv: Equiv (A * B) := λ p q, fst p = fst q ∧ snd p = snd q.
 
   Global Instance: Setoid (A * B).
   Proof. firstorder. Qed.
@@ -34,16 +30,14 @@ Section simple_product.
 
   Global Instance: Setoid_Morphism (@snd A B).
   Proof. constructor; try apply _. firstorder. Qed.
-
 End simple_product.
 
 Section product.
-
   Context (I: Type) (c: I → Type) `{∀ i, Equiv (c i)} `{∀ i, Setoid (c i)}.
 
   Let product: Type := ∀ i, c i.
 
-  Instance product_eq: Equiv product := `(∀ i, x i = y i).
+  Instance product_equiv: Equiv product := `(∀ i, x i = y i).
 
   Global Instance: Setoid product.
   Proof.
@@ -55,7 +49,6 @@ Section product.
 
   Global Instance projection_morphism i: Setoid_Morphism (λ c: product, c i).
   Proof. firstorder. Qed.
-
 End product.
 
 Instance id_morphism `{Setoid T}: Setoid_Morphism (@id T).
@@ -65,7 +58,7 @@ Instance compose_morphisms (A B C: Type)
   {P: Setoid_Morphism f} {Q: Setoid_Morphism g}: Setoid_Morphism (g ∘ f).
 Proof. destruct P, Q. constructor; apply _. Qed.
 
-Instance: ∀ `{Setoid_Morphism A B f} `{!Inverse f}, Bijective f → Setoid_Morphism (inverse f).
+Instance: ∀ `{Setoid_Morphism A B f} `{!Inverse f}, Bijective f → Setoid_Morphism (f⁻¹).
 Proof.
  intros.
  pose proof (setoidmor_a f).

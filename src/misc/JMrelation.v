@@ -1,7 +1,4 @@
 (* JMeq without the [eq] hard-wiring. Meant for use with [Require] only, not [Import]. *)
-
-Set Automatic Introduction.
-
 Require Import Relation_Definitions RelationClasses.
 Require Export Unicode.Utf8 Utf8_core.
 

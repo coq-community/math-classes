@@ -4,7 +4,7 @@ Set Automatic Introduction.
 Set Automatic Coercions Import.
 
 Require
-  categories.variety categories.product forget_algebra forget_variety.
+  categories.variety categories.product forget_algebra forget_variety groups.
 Require Import
   Program Morphisms
   abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
@@ -107,7 +107,6 @@ Proof with simpl; auto.
  * intro. apply_simplified (laws _ e_mult_inv_r)...
 Qed.
 
-Require Import rings.
 Lemma encode_morphism_only
   `{AlgebraOps theory A} `{∀ u, Equiv (A u)}
   `{AlgebraOps theory B} `{∀ u, Equiv (B u)}
@@ -119,7 +118,7 @@ Proof.
  * intros []. apply _.
  * intros []; simpl.
    + apply preserves_sg_op.
-   + apply rings.preserves_inv.
+   + apply groups.preserves_inv.
    + apply (@preserves_mon_unit (A tt) (B tt) _ _ _ _ _ _ (f tt) _).
  * eapply encode_algebra_only.
  * eapply encode_algebra_only.

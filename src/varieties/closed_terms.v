@@ -1,14 +1,11 @@
-Set Automatic Introduction.
-Set Automatic Coercions Import.
-
 Require Import
   RelationClasses Relation_Definitions List Morphisms
   universal_algebra ua_homomorphisms
   abstract_algebra canonical_names
-  theory.categories.
-Require categories.variety.
+  theory.categories categories.variety.
 
-Section contents. Variable et: EquationalTheory.
+Section contents. 
+  Variable et: EquationalTheory.
 
   (* The initial object will consists of arity-0 terms with a congruence incorporating the variety's laws.
    For this we simply take universal_algebra's Term type, but exclude variables by taking False
@@ -101,7 +98,8 @@ Section contents. Variable et: EquationalTheory.
 
   (* To show its initiality, we begin by constructing arrows to arbitrary other objects: *)
 
-  Section for_another_object. Variable other: variety.Object et.
+  Section for_another_object. 
+    Variable other: variety.Object et.
 
     (* Computationally, the arrow simply evaluates closed terms in the other
      model. For induction purposes, we first define this for arbitrary op_types: *)

@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 (** We prove the equivalence of the two definitions of adjunction. *)
 
 Require Import
@@ -7,8 +5,6 @@ Require Import
   abstract_algebra setoids interfaces.functors categories
   workaround_tactics theory.jections.
 Require dual.
-
-Notation "f ⁻¹" := (inverse f) (at level 30). (* todo: move *)
 
 Hint Unfold id compose: typeclass_instances. (* todo: move *)
 

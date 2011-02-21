@@ -1,7 +1,12 @@
-Require theory.integers.
 Require Import 
   interfaces.rationals interfaces.integers 
-  abstract_algebra field_of_fractions theory.rationals.
+  abstract_algebra theory.rationals.
+Require Export
+  field_of_fractions.
 
-Instance intfrac_rationals `{Integers Z} `{∀ x y: Z, Decision (x = y)} : Rationals (Frac Z).
-Proof. apply (alt_Build_Rationals _ _ _ _ _). Qed.
+Section intfrac_rationals.
+  Context `{Integers Z}.
+
+  Global Instance: RationalsToFrac (Frac Z) := alt_to_frac id.
+  Global Instance: Rationals (Frac Z) := alt_Build_Rationals id _.
+End intfrac_rationals.

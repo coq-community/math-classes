@@ -64,7 +64,7 @@ Section upper_classes.
 
   Class IntegralDomain: Prop :=
     { intdom_ring: Ring 
-    ; intdom_nontrivial:> NeZero (1:A)
+    ; intdom_nontrivial:> PropHolds (1 ≠ 0)
     ; intdom_nozeroes:> NoZeroDivisors A }.
 
   (* For a strange reason Ring instances of Integers are sometimes obtained by
@@ -75,15 +75,14 @@ Section upper_classes.
 
   Class Field {mult_inv: MultInv A}: Prop :=
     { field_ring:> Ring
-    ; field_0neq1:> NeZero (1:A)
-    ; mult_inv_proper:> Proper (sig_relation (=) _ ==> (=)) (//)
-    ; mult_inverse: `(` x * // x = 1) }.
+    ; field_nontrivial:> PropHolds (1 ≠ 0)
+    ; mult_inv_proper:> Proper ((=) ==> (=)) (//)
+    ; mult_inverse: `( `x * // x = 1) }.
 End upper_classes.
 
 Implicit Arguments inv_proper [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments ginv_l [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments ginv_r [[A] [e] [op] [unit] [inv] [Group]].
-Implicit Arguments field_0neq1 [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv] [Field]].
 Implicit Arguments mult_inverse [[A] [e] [plus] [mult] [zero] [one] [inv] [mult_inv0] [Field]].
 Implicit Arguments sg_mor [[A] [e] [op] [SemiGroup]].
 
@@ -157,7 +156,7 @@ Section jections.
     ; injective_mor:> Setoid_Morphism f }.
 
   Class Surjective: Prop :=
-    { surjective: f ∘ inverse f = id (* a.k.a. "split-epi" *)
+    { surjective: f ∘ (f ⁻¹) = id (* a.k.a. "split-epi" *)
     ; surjective_mor:> Setoid_Morphism f }.
 
   Class Bijective: Prop :=
@@ -178,17 +177,18 @@ Class TotalOrder `(o : Order A): Prop := total_order: ∀ x y: A, x ≤ y ∨ y 
 Section order_maps.
   Context `{Equiv A} `{oA : Order A} `{Equiv B} `{oB : Order B} (f : A → B).
 
-  (* It makes sense to require these maps to be [Setoid_Morphism]s, however, 
-      Coq will become horribly slow then *)
+  Class Order_Morphism := 
+    { order_morphism_mor : Setoid_Morphism f (* Making this a coercion makes instance resolution slow *)
+    ; order_morphism_proper_a :> Proper ((=) ==> (=) ==> iff) oA
+    ; order_morphism_proper_b :> Proper ((=) ==> (=) ==> iff) oB }.
+
   Class OrderPreserving := 
-    { order_preserving : `(x ≤ y → f x ≤ f y)  
-    ; order_preserving_proper_a :> Proper ((=) ==> (=) ==> iff) oA
-    ; order_preserving_proper_b :> Proper ((=) ==> (=) ==> iff) oB }.
+    { order_preserving_morphism :> Order_Morphism 
+    ; order_preserving : `(x ≤ y → f x ≤ f y) }.
 
   Class OrderPreservingBack := 
-    { order_preserving_back : `(f x ≤ f y → x ≤ y)
-    ; order_preserving_back_proper_a :> Proper ((=) ==> (=) ==> iff) oA
-    ; order_preserving_back_proper_b :> Proper ((=) ==> (=) ==> iff) oB }.
+    { order_preserving_back_morphism :> Order_Morphism
+    ; order_preserving_back : `(f x ≤ f y → x ≤ y) }.
 
   Class OrderEmbedding := 
     { order_embedding_preserving :> OrderPreserving
@@ -199,9 +199,8 @@ Section order_maps.
     ; order_iso_surjective :> Surjective f }.
 
   Class StrictlyOrderPreserving := 
-    { strictly_order_preserving : `(x < y → f x < f y)  
-    ; strictly_order_preserving_proper_a :> Proper ((=) ==> (=) ==> iff) oA
-    ; strictly_order_preserving_proper_b :> Proper ((=) ==> (=) ==> iff) oB }.
+    { strictly_order_preserving_morphism :> Order_Morphism
+    ; strictly_order_preserving : `(x < y → f x < f y) }.
 End order_maps.
 
 Class SemiRingOrder `{Equiv A} `{RingPlus A} `{RingMult A} `{RingZero A} (o : Order A) :=
@@ -209,26 +208,7 @@ Class SemiRingOrder `{Equiv A} `{RingPlus A} `{RingMult A} `{RingZero A} (o : Or
   ; srorder_plus : `(x ≤ y ↔ ∃ z, 0 ≤ z ∧ y = x + z)
   ; srorder_mult: `(0 ≤ x → ∀ y, 0 ≤ y → 0 ≤ x * y) }.
 
-(*
-Class OrdSemiRing A `{Equiv A} `{RingPlus A} `{RingMult A} `{RingZero A} `{RingOne A} `{Order A} : Prop :=
-  { ordsr_sr :> SemiRing A 
-  ; ordsr_order :> SemiRingOrder (≤)
-  ; ordsr_cancel :> ∀ z : A, LeftCancellation (+) z }.
-*)
-
 Class RingOrder `{Equiv A} `{RingPlus A} `{RingMult A} `{RingZero A} (o : Order A) :=
   { ringorder_partialorder:> PartialOrder (≤)
   ; ringorder_plus :> ∀ z, OrderPreserving ((+) z)
   ; ringorder_mult: `(0 ≤ x → ∀ y, 0 ≤ y → 0 ≤ x * y) }.
-
-(*
-Class OrdRing A `{Equiv A} `{RingPlus A} `{RingMult A} `{GroupInv A} `{RingZero A} `{RingOne A} `{Order A} : Prop :=
-  { ordring_ring:> Ring A 
-  ; ordring_order:> RingOrder (≤) }.
-
-Class OrdField A `{Equiv A} `{RingPlus A} `{RingMult A} `{GroupInv A} `{RingZero A} `{RingOne A} `{!MultInv A} `{Order A} : Prop :=
-  { ordfield_field:> Field A
-  ; ordfield_order:> RingOrder (≤) }.
-
-Instance ordfield_is_ordring `{OrdField A} : OrdRing A.
-*)

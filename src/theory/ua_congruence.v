@@ -1,15 +1,11 @@
-Set Automatic Introduction.
-
 Require Import
-  RelationClasses Relation_Definitions List Morphisms
+  Program RelationClasses Relation_Definitions List Morphisms
   universal_algebra ua_homomorphisms canonical_names ua_subalgebraT util.
-Require Import Program.
 Require ua_products.
 
 Require categories.
 
 Section contents.
-
   Context σ `{@Algebra σ v ve vo}.
 
   Notation op_type := (op_type (sorts σ)).
@@ -20,7 +16,7 @@ Section contents.
   (* Given an equivalence on the algebra's carrier that respects its setoid equality... *)
 
   Let hint' (a: sorts σ): Equiv (ua_products.carrier σ bool (fun _: bool => v) a).
-  Proof. apply setoids.product_eq. intro. apply _. Defined.
+  Proof. apply setoids.product_equiv. intro. apply _. Defined.
 
   Context (e: ∀ s, relation (v s)).
 

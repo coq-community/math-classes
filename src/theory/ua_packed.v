@@ -1,9 +1,7 @@
-Set Automatic Introduction.
-
-Require Import Unicode.Utf8 canonical_names universal_algebra Program.
+Require Import 
+  canonical_names universal_algebra Program.
 
 Section packed.
-
   Context (σ: Signature) {V: Type}.
 
   Inductive Applied: sorts σ → Type :=

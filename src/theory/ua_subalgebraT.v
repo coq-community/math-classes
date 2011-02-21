@@ -3,9 +3,6 @@ instead of Prop (and with carrier sigT instead of sig).
 
 Hopefully one day Coq's universe polymorphism will permit a merge of sig and sigT,
 at which point we may try to merge ua_subalgebra and ua_subalgebraT as well. *)
-
-Set Automatic Introduction.
-
 Require Import
   RelationClasses Morphisms Program
   universal_algebra ua_homomorphisms canonical_names util theory.categories abstract_algebra.
@@ -67,8 +64,7 @@ Section subalgebras.
    intro.
    apply op_type_equiv.
    intro.
-   apply sigT_relation.
-   apply e.
+   apply _.
   Defined.
 
   Definition close_op_proper d (o0 o1: op_type A d)

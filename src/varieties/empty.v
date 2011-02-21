@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require
   theory.rings categories.variety.
 Require Import

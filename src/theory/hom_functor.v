@@ -1,9 +1,6 @@
-Set Automatic Introduction.
-
 Require Import
   Relation_Definitions Morphisms Setoid Program
   abstract_algebra setoids interfaces.functors categories.
-
 Require categories.setoid.
 
 Section contents.

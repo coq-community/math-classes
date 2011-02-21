@@ -107,10 +107,10 @@ Proof.
   intros. apply natural_initial. intros. 
   intros x y E. unfold equiv, nat_equiv in E. subst y. induction x. 
   replace 0%nat with (ring_zero:nat) by reflexivity.
-  do 2 rewrite rings.preserves_0. reflexivity.
+  rewrite 2!rings.preserves_0. reflexivity.
   rewrite S_nat_1_plus.
-  do 2 rewrite rings.preserves_plus, rings.preserves_1. 
-  rewrite IHx. reflexivity.
+  rewrite 2!rings.preserves_plus, 2!rings.preserves_1. 
+  now rewrite IHx.
 Qed.
 
 (* [nat] is indeed a model of the naturals *)
@@ -129,9 +129,9 @@ Proof with trivial.
     apply plus_le_reg_l with x.
     rewrite <-F... rewrite Plus.plus_0_r...
    intros [z [Ez1 Ez2]].
-   rewrite Ez2. apply le_plus_trans...
+   rewrite Ez2. now apply le_plus_trans.
   intros x E1 y E2.
-  change (0 * 0 <= x * y)%nat. apply mult_le_compat...
+  change (0 * 0 <= x * y)%nat. now apply mult_le_compat.
 Qed.
 
 Instance: TotalOrder le.
@@ -140,14 +140,15 @@ Proof. intros x y. destruct (le_ge_dec x y); intuition. Qed.
 Instance le_nat_dec: Decision (x ≤ y) := le_dec.
 
 (* Misc *)
-Program Instance: CutMinus nat := λ x y, minus x y.
-Next Obligation with trivial.
-  split; intros E.
+Instance nat_cut_minus: CutMinus nat := minus.
+Instance: CutMinusSpec nat nat_cut_minus.
+Proof.
+  split.
    symmetry. rewrite commutativity.
-   apply le_plus_minus...
-  apply orders.sprecedes_precedes in E. destruct E as [E|E].
+   now apply le_plus_minus.
+  intros x y E. apply orders.sprecedes_precedes in E. destruct E as [E|E].
    rewrite E. apply minus_diag.
-  apply not_le_minus_0. apply orders.not_precedes_sprecedes...
+  apply not_le_minus_0. now apply orders.not_precedes_sprecedes.
 Qed.
 
 (* Two simple omissions in the standard library that we prove for nats and then

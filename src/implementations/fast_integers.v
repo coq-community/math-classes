@@ -1,7 +1,9 @@
 Require Import 
-  BigZ Program ZType_integers interfaces.integers.
+  BigZ interfaces.integers.
+Require Export
+  ZType_integers.
 
 Module BigZ_Integers := ZType_Integers BigZ.
 
-Definition fastZ: Type := BigZ.t.
+Definition fastZ : Type := BigZ.t.
 

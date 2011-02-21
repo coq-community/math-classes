@@ -1,17 +1,13 @@
 Require Import
-  abstract_algebra interfaces.integers natpair_integers
-  theory.fields.
+  abstract_algebra interfaces.integers field_of_fractions theory.integers.
 
-Section rationals.
-  Context A `{field : Field A} `{∀ x y: A, Decision (x = y)}.
+Section rationals_to_frac.
+  Context (A : Type).
+  Class RationalsToFrac := rationals_to_frac : ∀ B `{Integers B}, A → Frac B.
+End rationals_to_frac.
 
-  Class Rationals {inj_inv}: Prop :=
-  { rationals_field:> Field A
-  ; rationals_frac: Surjective (λ p, integers_to_ring (SRpair nat) A (fst p) * / integers_to_ring (SRpair nat) A (snd p)) (inv:=inj_inv)
-  ; rationals_embed_ints: Injective (integers_to_ring (SRpair nat) A) }.
-End rationals.
-
-(* rational_embed_ints is not declared as a coercion because we prove a stronger result in a moment *)
-
-(* This definition of Rationals uses maps from plain (SRpair nat) for simplicity, but maps from
- any model of the integers suffice, as the "smart" constructor in theory.rationals shows *)
+Class Rationals A {e plus mult zero one opp inv} `{U : !RationalsToFrac A} : Prop :=
+  { rationals_field:> @Field A e plus mult zero one opp inv
+  ; rationals_frac :> ∀ `{Integers Z}, Injective (rationals_to_frac A Z)
+  ; rationals_frac_mor :> ∀ `{Integers Z}, SemiRing_Morphism (rationals_to_frac A Z)
+  ; rationals_embed_ints :> ∀ `{Integers Z}, Injective (integers_to_ring Z A) }.

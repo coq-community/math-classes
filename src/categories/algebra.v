@@ -1,7 +1,4 @@
 (* Show that algebras with homomorphisms between them form a category. *)
-
-Set Automatic Introduction.
-
 Require Import
   Morphisms Setoid abstract_algebra Program universal_algebra ua_homomorphisms theory.categories.
 Require

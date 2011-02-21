@@ -1,8 +1,7 @@
-Set Automatic Coercions Import.
-
 Require Import
   Relation_Definitions Morphisms Ring
-  abstract_algebra interfaces.naturals theory.categories.
+  abstract_algebra interfaces.naturals theory.categories 
+  categories.variety.
 Require
   varieties.ring.
 

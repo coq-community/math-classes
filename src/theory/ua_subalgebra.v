@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require Import
   RelationClasses Morphisms Program
   universal_algebra ua_homomorphisms canonical_names theory.categories abstract_algebra.
@@ -7,7 +5,6 @@ Require
   categories.algebra forget_algebra.
 
 Section subalgebras.
-
   Context `{Algebra sign A} (P: ∀ s, A s → Prop).
 
   (* We begin by describing what it means for P to be a proper closed subset: *)
@@ -97,5 +94,6 @@ Section subalgebras.
    intro. apply setoid.mono.
    simpl. apply _.
   Qed. (* this really should be completely automatic. *)
-
 End subalgebras.
+
+Hint Extern 10 (Equiv (carrier _ _)) => apply @sig_equiv : typeclass_instances.

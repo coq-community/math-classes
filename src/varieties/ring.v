@@ -1,7 +1,4 @@
 (* To be imported qualified. *)
-
-Set Automatic Introduction.
-
 Require
   categories.variety theory.rings.
 Require Import
@@ -120,7 +117,7 @@ Proof.
       apply rings.preserves_mult.
      change (f tt 0 = 0). apply rings.preserves_0.
     change (f tt 1 = 1). apply rings.preserves_1.
-   apply rings.preserves_inv.
+   apply rings.preserves_opp.
   apply encode_algebra_only.
  apply encode_algebra_only.
 Qed.

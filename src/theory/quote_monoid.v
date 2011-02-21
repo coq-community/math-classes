@@ -1,5 +1,4 @@
-Require Import Morphisms Program Unicode.Utf8.
-
+Require Import Morphisms Program.
 Require Import abstract_algebra.
 Require universal_algebra.
 

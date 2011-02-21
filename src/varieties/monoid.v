@@ -1,13 +1,10 @@
 (* To be imported qualified. *)
-
-Set Automatic Introduction.
-Set Automatic Coercions Import.
-
-Require
-  categories.variety categories.product forget_algebra forget_variety.
 Require Import
   Program Morphisms
-  abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
+  abstract_algebra universal_algebra ua_homomorphisms workaround_tactics
+  categories.cat.
+Require
+  categories.variety categories.product forget_algebra forget_variety.
 
 Inductive op := mult | one.
 
@@ -152,7 +149,7 @@ Section specialized.
   Qed.
 
   Global Instance: ∀ `{H: Monoid_Morphism A B f} `{!Inverse f},
-    Bijective f → Monoid_Morphism (inverse f).
+    Bijective f → Monoid_Morphism (f⁻¹).
   Proof.
    intros.
    pose proof (encode_morphism_and_ops (f:=f)) as P.

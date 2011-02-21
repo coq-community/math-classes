@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require
   setoids ne_list.
 Require Import
@@ -8,7 +6,8 @@ Require Import
 Require Export
   ua_basic.
 
-Section for_signature. Variable σ: Signature.
+Section for_signature. 
+  Variable σ: Signature.
 
   Notation OpType := (OpType (sorts σ)).
 
@@ -33,7 +32,6 @@ Section for_signature. Variable σ: Signature.
   Definition Term0 v sort := Term v (ne_list.one sort).
 
   Section applications_ind.
-
     Context V (P: ∀ {a}, Term0 V a → Type).
 
     Implicit Arguments P [[a]].
@@ -146,7 +144,6 @@ Section for_signature. Variable σ: Signature.
     end.
 
   Section eval.
-
     Context `{Algebra σ A}.
 
     Fixpoint eval {V} {n: OpType} (vars: Vars A V) (t: Term V n) {struct t}: op_type A n :=
@@ -249,7 +246,6 @@ Section for_signature. Variable σ: Signature.
     Proof. destruct ee. simpl. induction entailment_premises0; simpl; intuition. Qed.
 
   End eval.
-
 End for_signature.
 
 (* And with that, we define equational theories and varieties: *)

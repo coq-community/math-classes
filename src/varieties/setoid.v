@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require
   theory.rings categories.variety.
 Require Import
@@ -17,7 +15,6 @@ Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
 (* Constructing an object in the variety from an instance of the class: *)
 
 Section from_instance.
-
   Context A `{Setoid A}.
 
   Notation carriers := (λ _, A).

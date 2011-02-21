@@ -1,9 +1,8 @@
 (* "Forgetting" a variety's laws (but keeping the algebraic operations) is a trivial functor. *)
 
-Set Automatic Coercions Import.
-
-Require Import canonical_names universal_algebra interfaces.functors theory.categories.
-Require categories.variety categories.algebra.
+Require Import 
+  canonical_names universal_algebra interfaces.functors 
+  theory.categories categories.variety categories.algebra.
 
 Section contents.
 

@@ -1,13 +1,11 @@
-Set Automatic Introduction.
-Set Automatic Coercions Import.
-
 Require Import
- Morphisms List Program
- abstract_algebra theory.categories forget_algebra forget_variety theory.rings interfaces.functors
- canonical_names.
+  Morphisms List Program
+  abstract_algebra theory.categories forget_algebra forget_variety 
+  theory.rings interfaces.universal_algebra interfaces.functors 
+  categories.setoid categories.variety.
 Require
- categories.setoid categories.product varieties.monoid categories.algebra.
-Require categories.cat theory.setoids.
+  categories.product varieties.monoid categories.algebra
+  categories.cat theory.setoids.
 
 Module ua := universal_algebra.
 
@@ -29,7 +27,6 @@ a bit awkward to work with. Hence, let us define a more down to earth
 version. *)
 
 Section practical.
-
   (* Here, again, are the ingredients, this time in somewhat more raw form: *)
 
   Class ExtendToSeq (free: Type → Type) :=
@@ -108,7 +105,6 @@ Section practical.
     (X: x ⟶ monoid.forget y): posh_free x ⟶ y
     := λ u, match u return posh_free x u → y u with
       tt => @extend free _ x (monoid.forget y) _ _ X end.
-
   Next Obligation. apply _. Defined.
   Next Obligation. apply _. Defined.
 

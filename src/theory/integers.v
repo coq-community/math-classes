@@ -30,8 +30,7 @@ Qed.
 Lemma to_ring_unique_alt `{Integers Int} `{Ring R} (f g: Int → R) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} x :
   f x = g x.
 Proof.
-  rewrite (to_ring_unique f), (to_ring_unique g).
-  reflexivity.
+  now rewrite (to_ring_unique f), (to_ring_unique g).
 Qed.
 
 Lemma morphisms_involutive `{Integers N} `{Integers N2} (f: N → N2) (g: N2 → N) 
@@ -46,17 +45,17 @@ Qed.
 (* A ring morphism from integers to another ring is injective if there's an injection in the other direction: *)
 Lemma to_ring_injective `{Integers Int} `{Ring R} (f: R → Int) (g: Int → R) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: 
   Injective g.
-Proof with intuition.
+Proof.
   constructor. 2: apply _.
   intros x y E.
-  rewrite <- (to_ring_unique_alt (f ∘ g) id x)...
-  rewrite <- (to_ring_unique_alt (f ∘ g) id y)...
-  unfold compose. rewrite E...
+  rewrite <- (to_ring_unique_alt (f ∘ g) id x).
+  rewrite <- (to_ring_unique_alt (f ∘ g) id y).
+  unfold compose. now rewrite E.
 Qed.
 
 Instance integers_to_integers_injective `{Integers Int} `{Integers Int2} (f: Int → Int2) `{!SemiRing_Morphism f}: 
   Injective f.
-Proof. apply (to_ring_injective (integers_to_ring Int2 Int)); apply _. Qed.
+Proof. apply (to_ring_injective (integers_to_ring Int2 Int) _). Qed.
 
 Instance naturals_to_integers_injective `{Integers Int} `{Naturals N}: Injective (naturals_to_semiring N Int).
 Proof.
@@ -64,31 +63,30 @@ Proof.
   intros x y E.
   rewrite <- (rings.plus_0_r x), <- (rings.plus_0_r y).
   change ('x = ('y : SRpair N)).
-  do 2 rewrite <-NtoZ_uniq.
-  do 2 rewrite <-(naturals.to_semiring_unique (integers_to_ring Int (SRpair N) ∘ naturals_to_semiring N Int)).
-  unfold compose. rewrite E. reflexivity.
+  rewrite <-2!NtoZ_uniq.
+   rewrite <-2!(naturals.to_semiring_unique (integers_to_ring Int (SRpair N) ∘ naturals_to_semiring N Int)).
+  unfold compose. now rewrite E.
 Qed.
 
 Section retract_is_int.
   Context `{Integers Int} `{Ring Int2} `{o2 : Order Int2} `{!RingOrder o2} `{!TotalOrder o2}.
-  Context (f : Int → Int2) `{!Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (inverse f)}.
+  Context (f : Int → Int2) `{!Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (f⁻¹)}.
 
   (* If we make this an instance, then instance resolution will often loop *)
-  Definition retract_is_int_to_ring : IntegersToRing Int2 := λ R _ _ _ _ _, integers_to_ring Int R ∘ inverse f.
+  Definition retract_is_int_to_ring : IntegersToRing Int2 := λ R _ _ _ _ _, integers_to_ring Int R ∘ f⁻¹.
 
   Section for_another_ring.
     Context `{Ring R}.
 
-    Instance: SemiRing_Morphism (integers_to_ring Int R ∘ inverse f).
+    Instance: SemiRing_Morphism (integers_to_ring Int R ∘ f⁻¹).
     Context (h :  Int2 → R) `{!SemiRing_Morphism h}. 
       
-    Lemma same_morphism: integers_to_ring Int R ∘ inverse f = h.
+    Lemma same_morphism: integers_to_ring Int R ∘ f⁻¹ = h.
     Proof with auto.
       intros x y F. rewrite <-F.
-      transitivity ((h ∘ (f ∘ inverse f)) x).
+      transitivity ((h ∘ (f ∘ f⁻¹)) x).
        symmetry. unfold compose. apply (to_ring_unique (h ∘ f)).
-      unfold compose. rewrite jections.surjective_applied.
-      reflexivity.
+      unfold compose. now rewrite jections.surjective_applied.
     Qed.
   End for_another_ring.
   
@@ -98,7 +96,7 @@ Section retract_is_int.
     esplit; try apply _. (* for some reason split doesn't work... *)
     apply integer_initial. intros. 
     unfold integers_to_ring, retract_is_int_to_ring. 
-    apply same_morphism. assumption.
+    now apply same_morphism.
   Qed.
 End retract_is_int.
 
@@ -110,24 +108,24 @@ Global Program Instance: ∀ x y: Int, Decision (x = y) | 10 := λ x y,
   | left E => left _
   | right E => right _
   end.
-Next Obligation. apply (injective (integers_to_ring Int (SRpair nat))). assumption. Qed.
-Next Obligation. intros F. apply E. rewrite F. reflexivity. Qed.
+Next Obligation. now apply (injective (integers_to_ring Int (SRpair nat))). Qed.
+Next Obligation. intros F. apply E. now rewrite F. Qed.
 
-Instance: NeZero (1:Int).
-Proof with auto.
+Instance: PropHolds ((1:Int) ≠ 0).
+Proof.
   intros E.
-  apply (ne_zero (1:nat)).
+  apply (rings.ne_0 (1:nat)).
   apply (injective (naturals_to_semiring nat Int)).
-  rewrite rings.preserves_0, rings.preserves_1...
+  now rewrite rings.preserves_0, rings.preserves_1.
 Qed.
 
-Instance zero_product: ZeroProduct Int.
-Proof with trivial.
+Global Instance zero_product: ZeroProduct Int.
+Proof.
   intros x y E.
   destruct (zero_product (integers_to_ring Int (SRpair nat) x) (integers_to_ring Int (SRpair nat) y)).
-    rewrite <-rings.preserves_mult, E, rings.preserves_0. reflexivity.
-   left. apply (injective (integers_to_ring Int (SRpair nat))). rewrite rings.preserves_0...
-  right. apply (injective (integers_to_ring Int (SRpair nat))). rewrite rings.preserves_0...
+    now rewrite <-rings.preserves_mult, E, rings.preserves_0.
+   left. apply (injective (integers_to_ring Int (SRpair nat))). now rewrite rings.preserves_0.
+  right. apply (injective (integers_to_ring Int (SRpair nat))). now rewrite rings.preserves_0.
 Qed.
 
 Global Instance: IntegralDomain Int.

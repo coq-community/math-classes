@@ -1,30 +1,30 @@
 (* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
 Require 
-  interfaces.naturals theory.naturals peano_naturals theory.nat_pow.
+  interfaces.naturals theory.naturals peano_naturals theory.shiftl.
 Require Import
   BinInt Morphisms Ring Program Arith ZBinary
   abstract_algebra interfaces.integers
   theory.categories theory.rings 
-  signed_binary_positives
+  stdlib_binary_positives stdlib_binary_naturals
   interfaces.additional_operations
   nonneg_integers_naturals.
 
 (* canonical names: *)
-Instance z_equiv: Equiv BinInt.Z := eq.
-Instance: RingPlus BinInt.Z := BinInt.Zplus.
-Instance: RingZero BinInt.Z := BinInt.Z0.
-Instance: RingOne BinInt.Z := BinInt.Zpos BinPos.xH.
-Instance: RingMult BinInt.Z := BinInt.Zmult.
-Instance: GroupInv BinInt.Z := BinInt.Zopp.
+Instance Z_equiv: Equiv BinInt.Z := eq.
+Instance Z_plus: RingPlus BinInt.Z := BinInt.Zplus.
+Instance Z_0: RingZero BinInt.Z := BinInt.Z0.
+Instance Z_1: RingOne BinInt.Z := BinInt.Zpos BinPos.xH.
+Instance Z_mult: RingMult BinInt.Z := BinInt.Zmult.
+Instance Z_opp: GroupInv BinInt.Z := BinInt.Zopp.
   (* some day we'd like to do this with [Existing Instance] *)
 
 (* propers: *)
 Instance: Proper ((=) ==> (=) ==> (=)) BinInt.Zplus.
-Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
+Proof. unfold equiv, Z_equiv. repeat intro. subst. reflexivity. Qed.
 Instance: Proper ((=) ==> (=) ==> (=)) BinInt.Zmult.
-Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
+Proof. unfold equiv, Z_equiv. repeat intro. subst. reflexivity. Qed.
 Instance: Proper ((=) ==> (=)) BinInt.Zopp.
-Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
+Proof. unfold equiv, Z_equiv. repeat intro. subst. reflexivity. Qed.
 
 (* properties: *)
 Instance: Associative BinInt.Zplus := BinInt.Zplus_assoc.
@@ -64,7 +64,7 @@ Definition map_Z `{RingPlus R} `{RingZero R} `{RingOne R} `{GroupInv R} (z: Z): 
   | Zneg p => - map_pos p
   end.
 
-Instance inject: IntegersToRing Z := λ B _ _ _ _ _, @map_Z B _ _ _ _.
+Instance: IntegersToRing Z := λ B _ _ _ _ _, @map_Z B _ _ _ _.
 
 Section for_another_ring.
   Context `{Ring R}.
@@ -104,7 +104,7 @@ Section for_another_ring.
   Qed.
 
   Instance: Proper ((=) ==> (=)) map_Z.
-  Proof. unfold equiv, z_equiv. repeat intro. subst. reflexivity. Qed.
+  Proof. unfold equiv, Z_equiv. repeat intro. subst. reflexivity. Qed.
 
   Hint Resolve preserves_Zplus preserves_Zmult.
   Hint Constructors Monoid_Morphism SemiGroup_Morphism.
@@ -127,7 +127,7 @@ Section for_another_ring.
        rewrite IHp.
        rewrite xI_in_ring_terms.
        rewrite agree_on_1.
-       do 2 rewrite <- preserves_sg_op...
+        rewrite <-2!preserves_sg_op...
       rewrite IHp.
       rewrite xO_in_ring_terms.
       rewrite <- preserves_sg_op...
@@ -138,7 +138,7 @@ Section for_another_ring.
     Proof with try reflexivity.
      intros.
      replace (Zneg p) with (- (Zpos p))...
-     do 2 rewrite preserves_inv.
+     rewrite 2!preserves_opp.
      rewrite <- agree_on_positive...
     Qed.
 
@@ -168,8 +168,8 @@ Instance: RingOrder Zle.
 Proof.
   repeat (split; try apply _).
     exact Zorder.Zle_antisym.
-   intros x y E. apply Zorder.Zplus_le_compat_l. assumption.
-  intros x E y F. apply Zorder.Zmult_le_0_compat; assumption.
+   intros x y E. now apply Zorder.Zplus_le_compat_l.
+  intros x E y F. now apply Zorder.Zmult_le_0_compat.
 Qed.
 
 Instance: TotalOrder Zle.
@@ -182,53 +182,83 @@ Qed.
 Lemma Zlt_coincides x y : (x < y)%Z ↔ x < y.
 Proof with trivial.
   split.
-   intro. split. apply Zorder.Zlt_le_weak... apply Zorder.Zlt_not_eq...
-  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1)... destruct E2...
+   intro. split. apply Zorder.Zlt_le_weak... now apply Zorder.Zlt_not_eq.
+  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1)... now destruct E2.
 Qed.
 
-(* * Embedding of the Peano naturals into Z *)
-Instance: Proper ((=) ==> (=)) Z_of_nat.
-Proof.
-  intros x y E.
-  rewrite E. reflexivity.
-Qed.
+(* * Embedding of the Peano naturals into [Z] *)
+Instance: Inject Z_of_nat.
 
 Instance: SemiRing_Morphism Z_of_nat.
 Proof.
   repeat (split; try apply _).
-  exact Znat.inj_plus.
+   exact Znat.inj_plus.
   exact Znat.inj_mult.
 Qed.
 
-Local Obligation Tactic := idtac.
+Program Instance: IntAbs Z nat := Zabs_nat.
+Next Obligation.
+  rewrite <-(naturals.to_semiring_unique Z_of_nat).
+  rewrite Zabs.inj_Zabs_nat.
+  destruct (total_order 0 x).
+   left. 
+   now apply Z.abs_eq.
+  right.
+  rewrite Z.abs_neq. now apply opp_involutive. easy.
+Qed.
+
+(* * Embedding N into Z *)
+Instance: Inject Z_of_N.
+
+Instance: SemiRing_Morphism Z_of_N.
+ Proof.
+   repeat (split; try apply _).
+   exact Znat.Z_of_N_plus.
+  exact Znat.Z_of_N_mult.
+Qed.
+
+Program Instance: IntAbs Z BinNat.N := Zabs_N.
+Next Obligation.
+  rewrite <-(naturals.to_semiring_unique Z_of_N).
+  rewrite Znat.Z_of_N_abs.
+  destruct (total_order 0 x).
+   left. 
+   now apply Z.abs_eq.
+  right.
+  rewrite Z.abs_neq. now apply opp_involutive. easy.
+Qed.
+
 (* Efficient nat_pow *)
-Program Instance Zpow: NatPow Z (Z⁺) := Z.pow.
-Next Obligation with try reflexivity; auto with zarith.
-  intros x n. 
-  pose proof (@nat_pow.nat_pow_spec_from_properties _ _ _ _ _ _ _ (Z⁺) _ _ _ _ _ _ _ (λ (x : Z) (n : Z⁺), Z.pow x ('n))) as P. (* Fix me! *)
-  apply P. 
-  (* change (nat_pow_spec x n ((λ x n, Z.pow x ('n)) x n)).  This is stupid... pattern is not helpful either *)
-  (* apply nat_pow.nat_pow_spec_from_properties. *)
-    intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2. 
-    unfold equiv, NonNeg_equiv in E2. simpl in *. rewrite E1, E2...
-   intros x1. apply Z.pow_0_r.
-  intros x1 n1. rewrite preserves_plus, preserves_1.  
-  rewrite <-(Z.pow_1_r x1) at 2. apply Z.pow_add_r...
-  destruct n1...
+Program Instance Z_pow: Pow Z (Z⁺) := Z.pow.
+
+Instance: NatPowSpec Z (Z⁺) Z_pow.
+Proof.
+  split; unfold pow, Z_pow.
+    intros x1 y1 E1 [x2 Ex2] [y2 Ey2] E2.
+    unfold equiv, NonNeg_equiv, sig_equiv in E2.
+    simpl in *. now rewrite E1, E2.
+   intros. now apply Z.pow_0_r.
+  intros x n.
+  rewrite preserves_plus, preserves_1.  
+  rewrite <-(Z.pow_1_r x) at 2. apply Z.pow_add_r.
+   auto with zarith.
+  now destruct n.
 Qed.
 
 (* Efficient shiftl *)
-Program Instance: ShiftLeft Z (Z⁺) := λ x y, Z.shiftl x y. 
-Next Obligation.
-  intros x [y Ey].
+Program Instance Z_shiftl: ShiftL Z (Z⁺) := Z.shiftl.
+
+Instance: ShiftLSpec Z (Z⁺) Z_shiftl.
+Proof.
+  apply shiftl.shiftl_spec_from_nat_pow.
+  intros x [n En].
   apply Z.shiftl_mul_pow2.
-  apply Ey.
+  now apply En.
 Qed.
 
 Program Instance: Abs Z := Zabs.
-Next Obligation with trivial.
-  intros x. 
+Next Obligation.
   split; intros E.
-   apply Z.abs_eq...
-  apply Z.abs_neq...
+   now apply Z.abs_eq.
+  now apply Z.abs_neq.
 Qed.

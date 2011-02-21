@@ -1,5 +1,3 @@
-Set Automatic Introduction.
-
 Require
   JMrelation.
 Require Import

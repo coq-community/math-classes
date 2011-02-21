@@ -1,10 +1,8 @@
-Global Set Automatic Introduction. (* todo: do this in a more sensible place *)
-
-Require Import abstract_algebra canonical_names Program Morphisms.
+Require Import 
+  Program Morphisms abstract_algebra.
 Require setoids.
 
 Section functor_class.
-
   Context `{Category C} `{Category D} (map_obj: C → D).
 
   Class Fmap: Type := fmap: ∀ {v w: C}, (v ⟶ w) → (map_obj v ⟶ map_obj w).
@@ -58,7 +56,6 @@ standard library) to refer to the arrow map of a functor F.
 TODO: Sharpen. *)
 
 Section id_functor.
-
   Context `{Category C}.
 
   Global Instance: Fmap id := λ _ _, id.
@@ -73,7 +70,6 @@ Section id_functor.
 End id_functor.
 
 Section compose_functors.
-
   Context
     A B C
     `{!Arrows A} `{!Arrows B} `{!Arrows C}
@@ -121,7 +117,6 @@ End compose_functors.
  class do indeed give rise to instances of the original nice abstract Functor class. *)
 
 Section setoid_functor.
-
   Context (map_obj: Type → Type) {map_eq: ∀ `{Equiv A}, Equiv (map_obj A)}.
 
   Class SFmap: Type := sfmap: ∀ `(v → w), (map_obj v → map_obj w).

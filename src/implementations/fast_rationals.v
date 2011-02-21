@@ -1,57 +1,67 @@
 Require Import
-  QArith BigQ Morphisms Program Field
-  abstract_algebra 
-  interfaces.rationals QType_rationals
-  interfaces.integers fast_integers.
+  QArith BigQ Morphisms Program Field workaround_tactics
+  abstract_algebra interfaces.integers 
+  fast_integers field_of_fractions stdlib_rationals.
+Require Export 
+  QType_rationals.
 
 Module Import BigQ_Rationals := QType_Rationals BigQ.
 
 Definition fastQ: Type := BigQ.t.
 
+(* Embedding of [fastZ] into [fastQ] *)
 Definition fastZ_to_fastQ := BigQ.Qz.
 
 Instance: Proper ((=) ==> (=)) fastZ_to_fastQ.
 Proof.
   intros x y E. unfold_equiv. unfold Qeq. simpl.
-  rewrite E. reflexivity.
+  now rewrite E.
 Qed.
 
 Instance: SemiRing_Morphism fastZ_to_fastQ.
 Proof. repeat (split; try apply _). Qed.
 
-Instance fastQ_to_frac: Inverse (λ p, fastZ_to_fastQ (fst p) * / fastZ_to_fastQ (snd p)) 
-  := λ x, match x with
-  | BigQ.Qz x => (x, 1)
-  | BigQ.Qq x y => (x, BigN_BigZ.Z_of_N y)
+(* Embedding of [fastQ] into [Frac fastZ] *)
+Definition fastQ_to_frac_fastZ (x : fastQ) : Frac fastZ :=
+  match x with
+  | BigQ.Qz n => 'n
+  | BigQ.Qq n d =>
+     match decide_rel (=) (BigN_BigZ.Z_of_N d) 0 with
+     | left _ => 0
+     | right E => frac n (BigN_BigZ.Z_of_N d) E
+     end
   end.
 
-Add Field F: (fields.stdlib_field_theory BigQ.t_).
-
-Lemma fastQ_fastZ_surjective_aux y : (0 < y)%Z →  
-  (Qnum (Qinv (y # 1)) * ' Z2P y)%Z ≡ (' Qden (Qinv (y # 1)))%Z.
-Proof with try reflexivity; auto.
-  intros E.
-  destruct y as [| | y]...
-  destruct (Zlt_irrefl 0)...
-  destruct (Zlt_asym _ _ (Zlt_neg_0 y))...
+Lemma fastQ_to_frac_fastZ_correct :
+  fastQ_to_frac_fastZ = Frac_lift BigZ.of_Z ∘ Q_to_fracZ ∘ BigQ.to_Q.
+Proof.
+  intros x y E. rewrite <-E. clear y E.
+  destruct x as [n | n d]. 
+   unfold equiv, Frac_equiv. simpl.
+   now posed_rewrite (jections.surjective_applied' BigZ.of_Z n).
+  unfold equiv, Frac_equiv. simpl.
+  case (decide_rel equiv (BigN_BigZ.Z_of_N d) 0); 
+       case_eq (BigN.eq_bool d BigN.zero); simpl; intros E1 E2.
+     reflexivity.
+    contradict E1. now apply not_false_iff_true, BigN.eqb_eq.
+   destruct E2. now apply BigN.eqb_eq in E1. 
+  posed_rewrite (jections.surjective_applied' BigZ.of_Z n).
+  unfold equiv, BigZ_Integers.ZType_equiv, BigZ.eq.
+  rewrite 2!rings.preserves_mult.
+  f_equal; try reflexivity. simpl.
+  rewrite BigN.spec_of_pos.
+  apply Z2P_correct.
+  apply stdlib_binary_integers.Zlt_coincides. split.
+   apply BigN.spec_pos.
+  now apply not_symmetry.
 Qed.
 
-Instance: Surjective (λ p, fastZ_to_fastQ (fst p) * / fastZ_to_fastQ (snd p)).
-Proof with auto; try reflexivity.
-  split.
-    intros x y E. rewrite <- E. clear E y. 
-    unfold id, compose, inverse, fastZ_to_fastQ.
-    destruct x as [x | x y]; simpl. 
-    rewrite rings.preserves_1. field. 
-    apply (ne_zero 1).
-   unfold_equiv.
-   rewrite rings.preserves_mult, fields.preserves_dec_mult_inv.
-   unfold QArith_base.Qeq. simpl. 
-   BigQ.destr_eqb; intros F; simpl.
-    rewrite F, BigN.spec_0. simpl. 
-    rewrite right_absorb, left_absorb...
-   rewrite <-associativity. apply sg_mor...
-   apply fastQ_fastZ_surjective_aux...
-  repeat (split; try apply _).
-  intros x y E. rewrite E. reflexivity...
+Instance: Injective fastQ_to_frac_fastZ.
+Proof. rewrite fastQ_to_frac_fastZ_correct. apply _. Qed.
+
+Instance: SemiRing_Morphism fastQ_to_frac_fastZ.
+Proof. 
+  eapply rings.semiring_morphism_proper.
+   apply fastQ_to_frac_fastZ_correct. 
+  apply _. 
 Qed.
