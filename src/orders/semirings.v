@@ -190,7 +190,6 @@ Global Instance pos_mult_scompat x y : PropHolds (0 < x) → PropHolds (0 < y) �
 Proof. 
   intros E F.
   rewrite <-(mult_0_r x).
-  assert (PropHolds (0 < x)) by assumption.
   now apply (strictly_order_preserving (x *.)).
 Qed.
 
@@ -205,13 +204,13 @@ Global Instance precedes_0_1 : PropHolds (0 ≤ 1).
 Proof. red. setoid_replace 1 with (1 * 1) by ring. apply square_nonneg. Qed.
 
 Global Instance precedes_0_2 : PropHolds (0 ≤ 2).
-Proof. apply nonneg_plus_compat; apply precedes_0_1. Qed.
+Proof. apply _. Qed.
 
 Global Instance precedes_0_3 : PropHolds (0 ≤ 3).
-Proof. apply nonneg_plus_compat. apply precedes_0_1. apply precedes_0_2. Qed.
+Proof. apply _. Qed.
 
 Global Instance precedes_0_4 : PropHolds (0 ≤ 4).
-Proof. apply nonneg_plus_compat. apply precedes_0_1. apply precedes_0_3. Qed.
+Proof. apply _. Qed.
 
 Lemma precedes_1_2 : 1 ≤ 2.
 Proof. apply nonneg_plus_compat_l. now apply precedes_0_1. easy. Qed.
@@ -237,13 +236,13 @@ Global Instance sprecedes_0_1 : PropHolds (0 < 1).
 Proof. split. apply precedes_0_1. now apply not_symmetry. Qed.
 
 Global Instance sprecedes_0_2 : PropHolds (0 < 2).
-Proof. apply pos_plus_scompat; apply sprecedes_0_1. Qed.
+Proof. apply _. Qed.
 
 Global Instance sprecedes_0_3 : PropHolds (0 < 3).
-Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_0_2. Qed.
+Proof. apply _. Qed.
 
 Global Instance sprecedes_0_4 : PropHolds (0 < 4).
-Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. apply precedes_0_3. Qed.
+Proof. apply _. Qed.
 
 Lemma sprecedes_1_2 : 1 < 2.
 Proof. apply pos_plus_scompat_l. apply sprecedes_0_1. easy. Qed.
