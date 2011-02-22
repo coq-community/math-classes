@@ -74,6 +74,12 @@ Section semiringmor_props.
   Lemma preserves_2: f 2 = 2.
   Proof. rewrite preserves_plus. now rewrite preserves_1. Qed.
 
+  Lemma preserves_3: f 3 = 3.
+  Proof. now rewrite ?preserves_plus, ?preserves_1. Qed.
+
+  Lemma preserves_4: f 4 = 4.
+  Proof. now rewrite ?preserves_plus, ?preserves_1. Qed.
+
   Context `{!Injective f}.
   Lemma injective_ne_0 x : x ≠ 0 → f x ≠ 0.
   Proof.
