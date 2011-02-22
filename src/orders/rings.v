@@ -56,18 +56,18 @@ Proof.
   split; intros; now apply flip_pos_opp.
 Qed.
 
-Lemma flip_nonneg_minus (x y : R) : 0 ≤ y + -x ↔ x ≤ y.
+Lemma flip_nonneg_minus (x y : R) : 0 ≤ y - x ↔ x ≤ y.
 Proof.
   split; intros E.
    setoid_replace x with (x + 0) by ring.
-   setoid_replace y with (x + (y + -x)) by ring.
+   setoid_replace y with (x + (y - x)) by ring.
    now apply (order_preserving _).
   rewrite commutativity.
   setoid_replace 0 with (-x + x) by ring.
   now apply (order_preserving _).
 Qed.
 
-Lemma flip_nonpos_minus (x y : R) : y + -x ≤ 0 ↔ y ≤ x.
+Lemma flip_nonpos_minus (x y : R) : y - x ≤ 0 ↔ y ≤ x.
 Proof.
   split; intros E.
    apply flip_nonneg_minus, flip_nonneg_opp.
@@ -76,11 +76,29 @@ Proof.
   now apply flip_nonneg_opp, flip_nonneg_minus.
 Qed.
 
+Lemma nonneg_minus_compat (x y z : R) : 0 ≤ z → x ≤ y → x - z ≤ y.
+Proof.
+  intros E1 E2.
+  rewrite commutativity.
+  setoid_replace y with (-z + (y + z)) by ring.
+  apply (order_preserving (-(z) +)).
+  transitivity y; trivial.
+  setoid_replace y with (y + 0) at 1 by ring.
+  now apply (order_preserving (y +)).
+Qed.
+
+Lemma nonneg_minus_compat_back (x y z : R) : 0 ≤ z → x ≤ y - z → x ≤ y.
+Proof.
+  intros E1 E2.
+  transitivity (y - z); trivial.
+  now apply nonneg_minus_compat.
+Qed.
+
 Lemma precedes_plus x y : x ≤ y ↔ ∃ z, 0 ≤ z ∧ y = x + z.
 Proof.
   split.
    intros E.
-   exists (y + - x). split.
+   exists (y - x). split.
     now apply flip_nonneg_minus.
    ring.
   intros [z [Ez1 Ez2]].
