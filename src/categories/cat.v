@@ -77,8 +77,8 @@ Section contents.
 
     Next Obligation. Proof with assumption.
      destruct H as [? H1], H0 as [? H2]. unfold uncurry. simpl in *.
-     split. rewrite <- comp_assoc, (comp_assoc a0 a2 a1), H0, left_identity...
-     rewrite <- comp_assoc, (comp_assoc a1 a a0), H1, left_identity...
+     split. rewrite <- associativity, (associativity a1 a2 a0), H0, left_identity...
+     rewrite <- associativity, (associativity a0 a a1), H1, left_identity...
     Qed.
 
     Let e_trans: Transitive e.
@@ -88,7 +88,7 @@ Section contents.
      simpl. intros ? ? ?.
      generalize (H p q r), (H0 p q r).
      clear H H0. intros E E'.
-     rewrite comp_assoc, E, <- comp_assoc, E', comp_assoc.
+     rewrite associativity, E, <- associativity, E', associativity.
      reflexivity.
     Qed.
 
@@ -125,11 +125,11 @@ Section contents.
    destruct (f (y1 v)) as [? [e0 e1]].
    destruct (g v) as [? [e2 e3]].
    split; simpl in *.
-    rewrite <- comp_assoc.
-    rewrite (comp_assoc _ (fmap x0 _) (fmap x0 _)).
+    rewrite <- associativity.
+    rewrite (associativity (fmap x0 _) (fmap x0 _) _).
     rewrite <- preserves_comp, e2, preserves_id, left_identity...
-   rewrite <- comp_assoc.
-   rewrite (comp_assoc (fmap x0 _) _ _).
+   rewrite <- associativity.
+   rewrite (associativity _ _ (fmap x0 _)).
    rewrite e1, left_identity, <- preserves_comp, e3, preserves_id...
   Defined.
 
@@ -152,12 +152,12 @@ Section contents.
    pose proof (H (y1 p) (y1 q) (fmap y1 r)). clear H.
    destruct (x2 (y1 p)) as [[a3 a4] [e4 e5]], (x2 (y1 q)) as [[a5 a6] [e6 e7]]. clear x2.
    simpl in *.
-   rewrite <- comp_assoc, <- H0. clear H0.
+   rewrite <- associativity, <- H0. clear H0.
    apply transitivity with ((fmap x0 (fmap x1 r) ◎ fmap x0 a0) ◎ a4).
-    repeat rewrite comp_assoc. reflexivity.
+    repeat rewrite associativity. reflexivity.
    rewrite <- preserves_comp...
    rewrite H1.
-   rewrite comp_assoc.
+   rewrite associativity.
    rewrite <- preserves_comp...
    reflexivity.
   Qed. (* todo: clean up! *)
@@ -170,7 +170,7 @@ Section contents.
 
   Next Obligation. split; apply left_identity. Qed.
 
-  Global Instance: forall x y: Object, LeftIdentity (comp: _ → _ → (x⟶y)) cat_id.
+  Global Instance: forall x y: Object, LeftIdentity (comp x _ y) cat_id.
   Proof.
    intros ?? a.
    exists (id_lr_arrows _ _ a).
@@ -178,7 +178,7 @@ Section contents.
    rewrite right_identity, left_identity. reflexivity.
   Qed.
 
-  Global Instance: forall x y: Object, RightIdentity (comp: _ → _ → (x⟶y)) cat_id.
+  Global Instance: forall x y: Object, RightIdentity (comp x _ y) cat_id.
   Proof.
    intros ?? a.
    exists (id_lr_arrows _ _ a).
@@ -186,24 +186,25 @@ Section contents.
    rewrite right_identity, left_identity. reflexivity.
   Qed.
 
-  Section comp_assoc.
+  Section associativity.
 
     Variables (w x y z: Object) (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z).
 
-    Program Let comp_assoc_arrows (v: w): isoT (c (b (a v))) (c (b (a v))) :=
+    Program Definition associativity_arrows (v: w): isoT (c (b (a v))) (c (b (a v))) :=
       (fmap c (fmap b (fmap a cat_id)), fmap c (fmap b (fmap a cat_id))).
     Next Obligation. unfold uncurry. simpl. split; repeat rewrite preserves_id; try apply _; apply left_identity. Qed.
+  End associativity.
 
-    Lemma comp_assoc': c ◎ (b ◎ a) = (c ◎ b) ◎ a.
+  Global Instance: ArrowsAssociative Object.
     Proof.
-     exists comp_assoc_arrows.
+     repeat intro.
+     exists (associativity_arrows _ _ _ _ z0 y0 x0).
      simpl. intros ? ? ?. unfold compose.
-     repeat rewrite preserves_id; try apply _. (* todo: remove need for [try apply _] *)
+     rewrite ! preserves_id; try apply _. (* todo: remove need for [try apply _] *)
      rewrite left_identity, right_identity. reflexivity.
     Qed.
 
-  End comp_assoc.
 
-  Global Instance: Category Object := { comp_assoc := comp_assoc' }.
+  Global Instance: Category Object.
 
 End contents.

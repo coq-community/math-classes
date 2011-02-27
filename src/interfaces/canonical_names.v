@@ -57,13 +57,14 @@ Definition NonPos R `{RingZero R} `{Order R} := sig (λ y, precedes y ring_zero)
 Class Arrows (O: Type): Type := Arrow: O → O → Type.
 Infix "⟶" := Arrow (at level 90, right associativity).
 Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
-Class CatComp O `{Arrows O} := comp: ∀ {x y z}, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
+Class CatComp O `{Arrows O} := comp: ∀ x y z, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
 Class RalgebraAction A B := ralgebra_action: A → B → B.
 Class RingMultInverse {R} (x: R): Type := ring_mult_inverse: R.
 
 Implicit Arguments ring_mult_inverse [[R] [RingMultInverse]].
 Implicit Arguments cat_id [[O] [H] [CatId] [x]].
 Implicit Arguments decide [[Decision]].
+Implicit Arguments comp [[O] [H] [CatComp]].
 
 Instance: Params (@ring_mult) 2.
 Instance: Params (@ring_plus) 2.
@@ -117,14 +118,14 @@ Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z) (at level 70, y at next level)
 Notation "x ≤ y < z" := (x ≤ y /\ y < z) (at level 70, y at next level).
 Notation "x < y < z" := (x < y /\ y < z) (at level 70, y at next level).
 Notation "x < y ≤ z" := (x < y /\ y ≤ z) (at level 70, y at next level).
-Infix "◎" := comp (at level 40, left associativity).
+Infix "◎" := (comp _ _ _) (at level 40, left associativity).
   (* Taking over ∘ is just a little too zealous at this point. With our current
    approach, it would require changing all (nondependent) function types A → B
    with A ⟶ B to make them use the canonical name for arrows, which is
    a tad extreme. *)
-Notation "(◎)" := comp (only parsing).
-Notation "( f ◎)" := (comp f) (only parsing).
-Notation "(◎ f )" := (λ g, comp g f) (only parsing).
+Notation "(◎)" := (comp _ _ _) (only parsing).
+Notation "( f ◎)" := (comp _ _ _ f) (only parsing).
+Notation "(◎ f )" := (λ g, comp _ _ _ g f) (only parsing).
   (* Haskell style! *)
 
 Notation "(→)" := (λ x y, x → y).
@@ -169,7 +170,10 @@ Instance: Params (@abs) 6.
 
 (* Common properties: *)
 Class Commutative `{Equiv B} `(m: A → A → B): Prop := commutativity: `(m x y = m y x).
-Class Associative `{Equiv A} (m: A → A → A): Prop := associativity: `(m x (m y z) = m (m x y) z).
+Class HeteroAssociative {A B C AB BC ABC}  `{Equiv ABC} (m_AB: A -> B -> AB) (m_BC: B -> C -> BC) (m_AB_C: AB->C->ABC) (m_A_BC: A->BC->ABC) : Prop
+   := associativity: ∀ (x: A) (y: B) (z: C), m_A_BC x (m_BC y z) = m_AB_C (m_AB x y) z.
+Class Associative `{Equiv A} m := simple_associativity:> (HeteroAssociative m m m m).
+Notation ArrowsAssociative C := (∀ {w x y z: C}, HeteroAssociative (comp y x w) (comp z _ _ ) (◎) (◎)).
 Class Inverse `(A → B): Type := inverse: B → A.
 Class AntiSymmetric `{ea: Equiv A} (R: relation A): Prop := antisymmetry: `(R x y → R y x → x = y).
 Class Distribute `{Equiv A} (f g: A → A → A): Prop :=

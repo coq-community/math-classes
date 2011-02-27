@@ -33,7 +33,7 @@ Section contents.
       intros.
       apply arrow_equiv.
      unfold comp, Arrow, flip.
-     intros. symmetry. apply comp_assoc.
+     repeat intro. symmetry. apply comp_assoc.
     intros. apply id_r.
    intros. apply id_l.
   Qed.

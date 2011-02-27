@@ -96,11 +96,10 @@ End cancellation.
 Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatComp O}: Prop :=
   { arrow_equiv:> ∀ x y, Setoid (x ⟶ y)
   ; comp_proper:> ∀ x y z,
-    Proper ((=) ==> (=) ==> (=)) (comp: (y ⟶ z) → (x ⟶ y) → x ⟶ z)
-  ; comp_assoc w x y z (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
-      c ◎ (b ◎ a) = (c ◎ b) ◎ a
-  ; id_l :> `(LeftIdentity (comp (x:=x)(y:=y)) cat_id)
-  ; id_r :> `(RightIdentity (comp (y:=x)(z:=y)) cat_id) }.
+    Proper ((=) ==> (=) ==> (=)) (comp x y z)
+  ; comp_assoc :> ArrowsAssociative O
+  ; id_l :> `(LeftIdentity (comp x y y) cat_id)
+  ; id_r :> `(RightIdentity (comp x x y) cat_id) }.
       (* note: no equality on objects. *)
 
 (* todo: use my comp everywhere *)

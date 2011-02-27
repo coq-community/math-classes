@@ -28,13 +28,13 @@ Section contents.
   Global Program Instance: CatComp Object := λ _ _ _, compose.
   Next Obligation. destruct x, x0. apply _. Qed.
 
-  Global Instance: ∀ x y z: Object, Proper ((=) ==> (=) ==> (=)) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Global Instance: ∀ x y z: Object, Proper ((=) ==> (=) ==> (=)) (comp x y z).
   Proof. repeat intro. simpl. firstorder. Qed.
 
   Global Instance: Category Object.
   Proof.
-   constructor; try apply _; intros; [idtac|intro|intro]; intros ? ? E; simpl; unfold compose;
-    try destruct a; try destruct b; try destruct c; try destruct y0; try destruct x0; simpl; rewrite E; reflexivity.
+   constructor; try apply _; [intros ???? [??][??][??] |intros ??? |intros ???]; intros ? ? E; simpl; unfold compose;
+    try destruct x0; try destruct y0; simpl; rewrite E; reflexivity.
   Qed.
 
   Global Instance: Producer Object := λ _ c, object (∀ i, c i) (λ x y, ∀ i, x i = y i) _.

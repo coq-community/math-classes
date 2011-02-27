@@ -112,11 +112,11 @@ Section contents.
      rewrite <- (left_identity (f p q r i ◎ fst aa0)).
      transitivity ((fst a1a2 ◎ snd a1a2) ◎ (f p q r i ◎ fst aa0)).
       apply comp_proper...
-     apply transitivity with (comp (fst a1a2) (comp (comp (snd a1a2) (cat.Fmap_inst _ _ alt p q r i)) (fst aa0))).
-      repeat rewrite comp_assoc...
+     apply transitivity with ((fst a1a2) ◎ (((snd a1a2) ◎ (cat.Fmap_inst _ _ alt p q r i)) ◎ (fst aa0))).
+      repeat rewrite associativity...
      simpl.
      rewrite <- H5.
-     repeat rewrite <- (comp_assoc _ _).
+     repeat rewrite <- (associativity _ _).
      rewrite (proj2 i0), right_identity...
     Qed. (* WARNING: Uses DependentFunctionalChoice. (Todo: reflect.) *)
       (* todo: awful proof. clean up! *)

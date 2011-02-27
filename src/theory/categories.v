@@ -80,7 +80,7 @@ Section contents.
     Definition is_iso {x y: X} (a: x ⟶ y): Prop := ex (iso_arrows a).
 
     Definition isos_unique (x y: X) (a: x ⟶ y) (b b': y ⟶ x): iso_arrows a b → iso_arrows a b' → b = b'.
-    Proof. intros [P Q] [R S]. rewrite <- left_identity. rewrite <- S, <- comp_assoc, P. apply right_identity. Qed.
+    Proof. intros [P Q] [R S]. rewrite <- left_identity. rewrite <- S, <- associativity, P. apply right_identity. Qed.
 
     Definition iso: Equiv X := λ x y, ex (uncurry (@iso_arrows x y)).
     Definition isoT: X → X → Type := λ x y, sig (uncurry (@iso_arrows x y)).
@@ -96,8 +96,8 @@ Section contents.
      intros ? ? ? [[f f'] [U V]] [[g g'] [W Z]].
      exists (g ◎ f, f' ◎ g').
      split; simpl in *.
-      rewrite <- comp_assoc, (comp_assoc g' f' f), U, left_identity...
-     rewrite <- comp_assoc, (comp_assoc f g g'), Z, left_identity...
+      rewrite <- associativity, (associativity f f' g'), U, left_identity...
+     rewrite <- associativity, (associativity g' g f), Z, left_identity...
     Qed.
 
     Global Instance iso_equivalence: Equivalence iso.
@@ -110,12 +110,12 @@ Section contents.
         bd ◎ ab = cd ◎ ac.
     Proof. (* shows that you only need one half of the diagram to commute for the other half to commute as well*)
      intros [H1 H4] [H2 H5] H3.
-     rewrite <- (left_identity (comp bd ab)).
+     rewrite <- (left_identity (bd ◎ ab)).
      rewrite <- H2.
-     rewrite <- comp_assoc.
-     rewrite (comp_assoc ab bd dc).
+     rewrite <- associativity.
+     rewrite (associativity dc bd ab).
      rewrite <- H3.
-     rewrite <- comp_assoc.
+     rewrite <- associativity.
      rewrite H4.
      rewrite right_identity.
      reflexivity.
@@ -183,7 +183,7 @@ Section contents.
        make_tuple x y (tuple_proj y) ◎ make_tuple y x (tuple_proj x) = cat_id)...
      pose proof (proj2 (product_factors x x (tuple_proj x))) as Q.
      rewrite (Q cat_id)... rewrite Q...
-      rewrite comp_assoc.
+      rewrite associativity.
       repeat rewrite tuple_round_trip...
      rewrite right_identity...
     Qed.
@@ -234,12 +234,12 @@ Section contents.
       rewrite (R' cat_id)...
        apply (R' (factor _ inject' ◎ factor' _ inject)).
        rewrite preserves_comp...
-       rewrite <- comp_assoc, <- E'...
+       rewrite <- associativity, <- E'...
       rewrite preserves_id, left_identity...
      rewrite (R cat_id)...
       apply (R (factor' _ inject ◎ factor _ inject')).
       rewrite preserves_comp...
-      rewrite <- comp_assoc, <- E...
+      rewrite <- associativity, <- E...
      rewrite preserves_id, left_identity...
     Qed.
 

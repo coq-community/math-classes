@@ -15,7 +15,7 @@ Section natural_transformations_id_comp.
   Global Instance compose_transformation: NaturalTransformation (λ a, n a ◎ m a).
   Proof.
     intros ???.
-    rewrite <- comp_assoc, natural, comp_assoc, natural, comp_assoc; reflexivity.
+    rewrite <- associativity, natural, associativity, natural, associativity; reflexivity.
   Qed.
 
 End natural_transformations_id_comp.
@@ -74,17 +74,16 @@ Section contents.
     simpl. rewrite (Hx a), (Hy a). reflexivity.
   Qed.
 
-  Global Instance: forall x y: Object, LeftIdentity (comp: _ → _ → x ⟶ y) cat_id.
+  Global Instance: forall x y: Object, LeftIdentity (comp x y y) cat_id.
   Proof. repeat intro. simpl. apply left_identity. Qed.
 
-  Global Instance: forall x y: Object, RightIdentity (comp: _ → _ → x ⟶ y) cat_id.
+  Global Instance: forall x y: Object, RightIdentity (comp x x y) cat_id.
   Proof. repeat intro. simpl. apply right_identity. Qed.
 
-  Lemma comp_assoc' (w x y z: Object) (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z): c ◎ (b ◎ a) = (c ◎ b) ◎ a.
-  Proof. intro. simpl. apply comp_assoc. Qed.
+  Global Instance: ArrowsAssociative Object.
+  Proof. repeat intro. simpl. apply associativity. Qed.
 
-  Global Instance: Category Object := { comp_assoc := comp_assoc' }.
-
+  Global Instance: Category Object.
 End contents.
 
 Implicit Arguments Object [[Arrows0] [H] [CatId0] [CatComp0] [Arrows1] [H1] [CatId1] [CatComp1]].

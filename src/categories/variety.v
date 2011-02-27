@@ -44,7 +44,7 @@ Section contents.
    intros ? ? ? E F ? ?. rewrite (E _ _). apply F.
   Qed.
 
-  Instance: ∀ (x y z: Object), Proper ((=) ==> (=) ==> (=)) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Instance: ∀ (x y z: Object), Proper ((=) ==> (=) ==> (=)) (comp x y z).
   Proof.
    intros ??? [? [??]] ? E ?? F ??. simpl.
    unfold compose. rewrite (F _ _), (E _ _). reflexivity.
