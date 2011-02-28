@@ -176,9 +176,10 @@ Class Associative `{Equiv A} m := simple_associativity:> (HeteroAssociative m m 
 Notation ArrowsAssociative C := (∀ {w x y z: C}, HeteroAssociative (comp y x w) (comp z _ _ ) (◎) (◎)).
 Class Inverse `(A → B): Type := inverse: B → A.
 Class AntiSymmetric `{ea: Equiv A} (R: relation A): Prop := antisymmetry: `(R x y → R y x → x = y).
-Class Distribute `{Equiv A} (f g: A → A → A): Prop :=
-  { distribute_l: `(f a (g b c) = g (f a b) (f a c))
-  ; distribute_r: `(f (g a b) c = g (f a c) (f b c)) }.
+Class HeteroDistribute {A B C} `{Equiv C} (f: A -> B -> C) (g_l: A → A → A) (g_r: B → B → B) (g: C → C → C): Prop :=
+  { distribute_l: `(f a (g_r b c) = g (f a b) (f a c))
+  ; distribute_r: `(f (g_l a b) c = g (f a c) (f b c)) }.
+Notation Distribute f g := (HeteroDistribute f g g g).
 Class HeteroSymmetric {A} {T: A → A → Type} (R: ∀ {x y}, T x y → T y x → Prop): Prop :=
   hetero_symmetric `(a: T x y) (b: T y x): R a b → R b a.
 
