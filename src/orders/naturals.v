@@ -43,7 +43,7 @@ Section another_semiring.
 
   Global Instance morphism_order_preserving: OrderPreserving f.
   Proof.
-    apply preserving_preserves_0.
+    apply preserving_preserves_nonneg.
     intros x E.
     apply to_semiring_nonneg.
   Qed.
@@ -62,7 +62,7 @@ Section another_ring.
     → naturals_to_semiring N R x = naturals_to_semiring N R y.
   Proof.
     intros E. apply (antisymmetry (≤)).
-     apply <- flip_opp. rewrite E. apply opp_to_sr_precedes_to_sr.
+     apply flip_opp. rewrite E. apply opp_to_sr_precedes_to_sr.
     rewrite <-E. apply opp_to_sr_precedes_to_sr.
   Qed.
 End another_ring. 
@@ -130,15 +130,13 @@ Proof.
   apply precedes_sprecedes. now apply (strictly_order_preserving (+ 1)) in E.
 Qed.
 
-Global Instance: ∀ (z : N), PropHolds (z ≠ 0) → OrderPreservingBack ((.*.) z).
-Proof with auto.
+Global Instance: ∀ (z : N), PropHolds (z ≠ 0) → OrderPreservingBack (z *.).
+Proof.
    intros z ?. 
-   repeat (split; try apply _).
-   intros x y E.
-   apply (order_preserving_back_gt_0 (.*.) z)...
+   apply (order_preserving_back_gt_0 (.*.) z).
    split.
     apply naturals_nonneg. 
-   apply not_symmetry...
+   now apply not_symmetry.
 Qed.
 End other_results.
 

@@ -18,8 +18,8 @@ Section field_properties.
     rewrite <-(mult_inverse x), E. ring.
   Qed.
 
-  Lemma mult_inverse_alt (x : F) (Px : x ≠ 0) : x * // exist _ x Px = 1.
-  Proof. now rewrite <-(mult_inverse (exist _ x Px)). Qed.
+  Lemma mult_inverse_alt (x : F) (Px : x ≠ 0) : x * // x↾Px = 1.
+  Proof. now rewrite <-(mult_inverse (x↾Px)). Qed.
 
   Instance: NoZeroDivisors F.
   Proof.
@@ -64,11 +64,11 @@ Section field_properties.
   Qed.
 
   Lemma mult_inv_distr_alt `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} x (Px : x ≠ 0) y (Py : y ≠ 0) (Pxy : x * y ≠ 0) : 
-    // exist _ (x * y) Pxy = // exist _ x Px * // exist _ y Py.
+    // (x * y)↾Pxy = // x↾Px * // y↾Py.
   Proof with auto; try ring.
     apply (left_cancellation_ne_0 (.*.) (x * y))...
-    transitivity ((x // exist _ x Px) *  (y // exist _ y Py))...
-    transitivity ((x * y) // exist _ (x * y) Pxy)...
+    transitivity ((x // x↾Px) *  (y // y↾Py))...
+    transitivity ((x * y) // (x * y)↾Pxy)...
     rewrite 3!mult_inverse_alt...
   Qed.
 
@@ -90,7 +90,7 @@ Section field_properties.
     destruct dec_inv as [z [E1 E2]]. auto.
   Qed.
 
-  Lemma dec_mult_inv_correct (x : F) (Px : x ≠ 0) : / x = // exist _ x Px.
+  Lemma dec_mult_inv_correct (x : F) (Px : x ≠ 0) : / x = // x↾Px.
   Proof with auto.
     apply (left_cancellation_ne_0 (.*.) x)...
     rewrite dec_mult_inverse...
@@ -231,7 +231,7 @@ Qed.
 Section morphisms.
   Context `{Field F1} `{Field F2} `{!SemiRing_Morphism (f : F1 → F2)} `{∀ z : F2, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
 
-  Lemma preserves_mult_inv `{!Injective f} x Px Pfx : f (// exist _ x Px) = // exist _ (f x) Pfx.
+  Lemma preserves_mult_inv `{!Injective f} x Px Pfx : f (// x↾Px) = // (f x)↾Pfx.
   Proof.
     apply (left_cancellation_ne_0 (.*.) (f x)).
      now apply injective_ne_0.
@@ -278,7 +278,7 @@ Section from_stdlib_field_theory.
 End from_stdlib_field_theory.
 
 Program Instance dec_mult_inv_default `{Field F} `{∀ x y: F, Decision (x = y)} : DecMultInv F | 10
-  := λ x, exist _ (if decide_rel (=) x 0 then 0 else // x) _.
+  := λ x, (if decide_rel (=) x 0 then 0 else // x)↾_.
 Next Obligation.
   case (decide_rel _); split; try solve [intuition].
   intros E. apply mult_inverse_alt.

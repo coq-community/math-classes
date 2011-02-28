@@ -83,6 +83,7 @@ Notation "R ₀" := (NonZero R) (at level 20, no associativity).
 Notation "R ⁺" := (NonNeg R) (at level 20, no associativity).
 Notation "R ₊" := (Pos R) (at level 20, no associativity).
 Notation "R ⁻" := (NonPos R) (at level 20, no associativity).
+Notation "x ↾ p" := (exist _ x p) (at level 20).
 
 Notation "0" := ring_zero.
 Notation "1" := ring_one.
@@ -100,6 +101,7 @@ Notation "(.*.)" := ring_mult (only parsing).
 Notation "(.* x )" := (λ y, y * x) (only parsing).
   (* We don't add "( * )", "( * x )" and "( x * )" notations because they conflict with comments. *)
 Notation "- x" := (group_inv x).
+Notation "- 1" := (-(1)).
 Notation "(-)" := group_inv (only parsing).
 Notation "x - y" := (x + -y).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).

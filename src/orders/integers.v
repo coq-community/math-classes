@@ -28,7 +28,7 @@ Section another_ring.
   Context `{Ring R} {oR : Order R} `{!RingOrder oR} `{!TotalOrder oR}
      {f : Int → R} `{!SemiRing_Morphism f}.
 
-  Let f_preserves_0 x : 0 ≤ x → 0 ≤ f x.
+  Let f_preserves_nonneg x : 0 ≤ x → 0 ≤ f x.
   Proof with try reflexivity.
     intros E.
     apply integers_precedes_plus in E.
@@ -42,14 +42,12 @@ Section another_ring.
   Qed.
    
   Global Instance morphism_order_preserving: OrderPreserving f.
-  Proof.
-    apply preserving_preserves_0. apply f_preserves_0.
-  Qed.
+  Proof. apply preserving_preserves_nonneg. apply f_preserves_nonneg. Qed.
 
   (* Because each morphism [f] between two [Integers] implementations is injective, we
       obtain, by the following lemma, that the order on the integers is uniquely specified. *)
   Context `{!Injective f}.
-  Let f_preserves_0_back x : 0 ≤ f x → 0 ≤ x.
+  Let f_preserves_nonneg_back x : 0 ≤ f x → 0 ≤ x.
   Proof.
     intros E.
     rewrite (integers.to_ring_unique f) in E.
@@ -72,7 +70,7 @@ Section another_ring.
   Global Instance: OrderEmbedding f.
   Proof.
     split. apply _.
-    apply preserving_back_preserves_0. apply f_preserves_0_back.
+    apply preserving_back_preserves_nonneg. apply f_preserves_nonneg_back.
   Qed.
 End another_ring.
 End integers_order.

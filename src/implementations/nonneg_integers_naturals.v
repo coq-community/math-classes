@@ -12,7 +12,7 @@ Context Z `{Integers Z} `{!RingOrder o} `{!TotalOrder o}.
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
 (* We show that [Z⁺] is an instance of the naturals by constructing a retract to [nat] *)
-Program Definition of_nat (x : nat) : Z⁺ := exist (0 ≤) (naturals_to_semiring nat Z x) _.
+Program Definition of_nat (x : nat) : Z⁺ := (naturals_to_semiring nat Z x)↾_.
 Next Obligation. apply naturals.to_semiring_nonneg. Qed.
 
 Local Ltac unfold_equivs := unfold equiv, sig_equiv in *; simpl in *.
@@ -65,7 +65,7 @@ Global Instance: NaturalsToSemiRing (Z⁺) := naturals.retract_is_nat_to_sr of_n
 Global Instance: Naturals (Z⁺) := naturals.retract_is_nat of_nat.
 
 Global Program Instance ZPos_cut_minus `{∀ x y : Z, Decision (x ≤ y)} : CutMinus (Z⁺) 
-  := λ x y, if decide_rel (≤) x y then 0 else exist (λ z, 0 ≤ z) (x - y) _.
+  := λ x y, if decide_rel (≤) x y then 0 else (x - y)↾_.
 Next Obligation.
   apply <-rings.flip_nonneg_minus. 
   now apply orders.precedes_flip.

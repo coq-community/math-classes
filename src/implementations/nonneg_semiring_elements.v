@@ -13,22 +13,22 @@ Add Ring R : (rings.stdlib_semiring_theory R).
 Global Instance NonNeg_inject: Coerce (R⁺) R := @proj1_sig R _.
 
 (* Operations *)
-Global Program Instance NonNeg_plus: RingPlus (R⁺) := λ x y, (x + y : R). 
+Global Program Instance NonNeg_plus: RingPlus (R⁺) := λ x y, (x + y)↾_. 
 Next Obligation.
   destruct x as [x Hx], y as [y Hy].
   now apply nonneg_plus_compat.
 Qed.
 
-Global Program Instance NonNeg_mult: RingMult (R⁺) := λ x y, (x * y : R). 
+Global Program Instance NonNeg_mult: RingMult (R⁺) := λ x y, (x * y)↾_. 
 Next Obligation.
   destruct x as [x Hx], y as [y Hy].
   now apply nonneg_mult_compat.
 Qed.
 
-Global Program Instance NonNeg_0: RingZero (R⁺) := (0 : R).
+Global Program Instance NonNeg_0: RingZero (R⁺) := 0↾_.
 Next Obligation. reflexivity. Qed. 
 
-Global Program Instance NonNeg_1: RingOne (R⁺) := (1 : R).
+Global Program Instance NonNeg_1: RingOne (R⁺) := 1↾_.
 Next Obligation. apply precedes_0_1. Qed.
 
 (* * Equalitity *)
@@ -84,7 +84,7 @@ Proof.
    intros x y. split; intros E. 
     apply (order_preserving NonNeg_inject) in E.
     apply srorder_plus in E. destruct E as [z [Ez1 Ez2]].
-    exists (exist _ z Ez1); intuition.
+    exists (z↾Ez1); intuition.
    destruct E as [z [Ez1 Ez2]].
    rewrite Ez2.
    apply (order_preserving_back NonNeg_inject).

@@ -45,7 +45,7 @@ Section another_integers.
 
   Context `{f : Q → Frac Z} `{!SemiRing_Morphism f} `{!Injective f}.
 
-  Global Program Instance to_frac_inverse: Inverse f := λ x, ZtoQ (num x) // exist _ (ZtoQ (den x)) _.
+  Global Program Instance to_frac_inverse: Inverse f := λ x, ZtoQ (num x) // (ZtoQ (den x))↾_.
   Next Obligation.
     apply injective_ne_0.
     apply den_nonzero.

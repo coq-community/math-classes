@@ -8,7 +8,7 @@ Section contents.
 Context `{Ring R} `{!RingOrder o}.
 Add Ring R : (stdlib_ring_theory R).
 
-Lemma flip_opp x y : x ≤ y ↔ -y ≤ -x.
+Lemma flip_opp x y : -y ≤ -x ↔ x ≤ y.
 Proof.
   assert (∀ a b, a ≤ b → -b ≤ -a).
    intros a b E.
@@ -19,12 +19,12 @@ Proof.
   rewrite <-(opp_involutive x), <-(opp_involutive y); auto.
 Qed.
 
-Lemma flip_opp_strict x y : x < y ↔ -y < -x.
+Lemma flip_opp_strict x y : -y < -x ↔ x < y.
 Proof.
   assert (∀ a b, a < b → -b < -a).
    intros a b [E1 E2].
    split.
-    now apply ->flip_opp.
+    now apply flip_opp.
    intros E3. apply E2. apply (injective (-)). now symmetry.
   split; intros; auto.
   rewrite <-(opp_involutive x), <-(opp_involutive y); auto.
@@ -33,7 +33,7 @@ Qed.
 Lemma flip_nonneg_opp x : 0 ≤ x ↔ -x ≤ 0. 
 Proof.
   split; intros E.
-   rewrite <- opp_0. now apply ->flip_opp.
+   rewrite <- opp_0. now apply flip_opp.
   apply flip_opp. now rewrite opp_0.
 Qed.
 
@@ -46,7 +46,7 @@ Qed.
 Lemma flip_pos_opp x : 0 < x ↔ -x < 0. 
 Proof.
   split; intros E.
-   rewrite <- opp_0. now apply ->flip_opp_strict.
+   rewrite <- opp_0. now apply flip_opp_strict.
   apply flip_opp_strict. now rewrite opp_0.
 Qed.
 
@@ -172,8 +172,9 @@ Section another_ring.
     apply ringorder_mult; rewrite <-(preserves_0 (f:=f)); now apply (order_preserving f).
   Qed.
 
-  Lemma preserving_back_preserves_0 `{!RingOrder o2} {f : R → R2} `{!SemiRing_Morphism f} : 
-    (∀ x, 0 ≤ f x → 0 ≤ x) → OrderPreservingBack f.
+  Context `{!RingOrder o2} {f : R → R2} `{!SemiRing_Morphism f}.
+
+  Lemma preserving_back_preserves_nonneg : (∀ x, 0 ≤ f x → 0 ≤ x) → OrderPreservingBack f.
   Proof.
     intros E.
     repeat (split; try apply _).
@@ -182,4 +183,10 @@ Section another_ring.
     rewrite preserves_plus, preserves_opp.
     apply flip_nonneg_minus. apply F.
   Qed.
+
+  Lemma preserves_ge_opp1 `{!OrderPreserving f} x : -1 ≤ x → -1 ≤ f x.
+  Proof. intros. rewrite <-(preserves_1 (f:=f)), <-preserves_opp. now apply (order_preserving f). Qed.
+
+  Lemma preserves_le_opp1 `{!OrderPreserving f} x : x ≤ -1 → f x ≤ -1.
+  Proof. intros. rewrite <-(preserves_1 (f:=f)), <-preserves_opp. now apply (order_preserving f). Qed.
 End another_ring.

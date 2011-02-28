@@ -29,17 +29,17 @@ Notation Dyadic := (Dyadic Z).
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
 Global Program Instance dy_plus: RingPlus Dyadic := λ x y, 
-  if precedes_dec (expo x) (expo y)
-  then mant x + (mant y ≪ exist _ (expo y - expo x) _) $ min (expo x) (expo y)
-  else (mant x ≪ exist _ (expo x - expo y) _) + mant y $ min (expo x) (expo y).
+  if decide_rel (≤) (expo x) (expo y)
+  then mant x + mant y ≪ (expo y - expo x)↾_ $ min (expo x) (expo y)
+  else mant x ≪ (expo x - expo y)↾_ + mant y $ min (expo x) (expo y).
 Next Obligation. now apply rings.flip_nonneg_minus. Qed.
 Next Obligation. apply rings.flip_nonneg_minus. now apply orders.precedes_flip. Qed.
 
 Global Instance dy_inject: Coerce Z Dyadic := λ x, x $ 0.
 Global Instance dy_opp: GroupInv Dyadic := λ x, -mant x $ expo x.
 Global Instance dy_mult: RingMult Dyadic := λ x y, mant x * mant y $ expo x + expo y.
-Global Instance dy_0: RingZero Dyadic := ('0:Dyadic).
-Global Instance dy_1: RingOne Dyadic := ('1:Dyadic).
+Global Instance dy_0: RingZero Dyadic := ('0 : Dyadic).
+Global Instance dy_1: RingOne Dyadic := ('1 : Dyadic).
 
 Section DtoQ_slow.
   Context `{Rationals Q} `{Pow Q Z} (ZtoQ: Z → Q).
@@ -52,7 +52,7 @@ Section with_rationals.
 
   Notation DtoQ_slow' := (DtoQ_slow ZtoQ).
 
-  Lemma ZtoQ_shift (x n : Z) Pn : ZtoQ (x ≪ exist _ n Pn) = ZtoQ x * 2 ^ n.
+  Lemma ZtoQ_shift (x n : Z) Pn : ZtoQ (x ≪ n↾Pn) = ZtoQ x * 2 ^ n.
   Proof.
     rewrite shiftl_nat_pow.
     rewrite rings.preserves_mult, nat_pow.preserves_nat_pow, rings.preserves_2.
@@ -63,7 +63,7 @@ Section with_rationals.
   Proof.
     destruct x as [xn xe], y as [yn ye].
     unfold ring_plus at 1. unfold DtoQ_slow, dy_plus. simpl.
-    destruct (precedes_dec xe ye) as [E | E]; simpl.
+    case (decide_rel (≤) xe ye); intros E; simpl.
      rewrite rings.preserves_plus, ZtoQ_shift.
      rewrite min_l; try assumption. 
      ring_simplify.
@@ -180,7 +180,7 @@ Proof.
 Qed.
 
 Lemma dy_eq_dec_aux (x y : Dyadic) p : 
-  mant x = mant y ≪ exist _ (expo y - expo x) p ↔ x = y.
+  mant x = mant y ≪ (expo y - expo x)↾p ↔ x = y.
 Proof.
   destruct x as [xm xe], y as [ym ye].
   assert (xe ≤ ye).
@@ -201,13 +201,13 @@ Proof.
 Qed.
 
 Lemma dy_eq_dec_aux_neg (x y : Dyadic) p : 
-  mant x ≠ mant y ≪ exist _ (expo y - expo x) p ↔ x ≠ y.
+  mant x ≠ mant y ≪ (expo y - expo x)↾p ↔ x ≠ y.
 Proof. split; intros E; intro; apply E; eapply dy_eq_dec_aux; eassumption. Qed.
 
 Global Program Instance dy_eq_dec : ∀ (x y: Dyadic), Decision (x = y) := λ x y,
-  if precedes_dec (expo x) (expo y) 
-  then if equiv_dec (mant x) (mant y ≪ exist _ (expo y - expo x) _) then left _ else right _ 
-  else if equiv_dec (mant x ≪ exist _ (expo x - expo y) _) (mant y) then left _ else right _.
+  if decide_rel (≤) (expo x) (expo y) 
+  then if decide_rel (=) (mant x) (mant y ≪ (expo y - expo x)↾_) then left _ else right _ 
+  else if decide_rel (=) (mant x ≪ (expo x - expo y)↾_) (mant y) then left _ else right _.
 Next Obligation. now apply rings.flip_nonneg_minus. Qed.
 Next Obligation. eapply dy_eq_dec_aux; eauto. Qed.
 Next Obligation. eapply dy_eq_dec_aux_neg; eauto. Qed.
@@ -309,7 +309,7 @@ Next Obligation.
 Qed.
 
 Lemma dy_precedes_dec_aux (x y : Dyadic) p : 
-  mant x ≤ mant y ≪ exist _ (expo y - expo x) p → x ≤ y.
+  mant x ≤ mant y ≪ (expo y - expo x)↾p → x ≤ y.
 Proof.
   destruct x as [xm xe], y as [ym ye].
   intros E. unfold precedes, dy_precedes, DtoQ_slow. simpl in *.
@@ -323,9 +323,9 @@ Qed.
 
 Local Obligation Tactic := idtac.
 Global Program Instance dy_precedes_dec : ∀ (x y: Dyadic), Decision (x ≤ y) := λ x y,
-   if precedes_dec (expo x) (expo y) 
-   then if precedes_dec (mant x) (mant y ≪ exist _ (expo y - expo x) _) then left _ else right _ 
-   else if precedes_dec (mant x ≪ exist _ (expo x - expo y) _) (mant y) then left _ else right _.
+   if decide_rel (≤) (expo x) (expo y) 
+   then if decide_rel (≤) (mant x) (mant y ≪ (expo y - expo x)↾_) then left _ else right _ 
+   else if decide_rel (≤) (mant x ≪ (expo x - expo y)↾_) (mant y) then left _ else right _.
 Next Obligation. 
   intros. now apply rings.flip_nonneg_minus. 
 Qed.
@@ -353,7 +353,7 @@ Next Obligation.
    eapply dy_eq_dec_aux. eassumption.
   apply rings.flip_opp.
   eapply dy_precedes_dec_aux.
-  simpl. rewrite opp_shiftl. apply (proj1 (rings.flip_opp _ _)). eapply E2.
+  simpl. rewrite opp_shiftl. apply rings.flip_opp. eapply E2.
 Qed.
 Next Obligation. 
   intros x y E1 E2.
@@ -373,9 +373,9 @@ Section DtoQ.
 
   Local Obligation Tactic := program_simpl.
   Program Definition DtoQ (x : Dyadic) : Q := 
-    if precedes_dec 0 (expo x)
-    then ZtoQ (mant x ≪ exist _ (expo x) _)
-    else ZtoQ (mant x) // (ZtoQ (1 ≪ (exist _ (-expo x) _))).
+    if decide_rel (≤) 0 (expo x)
+    then ZtoQ (mant x ≪ (expo x)↾_)
+    else ZtoQ (mant x) // (ZtoQ (1 ≪ (-expo x)↾_)).
   Next Obligation. 
     apply rings.flip_nonpos_opp.
     now apply orders.precedes_flip.
@@ -414,7 +414,7 @@ Section embed_rationals.
     intros x y E. rewrite <-E. clear y E.
     unfold DtoQ, DtoQ_slow.
     destruct x as [xm xe]. simpl. 
-    case (precedes_dec 0 xe); intros E.
+    case (decide_rel _); intros E.
      now rewrite ZtoQ_shift.
     rewrite <-fields.dec_mult_inv_correct.
     rewrite int_pow_opp_alt, ZtoQ_shift.
@@ -437,5 +437,5 @@ Section embed_rationals.
   Proof. apply (maps.order_embedding_proper _ _ DtoQ_correct). apply _. Qed. 
 
 End embed_rationals.
-  
+
 End dyadics.

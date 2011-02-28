@@ -89,15 +89,13 @@ Section order_preserving.
     {f : A → B} `{!OrderPreserving f} `{!SemiRing_Morphism f}.
 
   Lemma preserves_abs x : f (abs x) = abs (f x).
-  Proof with auto.
+  Proof with trivial.
     destruct (total_order 0 x).
      rewrite ?abs_nonneg...
       reflexivity.
-     rewrite <-(rings.preserves_0 (f:=f)).
-     apply (order_preserving _)...
+     now apply preserves_nonneg.
     rewrite ?abs_nonpos...
-    apply rings.preserves_opp.
-    rewrite <-(rings.preserves_0 (f:=f)).
-    apply (order_preserving _)...
+     apply rings.preserves_opp.
+    now apply preserves_nonpos.
   Qed.
 End order_preserving.

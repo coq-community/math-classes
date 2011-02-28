@@ -21,7 +21,7 @@ Proof.
 Qed.
  
 Global Program Instance slow_int_abs: IntAbs Int N | 10 :=
-  λ x, exist _ (int_abs (SRpair N) N (integers_to_ring Int (SRpair N) x)) _.
+  λ x, (int_abs (SRpair N) N (integers_to_ring Int (SRpair N) x))↾_.
 Next Obligation.
   unfold int_abs.
   destruct int_abs_sig as [z [M|M]]; simpl; [left | right].

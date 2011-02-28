@@ -290,11 +290,10 @@ Lemma gt1_mult_scompat_r x y : 1 ≤ x → 1 < y → 1 < x * y.
 Proof. intros. rewrite commutativity. now apply gt1_mult_scompat_l. Qed.
 
 Section another_semiring.
-  Context `{SemiRing R2} `{o2 : Order R2}.
+  Context `{SemiRing R2} `{o2 : Order R2} `{!SemiRingOrder o2} {f : R → R2} `{!SemiRing_Morphism f}.
 
   (* If a morphism agrees on the positive cone then it is order preserving *)    
-  Lemma preserving_preserves_0 {f : R → R2} `{!SemiRing_Morphism f} `{!SemiRingOrder o2} : 
-    (∀ x, 0 ≤ x → 0 ≤ f x) → OrderPreserving f.
+  Lemma preserving_preserves_nonneg : (∀ x, 0 ≤ x → 0 ≤ f x) → OrderPreserving f.
   Proof.
     intros E.
     repeat (split; try apply _).
@@ -304,5 +303,23 @@ Section another_semiring.
      now apply E.
     now rewrite Ez2, preserves_plus.
   Qed.
+
+  Lemma preserves_nonneg `{!OrderPreserving f} x : 0 ≤ x → 0 ≤ f x.
+  Proof. intros. rewrite <-(preserves_0 (f:=f)). now apply (order_preserving f). Qed.
+
+  Lemma preserves_nonpos `{!OrderPreserving f} x : x ≤ 0 → f x ≤ 0.
+  Proof. intros. rewrite <-(preserves_0 (f:=f)). now apply (order_preserving f). Qed.
+
+  Lemma preserves_pos `{!StrictlyOrderPreserving f} x : 0 < x → 0 < f x.
+  Proof. intros. rewrite <-(preserves_0 (f:=f)). now apply (strictly_order_preserving f). Qed.
+
+  Lemma preserves_neg `{!StrictlyOrderPreserving f} x : x < 0 → f x < 0.
+  Proof. intros. rewrite <-(preserves_0 (f:=f)). now apply (strictly_order_preserving f). Qed.
+
+  Lemma preserves_ge1 `{!OrderPreserving f} x : 1 ≤ x → 1 ≤ f x.
+  Proof. intros. rewrite <-(preserves_1 (f:=f)). now apply (order_preserving f). Qed.
+
+  Lemma preserves_le1 `{!OrderPreserving f} x : x ≤ 1 → f x ≤ 1.
+  Proof. intros. rewrite <-(preserves_1 (f:=f)). now apply (order_preserving f). Qed.
 End another_semiring.
 End contents.

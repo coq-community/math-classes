@@ -36,7 +36,7 @@ Section rationals_order.
 
   Notation i_to_r := (integers.integers_to_ring (SRpair nat) Q).
 
-  Let f_preserves_0 x : 0 ≤ x → 0 ≤ f x.
+  Let f_preserves_nonneg x : 0 ≤ x → 0 ≤ f x.
   Proof.
     intros E.
     destruct (rationals_decompose_pos_den (SRpair nat) x) as [num [den [[E1a E1b] E2]]].
@@ -67,9 +67,7 @@ Section rationals_order.
   Qed.
 
   Instance morphism_order_preserving: OrderPreserving f.
-  Proof.
-    apply semirings.preserving_preserves_0. apply f_preserves_0.
-  Qed.
+  Proof. apply semirings.preserving_preserves_nonneg. apply f_preserves_nonneg. Qed.
   End another_rationals.
 End rationals_order.
 
@@ -99,12 +97,12 @@ Section default_order.
   Add Field F: (stdlib_field_theory Q).
   Notation n_to_sr := (naturals_to_semiring nat Q).
 
-  Instance field_precedes_proper: Proper ((=) ==> (=) ==> iff) rationals_precedes.
-  Proof with assumption.
+  Instance: Proper ((=) ==> (=) ==> iff) rationals_precedes.
+  Proof.
     intros x x' E y y' E'. unfold rationals_precedes.
     split; intros [n [d d_nonzero]]; exists n d.
-     rewrite <-E, <-E'...
-    rewrite E, E'...
+     now rewrite <-E, <-E'.
+    now rewrite E, E'.
   Qed.
 
   Instance: Reflexive rationals_precedes.

@@ -135,7 +135,7 @@ Section ring_props.
   Lemma plus_mul_distribute_l x y z: x * (y + z) = x * y + x * z. Proof. ring. Qed.
   Lemma opp_swap x y: x + - y = - (y + - x). Proof. ring. Qed.
   Lemma plus_opp_distr x y: - (x + y) = - x + - y. Proof. ring. Qed.
-  Lemma opp_mult a: -a = -(1) * a. Proof. ring. Qed.
+  Lemma opp_mult a: -a = -1 * a. Proof. ring. Qed.
   Lemma distr_opp_mult_l a b: -(a * b) = -a * b. Proof. ring. Qed.
   Lemma distr_opp_mult_r a b: -(a * b) = a * -b. Proof. ring. Qed.
   Lemma opp_mult_opp a b: -a * -b = a * b. Proof. ring. Qed.

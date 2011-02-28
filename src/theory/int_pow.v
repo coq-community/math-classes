@@ -376,7 +376,7 @@ Section int_pow_default.
          reflexivity.
         apply (rings.ge_0 1).
        easy.
-      setoid_replace n with (-(1):B).
+      setoid_replace n with (-1 : B).
        rewrite rings.plus_opp_r, int_abs_0, nat_pow_0. 
        rewrite int_abs_opp, int_abs_1, right_identity. 
        symmetry. now apply fields.dec_mult_inverse.
