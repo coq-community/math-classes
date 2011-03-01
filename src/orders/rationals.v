@@ -48,7 +48,7 @@ Section rationals_order.
      split.
       apply (order_preserving (integers_to_ring (SRpair nat) Q2)) in E1a.
       now rewrite preserves_0 in E1a.
-     apply not_symmetry. apply (injective_ne_0). now apply not_symmetry.
+     apply not_symmetry. apply injective_ne_0. now apply not_symmetry.
     apply (order_preserving_ge_0 (.*.) (i_to_r den)) in E.
      rewrite right_absorb. rewrite right_absorb in E.
      rewrite (commutativity (f (i_to_r num))), associativity, dec_mult_inverse, left_identity.
@@ -59,9 +59,9 @@ Section rationals_order.
        apply (order_preserving _).
        apply (order_preserving_back i_to_r).
        now rewrite preserves_0.
-      apply (injective_ne_0). now apply not_symmetry.
+      apply injective_ne_0. now apply not_symmetry.
      change ((f ∘ i_to_r) den ≠ 0).
-     apply (injective_ne_0). now apply not_symmetry.
+     apply injective_ne_0. now apply not_symmetry.
     apply (order_preserving i_to_r) in E1a.
     now rewrite preserves_0 in E1a.
   Qed.

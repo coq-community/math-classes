@@ -81,7 +81,7 @@ Section semiringmor_props.
   Proof. now rewrite ?preserves_plus, ?preserves_1. Qed.
 
   Context `{!Injective f}.
-  Lemma injective_ne_0 x : x ≠ 0 → f x ≠ 0.
+  Global Instance injective_ne_0 x : PropHolds (x ≠ 0) → PropHolds (f x ≠ 0).
   Proof.
     intros E G. apply E. 
     apply (injective f). now rewrite preserves_0.

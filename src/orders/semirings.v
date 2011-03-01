@@ -304,13 +304,13 @@ Section another_semiring.
     now rewrite Ez2, preserves_plus.
   Qed.
 
-  Lemma preserves_nonneg `{!OrderPreserving f} x : 0 ≤ x → 0 ≤ f x.
+  Global Instance preserves_nonneg `{!OrderPreserving f} x : PropHolds (0 ≤ x) → PropHolds (0 ≤ f x).
   Proof. intros. rewrite <-(preserves_0 (f:=f)). now apply (order_preserving f). Qed.
 
   Lemma preserves_nonpos `{!OrderPreserving f} x : x ≤ 0 → f x ≤ 0.
   Proof. intros. rewrite <-(preserves_0 (f:=f)). now apply (order_preserving f). Qed.
 
-  Lemma preserves_pos `{!StrictlyOrderPreserving f} x : 0 < x → 0 < f x.
+  Lemma preserves_pos `{!StrictlyOrderPreserving f} x : PropHolds (0 < x) → PropHolds (0 < f x).
   Proof. intros. rewrite <-(preserves_0 (f:=f)). now apply (strictly_order_preserving f). Qed.
 
   Lemma preserves_neg `{!StrictlyOrderPreserving f} x : x < 0 → f x < 0.

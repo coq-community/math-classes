@@ -11,7 +11,7 @@ Context `{SemiRing A} `{Naturals B} `{!NatPowSpec A B pw}.
 Add Ring A: (rings.stdlib_semiring_theory A).
 Add Ring B: (rings.stdlib_semiring_theory B).
 
-Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 1.
+Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 0.
 Proof. apply nat_pow_proper. Qed.
 
 Lemma nat_pow_base_0 (n : B) : n ≠ 0 → 0 ^ n = 0.

@@ -3,7 +3,13 @@ Require Import Morphisms Setoid Program abstract_algebra.
 Section contents.
 Context `{Setoid A} `{Order A}.
 
-Lemma sprecedes_weaken x y : x < y → x ≤ y.
+Lemma sprecedes_weaken x y : PropHolds (x < y) → PropHolds (x ≤ y).
+Proof. firstorder. Qed.
+
+Lemma sprecedes_ne x y : PropHolds (x < y) → PropHolds (x ≠ y).
+Proof. firstorder. Qed.
+
+Lemma sprecedes_ne_flip x y : PropHolds (x < y) → PropHolds (y ≠ x).
 Proof. firstorder. Qed.
 
 Lemma precedes_flip `{!TotalOrder (≤)} x y : ¬y ≤ x → x ≤ y.
@@ -20,7 +26,7 @@ Proof. firstorder. Qed.
 
 Context `{!Proper ((=) ==> (=) ==> iff) (≤)}.
 
-Global Instance sprecedes_proper: Proper ((=) ==> (=) ==> iff) (<).
+Global Instance sprecedes_proper: Proper ((=) ==> (=) ==> iff) (<) | 0.
 Proof. 
   intros x1 y1 E1 x2 y2 E2. 
   unfold "<". rewrite E1, E2. tauto.
@@ -117,3 +123,7 @@ Global Program Instance sprecedes_dec `{!TotalOrder (≤)} `{∀ x y, Decision (
 Next Obligation. intro. now apply (not_precedes_sprecedes x y). Qed.
 Next Obligation. now apply not_precedes_sprecedes. Qed.
 End contents.
+
+Hint Extern 10 (PropHolds (_ ≤ _)) => apply @sprecedes_weaken : typeclass_instances. 
+Hint Extern 10 (PropHolds (_ ≠ _)) => apply @sprecedes_ne : typeclass_instances. 
+Hint Extern 10 (PropHolds (_ ≠ _)) => apply @sprecedes_ne_flip : typeclass_instances. 

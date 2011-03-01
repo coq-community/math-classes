@@ -15,7 +15,7 @@ Context `{Field A} `{∀ x y, Decision (x = y)} `{!DecMultInv A}
 Add Field A : (fields.stdlib_field_theory A).
 Add Ring B : (rings.stdlib_ring_theory B).
 
-Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 1.
+Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 0.
 Proof. apply int_pow_proper. Qed.
 
 Lemma int_pow_S_nonneg (x : A) (n : B) : 0 ≤ n → x ^ (1+n) = x * x ^ n.
