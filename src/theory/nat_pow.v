@@ -88,16 +88,30 @@ Context `{oA : Order A} `{!SemiRingOrder oA} `{!TotalOrder oA}
   `{∀ z : A, LeftCancellation (+) z}
   `{∀ z : A, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
 
-Global Instance nat_pow_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ^ n).
+Global Instance nat_pow_nonneg (x : A) (n : B) : PropHolds (0 ≤ x) → PropHolds (0 ≤ x ^ n).
 Proof.
-  intros nonneg.
-  pattern n. apply naturals.induction; clear n.
+  intros. pattern n. apply naturals.induction; clear n.
     solve_proper.
-   rewrite nat_pow_0. now apply semirings.sprecedes_0_1.
-  intros n E. rewrite nat_pow_S.
-  now apply semirings.pos_mult_scompat.
+   rewrite nat_pow_0. apply _.
+  intros. rewrite nat_pow_S. apply _.
 Qed.
 
+Global Instance nat_pow_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ^ n).
+Proof.
+  intros [? ?]. split.
+   now apply nat_pow_nonneg.
+  apply not_symmetry, nat_pow_nonzero. 
+  now apply not_symmetry.
+Qed.
+
+Lemma nat_pow_ge1 (x : A) (n : B) : 1 ≤ x → 0 ≤ n → 1 ≤ x ^ n.
+Proof.
+  intros. pattern n. apply naturals.induction.
+    solve_proper.
+   now rewrite nat_pow_0.
+  intros. rewrite nat_pow_S.
+  now apply semirings.ge1_mult_compat.
+Qed.
 End nat_pow_properties.
 
 Section preservation.
