@@ -3,7 +3,7 @@ Require
 Require Import
   Ring Morphisms QArith_base Qabs Qpower
   abstract_algebra interfaces.rationals field_of_fractions
-  theory.rings  theory.rationals additional_operations int_pow.
+  theory.rings  theory.rationals additional_operations.
 
 (* canonical names for relations/operations/constants: *)
 Instance Q_eq: Equiv Q := Qeq.

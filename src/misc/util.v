@@ -59,10 +59,23 @@ Section obvious.
   Proof. repeat intro. intuition. Defined.
 End obvious.
 
+(* 
+  The following class is nice to parametrize instances by additional properties, for example:
+  [∀ z, PropHolds (z ≠ 0) → LeftCancellation op z]
+  This tool is very powerful as we can combine it with instances as:
+  [∀ x y, PropHolds (x ≠ 0) → PropHolds (y ≠ 0) → PropHolds (x * y ≠ 0)]
+  Of course, one should be very careful not to make too many instances as that could
+  easily lead to a blow-up of the search space (or worse, cycles).
+*)
 Class PropHolds (P : Prop) := prop_holds: P.
 
 Instance: Proper (iff ==> iff) PropHolds.
 Proof. now repeat intro. Qed.
+
+Ltac solve_propholds := 
+  match goal with
+  | [ |- ?P ] => change (PropHolds P); apply _
+  end.
 
 Definition bool_decide (P : Prop) `{dec : !Decision P} : bool := if dec then true else false.
 

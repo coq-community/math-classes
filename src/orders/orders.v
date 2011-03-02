@@ -124,6 +124,6 @@ Next Obligation. intro. now apply (not_precedes_sprecedes x y). Qed.
 Next Obligation. now apply not_precedes_sprecedes. Qed.
 End contents.
 
-Hint Extern 10 (PropHolds (_ ≤ _)) => apply @sprecedes_weaken : typeclass_instances. 
-Hint Extern 10 (PropHolds (_ ≠ _)) => apply @sprecedes_ne : typeclass_instances. 
-Hint Extern 10 (PropHolds (_ ≠ _)) => apply @sprecedes_ne_flip : typeclass_instances. 
+Hint Extern 10 (PropHolds (_ ≤ _)) => eapply @sprecedes_weaken : typeclass_instances. 
+Hint Extern 10 (PropHolds (_ ≠ _)) => eapply @sprecedes_ne : typeclass_instances. 
+Hint Extern 10 (PropHolds (_ ≠ _)) => eapply @sprecedes_ne_flip : typeclass_instances. 

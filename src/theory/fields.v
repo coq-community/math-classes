@@ -83,7 +83,7 @@ Section field_properties.
    right. now apply (left_cancellation_ne_0 (.*.) x).
   Qed.
 
-  Lemma dec_mult_inverse (x: F) : x ≠ 0 → x / x = 1.
+  Lemma dec_mult_inverse (x: F) : PropHolds (x ≠ 0) → x / x = 1.
   Proof.
     intro E. 
     unfold dec_mult_inv, dec_mult_inv_sig. 
@@ -151,7 +151,10 @@ Section field_properties.
     rewrite E. apply dec_mult_inv_0.
   Qed.
 
-  Lemma dec_mult_inv_nonzero x : / x ≠ 0 ↔ x ≠ 0.
+  Lemma dec_mult_inv_nonzero_iff x : / x ≠ 0 ↔ x ≠ 0.
+  Proof. firstorder using dec_mult_inv_zero. Qed.
+
+  Global Instance dec_mult_inv_nonzero x : PropHolds (x ≠ 0) → PropHolds (/x ≠ 0).
   Proof. firstorder using dec_mult_inv_zero. Qed.
 
   Global Instance dec_mult_inv_inj: Injective (/).
@@ -165,7 +168,7 @@ Section field_properties.
      apply dec_mult_inv_nonzero...
     rewrite dec_mult_inverse...
     rewrite <-E. apply dec_mult_inverse...
-    apply dec_mult_inv_nonzero. rewrite E. apply dec_mult_inv_nonzero...
+    apply dec_mult_inv_nonzero_iff. rewrite E. now apply dec_mult_inv_nonzero.
   Qed.
 
   Lemma dec_mult_inv_involutive x : / / x = x.

@@ -375,16 +375,13 @@ Section DtoQ.
   Program Definition DtoQ (x : Dyadic) : Q := 
     if decide_rel (≤) 0 (expo x)
     then ZtoQ (mant x ≪ (expo x)↾_)
-    else ZtoQ (mant x) // (ZtoQ (1 ≪ (-expo x)↾_)).
+    else ZtoQ (mant x) // ZtoQ (1 ≪ (-expo x)↾_).
   Next Obligation. 
     apply rings.flip_nonpos_opp.
     now apply orders.precedes_flip.
   Qed.
   Next Obligation.
-    apply rings.injective_ne_0.
-    pose proof (shiftl_nonzero (A:=Z) (B:=Z⁺)) as P.
-    apply P.
-    apply (rings.ne_0 1).
+    solve_propholds.
   Qed.
 End DtoQ.
 
