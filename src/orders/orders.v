@@ -125,5 +125,11 @@ Next Obligation. now apply not_precedes_sprecedes. Qed.
 End contents.
 
 Hint Extern 10 (PropHolds (_ ≤ _)) => eapply @sprecedes_weaken : typeclass_instances. 
+
+(*
+The following instances turn out to be a bad idea, we then have:
+  semirings.sprecedes_0_1 -> sprecedes_ne_flip -> ...
+
 Hint Extern 10 (PropHolds (_ ≠ _)) => eapply @sprecedes_ne : typeclass_instances. 
 Hint Extern 10 (PropHolds (_ ≠ _)) => eapply @sprecedes_ne_flip : typeclass_instances. 
+*)
