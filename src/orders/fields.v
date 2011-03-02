@@ -11,11 +11,12 @@ Add Ring F : (stdlib_ring_theory F).
 Global Instance pos_dec_mult_inv_compat x : PropHolds (0 < x) → PropHolds (0 < /x).
 Proof.
   intros E.
+  assert (PropHolds (x ≠ 0)) by now apply orders.sprecedes_ne_flip.
   split.
    apply (order_preserving_back (x *.)).
     rewrite dec_mult_inverse.
     ring_simplify. now apply precedes_0_1.
-   apply _.
+   easy.
   apply not_symmetry. solve_propholds.
 Qed.
 
