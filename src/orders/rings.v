@@ -94,6 +94,20 @@ Proof.
   now apply nonneg_minus_compat.
 Qed.
 
+Lemma between_nonneg (x : R) : 0 ≤ x → -x ≤ x.
+Proof.
+  intros E.
+  transitivity 0; trivial.
+  now apply flip_nonneg_opp.
+Qed.
+
+Lemma between_pos (x : R) : 0 < x → -x < x.
+Proof.
+  intros E.
+  transitivity 0; trivial.
+  now apply flip_pos_opp.
+Qed.
+
 Lemma precedes_plus x y : x ≤ y ↔ ∃ z, 0 ≤ z ∧ y = x + z.
 Proof.
   split.

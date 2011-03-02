@@ -321,5 +321,11 @@ Section another_semiring.
 
   Lemma preserves_le1 `{!OrderPreserving f} x : x ≤ 1 → f x ≤ 1.
   Proof. intros. rewrite <-(preserves_1 (f:=f)). now apply (order_preserving f). Qed.
+
+  Lemma preserves_gt1 `{!StrictlyOrderPreserving f} x : 1 < x → 1 < f x.
+  Proof. intros. rewrite <-(preserves_1 (f:=f)). now apply (strictly_order_preserving f). Qed.
+
+  Lemma preserves_lt1 `{!StrictlyOrderPreserving f} x : x < 1 → f x < 1.
+  Proof. intros. rewrite <-(preserves_1 (f:=f)). now apply (strictly_order_preserving f). Qed.
 End another_semiring.
 End contents.

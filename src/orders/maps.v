@@ -13,7 +13,7 @@ Proof.
   now symmetry.
 Qed.
 
-Instance strictly_order_preserving_inj `{OrderPreserving A B f} `{!Injective f} : StrictlyOrderPreserving f.
+Instance strictly_order_preserving_inj `{OrderPreserving A B f} `{!Injective f} : StrictlyOrderPreserving f | 10.
 Proof.
   split; try apply _.
   intros x y [E1 E2].
@@ -65,6 +65,14 @@ Section order_preserving_ops.
 
   Lemma order_preserving_flip_ge_0 (op : R → R → R) `{!RingZero R} `{∀ z, PropHolds (0 ≤ z) → OrderPreserving (λ y, op y z)} z :
     0 ≤ z → OrderPreserving (λ y, op y z).
+  Proof. auto. Qed.
+
+  Lemma strictly_order_preserving_gt_0 (op : R → R → R) `{!RingZero R} `{∀ z, PropHolds (0 < z) → StrictlyOrderPreserving (op z)} z :
+    0 < z → StrictlyOrderPreserving (op z).
+  Proof. auto. Qed.
+
+  Lemma strictly_order_preserving_flip_gt_0 (op : R → R → R) `{!RingZero R} `{∀ z, PropHolds (0 < z) → StrictlyOrderPreserving (λ y, op y z)} z :
+    0 < z → StrictlyOrderPreserving (λ y, op y z).
   Proof. auto. Qed.
 
   Lemma order_preserving_back_gt_0 (op : R → R → R) `{!RingZero R} `{∀ z, PropHolds (0 < z) → OrderPreservingBack (op z)} z :

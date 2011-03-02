@@ -102,6 +102,9 @@ Notation "(.* x )" := (λ y, y * x) (only parsing).
   (* We don't add "( * )", "( * x )" and "( x * )" notations because they conflict with comments. *)
 Notation "- x" := (group_inv x).
 Notation "- 1" := (-(1)).
+Notation "- 2" := (-(2)).
+Notation "- 3" := (-(3)).
+Notation "- 4" := (-(4)).
 Notation "(-)" := group_inv (only parsing).
 Notation "x - y" := (x + -y).
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
