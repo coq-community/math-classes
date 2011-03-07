@@ -75,8 +75,6 @@ Section contents.
 
   Solve Obligations using (program_simpl; simpl; try reflexivity; omega).
 
-  Next Obligation. simpl. apply reflexivity. Qed.
-
   Next Obligation.
    destruct internal_simplify.
    simpl.

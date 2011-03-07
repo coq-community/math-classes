@@ -57,3 +57,15 @@ Remove Hints Ring_theory.R_setoid1
   Ring_polynom.R_set1
   Field_theory.R_setoid3
   Field_theory.R_set1 : typeclass_instances.
+
+(* Other duplicates *)
+Remove Hints RelationClasses.Equivalence_Reflexive 
+  Equivalence.equiv_reflexive
+  RelationClasses.Equivalence_Symmetric 
+  Equivalence.equiv_symmetric
+  RelationClasses.Equivalence_Transitive 
+  Equivalence.equiv_transitive : typeclass_instances.
+
+Hint Extern 0 (RelationClasses.Reflexive _) => apply RelationClasses.Equivalence_Reflexive : typeclass_instances.
+Hint Extern 0 (RelationClasses.Symmetric _) => apply RelationClasses.Equivalence_Symmetric : typeclass_instances.
+Hint Extern 0 (RelationClasses.Transitive _) => apply RelationClasses.Equivalence_Transitive : typeclass_instances.

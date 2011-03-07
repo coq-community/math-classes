@@ -42,9 +42,9 @@ Class Stable P := stable: DN P → P.
 Instance: ∀ P, Decision P → Stable P.
 Proof. firstorder. Qed.
 
-Section obvious.
-  Class Obvious (T: Type) := obvious: T.
+Class Obvious (T : Type) := obvious: T.
 
+Section obvious.
   Context (A B C: Type).
 
   Global Instance: Obvious (A → A) := id.

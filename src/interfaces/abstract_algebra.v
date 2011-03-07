@@ -64,18 +64,20 @@ Section upper_classes.
     ; intdom_nontrivial:> PropHolds (1 ≠ 0)
     ; intdom_nozeroes:> NoZeroDivisors A }.
 
-  (* For a strange reason Ring instances of Integers are sometimes obtained by
-    Integers -> IntegralDomain -> Ring and sometimes directly. Making this an
-    instance with a low priority instead of using intdom_ring:> Ring forces Coq to
-    take the right way *)
-  Global Instance intdom_is_ring `{IntegralDomain} : Ring | 10 := intdom_ring.
-
   Class Field {mult_inv: MultInv A}: Prop :=
     { field_ring:> Ring
     ; field_nontrivial:> PropHolds (1 ≠ 0)
     ; mult_inv_proper:> Proper ((=) ==> (=)) (//)
     ; mult_inverse: `( `x * // x = 1) }.
 End upper_classes.
+
+(* 
+For a strange reason Ring instances of Integers are sometimes obtained by
+Integers -> IntegralDomain -> Ring and sometimes directly. Making this an
+instance with a low priority instead of using intdom_ring:> Ring forces Coq to
+take the right way 
+*)
+Hint Extern 10 (Ring _) => apply @intdom_ring : typeclass_instances.
 
 Implicit Arguments inv_proper [[A] [e] [op] [unit] [inv] [Group]].
 Implicit Arguments ginv_l [[A] [e] [op] [unit] [inv] [Group]].
