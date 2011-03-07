@@ -1,6 +1,6 @@
 Compilation
 
-  Known to compile with Coq trunk 13841.
+  Known to compile with Coq trunk 13871.
 
   Warning: This development assumes a case sensitive file system.
 
