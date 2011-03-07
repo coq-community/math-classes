@@ -18,8 +18,8 @@ Notation "x ≠ y":= (¬x = y): type_scope.
 Notation "( x ≠)" := (λ y, x ≠ y) (only parsing).
 Notation "(≠ x )" := (λ y, y ≠ x) (only parsing).
 
-Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 0.
-Instance equiv_rewrite_relation `{Equiv A} : RewriteRelation (=) | 0.
+Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3.
+
 (* Since r13842 Coq chooses an incorrect default relation, so we override it. *)
 
 (* For Leibniz equality we use "≡": *)
