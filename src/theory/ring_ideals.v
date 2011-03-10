@@ -6,7 +6,8 @@ Require Import
   ua_congruence abstract_algebra theory.rings.
 Require varieties.ring.
 
-Section ideal_congruence. Context `{Ring R}.
+Section ideal_congruence. 
+  Context `{Ring R}.
 
   Add Ring R: (rings.stdlib_ring_theory R).
 
@@ -50,7 +51,7 @@ Section ideal_congruence. Context `{Ring R}.
    unfold congruence.
    constructor; repeat intro.
      rewrite plus_opp_r...
-    rewrite opp_swap...
+    rewrite opp_swap_r...
    assert (x + - z = (x + -y) + (y + - z)) as E by ring. rewrite E...
   Qed.
 

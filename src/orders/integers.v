@@ -138,7 +138,7 @@ Proof with auto.
    rewrite preserves_0, opp_0...
   intros m E. 
   rewrite preserves_plus, preserves_1.
-  rewrite plus_opp_distr, commutativity.
+  rewrite opp_distr, commutativity.
   apply Psuc2...
   apply opp_to_semiring_nonpos.
 Qed.

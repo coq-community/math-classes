@@ -76,7 +76,7 @@ Qed.
 Instance: Proper ((=) ==> (=)) Frac_opp.
 Proof. 
   intros x y E. unfolds. 
-  rewrite <-distr_opp_mult_l, E. ring. 
+  rewrite <-opp_mult_distr_l, E. ring. 
 Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) Frac_mult.

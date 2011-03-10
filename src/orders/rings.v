@@ -56,24 +56,33 @@ Proof.
   split; intros; now apply flip_pos_opp.
 Qed.
 
-Lemma flip_nonneg_minus (x y : R) : 0 ≤ y - x ↔ x ≤ y.
+Lemma flip_minus_r (x y z : R) : z ≤ y - x ↔ z + x ≤ y.
 Proof.
   split; intros E.
-   setoid_replace x with (x + 0) by ring.
+   rewrite commutativity.
    setoid_replace y with (x + (y - x)) by ring.
    now apply (order_preserving _).
   rewrite commutativity.
-  setoid_replace 0 with (-x + x) by ring.
+  setoid_replace z with (-x + (z + x)) by ring.
   now apply (order_preserving _).
+Qed.
+
+Lemma flip_minus_l (x y z : R) : y - x ≤ z ↔ y ≤ z + x.
+Proof.
+  rewrite <-(opp_involutive x) at 2.
+  split; now apply flip_minus_r.
+Qed.
+
+Lemma flip_nonneg_minus (x y : R) : 0 ≤ y - x ↔ x ≤ y.
+Proof.
+  setoid_replace x with (0 + x) at 2 by ring.
+  now apply flip_minus_r.
 Qed.
 
 Lemma flip_nonpos_minus (x y : R) : y - x ≤ 0 ↔ y ≤ x.
 Proof.
-  split; intros E.
-   apply flip_nonneg_minus, flip_nonneg_opp.
-   now rewrite <-opp_swap.
-  rewrite opp_swap.
-  now apply flip_nonneg_opp, flip_nonneg_minus.
+  setoid_replace x with (0 + x) at 2 by ring.
+  now apply flip_minus_l.
 Qed.
 
 Lemma nonneg_minus_compat (x y z : R) : 0 ≤ z → x ≤ y → x - z ≤ y.
@@ -139,7 +148,7 @@ Lemma nonpos_nonneg_mult x y : x ≤ 0 → 0 ≤ y → x * y ≤ 0.
 Proof with auto.
   intros E F. 
   apply flip_nonpos_opp. 
-  rewrite rings.distr_opp_mult_l. 
+  rewrite opp_mult_distr_l. 
   apply ringorder_mult...
   apply flip_nonpos_opp...
 Qed.
