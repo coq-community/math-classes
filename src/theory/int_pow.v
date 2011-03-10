@@ -5,8 +5,6 @@ Require Import
   abstract_algebra interfaces.naturals interfaces.integers interfaces.additional_operations
   theory.nat_pow theory.int_abs.
 
-(* This file compiles way too slow. Figure out some way to speed it up. *)
-
 (* * Properties of Int Pow *)
 Section int_pow_properties.
 Context `{Field A} `{∀ x y, Decision (x = y)} `{!DecMultInv A}
@@ -316,7 +314,7 @@ End int_pow_properties.
 
 Section preservation.
   Context 
-    `{Integers B} `{oB : Order B} `{!RingOrder oB} `{!TotalOrder oB}
+    `{Integers B}
     `{Field A1} `{∀ x y : A1, Decision (x = y)} `{!DecMultInv A1} `{!IntPowSpec A1 B ip1}
     `{Field A2} `{∀ x y : A2, Decision (x = y)} `{!DecMultInv A2} `{!IntPowSpec A2 B ip2}
     {f : A1 → A2} `{!SemiRing_Morphism f} `{!Injective f}.
@@ -344,6 +342,32 @@ Section preservation.
     now apply (left_cancellation (.*.) (f x)).
   Qed.
 End preservation.
+
+Section exp_preservation.
+  Context `{Field A} `{∀ x y : A, Decision (x = y)} `{!DecMultInv A}
+   `{Integers B1} `{Integers B2} `{!IntPowSpec A B1 pw1} `{!IntPowSpec A B2 pw2} 
+    {f : B1 → B2} `{!SemiRing_Morphism f}.
+
+  Lemma preserves_int_pow_exp x (n : B1) : x ^ (f n) = x ^ n.
+  Proof.
+    destruct (decide (x = 0)) as [Ex | Ex].
+     rewrite Ex.
+     destruct (decide (n = 0)) as [En|En].
+      now rewrite En, rings.preserves_0, 2!int_pow_0.
+     rewrite 2!int_pow_base_0; try easy.
+     now apply rings.injective_ne_0.
+    revert n. apply integers.biinduction.
+      solve_proper.
+     rewrite rings.preserves_0.
+     now rewrite 2!int_pow_0.
+    intros n.
+    rewrite rings.preserves_plus, rings.preserves_1.
+    rewrite 2!int_pow_S by trivial.
+    split; intros E.
+     now rewrite E.
+    now apply (rings.left_cancellation_ne_0 (.*.) x).
+  Qed.
+End exp_preservation.
 
 (* Very slow default implementation by translation into Peano *)
 Section int_pow_default.
