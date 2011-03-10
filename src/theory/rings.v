@@ -34,6 +34,7 @@ End cancellation.
 
 Section semiring_props.
   Context `{SemiRing R}.
+  Add Ring SR: (stdlib_semiring_theory R).
 
   Global Instance mult_ne_zero `{NoZeroDivisors R} x y : PropHolds (x ≠ 0) → PropHolds (y ≠ 0) → PropHolds (x * y ≠ 0).
   Proof.
@@ -50,7 +51,10 @@ Section semiring_props.
   Global Instance mult_0_l: LeftAbsorb (.*.) 0 := left_absorb.
 
   Global Instance mult_0_r: RightAbsorb (.*.) 0.
-  Proof. intro. rewrite commutativity. apply left_absorb. Qed.
+  Proof. intro. ring. Qed.
+
+  Lemma plus_mul_distr_r x y z: (x + y) * z = x * z + y * z. Proof. ring. Qed.
+  Lemma plus_mul_distr_l x y z: x * (y + z) = x * y + x * z. Proof. ring. Qed.  
 
   Global Instance: ∀ r : R, @Monoid_Morphism R R _ _ (0:R) (0:R) (+) (+) (r *.).
   Proof.
@@ -133,8 +137,6 @@ Section ring_props.
   Lemma opp_involutive x: - -x = x. Proof. ring. Qed.
   Lemma plus_opp_r x: x + -x = 0. Proof. ring. Qed.
   Lemma plus_opp_l x: -x + x = 0. Proof. ring. Qed.
-  Lemma plus_mul_distr_r x y z: (x + y) * z = x * z + y * z. Proof. ring. Qed.
-  Lemma plus_mul_distr_l x y z: x * (y + z) = x * y + x * z. Proof. ring. Qed.
   Lemma opp_swap_r x y: x + - y = - (y - x). Proof. ring. Qed.
   Lemma opp_swap_l x y: -x + y = - (x - y). Proof. ring. Qed.
   Lemma opp_distr x y: - (x + y) = - x + - y. Proof. ring. Qed.
