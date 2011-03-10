@@ -29,6 +29,22 @@ Proof.
   split. easy. now apply not_symmetry.
 Qed.
 
+Lemma neg_dec_mult_inv_compat x : x < 0 → /x < 0.
+Proof.
+  intros. apply flip_neg_opp.
+  rewrite dec_mult_inv_opp.
+  apply pos_dec_mult_inv_compat.
+  now apply flip_neg_opp.
+Qed.
+
+Lemma nonpos_dec_mult_inv_compat x : x ≤ 0 → /x ≤ 0.
+Proof.
+  intros. apply flip_nonpos_opp.
+  rewrite dec_mult_inv_opp.
+  apply nonneg_dec_mult_inv_compat.
+  now apply flip_nonpos_opp.
+Qed.
+
 Lemma flip_dec_mult_inv x y : 0 < y → y ≤ x  → /x ≤ /y.
 Proof with trivial.
   intros E1 E2.

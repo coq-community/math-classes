@@ -123,11 +123,11 @@ Proof with trivial.
   apply (right_cancellation (+) 1). rewrite E1, E3. ring.
 Qed.
 
-Lemma precedes_sprecedes_alt x y : x + 1 ≤ y ↔ x < y.
+Lemma precedes_sprecedes_alt x y : x < y ↔ x + 1 ≤ y.
 Proof.
   split; intros E.
-   apply precedes_sprecedes in E. now apply (strictly_order_preserving_back (+ 1)) in E.
-  apply precedes_sprecedes. now apply (strictly_order_preserving (+ 1)) in E.
+   apply precedes_sprecedes. now apply (strictly_order_preserving (+ 1)).
+  apply (strictly_order_preserving_back (+ 1)). now apply precedes_sprecedes.
 Qed.
 
 Global Instance: ∀ (z : N), PropHolds (z ≠ 0) → OrderPreservingBack (z *.).

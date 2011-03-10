@@ -217,6 +217,18 @@ Section field_properties.
 
   Lemma dec_mult_inv_swap_r x y: / x * y = / (x / y). 
   Proof. rewrite dec_mult_inv_distr, dec_mult_inv_involutive. ring. Qed.
+
+  Lemma dec_mult_inv_opp x : -(/ x) = / (-x).
+  Proof.
+    destruct (decide (x = 0)) as [E|E].
+     now rewrite E, opp_0, dec_mult_inv_0, opp_0.
+    apply (left_cancellation_ne_0 (.*.) (-x)).
+     now apply flip_opp_nonzero.
+    rewrite dec_mult_inverse.
+     ring_simplify.
+     now apply dec_mult_inverse.
+    now apply flip_opp_nonzero.
+  Qed.
 End field_properties.
 
 Definition stdlib_field_theory F `{Field F} `{!DecMultInv F} :
