@@ -177,6 +177,18 @@ Proof.
    rewrite E. now apply flip_nonneg_opp.
   rewrite E. now apply flip_nonpos_opp.
 Qed.
+
+Lemma nonpos_mult_flip x y z : z ≤ 0 → x ≤ y → z * y ≤ z * x.
+Proof.
+  intros E1 E2.
+  apply srorder_plus in E2. destruct E2 as [a [Ea1 Ea2]]. 
+  rewrite Ea2.
+  apply srorder_plus. exists (-a * z).
+  split.
+   apply nonpos_mult; trivial.
+   now apply flip_nonneg_opp.
+  ring.
+Qed.
 End contents.
 
 Section another_ring.
