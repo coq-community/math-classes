@@ -178,7 +178,7 @@ Proof.
   rewrite E. now apply flip_nonpos_opp.
 Qed.
 
-Lemma nonpos_mult_flip x y z : z ≤ 0 → x ≤ y → z * y ≤ z * x.
+Lemma flip_nonpos_mult_l x y z : z ≤ 0 → x ≤ y → z * y ≤ z * x.
 Proof.
   intros E1 E2.
   apply srorder_plus in E2. destruct E2 as [a [Ea1 Ea2]]. 
@@ -188,6 +188,12 @@ Proof.
    apply nonpos_mult; trivial.
    now apply flip_nonneg_opp.
   ring.
+Qed.
+
+Lemma flip_nonpos_mult_r x y z : z ≤ 0 → x ≤ y → y * z ≤ x * z.
+Proof.
+  rewrite 2!(commutativity _ z).
+  now apply flip_nonpos_mult_l.
 Qed.
 End contents.
 
