@@ -3,7 +3,7 @@ Require
 Require Import
  Morphisms Setoid Program.
 Require Export
- canonical_names util.
+ canonical_names util setoid_tactics.
 
 Class LeftIdentity {A} `{Equiv B} (op: A → B → B) (x: A): Prop := left_identity: ∀ y, op x y = y.
 Class RightIdentity `{Equiv A} {B} (op: A → B → A) (y: B): Prop := right_identity: ∀ x, op x y = x.
