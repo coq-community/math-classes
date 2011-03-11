@@ -53,25 +53,25 @@ Section for_φAdjunction.
   Proof with try reflexivity; try apply _.
    intros x' x h.
    change (φ cat_id ◎ h = fmap G (fmap F h) ◎ φ cat_id).
-   rewrite <- φ_adjunction_natural_left, <- φ_adjunction_natural_right, id_l, id_r...
+   rewrite <- φ_adjunction_natural_left, <- φ_adjunction_natural_right, left_identity, right_identity...
   Qed.
 
   Global Instance: NaturalTransformation ε.
   Proof with try reflexivity; try apply _.
    intros d d' f.
    change ((φ ⁻¹) cat_id ◎ fmap F (fmap G f) = f ◎ (φ ⁻¹) cat_id).
-   rewrite <- φ_adjunction_natural_left_inv, <- φ_adjunction_natural_right_inv, id_l, id_r...
+   rewrite <- φ_adjunction_natural_left_inv, <- φ_adjunction_natural_right_inv, left_identity, right_identity...
   Qed.
 
   Lemma φ_in_terms_of_η `(f: F x ⟶ a): φ f = fmap G f ◎ η x.
   Proof.
-   rewrite <- (id_r f) at 1.
+   rewrite <- (right_identity f) at 1.
    rewrite φ_adjunction_natural_left. reflexivity. apply _.
   Qed.
 
   Lemma φ_in_terms_of_ε `(g: x ⟶ G a): φ⁻¹ g = ε a ◎ fmap F g.
   Proof.
-   rewrite <- (id_l g) at 1.
+   rewrite <- (left_identity g) at 1.
    apply φ_adjunction_natural_right_inv.
   Qed.
 
@@ -167,15 +167,15 @@ Section for_ηAdjunction.
    unfold φ. unfold id in *. unfold compose in η.
    constructor...
     repeat intro. unfold compose.
-    rewrite comp_assoc...
+    rewrite associativity...
     rewrite preserves_comp...
    repeat intro. unfold compose.
    rewrite preserves_comp...
-   rewrite <- comp_assoc.
+   rewrite <- associativity.
    pose proof (η_adjunction_natural F G c' c h) as P.
    change (η c ◎ h = fmap G (fmap F h) ◎ η c') in P.
    rewrite <- P.
-   rewrite comp_assoc...
+   rewrite associativity...
   Qed.
 
 End for_ηAdjunction.
@@ -202,26 +202,26 @@ Section for_ηεAdjunction.
     rewrite preserves_comp...
     pose proof (ηε_adjunction_η_natural F G c (G d) f) as P.
     change (η (G d) ◎ f = fmap G (fmap F f) ◎ η c) in P.
-    rewrite <- comp_assoc.
+    rewrite <- associativity.
     rewrite <- P.
-    rewrite comp_assoc.
+    rewrite associativity.
     pose proof (ηε_adjunction_identity_at_G F G d) as Q.
     simpl in Q.
     rewrite Q.
     symmetry.
-    apply id_l.
+    apply left_identity.
    intros y E. rewrite E. clear E f.
    rewrite preserves_comp...
-   rewrite comp_assoc.
+   rewrite associativity.
    pose proof (ηε_adjunction_ε_natural F G (F c) d y) as P.
    change (ε d ◎ fmap F (fmap G y) = y ◎ ε (F c)) in P.
    rewrite P.
-   rewrite <- comp_assoc.
+   rewrite <- associativity.
    pose proof (ηε_adjunction_identity_at_F F G c) as Q.
    simpl in Q.
    rewrite Q.
    symmetry.
-   apply id_r.
+   apply right_identity.
   Qed.
 
   Instance ηεAdjunction_φAdjunction: φAdjunction F G φ.

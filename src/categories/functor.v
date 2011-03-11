@@ -3,25 +3,22 @@ Require Import
   abstract_algebra interfaces.functors categories.
 
 Section natural_transformations_id_comp.
-
   Context
     `{Category A} `{Category B} `{!Functor (f: A → B) f'}
     `{!Functor (f: A → B) f'} `{!Functor (g: A → B) g'} `{!Functor (h: A → B) h'}
     `{!NaturalTransformation (m:f⇛g)} `{!NaturalTransformation (n:g⇛h)}.
 
   Global Instance id_transformation: NaturalTransformation (λ a, cat_id: f a ⟶ f a).
-  Proof. intros ???. rewrite id_l, id_r; reflexivity. Qed.
+  Proof. intros ???. rewrite left_identity, right_identity; reflexivity. Qed.
 
   Global Instance compose_transformation: NaturalTransformation (λ a, n a ◎ m a).
   Proof.
     intros ???.
-    rewrite <- comp_assoc, natural, comp_assoc, natural, comp_assoc; reflexivity.
+    rewrite <- associativity, natural, associativity, natural, associativity; reflexivity.
   Qed.
-
 End natural_transformations_id_comp.
 
 Section contents.
-
   Context `(Category A) `(Category B).
 
   Record Object: Type := object
@@ -41,10 +38,10 @@ Section contents.
   Implicit Arguments arrow [[F] [G]].
 
   Global Existing Instance NaturalTransformation_inst.
+  Global Instance: Arrows Object := Arrow.
 
-  Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances.
-
-  Section arrow_setoid. Context (F G: Object).
+  Section arrow_setoid. 
+    Context (F G: Object).
 
     Global Program Instance e: Equiv (F ⟶ G) :=
       λ m n, ∀ x: A, m x = n x.
@@ -60,7 +57,6 @@ Section contents.
 
     Instance: Equivalence e.
     Global Instance: Setoid (F ⟶ G).
-
   End arrow_setoid.
  
   Global Instance: CatId Object := λ _, arrow (λ _, cat_id) _.
@@ -73,17 +69,16 @@ Section contents.
     simpl. rewrite (Hx a), (Hy a). reflexivity.
   Qed.
 
-  Let id_l' (x y: Object) (F: x ⟶ y): cat_id ◎ F = F.
-  Proof. intro. simpl. apply id_l. Qed.
+  Instance: forall x y: Object, LeftIdentity (comp x y y) cat_id.
+  Proof. repeat intro. simpl. apply left_identity. Qed.
 
-  Let id_r' (x y: Object) (F: x ⟶ y): F ◎ cat_id = F.
-  Proof. intro. simpl. apply id_r. Qed.
+  Instance: forall x y: Object, RightIdentity (comp x x y) cat_id.
+  Proof. repeat intro. simpl. apply right_identity. Qed.
 
-  Lemma comp_assoc' (w x y z: Object) (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z): c ◎ (b ◎ a) = (c ◎ b) ◎ a.
-  Proof. intro. simpl. apply comp_assoc. Qed.
+  Instance: ArrowsAssociative Object.
+  Proof. repeat intro. simpl. apply associativity. Qed.
 
-  Global Instance: Category Object := { comp_assoc := comp_assoc'; id_l := id_l'; id_r := id_r'}.
-
+  Global Instance: Category Object.
 End contents.
 
 Implicit Arguments Object [[Arrows0] [H] [CatId0] [CatComp0] [Arrows1] [H1] [CatId1] [CatComp1]].

@@ -1,51 +1,32 @@
-(* This module should never be Import-ed, only Require-d. *)
-
 Require 
-  ua_homomorphisms
-  orders.orders theory.rings.
+  ua_homomorphisms orders.orders theory.rings.
 Require Import
   Morphisms Ring Arith_base
   abstract_algebra interfaces.naturals theory.categories
   interfaces.additional_operations.
 
 Instance nat_equiv: Equiv nat := eq.
+Instance nat_plus: RingPlus nat := plus.
+Instance nat_0: RingZero nat := 0%nat.
+Instance nat_1: RingOne nat := 1%nat.
+Instance nat_mult: RingMult nat := mult.
 
-Instance: RingPlus nat := plus.
-Instance: RingZero nat := 0%nat.
-Instance: RingOne nat := 1%nat.
-Instance: RingMult nat := mult.
-
-(* propers: *)
-Instance: Proper ((=) ==> (=) ==> (=)) plus.
-Proof. unfold equiv, nat_equiv. apply _. Qed.
-Instance: Proper ((=) ==> (=) ==> (=)) mult.
-Proof. unfold equiv, nat_equiv. apply _. Qed.
-
-(* properties: *)
-Instance: Associative plus := Plus.plus_assoc.
-Instance: Associative mult := Mult.mult_assoc.
-Instance: Commutative plus := Plus.plus_comm.
-Instance: Commutative mult := Mult.mult_comm.
-Instance: Distribute mult plus :=
-  { distribute_l := Mult.mult_plus_distr_l; distribute_r := Mult.mult_plus_distr_r }.
-Instance: LeftIdentity plus 0 := Plus.plus_0_l.
-Instance: RightIdentity plus 0 := Plus.plus_0_r.
-Instance: LeftIdentity mult 1 := Mult.mult_1_l.
-Instance: RightIdentity mult 1 := Mult.mult_1_r.
-Instance: LeftAbsorb mult 0 := Mult.mult_0_l.
-
-(* structures: *)
-Instance: Setoid nat.
-Instance: SemiGroup nat (op:=plus).
-Instance: SemiGroup nat (op:=mult).
-Instance: Monoid _ (op:=plus) (unit:=0%nat).
-Instance: Monoid _ (op:=mult) (unit:=1%nat).
-Instance: CommutativeMonoid _ (op:=mult) (unit:=1%nat).
-Instance: CommutativeMonoid _ (op:=plus) (unit:=0%nat).
 Instance: SemiRing nat.
+Proof.
+  repeat (split; try apply _); repeat intro.
+          now apply mult_assoc.
+         now apply mult_1_l.
+        now apply mult_1_r.
+       now apply mult_comm.
+      now apply plus_assoc.
+     now apply plus_0_r.
+    now apply plus_comm.
+   now apply mult_plus_distr_l.
+  now apply mult_plus_distr_r.
+Qed.
 
 (* misc *)
-Global Instance: ∀ x y: nat, Decision (x = y) := eq_nat_dec.
+Global Instance nat_dec: ∀ x y: nat, Decision (x = y) := eq_nat_dec.
 
 Add Ring nat: (rings.stdlib_semiring_theory nat).
 
@@ -54,16 +35,14 @@ Close Scope nat_scope.
 Instance: NaturalsToSemiRing nat :=
   λ _ _ _ _ _, fix f (n: nat) := match n with 0%nat => 0 | S n' => f n' + 1 end.
 
-Module for_another_semiring.
-Section contents.
-
+Section for_another_semiring.
   Context `{SemiRing R}.
 
-  Let toR := naturals_to_semiring nat R.
+  Notation toR := (naturals_to_semiring nat R).
 
   Add Ring R: (rings.stdlib_semiring_theory R).
 
-  Instance f_proper: Proper ((=) ==> (=)) toR.
+  Instance: Proper ((=) ==> (=)) toR.
   Proof. unfold equiv, nat_equiv. repeat intro. subst. reflexivity. Qed.
 
   Let f_preserves_0: toR 0 = 0.
@@ -92,8 +71,6 @@ Section contents.
     apply f_preserves_mult.
    apply f_preserves_1.
   Qed.
-
-End contents.
 End for_another_semiring.
 
 Lemma S_nat_plus_1 x : S x ≡ x + 1.
@@ -117,14 +94,14 @@ Qed.
 Instance: Naturals nat.
 
 (* Order *)
-Instance: Order nat := le.
+Instance nat_le: Order nat := le.
 
 Instance: SemiRingOrder le.
 Proof with trivial.
   repeat (split; try apply _).
      intros x y E. apply Le.le_antisym...
     intros E.
-    assert (y ≡ x + (y - x))%nat as F. apply le_plus_minus...
+    assert (y ≡ x + (y - x))%nat as F by now apply le_plus_minus.
     exists (y - x)%nat. split...
     apply plus_le_reg_l with x.
     rewrite <-F... rewrite Plus.plus_0_r...
@@ -137,7 +114,7 @@ Qed.
 Instance: TotalOrder le.
 Proof. intros x y. destruct (le_ge_dec x y); intuition. Qed.
 
-Instance le_nat_dec: Decision (x ≤ y) := le_dec.
+Instance nat_le_dec: Decision (x ≤ y) := le_dec.
 
 (* Misc *)
 Instance nat_cut_minus: CutMinus nat := minus.
@@ -153,11 +130,11 @@ Qed.
 
 (* Two simple omissions in the standard library that we prove for nats and then
  lift to arbitrary Naturals in theory.naturals: *)
-Lemma Mult_mult_reg_l: ∀ n m p: nat, ~ p = 0 → mult p n = mult p m → n = m.
+Lemma nat_mult_mult_reg_l (n m p : nat) : p ≠ 0 → p * n = p * m → n = m.
 Proof.
  destruct p. intuition.
  intros E F. apply Le.le_antisym; apply Mult.mult_S_le_reg_l with p; rewrite F; constructor.
 Qed.
 
-Lemma Mult_nz_mult_nz (x y: nat): ~ y = 0 → ~ x = 0 → ~ y * x = 0.
+Lemma nat_mult_nz_mult_nz (x y: nat): y ≠ 0 → x ≠ 0 → y * x ≠ 0.
 Proof. intros A B C. destruct (Mult.mult_is_O y x C); intuition. Qed.

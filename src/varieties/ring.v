@@ -11,7 +11,6 @@ Definition sig: Signature := single_sorted_signature
   (λ o, match o with zero | one => O | opp => 1%nat | plus | mult => 2%nat end).
 
 Section laws.
-
   Global Instance: RingPlus (Term0 sig nat tt) :=
     λ x, App sig _ _ _ (App sig _ _ _ (Op sig _ plus) x).
   Global Instance: RingMult (Term0 sig nat tt) :=
@@ -38,7 +37,6 @@ Section laws.
     |e_distr_l: Laws ((x + y) * z === x * z + y * z)
     |e_plus_opp_r: Laws (x + - x === 0)
     |e_plus_opp_l: Laws (- x + x === 0).
-
 End laws.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
@@ -49,7 +47,8 @@ Definition Object := variety.Object theory.
  Algebra/InVariety/HomoMorphism type classes instantiated with the above
  signature and theory. *)
 
-Section decode_operations. Context `{AlgebraOps theory A}.
+Section decode_operations. 
+  Context `{AlgebraOps theory A}.
   Global Instance: RingPlus (A tt) := algebra_op plus.
   Global Instance: RingMult (A tt) := algebra_op mult.
   Global Instance: RingZero (A tt) := algebra_op zero.
@@ -58,7 +57,6 @@ Section decode_operations. Context `{AlgebraOps theory A}.
 End decode_operations.
 
 Section encode_with_ops.
-
   Context A `{Ring A}.
 
   Global Instance encode_operations: AlgebraOps sig (λ _, A) := λ o,
@@ -73,7 +71,6 @@ Section encode_with_ops.
   Proof. constructor. apply _. intros ? [] ?; simpl; unfold algebra_op; simpl; ring. Qed.
 
   Definition object: Object := variety.object theory (λ _, A).
-
 End encode_with_ops.
 
 Lemma encode_algebra_only `{!AlgebraOps theory A} `{∀ u, Equiv (A u)} `{!Ring (A tt)}: Algebra sig A .

@@ -1,7 +1,7 @@
 
-Require categories.setoid.
-Require Import Setoid Morphisms.
-Require Import abstract_algebra canonical_names theory.categories.
+Require Import
+  Setoid Morphisms
+  abstract_algebra canonical_names.
 
 Section ops.
 
@@ -25,8 +25,8 @@ Section structure.
 
   Class Monad {Me: ∀ A, Equiv A → Equiv (M A)} `{MonadReturn M} `{MonadBind M}: Prop :=
     (* Propers: *)
-    { ret_proper:> ∀ `{Equiv A}, Proper ((=) ==> (=)) (@ret _ _ A)
-    ; bind_proper:> ∀ `{Equiv A} `{Equiv B},
+    { ret_proper:> ∀ `{Setoid A}, Proper (equiv ==> equiv) (@ret _ _ A)
+    ; bind_proper:> ∀ `{Setoid A} `{Setoid B},
        Proper ((=) ==> ((=) ==> (=)) ==> (=)) (@bind _ _ A B)
 
     ; mon_setoid: ∀ `{Setoid A}, Setoid (M A)

@@ -1,3 +1,4 @@
+(* To be imported qualified. *)
 Require
   theory.rings categories.variety.
 Require Import
@@ -10,7 +11,6 @@ Definition sig: Signature := single_sorted_signature
   (λ o, match o with zero | one => O | plus | mult => 2%nat end).
 
 Section laws.
-
   Global Instance: RingPlus (Term0 sig nat tt) :=
     λ x, App sig _ _ _ (App sig _ _ _ (Op sig _ plus) x).
   Global Instance: RingMult (Term0 sig nat tt) :=
@@ -34,7 +34,6 @@ Section laws.
     |e_mult_0_l: Laws (0 * x === 0)
     |e_distr_l: Laws (x * (y + z) === x * y + x * z)
     |e_distr_r: Laws ((x + y) * z === x * z + y * z).
-
 End laws.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
@@ -43,7 +42,6 @@ Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
  construct the categorical object: *)
 
 Section from_instance.
-
   Context A `{SemiRing A}.
 
   Instance implementation: AlgebraOps sig (λ _, A) := λ o,
@@ -72,12 +70,12 @@ Section from_instance.
 
   Definition Object := variety.Object theory.
   Definition object: Object := variety.object theory (λ _, A).
-
 End from_instance.
 
 (* Similarly, given a categorical object, we can make the corresponding class instances: *)
 
-Section ops_from_alg_to_sr. Context `{AlgebraOps theory A}.
+Section ops_from_alg_to_sr. 
+  Context `{AlgebraOps theory A}.
   Global Instance: RingPlus (A tt) := algebra_op plus.
   Global Instance: RingMult (A tt) := algebra_op mult.
   Global Instance: RingZero (A tt) := algebra_op zero.

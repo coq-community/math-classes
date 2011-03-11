@@ -1,27 +1,21 @@
-Set Automatic Introduction.
-
 Require Import
  Morphisms List Program
- abstract_algebra theory.categories interfaces.sequences.
-Require
- categories.setoid categories.product varieties.monoid.
+ abstract_algebra interfaces.monads.
 
 Implicit Arguments app [[A]].
 
 Section contents.
-
   Context A `{Setoid A}.
 
-  Fixpoint leq (a b: list A): Prop :=
-    match a, b with
-    | nil, nil => True
-    | h :: t, h' :: t' => h = h' ∧ leq t t'
-    | _, _ => False
-    end.
+  Global Instance list_eq: Equiv (list A) :=
+    fix F (a b: list A) :=
+      match a, b with
+      | nil, nil => True
+      | x::y, x'::y' => x = x' ∧ @equiv _ F y y'
+      | _, _ => False
+      end.
 
-  Hint Extern 4 (Equiv (list A)) => exact leq: typeclass_instances.
-
-  Instance: Proper ((=) ==> (=) ==> (=)) (@cons A).
+  Global Instance: Proper (=) (@cons A).
   Proof. repeat intro. split; assumption. Qed.
 
   Instance: Reflexive (_: Equiv (list A)).
@@ -42,18 +36,13 @@ Section contents.
    firstorder.
   Qed.
 
-  Instance: Setoid (list A).
+  Global Instance: Setoid (list A).
   Proof. constructor; apply _. Qed.
 
   Global Instance: SemiGroupOp (list A) := app.
 
-  Global Instance: Proper ((=) ==> (=) ==> (=))%signature (@app A).
-  Proof with intuition.
-   unfold equiv.
-   intro x. induction x; destruct y; simpl in *; repeat intro...
-   split...
-   apply IHx...
-  Qed.
+  Global Instance app_proper: Proper (=) (@app A).
+  Proof. clear H. intro x. induction x; destruct y; firstorder. Qed.
 
   Global Instance app_assoc_inst: Associative (@app A).
   Proof. repeat intro. symmetry. rewrite (app_ass x y z). reflexivity. Qed.
@@ -64,13 +53,59 @@ Section contents.
 
   Global Instance: Monoid (list A).
   Proof.
-   constructor.
-     apply _.
+   constructor. apply _.
     repeat intro. reflexivity.
    intro x. change (x ++ [] = x).
    rewrite <- (app_nil_end x). reflexivity.
   Qed.
 
+  Definition concat: list (list A) → list A := fold_right app nil.
+
+  Lemma concat_app (a b: list (list A)): concat (a ++ b) = concat a ++ concat b.
+  Proof with intuition. induction a; simpl... rewrite IHa, app_assoc... Qed.
+End contents.
+
+Implicit Arguments concat [[A]].
+
+Instance concat_proper `{Equiv A}: Proper (=) (@concat A).
+Proof with intuition.
+ intro x. induction x; destruct y...
+ simpl. apply app_proper; firstorder.
+Qed.
+
+Instance: MonadReturn list := λ _ x, [x].
+Instance: MonadBind list := λ _ _ l f, concat (map f l).
+
+Instance ret_proper `{Equiv A}: Proper (=) ((_: MonadReturn list) A).
+Proof. firstorder. Qed.
+
+Instance bind_proper `{Equiv A} `{Equiv B}: Proper (=) ((_: MonadBind list) A B).
+Proof.
+ intro x. induction x; destruct y; intuition.
+  intro. intuition.
+ intros v w E.
+ change (v a ++ concat (map v x) = w a0 ++ concat (map w y)).
+ apply app_proper; firstorder.
+Qed.
+
+(* Can't [Qed] due to universe inconsistency:
+
+Instance: Monad list.
+Proof with intuition.
+ constructor; intros; try apply _.
+   change (f x ++ [] = f x).
+   rewrite app_nil_r...
+  change (concat (map ret m) = m).
+  induction m. reflexivity.
+  simpl. rewrite IHm...
+ change (concat (map g (concat (map f n))) = concat (map (λ x, concat (map g (f x))) n)).
+ induction n. reflexivity. simpl.
+ rewrite map_app, concat_app.
+  rewrite IHn...
+ apply _.
+Qed. *)
+
+(*
   (* so far so good, but now: *)
 
   Global Instance inj: InjectToSeq list := fun _ x => x :: nil.
@@ -133,5 +168,4 @@ Section contents.
    rewrite preserves_sg_op, IHa.
    rewrite (H a a)...
   Qed. (* todo: clean up *)
-
-End contents.
+*)

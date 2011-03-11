@@ -161,7 +161,7 @@ Section borrowed_from_nat.
   Proof.
     intros z E x y.
     apply_simplified (from_nat_stmt ((z' === 0 -=> Ext _ False) -=> z' * x' === z' * y' -=> x' === y') (three_vars x y z)).
-    intro. simpl. now apply Mult_mult_reg_l. easy.
+    intro. simpl. now apply nat_mult_mult_reg_l. easy.
   Qed.
 
   Global Instance: ∀ z : N, PropHolds (z ≠ 0) → RightCancellation (.*.) z.

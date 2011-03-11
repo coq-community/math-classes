@@ -31,10 +31,10 @@ Existing Instance Functor_inst.
 Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances.
 
 Section contents.
-
   Implicit Arguments map_obj [[x] [y]].
 
-  Section more_arrows. Context (x y: Object).
+  Section more_arrows. 
+    Context (x y: Object).
 
     Global Instance e: Equiv (x ⟶ y) := λ a b,
       (∀ v, a v ≡ b v) ∧
@@ -61,7 +61,6 @@ Section contents.
 
     Instance: Equivalence e.
     Global Instance: Setoid (x ⟶ y).
-
   End more_arrows.
 
   Global Instance: CatId Object := λ _, arrow id _ _.
@@ -84,11 +83,5 @@ Section contents.
   Qed.
 
   Global Instance: Category Object.
-  Proof with reflexivity.
-   constructor; try apply _; split; intuition; apply JMrelation.relate.
-     change (fmap (c ∘ (b ∘ a)) f = fmap ((c ∘ b) ∘ a) f)...
-    change (fmap a f = fmap a f)...
-   change (fmap a f = fmap a f)...
-  Qed.
-
+  Proof. repeat (split; try apply _); intuition; reflexivity. Qed.
 End contents.

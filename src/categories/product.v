@@ -29,7 +29,7 @@ Section contents.
       change (x i ◎ x' i = y i ◎ y' i).
       rewrite (E i), (F i)...
      repeat intro. apply comp_assoc.
-    repeat intro. apply id_l.
+    repeat intro. apply id_l. (* todo: Use left_identity *)
    repeat intro. apply id_r.
   Qed.
 
@@ -70,7 +70,7 @@ Section contents.
       intro.
       exists (λ v, refl_arrows (X i v)).
       simpl. unfold compose. intros ? ? ?.
-      rewrite id_r, id_l...
+      rewrite right_identity, left_identity...
      intros alt alt_factors.
      generalize (dependent_functional_choice I _ _ alt_factors). clear alt_factors.
      unfold isoT in *.
@@ -109,15 +109,15 @@ Section contents.
      unfold fmap.
      simpl.
      set (cat.Fmap_inst _ _ alt) in |- *.
-     rewrite <- (id_l (f p q r i ◎ fst aa0)).
+     rewrite <- (left_identity (f p q r i ◎ fst aa0)).
      transitivity ((fst a1a2 ◎ snd a1a2) ◎ (f p q r i ◎ fst aa0)).
       apply comp_proper...
-     apply transitivity with (comp (fst a1a2) (comp (comp (snd a1a2) (cat.Fmap_inst _ _ alt p q r i)) (fst aa0))).
-      repeat rewrite comp_assoc...
+     apply transitivity with ((fst a1a2) ◎ (((snd a1a2) ◎ (cat.Fmap_inst _ _ alt p q r i)) ◎ (fst aa0))).
+      repeat rewrite associativity...
      simpl.
      rewrite <- H5.
-     repeat rewrite <- (comp_assoc _ _).
-     rewrite (proj2 i0), id_r...
+     repeat rewrite <- (associativity _ _).
+     rewrite (proj2 i0), right_identity...
     Qed. (* WARNING: Uses DependentFunctionalChoice. (Todo: reflect.) *)
       (* todo: awful proof. clean up! *)
 

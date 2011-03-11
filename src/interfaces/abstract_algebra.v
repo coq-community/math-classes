@@ -5,13 +5,6 @@ Require Import
 Require Export
  canonical_names util setoid_tactics.
 
-Class LeftIdentity {A} `{Equiv B} (op: A → B → B) (x: A): Prop := left_identity: ∀ y, op x y = y.
-Class RightIdentity `{Equiv A} {B} (op: A → B → A) (y: B): Prop := right_identity: ∀ x, op x y = x.
-
-Class LeftAbsorb `{Equiv A} {B} (op: A → B → A) (x: A): Prop := left_absorb: ∀ y, op x y = x.
-Class RightAbsorb {A} `{Equiv B} (op: A → B → B) (y: B): Prop := right_absorb: ∀ x, op x y = y.
-  (* hm, can we generate left/right instances from right/left+commutativity without causing loops? *)
-
 Section upper_classes.
   Context A {e: Equiv A}.
 
@@ -34,8 +27,8 @@ Section upper_classes.
   Class Group {op: SemiGroupOp A} {unit: MonoidUnit A} {inv: GroupInv A}: Prop :=
     { group_monoid:> Monoid
     ; inv_proper:> Proper ((=) ==> (=)) (-) (* todo: use Setoid_Morphism *)
-    ; ginv_l: `(- x & x = mon_unit)
-    ; ginv_r: `(x & - x = mon_unit) }.
+    ; ginv_l:> LeftInverse sg_op group_inv mon_unit
+    ; ginv_r:> RightInverse sg_op group_inv mon_unit }.
 
   Class AbGroup {op unit inv}: Prop :=
     { abgroup_group:> @Group op unit inv
@@ -94,12 +87,10 @@ End cancellation.
 
 Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatComp O}: Prop :=
   { arrow_equiv:> ∀ x y, Setoid (x ⟶ y)
-  ; comp_proper:> ∀ x y z,
-    Proper ((=) ==> (=) ==> (=)) (comp: (y ⟶ z) → (x ⟶ y) → x ⟶ z)
-  ; comp_assoc w x y z (a: w ⟶ x) (b: x ⟶ y) (c: y ⟶ z):
-      c ◎ (b ◎ a) = (c ◎ b) ◎ a
-  ; id_l `(a: x ⟶ y): cat_id ◎ a = a
-  ; id_r `(a: x ⟶ y): a ◎ cat_id = a }.
+  ; comp_proper:> ∀ x y z, Proper ((=) ==> (=) ==> (=)) (comp x y z)
+  ; comp_assoc :> ArrowsAssociative O
+  ; id_l :> `(LeftIdentity (comp x y y) cat_id)
+  ; id_r :> `(RightIdentity (comp x x y) cat_id) }.
       (* note: no equality on objects. *)
 
 (* todo: use my comp everywhere *)

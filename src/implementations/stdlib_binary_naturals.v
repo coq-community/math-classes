@@ -4,15 +4,13 @@ Require Import
   abstract_algebra interfaces.naturals.  
 
 (* canonical names for relations/operations/constants: *)
-Instance N_eq: Equiv N := eq.
+Instance N_equiv : Equiv N := eq.
 Instance N_0 : RingZero N := 0%N.
 Instance N_1 : RingOne N := 1%N.
 Instance N_plus : RingPlus N := Nplus.
 Instance N_mult : RingMult N := Nmult.
 
 (* properties: *)
-Instance: Setoid N.
-
 Instance: SemiRing N.
 Proof.
   repeat (split; try apply _); repeat intro.

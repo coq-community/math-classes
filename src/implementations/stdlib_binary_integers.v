@@ -18,41 +18,24 @@ Instance Z_mult: RingMult BinInt.Z := BinInt.Zmult.
 Instance Z_opp: GroupInv BinInt.Z := BinInt.Zopp.
   (* some day we'd like to do this with [Existing Instance] *)
 
-(* propers: *)
-Instance: Proper ((=) ==> (=) ==> (=)) BinInt.Zplus.
-Proof. unfold equiv, Z_equiv. repeat intro. subst. reflexivity. Qed.
-Instance: Proper ((=) ==> (=) ==> (=)) BinInt.Zmult.
-Proof. unfold equiv, Z_equiv. repeat intro. subst. reflexivity. Qed.
-Instance: Proper ((=) ==> (=)) BinInt.Zopp.
-Proof. unfold equiv, Z_equiv. repeat intro. subst. reflexivity. Qed.
-
-(* properties: *)
-Instance: Associative BinInt.Zplus := BinInt.Zplus_assoc.
-Instance: Associative BinInt.Zmult := BinInt.Zmult_assoc.
-Instance: Commutative BinInt.Zplus := BinInt.Zplus_comm.
-Instance: Commutative BinInt.Zmult := BinInt.Zmult_comm.
-Instance: Distribute BinInt.Zmult BinInt.Zplus :=
-  { distribute_l := BinInt.Zmult_plus_distr_r; distribute_r := BinInt.Zmult_plus_distr_l }.
-Instance: LeftIdentity BinInt.Zplus 0 := BinInt.Zplus_0_l.
-Instance: RightIdentity BinInt.Zplus 0 := BinInt.Zplus_0_r.
-Instance: LeftIdentity BinInt.Zmult 1 := BinInt.Zmult_1_l.
-Instance: RightIdentity BinInt.Zmult 1 := BinInt.Zmult_1_r.
-
-(* structures: *)
-Instance: Equivalence (@eq BinInt.Z). (* this should not be necessary, seems like a regression bug *)
-Instance: Setoid BinInt.Z.
-Instance: SemiGroup _ (op:=BinInt.Zplus).
-Instance: SemiGroup _ (op:=BinInt.Zmult).
-Instance: Monoid _ (op:=BinInt.Zplus) (unit:=BinInt.Z0).
-Instance: Monoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH).
-Instance: CommutativeMonoid _ (op:=BinInt.Zmult) (unit:=BinInt.Zpos BinPos.xH).
-Instance: @Group _ _ (BinInt.Zplus) (BinInt.Z0) _
-  := { ginv_l := BinInt.Zplus_opp_l; ginv_r := BinInt.Zplus_opp_r }.
-Instance: AbGroup BinInt.Z (op:=BinInt.Zplus) (unit:=BinInt.Z0).
-Program Instance: Ring BinInt.Z.
+Instance: Ring Z.
+Proof.
+  repeat (split; try apply _); repeat intro.
+            now apply Zplus_assoc.
+           now apply Zplus_0_r.
+          now apply Zplus_opp_l.
+         now apply Zplus_opp_r.
+        now apply Zplus_comm.
+       now apply Zmult_assoc.
+      now apply Zmult_1_l.
+     now apply Zmult_1_r.
+    now apply Zmult_comm.
+   now apply Zmult_plus_distr_r.
+  now apply Zmult_plus_distr_l.
+Qed.
 
 (* misc: *)
-Instance: ∀ x y: BinInt.Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
+Instance: ∀ x y : Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
 
 Add Ring Z: (stdlib_ring_theory BinInt.Z).
 

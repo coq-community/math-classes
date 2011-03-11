@@ -8,7 +8,6 @@ Existing Instance e.
 Existing Instance setoid_proof.
 
 Section contents.
-
   Global Instance: Arrows Object := λ A B, sig (@Setoid_Morphism A B _ _).
 
   Global Program Instance: ∀ x y: Object, Equiv (x ⟶ y)
@@ -28,19 +27,20 @@ Section contents.
   Global Program Instance: CatComp Object := λ _ _ _, compose.
   Next Obligation. destruct x, x0. apply _. Qed.
 
-  Global Instance: ∀ x y z: Object, Proper ((=) ==> (=) ==> (=)) (comp: (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
+  Instance: ∀ x y z: Object, Proper ((=) ==> (=) ==> (=)) (comp x y z).
   Proof. repeat intro. simpl. firstorder. Qed.
 
   Global Instance: Category Object.
   Proof.
-   constructor; try apply _; intros; intros ? ? E; simpl; unfold compose;
-    destruct a; try destruct b; try destruct c; simpl; rewrite E; reflexivity.
+   constructor; try apply _; [intros ???? [??][??][??] |intros ??? |intros ???]; intros ? ? E; simpl; unfold compose;
+    try destruct x0; try destruct y0; simpl; rewrite E; reflexivity.
   Qed.
 
   Global Instance: Producer Object := λ _ c, object (∀ i, c i) (λ x y, ∀ i, x i = y i) _.
     (* todo: use pointwise_relation or something like that *)
 
-  Section product. Context {Index: Type} (c: Index → Object).
+  Section product. 
+    Context {Index: Type} (c: Index → Object).
 
     Global Program Instance: ElimProduct c (product c) := λ i x, x i.
     Next Obligation. constructor; try apply _. firstorder. Qed.
@@ -56,12 +56,10 @@ Section contents.
      symmetry in E |- *.
      apply (E' i _ _ E).
     Qed.
-
   End product.
 
   Global Instance: HasProducts Object.
 
   Global Instance mono (X Y: Object) (a: X ⟶ Y): Injective (` a) → Mono a.
   Proof. intros A ?????? E. apply A. apply (H _ _ E). Qed.
-
 End contents.

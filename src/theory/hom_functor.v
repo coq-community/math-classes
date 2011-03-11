@@ -21,7 +21,7 @@ Section contents.
     repeat intro.
     simpl.
     rewrite H1.
-    apply id_l.
+    apply left_identity.
    repeat intro.
    simpl.
    unfold compose.

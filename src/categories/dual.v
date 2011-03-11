@@ -33,9 +33,9 @@ Section contents.
       intros.
       apply arrow_equiv.
      unfold comp, Arrow, flip.
-     intros. symmetry. apply comp_assoc.
-    intros. apply (id_r y x a).
-   intros. apply (id_l y x a).
+     repeat intro. symmetry. apply comp_assoc.
+    intros. apply id_r.
+   intros. apply id_l.
   Qed.
 
 End contents.

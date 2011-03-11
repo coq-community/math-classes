@@ -21,15 +21,12 @@ Section UniversalArrow.
 End UniversalArrow.
 
 Section adjunction.
-
   (* Three definitions of adjunctions. *)
-
   Context `{Category C} `{Category D}
     F `{!Functor (F: C → D) F'}
     G `{!Functor (G: D → C) G'}.
 
   (* 1. The definition based on φ (MacLane p79): *)
-
   Class φAdjunction (φ: ∀ `(F c ⟶ d), (c ⟶ G d)) `{∀ c d, Inverse (@φ c d)}: Prop :=
     { φ_adjunction_left_functor: Functor F _
     ; φ_adjunction_right_functor: Functor G _
@@ -38,7 +35,6 @@ Section adjunction.
     ; φ_adjunction_natural_right `(f: F c ⟶ d) `(h: c' ⟶ c): φ (f ◎ fmap F h) = φ f ◎ h }.
 
   (* 2. The definition based on a universal η (MacLane p81 Theorem 2 (i)): *)
-
   Class ηAdjunction (η: id ⇛ G ∘ F) (uniwit: ∀ `(c ⟶ G d), F c ⟶ d): Prop :=
     { η_adjunction_left_functor: Functor F _
     ; η_adjunction_right_functor: Functor G _
@@ -49,7 +45,6 @@ Section adjunction.
     in MacLane p81 Theorem 2 (iii), but that would be boring. *)
 
   (* 3. The definition based on η and ε being inverses (MacLane p81 Theorem 2 (v)): *)
-
   Class ηεAdjunction (η: id ⇛ G ∘ F) (ε: F ∘ G ⇛ id): Prop :=
     { ηε_adjunction_left_functor: Functor F _
     ; ηε_adjunction_right_functor: Functor G _
@@ -59,18 +54,15 @@ Section adjunction.
     ; ηε_adjunction_identity_at_F: ∀ a, ε (F a) ◎ fmap F (η a) = id_nat_trans F a }.
 
   (* We currently don't define adjunctions as characterized in MacLane p81 Theorem 2 (ii) and (iv). *)
-
 End adjunction.
 
 Section contents.
-
   Context `{Category X}.
 
   Class Mono `(a: x ⟶ y): Prop :=
     mono: ∀ z (f g: z ⟶ x), a ◎ f = a ◎ g → f = g.
 
   Section isomorphy.
-
     Definition iso_arrows {x y: X} (a: x ⟶ y) (b: y ⟶ x): Prop
       := a ◎ b = cat_id ∧ b ◎ a = cat_id. (* todo: product *)
 
@@ -80,13 +72,13 @@ Section contents.
     Definition is_iso {x y: X} (a: x ⟶ y): Prop := ex (iso_arrows a).
 
     Definition isos_unique (x y: X) (a: x ⟶ y) (b b': y ⟶ x): iso_arrows a b → iso_arrows a b' → b = b'.
-    Proof. intros [P Q] [R S]. rewrite <- id_l. rewrite <- S, <- comp_assoc, P. apply id_r. Qed.
+    Proof. intros [P Q] [R S]. rewrite <- left_identity. rewrite <- S, <-associativity, P. apply right_identity. Qed.
 
     Definition iso: Equiv X := λ x y, ex (uncurry (@iso_arrows x y)).
     Definition isoT: X → X → Type := λ x y, sig (uncurry (@iso_arrows x y)).
 
     Program Instance: Reflexive iso := λ x, ex_intro _ (cat_id, cat_id) _.
-    Next Obligation. split; apply id_l. Qed.
+    Next Obligation. split; apply left_identity. Qed.
 
     Instance: Symmetric iso.
     Proof. intros ? ? [[f f'] ?]. exists (f', f). unfold uncurry. apply (hetero_symmetric). assumption. Qed.
@@ -96,8 +88,8 @@ Section contents.
      intros ? ? ? [[f f'] [U V]] [[g g'] [W Z]].
      exists (g ◎ f, f' ◎ g').
      split; simpl in *.
-      rewrite <- comp_assoc, (comp_assoc g' f' f), U, id_l...
-     rewrite <- comp_assoc, (comp_assoc f g g'), Z, id_l...
+      rewrite <- associativity, (associativity f f' g'), U, left_identity...
+     rewrite <- associativity, (associativity g' g f), Z, left_identity...
     Qed.
 
     Global Instance iso_equivalence: Equivalence iso.
@@ -110,24 +102,22 @@ Section contents.
         bd ◎ ab = cd ◎ ac.
     Proof. (* shows that you only need one half of the diagram to commute for the other half to commute as well*)
      intros [H1 H4] [H2 H5] H3.
-     rewrite <- (id_l (comp bd ab)).
+     rewrite <- (left_identity (bd ◎ ab)).
      rewrite <- H2.
-     rewrite <- comp_assoc.
-     rewrite (comp_assoc ab bd dc).
+     rewrite <- associativity.
+     rewrite (associativity dc bd ab).
      rewrite <- H3.
-     rewrite <- comp_assoc.
+     rewrite <- associativity.
      rewrite H4.
-     rewrite id_r.
+     rewrite right_identity.
      reflexivity.
     Qed.
 
     Program Definition refl_arrows (x: X): isoT x x := (cat_id, cat_id).
-    Next Obligation. split; apply id_l. Qed.
-
+    Next Obligation. split; apply left_identity. Qed.
   End isomorphy.
 
   Section initiality.
-
     Class InitialArrow (x: X): Type := initial_arrow: ∀ y, x ⟶ y.
 
     Class Initial (x: X) `{InitialArrow x}: Prop :=
@@ -148,15 +138,12 @@ Section contents.
       destruct (b x') as [? e1]. rewrite <- e1. apply e1.
      destruct (a x) as [? e0]. rewrite <- e0. apply e0.
     Qed.
-
   End initiality.
 
   Section products.
-
     Context {I: Type} (component: I → X).
 
     Section def.
-
       Context (product: X).
 
       Class ElimProduct: Type := tuple_proj: ∀ i, product ⟶ component i.
@@ -169,7 +156,6 @@ Section contents.
       Lemma tuple_round_trip `{Product} (x: X) (h: ∀ i, x ⟶ component i) i:
         tuple_proj i ◎ make_tuple x h = h i.
       Proof. symmetry. apply product_factors. Qed.
-
     End def.
 
     Lemma products_unique `{Product c} `{Product c'}:
@@ -183,11 +169,10 @@ Section contents.
        make_tuple x y (tuple_proj y) ◎ make_tuple y x (tuple_proj x) = cat_id)...
      pose proof (proj2 (product_factors x x (tuple_proj x))) as Q.
      rewrite (Q cat_id)... rewrite Q...
-      rewrite comp_assoc.
+      rewrite associativity.
       repeat rewrite tuple_round_trip...
-     rewrite id_r...
+     rewrite right_identity...
     Qed.
-
   End products.
 
   Class Producer: Type := product I: (I → X) → X.
@@ -234,13 +219,13 @@ Section contents.
       rewrite (R' cat_id)...
        apply (R' (factor _ inject' ◎ factor' _ inject)).
        rewrite preserves_comp...
-       rewrite <- comp_assoc, <- E'...
-      rewrite preserves_id, id_l...
+       rewrite <- associativity, <- E'...
+      rewrite preserves_id, left_identity...
      rewrite (R cat_id)...
       apply (R (factor' _ inject ◎ factor _ inject')).
       rewrite preserves_comp...
-      rewrite <- comp_assoc, <- E...
-     rewrite preserves_id, id_l...
+      rewrite <- associativity, <- E...
+     rewrite preserves_id, left_identity...
     Qed.
 
   End freedom.
