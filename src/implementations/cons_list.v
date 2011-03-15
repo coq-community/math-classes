@@ -47,7 +47,7 @@ Section contents.
   Global Instance app_assoc_inst: Associative (@app A).
   Proof. repeat intro. symmetry. rewrite (app_ass x y z). reflexivity. Qed.
 
-  Global Instance: SemiGroup (list A).
+  Instance: SemiGroup (list A) := {}.
 
   Global Instance: MonoidUnit (list A) := nil.
 

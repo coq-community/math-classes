@@ -1,14 +1,8 @@
-
-Require Import Program List.
-Require Import abstract_algebra.
-Require
- Equivalence.
-Require Import
- Morphisms Setoid Program.
-Require Import canonical_names.
+Require Import 
+  Morphisms Setoid Program List
+  abstract_algebra.
 
 Section contents.
-
   Context R `{Ring R}.
 
   Definition poly := list R.

@@ -119,7 +119,6 @@ Section for_signature.
    using the model's implementation and using arbitrary variable assignments: *)
 
   Section Vars.
-
     Context (A: sorts σ → Type) (V: Type) `{e: ∀ a, Equiv (A a)} `{∀ a, Equivalence (e a)}.
 
     Definition Vars := ∀ a, V → A a.
@@ -128,8 +127,7 @@ Section for_signature.
      @pointwise_dependent_relation (sorts σ) (λ a, V → A a)
       (λ _, pointwise_relation _ (=)).
 
-    Global Instance: Equivalence ((=): relation Vars).
-
+    Global Instance: Equivalence ((=): relation Vars) := {}.
   End Vars.
 
   Definition no_vars x: Vars x False := λ _, False_rect _.

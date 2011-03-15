@@ -58,7 +58,7 @@ Section contents.
     Qed.
   End product.
 
-  Global Instance: HasProducts Object.
+  Global Instance: HasProducts Object := {}.
 
   Global Instance mono (X Y: Object) (a: X ⟶ Y): Injective (` a) → Mono a.
   Proof. intros A ?????? E. apply A. apply (H _ _ E). Qed.

@@ -55,8 +55,8 @@ Section contents.
     Let e_trans: Transitive e.
     Proof. intros m n o Hmn Hno a. red in Hmn, Hno. rewrite Hmn, Hno. reflexivity. Qed.
 
-    Instance: Equivalence e.
-    Global Instance: Setoid (F ⟶ G).
+    Instance: Equivalence e := {}.
+    Global Instance: Setoid (F ⟶ G) := {}.
   End arrow_setoid.
  
   Global Instance: CatId Object := λ _, arrow (λ _, cat_id) _.
@@ -78,7 +78,7 @@ Section contents.
   Instance: ArrowsAssociative Object.
   Proof. repeat intro. simpl. apply associativity. Qed.
 
-  Global Instance: Category Object.
+  Global Instance: Category Object := {}.
 End contents.
 
 Implicit Arguments Object [[Arrows0] [H] [CatId0] [CatComp0] [Arrows1] [H1] [CatId1] [CatComp1]].
