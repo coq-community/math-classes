@@ -123,6 +123,9 @@ Section borrowed_from_nat.
    rewrite preserves_plus, preserves_1...
   Qed.
 
+  Global Instance biinduction: Biinduction N.
+  Proof. repeat intro. apply induction; firstorder. Qed.
+
   Lemma from_nat_stmt:
     ∀ (s: Statement varieties.semiring.theory) (w : Vars varieties.semiring.theory (varieties.semiring.object N) nat),
      (∀ v: Vars varieties.semiring.theory (varieties.semiring.object nat) nat,

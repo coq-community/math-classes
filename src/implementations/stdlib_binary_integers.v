@@ -1,10 +1,8 @@
 (* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
-Require 
-  interfaces.naturals theory.naturals peano_naturals theory.shiftl.
 Require Import
   BinInt Morphisms Ring Program Arith ZBinary
   abstract_algebra interfaces.integers
-  theory.categories theory.rings 
+  theory.categories 
   stdlib_binary_positives stdlib_binary_naturals
   interfaces.additional_operations
   nonneg_integers_naturals.
@@ -37,7 +35,7 @@ Qed.
 (* misc: *)
 Instance: ∀ x y : Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
 
-Add Ring Z: (stdlib_ring_theory BinInt.Z).
+Add Ring Z: (rings.stdlib_ring_theory BinInt.Z).
 
 Definition map_Z `{RingPlus R} `{RingZero R} `{RingOne R} `{GroupInv R} (z: Z): R :=
   match z with
@@ -51,7 +49,7 @@ Instance: IntegersToRing Z := λ B _ _ _ _ _, @map_Z B _ _ _ _.
 Section for_another_ring.
   Context `{Ring R}.
 
-  Add Ring R: (stdlib_ring_theory R).
+  Add Ring R: (rings.stdlib_ring_theory R).
 
   Lemma preserves_Zplus x y: map_Z (x + y) = map_Z x + map_Z y.
   Proof with try reflexivity; try assumption; try ring.
@@ -98,10 +96,10 @@ Section for_another_ring.
     Context map_Z' `{!SemiRing_Morphism (map_Z': Z → R)}.
 
     Let agree_on_0: map_Z Z0 = map_Z' Z0.
-    Proof. symmetry. apply preserves_0. Qed.
+    Proof. symmetry. apply rings.preserves_0. Qed.
 
     Let agree_on_1: map_Z 1%Z = map_Z' 1%Z.
-    Proof. symmetry. apply preserves_1. Qed.
+    Proof. symmetry. apply rings.preserves_1. Qed.
 
     Let agree_on_positive p: map_Z (Zpos p) = map_Z' (Zpos p).
     Proof with try reflexivity.
@@ -109,10 +107,10 @@ Section for_another_ring.
        rewrite IHp.
        rewrite xI_in_ring_terms.
        rewrite agree_on_1.
-        rewrite <-2!preserves_sg_op...
+       now rewrite <-2!rings.preserves_plus.
       rewrite IHp.
       rewrite xO_in_ring_terms.
-      rewrite <- preserves_sg_op...
+      now rewrite <-rings.preserves_plus.
      apply agree_on_1.
     Qed.
 
@@ -120,7 +118,7 @@ Section for_another_ring.
     Proof with try reflexivity.
      intros.
      replace (Zneg p) with (- (Zpos p))...
-     rewrite 2!preserves_opp.
+     rewrite 2!rings.preserves_opp.
      rewrite <- agree_on_positive...
     Qed.
 
@@ -134,7 +132,6 @@ Section for_another_ring.
      intros p y E. rewrite <- E.
      apply agree_on_negative.
     Qed.
-
   End with_another_morphism.
 End for_another_ring.
 
@@ -188,7 +185,7 @@ Next Obligation.
    left. 
    now apply Z.abs_eq.
   right.
-  rewrite Z.abs_neq. now apply opp_involutive. easy.
+  rewrite Z.abs_neq. now apply rings.opp_involutive. easy.
 Qed.
 
 (* * Embedding N into Z *)
@@ -209,7 +206,7 @@ Next Obligation.
    left. 
    now apply Z.abs_eq.
   right.
-  rewrite Z.abs_neq. now apply opp_involutive. easy.
+  rewrite Z.abs_neq. now apply rings.opp_involutive. easy.
 Qed.
 
 (* Efficient nat_pow *)
@@ -223,7 +220,7 @@ Proof.
     simpl in *. now rewrite E1, E2.
    intros. now apply Z.pow_0_r.
   intros x n.
-  rewrite preserves_plus, preserves_1.  
+  rewrite rings.preserves_plus, rings.preserves_1.  
   rewrite <-(Z.pow_1_r x) at 2. apply Z.pow_add_r.
    auto with zarith.
   now destruct n.
@@ -234,7 +231,7 @@ Program Instance Z_shiftl: ShiftL Z (Z⁺) := Z.shiftl.
 
 Instance: ShiftLSpec Z (Z⁺) Z_shiftl.
 Proof.
-  apply shiftl.shiftl_spec_from_nat_pow.
+  apply shiftl_spec_from_nat_pow.
   intros x [n En].
   apply Z.shiftl_mul_pow2.
   now apply En.

@@ -1,9 +1,9 @@
 Require
-  stdlib_binary_integers Field QArith.Qfield theory.fields.
+  stdlib_binary_integers Field QArith.Qfield theory.rationals.
 Require Import
   Ring Morphisms QArith_base Qabs Qpower
   abstract_algebra interfaces.rationals field_of_fractions
-  theory.rings  theory.rationals additional_operations.
+  additional_operations.
 
 (* canonical names for relations/operations/constants: *)
 Instance Q_eq: Equiv Q := Qeq.
@@ -73,7 +73,7 @@ Qed.
 Instance: Injective inject_Z.
 Proof.
  constructor. 2: apply _.
- intros x y. change (x * 1 = y * 1 → x = y). rewrite 2!mult_1_r. intuition.
+ intros x y. change (x * 1 = y * 1 → x = y). rewrite 2!rings.mult_1_r. intuition.
 Qed.
 
 Program Definition Q_to_fracZ (x : Q) : Frac Z := frac (Qnum x) (Zpos (Qden x)) _.
@@ -87,8 +87,8 @@ Proof. repeat (split; try apply _). Qed.
 Instance: Injective Q_to_fracZ.
 Proof. split; try apply _. intros ? ? E. easy. Qed.
 
-Instance: RationalsToFrac Q := alt_to_frac Q_to_fracZ.
-Instance: Rationals Q := alt_Build_Rationals Q_to_fracZ inject_Z.
+Instance: RationalsToFrac Q := rationals.alt_to_frac Q_to_fracZ.
+Instance: Rationals Q := rationals.alt_Build_Rationals Q_to_fracZ inject_Z.
 
 Program Instance Q_dec_mult_inv: DecMultInv Q := Qinv.
 Next Obligation.

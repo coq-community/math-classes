@@ -12,7 +12,7 @@ Add Ring A: (rings.stdlib_semiring_theory A).
 Add Ring B: (rings.stdlib_semiring_theory B).
 
 Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 0.
-Proof. apply nat_pow_proper. Qed.
+Proof nat_pow_proper.
 
 Lemma nat_pow_base_0 (n : B) : n ≠ 0 → 0 ^ n = 0.
 Proof.
@@ -22,13 +22,22 @@ Proof.
   intros. rewrite nat_pow_S. ring.
 Qed.
 
-Global Instance: RightIdentity (^) (1:B).
+Global Instance nat_pow_1: RightIdentity (^) (1:B).
 Proof. 
   intro. assert ((1:B) = 1 + 0) as E by ring. rewrite E.
   rewrite nat_pow_S, nat_pow_0. ring.
 Qed.
 
-Global Instance: LeftAbsorb (^) 1.
+Lemma nat_pow_2 x : x ^ (2:B) = x * x.
+Proof. now rewrite nat_pow_S, nat_pow_1. Qed.
+
+Lemma nat_pow_3 x : x ^ (3:B) = x * (x * x).
+Proof. now rewrite nat_pow_S, nat_pow_2. Qed.
+
+Lemma nat_pow_4 x : x ^ (4:B) = x * (x * (x * x)).
+Proof. now rewrite nat_pow_S, nat_pow_3. Qed.
+
+Global Instance nat_pow_base_1: LeftAbsorb (^) 1.
 Proof. 
   intro. 
   pattern y. apply naturals.induction; clear y.

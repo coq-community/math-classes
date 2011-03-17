@@ -1,11 +1,9 @@
 Require 
-  orders.integers stdlib_binary_integers stdlib_binary_naturals.
+  stdlib_binary_integers theory.integers orders.semirings.
 Require Import 
   ZSig ZSigZAxioms NArith ZArith Program Morphisms
   nonneg_integers_naturals 
-  abstract_algebra interfaces.integers interfaces.additional_operations
-  theory.rings theory.integers theory.nat_pow
-  orders.semirings.  
+  abstract_algebra interfaces.integers interfaces.additional_operations.  
 
 Module ZType_Integers (Import anyZ: ZType).
 
@@ -73,8 +71,8 @@ Proof. apply jections.flip_bijection, _. Qed.
 Instance: SemiRing_Morphism of_Z.
 Proof. change (SemiRing_Morphism (to_Z⁻¹)). split; apply _. Qed.
 
-Instance: IntegersToRing t := retract_is_int_to_ring of_Z.
-Instance: Integers t := retract_is_int of_Z.
+Instance: IntegersToRing t := integers.retract_is_int_to_ring of_Z.
+Instance: Integers t := integers.retract_is_int of_Z.
 
 (* Order *)
 Instance ZType_le: Order t := le.
@@ -121,14 +119,14 @@ Program Instance: IntAbs t (t⁺) := abs.
 Next Obligation.
   unfold "≤", ZType_le, le.
   rewrite spec_abs.
-  rewrite preserves_0.
+  rewrite rings.preserves_0.
   apply Zabs_pos.
 Qed.
 
 Next Obligation.
   rewrite <-(naturals.to_semiring_unique NonNeg_inject). simpl.
   unfold_equiv. 
-  rewrite preserves_opp.
+  rewrite rings.preserves_opp.
   rewrite spec_abs.
   destruct (Zabs_dec (to_Z x)); auto.
 Qed.
@@ -138,11 +136,11 @@ Next Obligation.
   split; intros E; unfold_equiv; rewrite spec_abs.
    apply Z.abs_eq.
    apply (order_preserving to_Z) in E.
-   now rewrite preserves_0 in E.
-  rewrite preserves_opp.
+   now rewrite rings.preserves_0 in E.
+  rewrite rings.preserves_opp.
   apply Z.abs_neq.
   apply (order_preserving to_Z) in E.
-  now rewrite preserves_0 in E.
+  now rewrite rings.preserves_0 in E.
 Qed.
 
 (* Efficient division *)
@@ -155,27 +153,27 @@ Proof.
      intros x y E. now apply axioms.div_mod.
     intros x y Ey. 
     destruct (Z_mod_remainder (to_Z x) (to_Z y)) as [[Hl Hr] | [Hl Hr]].
-      intro. apply Ey. apply (injective to_Z). now rewrite preserves_0.
+      intro. apply Ey. apply (injective to_Z). now rewrite rings.preserves_0.
      left; split.
-      apply (order_preserving_back to_Z). now rewrite spec_modulo, preserves_0.
+      apply (order_preserving_back to_Z). now rewrite spec_modulo, rings.preserves_0.
      apply ZType_lt_coincides. unfold lt. now rewrite spec_modulo.
     right; split.
       apply ZType_lt_coincides. unfold lt. now rewrite spec_modulo.
-     apply (order_preserving_back to_Z). now rewrite spec_modulo, preserves_0.
-   intros x. unfold_equiv. rewrite spec_div. rewrite preserves_0. now apply Zdiv_0_r.
-  intros x. unfold_equiv. rewrite spec_modulo. rewrite preserves_0. now apply Zmod_0_r.
+     apply (order_preserving_back to_Z). now rewrite spec_modulo, rings.preserves_0.
+   intros x. unfold_equiv. rewrite spec_div, rings.preserves_0. now apply Zdiv_0_r.
+  intros x. unfold_equiv. rewrite spec_modulo, rings.preserves_0. now apply Zmod_0_r.
 Qed.
 
 Lemma ZType_succ_1_plus x : succ x = 1 + x.
 Proof.
-  unfold_equiv. rewrite spec_succ, preserves_plus, preserves_1. 
+  unfold_equiv. rewrite spec_succ, rings.preserves_plus, rings.preserves_1. 
   now rewrite commutativity.
 Qed.
 
 Lemma ZType_two_2 : two = 2.
 Proof.
   unfold_equiv. rewrite spec_2.
-  now rewrite preserves_plus, preserves_1.
+  now rewrite rings.preserves_plus, rings.preserves_1.
 Qed.
 
 (* Efficient [nat_pow] *)
@@ -201,11 +199,11 @@ Proof.
     intros x1 y1 E1 x2 y2 E2. unfold_equiv.
     now rewrite 2!spec_pow_N, E1, E2.
    intros x1. unfold_equiv. 
-   now rewrite spec_pow_N, preserves_1.
+   now rewrite spec_pow_N, rings.preserves_1.
   intros x n. unfold_equiv.
   rewrite spec_mul, 2!spec_pow_N.
-  rewrite preserves_plus, Z.pow_add_r.
-    now rewrite preserves_1, Z.pow_1_r.
+  rewrite rings.preserves_plus, Z.pow_add_r.
+    now rewrite rings.preserves_1, Z.pow_1_r.
    easy.
   now apply Z_of_N_le_0.
 Qed.
@@ -236,14 +234,14 @@ Program Instance ZType_shiftl: ShiftL t (t⁺) := shiftl.
 
 Instance: ShiftLSpec t (t⁺) ZType_shiftl.
 Proof.
-  apply shiftl.shiftl_spec_from_nat_pow.
+  apply shiftl_spec_from_nat_pow.
   intros x [y Ey].
   unfold additional_operations.pow, ZType_pow, additional_operations.shiftl, ZType_shiftl.
   unfold_equiv. simpl.
   rewrite rings.preserves_mult, spec_pow.
   rewrite spec_shiftl, Z.shiftl_mul_pow2.
    now rewrite <-ZType_two_2, spec_2.
-  apply (order_preserving to_Z) in Ey. now rewrite preserves_0 in Ey.
+  apply (order_preserving to_Z) in Ey. now rewrite rings.preserves_0 in Ey.
 Qed. 
 
 (* Efficient [shiftr] *)

@@ -230,3 +230,8 @@ Proof. intros x [? [? [? E]]]. destruct (zero_product _ _ E); intuition. Qed.
 
 Class RingUnit `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInverse x}: Prop
   := ring_unit_mult_inverse: x * ring_mult_inverse x = 1.
+
+(* A common induction principle for both the naturals and integers *)
+Class Biinduction R `{Equiv R} `{RingZero R} `{RingOne R} `{RingPlus R} : Prop :=
+  biinduction (P: R → Prop) `{!Proper ((=) ==> iff) P} : P 0 → (∀ n, P n ↔ P (1 + n)) → ∀ n, P n.
+  

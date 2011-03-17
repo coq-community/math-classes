@@ -14,7 +14,7 @@ Add Field A : (fields.stdlib_field_theory A).
 Add Ring B : (rings.stdlib_ring_theory B).
 
 Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 0.
-Proof. apply int_pow_proper. Qed.
+Proof int_pow_proper.
 
 Lemma int_pow_S_nonneg (x : A) (n : B) : 0 ≤ n → x ^ (1+n) = x * x ^ n.
 Proof.
@@ -109,10 +109,17 @@ Qed.
 Global Instance int_pow_1: RightIdentity (^) (1:B).
 Proof. 
   intro. assert ((1:B) = 1 + 0) as E by ring. rewrite E.
-  rewrite int_pow_S_nonneg, int_pow_0. 
-   ring.
-  reflexivity.
+  rewrite int_pow_S_nonneg, int_pow_0; [ring | reflexivity].
 Qed.
+
+Lemma int_pow_2 x : x ^ (2:B) = x * x.
+Proof. now rewrite int_pow_S_nonneg, int_pow_1 by solve_propholds. Qed.
+
+Lemma int_pow_3 x : x ^ (3:B) = x * (x * x).
+Proof. now rewrite int_pow_S_nonneg, int_pow_2 by solve_propholds. Qed.
+
+Lemma int_pow_4 x : x ^ (4:B) = x * (x * (x * x)).
+Proof. now rewrite int_pow_S_nonneg, int_pow_3 by solve_propholds. Qed.
 
 Global Instance int_pow_base_1: LeftAbsorb (^) 1.
 Proof. 

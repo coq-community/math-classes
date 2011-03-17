@@ -1,118 +1,216 @@
+Require
+  orders.integers theory.fields.
 Require Import 
   Program Morphisms Setoid Ring
-  abstract_algebra interfaces.naturals interfaces.additional_operations theory.nat_pow.
+  abstract_algebra interfaces.naturals interfaces.integers 
+  interfaces.additional_operations.
 
 Section shiftl.
-  Context `{SemiRing A} `{SemiRing B} `{!ShiftLSpec A B sl}.
+Context `{SemiRing A} `{!LeftCancellation (.*.) (2:A)} `{SemiRing B} `{!Biinduction B} `{!ShiftLSpec A B sl}.
 
-  Add Ring A1 : (rings.stdlib_semiring_theory A).
+Add Ring A: (rings.stdlib_semiring_theory A).
+Add Ring B: (rings.stdlib_semiring_theory B).
 
-  Global Instance: Proper ((=) ==> (=) ==> (=)) (≪) | 1.
-  Proof. apply shiftl_proper. Qed.
+Global Instance: Proper ((=) ==> (=) ==> (=)) (≪) | 1.
+Proof shiftl_proper.
 
-  Lemma shiftl_1 x : x ≪ (1:B) = 2 * x.
-  Proof. now rewrite <-(rings.plus_0_r 1), shiftl_S, shiftl_0. Qed.
+Lemma shiftl_nat_pow_alt `{Naturals B2} `{!NatPowSpec A B2 pw} `{!SemiRing_Morphism (f : B2 → B)} x n : 
+  x ≪ f n = x * 2 ^ n.
+Proof.
+  pose proof nat_pow_proper.
+  revert n. apply naturals.induction.
+    solve_proper.
+   rewrite rings.preserves_0, ?shiftl_0, nat_pow_0. ring.
+  intros n E.
+  rewrite rings.preserves_plus, rings.preserves_1, shiftl_S.
+  rewrite E, nat_pow_S. ring.
+Qed.
 
-  Lemma shiftl_2 x : x ≪ (2:B) = 4 * x.
-  Proof. rewrite shiftl_S, shiftl_1. ring. Qed.
+Lemma shiftl_nat_pow `{!NaturalsToSemiRing B} `{!Naturals B} `{!NatPowSpec A B np} x n : x ≪ n = x * 2 ^ n.
+Proof. change (x ≪ id  n = x * 2 ^ n). apply shiftl_nat_pow_alt. Qed.
+
+Lemma shiftl_1 x : x ≪ (1:B) = 2 * x.
+Proof. now rewrite <-(rings.plus_0_r 1), shiftl_S, shiftl_0. Qed.
+
+Lemma shiftl_2 x : x ≪ (2:B) = 4 * x.
+Proof. rewrite shiftl_S, shiftl_1. ring. Qed.
+
+Global Instance shiftl_base_0: LeftAbsorb (≪) 0.
+Proof. 
+  intros n. pattern n. apply biinduction; clear n.
+    solve_proper.
+   now apply shiftl_0.
+  intros n; split; intros E.
+   rewrite shiftl_S, E. ring.
+  apply (left_cancellation (.*.) 2).
+  rewrite <-shiftl_S, E. ring.
+Qed.
+
+Lemma shiftl_exp_plus x n m : x ≪ (n + m) = x ≪ n ≪ m.
+Proof.
+  pattern m. apply biinduction; clear m.
+    solve_proper.
+   now rewrite shiftl_0, rings.plus_0_r.
+  intros m.
+  setoid_replace (n + (1 + m)) with (1 + (n + m)) by ring.
+  rewrite ?shiftl_S.
+  split; intros E.
+   now rewrite E.
+  now apply (left_cancellation (.*.) 2).
+Qed.
+
+Lemma shiftl_order x n m: x ≪ n ≪ m  = x ≪ m ≪ n.
+Proof. rewrite <-?shiftl_exp_plus. now rewrite commutativity. Qed.
+
+Lemma shiftl_mult x y n : x * (y ≪ n) = (x * y) ≪ n.
+Proof. 
+  pattern n. apply biinduction; clear n.
+    solve_proper.
+   now rewrite ?shiftl_0.
+  intros m.
+  rewrite ?shiftl_S.
+  split; intros E.
+   rewrite <-E. ring.
+  apply (left_cancellation (.*.) 2). rewrite <-E. ring.
+Qed.
+
+Lemma shiftl_base_plus x y n : (x + y) ≪ n  = x ≪ n + y ≪ n.
+Proof.
+  pattern n. apply biinduction; clear n.
+    solve_proper.
+   now rewrite ?shiftl_0.
+  intros m. rewrite ?shiftl_S.
+  split; intros E.
+   rewrite E. ring.
+  apply (left_cancellation (.*.) 2). rewrite E. ring.
+Qed.
+
+Lemma shiftl_opp `{GroupInv A} `{!Ring A} x n : (-x) ≪ n = -(x ≪ n).
+Proof.
+  rewrite (rings.opp_mult x), (rings.opp_mult (x ≪ n)).
+  symmetry. now apply shiftl_mult.
+Qed.
+
+Context `{!NoZeroDivisors A} `{!PropHolds ((2:A) ≠ 0)}.
+
+Global Instance shiftl_nonzero x n : 
+  PropHolds (x ≠ 0) → PropHolds (x ≪ n ≠ 0).
+Proof.
+  pattern n. apply biinduction; clear n.
+    solve_proper.
+   now rewrite shiftl_0.
+  intros m. rewrite ?shiftl_S.
+  split; intros E1 E2. 
+   solve_propholds.
+  intros E3. apply E1; auto. rewrite E3. ring.
+Qed.
+
+Lemma shiftl_inj n : Injective (flip shiftl n).
+Proof.
+  repeat (split; try apply _). unfold flip.
+  pattern n. apply biinduction; clear n.
+    solve_proper.
+   intros x y E. now rewrite ?shiftl_0 in E.
+  intros n; split; intros E1 x y E2.
+   apply E1. rewrite ?shiftl_S in E2.
+   now apply (left_cancellation (.*.) 2).
+  apply E1. now rewrite ?shiftl_S, E2.
+Qed.
+
+Context `{oA : Order A} `{!SemiRingOrder oA} `{!TotalOrder oA} 
+  `{!PropHolds (0 < (2:A))} `{!OrderPreservingBack ((2:A) *.)}.
+
+Global Instance shiftl_nonneg (x : A) (n : B) : PropHolds (0 ≤ x) → PropHolds (0 ≤ x ≪ n).
+Proof.
+  intros nonneg.
+  pattern n. apply biinduction; clear n.
+    solve_proper.
+   now rewrite shiftl_0.
+  intros m. rewrite ?shiftl_S.
+  split; intros E.
+   solve_propholds.
+  red. apply (order_preserving_back (2 *.)). 
+  now rewrite rings.mult_0_r.
+Qed.
+
+Global Instance shiftl_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ≪ n).
+Proof.
+  intros [E1 E2]. split.
+   now apply shiftl_nonneg.
+  apply not_symmetry, shiftl_nonzero. now apply not_symmetry.
+Qed.
 End shiftl.
 
-(* * Properties of [shiftl] on the naturals *)
-Section shiftl_naturals.
-  Context `{SemiRing A} `{Naturals B}.
+Section shiftl_field_integers.
+  Context `{Field A} `{Integers B} `{∀ x y : A, Stable (x = y)} `{!PropHolds ((2:A) ≠ 0)} `{!ShiftLSpec A B sl}.
 
-  Add Ring A2: (rings.stdlib_semiring_theory A).
-  Add Ring B2: (rings.stdlib_semiring_theory B).
-
-  Lemma shiftl_spec_from_nat_pow `{!NatPowSpec A B np} (sl : ShiftL A B) :
-    (∀ x n, x ≪ n = x * 2 ^ n) → ShiftLSpec A B sl.
+  Lemma shiftl_int_pow `{!IntPowSpec A B ipw} x n : x ≪ n = x * 2 ^ n.
   Proof.
-    intros spec.
-    split.
-      intros ? ? E1 ? ? E2.
-      rewrite 2!spec. now rewrite E1, E2.
-     intro x. rewrite spec, nat_pow_0. ring.
-    intros x n. rewrite 2!spec. rewrite nat_pow_S. ring.
-  Qed.
-
-  Context `{!ShiftLSpec A B sl}.
-
-  Lemma shiftl_nat_pow `{!NatPowSpec A B np} x n : x ≪ n = x * 2 ^ n.
-  Proof.
-    revert n. apply naturals.induction.
+    pose proof int_pow_proper.
+    revert n. apply biinduction.
       solve_proper.
-     rewrite nat_pow_0. now rewrite 2!right_identity.
-    intros ? E. rewrite nat_pow_S, shiftl_S, E. ring.
+     now rewrite shiftl_0, int_pow_0, rings.mult_1_r.
+    intros n.
+    rewrite shiftl_S, int_pow_S by solve_propholds.
+    rewrite associativity, (commutativity x 2), <-associativity.
+    split; intros E.
+     now rewrite E.
+    now apply (left_cancellation (.*.) 2).
   Qed.
-
-  Global Instance: LeftAbsorb (≪) 0.
-  Proof. intro. rewrite shiftl_nat_pow. ring. Qed.
-
-  Lemma shiftl_order x n m : x ≪ n ≪ m  = x ≪ m ≪ n.
-  Proof. rewrite 4!shiftl_nat_pow. ring. Qed.
-
-  Lemma shiftl_mult x y n : x * (y ≪ n) = (x * y) ≪ n.
-  Proof. rewrite 2!shiftl_nat_pow. ring. Qed.
-
-  Lemma shiftl_1_mult x n : x ≪ n = x * (1 ≪ n).
-  Proof. rewrite 2!shiftl_nat_pow. ring. Qed.
-
-  Lemma shiftl_base_plus x y n : (x + y) ≪ n  = x ≪ n + y ≪ n.
-  Proof. rewrite 3!shiftl_nat_pow. ring. Qed.
-
-  Lemma shiftl_exp_plus x n m : x ≪ (n + m) = x ≪ n ≪ m.
-  Proof. rewrite 3!shiftl_nat_pow. rewrite nat_pow_exp_plus. ring. Qed.
-
-  Lemma shiftl_opp `{GroupInv A} `{!Ring A} x n : (-x) ≪ n = -(x ≪ n).
-  Proof.
-    rewrite 2!shiftl_nat_pow, rings.opp_mult. 
-    symmetry. rewrite rings.opp_mult at 1. ring.
-  Qed.
-
-  Context `{!NoZeroDivisors A} `{!PropHolds ((1:A) ≠ 0)} `{!PropHolds ((2:A) ≠ 0)} 
-    `{∀z, PropHolds (z ≠ 0) → RightCancellation (.*.) z}.
-
-  Global Instance shiftl_nonzero x n : PropHolds (x ≠ 0) → PropHolds (x ≪ n ≠ 0).
-  Proof. intros E. rewrite shiftl_nat_pow. solve_propholds. Qed.
-
-  (* x ≪ b = y ≪ b → x = y *)
-  Lemma shiftl_inj n : Injective (flip shiftl n).
-  Proof with auto.
-    repeat (split; try apply _).
-    intros x y E. unfold flip in E. rewrite 2!shiftl_nat_pow in E.
-    now apply (right_cancellation (.*.) (2 ^ n)).
-  Qed.
-End shiftl_naturals.
+End shiftl_field_integers.
 
 Section preservation.
-  Context `{Naturals B} `{SemiRing A1} `{!ShiftLSpec A1 B sl1} `{SemiRing A2} `{!ShiftLSpec A2 B sl2} 
-    {f : A1 → A2} `{!SemiRing_Morphism f}.
+  Context `{SemiRing B} `{!Biinduction B}
+    `{Ring A1} `{!ShiftLSpec A1 B sl1} `{Ring A2} `{!LeftCancellation (.*.) (2:A2)} `{!ShiftLSpec A2 B sl2} 
+    `{!SemiRing_Morphism (f : A1 → A2)}.
 
   Lemma preserves_shiftl x (n : B) : f (x ≪ n) = (f x) ≪ n.
   Proof.
-    rewrite 2!shiftl_nat_pow.
-    rewrite rings.preserves_mult.
-    rewrite preserves_nat_pow.
-    now rewrite rings.preserves_2.
+    revert n. apply biinduction.
+      solve_proper.
+     now rewrite 2!shiftl_0.
+    intros n; split; intros IH.
+     rewrite 2!shiftl_S.
+     now rewrite rings.preserves_mult, rings.preserves_2, IH.
+    apply (left_cancellation (.*.) 2).
+    rewrite <-(rings.preserves_2 (f:=f)) at 1. 
+    rewrite <-rings.preserves_mult, <-shiftl_S, IH.
+    now rewrite shiftl_S.
   Qed.
 End preservation.
 
 Section exp_preservation.
-  Context `{SemiRing A} `{Naturals B1} `{Naturals B2}  `{!ShiftLSpec A B1 sl1} `{!ShiftLSpec A B2 sl2} 
-    {f : B1 → B2} `{!SemiRing_Morphism f}.
+  Context `{SemiRing B1} `{!Biinduction B1} `{SemiRing B2} `{!Biinduction B2}
+   `{Ring A}  `{!LeftCancellation (.*.) (2:A)} `{!ShiftLSpec A B1 sl1} `{!ShiftLSpec A B2 sl2} 
+   `{!SemiRing_Morphism (f : B1 → B2)}.
 
   Lemma preserves_shiftl_exp x (n : B1) : x ≪ f n = x ≪ n.
   Proof.
-    rewrite 2!shiftl_nat_pow.
-    now rewrite preserves_nat_pow_exp.
+    revert n. apply biinduction.
+      solve_proper.
+     now rewrite rings.preserves_0, ?shiftl_0.
+    intros n.
+    rewrite rings.preserves_plus, rings.preserves_1, ?shiftl_S.
+    split; intros E.
+     now rewrite E.
+    now apply (left_cancellation (.*.) 2).
   Qed.
 End exp_preservation.
 
-Section default_shiftl.
+Section default_shiftl_naturals.
   Context `{SemiRing A} `{Naturals B} `{!NatPowSpec A B pw}.
 
   Global Instance default_shiftl: ShiftL A B | 10 := λ x n, x * 2 ^ n.
 
   Global Instance: ShiftLSpec A B default_shiftl.
   Proof. now apply shiftl_spec_from_nat_pow. Qed.
-End default_shiftl.
+End default_shiftl_naturals.
+
+Section default_shiftl_integers.
+  Context `{Field A} `{Integers B} `{!IntPowSpec A B ipw} `{∀ x y : A, Decision (x = y)} `{!PropHolds ((2:A) ≠ 0)}.
+
+  Global Instance default_shiftl_int: ShiftL A B | 9 := λ x n, x * 2 ^ n.
+
+  Global Instance: ShiftLSpec A B default_shiftl_int.
+  Proof. now apply shiftl_spec_from_int_pow. Qed.
+End default_shiftl_integers.

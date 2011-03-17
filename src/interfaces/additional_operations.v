@@ -31,6 +31,31 @@ Class ShiftLSpec A B (sl : ShiftL A B) `{Equiv A} `{Equiv B} `{RingOne A} `{Ring
   shiftl_S : ∀ x n, x ≪ (1 + n) = 2 * x ≪ n
 }.
 
+Lemma shiftl_spec_from_nat_pow `{SemiRing A} `{SemiRing B} `{!NatPowSpec A B pw} (sl : ShiftL A B) :
+  (∀ x n, x ≪ n = x * 2 ^ n) → ShiftLSpec A B sl.
+Proof.
+  pose proof nat_pow_proper.
+  intros spec. split.
+    intros ? ? E1 ? ? E2.
+    rewrite 2!spec. 
+    now rewrite E1, E2.
+   intro x. rewrite spec, nat_pow_0. now apply right_identity.
+  intros x n. rewrite 2!spec. rewrite nat_pow_S.
+  now rewrite ?associativity, (commutativity x 2).
+Qed.
+
+Lemma shiftl_spec_from_int_pow `{SemiRing A} `{!PropHolds ((2:A) ≠ 0)} `{SemiRing B} `{!IntPowSpec A B ip} (sl : ShiftL A B) :
+  (∀ x n, x ≪ n = x * 2 ^ n) → ShiftLSpec A B sl.
+Proof.
+  pose proof int_pow_proper.
+  intros spec. split.
+    intros ? ? E1 ? ? E2.
+    rewrite 2!spec. now rewrite E1, E2.
+   intro x. rewrite spec, int_pow_0. now apply right_identity.
+  intros x n. rewrite 2!spec. rewrite int_pow_S by solve_propholds.
+  now rewrite ?associativity, (commutativity x 2).
+Qed.
+
 Class ShiftR A B := shiftr: A → B → A.
 Infix "≫" := shiftr (at level 33, left associativity).
 Notation "(≫)" := shiftr (only parsing).

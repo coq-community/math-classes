@@ -157,13 +157,12 @@ Proof with auto.
   transitivity 0... apply semirings.precedes_0_2.
 Qed.
 
-Lemma biinduction
-  (P: Int → Prop) `{!Proper ((=) ==> iff) P}:
-  P 0 → (∀ n, P n ↔ P (1 + n)) → ∀ n, P n.
-Proof with auto.
-  intros P0 Psuc. apply induction...
-  firstorder.
-  intros. apply Psuc. setoid_replace (1+(n-1)) with n by ring...
+Global Instance biinduction: Biinduction Int.
+Proof.
+  intros P ? P0 Psuc. apply induction; trivial.
+   firstorder.
+  intros. apply Psuc. 
+  now setoid_replace (1 + (n - 1)) with n by ring.
 Qed.
 End other_results.
 
