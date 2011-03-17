@@ -339,7 +339,7 @@ Next Obligation.
   destruct E2 as [E2a E2b]. split.
    apply rings.flip_opp.
    eapply dy_precedes_dec_aux.
-   simpl. rewrite opp_shiftl. eassumption.
+   simpl. rewrite shiftl_opp. eassumption.
   intros E3. apply E2b. apply inv_proper.
   apply dy_eq_dec_aux. now symmetry.
 Qed.
@@ -353,7 +353,7 @@ Next Obligation.
    eapply dy_eq_dec_aux. eassumption.
   apply rings.flip_opp.
   eapply dy_precedes_dec_aux.
-  simpl. rewrite opp_shiftl. apply rings.flip_opp. eapply E2.
+  simpl. rewrite shiftl_opp. apply rings.flip_opp. eapply E2.
 Qed.
 Next Obligation. 
   intros x y E1 E2.
