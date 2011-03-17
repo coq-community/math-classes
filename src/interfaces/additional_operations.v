@@ -23,6 +23,8 @@ Class IntPowSpec A B (pow : Pow A B) `{Equiv A} `{Equiv B} `{RingZero A} `{RingO
 Class ShiftL A B := shiftl: A → B → A.
 Infix "≪" := shiftl (at level 33, left associativity).
 Notation "(≪)" := shiftl (only parsing).
+Notation "( x ≪)" := (shiftl x) (only parsing).
+Notation "(≪ n )" := (λ x, x ≪ n) (only parsing).
 Instance: Params (@shiftl) 3.
 
 Class ShiftLSpec A B (sl : ShiftL A B) `{Equiv A} `{Equiv B} `{RingOne A} `{RingPlus A} `{RingMult A} `{RingZero B} `{RingOne B} `{RingPlus B} := {

@@ -93,21 +93,10 @@ Qed.
 
 Context `{!NoZeroDivisors A} `{!PropHolds ((2:A) ≠ 0)}.
 
-Global Instance shiftl_nonzero x n : 
-  PropHolds (x ≠ 0) → PropHolds (x ≪ n ≠ 0).
+Global Instance shiftl_inj: ∀ n, Injective (≪ n).
 Proof.
-  pattern n. apply biinduction; clear n.
-    solve_proper.
-   now rewrite shiftl_0.
-  intros m. rewrite ?shiftl_S.
-  split; intros E1 E2. 
-   solve_propholds.
-  intros E3. apply E1; auto. rewrite E3. ring.
-Qed.
-
-Lemma shiftl_inj n : Injective (flip shiftl n).
-Proof.
-  repeat (split; try apply _). unfold flip.
+  repeat (split; try apply _). 
+   2: solve_proper.
   pattern n. apply biinduction; clear n.
     solve_proper.
    intros x y E. now rewrite ?shiftl_0 in E.
@@ -117,27 +106,54 @@ Proof.
   apply E1. now rewrite ?shiftl_S, E2.
 Qed.
 
+Global Instance shiftl_nonzero x n : 
+  PropHolds (x ≠ 0) → PropHolds (x ≪ n ≠ 0).
+Proof. 
+  intros E1 E2. apply E1. 
+  apply (injective (≪ n)).
+  now rewrite shiftl_base_0.
+Qed.
+
 Context `{oA : Order A} `{!SemiRingOrder oA} `{!TotalOrder oA} 
   `{!PropHolds (0 < (2:A))} `{!OrderPreservingBack ((2:A) *.)}.
 
+Global Instance: ∀ n, OrderPreserving (≪ n).
+Proof.
+  repeat (split; try apply _).
+  intros x y E. pattern n. apply biinduction; clear n; intros.
+    solve_proper.
+   now rewrite 2!shiftl_0.
+  rewrite ?shiftl_S.
+  split; intros.
+   now apply (order_preserving (2 *.)). 
+  now apply (order_preserving_back (2 *.)).
+Qed.
+
+Global Instance: ∀ n, OrderPreservingBack (≪ n).
+Proof.
+  repeat (split; try apply _).
+  intros x y. pattern n. apply biinduction; clear n.
+    solve_proper.
+   now rewrite 2!shiftl_0 .
+  intros m. rewrite ?shiftl_S.
+  split; intros E1 E2.
+   apply E1. now apply (order_preserving_back (2 *.)).
+  apply E1. now apply (order_preserving (2 *.)).  
+Qed.
+
+Global Instance: ∀ n, StrictlyOrderPreserving (≪ n). 
+Proof. intros. apply _. Qed.
+
 Global Instance shiftl_nonneg (x : A) (n : B) : PropHolds (0 ≤ x) → PropHolds (0 ≤ x ≪ n).
 Proof.
-  intros nonneg.
-  pattern n. apply biinduction; clear n.
-    solve_proper.
-   now rewrite shiftl_0.
-  intros m. rewrite ?shiftl_S.
-  split; intros E.
-   solve_propholds.
-  red. apply (order_preserving_back (2 *.)). 
-  now rewrite rings.mult_0_r.
+  intro. rewrite <-(shiftl_base_0 n).
+  now apply (order_preserving (≪ n)).
 Qed.
 
 Global Instance shiftl_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ≪ n).
 Proof.
-  intros [E1 E2]. split.
-   now apply shiftl_nonneg.
-  apply not_symmetry, shiftl_nonzero. now apply not_symmetry.
+  intro. rewrite <-(shiftl_base_0 n).
+  now apply (strictly_order_preserving (≪ n)).
 Qed.
 End shiftl.
 
