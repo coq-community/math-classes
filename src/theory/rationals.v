@@ -19,16 +19,16 @@ Section another_integers.
   Notation ZtoQ := (integers_to_ring Z Q).
   Notation QtoFrac := (rationals_to_frac Q Z).
 
-  Lemma rationals_decompose `{!DecMultInv Q} (x : Q) : ∃ num, ∃ den, 
-    den ≠ 0 ∧ x = ZtoQ num / ZtoQ den.
+  Lemma rationals_decompose `{!SemiRing_Morphism (f : Z → Q)} `{!DecMultInv Q} (x : Q) : 
+    ∃ num, ∃ den, den ≠ 0 ∧ x = f num / f den.
   Proof.
     exists (num (QtoFrac x)) (den (QtoFrac x)). split.
      apply den_nonzero.
     apply (injective QtoFrac).
     rewrite preserves_mult.
     rewrite preserves_dec_mult_inv.
-    change (QtoFrac x = (QtoFrac ∘ ZtoQ) (num (QtoFrac x)) / (QtoFrac ∘ ZtoQ) (den (QtoFrac x))).
-    rewrite 2!(to_ring_unique_alt (QtoFrac ∘ ZtoQ) Frac_inject).
+    change (QtoFrac x = (QtoFrac ∘ f) (num (QtoFrac x)) / (QtoFrac ∘ f) (den (QtoFrac x))).
+    rewrite 2!(to_ring_unique_alt (QtoFrac ∘ f) Frac_inject).
     assert (Frac_inject (den (QtoFrac x)) ≠ 0) as P.
      apply injective_ne_0. apply den_nonzero.
     rewrite (dec_mult_inv_correct _ P).

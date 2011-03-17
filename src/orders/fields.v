@@ -54,8 +54,8 @@ Proof with trivial.
    apply (order_preserving_back_gt_0 (.*.) y)...
    rewrite (commutativity x), associativity, dec_mult_inverse.
     now ring_simplify.
-   now apply not_symmetry, neq_precedes_sprecedes.
-  apply not_symmetry, neq_precedes_sprecedes.
+   now apply sprecedes_ne_flip.
+  apply sprecedes_ne_flip.
   now apply sprecedes_trans_l with y.
 Qed.
 
@@ -74,12 +74,32 @@ Proof.
   now apply flip_dec_mult_inv.
 Qed.
 
-Lemma precedes_0_half : 0 ≤ 1/2.
+Lemma flip_dec_mult_inv_strict x y : 0 < y → y < x  → /x < /y.
 Proof.
-  apply (order_preserving_back (.* 2)).
-  ring_simplify.
+  intros E1 E2.
+  assert (PropHolds (0 < x)) by (red; now transitivity y).
+  apply (strictly_order_preserving_back (x *.)).
   rewrite dec_mult_inverse.
-   apply precedes_0_1.
-  apply (ne_0 2).
+   assert (PropHolds (0 < y)) by easy.
+   apply (strictly_order_preserving_back (y *.)).
+   rewrite (commutativity x), associativity, dec_mult_inverse.
+    now ring_simplify.
+   now apply sprecedes_ne_flip.
+  now apply sprecedes_ne_flip.
+Qed.
+
+Lemma flip_dec_mult_inv_l_strict x y : 0 < y → /y < x  → /x < y.
+Proof.
+  intros E1 E2.
+  rewrite <-(dec_mult_inv_involutive y).
+  apply flip_dec_mult_inv_strict; trivial.
+  now apply pos_dec_mult_inv_compat.
+Qed.
+
+Lemma flip_dec_mult_inv_r_strict x y : 0 < y → y < /x  → x < /y.
+Proof.
+  intros E1 E2.
+  rewrite <-(dec_mult_inv_involutive x).
+  now apply flip_dec_mult_inv_strict.
 Qed.
 End contents.

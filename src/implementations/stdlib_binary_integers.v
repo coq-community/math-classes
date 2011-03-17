@@ -167,6 +167,8 @@ Proof with trivial.
    intro. split. apply Zorder.Zlt_le_weak... now apply Zorder.Zlt_not_eq.
   intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1)... now destruct E2.
 Qed.
+Hint Resolve (λ x y, proj1 (Zlt_coincides x y)).
+Hint Resolve (λ x y, proj2 (Zlt_coincides x y)).
 
 (* * Embedding of the Peano naturals into [Z] *)
 Instance inject_nat_Z: Coerce nat Z := Z_of_nat.

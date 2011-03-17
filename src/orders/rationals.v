@@ -8,22 +8,21 @@ Section rationals_order.
   Add Field Q : (stdlib_field_theory Q).
 
   Section another_integers.
-  Context  Z `{Integers Z} {oZ : Order Z} `{!RingOrder oZ} `{!TotalOrder oZ}.
+  Context  Z `{Integers Z} {oZ : Order Z} `{!RingOrder oZ} `{!TotalOrder oZ}
+    {f : Z → Q} `{!SemiRing_Morphism f}.
 
-  Lemma rationals_decompose_pos_den x : ∃ num, ∃ den, 
-    0 < den ∧ x = integers_to_ring Z Q num / integers_to_ring Z Q den.
+  Lemma rationals_decompose_pos_den x : 
+    ∃ num, ∃ den, 0 < den ∧ x = f num / f den.
   Proof.
     destruct (rationals_decompose x) as [num [den [E1 E2]]].
     destruct (total_order den 0).
      exists (-num). exists (-den). split.
       split.
        now apply rings.flip_nonpos_opp.
-      intros G. apply E1. apply (injective (-)). rewrite <-G. symmetry. now apply opp_0.
+      apply not_symmetry. now apply flip_opp_nonzero.
      rewrite 2!preserves_opp. rewrite E2. field.
      split.
-      intros G. apply E1.
-      apply (injective (integers_to_ring Z Q)). apply (injective (-)).
-      rewrite G. rewrite preserves_0. symmetry. now apply opp_0.
+      apply flip_opp_nonzero. now apply injective_ne_0.
      now apply injective_ne_0.
     exists num. exists den. split; try assumption.
     split; try assumption. now apply not_symmetry.

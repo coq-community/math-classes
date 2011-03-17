@@ -58,12 +58,14 @@ Program Instance: ∀ x y: N, Decision (x ≤ y) := λ y x,
   end.
 Next Obligation. now apply not_symmetry. Qed.
 
-Lemma Qlt_coincides x y : (x < y)%N ↔ x < y.
+Lemma Nlt_coincides x y : (x < y)%N ↔ x < y.
 Proof with trivial.
   split.
    intro. now apply N.le_neq.
   intros [E1 E2]. now apply N.T.le_neq_lt.
 Qed.
+Hint Resolve (λ x y, proj1 (Nlt_coincides x y)).
+Hint Resolve (λ x y, proj2 (Nlt_coincides x y)).
 
 Instance inject_nat_N: Coerce nat N := N_of_nat.
 Instance inject_N_nat: Coerce N nat := nat_of_N.

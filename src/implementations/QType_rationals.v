@@ -1,5 +1,5 @@
 Require
-  theory.fields stdlib_rationals.
+  theory.fields stdlib_rationals theory.int_pow.
 Require Import
   QArith QSig
   abstract_algebra 

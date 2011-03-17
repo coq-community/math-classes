@@ -53,6 +53,8 @@ Proof with trivial.
    intro. split. apply Qlt_le_weak... apply Qlt_not_eq...
   intros [E1 E2]. destruct (proj1 (Qle_lteq _ _) E1)... destruct E2...
 Qed.
+Hint Resolve (λ x y, proj1 (Qlt_coincides x y)).
+Hint Resolve (λ x y, proj2 (Qlt_coincides x y)).
 
 (* misc: *)
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.

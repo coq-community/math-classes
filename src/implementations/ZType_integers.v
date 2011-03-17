@@ -96,6 +96,8 @@ Proof maps.embed_totalorder to_Z.
 
 Lemma ZType_lt_coincides x y : lt x y ↔ x < y.
 Proof. unfold lt. now rewrite stdlib_binary_integers.Zlt_coincides. Qed.
+Hint Resolve (λ x y, proj1 (ZType_lt_coincides x y)).
+Hint Resolve (λ x y, proj2 (ZType_lt_coincides x y)).
 
 (* Efficient comparison *)
 Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) with
@@ -105,15 +107,14 @@ Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) 
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate.
-  apply orders.not_precedes_sprecedes.
-  now apply ZType_lt_coincides.
+  apply orders.not_precedes_sprecedes. auto.
 Qed.
 
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate; try intuition.
    now apply Zeq_le.
-  now apply orders.sprecedes_weaken, ZType_lt_coincides.
+  apply orders.sprecedes_weaken. red. auto.
 Qed.
 
 Program Instance: IntAbs t (t⁺) := abs.
