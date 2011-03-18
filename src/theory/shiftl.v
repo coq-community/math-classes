@@ -65,7 +65,7 @@ Proof. rewrite <-?shiftl_exp_plus. now rewrite commutativity. Qed.
 Lemma shiftl_reverse (x : A) (n m : B) : n + m = 0 → x ≪ n ≪ m = x.
 Proof. intros E. now rewrite <-shiftl_exp_plus, E, shiftl_0. Qed.
 
-Lemma shiftl_mult x y n : x * (y ≪ n) = (x * y) ≪ n.
+Lemma shiftl_mult_l x y n : x * (y ≪ n) = (x * y) ≪ n.
 Proof. 
   pattern n. apply biinduction; clear n.
     solve_proper.
@@ -76,6 +76,9 @@ Proof.
    rewrite <-E. ring.
   apply (left_cancellation (.*.) 2). rewrite <-E. ring.
 Qed.
+
+Lemma shiftl_mult_r x y n : (x ≪ n) * y = (x * y) ≪ n.
+Proof. now rewrite commutativity, shiftl_mult_l, commutativity. Qed.
 
 Lemma shiftl_base_plus x y n : (x + y) ≪ n  = x ≪ n + y ≪ n.
 Proof.
@@ -88,10 +91,25 @@ Proof.
   apply (left_cancellation (.*.) 2). rewrite E. ring.
 Qed.
 
+Lemma shiftl_base_nat_pow `{Naturals B2} `{!NatPowSpec A B2 pw} `{!SemiRing_Morphism (f : B2 → B)} x n m : 
+  (x ≪ n) ^ m = (x ^ m) ≪ (n * f m).
+Proof.
+  pose proof nat_pow_proper.
+  revert m. apply naturals.induction.
+    solve_proper.
+   rewrite ?nat_pow_0. 
+   now rewrite rings.preserves_0, rings.mult_0_r, shiftl_0.
+  intros m E.
+  rewrite rings.preserves_plus, rings.preserves_1. 
+  rewrite rings.plus_mul_distr_l, rings.mult_1_r, shiftl_exp_plus.
+  rewrite ?nat_pow_S, E.
+  now rewrite shiftl_mult_l, shiftl_mult_r.
+Qed.
+
 Lemma shiftl_opp `{GroupInv A} `{!Ring A} x n : (-x) ≪ n = -(x ≪ n).
 Proof.
   rewrite (rings.opp_mult x), (rings.opp_mult (x ≪ n)).
-  symmetry. now apply shiftl_mult.
+  symmetry. now apply shiftl_mult_l.
 Qed.
 
 Context `{!NoZeroDivisors A} `{!PropHolds ((2:A) ≠ 0)}.
@@ -146,6 +164,20 @@ Qed.
 
 Global Instance: ∀ n, StrictlyOrderPreserving (≪ n). 
 Proof. intros. apply _. Qed.
+
+Lemma shiftl_precedes_flip_r `{GroupInv B} `{!Ring B} (x y : A) (n : B) : 
+  x ≤ y ≪ (-n)  ↔  x ≪ n ≤ y.
+Proof.
+  split; intros E.
+   apply (order_preserving_back (≪ -n)).
+   now rewrite shiftl_reverse by now apply rings.plus_opp_r.
+  apply (order_preserving_back (≪ n)).
+  now rewrite shiftl_reverse by now apply rings.plus_opp_l.
+Qed.
+
+Lemma shiftl_precedes_flip_l `{GroupInv B} `{!Ring B} (x y : A) (n : B) : 
+  x ≪ (-n) ≤ y  ↔  x ≤ y ≪ n.
+Proof. now rewrite <-shiftl_precedes_flip_r, rings.opp_involutive. Qed.
 
 Global Instance shiftl_nonneg (x : A) (n : B) : PropHolds (0 ≤ x) → PropHolds (0 ≤ x ≪ n).
 Proof.
