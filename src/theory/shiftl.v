@@ -62,6 +62,9 @@ Qed.
 Lemma shiftl_order x n m: x ≪ n ≪ m  = x ≪ m ≪ n.
 Proof. rewrite <-?shiftl_exp_plus. now rewrite commutativity. Qed.
 
+Lemma shiftl_reverse (x : A) (n m : B) : n + m = 0 → x ≪ n ≪ m = x.
+Proof. intros E. now rewrite <-shiftl_exp_plus, E, shiftl_0. Qed.
+
 Lemma shiftl_mult x y n : x * (y ≪ n) = (x * y) ≪ n.
 Proof. 
   pattern n. apply biinduction; clear n.
