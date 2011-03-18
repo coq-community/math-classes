@@ -37,8 +37,7 @@ Section another_ring.
      apply to_semiring_nonneg.
     rewrite E.
     rewrite preserves_plus, preserves_0. apply sg_mor...
-    change ((f ∘ naturals_to_semiring nat Int) z = naturals_to_semiring nat R z).
-    apply (naturals.to_semiring_unique _).
+    apply (naturals.to_semiring_twice _ _ _).
   Qed.
    
   Global Instance morphism_order_preserving: OrderPreserving f.
@@ -50,19 +49,16 @@ Section another_ring.
   Let f_preserves_nonneg_back x : 0 ≤ f x → 0 ≤ x.
   Proof.
     intros E.
-    rewrite (integers.to_ring_unique f) in E.
     destruct (int_abs_sig Int nat x) as [z [Ez | Ez]].
      rewrite <-Ez.
-     apply to_semiring_nonneg. 
+     apply to_semiring_nonneg.
     rewrite <-Ez in E |- *.
     setoid_replace z with (0 : nat).
      now rewrite preserves_0, opp_0.
     apply (injective (f ∘ naturals_to_semiring nat Int)).
-    rewrite (naturals.to_semiring_unique _).
-    unfold compose. rewrite 2!preserves_0.
-    rewrite preserves_opp in E.
+    rewrite (naturals.to_semiring_unique _), preserves_0.
+    rewrite preserves_opp, (naturals.to_semiring_twice _ _ (naturals_to_semiring nat R)) in E.
     apply (antisymmetry (≤)).
-     rewrite <-(naturals.to_semiring_unique (integers_to_ring Int R ∘ naturals_to_semiring nat Int)).
      now apply flip_nonpos_opp.
     apply to_semiring_nonneg.
   Qed.
@@ -70,7 +66,7 @@ Section another_ring.
   Global Instance: OrderEmbedding f.
   Proof.
     split. apply _.
-    apply preserving_back_preserves_nonneg. apply f_preserves_nonneg_back.
+    now apply preserving_back_preserves_nonneg, f_preserves_nonneg_back.
   Qed.
 End another_ring.
 End integers_order.
@@ -187,9 +183,10 @@ Proof with trivial; try ring.
      intros x y z [a A] [b B]. exists (a + b). rewrite preserves_plus, associativity, <-A, B...
     intros x y [a A] [b B].
     destruct (naturals.zero_sum a b) as [E1 E2].
-     apply integers.naturals_to_integers_injective.
+     apply (injective (naturals_to_semiring nat Int)).
      rewrite preserves_plus, preserves_0.
-     apply (left_cancellation (+) x). rewrite B at 2. rewrite A...
+     apply (left_cancellation (+) x). 
+     rewrite B at 2. rewrite A...
     rewrite A, B, E1, E2, preserves_0...
    intros x y [a A]. exists a. rewrite <-associativity, A...
   intros x [a A] y [b B]. exists (a * b). rewrite A, B, preserves_mult...
@@ -205,8 +202,7 @@ Proof with trivial; try reflexivity.
    exists (pos a ∸ neg a). 
    apply (injective i_to_r).
    rewrite preserves_plus, B. clear B. apply sg_mor...
-   change (a = (i_to_r ∘ naturals_to_semiring nat Int) (pos a ∸ neg a)).
-   rewrite (naturals.to_semiring_unique_alt _ SRpair_inject).
+   rewrite (naturals.to_semiring_twice _ _ SRpair_inject).
    unfold equiv, SRpair_equiv, precedes, SRpair_order in *. simpl in *.
    rewrite right_identity. posed_rewrite cut_minus_precedes...
    rewrite right_identity in A. rewrite left_identity in A...

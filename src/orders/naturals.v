@@ -22,10 +22,7 @@ Proof.
 Qed.
 
 Lemma naturals_nonneg x : 0 ≤ x.
-Proof.
-  rewrite (naturals.to_semiring_self x).
-  apply to_semiring_nonneg.
-Qed.
+Proof. now apply (to_semiring_nonneg (f:=id)). Qed.
 
 Lemma natural_precedes_plus {x y: N}: x ≤ y ↔ ∃ z: N, y = x + z.
 Proof with auto.

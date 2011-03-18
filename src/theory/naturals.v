@@ -6,69 +6,51 @@ Require Import
 Require Export
  interfaces.naturals.
 
-Lemma to_semiring_involutive N `{Naturals N} N2 `{Naturals N2}: ∀ a: N,
- naturals_to_semiring N2 N (naturals_to_semiring N N2 a) = a.
+Lemma to_semiring_involutive N `{Naturals N} N2 `{Naturals N2} x :
+ naturals_to_semiring N2 N (naturals_to_semiring N N2 x) = x.
 Proof.
-  intros a.
-  apply_simplified (proj2 (@categories.initials_unique' (variety.Object semiring.theory)
-    _ _ _ _ _ (semiring.object N) (semiring.object N2) _ naturals_initial _ naturals_initial) tt a).
+  rapply (proj2 (@categories.initials_unique' (variety.Object semiring.theory)
+    _ _ _ _ _ (semiring.object N) (semiring.object N2) _ naturals_initial _ naturals_initial) tt x).
   (* todo: separate pose necessary due to Coq bug *)
 Qed.
 
-Lemma to_semiring_unique `{Naturals N} `{SemiRing SR} (f: N → SR) `{!SemiRing_Morphism f}:
- ∀ x, f x = naturals_to_semiring N SR x.
+Lemma to_semiring_unique `{Naturals N} `{SemiRing SR} (f: N → SR) `{!SemiRing_Morphism f} x :
+ f x = naturals_to_semiring N SR x.
 Proof.
- intros. symmetry.
- pose proof (@semiring.mor_from_sr_to_alg _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (λ _, f) _).
- set (@variety.arrow semiring.theory _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (λ _, f) _).
- apply (naturals_initial _ a tt x).
+  symmetry.
+  pose proof (@semiring.mor_from_sr_to_alg _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (λ _, f) _).
+  set (@variety.arrow semiring.theory _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (λ _, f) _).
+  apply (naturals_initial _ a tt x).
 Qed.
 
 Lemma to_semiring_unique_alt `{Naturals N} `{SemiRing SR} (f g: N → SR) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} x :
   f x = g x.
-Proof.
-  rewrite (to_semiring_unique f).
-  now rewrite (to_semiring_unique g).
-Qed.
+Proof. now rewrite (to_semiring_unique f), (to_semiring_unique g). Qed.
 
-Lemma morphisms_involutive `{Naturals N} `{Naturals N2} (f: N → N2) (g: N2 → N) 
-  `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} : ∀ a, f (g a) = a.
-Proof.
- intros.
- rewrite (to_semiring_unique g).
- rewrite (to_semiring_unique f).
- apply (to_semiring_involutive _ _).
-Qed.
+Lemma morphisms_involutive `{Naturals N} `{SemiRing R} (f : R → N) (g : N → R) 
+  `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} x : f (g x) = x.
+Proof. now apply (to_semiring_unique_alt (f ∘ g) id). Qed.
 
-Lemma to_semiring_twice N `{Naturals N} N2 `{Naturals N2} SR `{SemiRing SR} x : 
-  naturals_to_semiring N2 SR (naturals_to_semiring N N2 x) = naturals_to_semiring N SR x.
-Proof.
-  replace (naturals_to_semiring N2 SR (naturals_to_semiring N N2 x))
-    with ((naturals_to_semiring N2 SR  ∘ naturals_to_semiring N N2) x) by reflexivity.
-  apply (to_semiring_unique _).
-Qed.
+Lemma to_semiring_twice `{Naturals N} `{SemiRing R1} `{SemiRing R2} (f : R1 → R2) (g : N → R1) (h : N → R2)
+     `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} `{!SemiRing_Morphism h} x : 
+  f (g x) = h x.
+Proof. now apply (to_semiring_unique_alt (f ∘ g) h). Qed.
 
-Lemma to_semiring_self `{Naturals N} x : x = naturals_to_semiring N N x.
-Proof.
-  replace x with (id x) by auto.
-  apply (to_semiring_unique _).
-Qed.
+Lemma to_semiring_self `{Naturals N} (f : N → N) `{!SemiRing_Morphism f} x : f x = x.
+Proof. now apply (to_semiring_unique_alt f id). Qed.
 
 Lemma to_semiring_injective `{Naturals N} `{SemiRing A}  
    (f: A → N) (g: N → A) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: Injective g.
-Proof with intuition.
-  constructor. 2: constructor; apply _.
+Proof.
+  repeat (split; try apply _).
   intros x y E.
-  rewrite <- (to_semiring_unique_alt (f ∘ g) id x)...
-  rewrite <- (to_semiring_unique_alt (f ∘ g) id y)...
+  rewrite <-(to_semiring_self (f ∘ g) x), <-(to_semiring_self (f ∘ g) y).
   unfold compose. now rewrite E.
 Qed.
 
 Instance naturals_to_naturals_injective `{Naturals N} `{Naturals N2} (f: N → N2) `{!SemiRing_Morphism f}:
-  Injective f.
-Proof.
-  apply to_semiring_injective with (naturals_to_semiring N2 N); apply _.
-Qed.
+  Injective f | 15.
+Proof. now apply (to_semiring_injective (naturals_to_semiring N2 N) _). Qed.
 
 Section retract_is_nat.
   Context `{Naturals N} `{SemiRing SR} `{oSR : Order SR} `{!SemiRingOrder oSR} `{!TotalOrder oSR}.
@@ -153,7 +135,7 @@ Section borrowed_from_nat.
   Global Instance: ∀ z : N, LeftCancellation (+) z.
   Proof.
     intros x y z.
-    apply_simplified (from_nat_stmt (x' + y' === x' + z' -=> y' === z') (three_vars x y z)).
+    rapply (from_nat_stmt (x' + y' === x' + z' -=> y' === z') (three_vars x y z)).
     intro. simpl. apply Plus.plus_reg_l.
   Qed.
 
@@ -163,7 +145,7 @@ Section borrowed_from_nat.
   Global Instance: ∀ z : N, PropHolds (z ≠ 0) → LeftCancellation (.*.) z.
   Proof.
     intros z E x y.
-    apply_simplified (from_nat_stmt ((z' === 0 -=> Ext _ False) -=> z' * x' === z' * y' -=> x' === y') (three_vars x y z)).
+    rapply (from_nat_stmt ((z' === 0 -=> Ext _ False) -=> z' * x' === z' * y' -=> x' === y') (three_vars x y z)).
     intro. simpl. now apply nat_mult_mult_reg_l. easy.
   Qed.
 
@@ -172,26 +154,25 @@ Section borrowed_from_nat.
 
   Global Instance: PropHolds ((1:N) ≠ 0).
   Proof.
-    pose proof (from_nat_stmt (1 === 0 -=> Ext _ False) no_vars) as P.
-    now apply P.
+    now rapply (from_nat_stmt (1 === 0 -=> Ext _ False) no_vars).
   Qed.
 
   Lemma zero_sum x y : x + y = 0 → x = 0 ∧ y = 0.
   Proof.
-    apply_simplified (from_nat_stmt (x' + y' === 0 -=> Conj _ (x' === 0) (y' === 0)) (two_vars x y)).
+    rapply (from_nat_stmt (x' + y' === 0 -=> Conj _ (x' === 0) (y' === 0)) (two_vars x y)).
     intro. simpl. apply Plus.plus_is_O.
   Qed.
   
   Lemma one_sum x y : x + y = 1 → (x = 1 ∧ y = 0) ∨ (x = 0 ∧ y = 1).
   Proof. 
-   apply_simplified (from_nat_stmt (x' + y' === 1 -=> Disj _ (Conj _ (x' === 1) (y' === 0)) (Conj _ (x' === 0) (y' === 1))) (two_vars x y)).
+   rapply (from_nat_stmt (x' + y' === 1 -=> Disj _ (Conj _ (x' === 1) (y' === 0)) (Conj _ (x' === 0) (y' === 1))) (two_vars x y)).
    intros. simpl. intros. edestruct Plus.plus_is_one; eauto.
   Qed.
 
   Global Instance: ZeroProduct N.
   Proof.
     intros x y.
-    apply_simplified (from_nat_stmt (x' * y' === 0 -=>Disj _ (x' === 0) (y' === 0)) (two_vars x y)).
+    rapply (from_nat_stmt (x' * y' === 0 -=>Disj _ (x' === 0) (y' === 0)) (two_vars x y)).
     intros ? E. destruct (Mult.mult_is_O _ _ E); intuition.
   Qed.
 End borrowed_from_nat.
