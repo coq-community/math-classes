@@ -4,6 +4,8 @@ Require Import
 Class Pow A B := pow : A → B → A.
 Infix "^" := pow.
 Notation "(^)" := pow (only parsing).
+Notation "( x ^)" := (pow x) (only parsing).
+Notation "(^ n )" := (λ x, x ^ n) (only parsing).
 Instance: Params (@pow) 3.
 
 (* If we make [nat_pow_proper] a coercion, Coq is unable to find it. However, if we make a global instance in theory.nat_pow, it works? *)

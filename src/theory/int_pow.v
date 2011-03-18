@@ -250,71 +250,62 @@ Proof.
   now apply semirings.precedes_0_1.
 Qed.
 
-Lemma int_pow_exp_precedes (x : A) (n m : B) : 
-  1 ≤ x → n ≤ m → x ^ n ≤ x ^ m.
+(* Making these instances Global is not useful, we don't have PropHolds (1 ≤ x)
+  instances anyway and it will slow down instance resolution (it increasing the 
+  compilation time of dyadics from 1:35 to 2:28). *)
+Instance int_pow_exp_precedes: 
+  ∀ x : A, PropHolds (1 ≤ x) → OrderPreserving (x^).
 Proof.
-  intros ? E.
-  assert (0 < x) as [? ?]. 
-   apply orders.sprecedes_trans_l with 1.
-    now apply semirings.sprecedes_0_1.
-   easy.
+  repeat (split; try apply _).
+  assert (PropHolds (0 < x)).
+   apply orders.sprecedes_trans_l with 1; [solve_propholds | easy].
+  intros n m E.
   apply srorder_plus in E. destruct E as [z [Ea Eb]].
   rewrite Eb.
-  rewrite int_pow_exp_plus.
-   rewrite <-rings.mult_1_r.
-   apply semirings.mult_compat.
-      now apply int_pow_nonneg.
-     apply semirings.precedes_0_1.
-    now ring_simplify.
-   now apply int_pow_ge1.
-  now apply not_symmetry.
+  rewrite int_pow_exp_plus by now apply orders.sprecedes_ne_flip.
+  rewrite <-rings.mult_1_r at 1.
+  apply (order_preserving (x ^ n *.)).
+  now apply int_pow_ge1.
 Qed.
 
-Lemma int_pow_exp_sprecedes (x : A) (n m : B) : 
-  1 < x → n < m → x ^ n < x ^ m.
+Instance int_pow_exp_sprecedes: 
+  ∀ x : A, PropHolds (1 < x) → StrictlyOrderPreserving (x^).
 Proof.
-  intros E1 E2.
-  apply integers.precedes_sprecedes_alt in E2.
-  apply srorder_plus in E2. destruct E2 as [z [Ea Eb]].
+  split; try apply _.
+  assert (PropHolds (0 < x)). 
+   apply orders.sprecedes_trans_r with 1; [solve_propholds | easy].
+  intros n m E.
+  apply integers.precedes_sprecedes_alt in E.
+  apply srorder_plus in E. destruct E as [z [Ea Eb]].
   rewrite Eb.
-  rewrite <-associativity, int_pow_exp_plus.
-   rewrite <-(rings.mult_1_r (x ^ n)) at 1.
-   assert (PropHolds (0 < x ^ n)).
-    apply int_pow_pos. red. transitivity 1; trivial. apply semirings.sprecedes_0_1.
-   apply (strictly_order_preserving (x^n *.)).
-   apply int_pow_gt1; trivial.
-   apply integers.precedes_sprecedes_alt.
-   rewrite commutativity. now apply (order_preserving (1+)).
-  apply not_symmetry, orders.sprecedes_trans_r with 1; trivial.
-  now apply semirings.precedes_0_1.
+  rewrite <-associativity, int_pow_exp_plus by now apply orders.sprecedes_ne_flip.
+  rewrite <-(rings.mult_1_r (x ^ n)) at 1.
+  apply (strictly_order_preserving (x^n *.)).
+  apply int_pow_gt1; trivial.
+  rewrite commutativity.
+  now apply integers.precedes_sprecedes.
 Qed.
 
-Lemma int_pow_exp_precedes_back (x : A) (n m : B) : 
-  1 < x → x ^ n ≤ x ^ m → n ≤ m.
+Instance int_pow_exp_precedes_back:
+  ∀ x : A, PropHolds (1 < x) → OrderPreservingBack (x^).
 Proof.
-  intros ? E1.
+  split; try apply _. intros n m E1.
   destruct (total_order n m) as [E2|E2]; trivial. 
   apply orders.sprecedes_precedes in E2. destruct E2 as [E2|E2].
    now rewrite E2.
   contradict E1.
   apply orders.not_precedes_sprecedes.
-  now apply int_pow_exp_sprecedes.
+  now apply (strictly_order_preserving (x^)).
 Qed.
 
 Lemma int_pow_exp_sprecedes_back (x : A) (n m : B) : 
-  1 < x → x ^ n < x ^ m → n < m.
-Proof.
-  intros ? E1.
-  destruct (orders.precedes_or_sprecedes m n) as [E2|E2]; trivial.
-  contradict E1.
-  apply orders.not_sprecedes_precedes. 
-  apply int_pow_exp_precedes; firstorder.
-Qed.
+  PropHolds (1 < x) → x ^ n < x ^ m → n < m.
+Proof. intros ? E1. now apply (maps.strictly_order_preserving_back (x^)). Qed.
 
-Lemma int_pow_inj (x : A) (n m : B) : 
-  1 < x → x ^ n = x ^ m → n = m.
+Instance int_pow_inj:
+  ∀ x : A, PropHolds (1 < x) → Injective (x^).
 Proof.
-  intros ? E.
+  repeat (split; try apply _). intros n m E.
   apply (antisymmetry (≤)); apply int_pow_exp_precedes_back with x; trivial; rewrite E; reflexivity.
 Qed.
 End int_pow_properties.
@@ -403,10 +394,7 @@ Section int_pow_default.
      apply fields.dec_mult_inv_0.
      now apply int_abs_nonzero.
     intros x n E. case (decide_rel _); case (decide_rel _); intros E1 E2.
-       rewrite int_abs_nonneg_plus, int_abs_1.
-         reflexivity.
-        apply (rings.ge_0 1).
-       easy.
+       now rewrite int_abs_nonneg_plus, int_abs_1 by (auto;solve_propholds).
       setoid_replace n with (-1 : B).
        rewrite rings.plus_opp_r, int_abs_0, nat_pow_0. 
        rewrite int_abs_opp, int_abs_1, right_identity. 
@@ -417,17 +405,14 @@ Section int_pow_default.
        apply (order_preserving_back (+1)).
        now ring_simplify.
       apply (order_preserving_back (1+)). now rewrite rings.plus_opp_r.
-     destruct E2. apply semirings.nonneg_plus_compat_l.
-       apply (rings.ge_0 1).
-      easy.
+     destruct E2. apply semirings.nonneg_plus_compat_l; [solve_propholds | assumption].
      rewrite <-int_abs_opp, <-(int_abs_opp n).
      setoid_replace (-n) with (1 - (1 + n)) by ring.
      rewrite (int_abs_nonneg_plus 1 (-(1 + n))), int_abs_1.
        rewrite nat_pow_S. 
        rewrite fields.dec_mult_inv_distr, associativity.
        now rewrite fields.dec_mult_inverse, left_identity.
-      apply (rings.ge_0 1).
-     apply rings.flip_nonpos_opp.
-     now apply orders.not_precedes_sprecedes.
+      now apply (rings.ge_0 1).
+     now apply rings.flip_nonpos_opp, orders.not_precedes_sprecedes.
   Qed.
 End int_pow_default.
