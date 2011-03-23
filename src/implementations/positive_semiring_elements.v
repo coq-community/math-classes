@@ -1,10 +1,11 @@
 Require Import
   Morphisms Ring Program Setoid
-  abstract_algebra orders.semirings.
+  abstract_algebra additional_operations 
+  orders.semirings theory.shiftl.
 
 Section positive_semiring_elements.
 Context `{SemiRing R} `{!SemiRingOrder o} `{!TotalOrder o} `{!PropHolds (1 ≠ 0)}
-  `{∀ z : R, LeftCancellation (+) z} `{∀ z : R, PropHolds (z ≠ 0) → LeftCancellation ring_mult z}.
+  `{∀ z : R, LeftCancellation (+) z} `{∀ z : R, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
 
 Add Ring R : (rings.stdlib_semiring_theory R).
 
@@ -47,4 +48,11 @@ Proof. now repeat intro. Qed.
 
 Global Instance: Injective Pos_inject.
 Proof. now repeat (split; try apply _). Qed.
+
+Section shiftl.
+  Context `{SemiRing B} `{!Biinduction B} `{!ShiftLSpec R B sl}.
+
+  Global Program Instance Pos_shiftl: ShiftL (R₊) B | 5 := λ x n, (x ≪ n : R).
+  Next Obligation. destruct x. now apply shiftl_pos. Qed.
+End shiftl. 
 End positive_semiring_elements.
