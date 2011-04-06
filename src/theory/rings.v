@@ -253,7 +253,8 @@ Section from_stdlib_ring_theory.
   Definition from_stdlib_ring_theory: @Ring R e pl mu zero one op.
   Proof.
    repeat (constructor; try assumption); repeat intro
-   ; unfold equiv, mon_unit, sg_op, ring_mult, ring_plus, group_inv; ring.
+   ; unfold equiv, mon_unit, sg_op, ringzero_is_monoidunit, ringplus_is_semigroupop, 
+     ringone_is_monoidunit, ringmult_is_semigroupop, ring_mult, ring_plus, group_inv; ring.
   Qed.
 End from_stdlib_ring_theory.
 
@@ -264,7 +265,7 @@ Section morphism_composition.
     `{!RingMult C} `{!RingPlus C} `{!RingOne C} `{!RingZero C} `{!Equiv C}
     (f: A → B) (g: B → C).
 
-  Global Instance id_semiring_morphism `{!SemiRing A}: SemiRing_Morphism id.
+  Global Instance id_semiring_morphism `{!SemiRing A}: SemiRing_Morphism id := {}.
 
   Global Instance compose_semiring_morphisms `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} : 
     SemiRing_Morphism (g ∘ f).

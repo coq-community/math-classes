@@ -92,8 +92,8 @@ Section contents.
      reflexivity.
     Qed.
 
-    Instance: Equivalence e.
     Global Instance: Setoid (x ⟶ y).
+    Proof. split; apply _. Qed.
   End more_arrows.
 
   Let obj_iso (x: Object): Equiv x := @iso x _ _ _ _.
@@ -202,5 +202,5 @@ Section contents.
      rewrite left_identity, right_identity. reflexivity.
     Qed.
 
-  Global Instance: Category Object.
+  Global Instance: Category Object := {}.
 End contents.

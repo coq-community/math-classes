@@ -40,7 +40,7 @@ Section algebras.
 
   Instance product_e sort: Equiv (carrier sort) := (=). (* hint; shouldn't be needed *)
 
-  Global Instance product_algebra: Algebra sig carrier.
+  Global Instance product_algebra: Algebra sig carrier := {}.
 
   Lemma preservation i o: Preservation sig carrier (carriers i) (λ _ v, v i) (algebra_op o) (algebra_op o).
    unfold product_ops, algebra_op.
@@ -55,7 +55,7 @@ Section algebras.
   Lemma algebra_projection_morphisms i: @HomoMorphism sig carrier (carriers i) _ _ _ _ (λ a v, v i). 
   Proof.
    constructor; try apply _.
-    intro. apply (@setoids.projection_morphism I (λ i, carriers i a) (λ i, _ i _: Equiv (carriers i a))).
+    intro. rapply (@setoids.projection_morphism I (λ i, carriers i a) (λ i, _: Equiv (carriers i a))).
     intro. apply _.
    apply preservation.
   Qed.
@@ -194,7 +194,8 @@ Section categorical.
     ; variety.variety_proof := product_variety et I _ _ _ (fun H => variety.variety_proof et (carriers H)) |}.
       (* todo: clean up *)
 
-  Section for_a_given_c. Context (I: Type) (c: I → variety.Object et).
+  Section for_a_given_c. 
+  Context (I: Type) (c: I → variety.Object et).
 
   Global Program Instance: ElimProduct c (product c) := λ i _ c, c i.
 
@@ -228,7 +229,7 @@ Section categorical.
 
   End for_a_given_c.
 
-  Global Instance: HasProducts (variety.Object et).
+  Global Instance: HasProducts (variety.Object et) := {}.
 
 End categorical.
 

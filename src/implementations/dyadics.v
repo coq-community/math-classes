@@ -56,7 +56,7 @@ Section with_rationals.
   Proof.
     rewrite shiftl_nat_pow.
     rewrite rings.preserves_mult, nat_pow.preserves_nat_pow, rings.preserves_2.
-    now rewrite <-int_pow_nat_pow.
+    now rewrite <-(int_pow_nat_pow (f:=coerce : Z⁺ → Z)).
   Qed.
 
   Lemma DtoQ_slow_preserves_plus x y : DtoQ_slow' (x + y) = DtoQ_slow' x + DtoQ_slow' y.
@@ -167,7 +167,7 @@ Qed.
 Global Instance: SemiRing_Morphism dy_inject.
 Proof.
   repeat (split; try apply _).
-   intros x y. unfold sg_op at 2, dy_plus.
+   intros x y. unfold sg_op at 2, ringplus_is_semigroupop, dy_plus.
    unfold equiv, dy_equiv, dy_inject, DtoQ_slow; simpl.
    case (precedes_dec 0 0); intros E; simpl.
     rewrite 2!rings.preserves_plus, ZtoQ_shift.
@@ -175,7 +175,7 @@ Proof.
     rewrite min_l, int_pow_0. ring.
     reflexivity.
    now destruct E.
-  intros x y. unfold sg_op at 2, dy_mult. simpl.
+  intros x y. unfold sg_op at 2, ringmult_is_semigroupop, dy_mult. simpl.
   now setoid_replace (0 + 0) with 0 by ring.
 Qed.
 

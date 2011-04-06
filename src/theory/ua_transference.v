@@ -32,16 +32,16 @@ Section contents.
   Proof with auto; try reflexivity.
    induction t; simpl in *; intros...
     set (eval et (λ (a: sorts et) (i : nat), ba (v a i)) t2).
-    pose proof (@epA nat (ne_list.cons y t1) (λ a i, ba (v a i))
+    eapply transitivity.
+     apply (@epA nat (ne_list.cons y t1) (λ a i, ba (v a i))
          (λ a i, ba (v a i)) (reflexivity _) t2 t2 (reflexivity _)
          : Proper ((=) ==> op_type_equiv (sorts et) A t1)%signature o).
-    rewrite (IHt2 v).
+     now apply (IHt2 v).
     subst o.
     rewrite (IHt1 v (ba (eval et v t3)) (ba (eval et v t3)))...
     apply (@map_op_proper (sorts et) B A _ _ _ _ _ _).
     unfold compose in *.
-    pose proof (epB _ _ v v (reflexivity _) t2 t2 (reflexivity _)). apply H2.
-     (* can't apply these directly because of Coq bug *)
+    rapply (epB _ _ v v (reflexivity _) t2 t2 (reflexivity _)).
     apply ab_ba.
    generalize
      (@algebra_propers _ A _ _ _ o)
@@ -52,8 +52,8 @@ Section contents.
    induction (et o); simpl; repeat intro.
     rewrite <- ba_ab, H1...
    apply IHo0.
-     rewrite <- H4.
-     intuition.
+     eapply Preservation_proper''; eauto; intros; try apply _. 
+     symmetry. apply H3, ab_proper, H4.
     apply H2...
    apply H3...
   Qed. (* todo: make [reflexivity] work as a hint. further cleanup. *)

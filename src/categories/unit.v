@@ -6,7 +6,7 @@ Instance: Arrows unit := λ _ _, unit.
 Instance: CatId unit := λ _, tt.
 Instance: CatComp unit := λ _ _ _ _ _, tt.
 Instance: ∀ x y : unit, Equiv (x ⟶ y) := λ _ _, eq.
-Instance: ∀ x y : unit, Setoid (x ⟶ y).
+Instance: ∀ x y : unit, Setoid (x ⟶ y) := {}.
 
 Instance: Category unit.
 Proof.

@@ -29,7 +29,7 @@ Section field_properties.
    rewrite associativity, E. ring.
   Qed.
 
-  Global Instance: IntegralDomain F.
+  Global Instance: IntegralDomain F := {}.
 
   Lemma field_div_0_l x y : x = 0 → x // y = 0.
   Proof. intros E. rewrite E. apply left_absorb. Qed.
@@ -283,7 +283,8 @@ Section from_stdlib_field_theory.
   Proof with auto.
    destruct ftheory.
    repeat (constructor; try assumption); repeat intro
-   ; unfold equiv, mon_unit, sg_op, ring_plus, ring_mult, mult_inv, group_inv; try field...
+   ; unfold equiv, mon_unit, sg_op, ringzero_is_monoidunit, ringplus_is_semigroupop, 
+     ringone_is_monoidunit, ringmult_is_semigroupop, ring_plus, ring_mult, mult_inv, group_inv; try field...
    destruct x as [x Ex].
    unfold mult_inv, ring_mult.
    simpl.

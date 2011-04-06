@@ -79,7 +79,7 @@ Section for_another_ring.
     Instance: Proper ((=) ==> (=)) g.
     Proof. intros x y E. unfold g. now rewrite E. Qed.
 
-    Instance: SemiRing_Morphism g.
+    Instance: SemiRing_Morphism g := {}.
 
     Lemma agree_on_nat : g = n_to_sr.
     Proof.
@@ -104,7 +104,7 @@ End for_another_ring.
 Instance: Initial (ring.object Z).
 Proof. apply integer_initial. intros. apply same_morphism. auto. Qed.
 
-Global Instance: Integers Z.
+Global Instance: Integers Z := {}.
 
 Lemma NtoZ_uniq x : naturals_to_semiring N Z x = 'x.
 Proof. symmetry. apply (naturals.to_semiring_unique coerce x). Qed. 

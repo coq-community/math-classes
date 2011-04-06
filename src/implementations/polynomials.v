@@ -38,7 +38,8 @@ Section contents.
   Instance: Transitive poly_eq.
   Admitted.
 
-  Global Instance: Equivalence poly_eq.
+  Global Instance: Setoid poly.
+  Proof. split; try apply _. Qed.
 
   Global Instance: RingPlus poly := fix F p q :=
     match p, q with

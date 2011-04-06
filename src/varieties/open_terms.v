@@ -45,13 +45,12 @@ Section contents.
   Existing Instance e_sym.
   Existing Instance e_trans.
 
-  Instance we: ∀ o, Equivalence (ee o).
-
   (* .. and then take the specialization at arity 0 for Term0: *)
 
   Instance: ∀ a, Equiv (OpenTerm0 a) := λ a, ee (ne_list.one a).
 
   Instance: ∀ a, Setoid (OpenTerm0 a).
+  Proof. split; apply _. Qed.
 
   (* While this fancy congruence is the one we'll use to make our initial object a setoid,
    in our proofs we will also need to talk about extensionally equal closed term

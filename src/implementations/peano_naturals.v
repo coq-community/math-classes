@@ -91,12 +91,12 @@ Proof.
 Qed.
 
 (* [nat] is indeed a model of the naturals *)
-Instance: Naturals nat.
+Instance: Naturals nat := {}.
 
 (* Order *)
 Instance nat_le: Order nat := le.
 
-Instance: SemiRingOrder le.
+Instance: SemiRingOrder nat_le.
 Proof with trivial.
   repeat (split; try apply _).
      intros x y E. apply Le.le_antisym...
@@ -111,7 +111,7 @@ Proof with trivial.
   change (0 * 0 <= x * y)%nat. now apply mult_le_compat.
 Qed.
 
-Instance: TotalOrder le.
+Instance: TotalOrder nat_le.
 Proof. intros x y. destruct (le_ge_dec x y); intuition. Qed.
 
 Instance nat_le_dec: Decision (x ≤ y) := le_dec.

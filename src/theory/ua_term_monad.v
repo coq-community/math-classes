@@ -60,10 +60,8 @@ Section contents.
      induction x; simpl; intuition.
     Qed.
 
-    Instance: Equivalence Me.
-
     Global Instance: Setoid (M A).
-
+    Proof. split; apply _. Qed.
   End equality.
 
   (* For bind, we do the same: *)

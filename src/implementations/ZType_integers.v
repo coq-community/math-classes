@@ -18,7 +18,7 @@ Instance ZType_1 : RingOne t := one.
 Instance ZType_mult : RingMult t := mul.
 Instance ZType_opp: GroupInv t := opp.
 
-Instance: Setoid t | 10.
+Instance: Setoid t | 10 := {}.
 
 Program Instance: ∀ x y: t, Decision (x = y) := λ x y, match (compare x y) with
   | Eq => left _
@@ -63,7 +63,7 @@ Proof. constructor. intros x y E. rewrite <- E. apply spec_of_Z. apply _. Qed.
 Instance: Injective to_Z.
 Proof. constructor. unfold_equiv. intuition. apply _. Qed.
 
-Instance: Bijective to_Z.
+Instance: Bijective to_Z := {}.
 
 Instance: Inverse of_Z := to_Z.
 

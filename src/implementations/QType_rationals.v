@@ -18,7 +18,7 @@ Instance QType_mult: RingMult t := mul.
 Instance QType_opp: GroupInv t := opp.
 Instance QType_mult_inv: MultInv t := λ x, inv (proj1_sig x).
 
-Instance: Setoid t.
+Instance: Setoid t := {}.
 
 Instance: ∀ x y: t, Decision (x = y) := λ x y,
   (match anyQ.eq_bool x y as p return p ≡ Qeq_bool (to_Q x) (to_Q y) → Decision (x = y) with
@@ -67,7 +67,7 @@ Proof. constructor. intros x y E. rewrite <- E. apply spec_of_Q. apply _. Qed.
 Instance: Injective to_Q.
 Proof. constructor. auto. apply _. Qed.
 
-Instance: Bijective to_Q.
+Instance: Bijective to_Q := {}.
 
 Instance: Inverse of_Q := to_Q.
 

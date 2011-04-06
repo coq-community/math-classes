@@ -59,8 +59,8 @@ Section contents.
      apply JMrelation.transitive with _ (=) (fmap b f)...
     Qed.
 
-    Instance: Equivalence e.
     Global Instance: Setoid (x ⟶ y).
+    Proof. split; try apply _. Qed.
   End more_arrows.
 
   Global Instance: CatId Object := λ _, arrow id _ _.

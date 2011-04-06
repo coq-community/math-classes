@@ -26,7 +26,7 @@ Qed.
 Lemma inv_0: - mon_unit = mon_unit.
 Proof. rewrite <- (ginv_l mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
 
-Global Instance: ∀ z : G, LeftCancellation sg_op z.
+Global Instance: ∀ z : G, LeftCancellation (&) z.
 Proof.
   intros z x y E.
   rewrite <-(left_identity x), <-(ginv_l z), <-associativity.
@@ -34,7 +34,7 @@ Proof.
   now rewrite associativity, ginv_l, left_identity.
 Qed.  
 
-Global Instance: ∀ z : G, RightCancellation sg_op z.
+Global Instance: ∀ z : G, RightCancellation (&) z.
 Proof.
   intros z x y E.
   rewrite <-(right_identity x), <-(ginv_r z), associativity.
@@ -62,7 +62,7 @@ Section groupmor_props.
 
   Lemma preserves_inv x: f (- x) = - f x.
   Proof.
-    apply (left_cancellation sg_op (f x)).
+    apply (left_cancellation (&) (f x)).
     rewrite <-preserves_sg_op.
     rewrite 2!ginv_r.
     apply preserves_mon_unit.
