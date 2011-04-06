@@ -120,7 +120,7 @@ Proof.
     apply associativity.
    apply distribute_r.
   reflexivity.
- apply (ginv_r x).
+ apply (right_inverse x).
 Qed.
 
 Section ring_props. 

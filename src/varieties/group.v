@@ -75,8 +75,8 @@ Section encode_variety_and_ops.
        apply associativity.
       apply left_identity.
      apply right_identity.
-    eapply ginv_l. 
-   eapply ginv_r.
+    eapply left_inverse. 
+   eapply right_inverse.
   Qed.
 
   Definition object: Object := variety.object theory (λ _, A).

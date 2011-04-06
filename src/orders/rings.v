@@ -160,24 +160,6 @@ Proof.
   now apply nonpos_nonneg_mult.
 Qed.
 
-Context `{!TotalOrder o}.
-
-Lemma square_nonneg x : 0 ≤ x * x.
-Proof.
-  destruct (total_order 0 x).
-   now apply ringorder_mult.
-  setoid_replace (x * x) with (-x * -x) by ring.
-  now apply ringorder_mult; apply flip_nonpos_opp.
-Qed.
-
-Lemma eq_opp_self (z : R) : z = -z → z = 0.
-Proof.
-  intros E.
-  apply (antisymmetry (≤)); destruct (total_order 0 z); try easy.
-   rewrite E. now apply flip_nonneg_opp.
-  rewrite E. now apply flip_nonpos_opp.
-Qed.
-
 Lemma flip_nonpos_mult_l x y z : z ≤ 0 → x ≤ y → z * y ≤ z * x.
 Proof.
   intros E1 E2.
@@ -194,6 +176,24 @@ Lemma flip_nonpos_mult_r x y z : z ≤ 0 → x ≤ y → y * z ≤ x * z.
 Proof.
   rewrite 2!(commutativity _ z).
   now apply flip_nonpos_mult_l.
+Qed.
+
+Context `{!TotalOrder o}.
+
+Lemma square_nonneg x : 0 ≤ x * x.
+Proof.
+  destruct (total_order 0 x).
+   now apply ringorder_mult.
+  setoid_replace (x * x) with (-x * -x) by ring.
+  now apply ringorder_mult; apply flip_nonpos_opp.
+Qed.
+
+Lemma eq_opp_self (z : R) : z = -z → z = 0.
+Proof.
+  intros E.
+  apply (antisymmetry (≤)); destruct (total_order 0 z); try easy.
+   rewrite E. now apply flip_nonneg_opp.
+  rewrite E. now apply flip_nonpos_opp.
 Qed.
 End contents.
 

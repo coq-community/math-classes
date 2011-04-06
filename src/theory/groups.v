@@ -9,9 +9,9 @@ Context `{Group G}.
 Lemma inv_involutive x: - - x = x.
 Proof.
   rewrite <-(left_identity x) at 2.
-  rewrite <-(ginv_l (- x)).
+  rewrite <-(left_inverse (- x)).
   rewrite <-associativity.
-  rewrite ginv_l.
+  rewrite left_inverse.
   now rewrite right_identity.
 Qed.
 
@@ -24,35 +24,35 @@ Proof.
 Qed.
 
 Lemma inv_0: - mon_unit = mon_unit.
-Proof. rewrite <- (ginv_l mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
+Proof. rewrite <- (left_inverse mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
 
 Global Instance: ∀ z : G, LeftCancellation (&) z.
 Proof.
   intros z x y E.
-  rewrite <-(left_identity x), <-(ginv_l z), <-associativity.
+  rewrite <-(left_identity x), <-(left_inverse z), <-associativity.
   rewrite E.
-  now rewrite associativity, ginv_l, left_identity.
+  now rewrite associativity, left_inverse, left_identity.
 Qed.  
 
 Global Instance: ∀ z : G, RightCancellation (&) z.
 Proof.
   intros z x y E.
-  rewrite <-(right_identity x), <-(ginv_r z), associativity.
+  rewrite <-(right_identity x), <-(right_inverse z), associativity.
   rewrite E.
-  now rewrite <-associativity, ginv_r, right_identity.
+  now rewrite <-associativity, right_inverse, right_identity.
 Qed.  
 
 Lemma sg_inv_distr `{!AbGroup G} x y: - (x & y) = - x & - y.
 Proof.
   rewrite <-(left_identity (- x & - y)).
-  rewrite <-(ginv_l (x & y)).
+  rewrite <-(left_inverse (x & y)).
   rewrite <-associativity.
   rewrite <-associativity.
   rewrite (commutativity (- x) (- y)).
   rewrite (associativity y).
-  rewrite ginv_r.
+  rewrite right_inverse.
   rewrite left_identity.
-  rewrite ginv_r.
+  rewrite right_inverse.
   now rewrite right_identity.
 Qed.
 End group_props.
@@ -64,7 +64,7 @@ Section groupmor_props.
   Proof.
     apply (left_cancellation (&) (f x)).
     rewrite <-preserves_sg_op.
-    rewrite 2!ginv_r.
+    rewrite 2!right_inverse.
     apply preserves_mon_unit.
   Qed.
 End groupmor_props.

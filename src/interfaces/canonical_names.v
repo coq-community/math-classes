@@ -52,6 +52,7 @@ Definition strictly_precedes `{Equiv A} `{Order A} : Order A := λ (x y : A),  p
 Definition NonNeg R `{RingZero R} `{Order R} := sig (precedes ring_zero).
 Definition Pos R `{RingZero R} `{Equiv R} `{Order R} := sig (strictly_precedes ring_zero).
 Definition NonPos R `{RingZero R} `{Order R} := sig (λ y, precedes y ring_zero).
+Inductive PosInf (R : Type) : Type := finite (x : R) | infinite.
 
 Class Arrows (O: Type): Type := Arrow: O → O → Type.
 Typeclasses Transparent Arrows.
@@ -85,6 +86,7 @@ Notation "R ₀" := (NonZero R) (at level 20, no associativity).
 Notation "R ⁺" := (NonNeg R) (at level 20, no associativity).
 Notation "R ₊" := (Pos R) (at level 20, no associativity).
 Notation "R ⁻" := (NonPos R) (at level 20, no associativity).
+Notation "R ∞" := (PosInf R) (at level 20, no associativity).
 Notation "x ↾ p" := (exist _ x p) (at level 20).
 
 Infix "&" := sg_op (at level 50, left associativity).
