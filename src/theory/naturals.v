@@ -62,7 +62,7 @@ Section retract_is_nat.
   Section for_another_semiring.
     Context `{SemiRing R}.
 
-    Instance: SemiRing_Morphism (naturals_to_semiring N R ∘ f⁻¹).
+    Instance: SemiRing_Morphism (naturals_to_semiring N R ∘ f⁻¹) := {}.
 
     Context (h :  SR → R) `{!SemiRing_Morphism h}. 
      

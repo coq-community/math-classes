@@ -15,7 +15,7 @@ Section contents.
   Global Instance: ∀ (x y: Object), Equivalence (e x y).
   Proof. intros. change (Equivalence ((=): Equiv (A y x))). apply _. Qed.
 
-  Global Instance: ∀ (x y: Object), Setoid (x ⟶ y).
+  Global Instance: ∀ (x y: Object), Setoid (x ⟶ y) := {}.
 
   Instance: ∀ (x y z: Object), Proper ((=) ==> (=) ==> (=)) (@comp Object flipA _ x y z).
   Proof.
@@ -44,7 +44,7 @@ Section functors.
 
   (** Given a functor F: C → D, we have a functor F^op: C^op → D^op *)
 
-  Context {C D} F `{Functor C Ce D De F}.
+  Context {C D} F `{func : Functor C D F}.
 
   Definition fmap_op: @Fmap _ flipA _ flipA F := fun v w => @fmap _ _ _ _ F _ w v.
 
@@ -59,7 +59,7 @@ Section functors.
       destruct (functor_morphism F b a).
       constructor...
      set (preserves_id F a)...
-    apply (@preserves_comp _ _ Ce _ _ _ _ De _ _ F)...
+    apply (@preserves_comp _ _ _ _ _ _ _ _ _ _ _ _ func).
   Qed.
 
 End functors.

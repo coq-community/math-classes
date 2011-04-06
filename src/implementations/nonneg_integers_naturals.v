@@ -28,9 +28,9 @@ Proof.
   pose proof (_ : SemiRing (Z⁺)).
   repeat (split; try apply _); repeat intro; unfold_equivs.
      now apply rings.preserves_plus.
-    now apply rings.preserves_0.
+    unfold mon_unit, ringzero_is_monoidunit. now apply rings.preserves_0.
    now apply rings.preserves_mult.
-  now apply rings.preserves_1.
+  unfold mon_unit, ringone_is_monoidunit. now apply rings.preserves_1.
 Qed.
 
 Program Instance to_nat: Inverse of_nat := λ x, int_abs Z nat (`x).
@@ -46,11 +46,11 @@ Proof.
   pose proof (_ : SemiRing (Z⁺)).
   repeat (split; try apply _). 
      intros [x Ex] [y Ey]. unfold to_nat; unfold_equivs. simpl.
-     now apply int_abs_nonneg_plus.
-    apply int_abs_0.
+     now apply int_abs_nonneg_plus. 
+    unfold mon_unit, ringzero_is_monoidunit. now apply int_abs_0.
    intros [x Ex] [y Ey]. unfold to_nat; unfold_equivs. simpl.
    now apply int_abs_nonneg_mult.
-  apply int_abs_1.
+  unfold mon_unit, ringone_is_monoidunit. apply int_abs_1.
 Qed.
 
 Instance: Surjective of_nat.

@@ -47,7 +47,7 @@ Section contents.
   Global Instance app_assoc_inst: Associative (@app A).
   Proof. repeat intro. symmetry. rewrite (app_ass x y z). reflexivity. Qed.
 
-  Global Instance: SemiGroup (list A).
+  Instance: SemiGroup (list A) := {}.
 
   Global Instance: MonoidUnit (list A) := nil.
 
@@ -62,7 +62,7 @@ Section contents.
   Definition concat: list (list A) → list A := fold_right app nil.
 
   Lemma concat_app (a b: list (list A)): concat (a ++ b) = concat a ++ concat b.
-  Proof with intuition. induction a; simpl... rewrite IHa, app_assoc... Qed.
+  Proof with intuition. induction a; simpl... rewrite <-app_assoc. now f_equiv. Qed.
 End contents.
 
 Implicit Arguments concat [[A]].
@@ -108,10 +108,10 @@ Qed. *)
 (*
   (* so far so good, but now: *)
 
-  Global Instance inj: InjectToSeq list := fun _ x => x :: nil.
+  Global Instance inj: InjectToSeq list := λ _ x, x :: nil.
     (* universe inconsistency... *)
 
-  Global Instance sm: SeqToMonoid A (list A) := fun _ _ _ f => fold_right (sg_op ∘ f) mon_unit.
+  Global Instance sm: SeqToMonoid A (list A) := λ _ _ _ f, fold_right ((&) ∘ f) mon_unit.
 
   Instance: Equiv A := eq.
 
@@ -122,14 +122,14 @@ Qed. *)
     Context `{Monoid M} (f: A -> M).
 
     Lemma sm_app (a a': list A):
-      sm M _ _ f (a ++ a') == sm M _ _ f a & sm M _ _ f a'.
+      sm M _ _ f (a ++ a') = sm M _ _ f a & sm M _ _ f a'.
     Proof with reflexivity.
      induction a; simpl; intros. 
       rewrite monoid_lunit...
      unfold compose. rewrite IHa, associativity...
     Qed.
 
-    Global Instance: Setoid_Morphism f -> Monoid_Morphism (sm M _ _ f).
+    Global Instance: Setoid_Morphism f → Monoid_Morphism (sm M _ _ f).
     Proof.
      intros.
      repeat (constructor; try apply _). intros. apply sm_app.
@@ -152,17 +152,17 @@ Qed. *)
    pose proof (H tt).
    clear H. rename H0 into H.
    simpl in *.
-   change (forall x y1 : A, x = y1 -> ua.variety_equiv varieties.monoid.theory y tt (proj1_sig y0 tt (inj x)) (setoidcat.f _ _ (f tt) y1)) in H.
+   change (∀ x y1 : A, x = y1 → ua.variety_equiv varieties.monoid.theory y tt (proj1_sig y0 tt (inj x)) (setoidcat.f _ _ (f tt) y1)) in H.
    revert a.
    destruct y0.
    simpl in *.
    pose proof (varieties.monoid.from_object y).
    assert (universal_algebra.Implementation varieties.monoid.sig
-    (fun _ : universal_algebra.sorts varieties.monoid.sig => list A)).
+    (λ _ : universal_algebra.sorts varieties.monoid.sig, list A)).
     exact (ua.variety_op _ (varieties.monoid.object (list A))).
    pose proof (@varieties.monoid.morphism_from_ua (list A) _ y _ (ua.variety_op _ (varieties.monoid.object (list A))) (ua.variety_op _ y) x h _ _ tt).
    induction a.
-    change (x tt mon_unit == mon_unit).
+    change (x tt mon_unit = mon_unit).
     apply preserves_mon_unit.
    replace (a :: a0) with ((a :: nil) & a0)...
    rewrite preserves_sg_op, IHa.

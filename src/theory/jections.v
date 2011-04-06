@@ -24,7 +24,7 @@ Section compositions.
    posed_rewrite (surjective f x x)...
   Qed.
 
-  Global Instance: Bijective f → Bijective g → Bijective (f ∘ g).
+  Global Instance: Bijective f → Bijective g → Bijective (f ∘ g) := {}.
 
 End compositions.
 

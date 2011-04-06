@@ -12,41 +12,41 @@ Section upper_classes.
 
   Class SemiGroup {op: SemiGroupOp A}: Prop :=
     { sg_setoid:> Setoid
-    ; sg_ass:> Associative sg_op
-    ; sg_mor:> Proper ((=) ==> (=) ==> (=)) sg_op }.
+    ; sg_ass:> Associative (&)
+    ; sg_mor:> Proper ((=) ==> (=) ==> (=)) (&) }.
 
   Class Monoid {op: SemiGroupOp A} {unit: MonoidUnit A}: Prop :=
     { monoid_semigroup:> SemiGroup
-    ; monoid_left_id:> LeftIdentity sg_op mon_unit
-    ; monoid_right_id:> RightIdentity sg_op mon_unit }.
+    ; monoid_left_id:> LeftIdentity (&) mon_unit
+    ; monoid_right_id:> RightIdentity (&) mon_unit }.
 
   Class CommutativeMonoid {op unit}: Prop :=
     { commonoid_mon:> @Monoid op unit
-    ; commonoid_commutative:> Commutative op }.
+    ; commonoid_commutative:> Commutative (&) }.
 
-  Class Group {op: SemiGroupOp A} {unit: MonoidUnit A} {inv: GroupInv A}: Prop :=
-    { group_monoid:> Monoid
+  Class Group {op unit} {inv: GroupInv A}: Prop :=
+    { group_monoid:> @Monoid op unit
     ; inv_proper:> Proper ((=) ==> (=)) (-) (* todo: use Setoid_Morphism *)
-    ; ginv_l:> LeftInverse sg_op group_inv mon_unit
-    ; ginv_r:> RightInverse sg_op group_inv mon_unit }.
+    ; ginv_l:> LeftInverse (&) (-) mon_unit
+    ; ginv_r:> RightInverse (&) (-) mon_unit }.
 
   Class AbGroup {op unit inv}: Prop :=
     { abgroup_group:> @Group op unit inv
-    ; abgroup_commutative:> Commutative op }.
+    ; abgroup_commutative:> Commutative (&) }.
 
   Context {plus: RingPlus A} {mult: RingMult A} {zero: RingZero A} {one: RingOne A}.
 
   Class SemiRing: Prop :=
-    { semiring_mult_monoid:> CommutativeMonoid (op:=mult) (unit:=one)
-    ; semiring_plus_monoid:> CommutativeMonoid (op:=plus) (unit:=zero)
+    { semiring_mult_monoid:> @CommutativeMonoid ringmult_is_semigroupop ringone_is_monoidunit
+    ; semiring_plus_monoid:> @CommutativeMonoid ringplus_is_semigroupop ringzero_is_monoidunit
     ; semiring_distr:> Distribute (.*.) (+)
     ; semiring_left_absorb:> LeftAbsorb (.*.) 0 }.
 
   Context {inv: GroupInv A}.
 
   Class Ring: Prop :=
-    { ring_group:> AbGroup (op:=plus) (unit:=zero)
-    ; ring_monoid:> CommutativeMonoid (op:=mult) (unit:=one)
+    { ring_group:> @AbGroup ringplus_is_semigroupop ringzero_is_monoidunit _
+    ; ring_monoid:> @CommutativeMonoid ringmult_is_semigroupop ringone_is_monoidunit
     ; ring_dist:> Distribute (.*.) (+) }.
 
     (* For now, we follow CoRN/ring_theory's example in having Ring and SemiRing
@@ -120,8 +120,10 @@ Section morphism_classes.
   Class SemiRing_Morphism {Aplus Amult Azero Aone Bplus Bmult Bzero Bone} (f: A → B) :=
     { semiringmor_a: @SemiRing A Aeq Aplus Amult Azero Aone
     ; semiringmor_b: @SemiRing B Beq Bplus Bmult Bzero Bone
-    ; semiringmor_plus_mor:> @Monoid_Morphism Azero Bzero Aplus Bplus f
-    ; semiringmor_mult_mor:> @Monoid_Morphism Aone Bone Amult Bmult f }.
+    ; semiringmor_plus_mor:> @Monoid_Morphism ringzero_is_monoidunit ringzero_is_monoidunit 
+            ringplus_is_semigroupop ringplus_is_semigroupop f
+    ; semiringmor_mult_mor:> @Monoid_Morphism ringone_is_monoidunit ringone_is_monoidunit 
+            ringmult_is_semigroupop ringmult_is_semigroupop f }.
 End morphism_classes.
 
   (* The structure instance fields in the morphism classed used to be coercions, but

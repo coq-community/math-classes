@@ -85,12 +85,12 @@ Proof. constructor. intros x y E. rewrite <- E. now apply nat_of_N_of_nat. now a
 Instance: Injective nat_of_N.
 Proof. constructor. exact nat_of_N_inj. apply _. Qed.
 
-Instance: Bijective nat_of_N.
+Instance: Bijective nat_of_N := {}.
 
 Instance: Inverse N_of_nat := nat_of_N.
 
 Instance: Bijective N_of_nat.
-Proof. apply jections.flip_bijection, _. Qed.
+Proof. apply jections.flip_bijection. apply _. Qed.
 
 Instance: SemiRing_Morphism N_of_nat.
 Proof. change (SemiRing_Morphism (nat_of_N⁻¹)). split; apply _. Qed.

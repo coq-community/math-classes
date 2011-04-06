@@ -5,6 +5,9 @@ Require ua_products.
 
 Require categories.
 
+(* Remove this *)
+Local Hint Transparent Equiv : typeclass_instances.
+
 Section contents.
   Context σ `{@Algebra σ v ve vo}.
 

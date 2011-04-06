@@ -54,6 +54,8 @@ Definition Pos R `{RingZero R} `{Equiv R} `{Order R} := sig (strictly_precedes r
 Definition NonPos R `{RingZero R} `{Order R} := sig (λ y, precedes y ring_zero).
 
 Class Arrows (O: Type): Type := Arrow: O → O → Type.
+Typeclasses Transparent Arrows.
+
 Infix "⟶" := Arrow (at level 90, right associativity).
 Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
 Class CatComp O `{Arrows O} := comp: ∀ x y z, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).

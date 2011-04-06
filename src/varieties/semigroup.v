@@ -45,7 +45,7 @@ Definition forget: Object → setoid.Object :=
  signature and theory. *)
 
 Instance encode_operations A `{!SemiGroupOp A}: AlgebraOps sig (λ _, A) :=
-  λ o, match o with mult => sg_op end.
+  λ o, match o with mult => (&) end.
 
 Section decode_operations.
   Context `{AlgebraOps theory A}.

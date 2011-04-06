@@ -1,19 +1,19 @@
-(* nasty because Zplus depends on Pminus which is a bucket of FAIL *)
+Require 
+  interfaces.naturals theory.naturals peano_naturals theory.integers.
 Require Import
-  BinInt Morphisms Ring Program Arith ZBinary
+  BinInt Morphisms Ring Program Arith NArith ZBinary
   abstract_algebra interfaces.integers
-  theory.categories 
-  stdlib_binary_positives stdlib_binary_naturals
+  natpair_integers stdlib_binary_naturals
   interfaces.additional_operations
   nonneg_integers_naturals.
 
 (* canonical names: *)
-Instance Z_equiv: Equiv BinInt.Z := eq.
-Instance Z_plus: RingPlus BinInt.Z := BinInt.Zplus.
-Instance Z_0: RingZero BinInt.Z := BinInt.Z0.
-Instance Z_1: RingOne BinInt.Z := BinInt.Zpos BinPos.xH.
-Instance Z_mult: RingMult BinInt.Z := BinInt.Zmult.
-Instance Z_opp: GroupInv BinInt.Z := BinInt.Zopp.
+Instance Z_equiv: Equiv Z := eq.
+Instance Z_plus: RingPlus Z := Zplus.
+Instance Z_0: RingZero Z := 0%Z.
+Instance Z_1: RingOne Z := 1%Z.
+Instance Z_mult: RingMult Z := Zmult.
+Instance Z_opp: GroupInv Z := Zopp.
   (* some day we'd like to do this with [Existing Instance] *)
 
 Instance: Ring Z.
@@ -35,115 +35,80 @@ Qed.
 (* misc: *)
 Instance: ∀ x y : Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
 
-Add Ring Z: (rings.stdlib_ring_theory BinInt.Z).
+Add Ring Z: (rings.stdlib_ring_theory Z).
 
-Definition map_Z `{RingPlus R} `{RingZero R} `{RingOne R} `{GroupInv R} (z: Z): R :=
-  match z with
-  | Z0 => 0
-  | Zpos p => map_pos p
-  | Zneg p => - map_pos p
+(* * Embedding N into Z *)
+Instance inject_N_Z: Coerce BinNat.N Z := Z_of_N.
+
+Instance: SemiRing_Morphism Z_of_N.
+Proof.
+  repeat (split; try apply _).
+   exact Znat.Z_of_N_plus.
+  exact Znat.Z_of_N_mult.
+Qed.
+
+Instance: Injective Z_of_N.
+Proof.
+  repeat (split; try apply _).
+  intros x y E. now apply Znat.Z_of_N_eq_iff.
+Qed.
+
+(* SRpair N and Z are isomorphic *)
+Definition Npair_to_Z (x : SRpair N) : Z := 'pos x - 'neg x.
+
+Instance: Proper (=) Npair_to_Z.
+Proof.
+  intros x y E. do 2 red in E. unfold Npair_to_Z.
+  apply (right_cancellation (+) ('neg y + 'neg x)). ring_simplify.
+  now rewrite <-?rings.preserves_plus, E, commutativity.
+Qed.
+
+Instance: SemiRing_Morphism Npair_to_Z.
+Proof.
+  repeat (split; try apply _).
+   intros [xp xn] [yp yn].
+   change ('(xp + yp) - '(xn + yn) = 'xp - 'xn + ('yp - 'yn)).
+   rewrite ?rings.preserves_plus. ring.
+  intros [xp xn] [yp yn].
+  change ('(xp * yp + xn * yn) - '(xp * yn + xn * yp) = ('xp - 'xn) * ('yp - 'yn)).
+  rewrite ?rings.preserves_plus, ?rings.preserves_mult. ring.
+Qed.
+
+Instance: Injective Npair_to_Z.
+Proof. 
+  split; try apply _.
+  intros [xp xn] [yp yn] E.
+  unfold Npair_to_Z in E. do 2 red. simpl in *.
+  apply (injective (coerce : N → Z)).
+  rewrite ?rings.preserves_plus.
+  apply (right_cancellation (+) ('xp - 'xn)). rewrite E at 1. ring.
+Qed.
+
+Instance Z_to_Npair: Inverse Npair_to_Z := λ x,
+  match x with
+  | Z0 => C 0 0
+  | Zpos p => C (Npos p) 0
+  | Zneg p => C 0 (Npos p)
   end.
 
-Instance: IntegersToRing Z := λ B _ _ _ _ _, @map_Z B _ _ _ _.
-
-Section for_another_ring.
-  Context `{Ring R}.
-
-  Add Ring R: (rings.stdlib_ring_theory R).
-
-  Lemma preserves_Zplus x y: map_Z (x + y) = map_Z x + map_Z y.
-  Proof with try reflexivity; try assumption; try ring.
-   destruct x as [| x | x ]; simpl...
-    destruct y as [| y | y]; simpl...
-     apply preserves_Pplus.
-    case_eq (Pcompare x y Eq); intros E; simpl.
-      rewrite (Pcompare_Eq_eq _ _ E)...
-     rewrite preserves_Pminus...
-    apply preserves_Pminus.
-    unfold Plt.
-    rewrite (ZC1 _ _ E)...
-   destruct y as [| y | y ]; simpl...
-    case_eq (Pcompare x y Eq); intros E; simpl.
-      rewrite (Pcompare_Eq_eq _ _ E)...
-     rewrite preserves_Pminus...
-    rewrite preserves_Pminus...
-    unfold Plt.
-    rewrite (ZC1 _ _ E)...
-   rewrite preserves_Pplus...
-  Qed.
-
-  Lemma preserves_Zmult x y: map_Z (x * y) = map_Z x * map_Z y.
-  Proof with try reflexivity; try ring.
-   destruct x; simpl; intros...
-    destruct y; simpl...
-     apply preserves_Pmult.
-    rewrite preserves_Pmult...
-   destruct y; simpl...
-    rewrite preserves_Pmult...
-   rewrite preserves_Pmult...
-  Qed.
-
-  Instance: Proper ((=) ==> (=)) map_Z.
-  Proof. unfold equiv, Z_equiv. repeat intro. subst. reflexivity. Qed.
-
-  Hint Resolve preserves_Zplus preserves_Zmult.
-  Hint Constructors Monoid_Morphism SemiGroup_Morphism.
-
-  Global Instance map_Z_ring_mor: SemiRing_Morphism map_Z.
-  Proof. repeat (constructor; auto with typeclass_instances; try reflexivity; try apply _). Qed.
-
-  Section with_another_morphism.
-    Context map_Z' `{!SemiRing_Morphism (map_Z': Z → R)}.
-
-    Let agree_on_0: map_Z Z0 = map_Z' Z0.
-    Proof. symmetry. apply rings.preserves_0. Qed.
-
-    Let agree_on_1: map_Z 1%Z = map_Z' 1%Z.
-    Proof. symmetry. apply rings.preserves_1. Qed.
-
-    Let agree_on_positive p: map_Z (Zpos p) = map_Z' (Zpos p).
-    Proof with try reflexivity.
-     induction p; simpl.
-       rewrite IHp.
-       rewrite xI_in_ring_terms.
-       rewrite agree_on_1.
-       now rewrite <-2!rings.preserves_plus.
-      rewrite IHp.
-      rewrite xO_in_ring_terms.
-      now rewrite <-rings.preserves_plus.
-     apply agree_on_1.
-    Qed.
-
-    Let agree_on_negative p: map_Z (Zneg p) = map_Z' (Zneg p).
-    Proof with try reflexivity.
-     intros.
-     replace (Zneg p) with (- (Zpos p))...
-     rewrite 2!rings.preserves_opp.
-     rewrite <- agree_on_positive...
-    Qed.
-
-    Lemma same_morphism: integers_to_ring Z R = map_Z'.
-    Proof.
-     intros [].
-       intros y E. rewrite <- E.
-       apply agree_on_0.
-      intros p y E. rewrite <- E.
-      apply agree_on_positive.
-     intros p y E. rewrite <- E.
-     apply agree_on_negative.
-    Qed.
-  End with_another_morphism.
-End for_another_ring.
-
-Instance: Initial (ring.object Z).
+Instance: Surjective Npair_to_Z.
 Proof.
-  apply integer_initial. intros. apply same_morphism. auto.
+  split; try apply _.
+  intros x y E. rewrite E. 
+  now destruct y as [|p|p].
 Qed.
-Instance: Integers Z.
 
-Instance: Order Z := Zle.
+Instance: Bijective Npair_to_Z := {}.
 
-Instance: RingOrder Zle.
+Instance: SemiRing_Morphism Z_to_Npair.
+Proof. change (SemiRing_Morphism (Npair_to_Z⁻¹)). split; apply _. Qed.
+
+Instance: IntegersToRing Z := integers.retract_is_int_to_ring Npair_to_Z.
+Instance: Integers Z := integers.retract_is_int Npair_to_Z.
+
+Instance Z_le: Order Z := Zle.
+
+Instance: RingOrder Z_le.
 Proof.
   repeat (split; try apply _).
     exact Zorder.Zle_antisym.
@@ -151,7 +116,7 @@ Proof.
   intros x E y F. now apply Zorder.Zmult_le_0_compat.
 Qed.
 
-Instance: TotalOrder Zle.
+Instance: TotalOrder Z_le.
 Proof with intuition. 
   intros x y.
   destruct (Zorder.Zle_or_lt x y)...
@@ -164,8 +129,6 @@ Proof with trivial.
    intro. split. apply Zorder.Zlt_le_weak... now apply Zorder.Zlt_not_eq.
   intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1)... now destruct E2.
 Qed.
-Hint Resolve (λ x y, proj1 (Zlt_coincides x y)).
-Hint Resolve (λ x y, proj2 (Zlt_coincides x y)).
 
 (* * Embedding of the Peano naturals into [Z] *)
 Instance inject_nat_Z: Coerce nat Z := Z_of_nat.
@@ -177,6 +140,7 @@ Proof.
   exact Znat.inj_mult.
 Qed.
 
+(* absolute value *)
 Program Instance: IntAbs Z nat := Zabs_nat.
 Next Obligation.
   rewrite <-(naturals.to_semiring_unique Z_of_nat).
@@ -185,20 +149,10 @@ Next Obligation.
    left. 
    now apply Z.abs_eq.
   right.
-  rewrite Z.abs_neq. now apply rings.opp_involutive. easy.
+  rewrite Z.abs_neq by easy. now apply rings.opp_involutive.
 Qed.
 
-(* * Embedding N into Z *)
-Instance inject_N_Z: Coerce BinNat.N Z := Z_of_N.
-
-Instance: SemiRing_Morphism Z_of_N.
- Proof.
-   repeat (split; try apply _).
-   exact Znat.Z_of_N_plus.
-  exact Znat.Z_of_N_mult.
-Qed.
-
-Program Instance: IntAbs Z BinNat.N := Zabs_N.
+Program Instance: IntAbs Z N := Zabs_N.
 Next Obligation.
   rewrite <-(naturals.to_semiring_unique Z_of_N).
   rewrite Znat.Z_of_N_abs.
@@ -206,7 +160,7 @@ Next Obligation.
    left. 
    now apply Z.abs_eq.
   right.
-  rewrite Z.abs_neq. now apply rings.opp_involutive. easy.
+  rewrite Z.abs_neq by easy. now apply rings.opp_involutive.
 Qed.
 
 (* Efficient nat_pow *)

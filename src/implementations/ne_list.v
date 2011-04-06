@@ -3,7 +3,7 @@
 Require Import
   Unicode.Utf8 Setoid Coq.Lists.List Setoid Morphisms Permutation.
 
-Instance: forall A, Proper (@Permutation A ==> eq) (@length A).
+Instance: ∀ A, Proper (@Permutation A ==> eq) (@length A).
 Proof Permutation_length.
 
 Existing Instance Permutation_map_aux_Proper.

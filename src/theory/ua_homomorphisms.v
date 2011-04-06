@@ -10,29 +10,28 @@ Section contents.
 
   Section homo.
 
-  Context
-    (A B: sorts σ → Type)
-    `{ea: ∀ a, Equiv (A a)} `{eb: ∀ a, Equiv (B a)}
-    `{ai: AlgebraOps σ A} `{bi: AlgebraOps σ B}.
+  Context (A B: sorts σ → Type)
+    `{A_equiv : ∀ a, Equiv (A a)} `{B_equiv : ∀ a, Equiv (B a)}
+    `{A_ops : AlgebraOps σ A} `{B_ops : AlgebraOps σ B}.
 
   Section with_f. 
-    Context (f: ∀ a, A a → B a).
+    Context (f : ∀ a, A a → B a).
 
     Implicit Arguments f [[a]].
 
-    Fixpoint Preservation {n: OpType}: op_type A n → op_type B n → Prop :=
+    Fixpoint Preservation {n : OpType}: op_type A n → op_type B n → Prop :=
       match n with
-      | ne_list.one d => λ o o', f o = o'
-      | ne_list.cons x y => λ o o', ∀ x, Preservation (o x) (o' (f x))
+      | ne_list.one d => λ oA oB, f oA = oB
+      | ne_list.cons x y => λ oA oB, ∀ x, Preservation (oA x) (oB (f x))
       end.
 
     Class HomoMorphism: Prop :=
       { homo_proper:> ∀ a, Setoid_Morphism (@f a)
-      ; preserves: ∀ (o: σ), Preservation (ai o) (bi o)
+      ; preserves: ∀ (o: σ), Preservation (A_ops o) (B_ops o)
       ; homo_source_algebra: Algebra σ A
       ; homo_target_algebra: Algebra σ B }.
 
-    Context `{∀ i, Equivalence (ea i)} `{∀ i, Equivalence (eb i)} `{∀ a, Setoid_Morphism (@f a)}.
+    Context `{∀ a, Setoid (A a)} `{∀ b, Setoid (B b)} `{∀ a, Setoid_Morphism (@f a)}.
 
     Global Instance Preservation_proper n:
       Proper (op_type_equiv _ _ _ ==> op_type_equiv _ B n ==> iff) (@Preservation n).
@@ -66,45 +65,44 @@ Section contents.
   End with_f.
 
   Lemma Preservation_proper' (f g: ∀ a, A a → B a)
-   `{∀ i, Equivalence (ea i)} `{∀ i, Equivalence (eb i)} `{∀ a, Setoid_Morphism (@f a)}:
+   `{∀ a, Setoid (A a)} `{∀ b, Setoid (B b)} `{∀ a, Setoid_Morphism (@f a)}:
     (∀ a (x: A a), f a x = g a x) → ∀ (n: OpType) x y, Proper (=) x → Proper (=) y →
       @Preservation f n x y →
       @Preservation g n x y.
   Proof.
      induction n.
       simpl.
-      intros.
-      rewrite <- H5.
+      intros ? ? ? ? E.
+      rewrite <-E.
       symmetry.
       intuition.
      simpl.
-     intros.
+     intros a b E1 E2 E3 z.
      apply IHn.
-       apply H3. reflexivity.
-      apply H4. reflexivity.
-     assert (y (g _ x0) = y (f _ x0)).
-      apply H4.
+       apply E1. reflexivity.
+      apply E2. reflexivity.
+     assert (b (g _ z) = b (f _ z)) as E4.
+      apply E2.
       symmetry.
       apply H2.
-     apply (Preservation_proper'' f n (x x0) (x x0) eq_refl _ _ H6).
-     apply H5.
+     now apply (Preservation_proper'' f n (a z) (a z) eq_refl _ _ E4).
     Qed.
 
     Lemma HomoMorphism_Proper: Proper ((λ f g, ∀ a x, f a x = g a x) ==> iff) HomoMorphism.
       (* todo: use pointwise_thingy *)
     Proof with try apply _; intuition.
-     constructor; intros [? ? ? ?]; simpl in *.
+     intros x y E1. constructor; intros [? ? ? ?]; simpl in *.
       repeat constructor...
-       repeat intro.
-       do 2 rewrite <- H.
-       rewrite H0...
-      apply (Preservation_proper' x y H (σ o) (ai o) (bi o))...
+       intros ? ? E2.
+       rewrite <-2!E1.
+       rewrite E2...
+      apply (Preservation_proper' x y E1 (σ o) (A_ops o) (B_ops o))...
      repeat constructor...
-      repeat intro.
-      do 2 rewrite H.
-      rewrite H0...
-     assert (∀ (a : sorts σ) (x0 : A a), y a x0 = x a x0). symmetry. apply H.
-     apply (Preservation_proper' y x H0 (σ o) (ai o) (bi o))...
+      intros ? ? E2.
+      rewrite 2!E1.
+      rewrite E2...
+     assert (∀ (a : sorts σ) (x0 : A a), y a x0 = x a x0) as E2. symmetry. apply E1.
+     apply (Preservation_proper' y x E2 (σ o) (A_ops o) (B_ops o))...
     Qed.
 
 End homo.
@@ -141,8 +139,7 @@ End homo.
     (∀ a, Bijective (f a)) →
     HomoMorphism A B f → HomoMorphism B A inv.
   Proof with try assumption; try apply _.
-   intros.
-   destruct H2.
+   intros ? [? ? ? ?].
    constructor...
     intro. fold ((f a)⁻¹). apply _.
    intro.
@@ -156,15 +153,11 @@ End homo.
     symmetry...
    intros P Q R S T x.
    apply IHo0.
-     specialize (R (inv t x)).
-     pose proof (surjective (f t) x x) as E.
-     rewrite E in R.
-      assumption.
-     reflexivity.
+     eapply Preservation_proper''; eauto; intros; try apply _. 
+     symmetry. now apply T, (surjective (f t) x x). 
     apply S. reflexivity.
    apply T. reflexivity.
   Qed.
-
 
 (*
     Instance eval_morphism `{Algebra σ}  A {V} (v: Vars σ A V):

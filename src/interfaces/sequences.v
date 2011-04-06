@@ -110,7 +110,8 @@ Section practical.
 
   Next Obligation.
    apply monoid.encode_morphism_only.
-   destruct X. simpl in *. apply _.
+   destruct X. simpl in *. 
+   apply (sequence_extend_makes_morphisms _). apply _.
   Qed.
 
   (* ... and show that they form a posh sequence: *)

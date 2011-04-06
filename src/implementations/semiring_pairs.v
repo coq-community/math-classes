@@ -145,7 +145,7 @@ Proof.
   now rewrite 2!rings.plus_0_r in E.
 Qed.
 
-Global Instance: OrderEmbedding SRpair_inject.
+Global Instance: OrderEmbedding SRpair_inject := {}.
 
 Instance: Reflexive SRpair_order.
 Proof. intros [? ?]. unfold SRpair_order. reflexivity. Qed.

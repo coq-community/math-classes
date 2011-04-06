@@ -91,7 +91,7 @@ Section for_φAdjunction.
    apply bijective_applied.
   Qed.
 
-  Instance φAdjunction_ηAdjunction: ηAdjunction F G η univwit.
+  Instance φAdjunction_ηAdjunction: ηAdjunction F G η univwit := {}.
 
   Instance φAdjunction_ηεAdjunction: ηεAdjunction F G η ε.
   Proof with try apply _.
@@ -160,7 +160,7 @@ Section for_ηAdjunction.
    apply (equal_because_sole _ _ (η_adjunction_universal F G _ _ (fmap G x0 ◎ η x))); unfold compose...
   Qed.
 
-  Instance: ∀ x a, Bijective (@φ x a).
+  Instance: ∀ x a, Bijective (@φ x a) := {}.
 
   Instance ηAdjunction_φAdjunction: φAdjunction F G φ.
   Proof with try reflexivity; try apply _.

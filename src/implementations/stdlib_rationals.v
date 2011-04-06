@@ -15,15 +15,15 @@ Instance Q_mult : RingMult Q := Qmult.
 Program Instance Q_mult_inv : MultInv Q := Qinv.
 
 (* properties: *)
-Instance: Setoid Q.
+Instance: Setoid Q := {}.
 
 Instance: Field Q.
 Proof fields.from_stdlib_field_theory Qfield.Qsft.
 
 (* order: *)
-Instance: Order Q := Qle.
+Instance Q_le: Order Q := Qle.
 
-Instance: RingOrder Qle.
+Instance: RingOrder Q_le.
 Proof with auto.
   repeat (split; try apply _)...
       exact Qle_refl.
@@ -33,7 +33,7 @@ Proof with auto.
   intros. apply Qmult_le_0_compat...
 Qed.
 
-Instance: TotalOrder Qle.
+Instance: TotalOrder Q_le.
 Proof with auto.
   intros x y.
   destruct (Qlt_le_dec x y)...

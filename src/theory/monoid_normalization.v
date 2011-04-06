@@ -33,9 +33,10 @@ Section contents.
 
   Definition from_ua (t: Applied): { r: Term | to_ua r ≡ t }.
   Proof with reflexivity.
-   change ((fun s => match s return ua_packed.Applied msig s → Type with
-     tt => fun t => { r | to_ua r ≡ t } end) tt t).
-   apply better_Applied_rect.
+    refine (better_Applied_rect msig (λ s,
+       match s return (ua_packed.Applied msig s → Type) with
+       | tt => λ t, {r : Term | to_ua r ≡ t}
+       end) _ _ t).
     simpl.
     intros []; simpl.
      intros.
