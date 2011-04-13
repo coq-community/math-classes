@@ -4,7 +4,7 @@ Require Import
   Morphisms Ring Setoid Program
   abstract_algebra.
 
-Inductive SRpair (SR : Type) : Type := C { pos : SR ; neg : SR }.
+Inductive SRpair (SR : Type) := C { pos : SR ; neg : SR }.
 Implicit Arguments C [[SR]].
 Implicit Arguments pos [[SR]].
 Implicit Arguments neg [[SR]].

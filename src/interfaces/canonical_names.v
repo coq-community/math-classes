@@ -9,6 +9,8 @@ Require Export workarounds.
 (* Equality *)
 Class Equiv A := equiv: relation A.
 
+Typeclasses Transparent Equiv.
+
 (* We use this virtually everywhere, and so use "=" for it: *)
 Infix "=" := equiv: type_scope.
 Notation "(=)" := equiv (only parsing).
@@ -19,7 +21,7 @@ Notation "( x ≠)" := (λ y, x ≠ y) (only parsing).
 Notation "(≠ x )" := (λ y, y ≠ x) (only parsing).
 
 (* Coq sometimes uses an incorrect DefaultRelation, so we override it. *)
-Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3.
+Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3 := {}.
 
 (* For Leibniz equality we use "≡": *)
 Infix "≡" := eq (at level 70, no associativity).
@@ -68,11 +70,11 @@ Implicit Arguments cat_id [[O] [H] [CatId] [x]].
 Implicit Arguments decide [[Decision]].
 Implicit Arguments comp [[O] [H] [CatComp]].
 
-Instance: Params (@ring_mult) 2.
-Instance: Params (@ring_plus) 2.
-Instance: Params (@equiv) 2.
-Instance: Params (@precedes) 2.
-Instance: Params (@strictly_precedes) 3.
+Instance: Params (@ring_mult) 2 := {}.
+Instance: Params (@ring_plus) 2 := {}.
+Instance: Params (@equiv) 2 := {}.
+Instance: Params (@precedes) 2 := {}.
+Instance: Params (@strictly_precedes) 3 := {}.
 
 Instance ringplus_is_semigroupop `{f: RingPlus A}: SemiGroupOp A := f.
 Instance ringmult_is_semigroupop `{f: RingMult A}: SemiGroupOp A := f.

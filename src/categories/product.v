@@ -99,17 +99,13 @@ Section contents.
      unfold uncurry in *.
      unfold iso_arrows in *.
      destruct (cat.Functor_inst _ _ alt).
-     simpl in *.
-     assert (fmap alt r = fmap alt r).
-      intuition.
-     simpl in *.
-     rewrite (H4 i). clear H4.
      unfold compose in x, aa0, a1a2.
      simpl in *.
      unfold fmap.
-     simpl.
-     set (cat.Fmap_inst _ _ alt) in |- *.
-     rewrite <- (left_identity (f p q r i ◎ fst aa0)).
+     match goal with
+       |- appcontext [ cat.Fmap_inst _ ?cat ?alt ] => set (f:=cat.Fmap_inst _ cat alt) in |- *
+     end.
+     setoid_rewrite <- (left_identity (f p q r i ◎ fst aa0)).
      transitivity ((fst a1a2 ◎ snd a1a2) ◎ (f p q r i ◎ fst aa0)).
       apply comp_proper...
      apply transitivity with ((fst a1a2) ◎ (((snd a1a2) ◎ (cat.Fmap_inst _ _ alt p q r i)) ◎ (fst aa0))).

@@ -49,7 +49,7 @@ Section contents.
   Qed.
 
   Lemma fmap_alt `{Equiv A} `{Equiv B} (f: A → B) `{!Setoid_Morphism f} :
-    extend (inject B ∘ f) = (fmap (v:=A) (w:=B) sq f: sq A → sq B).
+    extend (inject B ∘ f) = (fmap sq f: sq A -> sq B).
   Proof with try apply _.
    intros.
    pose proof (setoidmor_a f).
@@ -73,6 +73,7 @@ Section contents.
    change (f = extend id ∘ (fmap (v:=A) (w:=B) sq f ∘ inject A)).
    rewrite <- (sequence_inject_natural sq f _).
    change (f = fold sq ∘ inject B ∘ f).
+   pose proof (_ : Morphisms.ProperProxy equiv f).
    rewrite fold_inject.
    rewrite compose_id_left.
    apply sm_proper.

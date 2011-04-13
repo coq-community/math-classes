@@ -31,13 +31,13 @@ End laws.
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
 Definition Object := variety.Object theory.
 
+Hint Extern 3 => progress simpl : typeclass_instances.
+
 Definition forget: Object → setoid.Object :=
   @product.project unit
     (λ _, setoid.Object)
-    (λ _, _: Arrows setoid.Object) _
-    (λ _, _: CatId setoid.Object)
-    (λ _, _: CatComp setoid.Object) 
-    (λ _, _: Category setoid.Object) tt
+    (λ _, _) _
+    (λ _, _) (λ _, _) (λ _, _) tt
      ∘ forget_algebra.object theory ∘ forget_variety.forget theory.
   (* todo: too ugly *)
 

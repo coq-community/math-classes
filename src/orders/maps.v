@@ -123,7 +123,7 @@ Section composition.
   Proof.
     pose proof (order_morphism_mor f).
     pose proof (order_morphism_mor g).
-    split; apply _.
+    split; [ apply _ | apply _ | apply (order_morphism_proper_b g) ].
   Qed.
 
   Global Instance compose_order_preserving `{!OrderPreserving (f : A → B)} `{!OrderPreserving (g : B → C)} : 

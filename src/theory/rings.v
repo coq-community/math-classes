@@ -20,6 +20,8 @@ Proof.
   apply distribute_r.
 Qed.
 
+Typeclasses Transparent RingZero RingOne RingPlus RingMult MonoidUnit SemiGroupOp.
+
 (* It's not possible to apply [left_cancellation (.*.) z] directly in case no [PropHolds (0 ≠ z)]
    instance is present. *)
 Section cancellation.

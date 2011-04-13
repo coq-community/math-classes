@@ -131,6 +131,8 @@ End homo.
    apply (IHo0 _ (o2 (g _ x)))...
   Qed.
 
+  Typeclasses Transparent Equiv. (* Need to instantiate a [relation] existential with [H0 t : Equiv] *)
+
   Lemma invert_homomorphism A B f
     `{∀ a, Equiv (A a)} `{∀ a, Equiv (B a)}
     {ao: AlgebraOps σ A} {bo: AlgebraOps σ B}

@@ -44,7 +44,7 @@ Section functors.
 
   (** Given a functor F: C → D, we have a functor F^op: C^op → D^op *)
 
-  Context {C D} F `{func : Functor C D F}.
+  Context {C D} F `{Functor C (H:=Ce) D (H1:=De) F}.
 
   Definition fmap_op: @Fmap _ flipA _ flipA F := fun v w => @fmap _ _ _ _ F _ w v.
 
@@ -59,7 +59,7 @@ Section functors.
       destruct (functor_morphism F b a).
       constructor...
      set (preserves_id F a)...
-    apply (@preserves_comp _ _ _ _ _ _ _ _ _ _ _ _ func).
+    apply (@preserves_comp _ _ Ce _ _ _ _ De _ _ F)...
   Qed.
 
 End functors.

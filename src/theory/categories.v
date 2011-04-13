@@ -92,7 +92,7 @@ Section contents.
      rewrite <- associativity, (associativity g' g f), Z, left_identity...
     Qed.
 
-    Instance iso_equivalence: Equivalence iso := {}.
+    Global Instance iso_equivalence: Equivalence iso := {}.
     Global Instance iso_setoid: @Setoid X iso := {}.
 
     Lemma arrows_between_isomorphic_objects (a b c d: X)

@@ -28,7 +28,8 @@ Implicit Arguments arrow [[x] [y]].
 Existing Instance Fmap_inst.
 Existing Instance Functor_inst.
 
-Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances.
+Instance: Arrows Object := Arrow.
+(* Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances. *)
 
 Section contents.
   Implicit Arguments map_obj [[x] [y]].

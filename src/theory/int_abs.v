@@ -143,4 +143,3 @@ Proof.
   apply int_abs_nat.
 Qed.
 End contents.
-  

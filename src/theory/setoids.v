@@ -19,8 +19,8 @@ Section simple_product.
 
   Global Instance prod_equiv: Equiv (A * B) := λ p q, fst p = fst q ∧ snd p = snd q.
 
-  Global Instance: Setoid (A * B).
-  Proof. firstorder. Qed.
+  Global Instance: Setoid (A * B) := {}.
+  Proof. firstorder auto. Qed.
 
   Global Instance pair_proper : Proper ((=) ==> (=) ==> (=)) (@pair A B).
   Proof. firstorder. Qed.
