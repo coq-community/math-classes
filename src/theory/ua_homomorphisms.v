@@ -6,6 +6,8 @@ Require Import
 Section contents. 
   Variable σ: Signature.
 
+  Typeclasses Transparent Equiv. (* Need to instantiate a [relation] existential with [H0 t : Equiv] *)
+
   Notation OpType := (OpType (sorts σ)).
 
   Section homo.
@@ -105,7 +107,7 @@ Section contents.
      apply (Preservation_proper' y x E2 (σ o) (A_ops o) (B_ops o))...
     Qed.
 
-End homo.
+  End homo.
 
   Global Instance id_homomorphism A
     `{∀ a, Equiv (A a)} {ao: AlgebraOps σ A} `{!Algebra σ A}: HomoMorphism _ _ (λ _, id).
@@ -130,8 +132,6 @@ End homo.
     rewrite H5...
    apply (IHo0 _ (o2 (g _ x)))...
   Qed.
-
-  Typeclasses Transparent Equiv. (* Need to instantiate a [relation] existential with [H0 t : Equiv] *)
 
   Lemma invert_homomorphism A B f
     `{∀ a, Equiv (A a)} `{∀ a, Equiv (B a)}

@@ -1,6 +1,5 @@
 Require
   orders.naturals peano_naturals.
-Require Import peano_naturals.
 Require Import
   Morphisms Ring
   abstract_algebra interfaces.naturals interfaces.additional_operations.
@@ -53,14 +52,11 @@ Qed.
 
 (* Using the preceding instance we can make an instance for arbitrary models of the naturals
     by translation into [nat] on which we already have a [CutMinus] instance. *)
-(* MS: needs Order to be tranparent to unify [le : relation A] with [Order A] *)
-Typeclasses Transparent Order.
-
 Global Program Instance natdistance_default `{Naturals N} : NatDistance N | 10 := λ x y: N,
   naturals_to_semiring nat N (nat_distance (naturals_to_semiring N nat x) (naturals_to_semiring N nat y)).
 Next Obligation.
   unfold nat_distance.
-  destruct @nat_distance_sig as [z [F|F]]; simpl.
+  destruct nat_distance_sig as [z [F|F]]; simpl.
   left.
    rewrite <- (naturals.to_semiring_involutive N nat y).
    rewrite <- F.

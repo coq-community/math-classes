@@ -25,6 +25,9 @@ Context `{Integers Z} `{!RingOrder oZ} `{!TotalOrder oZ}
   `{precedes_dec : ∀ (x y : Z), Decision (x ≤ y)}
   `{!ShiftLSpec Z (Z⁺) sl}.
 
+Remove Hints shiftl_nonzero : typeclass_instances.
+(* workarround for #2528, otherwise the [apply (right_cancellation (.*.) (2 ^ xe)).] in [dy_eq_dec_aux] loops *)
+
 Notation Dyadic := (Dyadic Z).
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
@@ -219,8 +222,10 @@ Global Instance dy_pow `{!Pow Z (Z⁺)} : Pow Dyadic (Z⁺) := λ x n, (mant x) 
 
 Global Instance dy_pow_spec `{!NatPowSpec Z (Z⁺) pw} : NatPowSpec Dyadic (Z⁺) dy_pow.
 Proof.
-  split; unfold pow, dy_pow, equiv, dy_equiv, DtoQ_slow.
-    intros [xm xe] [ym ye] E1 e1 e2 E2. simpl in *.
+  split; unfold pow, dy_pow.
+    intros [xm xe] [ym ye] E1 e1 e2 E2. 
+    unfold equiv, dy_equiv, DtoQ_slow in E1 |- *. simpl in *.
+    setoid_replace (xm ^ e1) with (xm ^ e2) by now apply (_ : Proper ((=) ==> (=) ==> (=)) pw). (* fixme *)
     rewrite E2. clear e1 E2.
     rewrite 2!(preserves_nat_pow (f:=ZtoStdQ)).
     rewrite 2!(commutativity ('e2 : Z)).
@@ -381,6 +386,8 @@ Section DtoQ.
     now apply orders.precedes_flip.
   Qed.
   Next Obligation.
+    apply rings.injective_ne_0.
+    apply shiftl_nonzero.
     solve_propholds.
   Qed.
 End DtoQ.

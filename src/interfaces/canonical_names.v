@@ -9,8 +9,6 @@ Require Export workarounds.
 (* Equality *)
 Class Equiv A := equiv: relation A.
 
-Typeclasses Transparent Equiv.
-
 (* We use this virtually everywhere, and so use "=" for it: *)
 Infix "=" := equiv: type_scope.
 Notation "(=)" := equiv (only parsing).
@@ -21,7 +19,7 @@ Notation "( x ≠)" := (λ y, x ≠ y) (only parsing).
 Notation "(≠ x )" := (λ y, y ≠ x) (only parsing).
 
 (* Coq sometimes uses an incorrect DefaultRelation, so we override it. *)
-Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3 := {}.
+Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3.
 
 (* For Leibniz equality we use "≡": *)
 Infix "≡" := eq (at level 70, no associativity).
@@ -57,7 +55,6 @@ Definition NonPos R `{RingZero R} `{Order R} := sig (λ y, precedes y ring_zero)
 Inductive PosInf (R : Type) : Type := finite (x : R) | infinite.
 
 Class Arrows (O: Type): Type := Arrow: O → O → Type.
-Typeclasses Transparent Arrows.
 
 Infix "⟶" := Arrow (at level 90, right associativity).
 Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
@@ -70,11 +67,11 @@ Implicit Arguments cat_id [[O] [H] [CatId] [x]].
 Implicit Arguments decide [[Decision]].
 Implicit Arguments comp [[O] [H] [CatComp]].
 
-Instance: Params (@ring_mult) 2 := {}.
-Instance: Params (@ring_plus) 2 := {}.
-Instance: Params (@equiv) 2 := {}.
-Instance: Params (@precedes) 2 := {}.
-Instance: Params (@strictly_precedes) 3 := {}.
+Instance: Params (@ring_mult) 2.
+Instance: Params (@ring_plus) 2.
+Instance: Params (@equiv) 2.
+Instance: Params (@precedes) 2.
+Instance: Params (@strictly_precedes) 3.
 
 Instance ringplus_is_semigroupop `{f: RingPlus A}: SemiGroupOp A := f.
 Instance ringmult_is_semigroupop `{f: RingMult A}: SemiGroupOp A := f.
@@ -240,4 +237,3 @@ Class RingUnit `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInverse x
 (* A common induction principle for both the naturals and integers *)
 Class Biinduction R `{Equiv R} `{RingZero R} `{RingOne R} `{RingPlus R} : Prop :=
   biinduction (P: R → Prop) `{!Proper ((=) ==> iff) P} : P 0 → (∀ n, P n ↔ P (1 + n)) → ∀ n, P n.
-  

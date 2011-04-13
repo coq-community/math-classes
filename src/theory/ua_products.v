@@ -5,7 +5,6 @@ Require Import
 Require setoids.
 
 Section algebras.
-
   Context
     (sig: Signature) (I: Type) (carriers: I → sorts sig → Type)
     `(∀ i s, Equiv (carriers i s))
@@ -63,13 +62,14 @@ Section algebras.
 End algebras.
 
 Section varieties.
-
   Context
     (et: EquationalTheory)
     (I: Type) (carriers: I → sorts et → Type)
     `(∀ i s, Equiv (carriers i s))
     `(∀ i, AlgebraOps et (carriers i))
     `(∀ i, InVariety et (carriers i)).
+
+  Typeclasses Transparent Equiv.
 
   Notation carrier := (carrier et I carriers).
   Let carrier_e := product_e et I carriers _.
