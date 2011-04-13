@@ -31,7 +31,7 @@ End laws.
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
 Definition Object := variety.Object theory.
 
-Hint Extern 3 => progress simpl : typeclass_instances.
+Local Hint Extern 3 => progress simpl : typeclass_instances.
 
 Definition forget: Object → setoid.Object :=
   @product.project unit
