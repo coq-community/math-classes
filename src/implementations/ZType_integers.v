@@ -2,7 +2,7 @@ Require
   stdlib_binary_integers theory.integers orders.semirings.
 Require Import 
   ZSig ZSigZAxioms NArith ZArith Program Morphisms
-  nonneg_integers_naturals 
+  nonneg_integers_naturals interfaces.orders
   abstract_algebra interfaces.integers interfaces.additional_operations.  
 
 Module ZType_Integers (Import anyZ: ZType).
@@ -75,7 +75,8 @@ Instance: IntegersToRing t := integers.retract_is_int_to_ring of_Z.
 Instance: Integers t := integers.retract_is_int of_Z.
 
 (* Order *)
-Instance ZType_le: Order t := le.
+Instance ZType_le: Le t := le.
+Instance ZType_lt: Lt t := lt.
 
 Instance: Proper ((=) ==> (=) ==> iff) ZType_le.
 Proof. 
@@ -87,15 +88,18 @@ Instance: OrderEmbedding to_Z.
 Proof. now repeat (split; try apply _). Qed.
 
 Instance: RingOrder ZType_le.
-Proof rings.embed_ringorder to_Z.
+Proof rings.projected_ringorder to_Z.
 
-Instance: TotalOrder ZType_le.
-Proof maps.embed_totalorder to_Z.
+Instance: TotalRelation ZType_le.
+Proof maps.projected_total_order to_Z.
 
-Lemma ZType_lt_coincides x y : lt x y ↔ x < y.
-Proof. unfold lt. now rewrite stdlib_binary_integers.Zlt_coincides. Qed.
-Hint Resolve (λ x y, proj1 (ZType_lt_coincides x y)).
-Hint Resolve (λ x y, proj2 (ZType_lt_coincides x y)).
+Instance: PseudoRingOrder ZType_le ZType_lt.
+Proof.
+  rapply rings.dec_pseudo_ringorder.
+  intros x y. 
+  change (to_Z x < to_Z y ↔ x ≤ y ∧ x ≠ y).
+  now rewrite orders.lt_iff_le_ne.
+Qed.
 
 (* Efficient comparison *)
 Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) with
@@ -105,14 +109,14 @@ Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) 
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate.
-  apply orders.not_precedes_sprecedes. auto.
+  now apply orders.lt_not_le_flip.
 Qed.
 
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate; try intuition.
    now apply Zeq_le.
-  apply orders.sprecedes_weaken. red. auto.
+  now apply orders.lt_le.
 Qed.
 
 Program Instance: IntAbs t (t⁺) := abs.
@@ -156,9 +160,9 @@ Proof.
       intro. apply Ey. apply (injective to_Z). now rewrite rings.preserves_0.
      left; split.
       apply (order_preserving_back to_Z). now rewrite spec_modulo, rings.preserves_0.
-     apply ZType_lt_coincides. unfold lt. now rewrite spec_modulo.
+     apply (strictly_order_preserving_back to_Z). now rewrite spec_modulo.
     right; split.
-      apply ZType_lt_coincides. unfold lt. now rewrite spec_modulo.
+      apply (strictly_order_preserving_back to_Z). now rewrite spec_modulo.
      apply (order_preserving_back to_Z). now rewrite spec_modulo, rings.preserves_0.
    intros x. unfold_equiv. rewrite spec_div, rings.preserves_0. now apply Zdiv_0_r.
   intros x. unfold_equiv. rewrite spec_modulo, rings.preserves_0. now apply Zmod_0_r.
@@ -213,7 +217,7 @@ Qed.
 Program Instance: Log (2:t) (t⁺) := log2.
 Next Obligation with auto.
   intros x. 
-  apply to_Z_Zle_sr_precedes.
+  apply to_Z_Zle_sr_le.
   rewrite spec_log2, preserves_0.
   apply Z.log2_nonneg.
 Qed.
@@ -221,9 +225,9 @@ Qed.
 Next Obligation with auto.
   intros [x Ex]. 
   destruct (axioms.log2_spec x) as [E1 E2].
-   apply to_Z_sr_precedes_Zlt...
+   apply to_Z_sr_le_Zlt...
   unfold nat_pow, nat_pow_sig, ZType_pow; simpl.
-  apply to_Z_Zle_sr_precedes in E1. apply to_Z_Zlt_sr_precedes in E2.
+  apply to_Z_Zle_sr_le in E1. apply to_Z_Zlt_sr_le in E2.
   rewrite ZType_two_2 in E1, E2. 
   rewrite ZType_succ_plus_1, commutativity in E2...
 Qed.

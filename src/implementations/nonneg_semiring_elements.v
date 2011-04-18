@@ -2,10 +2,10 @@ Require
   theory.rings.
 Require Import
   Morphisms Ring Program Setoid
-  abstract_algebra orders.semirings.
+  abstract_algebra interfaces.orders orders.semirings.
 
 Section nonneg_semiring_elements.
-Context `{SemiRing R} `{!SemiRingOrder o} `{!TotalOrder o} `{∀ z : R, LeftCancellation (+) z}.
+Context `{SemiRing R} `{Apart R} `{!PseudoSemiRingOrder Rlt Rle}.
 
 Add Ring R : (rings.stdlib_semiring_theory R).
 
@@ -29,7 +29,7 @@ Global Program Instance NonNeg_0: RingZero (R⁺) := 0↾_.
 Next Obligation. reflexivity. Qed. 
 
 Global Program Instance NonNeg_1: RingOne (R⁺) := 1↾_.
-Next Obligation. apply precedes_0_1. Qed.
+Next Obligation. apply le_0_1. Qed.
 
 (* * Equalitity *)
 Local Ltac unfold_equivs := unfold equiv, sig_equiv in *; simpl in *.
@@ -60,23 +60,30 @@ Global Instance: Injective NonNeg_inject.
 Proof. split. trivial. apply _. Qed.
 
 (* Misc *)
+Global Instance NonNeg_trivial_apart `{!TrivialApart R} :  TrivialApart (R⁺).
+Proof. intros x y. now rapply trivial_apart. Qed. 
+
 Global Instance NonNeg_equiv_dec `{∀ x y : R, Decision (x = y)} : ∀ x y: R⁺, Decision (x = y) 
   := λ x y, decide_rel (=) ('x) ('y).
 
-(* Order *)
-Global Instance NonNeg_order: Order (R⁺) := λ x y, 'x ≤ 'y.
+Global Instance NonNeg_apart_dec `{∀ x y : R, Decision (x ⪥ y)} : ∀ x y: R⁺, Decision (x ⪥ y) 
+  := λ x y, decide_rel (⪥) ('x) ('y).
 
-Global Instance: Proper ((=) ==> (=) ==> iff) NonNeg_order.
-Proof. intros x1 y1 E1 x2 y2 E2. unfold NonNeg_order. now rewrite E1, E2. Qed.
+(* Order *)
+Global Instance NonNeg_le: Le (R⁺) := λ x y, 'x ≤ 'y.
+Global Instance NonNeg_lt: Lt (R⁺) := λ x y, 'x < 'y.
+
+Global Instance: Proper ((=) ==> (=) ==> iff) NonNeg_le.
+Proof. intros x1 y1 E1 x2 y2 E2. unfold NonNeg_le. now rewrite E1, E2. Qed.
 
 Global Instance: OrderEmbedding NonNeg_inject.
 Proof. repeat (split; try apply _); intuition. Qed.
 
-Instance: PartialOrder NonNeg_order.
-Proof maps.embed_partialorder NonNeg_inject.
-
-Global Instance: TotalOrder NonNeg_order.
-Proof maps.embed_totalorder NonNeg_inject.
+Instance: PartialOrder NonNeg_le.
+Proof maps.projected_partial_order NonNeg_inject.
+(*
+Global Instance: TotalOrder NonNeg_le.
+Proof maps.embed_totalorder NonNeg_le.
 
 Global Instance: SemiRingOrder NonNeg_order.
 Proof.
@@ -95,12 +102,13 @@ Proof.
   rewrite rings.preserves_0, rings.preserves_mult.
   now apply srorder_mult.
 Qed.
-
-Global Program Instance NonNeg_precedes_dec `{∀ x y : R, Decision (x ≤ y)} : ∀ x y: R⁺, Decision (x ≤ y) := λ x y, 
+*)
+Global Program Instance NonNeg_le_dec `{∀ x y : R, Decision (x ≤ y)} : ∀ x y: R⁺, Decision (x ≤ y) := λ x y, 
   match decide_rel (≤) ('x) ('y) with 
   | left E => left _
   | right E => right _
   end.
 End nonneg_semiring_elements.
 
-Typeclasses Opaque NonNeg_order.
+Typeclasses Opaque NonNeg_le.
+Typeclasses Opaque NonNeg_lt.

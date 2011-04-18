@@ -1,9 +1,10 @@
 Require
   stdlib_binary_integers Field QArith.Qfield theory.rationals.
 Require Import
-  Ring Morphisms QArith_base Qabs Qpower
-  abstract_algebra interfaces.rationals field_of_fractions
-  additional_operations.
+  Program Ring Morphisms QArith_base Qabs Qpower
+  abstract_algebra interfaces.rationals 
+  interfaces.orders interfaces.additional_operations
+  field_of_fractions.
 
 (* canonical names for relations/operations/constants: *)
 Instance Q_eq: Equiv Q := Qeq.
@@ -12,49 +13,13 @@ Instance Q_1 : RingOne Q := 1%Q.
 Instance Q_opp : GroupInv Q := Qopp.
 Instance Q_plus : RingPlus Q := Qplus.
 Instance Q_mult : RingMult Q := Qmult.
-Program Instance Q_mult_inv : MultInv Q := Qinv.
+Instance Q_mult_inv : DecMultInv Q := Qinv.
 
 (* properties: *)
 Instance: Setoid Q := {}.
 
-Instance: Field Q.
-Proof fields.from_stdlib_field_theory Qfield.Qsft.
-
-(* order: *)
-Instance Q_le: Order Q := Qle.
-
-Instance: RingOrder Q_le.
-Proof with auto.
-  repeat (split; try apply _)...
-      exact Qle_refl.
-     exact Qle_trans.
-    exact Qle_antisym.
-   intros. apply Qplus_le_compat... apply Qle_refl.
-  intros. apply Qmult_le_0_compat...
-Qed.
-
-Instance: TotalOrder Q_le.
-Proof with auto.
-  intros x y.
-  destruct (Qlt_le_dec x y)...
-  left. apply Qlt_le_weak...
-Qed.
-
-Program Instance: ∀ x y: Q, Decision (x ≤ y) := λ y x, 
-  match Qlt_le_dec x y with
-  | left _ => right _
-  | right _ => left _
-  end.
-Next Obligation. now apply Qlt_not_le. Qed. 
-
-Lemma Qlt_coincides x y : (x < y)%Q ↔ x < y.
-Proof with trivial.
-  split.
-   intro. split. apply Qlt_le_weak... apply Qlt_not_eq...
-  intros [E1 E2]. destruct (proj1 (Qle_lteq _ _) E1)... destruct E2...
-Qed.
-Hint Resolve (λ x y, proj1 (Qlt_coincides x y)).
-Hint Resolve (λ x y, proj2 (Qlt_coincides x y)).
+Instance: DecField Q.
+Proof dec_fields.from_stdlib_field_theory Qfield.Qsft eq_refl.
 
 (* misc: *)
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
@@ -90,15 +55,45 @@ Proof. split; try apply _. intros ? ? E. easy. Qed.
 Instance: RationalsToFrac Q := rationals.alt_to_frac Q_to_fracZ.
 Instance: Rationals Q := rationals.alt_Build_Rationals Q_to_fracZ inject_Z.
 
-Program Instance Q_dec_mult_inv: DecMultInv Q := Qinv.
-Next Obligation.
-  split; intros E. 
-   now apply Qmult_inv_r.
-  now rewrite E.
+(* order: *)
+Instance Q_le: Le Q := Qle.
+Instance Q_lt: Lt Q := Qlt.
+
+Instance: RingOrder Q_le.
+Proof with auto.
+  repeat (split; try apply _)...
+      exact Qle_refl.
+     exact Qle_trans.
+    exact Qle_antisym.
+   intros. apply Qplus_le_compat... apply Qle_refl.
+  intros. apply Qmult_le_0_compat...
 Qed.
 
+Instance: TotalRelation Q_le.
+Proof with auto.
+  intros x y.
+  destruct (Qlt_le_dec x y)...
+  left. apply Qlt_le_weak...
+Qed.
+
+Instance: PseudoRingOrder Q_le Q_lt.
+Proof.
+  rapply (rings.dec_pseudo_ringorder (A:=Q)).
+  split.
+   intro. split. now apply Zorder.Zlt_le_weak. now apply Zorder.Zlt_not_eq.
+  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1). easy. now destruct E2.
+Qed.
+
+Program Instance: ∀ x y: Q, Decision (x ≤ y) := λ y x, 
+  match Qlt_le_dec x y with
+  | left _ => right _
+  | right _ => left _
+  end.
+Next Obligation. now apply Qlt_not_le. Qed. 
+
+(* additional operations *)
 Program Instance: Abs Q := Qabs.
-Next Obligation with trivial.
+Next Obligation.
   split; intros E.
    now apply Qabs_pos.
   now apply Qabs_neg.

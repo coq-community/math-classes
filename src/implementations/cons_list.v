@@ -62,7 +62,7 @@ Section contents.
   Definition concat: list (list A) → list A := fold_right app nil.
 
   Lemma concat_app (a b: list (list A)): concat (a ++ b) = concat a ++ concat b.
-  Proof with intuition. induction a; simpl... rewrite <-app_assoc. now f_equiv. Qed.
+  Proof with intuition. induction a; simpl... now rewrite IHa, app_assoc. Qed.
 End contents.
 
 Implicit Arguments concat [[A]].

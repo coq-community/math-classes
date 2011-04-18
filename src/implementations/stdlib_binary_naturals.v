@@ -1,7 +1,7 @@
 Require Import 
-  NArith
+  Program NArith
   peano_naturals theory.naturals
-  abstract_algebra interfaces.naturals.  
+  abstract_algebra interfaces.naturals interfaces.orders.  
 
 (* canonical names for relations/operations/constants: *)
 Instance N_equiv : Equiv N := eq.
@@ -26,46 +26,6 @@ Proof.
 Qed.
 
 Instance: ∀ x y: N, Decision (x = y) := N_eq_dec.
-
-(* order *)
-Instance: Order N := Nle.
-
-Instance: SemiRingOrder Nle.
-Proof with auto.
-  split.
-    repeat (split; try apply _)...
-    exact N.le_antisymm.
-   intros x y. split.
-    intros E. exists (Nminus y x).
-    split.
-     now apply N.le_add_le_sub_r.
-    symmetry. rewrite commutativity. now apply N.sub_add.
-   intros [z [_ Ez]]. rewrite Ez.
-   now apply N.le_add_r.
-  intros. now apply Nle_0. 
-Qed.
-
-Instance: TotalOrder Nle.
-Proof with auto.
-  intros x y.
-  now apply N.le_ge_cases.
-Qed.
-
-Program Instance: ∀ x y: N, Decision (x ≤ y) := λ y x, 
-  match Ncompare y x with
-  | Gt => right _
-  | _ => left _
-  end.
-Next Obligation. now apply not_symmetry. Qed.
-
-Lemma Nlt_coincides x y : (x < y)%N ↔ x < y.
-Proof with trivial.
-  split.
-   intro. now apply N.le_neq.
-  intros [E1 E2]. now apply N.T.le_neq_lt.
-Qed.
-Hint Resolve (λ x y, proj1 (Nlt_coincides x y)).
-Hint Resolve (λ x y, proj2 (Nlt_coincides x y)).
 
 Instance inject_nat_N: Coerce nat N := N_of_nat.
 Instance inject_N_nat: Coerce N nat := nat_of_N.
@@ -97,3 +57,40 @@ Proof. change (SemiRing_Morphism (nat_of_N⁻¹)). split; apply _. Qed.
 
 Instance: NaturalsToSemiRing N := retract_is_nat_to_sr N_of_nat.
 Instance: Naturals N := retract_is_nat N_of_nat.
+
+(* order *)
+Instance N_le: Le N := Nle.
+Instance N_lt: Lt N := Nlt.
+
+Instance: SemiRingOrder N_le.
+Proof with auto.
+  split.
+    repeat (split; try apply _)...
+    exact N.le_antisymm.
+   intros x y. split.
+    intros E. exists (Nminus y x).
+    split.
+     now apply N.le_add_le_sub_r.
+    symmetry. rewrite commutativity. now apply N.sub_add.
+   intros [z [_ Ez]]. rewrite Ez.
+   now apply N.le_add_r.
+  intros. now apply Nle_0. 
+Qed.
+
+Instance: TotalRelation N_le.
+Proof. intros x y. now apply N.le_ge_cases. Qed.
+
+Instance: PseudoSemiRingOrder N_le N_lt.
+Proof.
+  rapply semirings.dec_pseudo_srorder.
+  split.
+   intro. now apply N.le_neq.
+  intros [E1 E2]. now apply N.T.le_neq_lt.
+Qed.
+
+Program Instance: ∀ x y: N, Decision (x ≤ y) := λ y x, 
+  match Ncompare y x with
+  | Gt => right _
+  | _ => left _
+  end.
+Next Obligation. now apply not_symmetry. Qed.

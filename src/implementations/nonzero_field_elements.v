@@ -9,10 +9,10 @@ Context `{Field F}.
 Add Ring F : (rings.stdlib_ring_theory F).
 
 Global Program Instance NonZero_1: RingOne (F ₀) := (1:F).
-Next Obligation. now apply (rings.ne_0 1). Qed.
+Next Obligation. solve_propholds. Qed.
 
 Global Program Instance NonZero_mult: RingMult (F ₀) := λ x y, (`x *  `y : F).
-Next Obligation. apply (_ : PropHolds (`x * `y ≠ 0)). Qed.
+Next Obligation. solve_propholds. Qed.
 
 Ltac unfold_equiv := repeat intro; unfold equiv, sig_equiv in *; simpl in *.
 

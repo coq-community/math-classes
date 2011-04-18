@@ -68,7 +68,7 @@ Proof.
 Qed.
 
 Section retract_is_int.
-  Context `{Integers Int} `{Ring Int2} `{o2 : Order Int2} `{!RingOrder o2} `{!TotalOrder o2}.
+  Context `{Integers Int} `{Ring Int2}.
   Context (f : Int → Int2) `{!Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (f⁻¹)}.
 
   (* If we make this an instance, then instance resolution will often loop *)
@@ -113,7 +113,7 @@ Next Obligation. intros F. apply E. now rewrite F. Qed.
 Instance: PropHolds ((1:Int) ≠ 0).
 Proof.
   intros E.
-  apply (rings.ne_0 (1:nat)).
+  apply (rings.is_ne_0 (1:nat)).
   apply (injective (naturals_to_semiring nat Int)).
   now rewrite rings.preserves_0, rings.preserves_1.
 Qed.

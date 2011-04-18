@@ -1,17 +1,16 @@
 Require theory.fields.
 Require Import Morphisms Ring abstract_algebra theory.rings.
 
-Inductive Frac R `{e : Equiv R} `{zero : RingZero R} : Type := frac { num: R; den: R; den_nonzero: den ≠ 0 }.
+Inductive Frac R `{ap : Equiv R} `{zero : RingZero R} : Type := frac { num: R; den: R; den_ne_0: den ≠ 0 }.
   (* We used to have [den] and [den_nonzero] bundled, which did work relatively nicely with Program, but the
    extra messyness in proofs etc turned out not to be worth it. *)
-Implicit Arguments frac [[R] [e] [zero]].
-Implicit Arguments num [[R] [e] [zero]].
-Implicit Arguments den [[R] [e] [zero]].
-Implicit Arguments den_nonzero [[R] [e] [zero]].
+Implicit Arguments frac [[R] [ap] [zero]].
+Implicit Arguments num [[R] [ap] [zero]].
+Implicit Arguments den [[R] [ap] [zero]].
+Implicit Arguments den_ne_0 [[R] [ap] [zero]].
 
 Section contents.
-Context `{IntegralDomain R}.
-Context `{∀ z : R, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
+Context `{IntegralDomain R} `{∀ x y, Decision (x = y)}.
 
 Add Ring R: (stdlib_ring_theory R).
 
@@ -29,12 +28,12 @@ Proof with auto.
   rewrite V, <- W. ring.
 Qed.
 
-Global Instance Frac_dec `{∀ x y, Decision (x = y)} : ∀ x y: Frac R, Decision (x = y) 
+Global Instance Frac_dec : ∀ x y: Frac R, Decision (x = y) 
   := λ x y, decide_rel (=) (num x * den y) (num y * den x).
 
 (* injection from R *)
 Global Program Instance Frac_inject: Coerce R (Frac R) := λ r, frac r 1 _.
-Next Obligation. exact (ne_0 1). Qed.
+Next Obligation. exact (is_ne_0 1). Qed.
 
 Instance: Proper ((=) ==> (=)) Frac_inject.
 Proof. intros x1 x2 E. unfold equiv, Frac_equiv. simpl. now rewrite E. Qed.
@@ -42,15 +41,15 @@ Proof. intros x1 x2 E. unfold equiv, Frac_equiv. simpl. now rewrite E. Qed.
 (* Relations, operations and constants *)
 Global Program Instance Frac_plus: RingPlus (Frac R) :=
   λ x y, frac (num x * den y + num y * den x) (den x * den y) _.
-Next Obligation. destruct x, y. simpl. now apply mult_ne_zero. Qed.
+Next Obligation. destruct x, y. simpl. now apply mult_ne_0. Qed.
 
 Global Instance Frac_0: RingZero (Frac R) := ('0 : Frac R).
 Global Instance Frac_1: RingOne (Frac R) := ('1 : Frac R).
 
-Global Instance Frac_opp: GroupInv (Frac R) := λ x, frac (- num x) (den x) (den_nonzero x).
+Global Instance Frac_opp: GroupInv (Frac R) := λ x, frac (- num x) (den x) (den_ne_0 x).
 
 Global Program Instance Frac_mult: RingMult (Frac R) := λ x y, frac (num x * num y) (den x * den y) _.
-Next Obligation. destruct x, y. simpl. apply mult_ne_zero; assumption. Qed.
+Next Obligation. destruct x, y. simpl. now apply mult_ne_0. Qed.
 
 Ltac unfolds := unfold Frac_opp, Frac_plus, equiv, Frac_equiv in *; simpl in *.
 Ltac ring_on_ring := repeat intro; unfolds; try ring.
@@ -62,9 +61,6 @@ Proof.
   rewrite right_identity in F.
   rewrite F. apply left_absorb.
 Qed.
-
-Global Program Instance Frac_mult_inv: MultInv (Frac R) := λ x, frac (den x) (num x) _.
-Next Obligation. apply Frac_nonzero_num. now destruct x. Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) Frac_plus.
 Proof with try ring.
@@ -89,20 +85,50 @@ Qed.
 Instance: Ring (Frac R).
 Proof. repeat (split; try apply _); ring_on_ring. Qed.
 
-Instance: Proper ((=) ==> (=)) Frac_mult_inv.
+Global Instance Frac_dec_mult_inv: DecMultInv (Frac R) := λ x,
+  match decide_rel (=) (num x) 0 with
+  | left _ => 0
+  | right P => frac (den x) (num x) P
+  end.
+
+Instance: Setoid_Morphism Frac_dec_mult_inv.
 Proof.
-  intros [x N] [x' N'] E. unfolds.
+  split; try apply _.
+  intros [xn xd Px] [yn yd Py]. unfolds. unfold Frac_dec_mult_inv. simpl.
+  case (decide_rel (=) xn 0); case (decide_rel (=) yn 0); intros Ey Ex; simpl.
+     reflexivity.
+    rewrite Ex. intros E. destruct Ey. 
+    apply (right_cancellation_ne_0 (.*.) xd); trivial.
+    rewrite <-E. ring.
+   rewrite Ey. intros E. destruct Ex. 
+   apply (right_cancellation_ne_0 (.*.) yd); trivial.
+   rewrite E. ring.
   symmetry.
-  now rewrite (commutativity (den x')), (commutativity (den x)).
+  now rewrite (commutativity yd), (commutativity xd).
 Qed.
 
-Definition Frac_field: Field (Frac R).
+Global Instance: DecField (Frac R).
 Proof.
   constructor; try apply _.
-   red. unfolds.
-   rewrite 2!mult_1_r.
-   apply (ne_0 1).
-  intros [x Ex]. ring_on_ring.
+    red. unfolds.
+    rewrite 2!mult_1_r.
+    apply (is_ne_0 1).
+   unfold dec_mult_inv, Frac_dec_mult_inv.
+   case (decide_rel _); simpl; intuition.
+  intros [xn xs] Ex.
+  unfold dec_mult_inv, Frac_dec_mult_inv.
+  case (decide_rel _); simpl.
+   intros E. destruct Ex. unfolds. rewrite E. ring.
+  intros. ring_on_ring.
+Qed.
+
+Lemma Frac_dec_mult_num_den x :
+  x = 'num x / 'den x.
+Proof.
+  unfold dec_mult_inv, Frac_dec_mult_inv.
+  case (decide_rel _); simpl; intros E.
+   now destruct (den_ne_0 x).
+  unfolds. ring.
 Qed.
 
 (* A final word about inject *)
@@ -120,21 +146,17 @@ Proof.
 Qed.
 End contents.
 
-(* By declaring (Frac R) as a Field, instance resolution will go like: 
-    LeftCancellation (.*.) z => Field (Frac R) => LeftCancellation (.*.) z => .. 
-  so we have to make it a little less eager *)
-Hint Extern 10 (Field (Frac _)) => apply @Frac_field : typeclass_instances. 
 Typeclasses Opaque Frac_equiv.
 
 Section morphisms.
-Context `{IntegralDomain R1} `{∀ z : R1, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
-Context `{IntegralDomain R2} `{∀ z : R2, PropHolds (z ≠ 0) → LeftCancellation (.*.) z}.
+Context `{IntegralDomain R1} `{∀ x y : R1, Decision (x = y)}.
+Context `{IntegralDomain R2} `{∀ x y : R2, Decision (x = y)}.
 Context `(f : R1 → R2) `{!SemiRing_Morphism f} `{!Injective f}.
 
 Program Definition Frac_lift (x : Frac R1) : Frac R2 := frac (f (num x)) (f (den x)) _.
 Next Obligation.
   apply injective_ne_0.
-  apply den_nonzero.
+  now apply (den_ne_0 x).
 Qed.
 
 Instance: Proper ((=) ==>(=)) Frac_lift.

@@ -2,11 +2,11 @@ Require
   theory.nat_distance.
 Require Import
   Morphisms Setoid Program
-  interfaces.naturals abstract_algebra natpair_integers
-  theory.integers theory.rings orders.naturals orders.semirings.
+  interfaces.naturals abstract_algebra interfaces.orders natpair_integers
+  theory.integers theory.rings orders.naturals orders.rings.
 
 Section contents. 
-Context `{Integers Int} `{!RingOrder oR} `{!TotalOrder oR} `{Naturals N}.
+Context `{Integers Int} `{Apart Int} `{!TrivialApart Int} `{!PseudoRingOrder Ile Ilt} `{Naturals N}.
 
 Lemma int_abs_uniq (a b : IntAbs Int N) (z : Int) : a z = b z.
 Proof.
@@ -85,7 +85,7 @@ Proof with auto.
   apply (antisymmetry (≤)).
    apply flip_nonneg_minus.
    apply nonneg_plus_compat...
-  apply opp_to_sr_precedes_to_sr.
+  apply opp_to_sr_le_to_sr.
 Qed.
 
 Lemma int_abs_nonneg_plus x y : 
@@ -105,7 +105,7 @@ Proof with auto; try reflexivity.
   apply int_abs_nonneg...
 Qed.
 
-Lemma int_abs_zero x : int_abs Int N x = 0 ↔ x = 0.
+Lemma int_abs_0_alt x : int_abs Int N x = 0 ↔ x = 0.
 Proof with auto; try reflexivity.
   split; intros E.
    unfold int_abs in E. destruct int_abs_sig as [z [E1 | E1]]; simpl in E.
@@ -114,8 +114,8 @@ Proof with auto; try reflexivity.
   rewrite E. apply int_abs_0.
 Qed.
 
-Lemma int_abs_nonzero x : int_abs Int N x ≠ 0 ↔ x ≠ 0.
-Proof. firstorder using int_abs_zero. Qed.
+Lemma int_abs_ne_0 x : int_abs Int N x ≠ 0 ↔ x ≠ 0.
+Proof. firstorder using int_abs_0_alt. Qed.
 
 Lemma int_abs_nonneg_mult x y : 
   0 ≤ x → 0 ≤ y → int_abs Int N (x * y) = int_abs Int N x * int_abs Int N y.
@@ -132,7 +132,7 @@ Proof with auto.
   apply (injective (naturals_to_semiring N Int)). 
   rewrite preserves_1.
   apply int_abs_nonneg... 
-  apply precedes_0_1.
+  apply le_0_1.
 Qed.
 
 Lemma int_abs_opp z : int_abs Int N (- z) = int_abs Int N z.

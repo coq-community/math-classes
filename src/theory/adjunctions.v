@@ -6,7 +6,9 @@ Require Import
   workaround_tactics theory.jections.
 Require dual.
 
-Hint Unfold id compose: typeclass_instances. (* todo: move *)
+Local Hint Unfold id compose: typeclass_instances. (* todo: move *)
+Local Existing Instance injective_mor.
+Local Existing Instance surjective_mor.
 
 Lemma equal_because_sole `{Setoid T} (P: T → Prop) x: is_sole P x → forall y z, P y → P z → y = z.
 Proof. firstorder. Qed. (* todo: move *)

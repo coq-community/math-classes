@@ -3,10 +3,9 @@ Require Import
   abstract_algebra ChoiceFacts interfaces.functors 
   theory.categories categories.cat.
 
-Axiom dependent_functional_choice: DependentFunctionalChoice.
+(* Axiom dependent_functional_choice: DependentFunctionalChoice. *)
 
-Section contents.
-
+Section object.
   Context {I: Type} (O: I → Type)
     `{∀ i, Arrows (O i)}
     `{∀ i (x y: O i), Equiv (x ⟶ y)}
@@ -15,14 +14,24 @@ Section contents.
 
   Definition Object := ∀ i, O i.
   Global Instance pa: Arrows Object := λ x y, ∀ i, x i ⟶ y i. (* todo: make nameless *)
-
   Global Instance: CatId Object := λ _ _, cat_id.
   Global Instance: CatComp Object := λ _ _ _ d e i, d i ◎ e i.
-  Global Instance e (x y: Object): Equiv (x ⟶ y) := λ f g, ∀ i, f i = g i.
+  Definition e (x y: Object): Equiv (x ⟶ y) := λ f g, ∀ i, f i = g i.
+End object.
 
-  Global Instance: ∀ x y: Object, Setoid (x ⟶ y) := {}.
+(* Avoid Coq trying to apply e to find arbitrary Equiv instances *)
+Hint Extern 0 (Equiv (_ ⟶ _)) => eapply @e : typeclass_instances.
 
-  Global Instance: Category Object.
+Section contents.
+  Context {I: Type} (O: I → Type)
+    `{∀ i, Arrows (O i)}
+    `{∀ i (x y: O i), Equiv (x ⟶ y)}
+    `{∀ i, CatId (O i)} `{∀ i, CatComp (O i)}
+    `{∀ i, Category (O i)}.
+
+  Global Instance: ∀ x y: Object O, Setoid (x ⟶ y) := {}.
+
+  Global Instance: Category (Object O).
   Proof with try reflexivity.
    constructor. apply _.
       intros ? ? ? x y E x' y' F i.
@@ -33,11 +42,11 @@ Section contents.
    repeat intro. apply id_r.
   Qed.
 
-  Let product_object := cat.object Object.
+  Let product_object := cat.object (Object O).
 
   Notation ith_obj i := (cat.object (O i)).
 
-  Program Definition project i: cat.object Object ⟶ ith_obj i :=
+  Program Definition project i: cat.object (Object O) ⟶ ith_obj i :=
     cat.arrow (λ d, d i) (λ _ _ a, a i) _.
   Next Obligation. Proof. (* functorial *)
    constructor; intros; try reflexivity; try apply _.
@@ -123,7 +132,7 @@ Section contents.
   of the nice product-relates interfaces from theory/categories results in universe
   inconsistency errors that I have isolated and reported as Coq bug #2252. *)
 
-  Global Instance mono (X Y: Object): ∀ (a: X ⟶ Y), (∀ i, @Mono _ _ (H0 _) (H2 i) _ _ (a i)) → Mono a.
+  Global Instance mono (X Y: Object O): ∀ (a: X ⟶ Y), (∀ i, @Mono _ _ (H0 _) (H2 i) _ _ (a i)) → Mono a.
   Proof. firstorder. Qed. (* todo: why so ugly all of a sudden? *)
 
 End contents.

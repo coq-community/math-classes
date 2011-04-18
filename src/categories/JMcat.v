@@ -57,7 +57,7 @@ Section contents.
     Proof with intuition.
      unfold e. intros a b c [P Q] [R S]...
       transitivity (b v)...
-     apply JMrelation.transitive with _ (=) (fmap b f)...
+     apply JMrelation.transitive with _ (=) (fmap b f)... apply _.
     Qed.
 
     Global Instance: Setoid (x ⟶ y).
@@ -84,5 +84,5 @@ Section contents.
   Qed.
 
   Global Instance: Category Object.
-  Proof. repeat (split; try apply _); intuition; reflexivity. Qed.
+  Proof. repeat (split; try apply _); intuition; apply reflexivity. Qed.
 End contents.

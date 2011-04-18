@@ -1,8 +1,8 @@
 Require
   theory.fields stdlib_rationals theory.int_pow.
 Require Import
-  QArith QSig
-  abstract_algebra 
+  Program QArith QSig
+  abstract_algebra interfaces.orders
   interfaces.integers interfaces.rationals interfaces.additional_operations
   theory.rings theory.rationals.
 
@@ -16,7 +16,7 @@ Instance QType_0: RingZero t := zero.
 Instance QType_1: RingOne t := one.
 Instance QType_mult: RingMult t := mul.
 Instance QType_opp: GroupInv t := opp.
-Instance QType_mult_inv: MultInv t := λ x, inv (proj1_sig x).
+Instance QType_dec_mult_inv: DecMultInv t := inv.
 
 Instance: Setoid t := {}.
 
@@ -46,8 +46,11 @@ Proof.
  exact mul_inv_diag_l.
 Qed.
 
-Instance: Field t.
-Proof. apply (fields.from_stdlib_field_theory anyQ_field_theory). Qed.
+Instance: DecField t.
+Proof. 
+  refine (dec_fields.from_stdlib_field_theory anyQ_field_theory _). 
+  unfold eq. now rewrite spec_inv, spec_0.
+Qed.
 
 (* Type-classified facts about to_Q/of_Q: *)
 Instance inject_QType_Q: Coerce t Q := to_Q.
@@ -80,15 +83,9 @@ Proof. change (SemiRing_Morphism (to_Q⁻¹)). split; apply _. Qed.
 Instance: RationalsToFrac t := iso_to_frac of_Q.
 Instance: Rationals t := iso_is_rationals of_Q.
 
-Program Instance Qtype_dec_mult_inv: DecMultInv t := inv.
-Next Obligation.
-  split; intros E. 
-   rewrite commutativity. now apply mul_inv_diag_l.
-  rewrite E. unfold_equiv. now qify.
-Qed.
-
 (* Order *)
-Instance QType_le: Order t := le.
+Instance QType_le: Le t := le.
+Instance QType_lt: Lt t := lt.
 
 Instance: Proper ((=) ==> (=) ==> iff) QType_le.
 Proof. 
@@ -100,13 +97,18 @@ Instance: OrderEmbedding to_Q.
 Proof. now repeat (split; try apply _). Qed.
 
 Instance: RingOrder QType_le.
-Proof rings.embed_ringorder to_Q.
+Proof rings.projected_ringorder to_Q.
 
-Instance: TotalOrder QType_le.
-Proof maps.embed_totalorder to_Q.
+Instance: TotalRelation QType_le.
+Proof maps.projected_total_order to_Q.
 
-Lemma QType_lt_coincides x y : lt x y ↔ x < y.
-Proof. unfold lt. now rewrite stdlib_rationals.Qlt_coincides. Qed.
+Instance: PseudoRingOrder QType_le QType_lt.
+Proof.
+  rapply rings.dec_pseudo_ringorder.
+  intros x y. 
+  change (to_Q x < to_Q y ↔ x ≤ y ∧ x ≠ y).
+  now rewrite orders.lt_iff_le_ne.
+Qed.
 
 (* Efficient comparison *)
 Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) with
@@ -116,15 +118,14 @@ Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) 
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Qcompare_spec (to_Q x) (to_Q y)); try discriminate.
-  apply orders.not_precedes_sprecedes.
-  now apply QType_lt_coincides.
+  now apply orders.lt_not_le_flip.
 Qed.
 
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Qcompare_spec (to_Q x) (to_Q y)); try discriminate; try intuition.
    now apply Zeq_le.
-  now apply orders.sprecedes_weaken, QType_lt_coincides.
+  now apply orders.lt_le.
 Qed.
 
 (* Efficient [int_pow] *)

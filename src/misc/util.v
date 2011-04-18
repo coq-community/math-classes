@@ -11,22 +11,6 @@ Section pointwise_dependent_relation.
   Proof. firstorder. Qed.
 End pointwise_dependent_relation.
 
-Instance sig_equiv `{Equiv A} (P: A → Prop) : Equiv (sig P) := λ x y, proj1_sig x = proj1_sig y.
-
-Instance sig_equivalence `{e : Equiv A} (P: A → Prop) `{!Equivalence e}: Equivalence (sig_equiv P).
-Proof.
- split; repeat intro; unfold sig_equiv in *; try intuition.
- transitivity (proj1_sig y); intuition.
-Qed.
-
-Instance sigT_equiv `{Equiv A} (P: A → Type) : Equiv (sigT P) := λ a b, projT1 a = projT1 b.
-
-Instance sigT_equivalence `{e: Equiv A} (P: A → Type) `{!Equivalence e} : Equivalence (sigT_equiv P).
-Proof.
- split; repeat intro; unfold sigT_equiv in *; try intuition.
- transitivity (projT1 y); intuition.
-Qed.
-
 Definition iffT (A B: Type): Type := prod (A → B) (B → A).
 
 Class NonEmpty {A: Type} (P: A → Prop) : Prop := non_empty: ex P.
@@ -115,3 +99,8 @@ Proof. firstorder. Qed.
 (* Also see Coq bug #2358. A totally different approach would be to define negated relations 
     such as inequality as separate relations rather than notations, so that the existing [symmetry] 
     will work for them. However, this most likely breaks other things. *)
+
+Lemma biinduction_iff `{Biinduction R} 
+  (P1 : Prop) (P2 : R → Prop) (P2_proper : Proper ((=) ==> iff) P2) :
+  (P1 ↔ P2 0) → (∀ n, P2 n ↔ P2 (1 + n)) → ∀ n, P1 ↔ P2 n.
+Proof. intros ? ?. apply biinduction; [solve_proper | easy | firstorder]. Qed.

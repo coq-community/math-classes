@@ -53,7 +53,7 @@ Instance naturals_to_naturals_injective `{Naturals N} `{Naturals N2} (f: N → N
 Proof. now apply (to_semiring_injective (naturals_to_semiring N2 N) _). Qed.
 
 Section retract_is_nat.
-  Context `{Naturals N} `{SemiRing SR} `{oSR : Order SR} `{!SemiRingOrder oSR} `{!TotalOrder oSR}.
+  Context `{Naturals N} `{SemiRing SR}.
   Context (f : N → SR) `{inv_f : !Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (f⁻¹)}.
 
   (* If we make this an instance, then instance resolution will often loop *)
@@ -140,22 +140,26 @@ Section borrowed_from_nat.
   Qed.
 
   Global Instance: ∀ z : N, RightCancellation (+) z.
-  Proof. intro. apply right_cancel_from_left. Qed.
+  Proof. intro. apply (right_cancel_from_left (+)). Qed.
 
   Global Instance: ∀ z : N, PropHolds (z ≠ 0) → LeftCancellation (.*.) z.
   Proof.
     intros z E x y.
     rapply (from_nat_stmt ((z' === 0 -=> Ext _ False) -=> z' * x' === z' * y' -=> x' === y') (three_vars x y z)).
-    intro. simpl. now apply nat_mult_mult_reg_l. easy.
+    intro. simpl. intros. now apply (left_cancellation_ne_0 (.*.) (v () 2)). easy.
   Qed.
 
   Global Instance: ∀ z : N, PropHolds (z ≠ 0) → RightCancellation (.*.) z.
-  Proof. intros ? ?. apply right_cancel_from_left. Qed.
+  Proof. intros ? ?. apply (right_cancel_from_left (.*.)). Qed.
 
-  Global Instance: PropHolds ((1:N) ≠ 0).
+  Instance nat_nontrivial: PropHolds ((1:N) ≠ 0).
   Proof.
     now rapply (from_nat_stmt (1 === 0 -=> Ext _ False) no_vars).
   Qed.
+
+  Instance nat_nontrivial_apart `{Apart N} `{!TrivialApart N} : 
+    PropHolds ((1:N) ⪥ 0).
+  Proof. apply strong_setoids.ne_apart. solve_propholds. Qed.
 
   Lemma zero_sum x y : x + y = 0 → x = 0 ∧ y = 0.
   Proof.
@@ -181,7 +185,7 @@ Lemma nz_one_plus_zero x : 1 + x ≠ 0.
 Proof.
   intro E.
   destruct (zero_sum 1 x E).
-  now apply (ne_0 1).
+  now apply nat_nontrivial.
 Qed.
 
 Global Program Instance: ∀ x y: N, Decision (x = y) | 10 := λ x y,
@@ -197,5 +201,8 @@ Qed.
 Next Obligation.
   intros F. apply E. now rewrite F.
 Qed.
-
 End contents.
+
+(* Due to bug #2528 *)
+Hint Extern 6 (PropHolds (1 ≠ 0)) => eapply @nat_nontrivial : typeclass_instances.
+Hint Extern 6 (PropHolds (1 ⪥ 0)) => eapply @nat_nontrivial_apart : typeclass_instances.

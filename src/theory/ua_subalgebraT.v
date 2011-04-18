@@ -5,12 +5,11 @@ Hopefully one day Coq's universe polymorphism will permit a merge of sig and sig
 at which point we may try to merge ua_subalgebra and ua_subalgebraT as well. *)
 Require Import
   RelationClasses Morphisms Program
-  universal_algebra ua_homomorphisms canonical_names util theory.categories abstract_algebra.
+  universal_algebra ua_homomorphisms theory.categories abstract_algebra.
 Require
   categories.algebra.
 
 Section subalgebras.
-
   Context `{Algebra sign A} (P: ∀ s, A s → Type).
 
   (* We begin by describing what it means for P to be a proper closed subset: *)
@@ -77,5 +76,6 @@ Section subalgebras.
 
   Global Instance subalgebra: Algebra sign carrier.
   Proof. constructor. apply _. intro. apply close_op_proper, algebra_propers. Qed.
-
 End subalgebras.
+
+Hint Unfold carrier: typeclass_instances.

@@ -2,7 +2,7 @@ Require Import
   Program Morphisms Ring
   abstract_algebra interfaces.integers interfaces.naturals interfaces.rationals
   field_of_fractions natpair_integers
-  theory.rings theory.integers theory.fields.
+  theory.rings theory.integers theory.dec_fields.
 
 Program Instance slow_rat_dec `{Rationals Q} : ∀ x y: Q, Decision (x = y) | 10 := λ x y,
   match decide (rationals_to_frac Q (SRpair nat) x = rationals_to_frac Q (SRpair nat) y) with
@@ -19,20 +19,19 @@ Section another_integers.
   Notation ZtoQ := (integers_to_ring Z Q).
   Notation QtoFrac := (rationals_to_frac Q Z).
 
-  Lemma rationals_decompose `{!SemiRing_Morphism (f : Z → Q)} `{!DecMultInv Q} (x : Q) : 
+  Lemma rationals_decompose `{!SemiRing_Morphism (f : Z → Q)} (x : Q) : 
     ∃ num, ∃ den, den ≠ 0 ∧ x = f num / f den.
   Proof.
     exists (num (QtoFrac x)) (den (QtoFrac x)). split.
-     apply den_nonzero.
+     now apply den_ne_0.
     apply (injective QtoFrac).
     rewrite preserves_mult.
     rewrite preserves_dec_mult_inv.
     change (QtoFrac x = (QtoFrac ∘ f) (num (QtoFrac x)) / (QtoFrac ∘ f) (den (QtoFrac x))).
     rewrite 2!(to_ring_unique_alt (QtoFrac ∘ f) Frac_inject).
     assert (Frac_inject (den (QtoFrac x)) ≠ 0) as P.
-     apply injective_ne_0. apply den_nonzero.
-    rewrite (dec_mult_inv_correct _ P).
-    unfold equiv, Frac_equiv. simpl. ring.
+     apply injective_ne_0. apply den_ne_0.
+    apply Frac_dec_mult_num_den.
   Qed.
 
   Global Instance integers_to_rationals_injective `{!SemiRing_Morphism (f: Z → Q)} : Injective f.
@@ -43,13 +42,9 @@ Section another_integers.
     now rewrite <-2!(to_ring_unique f).
   Qed.
 
-  Context `{f : Q → Frac Z} `{!SemiRing_Morphism f} `{!Injective f}.
+  Context `{f : Q → Frac Z} `{!SemiRing_Morphism f}.
 
-  Global Program Instance to_frac_inverse: Inverse f := λ x, ZtoQ (num x) // (ZtoQ (den x))↾_.
-  Next Obligation.
-    apply injective_ne_0.
-    apply den_nonzero.
-  Qed.
+  Global Instance to_frac_inverse: Inverse f := λ x, ZtoQ (num x) / ZtoQ (den x).
 
   Global Instance: Surjective f.
   Proof.
@@ -59,12 +54,14 @@ Section another_integers.
     rewrite <-E. clear E.
     rewrite commutativity.
     apply (left_cancellation_ne_0 (.*.) (f (ZtoQ (den x)))).
-     do 2 apply injective_ne_0. apply den_nonzero.
+     do 2 apply injective_ne_0. apply den_ne_0.
     rewrite <-preserves_mult, associativity.
-    rewrite mult_inverse_alt, left_identity.
-    change ((f ∘ ZtoQ) (num x) = (f ∘ ZtoQ) (den x) * x).
-    rewrite 2!(to_ring_unique_alt (f ∘ ZtoQ) Frac_inject).
-    unfold equiv, Frac_equiv. simpl. ring.
+    rewrite dec_mult_inverse, left_identity.
+     change ((f ∘ ZtoQ) (num x) = (f ∘ ZtoQ) (den x) * x).
+     rewrite 2!(to_ring_unique_alt (f ∘ ZtoQ) Frac_inject).
+     unfold equiv, Frac_equiv. simpl. ring.
+    apply injective_ne_0.
+    now apply den_ne_0.
   Qed.
 
   (* Making this instance global results in loops *)
@@ -75,7 +72,7 @@ Section another_integers.
   Global Instance: SemiRing_Morphism (f⁻¹) := {}.
 End another_integers.
 
-Lemma to_frac_unique `{Rationals Q} `{Integers Z} (f g : Q → Frac Z) `{!SemiRing_Morphism f} `{!Injective f} `{!SemiRing_Morphism g} `{!Injective g} :
+Lemma to_frac_unique `{Rationals Q} `{Integers Z} (f g : Q → Frac Z) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} :
   ∀ x, f x = g x.
 Proof.
   intros x.
@@ -104,7 +101,7 @@ Section another_rationals.
     apply jections.bijective_applied.
   Qed.
 
-  Lemma to_rationals_unique (f : Q1 → Q2) `{!SemiRing_Morphism f} `{!Injective f} :
+  Lemma to_rationals_unique (f : Q1 → Q2) `{!SemiRing_Morphism f} :
     ∀ x, f x = rationals_to_rationals Q1 Q2 x.
   Proof.
     intros x. 
@@ -116,14 +113,14 @@ Section another_rationals.
   Qed.
 End another_rationals.
 
-Lemma to_rationals_unique_alt `{Rationals Q1} `{Rationals Q2} (f g : Q1 → Q2) `{!SemiRing_Morphism f} `{!Injective f} `{!SemiRing_Morphism g} `{!Injective g} :
+Lemma to_rationals_unique_alt `{Rationals Q1} `{Rationals Q2} (f g : Q1 → Q2) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} :
   ∀ x, f x = g x.
 Proof.
   intros x.
   now rewrite (to_rationals_unique f), (to_rationals_unique g).
 Qed.
 
-Lemma morphisms_involutive `{Rationals Q1} `{Rationals Q2} (f : Q1 → Q2) (g : Q2 → Q1) `{!SemiRing_Morphism f} `{!Injective f} `{!SemiRing_Morphism g} `{!Injective g} :
+Lemma morphisms_involutive `{Rationals Q1} `{Rationals Q2} (f : Q1 → Q2) (g : Q2 → Q1) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} :
   ∀ x, f (g x) = x.
 Proof.
   intros x.
@@ -141,7 +138,7 @@ Proof.
 Qed.
 
 Section isomorphic_image_is_rationals.
-  Context `{Rationals Q} `{Field F}.
+  Context `{Rationals Q} `{DecField F}.
   Context (f : Q → F) `{!Inverse f} `{!Bijective f} `{!SemiRing_Morphism f}.
 
   Instance iso_to_frac: RationalsToFrac F := λ Z _ _ _ _ _ _ _ _, rationals_to_frac Q Z ∘ f⁻¹.
@@ -159,14 +156,14 @@ Section isomorphic_image_is_rationals.
 End isomorphic_image_is_rationals.
 
 Section alt_Build_Rationals.
-  Context `{Field F} `{Integers Z} (F_to_fracZ : F → Frac Z) `{!SemiRing_Morphism F_to_fracZ} `{!Injective F_to_fracZ}.
+  Context `{DecField F} `{Integers Z} (F_to_fracZ : F → Frac Z) `{!SemiRing_Morphism F_to_fracZ} `{!Injective F_to_fracZ}.
   Context (Z_to_F : Z → F) `{!SemiRing_Morphism Z_to_F} `{!Injective Z_to_F}.
 
   Program Instance alt_to_frac: RationalsToFrac F := λ B _ _ _ _ _ _ _ _ x, 
     frac (integers_to_ring Z B (num (F_to_fracZ x))) (integers_to_ring Z B (den (F_to_fracZ x))) _.
   Next Obligation.
     apply injective_ne_0.
-    apply den_nonzero.
+    apply den_ne_0.
   Qed.
 
   Instance: ∀ `{Integers B}, Proper ((=) ==> (=)) (rationals_to_frac F B).

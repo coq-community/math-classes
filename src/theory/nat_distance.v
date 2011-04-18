@@ -2,7 +2,7 @@ Require
   orders.naturals peano_naturals.
 Require Import
   Morphisms Ring
-  abstract_algebra interfaces.naturals interfaces.additional_operations.
+  abstract_algebra interfaces.naturals interfaces.orders interfaces.additional_operations.
 
 Section contents.
 Context `{Naturals N}.
@@ -38,16 +38,16 @@ Proof. apply nat_distance_unique_respectful. Qed.
 End contents.
 
 (* An existing instance of [CutMinus] allows to create an instance of [NatDistance] *)
-Program Instance natdistancecut_minus `{Naturals N} `{!SemiRingOrder oN} 
-       `{!TotalOrder oN} `{!CutMinusSpec N cm} `{∀ x y, Decision (x ≤ y)} : NatDistance N 
+Program Instance natdistancecut_minus `{Naturals N} `{Apart N} `{!TrivialApart N} `{!PseudoSemiRingOrder Nle Nlt} 
+       `{!CutMinusSpec N cm} `{∀ x y, Decision (x ≤ y)} : NatDistance N 
   := λ x y, if decide_rel (≤) x y then y ∸ x else x ∸ y.
 Next Obligation. 
   left. rewrite commutativity.
-  now apply cut_minus_precedes.
+  now apply cut_minus_le.
 Qed.
 Next Obligation.
   right. rewrite commutativity.
-  now apply cut_minus_precedes, orders.precedes_flip.
+  now apply cut_minus_le, orders.le_flip.
 Qed.
 
 (* Using the preceding instance we can make an instance for arbitrary models of the naturals

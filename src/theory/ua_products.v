@@ -201,7 +201,7 @@ Section categorical.
 
   Next Obligation.
    apply (@algebra_projection_morphisms et I c
-     (λ x, @variety.variety_equiv et (c x)) (λ x, variety.variety_op et (c x)) ).
+     (λ x, @variety.variety_equiv et (c x)) (λ x, variety.variety_ops et (c x)) ).
    intro. apply _.
   Qed.
 
@@ -213,8 +213,8 @@ Section categorical.
     intro.
     pose proof (λ i, @preserves _ _ _ _ _ _ _ _ (proj2_sig (h i)) o).
     unfold product_ops, algebra_op.
-    set (λ i, variety.variety_op et (c i) o).
-    set (variety.variety_op et H o) in *.
+    set (λ i, variety.variety_ops et (c i) o).
+    set (variety.variety_ops et H o) in *.
     change (∀i : I, Preservation et H (c i) (` (h i)) o1 (o0 i)) in H0.
     clearbody o0 o1. revert o0 o1 H0.
     induction (et o); simpl...

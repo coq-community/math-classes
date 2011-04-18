@@ -4,37 +4,36 @@ Require Import
 Require
   categories.setoid categories.product.
 
-Section contents.
+Record Object (sign: Signature) : Type := object
+  { algebra_carriers:> sorts sign → Type
+  ; algebra_equiv: ∀ a, Equiv (algebra_carriers a)
+  ; algebra_ops: AlgebraOps sign algebra_carriers
+  ; algebra_proof: Algebra sign algebra_carriers }.
 
+Implicit Arguments object [[algebra_equiv] [algebra_ops] [algebra_proof]].
+
+(* Avoid Coq trying to apply algebra_equiv to find arbitrary Equiv instances *)
+Hint Extern 0 (Equiv (algebra_carriers _ _ _)) => eapply @algebra_equiv : typeclass_instances.
+Existing Instance algebra_ops.
+Existing Instance algebra_proof.
+
+Section contents.
   Variable sign: Signature.
 
-  Record Object: Type := object
-    { algebra_carriers:> sorts sign → Type
-    ; algebra_equiv: ∀ a, Equiv (algebra_carriers a)
-    ; algebra_ops: AlgebraOps sign algebra_carriers
-    ; algebra_proof: Algebra sign algebra_carriers
-    }.
-
-  Global Implicit Arguments object [[algebra_equiv] [algebra_ops] [algebra_proof]].
-
-  Global Existing Instance algebra_equiv.
-  Global Existing Instance algebra_ops.
-  Global Existing Instance algebra_proof.
-
-  Global Instance: Arrows Object := λ X Y: Object, sig (HomoMorphism sign X Y).
+  Global Instance: Arrows (Object sign) := λ X Y, sig (HomoMorphism sign X Y).
 
   Program Definition arrow `{Algebra sign A} `{Algebra sign B}
-    f `{!HomoMorphism sign A B f}: object A ⟶ object B := f.
+    f `{!HomoMorphism sign A B f}: object sign A ⟶ object sign B := f.
 
-  Global Program Instance: CatId Object := λ _ _, id.
+  Global Program Instance: CatId (Object sign) := λ _ _, id.
 
-  Global Program Instance comp: CatComp Object := λ _ _ _ f g v, f v ∘ g v.
+  Global Program Instance comp: CatComp (Object sign) := λ _ _ _ f g v, f v ∘ g v.
   Next Obligation. destruct f, g. apply _. Qed.
 
-  Global Program Instance: ∀ x y: Object, Equiv (x ⟶ y)
+  Global Program Instance: ∀ x y: Object sign, Equiv (x ⟶ y)
     := λ _ _ x y, ∀ b, pointwise_relation _ (=) (x b) (y b).
 
-  Global Instance: ∀ x y: Object, Setoid (x ⟶ y).
+  Global Instance: ∀ x y: Object sign, Setoid (x ⟶ y).
   Proof.
    constructor.
      repeat intro. reflexivity.
@@ -49,7 +48,6 @@ Section contents.
    destruct (proj2_sig x0). rewrite F, E. reflexivity.
   Qed.
 
-  Global Instance: Category Object.
+  Global Instance: Category (Object sign).
   Proof. constructor; try apply _; repeat intro; reflexivity. Qed.
-
 End contents.

@@ -1,10 +1,11 @@
 Require Import 
   Program Morphisms Ring Factorial workaround_tactics
-  abstract_algebra interfaces.additional_operations interfaces.naturals interfaces.integers
+  abstract_algebra interfaces.additional_operations interfaces.orders
+  interfaces.naturals interfaces.integers
   theory.nat_pow theory.int_pow theory.streams.
 
 Section series.
-Context `{SemiRing A} `{!SemiRingOrder leA}.
+Context `{SemiRing A} `{!SemiRingOrder Ale}.
 Add Ring A : (rings.stdlib_semiring_theory A).
 Add Ring nat : (rings.stdlib_semiring_theory nat).
 
@@ -149,8 +150,8 @@ Section mult.
     cofix FIX. intros s1 s2 [[? ?] ?] [[? ?] ?].
     constructor; simpl.
      split.
-      now apply semirings.nonneg_mult_compat.
-     now apply semirings.mult_compat.
+      now apply nonneg_mult_compat.
+     now apply semirings.mult_le_compat.
     now apply FIX.
   Qed.
 
@@ -161,8 +162,8 @@ Section mult.
     cofix FIX. intros s1 s2 [? ?] [? ?].
     constructor; simpl.
      split.
-      now apply semirings.nonneg_mult_compat.
-     now apply semirings.mult_compat.
+      now apply nonneg_mult_compat.
+     now apply semirings.mult_le_compat.
     now apply FIX.
   Qed.
   
@@ -202,7 +203,7 @@ Section powers.
   End with_nat_pow.
 
   Section with_int_pow. 
-  Context `{!GroupInv A} `{!MultInv A} `{!Field A} `{∀ x y, Decision (x = y)} `{!DecMultInv A}
+  Context `{!GroupInv A} `{!DecMultInv A} `{!DecField A} `{∀ x y : A, Decision (x = y)}
      `{Integers Z} `{!IntPowSpec A Z pw} (f : nat → Z) `{!SemiRing_Morphism f}.
 
   Lemma Str_nth_powers_help_int_pow (n : nat) (c : A) : Str_nth n (powers_help c) = c * a ^ (f n).
@@ -306,8 +307,8 @@ End factorials.
 End series.
 
 Section preservation.
-  Context `{SemiRing A} {leA : Order A} `{!SemiRingOrder leA}.
-  Context `{SemiRing B} {leB : Order B} `{!SemiRingOrder leB}.
+  Context `{SemiRing A} `{!SemiRingOrder (A:=A) Ale}.
+  Context `{SemiRing B} `{!SemiRingOrder (A:=B) Ble}.
   Context `{!SemiRing_Morphism (f : A → B)}.
 
   Lemma preserves_powers_help (a c : A) (n : nat) :

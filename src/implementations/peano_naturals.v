@@ -1,9 +1,9 @@
 Require 
-  ua_homomorphisms orders.orders theory.rings.
+  ua_homomorphisms.
 Require Import
   Morphisms Ring Arith_base
   abstract_algebra interfaces.naturals theory.categories
-  interfaces.additional_operations.
+  interfaces.additional_operations interfaces.orders orders.semirings.
 
 Instance nat_equiv: Equiv nat := eq.
 Instance nat_plus: RingPlus nat := plus.
@@ -93,48 +93,50 @@ Qed.
 (* [nat] is indeed a model of the naturals *)
 Instance: Naturals nat := {}.
 
+(* Misc *)
+Instance: NoZeroDivisors nat.
+Proof. intros x [Ex [y [Ey1 Ey2]]]. destruct (Mult.mult_is_O x y Ey2); intuition. Qed.
+
+Instance: ∀ z : nat, LeftCancellation (+) z.
+Proof. intros x y z. now apply Plus.plus_reg_l. Qed.
+
+Instance: ∀ z : nat, PropHolds (z ≠ 0) → LeftCancellation (.*.) z.
+Proof. intros z Ez x y. now apply NPeano.Nat.mul_cancel_l. Qed. 
+
 (* Order *)
-Instance nat_le: Order nat := le.
+Instance nat_le: Le nat := Peano.le.
+Instance nat_lt: Lt nat := Peano.lt.
 
-Instance: SemiRingOrder nat_le.
-Proof with trivial.
-  repeat (split; try apply _).
-     intros x y E. apply Le.le_antisym...
-    intros E.
-    assert (y ≡ x + (y - x))%nat as F by now apply le_plus_minus.
-    exists (y - x)%nat. split...
-    apply plus_le_reg_l with x.
-    rewrite <-F... rewrite Plus.plus_0_r...
-   intros [z [Ez1 Ez2]].
-   rewrite Ez2. now apply le_plus_trans.
-  intros x E1 y E2.
-  change (0 * 0 <= x * y)%nat. now apply mult_le_compat.
-Qed.
-
-Instance: TotalOrder nat_le.
+Instance: TotalRelation nat_le.
 Proof. intros x y. destruct (le_ge_dec x y); intuition. Qed.
+
+Instance: PseudoSemiRingOrder nat_le nat_lt.
+Proof.
+  assert (SemiRingOrder nat_le).
+   repeat (split; try apply _).
+      intros x y E. now apply Le.le_antisym.
+     intros E.
+     assert (y ≡ x + (y - x))%nat as F by now apply le_plus_minus.
+     exists (y - x)%nat. split; trivial.
+     apply plus_le_reg_l with x.
+     rewrite <-F. now rewrite Plus.plus_0_r.
+    intros [z [Ez1 Ez2]].
+    rewrite Ez2. now apply le_plus_trans.
+   intros x y E1 E2.
+   change (0 * 0 <= x * y)%nat. now apply Mult.mult_le_compat.
+  apply dec_pseudo_srorder.
+  now apply NPeano.Nat.le_neq.
+Qed.
 
 Instance nat_le_dec: Decision (x ≤ y) := le_dec.
 
-(* Misc *)
 Instance nat_cut_minus: CutMinus nat := minus.
 Instance: CutMinusSpec nat nat_cut_minus.
 Proof.
   split.
    symmetry. rewrite commutativity.
    now apply le_plus_minus.
-  intros x y E. apply orders.sprecedes_precedes in E. destruct E as [E|E].
-   rewrite E. apply minus_diag.
-  apply not_le_minus_0. now apply orders.not_precedes_sprecedes.
+  intros x y E. destruct (orders.le_equiv_lt x y E) as [E2|E2].
+   rewrite E2. now apply minus_diag.
+  apply not_le_minus_0. now apply orders.lt_not_le_flip.
 Qed.
-
-(* Two simple omissions in the standard library that we prove for nats and then
- lift to arbitrary Naturals in theory.naturals: *)
-Lemma nat_mult_mult_reg_l (n m p : nat) : p ≠ 0 → p * n = p * m → n = m.
-Proof.
- destruct p. intuition.
- intros E F. apply Le.le_antisym; apply Mult.mult_S_le_reg_l with p; rewrite F; constructor.
-Qed.
-
-Lemma nat_mult_nz_mult_nz (x y: nat): y ≠ 0 → x ≠ 0 → y * x ≠ 0.
-Proof. intros A B C. destruct (Mult.mult_is_O y x C); intuition. Qed.

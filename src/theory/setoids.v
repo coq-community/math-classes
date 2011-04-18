@@ -11,13 +11,27 @@ Proof. firstorder. Qed.
 Instance: Equiv Prop := iff.
 Instance: Setoid Prop := {}.
 
-Instance sig_Setoid `{Setoid A} (P: A → Prop): Setoid (sig P) := {}.
-Instance sigT_Setoid `{Setoid A} (P: A → Type): Setoid (sigT P) := {}.
+Lemma projected_setoid `{Setoid B} `{Equiv A} (f: A → B)
+  (eq_correct : ∀ x y, x = y ↔ f x = f y) : Setoid A.
+Proof.
+ constructor; repeat intro; apply eq_correct.
+   reflexivity.
+  symmetry; now apply eq_correct.
+ transitivity (f y); now apply eq_correct.
+Qed.
+
+Instance sig_Setoid `{Setoid A} (P: A → Prop): Setoid (sig P).
+Proof. now apply (projected_setoid (@proj1_sig _ P)). Qed.
+
+Instance sigT_Setoid `{Setoid A} (P: A → Type): Setoid (sigT P).
+Proof. now apply (projected_setoid (@projT1 _ P)). Qed.
+
+Definition prod_equiv `{Equiv A} `{Equiv B} : Equiv (A * B) := λ p q, fst p = fst q ∧ snd p = snd q.
+(* Avoid eager application *)
+Hint Extern 0 (Equiv (_ * _)) => eapply @prod_equiv : typeclass_instances.
 
 Section simple_product.
   Context `{Setoid A} `{Setoid B}.
-
-  Global Instance prod_equiv: Equiv (A * B) := λ p q, fst p = fst q ∧ snd p = snd q.
 
   Global Instance: Setoid (A * B) := {}.
   Proof. firstorder auto. Qed.
@@ -77,12 +91,4 @@ Proof.
  intros x y E [AS BS P].
  constructor; try apply _. intros v w E'.
  rewrite <- (E v), <- (E w), E'; reflexivity.
-Qed.
-
-Lemma projected_equivalence `{Setoid B} `{f: A → B}: Equivalence (λ x y, f x = f y).
-Proof with auto.
- constructor; repeat intro.
-   reflexivity.
-  symmetry...
- transitivity (f y)...
 Qed.

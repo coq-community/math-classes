@@ -171,9 +171,9 @@ Section contents.
     Proof with intuition.
      constructor; try apply _.
      intro.
-     change (Preservation et ClosedTerm0 other (λ _, eval_in_other) (app_tree (Op _ _ o)) (variety.variety_op _ other o)).
-     generalize (algebra_propers o  : eval_in_other (Op _ _ o) = variety.variety_op _ other o).
-     generalize (Op _ False o) (variety.variety_op et other o).
+     change (Preservation et ClosedTerm0 other (λ _, eval_in_other) (app_tree (Op _ _ o)) (variety.variety_ops _ other o)).
+     generalize (algebra_propers o  : eval_in_other (Op _ _ o) = variety.variety_ops _ other o).
+     generalize (Op _ False o) (variety.variety_ops et other o).
      induction (et o)...
      simpl. intro. apply IHo0, H.
      apply reflexivity. (* todo: shouldn't have to say [apply] here. file bug *)

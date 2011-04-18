@@ -51,8 +51,8 @@ Proof.
   f_equal; try reflexivity. simpl.
   rewrite BigN.spec_of_pos.
   apply Z2P_correct.
-  apply stdlib_binary_integers.Zlt_coincides. split.
-   apply BigN.spec_pos.
+  apply orders.lt_iff_le_ne. split.
+   now apply BigN.spec_pos.
   now apply not_symmetry.
 Qed.
 

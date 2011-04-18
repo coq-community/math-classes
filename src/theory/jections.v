@@ -3,6 +3,9 @@ Require Import
   abstract_algebra canonical_names workaround_tactics.
 Require setoids.
 
+Local Existing Instance injective_mor.
+Local Existing Instance surjective_mor.
+
 Instance id_injective `{Setoid A} : Injective (@id A).
 Proof. split; try apply _. easy. Qed.
 
@@ -35,7 +38,7 @@ Proof.
  destruct H.
  unfold id, inverse.
  apply bijective_injective.
- destruct (bijective_surjective).
+ destruct bijective_surjective.
  apply surjective.
  destruct surjective_mor.
  now apply sm_proper.
@@ -47,10 +50,10 @@ Proof. firstorder. Qed.
 
 (* Without explicit argument f. This one is more convenient for rewriting *)
 Lemma surjective_applied' `{Equiv A} `{Equiv B} (f : A → B) `{!Inverse f} `{!Surjective f} x : f (f⁻¹ x) = x.
-Proof. firstorder. Qed.
+Proof. apply surjective_applied. Qed.
 
 Lemma bijective_applied `{Bijective A B f} x: f⁻¹ (f x) = x.
-Proof. firstorder. Qed.
+Proof. pose proof (setoidmor_a f). now apply (back x x). Qed.
 
 Lemma alt_injective `{Equiv A} `{Equiv B} `{f: A → B} `{!Inverse f}:
   Setoid_Morphism f →
@@ -118,7 +121,7 @@ Qed.
 Lemma cancel_left' `{Bijective A B f} x y: f ⁻¹ x = y → x = f y.
 Proof. apply (@cancel_left _ _ _ _ (f ⁻¹) f _). Qed.
 
-Instance Injective_proper `{Equiv A} `{Equiv B}: Proper ((=) ==> (=)) (@Injective A _ B _).
+Instance Injective_proper `{Equiv A} `{Equiv B}: Proper ((=) ==> (=)) (@Injective A B _ _).
 Proof with intuition.
  cut (∀ (x y: A → B), x = y → Injective x → Injective y).
   intros P f g ?. split; intros ?.

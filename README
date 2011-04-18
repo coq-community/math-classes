@@ -1,6 +1,6 @@
 Compilation
 
-  Known to compile with Coq trunk 13998.
+  Known to compile with Coq trunk 14023.
 
   Warning: This development assumes a case sensitive file system.
 
@@ -12,7 +12,7 @@ Directory structure:
     Definitions of concrete data structures and algorithms, and proofs
     that they are instances of certain structures (i.e. implement certain interfaces).
   src/orders/
-    Definitions and theory about orders on different structures.
+    Theory about orders on different structures.
   src/categories/
     Proofs that certain structures form categories.
   src/varieties/

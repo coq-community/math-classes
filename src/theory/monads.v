@@ -1,13 +1,10 @@
-
 Require Import
   Program Morphisms
-  canonical_names
   abstract_algebra
   interfaces.monads
   interfaces.functors.
 
 Section contents.
-
   Context `{Monad M}.
 
   Instance liftM: SFmap M := λ {A B} (f: A → B) (ma: M A), ma >>= ret ∘ f.
@@ -46,5 +43,4 @@ Section contents.
 
   Definition liftM2 {A B C} (f: A → B → C) (x: M A) (y: M B): M C :=
     xv ← x; yv ← y; ret (f xv yv).
-
 End contents.

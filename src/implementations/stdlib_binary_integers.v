@@ -4,7 +4,7 @@ Require Import
   BinInt Morphisms Ring Program Arith NArith ZBinary
   abstract_algebra interfaces.integers
   natpair_integers stdlib_binary_naturals
-  interfaces.additional_operations
+  interfaces.additional_operations interfaces.orders
   nonneg_integers_naturals.
 
 (* canonical names: *)
@@ -106,7 +106,8 @@ Proof. change (SemiRing_Morphism (Npair_to_Z⁻¹)). split; apply _. Qed.
 Instance: IntegersToRing Z := integers.retract_is_int_to_ring Npair_to_Z.
 Instance: Integers Z := integers.retract_is_int Npair_to_Z.
 
-Instance Z_le: Order Z := Zle.
+Instance Z_le: Le Z := Zle.
+Instance Z_lt: Lt Z := Zlt.
 
 Instance: RingOrder Z_le.
 Proof.
@@ -116,18 +117,19 @@ Proof.
   intros x E y F. now apply Zorder.Zmult_le_0_compat.
 Qed.
 
-Instance: TotalOrder Z_le.
+Instance: TotalRelation Z_le.
 Proof with intuition. 
   intros x y.
   destruct (Zorder.Zle_or_lt x y)...
   right. apply Zorder.Zlt_le_weak...
 Qed.
 
-Lemma Zlt_coincides x y : (x < y)%Z ↔ x < y.
-Proof with trivial.
+Instance: PseudoRingOrder Z_le Z_lt.
+Proof.
+  rapply rings.dec_pseudo_ringorder.
   split.
-   intro. split. apply Zorder.Zlt_le_weak... now apply Zorder.Zlt_not_eq.
-  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1)... now destruct E2.
+   intro. split. now apply Zorder.Zlt_le_weak. now apply Zorder.Zlt_not_eq.
+  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1). easy. now destruct E2.
 Qed.
 
 (* * Embedding of the Peano naturals into [Z] *)
@@ -145,7 +147,7 @@ Program Instance: IntAbs Z nat := Zabs_nat.
 Next Obligation.
   rewrite <-(naturals.to_semiring_unique Z_of_nat).
   rewrite Zabs.inj_Zabs_nat.
-  destruct (total_order 0 x).
+  destruct (total (≤) 0 x).
    left. 
    now apply Z.abs_eq.
   right.
@@ -156,7 +158,7 @@ Program Instance: IntAbs Z N := Zabs_N.
 Next Obligation.
   rewrite <-(naturals.to_semiring_unique Z_of_N).
   rewrite Znat.Z_of_N_abs.
-  destruct (total_order 0 x).
+  destruct (total (≤) 0 x).
    left. 
    now apply Z.abs_eq.
   right.

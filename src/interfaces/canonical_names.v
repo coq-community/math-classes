@@ -4,7 +4,6 @@ Global Set Automatic Introduction.
 Require Import
  RelationClasses Relation_Definitions Morphisms Setoid Program.
 Require Export Unicode.Utf8 Utf8_core.
-Require Export workarounds.
 
 (* Equality *)
 Class Equiv A := equiv: relation A.
@@ -14,25 +13,62 @@ Infix "=" := equiv: type_scope.
 Notation "(=)" := equiv (only parsing).
 Notation "( x =)" := (equiv x) (only parsing).
 Notation "(= x )" := (λ y, equiv y x) (only parsing).
+Notation "(≠)" := (λ x y, ¬x = y) (only parsing).
 Notation "x ≠ y":= (¬x = y): type_scope.
 Notation "( x ≠)" := (λ y, x ≠ y) (only parsing).
 Notation "(≠ x )" := (λ y, y ≠ x) (only parsing).
+
+(* 
+Because Coq does not support setoid rewriting in Type'd relations
+we put apartness in Prop. This has as obvious disadvantage, that when an
+implementation actually needs the witness from the apartness relation (e.g. for
+division), it has to use something like [constructive_indefinite_description] 
+to extract it. This is quite inefficient and will also most likely block due 
+to proofs being Opaque. Nonetheless we do not think this is a problem because 
+for actual computation, one does not want to rely on some arbitrary witness 
+obtained by chaining a lot of proofs. Instead one would (and probably should) 
+specify an optimal witness by hand.
+
+Another advantage of our approach is that classes describing structures (e.g.
+Field) can remain in Prop. 
+*)
+Class Apart A := apart: relation A.
+Infix "⪥" := apart (at level 70, no associativity) : type_scope.
+Notation "(⪥)" := apart (only parsing).
+Notation "( x ⪥)" := (apart x) (only parsing).
+Notation "(⪥ x )" := (λ y, apart y x) (only parsing).
 
 (* Coq sometimes uses an incorrect DefaultRelation, so we override it. *)
 Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3.
 
 (* For Leibniz equality we use "≡": *)
 Infix "≡" := eq (at level 70, no associativity).
+Notation "(≡)" := eq (only parsing).
+Notation "( x ≡)" := (eq x) (only parsing).
+Notation "(≡ x )" := (λ y, eq y x) (only parsing).
+Notation "(≢)" := (λ x y, ¬x ≡ y) (only parsing).
+Notation "x ≢ y":= (¬x ≡ y) (at level 70, no associativity).
+Notation "( x ≢)" := (λ y, x ≢ y) (only parsing).
+Notation "(≢ x )" := (λ y, y ≢ x) (only parsing).
   (* Hm, we could define a very low priority Equiv instance for Leibniz equality.. *)
 
+(* Some common notions of equality *)
 Definition ext_equiv `{Equiv A} `{Equiv B}: Equiv (A → B) := ((=) ==> (=))%signature.
 Hint Extern 10 (Equiv (_ → _)) => apply @ext_equiv : typeclass_instances. 
 Hint Extern 10 (Equiv (relation _)) => apply @ext_equiv : typeclass_instances. (* Due to bug #2491 *)
-
 (** Interestingly, most of the development works fine if this is defined as
   ∀ x, f x = g x.
 However, in the end that version was just not strong enough for comfortable rewriting
 in setoid-pervasive contexts. *)
+
+Definition sig_equiv `{Equiv A} (P: A → Prop) : Equiv (sig P) := λ x y, `x = `y.
+Hint Extern 10 (Equiv (sig _)) => apply @sig_equiv : typeclass_instances. 
+
+Definition sigT_equiv `{Equiv A} (P: A → Type) : Equiv (sigT P) := λ a b, projT1 a = projT1 b.
+Hint Extern 10 (Equiv (sigT _)) => apply @sigT_equiv : typeclass_instances. 
+
+Definition sig_apart `{Apart A} (P: A → Prop) : Equiv (sig P) := λ x y, `x ⪥ `y.
+Hint Extern 10 (Apart (sig _)) => apply @sig_apart : typeclass_instances. 
 
 (* Other canonically named relations/operations/constants: *)
 Class Decision P := decide: sumbool P (¬P).
@@ -44,17 +80,20 @@ Class RingMult A := ring_mult: A → A → A.
 Class RingOne A := ring_one: A.
 Class RingZero A := ring_zero: A.
 Class GroupInv A := group_inv: A → A.
-Definition NonZero R `{RingZero R} `{Equiv R} := sig (≠ ring_zero).
-Class MultInv A `{Equiv A} `{RingZero A} := mult_inv: NonZero A → A.
+Class DecMultInv A := dec_mult_inv: A → A.
+Definition ApartZero R `{RingZero R} `{Apart R} := sig (⪥ ring_zero).
+Class MultInv A `{Apart A} `{RingZero A} := mult_inv: ApartZero A → A.
 
-Class Order A := precedes: relation A.
-Definition strictly_precedes `{Equiv A} `{Order A} : Order A := λ (x y : A),  precedes x y ∧ x ≠ y.
-Definition NonNeg R `{RingZero R} `{Order R} := sig (precedes ring_zero).
-Definition Pos R `{RingZero R} `{Equiv R} `{Order R} := sig (strictly_precedes ring_zero).
-Definition NonPos R `{RingZero R} `{Order R} := sig (λ y, precedes y ring_zero).
+Class Le A := le: relation A.
+Class Lt A := lt: relation A.
+
+Definition NonNeg R `{RingZero R} `{Le R} := sig (le ring_zero).
+Definition Pos R `{RingZero R} `{Equiv R} `{Lt R} := sig (lt ring_zero).
+Definition NonPos R `{RingZero R} `{Le R} := sig (λ y, le y ring_zero).
 Inductive PosInf (R : Type) : Type := finite (x : R) | infinite.
 
 Class Arrows (O: Type): Type := Arrow: O → O → Type.
+Typeclasses Transparent Arrows. (* Ideally this should be removed *)
 
 Infix "⟶" := Arrow (at level 90, right associativity).
 Class CatId O `{Arrows O} := cat_id: `(x ⟶ x).
@@ -69,9 +108,13 @@ Implicit Arguments comp [[O] [H] [CatComp]].
 
 Instance: Params (@ring_mult) 2.
 Instance: Params (@ring_plus) 2.
+Instance: Params (@group_inv) 2.
 Instance: Params (@equiv) 2.
-Instance: Params (@precedes) 2.
-Instance: Params (@strictly_precedes) 3.
+Instance: Params (@apart) 2.
+Instance: Params (@le) 2.
+Instance: Params (@lt) 2.
+Instance: Params (@mult_inv) 4.
+Instance: Params (@dec_mult_inv) 2.
 
 Instance ringplus_is_semigroupop `{f: RingPlus A}: SemiGroupOp A := f.
 Instance ringmult_is_semigroupop `{f: RingMult A}: SemiGroupOp A := f.
@@ -79,9 +122,17 @@ Instance ringone_is_monoidunit `{c: RingOne A}: MonoidUnit A := c.
 Instance ringzero_is_monoidunit `{c: RingZero A}: MonoidUnit A := c.
 
 Hint Extern 10 (Equiv (_ ⟶ _)) => apply @ext_equiv : typeclass_instances.
+Hint Extern 4 (Equiv (ApartZero _)) => apply @sig_equiv : typeclass_instances. 
+Hint Extern 4 (Equiv (NonNeg _)) => apply @sig_equiv : typeclass_instances. 
+Hint Extern 4 (Equiv (Pos _)) => apply @sig_equiv : typeclass_instances. 
+Hint Extern 4 (Equiv (PosInf _)) => apply @sig_equiv : typeclass_instances. 
+Hint Extern 4 (Apart (ApartZero _)) => apply @sig_apart : typeclass_instances. 
+Hint Extern 4 (Apart (NonNeg _)) => apply @sig_apart : typeclass_instances. 
+Hint Extern 4 (Apart (Pos _)) => apply @sig_apart : typeclass_instances. 
+Hint Extern 4 (Apart (PosInf _)) => apply @sig_apart : typeclass_instances. 
 
 (* Notations: *)
-Notation "R ₀" := (NonZero R) (at level 20, no associativity).
+Notation "R ₀" := (ApartZero R) (at level 20, no associativity).
 Notation "R ⁺" := (NonNeg R) (at level 20, no associativity).
 Notation "R ₊" := (Pos R) (at level 20, no associativity).
 Notation "R ⁻" := (NonPos R) (at level 20, no associativity).
@@ -118,24 +169,28 @@ Notation "- 2" := (-(2)).
 Notation "- 3" := (-(3)).
 Notation "- 4" := (-(4)).
 
+Notation "/ x" := (dec_mult_inv x).
+Notation "(/)" := dec_mult_inv (only parsing).
+Notation "x / y" := (x * /y).
+
 Notation "// x" := (mult_inv x) (at level 35, right associativity).
 Notation "(//)" := mult_inv (only parsing).
 Notation "x // y" := (x * //y) (at level 35, right associativity).
 
-Infix "≤" := precedes.
-Notation "(≤)" := precedes (only parsing).
-Notation "( x ≤)" := (precedes x) (only parsing).
+Infix "≤" := le.
+Notation "(≤)" := le (only parsing).
+Notation "( x ≤)" := (le x) (only parsing).
 Notation "(≤ x )" := (λ y, y ≤ x) (only parsing).
 
-Infix "<" := strictly_precedes.
-Notation "(<)" := strictly_precedes (only parsing).
-Notation "( x <)" := (strictly_precedes x) (only parsing).
+Infix "<" := lt.
+Notation "(<)" := lt (only parsing).
+Notation "( x <)" := (lt x) (only parsing).
 Notation "(< x )" := (λ y, y < x) (only parsing).
 
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z) (at level 70, y at next level).
-Notation "x ≤ y < z" := (x ≤ y /\ y < z) (at level 70, y at next level).
-Notation "x < y < z" := (x < y /\ y < z) (at level 70, y at next level).
-Notation "x < y ≤ z" := (x < y /\ y ≤ z) (at level 70, y at next level).
+Notation "x ≤ y < z" := (x ≤ y ∧ y < z) (at level 70, y at next level).
+Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
+Notation "x < y ≤ z" := (x < y ∧ y ≤ z) (at level 70, y at next level).
 
 Infix "◎" := (comp _ _ _) (at level 40, left associativity).
   (* Taking over ∘ is just a little too zealous at this point. With our current
@@ -153,30 +208,7 @@ Class Coerce A B := coerce: A → B.
 Notation "' x" := (coerce x) (at level 20).
 Instance: Params (@coerce) 3.
 
-(* Apartness *)
-Class Apart A := apart: A → A → Type.
-Instance default_apart `{Equiv A} : Apart A | 10 := λ x y, x ≠ y.
-Notation "x >< y" := (apart x y) (at level 70, no associativity).
-Instance: Params (@apart) 2.
-
-(* Informative strict order (as we have on the reals in CoRN for example) *)
-Class CSOrder A := cstrictly_precedes : A → A → Type.
-Instance default_cstrictly_precedes `{Equiv A} `{Order A} : CSOrder A | 10 := strictly_precedes.
-Notation "x ⋖ y" := (cstrictly_precedes x y) (at level 70, no associativity).
-Instance: Params (@cstrictly_precedes) 2.
-
-(* We define a division operation that yields zero for zero elements. A default 
-    implementation for decidable fields can be found in theory.fields. *)
-Class DecMultInv A `{Equiv A} `{RingZero A} `{RingOne A} `{RingMult A} 
-  := dec_mult_inv_sig : ∀ x : A, {z | (x ≠ 0 → x * z = 1) ∧ (x = 0 → z = 0)}.
-Definition dec_mult_inv `{DecMultInv A} : A → A := λ x, ` (dec_mult_inv_sig x).
-Notation "/ x" := (dec_mult_inv x).
-Notation "(/)" := dec_mult_inv (only parsing).
-Notation "x / y" := (x * /y).
-Instance: Params (@dec_mult_inv_sig) 6.
-Instance: Params (@dec_mult_inv) 6.
-
-Class Abs A `{Equiv A} `{Order A} `{RingZero A} `{GroupInv A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
+Class Abs A `{Equiv A} `{Le A} `{RingZero A} `{GroupInv A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
 Definition abs `{Abs A} := λ x : A, ` (abs_sig x).
 Instance: Params (@abs_sig) 6.
 Instance: Params (@abs) 6.
@@ -204,6 +236,16 @@ Class HeteroAssociative {A B C AB BC} `{Equiv ABC}
 Class Associative `{Equiv A} f := simple_associativity:> HeteroAssociative f f f f.
 Notation ArrowsAssociative C := (∀ {w x y z: C}, HeteroAssociative (◎) (comp z _ _ ) (◎) (comp y x w)).
 
+Class TotalRelation `(R : relation A) : Prop := total : ∀ x y : A, R x y ∨ R y x.
+Implicit Arguments total [[A] [TotalRelation]].
+
+Class Trichotomy `{e : Equiv A} `(R : relation A) := trichotomy : ∀ x y : A, R x y ∨ x = y ∨ R y x.
+Implicit Arguments trichotomy [[e] [A] [Trichotomy]].
+
+Implicit Arguments irreflexivity [[A] [Irreflexive]].
+Class CoTransitive `(R: relation A) : Prop := cotransitive: `(R x y → ∀ z, R x z ∨ R z y).
+Implicit Arguments cotransitive [[A] [R] [CoTransitive] [x] [y]].
+
 Class AntiSymmetric `{ea: Equiv A} (R: relation A): Prop := antisymmetry: `(R x y → R y x → x = y).
 Implicit Arguments antisymmetry [[A] [ea] [AntiSymmetric]].
 
@@ -228,6 +270,10 @@ Class ZeroDivisor {R} `{Equiv R} `{RingZero R} `{RingMult R} (x: R): Prop
 Class NoZeroDivisors R `{Equiv R} `{RingZero R} `{RingMult R}: Prop
   := no_zero_divisors x: ¬ZeroDivisor x.
 
+(* Even for setoids with decidable equality, we do not have x ≠ y → x ⪥ y. 
+Therefore we introduce the following class. *)
+Class TrivialApart R `{Equiv R} {ap : Apart R} := trivial_apart : ∀ x y, x ⪥ y ↔ x ≠ y.
+
 Instance zero_product_no_zero_divisors `{ZeroProduct A} : NoZeroDivisors A.
 Proof. intros x [? [? [? E]]]. destruct (zero_product _ _ E); intuition. Qed.
 
@@ -235,5 +281,5 @@ Class RingUnit `{Equiv R} `{RingMult R} `{RingOne R} (x: R) `{!RingMultInverse x
   := ring_unit_mult_inverse: x * ring_mult_inverse x = 1.
 
 (* A common induction principle for both the naturals and integers *)
-Class Biinduction R `{Equiv R} `{RingZero R} `{RingOne R} `{RingPlus R} : Prop :=
-  biinduction (P: R → Prop) `{!Proper ((=) ==> iff) P} : P 0 → (∀ n, P n ↔ P (1 + n)) → ∀ n, P n.
+Class Biinduction R `{Equiv R} `{RingZero R} `{RingOne R} `{RingPlus R} : Prop 
+  := biinduction (P: R → Prop) `{!Proper ((=) ==> iff) P} : P 0 → (∀ n, P n ↔ P (1 + n)) → ∀ n, P n.

@@ -2,12 +2,13 @@ Require
   peano_naturals orders.integers theory.integers.
 Require Import
   Morphisms Ring Program RelationClasses Setoid
-  abstract_algebra interfaces.integers interfaces.naturals interfaces.additional_operations int_abs.
+  abstract_algebra interfaces.integers interfaces.naturals interfaces.orders
+  interfaces.additional_operations int_abs.
 Require Export
   implementations.nonneg_semiring_elements.
 
 Section nonneg_integers_naturals.
-Context Z `{Integers Z} `{!RingOrder o} `{!TotalOrder o}.
+Context Z `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!PseudoRingOrder Zle Zlt}.
 
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
@@ -68,7 +69,7 @@ Global Program Instance ZPos_cut_minus `{∀ x y : Z, Decision (x ≤ y)} : CutM
   := λ x y, if decide_rel (≤) x y then 0 else (x - y)↾_.
 Next Obligation.
   apply <-rings.flip_nonneg_minus. 
-  now apply orders.precedes_flip.
+  now apply orders.le_flip.
 Qed.
 
 Global Instance: CutMinusSpec (Z⁺) ZPos_cut_minus.
@@ -83,6 +84,6 @@ Proof.
   simpl.
   apply (antisymmetry (≤)).
    now apply rings.flip_nonpos_minus.
-  now apply rings.flip_nonneg_minus, orders.precedes_flip.
+  now apply rings.flip_nonneg_minus, orders.le_flip.
 Qed.
 End nonneg_integers_naturals.

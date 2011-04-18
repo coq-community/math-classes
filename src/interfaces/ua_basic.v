@@ -5,7 +5,8 @@ Require Import
 
 Local Notation ne_list := ne_list.L.
 
-Section with_sorts. Variable Sorts: Set.
+Section with_sorts. 
+  Variable Sorts: Set.
 
   (* For single-sorted algebras, Sorts will typically be unit. *)
 
@@ -42,7 +43,7 @@ Section with_sorts. Variable Sorts: Set.
     | ne_list.cons A g => (e A ==> op_type_equiv g)%signature
     end.
 
-  Global Existing Instance op_type_equiv. (* There's no [Global Instance Fixpoint]. *)
+  Existing Instance op_type_equiv. (* There's no [Global Instance Fixpoint]. *)
 
   Global Instance sig_type_sym `{∀ s, Symmetric (e s)}: Symmetric (op_type_equiv o).
   Proof. induction o; simpl; firstorder. Qed.
@@ -80,6 +81,9 @@ Section with_sorts. Variable Sorts: Set.
 End with_sorts.
 
 Implicit Arguments op_type [[Sorts]].
+
+(* Avoid eager application *)
+Hint Extern 0 (Equiv (op_type _ _ )) => eapply @op_type_equiv : typeclass_instances.
 
 Inductive Signature: Type :=
   { sorts: Set

@@ -2,13 +2,13 @@ Require
   theory.integers theory.int_abs.
 Require Import
   Morphisms Ring Program Setoid workaround_tactics
-  abstract_algebra interfaces.integers interfaces.naturals interfaces.additional_operations
-  natpair_integers orders.semirings orders.naturals theory.rings.
+  abstract_algebra interfaces.integers interfaces.naturals interfaces.additional_operations interfaces.orders
+  natpair_integers orders.rings orders.naturals theory.rings.
 
 Section integers_order.
-Context `{Integers Int} `{!RingOrder o} `{!TotalOrder o}.
+Context `{Integers Int} `{Apart Int} `{!TrivialApart Int} `{!PseudoRingOrder Intle Intlt}.
 
-Lemma integers_precedes_plus (x y: Int) : x ≤ y ↔ ∃ z: nat, y = x + naturals_to_semiring nat Int z.
+Lemma integers_le_plus (x y: Int) : x ≤ y ↔ ∃ z: nat, y = x + naturals_to_semiring nat Int z.
 Proof with auto; try reflexivity.
   split; intros E.
    apply srorder_plus in E. destruct E as [z [Ez1 Ez2]].
@@ -16,27 +16,27 @@ Proof with auto; try reflexivity.
      exists k. rewrite Ek...
     exists (0 : nat).
     rewrite preserves_0.
-    rewrite Ez2. apply sg_mor...
+    setoid_replace 0 with z...
     apply (antisymmetry (≤))...
-    rewrite <-Ek. apply flip_nonneg_opp. apply to_semiring_nonneg.
+    rewrite <-Ek. apply flip_nonneg_opp. 
+    apply to_semiring_nonneg.
    destruct E as [z E].
    apply srorder_plus. exists (naturals_to_semiring nat Int z). split...
    apply to_semiring_nonneg.
 Qed.
 
 Section another_ring.
-  Context `{Ring R} {oR : Order R} `{!RingOrder oR} `{!TotalOrder oR}
-     {f : Int → R} `{!SemiRing_Morphism f}.
+  Context `{Ring R} `{Apart R} `{!PseudoRingOrder (A:=R) Rle Rlt} {f : Int → R} `{!SemiRing_Morphism f}.
 
   Let f_preserves_nonneg x : 0 ≤ x → 0 ≤ f x.
   Proof with try reflexivity.
     intros E.
-    apply integers_precedes_plus in E.
+    apply integers_le_plus in E.
     destruct E as [z E].
     apply srorder_plus. exists (naturals_to_semiring nat R z). split...
      apply to_semiring_nonneg.
     rewrite E.
-    rewrite preserves_plus, preserves_0. apply sg_mor...
+    rewrite preserves_plus, preserves_0. apply sg_op_proper...
     apply (naturals.to_semiring_twice _ _ _).
   Qed.
    
@@ -72,7 +72,7 @@ End another_ring.
 End integers_order.
 
 Section other_results.
-Context `{Integers Int} `{!RingOrder o} `{!TotalOrder o} .
+Context `{Integers Int} `{Apart Int} `{!TrivialApart Int} `{!PseudoRingOrder Intle Intlt}.
 Add Ring Int : (rings.stdlib_ring_theory Int).
 
 Global Program Instance: ∀ x y: Int, Decision (x ≤ y) | 10 := λ x y,
@@ -80,7 +80,7 @@ Global Program Instance: ∀ x y: Int, Decision (x ≤ y) | 10 := λ x y,
   | left E => left _
   | right E => right _
   end.
-Next Obligation. 
+Next Obligation.
   now apply (order_preserving_back (integers_to_ring _ (SRpair nat))). 
 Qed.
 Next Obligation.
@@ -90,29 +90,28 @@ Qed.
 
 Add Ring nat : (stdlib_semiring_theory nat).
 
-Lemma precedes_sprecedes x y : x ≤ y ↔ x < y + 1.
+Lemma le_iff_lt_plus_1 x y : x ≤ y ↔ x < y + 1.
 Proof.
   split; intros E.
-   apply pos_plus_scompat_r. easy. apply sprecedes_0_1.
+   apply pos_plus_le_lt_compat_r. now apply lt_0_1. easy.
   assert (∀ a b : SRpair nat, a < b + 1 → a ≤ b) as P.
-   intros a b [F1 F2].
-   unfold precedes, SRpair_order in *. simpl in *.
-   apply naturals.precedes_sprecedes.
-   split.
+   intros [ap an] [bp bn]. rewrite lt_iff_le_apart. intros [F1 F2].
+   unfold le, SRpair_le in *. simpl in *.
+   apply naturals.le_iff_lt_plus_1.
+   apply lt_iff_le_apart. split.
     now ring_simplify in F1.
    intros F3. apply F2. 
-   unfold ring_plus, SRpair_plus, equiv, SRpair_equiv. simpl.
-   rewrite associativity, F3. ring.
+   simpl. rewrite associativity, F3. ring.
   apply (order_preserving_back (integers_to_ring _ (SRpair nat))), P.
   rewrite <-(preserves_1 (f:=integers_to_ring Int (SRpair nat))), <-preserves_plus.
   now apply (strictly_order_preserving (integers_to_ring _ (SRpair nat))).
 Qed.
 
-Lemma precedes_sprecedes_alt x y : x < y ↔ x + 1 ≤ y.
+Lemma lt_iff_plus_1_le x y : x < y ↔ x + 1 ≤ y.
 Proof.
   split; intros E.
-   apply precedes_sprecedes. now apply (strictly_order_preserving (+ 1)).
-  apply (strictly_order_preserving_back (+ 1)). now apply precedes_sprecedes.
+   apply le_iff_lt_plus_1. now apply (strictly_order_preserving (+ 1)).
+  apply (strictly_order_preserving_back (+ 1)). now apply le_iff_lt_plus_1.
 Qed.
 
 Lemma induction
@@ -146,11 +145,11 @@ Proof with auto.
   intros P0 PS n. pattern n. apply induction; clear n...
    solve_proper.
   intros n E1 ? E2.
-  destruct (ne_0 1).
+  destruct (is_ne_0 1).
   apply (antisymmetry (≤)).
    apply (order_preserving_back ((n - 1) +)). ring_simplify. now transitivity 0.
   transitivity (n - 1)... apply (order_preserving_back (1 +)). ring_simplify.
-  transitivity 0... apply semirings.precedes_0_2.
+  transitivity 0... apply semirings.le_0_2.
 Qed.
 
 Global Instance biinduction: Biinduction Int.
@@ -162,13 +161,14 @@ Proof.
 Qed.
 End other_results.
 
-Instance int_precedes `{Integers Z} : Order Z | 10 :=  λ x y, ∃ z, y = x + naturals_to_semiring nat Z z.
+Instance int_le `{Integers Z} : Le Z | 10 :=  λ x y, ∃ z, y = x + naturals_to_semiring nat Z z.
+Instance int_lt  `{Integers Z} : Lt Z | 10 := dec_lt.
 
 Section default_order.
-Context `{Integers Int}.
+Context `{Integers Int} `{Apart Int} `{!TrivialApart Int}.
 Add Ring Int2 : (rings.stdlib_ring_theory Int).
 
-Global Instance: Proper ((=) ==> (=) ==> iff) int_precedes.
+Instance: Proper ((=) ==> (=) ==> iff) int_le.
 Proof.
   intros x1 y1 E1 x2 y2 E2.
   split; intros [z p]; exists z.
@@ -176,7 +176,7 @@ Proof.
   now rewrite E1, E2.
 Qed.
 
-Global Instance: RingOrder int_precedes.
+Instance: RingOrder int_le.
 Proof with trivial; try ring.
   repeat (split; try apply _).
       intros x. exists (0:nat). rewrite preserves_0...
@@ -189,24 +189,27 @@ Proof with trivial; try ring.
      rewrite B at 2. rewrite A...
     rewrite A, B, E1, E2, preserves_0...
    intros x y [a A]. exists a. rewrite <-associativity, A...
-  intros x [a A] y [b B]. exists (a * b). rewrite A, B, preserves_mult...
+  intros x y [a A] [b B]. exists (a * b). rewrite A, B, preserves_mult...
 Qed.
 
 Notation i_to_r := (integers_to_ring Int (SRpair nat)).
 
-Global Instance: TotalOrder int_precedes.
+Instance: TotalRelation int_le.
 Proof with trivial; try reflexivity.
   assert (∀ x y, i_to_r x ≤ i_to_r y → x ≤ y) as P.
    intros x y E. apply srorder_plus in E. 
    destruct E as [a [A B]].
    exists (pos a ∸ neg a). 
    apply (injective i_to_r).
-   rewrite preserves_plus, B. clear B. apply sg_mor...
+   rewrite preserves_plus, B. clear B. apply sg_op_proper...
    rewrite (naturals.to_semiring_twice _ _ SRpair_inject).
-   unfold equiv, SRpair_equiv, precedes, SRpair_order in *. simpl in *.
-   rewrite right_identity. posed_rewrite cut_minus_precedes...
+   unfold equiv, SRpair_equiv, le, SRpair_le in *. simpl in *.
+   rewrite right_identity. rewrite cut_minus_le...
    rewrite right_identity in A. rewrite left_identity in A...
   intros x y.
-  destruct (total_order (i_to_r x) (i_to_r y)); intuition.
+  now destruct (total (≤) (i_to_r x) (i_to_r y)); [left|right]; eapply P.
 Qed.
+
+Global Instance: PseudoRingOrder int_le int_lt.
+Proof. now apply dec_pseudo_ringorder. Qed.
 End default_order.

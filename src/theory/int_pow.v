@@ -1,28 +1,29 @@
 Require
-  theory.naturals orders.semirings orders.integers orders.fields.
+  theory.naturals orders.semirings orders.integers orders.dec_fields.
 Require Import 
   Program Morphisms Setoid Ring Field
-  abstract_algebra interfaces.naturals interfaces.integers interfaces.additional_operations
-  theory.nat_pow theory.int_abs.
+  abstract_algebra interfaces.naturals interfaces.integers 
+  interfaces.additional_operations interfaces.orders
+  theory.nat_pow theory.int_abs theory.dec_fields.
 
 (* * Properties of Int Pow *)
 Section int_pow_properties.
-Context `{Field A} `{∀ x y, Decision (x = y)} `{!DecMultInv A}
-  `{Integers B} `{oB : Order B} `{!RingOrder oB} `{!TotalOrder oB} `{!IntPowSpec A B ipw}.
+Context `{DecField A} `{∀ x y, Decision (x = y)} `{Integers B} `{!IntPowSpec A B ipw}.
 
-Add Field A : (fields.stdlib_field_theory A).
+Add Field A : (dec_fields.stdlib_field_theory A).
 Add Ring B : (rings.stdlib_ring_theory B).
 
 Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 0.
 Proof int_pow_proper.
 
-Lemma int_pow_S_nonneg (x : A) (n : B) : 0 ≤ n → x ^ (1+n) = x * x ^ n.
+Lemma int_pow_S_nonneg `{Apart B} `{!TrivialApart B} `{!PseudoRingOrder (A:=B) Ble Blt} (x : A) (n : B) : 
+  0 ≤ n → x ^ (1+n) = x * x ^ n.
 Proof.
   intros En.
-  destruct (decide (x = 0)) as [Ex | Ex].
+  destruct (decide (x = 0)) as [Ex | Ex]. 
    rewrite Ex. rewrite int_pow_base_0. ring.
-   intros E. destruct semirings.not_precedes_1_0. 
-   rewrite <-E. now apply semirings.nonneg_plus_compat_r.
+   intros E. destruct semirings.not_le_1_0. 
+   rewrite <-E. now apply semirings.nonneg_plus_le_compat_r.
   now rewrite int_pow_S.
 Qed.
 
@@ -31,19 +32,19 @@ Proof.
   destruct (decide (x = 0)) as [Ex | Ex].
    rewrite Ex.
    destruct (decide (n = 0)) as [En | En].
-    now rewrite En, rings.opp_0, int_pow_0, fields.dec_mult_inv_1.
+    now rewrite En, rings.opp_0, int_pow_0, dec_mult_inv_1.
    rewrite 2!int_pow_base_0; trivial.
-    now rewrite fields.dec_mult_inv_0.
-   now apply rings.flip_opp_nonzero.
+    now rewrite dec_mult_inv_0.
+   now apply rings.flip_opp_ne_0.
   pattern n. apply integers.biinduction; clear n.
     solve_proper.
-   now rewrite rings.opp_0, int_pow_0, fields.dec_mult_inv_1.
+   now rewrite rings.opp_0, int_pow_0, dec_mult_inv_1.
   intros n.
   setoid_replace (-n) with (1 - (1 + n)) by ring.
-  rewrite 2!int_pow_S, fields.dec_mult_inv_distr; trivial.
+  rewrite 2!int_pow_S, dec_mult_inv_distr; trivial.
   split; intros E.
    rewrite <-E. now field.
-  rewrite E, associativity, fields.dec_mult_inverse; trivial.
+  rewrite E, associativity, dec_mult_inverse; trivial.
   ring.
 Qed.
 
@@ -76,16 +77,16 @@ Qed.
 Lemma int_pow_mult_inv (x : A) (n : B) : (/x) ^ n = /(x ^ n).
 Proof.
   destruct (decide (x = 0)) as [Ex | Ex].
-   rewrite Ex, fields.dec_mult_inv_0.
+   rewrite Ex, dec_mult_inv_0.
    destruct (decide (n = 0)) as [En | En].
-    now rewrite En, int_pow_0, fields.dec_mult_inv_1.
-   now rewrite int_pow_base_0, fields.dec_mult_inv_0.
+    now rewrite En, int_pow_0, dec_mult_inv_1.
+   now rewrite int_pow_base_0, dec_mult_inv_0.
   revert n. apply integers.biinduction.
     solve_proper.
-   now rewrite 2!int_pow_0, fields.dec_mult_inv_1.
+   now rewrite 2!int_pow_0, dec_mult_inv_1.
   intros n.
-  assert (/x ≠ 0) by now apply fields.dec_mult_inv_nonzero.
-  rewrite 2!int_pow_S, fields.dec_mult_inv_distr; trivial.
+  assert (/x ≠ 0) by now apply dec_mult_inv_ne_0.
+  rewrite 2!int_pow_S, dec_mult_inv_distr; trivial.
   split; intros E.
    now rewrite E.
   now apply (rings.left_cancellation_ne_0 (.*.) (/x)).
@@ -101,8 +102,7 @@ Proof.
   rewrite rings.preserves_plus, rings.preserves_1.
   rewrite int_pow_S_nonneg, nat_pow_S.
    now rewrite E.
-  rewrite <-(rings.preserves_0 (f:=f)).
-  apply (order_preserving _).
+  apply semirings.preserves_nonneg.
   now apply naturals.naturals_nonneg.
 Qed.
 
@@ -128,7 +128,7 @@ Proof.
    now apply int_pow_0.
   intros n. rewrite int_pow_S, left_identity.
    easy.
-  now apply (rings.ne_0 1).
+  now apply (rings.is_ne_0 1).
 Qed.
 
 Lemma int_pow_exp_plus (n m : B) (x : A) : 
@@ -145,12 +145,12 @@ Proof.
   rewrite E. ring.
 Qed.
 
-Global Instance int_pow_nonzero (x : A) (n : B) : PropHolds (x ≠ 0) → PropHolds (x ^ n ≠ 0).
+Instance int_pow_ne_0 (x : A) (n : B) : PropHolds (x ≠ 0) → PropHolds (x ^ n ≠ 0).
 Proof with eauto.
   intros nonneg. unfold PropHolds.
   pattern n. apply integers.biinduction; clear n.
     solve_proper.
-   rewrite int_pow_0. apply (rings.ne_0 1).
+   rewrite int_pow_0. apply (rings.is_ne_0 1).
   intros n. rewrite int_pow_S; trivial.
   split; intros E1 E2; destruct E1.
    apply (left_cancellation (.*.) x).
@@ -177,49 +177,48 @@ Proof.
    rewrite int_pow_S, <-E.
     rewrite distribute_l, right_identity.
     now rewrite int_pow_exp_plus.
-   now apply int_pow_nonzero.
+   now apply int_pow_ne_0.
   rewrite int_pow_S in E.
   rewrite distribute_l, right_identity, int_pow_exp_plus in E.
     apply (rings.left_cancellation_ne_0 (.*.) (x ^ n)).
-     now apply int_pow_nonzero.
+     now apply int_pow_ne_0.
     now rewrite E.
    easy.
-  now apply int_pow_nonzero.
+  now apply int_pow_ne_0.
 Qed.
 
-Context `{oA : Order A} `{!RingOrder oA} `{!TotalOrder oA}.
+Context `{Apart A} `{!TrivialApart A} `{!PseudoRingOrder (A:=A) Ale Alt}.
 
-Global Instance int_pow_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ^ n).
+Instance int_pow_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ^ n).
 Proof.
-   intros nonneg. unfold PropHolds.
+  intros nonneg. unfold PropHolds.
   pattern n. apply integers.biinduction; clear n.
     solve_proper.
-   intros. rewrite int_pow_0. apply semirings.sprecedes_0_1.
+   intros. rewrite int_pow_0. now apply semirings.lt_0_1.
   intros n; split; intros E.
    rewrite int_pow_S.
-    now apply semirings.pos_mult_scompat.
-   apply not_symmetry. now apply orders.neq_precedes_sprecedes.
-  apply (maps.strictly_order_preserving_back (x *.)).
+    now apply pos_mult_compat.
+   apply not_symmetry. now apply orders.lt_ne.
+  apply (strictly_order_preserving_back (x *.)).
   rewrite <-int_pow_S.
    now rewrite right_absorb.
-  apply not_symmetry. now apply orders.neq_precedes_sprecedes.
+  apply not_symmetry. now apply orders.lt_ne.
 Qed. 
 
-Global Instance int_pow_nonneg (x : A) (n : B) : PropHolds (0 ≤ x) → PropHolds (0 ≤ x ^ n).
+Instance int_pow_nonneg (x : A) (n : B) : PropHolds (0 ≤ x) → PropHolds (0 ≤ x ^ n).
 Proof.
-  intros E.
-  apply orders.sprecedes_precedes in E.
-  destruct E as [E|E].
-   rewrite <-E.
+  intros E1. red in E1.
+  destruct (orders.le_equiv_lt _ _ E1) as [E2|E2].
+   rewrite <-E2.
    destruct (decide (n = 0)) as [En|En].
     rewrite En.
     rewrite int_pow_0.
-    apply semirings.precedes_0_1.
+    apply semirings.le_0_1.
    unfold PropHolds. now rewrite int_pow_base_0.
-  now apply int_pow_pos.
+  now apply orders.lt_le, int_pow_pos.
 Qed. 
 
-Lemma int_pow_ge1 (x : A) (n : B) : 1 ≤ x → 0 ≤ n → 1 ≤ x ^ n.
+Lemma int_pow_ge_1 (x : A) (n : B) : 1 ≤ x → 0 ≤ n → 1 ≤ x ^ n.
 Proof.
   intros. pattern n. apply integers.induction_nonneg; trivial.
     solve_proper.
@@ -227,95 +226,101 @@ Proof.
   intros.
   rewrite int_pow_S.
    rewrite <-rings.mult_1_r.
-   apply semirings.mult_compat; try apply semirings.precedes_0_1; auto.
-  apply not_symmetry, orders.neq_precedes_sprecedes.
-  apply orders.sprecedes_trans_l with 1; trivial.
-  now apply semirings.sprecedes_0_1.
+   apply semirings.mult_le_compat; try apply semirings.le_0_1; auto.
+  apply orders.lt_ne_flip.
+  apply orders.lt_le_trans with 1; trivial.
+  now apply semirings.lt_0_1.
 Qed.
 
-Lemma int_pow_gt1 (x : A) (n : B) : 1 < x → 0 < n → 1 < x ^ n.
+Lemma int_pow_gt_1 (x : A) (n : B) : 1 < x → 0 < n → 1 < x ^ n.
 Proof.
   intros Ex En.
-  apply integers.precedes_sprecedes_alt in En.
-  apply srorder_plus in En. destruct En as [z [Ez1 Ez2]]. ring_simplify in Ez2.
+  apply integers.lt_iff_plus_1_le in En.
+  destruct (semirings.decompose_le En) as [z [Ez1 Ez2]]. ring_simplify in Ez2.
   rewrite Ez2.
   pattern z. apply integers.induction_nonneg; try assumption.
     solve_proper.
    now rewrite left_identity, right_identity.
   intros.
   rewrite <-associativity, int_pow_S.
-   apply semirings.gt1_mult_scompat_l; firstorder.
-  apply not_symmetry, orders.neq_precedes_sprecedes.
-  apply orders.sprecedes_trans_r with 1; trivial.
-  now apply semirings.precedes_0_1.
+   apply semirings.gt_1_mult_lt_compat_l; auto.
+   transitivity 1; [apply semirings.lt_0_1 | assumption].
+  apply orders.lt_ne_flip.
+  apply orders.le_lt_trans with 1; trivial.
+  now apply semirings.le_0_1.
 Qed.
 
 (* Making these instances Global is not useful, we don't have PropHolds (1 ≤ x)
-  instances anyway and it will slow down instance resolution (it increasing the 
+  instances anyway and it will only slow down instance resolution (it increases the 
   compilation time of dyadics from 1:35 to 2:28). *)
-Instance int_pow_exp_precedes: 
+Instance int_pow_exp_le: 
   ∀ x : A, PropHolds (1 ≤ x) → OrderPreserving (x^).
 Proof.
   repeat (split; try apply _).
-  assert (PropHolds (0 < x)).
-   apply orders.sprecedes_trans_l with 1; [solve_propholds | easy].
+  assert (PropHolds (0 < x))
+   by (apply orders.lt_le_trans with 1; [solve_propholds | easy]).
   intros n m E.
   apply srorder_plus in E. destruct E as [z [Ea Eb]].
   rewrite Eb.
-  rewrite int_pow_exp_plus by now apply orders.sprecedes_ne_flip.
+  rewrite int_pow_exp_plus by now apply orders.lt_ne_flip.
   rewrite <-rings.mult_1_r at 1.
   apply (order_preserving (x ^ n *.)).
-  now apply int_pow_ge1.
+  now apply int_pow_ge_1.
 Qed.
 
-Instance int_pow_exp_sprecedes: 
+Instance int_pow_exp_lt: 
   ∀ x : A, PropHolds (1 < x) → StrictlyOrderPreserving (x^).
 Proof.
-  split; try apply _.
-  assert (PropHolds (0 < x)). 
-   apply orders.sprecedes_trans_r with 1; [solve_propholds | easy].
+  repeat (split; try apply _).
+  assert (PropHolds (0 < x)) 
+   by (apply orders.le_lt_trans with 1; [solve_propholds | easy]).
   intros n m E.
-  apply integers.precedes_sprecedes_alt in E.
+  apply integers.lt_iff_plus_1_le in E.
   apply srorder_plus in E. destruct E as [z [Ea Eb]].
   rewrite Eb.
-  rewrite <-associativity, int_pow_exp_plus by now apply orders.sprecedes_ne_flip.
+  rewrite <-associativity, int_pow_exp_plus by now apply orders.lt_ne_flip.
   rewrite <-(rings.mult_1_r (x ^ n)) at 1.
   apply (strictly_order_preserving (x^n *.)).
-  apply int_pow_gt1; trivial.
+  apply int_pow_gt_1; trivial.
   rewrite commutativity.
-  now apply integers.precedes_sprecedes.
+  now apply integers.le_iff_lt_plus_1.
 Qed.
 
-Instance int_pow_exp_precedes_back:
+Instance int_pow_exp_le_back:
   ∀ x : A, PropHolds (1 < x) → OrderPreservingBack (x^).
 Proof.
   split; try apply _. intros n m E1.
-  destruct (total_order n m) as [E2|E2]; trivial. 
-  apply orders.sprecedes_precedes in E2. destruct E2 as [E2|E2].
-   now rewrite E2.
+  destruct (total (≤) n m) as [E2|E2]; trivial. 
+  destruct (orders.le_equiv_lt _ _ E2) as [E3|E3].
+   now rewrite E3.
   contradict E1.
-  apply orders.not_precedes_sprecedes.
+  apply orders.lt_not_le_flip.
   now apply (strictly_order_preserving (x^)).
 Qed.
 
-Lemma int_pow_exp_sprecedes_back (x : A) (n m : B) : 
-  PropHolds (1 < x) → x ^ n < x ^ m → n < m.
-Proof. intros ? E1. now apply (maps.strictly_order_preserving_back (x^)). Qed.
+Instance int_pow_exp_lt_back: 
+  ∀ x : A, PropHolds (1 < x) → StrictlyOrderPreservingBack (x^).
+Proof. intros ? E1. apply _. Qed.
 
 Instance int_pow_inj:
   ∀ x : A, PropHolds (1 < x) → Injective (x^).
 Proof.
   repeat (split; try apply _). intros n m E.
-  apply (antisymmetry (≤)); apply int_pow_exp_precedes_back with x; trivial; rewrite E; reflexivity.
+  apply (antisymmetry (≤)); apply (order_preserving_back (x^)); trivial; rewrite E; reflexivity.
 Qed.
 End int_pow_properties.
+
+(* Due to bug #2528 *)
+Hint Extern 18 (PropHolds (_ ^ _ ≠ 0)) => eapply @int_pow_ne_0 : typeclass_instances.
+Hint Extern 18 (PropHolds (0 ≤ _ ^ _)) => eapply @int_pow_nonneg : typeclass_instances.
+Hint Extern 18 (PropHolds (0 < _ ^ _)) => eapply @int_pow_pos : typeclass_instances.
 
 Section preservation.
   Context 
     `{Integers B}
-    `{Field A1} `{∀ x y : A1, Decision (x = y)} `{!DecMultInv A1} `{!IntPowSpec A1 B ip1}
-    `{Field A2} `{∀ x y : A2, Decision (x = y)} `{!DecMultInv A2} `{!IntPowSpec A2 B ip2}
-    {f : A1 → A2} `{!SemiRing_Morphism f} `{!Injective f}.
+    `{DecField A1} `{∀ x y : A1, Decision (x = y)} `{!IntPowSpec A1 B ip1}
+    `{DecField A2} `{∀ x y : A2, Decision (x = y)} `{!IntPowSpec A2 B ip2}
+    {f : A1 → A2} `{!SemiRing_Morphism f}.
 
   Add Ring B2 : (rings.stdlib_ring_theory B).
 
@@ -342,7 +347,7 @@ Section preservation.
 End preservation.
 
 Section exp_preservation.
-  Context `{Field A} `{∀ x y : A, Decision (x = y)} `{!DecMultInv A}
+  Context `{Field A} `{∀ x y : A, Decision (x = y)}
    `{Integers B1} `{Integers B2} `{!IntPowSpec A B1 pw1} `{!IntPowSpec A B2 pw2} 
     {f : B1 → B2} `{!SemiRing_Morphism f}.
 
@@ -369,8 +374,8 @@ End exp_preservation.
 
 (* Very slow default implementation by translation into Peano *)
 Section int_pow_default.
-  Context `{Field A} `{∀ x y, Decision (x = y)} `{!DecMultInv A}
-    `{Integers B} `{oB : Order B} `{!RingOrder oB} `{!TotalOrder oB}.
+  Context `{DecField A} `{∀ x y, Decision (x = y)} 
+    `{Integers B} `{Apart B} `{!TrivialApart B} `{!PseudoRingOrder (A:=B) Ble Blt}.
 
   Add Ring B3 : (rings.stdlib_ring_theory B).
 
@@ -389,30 +394,30 @@ Section int_pow_default.
        now rewrite int_abs_0. 
       now destruct E.
      intros n ?. case (decide_rel _); intros E.
-      now apply nat_pow_base_0, int_abs_nonzero.
+      now apply nat_pow_base_0, int_abs_ne_0.
      rewrite nat_pow_base_0. 
-     apply fields.dec_mult_inv_0.
-     now apply int_abs_nonzero.
+     apply dec_mult_inv_0.
+     now apply int_abs_ne_0.
     intros x n E. case (decide_rel _); case (decide_rel _); intros E1 E2.
        now rewrite int_abs_nonneg_plus, int_abs_1 by (auto;solve_propholds).
       setoid_replace n with (-1 : B).
        rewrite rings.plus_opp_r, int_abs_0, nat_pow_0. 
        rewrite int_abs_opp, int_abs_1, right_identity. 
-       symmetry. now apply fields.dec_mult_inverse.
+       symmetry. now apply dec_mult_inverse.
       apply (antisymmetry (≤)).
-       apply orders.not_precedes_sprecedes in E1.
-       apply integers.precedes_sprecedes_alt in E1. 
+       apply orders.not_le_lt_flip in E1.
+       apply integers.lt_iff_plus_1_le in E1. 
        apply (order_preserving_back (+1)).
        now ring_simplify.
       apply (order_preserving_back (1+)). now rewrite rings.plus_opp_r.
-     destruct E2. apply semirings.nonneg_plus_compat_l; [solve_propholds | assumption].
+     destruct E2. apply semirings.nonneg_plus_compat; [solve_propholds | assumption].
      rewrite <-int_abs_opp, <-(int_abs_opp n).
      setoid_replace (-n) with (1 - (1 + n)) by ring.
      rewrite (int_abs_nonneg_plus 1 (-(1 + n))), int_abs_1.
        rewrite nat_pow_S. 
-       rewrite fields.dec_mult_inv_distr, associativity.
-       now rewrite fields.dec_mult_inverse, left_identity.
-      now apply (rings.ge_0 1).
-     now apply rings.flip_nonpos_opp, orders.not_precedes_sprecedes.
+       rewrite dec_mult_inv_distr, associativity.
+       now rewrite dec_mult_inverse, left_identity.
+      now apply (rings.is_nonneg 1).
+     now apply rings.flip_nonpos_opp, orders.le_flip.
   Qed.
 End int_pow_default.

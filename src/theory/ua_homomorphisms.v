@@ -41,8 +41,10 @@ Section contents.
     Proof with auto.
      induction n; simpl; intros x y E x' y' E'.
       split; intro F. rewrite <- E, <- E'... rewrite E, E'...
-     split; simpl; intros; apply (IHn _ _ (E _ _ (reflexivity _)) _ _ (E' _ _ (reflexivity _)))...
-    Qed.
+     split; simpl; intros. 
+      eapply IHn; eauto; symmetry; [now apply E | now apply E'].
+     eapply IHn; eauto; [now apply E | now apply E'].
+   Qed.
 
     Global Instance Preservation_proper'' n:
       Proper (eq ==> (=) ==> iff) (@Preservation n).

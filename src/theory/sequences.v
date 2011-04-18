@@ -49,7 +49,7 @@ Section contents.
   Qed.
 
   Lemma fmap_alt `{Equiv A} `{Equiv B} (f: A → B) `{!Setoid_Morphism f} :
-    extend (inject B ∘ f) = (fmap sq f: sq A -> sq B).
+    extend (inject B ∘ f) = (fmap (v:=A) (w:=B) sq f: sq A → sq B). (* Remove (v:=A) (w:=B) *)
   Proof with try apply _.
    intros.
    pose proof (setoidmor_a f).
@@ -64,7 +64,7 @@ Section contents.
   Proof. apply (sequence_extend_commutes sq id). apply _. Qed.
 
   Lemma fold_map `{Setoid A} `{Monoid B} (f: A → B) `{!Setoid_Morphism f} :
-    extend f (free:=sq) = fold sq ∘ fmap (v:=A) (w:=B) sq f.
+    extend f (free:=sq) = fold sq ∘ fmap (v:=A) (w:=B) sq f. (* Remove (v:=A) (w:=B) *)
   Proof with try apply _.
    intros.
    symmetry.

@@ -78,7 +78,7 @@ Infix "`mod`" := mod_euclid (at level 30).
 Instance: Params (@div_euclid) 2.
 Instance: Params (@mod_euclid) 2.
 
-Class EuclidSpec A (d : DivEuclid A) (m : ModEuclid A) `{Equiv A} `{Order A} `{RingZero A} `{RingPlus A} `{RingMult A} := {
+Class EuclidSpec A (d : DivEuclid A) (m : ModEuclid A) `{Equiv A} `{Le A} `{Lt A} `{RingZero A} `{RingPlus A} `{RingMult A} := {
   div_euclid_proper : Proper ((=) ==> (=) ==> (=)) div_euclid ;
   mod_euclid_proper : Proper ((=) ==> (=) ==> (=)) mod_euclid ;
   div_mod : ∀ x y, y ≠ 0 → x = y * x `div` y + x `mod` y ;
@@ -92,7 +92,7 @@ Infix "∸" := cut_minus (at level 50, left associativity).
 Notation "(∸)" := cut_minus (only parsing).
 Instance: Params (@cut_minus) 2.
 
-Class CutMinusSpec A (cm : CutMinus A) `{Equiv A} `{RingZero A} `{RingPlus A} `{Order A} := {
-  cut_minus_precedes : ∀ x y, y ≤ x → cut_minus x y + y = x ;
+Class CutMinusSpec A (cm : CutMinus A) `{Equiv A} `{RingZero A} `{RingPlus A} `{Le A} := {
+  cut_minus_le : ∀ x y, y ≤ x → cut_minus x y + y = x ;
   cut_minus_0 : ∀ x y, x ≤ y → cut_minus x y = 0
 }.

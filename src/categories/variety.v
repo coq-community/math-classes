@@ -4,39 +4,39 @@ Hm, this file is almost identical to categories/algebra because the morphism are
 factor out the commonality.
 
  *)
-Require Import Morphisms abstract_algebra Program universal_algebra ua_homomorphisms.
+Require Import 
+  Morphisms abstract_algebra Program universal_algebra ua_homomorphisms.
+
+Record Object (et: EquationalTheory) : Type := object
+  { variety_carriers:> sorts et → Type
+  ; variety_equiv: ∀ a, Equiv (variety_carriers a)
+  ; variety_ops: AlgebraOps et variety_carriers
+  ; variety_proof: InVariety et variety_carriers }.
+
+Implicit Arguments object [[variety_equiv] [variety_ops] [variety_proof]].
+
+(* Avoid Coq trying to apply variety_equiv to find arbitrary Equiv instances *)
+Hint Extern 0 (Equiv (variety_carriers _ _ _)) => eapply @variety_equiv : typeclass_instances.
+Existing Instance variety_ops.
+Existing Instance variety_proof.
 
 Section contents.
-
   Variable et: EquationalTheory.
 
-  Record Object: Type := object
-    { variety_carriers:> sorts et → Type
-    ; variety_equiv: ∀ a, Equiv (variety_carriers a)
-    ; variety_op: AlgebraOps et variety_carriers
-    ; variety_proof: InVariety et variety_carriers
-    }.
-
-  Global Implicit Arguments object [[variety_equiv] [variety_op] [variety_proof]].
-
-  Global Existing Instance variety_equiv.
-  Global Existing Instance variety_op.
-  Global Existing Instance variety_proof.
-
-  Global Instance: Arrows Object := λ X Y: Object, sig (HomoMorphism et X Y).
+  Global Instance: Arrows (Object et) := λ X Y, sig (HomoMorphism et X Y).
 
   Program Definition arrow `{InVariety et A} `{InVariety et B}
-    f `{!HomoMorphism et A B f}: object A ⟶ object B := f.
+    f `{!HomoMorphism et A B f}: object et A ⟶ object et B := f.
 
-  Global Program Instance: CatId Object := λ _ _, id.
+  Global Program Instance: CatId (Object et) := λ _ _, id.
 
-  Global Program Instance: CatComp Object := λ _ _ _ f g v, f v ∘ g v.
+  Global Program Instance: CatComp (Object et) := λ _ _ _ f g v, f v ∘ g v.
   Next Obligation. destruct f, g. apply _. Qed.
 
-  Global Program Instance: ∀ (x y: Object), Equiv (x ⟶ y)
+  Global Program Instance: ∀ (x y: Object et), Equiv (x ⟶ y)
     := λ _ _ x y, ∀ b, pointwise_relation _ (=) (x b) (y b).
 
-  Global Instance: ∀ (x y: Object), Setoid (x ⟶ y).
+  Global Instance: ∀ (x y: Object et), Setoid (x ⟶ y).
   Proof.
    constructor.
      repeat intro. reflexivity.
@@ -44,13 +44,12 @@ Section contents.
    intros ? ? ? E F ? ?. rewrite (E _ _). apply F.
   Qed.
 
-  Instance: ∀ (x y z: Object), Proper ((=) ==> (=) ==> (=)) (comp x y z).
+  Instance: ∀ (x y z: Object et), Proper ((=) ==> (=) ==> (=)) (comp x y z).
   Proof.
    intros ??? [? [??]] ? E ?? F ??. simpl.
    unfold compose. rewrite (F _ _), (E _ _). reflexivity.
   Qed.
 
-  Global Instance: Category Object.
+  Global Instance: Category (Object et).
   Proof. constructor; try apply _; repeat intro; reflexivity. Qed.
-
 End contents.
