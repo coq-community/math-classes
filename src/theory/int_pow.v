@@ -188,6 +188,7 @@ Proof.
 Qed.
 
 Context `{Apart A} `{!TrivialApart A} `{!PseudoRingOrder (A:=A) Ale Alt}.
+Context `{Apart B} `{!TrivialApart B} `{!PseudoRingOrder (A:=B) Ble Blt}.
 
 Instance int_pow_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ^ n).
 Proof.
