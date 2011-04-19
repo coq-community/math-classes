@@ -1,7 +1,8 @@
 Require Import
   Morphisms Ring Program Setoid
-  abstract_algebra additional_operations interfaces.orders
-  orders.semirings theory.shiftl.
+  abstract_algebra additional_operations 
+  interfaces.orders interfaces.integers
+  orders.semirings theory.shiftl theory.int_pow.
 
 Section positive_semiring_elements.
 Context `{SemiRing R} `{Apart R} `{!PseudoSemiRingOrder Rle Rlt} `{!PropHolds (1 ⪥ 0)}.
@@ -55,3 +56,11 @@ Section shiftl.
   Next Obligation. destruct x. now apply shiftl_pos. Qed.
 End shiftl. 
 End positive_semiring_elements.
+
+Section int_pow.
+  Context `{DecField R} `{Apart R} `{!PseudoRingOrder Rle Rlt}
+    `{!TrivialApart R} `{∀ x y : R, Decision (x = y)} `{Integers B} `{!IntPowSpec R B ipw}.
+
+  Global Program Instance Pos_int_pow: Pow (R₊) B | 5 := λ x n, (x ^ n : R).
+  Next Obligation. destruct x. now apply int_pow_pos. Qed.
+End int_pow.

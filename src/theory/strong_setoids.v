@@ -176,15 +176,17 @@ End dec_setoid.
 
 (* And a similar result for morphisms *)
 Section dec_setoid_morphisms.
-  Context `{StrongSetoid A} `{!TrivialApart A} `{StrongSetoid B} `{!TrivialApart B}.
+  Context `{StrongSetoid A} `{!TrivialApart A} `{StrongSetoid B}.
 
   Instance dec_strong_morphism (f : A → B) `{!Setoid_Morphism f} :
     StrongSetoid_Morphism f.
   Proof.
     split; try apply _.
-    intros x y. rewrite !trivial_apart. 
-    intros E1 E2. destruct E1. now rewrite E2.
+    intros x y E1. apply trivial_apart.
+    intros E2. destruct (apart_ne _ _ E1). now rewrite E2.
   Qed.
+
+  Context `{!TrivialApart B}.
 
   Instance dec_strong_injective (f : A → B) `{!Injective f} :
     StrongInjective f.
@@ -195,7 +197,7 @@ Section dec_setoid_morphisms.
     intros E1 E2. destruct E1. now apply (injective f).
   Qed.
 
-  Context `{StrongSetoid C} `{!TrivialApart C}.
+  Context `{StrongSetoid C}.
 
   Instance dec_strong_binary_morphism (f : A → B → C) `{!Proper ((=) ==> (=) ==> (=)) f} :
     StrongSetoid_BinaryMorphism f.
@@ -203,7 +205,7 @@ Section dec_setoid_morphisms.
     split; try apply _.
     intros x₁ y₁ x₂ y₂ E1.
     case (cotransitive E1 (f x₂ y₁)); rewrite !trivial_apart; intros E2.
-     left. intros E3. destruct E2. now rewrite E3.
-    right. intros E3. destruct E2. now rewrite E3.
+     left. intros E3. destruct (apart_ne _ _ E2). now rewrite E3.
+    right. intros E3. destruct (apart_ne _ _ E2). now rewrite E3.
   Qed.
 End dec_setoid_morphisms.
