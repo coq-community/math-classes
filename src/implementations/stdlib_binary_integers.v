@@ -79,7 +79,7 @@ Proof.
   split; try apply _.
   intros [xp xn] [yp yn] E.
   unfold Npair_to_Z in E. do 2 red. simpl in *.
-  apply (injective (coerce : N → Z)).
+  apply (injective (coerce N Z)).
   rewrite ?rings.preserves_plus.
   apply (right_cancellation (+) ('xp - 'xn)). rewrite E at 1. ring.
 Qed.

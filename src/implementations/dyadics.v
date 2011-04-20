@@ -67,7 +67,7 @@ Section with_rationals.
   Proof.
     rewrite shiftl_nat_pow.
     rewrite rings.preserves_mult, nat_pow.preserves_nat_pow, rings.preserves_2.
-    now rewrite <-(int_pow_nat_pow (f:=coerce : Z⁺ → Z)).
+    now rewrite <-(int_pow_nat_pow (f:=coerce (Z⁺) Z)).
   Qed.
 
   Lemma DtoQ_slow_preserves_plus x y : DtoQ_slow' (x + y) = DtoQ_slow' x + DtoQ_slow' y.
