@@ -14,6 +14,7 @@ Hint Extern 0 (Reflexive _) => apply @Equivalence_Reflexive : typeclass_instance
 Hint Extern 0 (Symmetric _) => apply @Equivalence_Symmetric : typeclass_instances.
 Hint Extern 0 (Transitive _) => apply @Equivalence_Transitive : typeclass_instances.
 
+(*
 (* We don't want Coq trying to prove e.g. transitivity of an arbitrary relation R 
   by proving that R is a StrictOrder. Therefore we ensure that Coq only attempts 
   so if R is actually an instance of Lt. *)
@@ -27,6 +28,7 @@ Remove Hints
 Hint Extern 0 (Transitive (<)) => apply @StrictOrder_Transitive : typeclass_instances.
 Hint Extern 0 (Reflexive (≤)) => apply @PreOrder_Reflexive : typeclass_instances.
 Hint Extern 0 (Transitive (≤)) => apply @PreOrder_Transitive : typeclass_instances.
+*)
 
 (* It seems that Coq takes an insane number of steps to prove that an equivalence 
   relation is Proper. This instance should decrease the number of performed steps. *)
