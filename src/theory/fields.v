@@ -12,6 +12,15 @@ Add Ring F : (stdlib_ring_theory F).
 Lemma mult_inverse_alt (x : F) Px : x // x↾Px = 1.
 Proof. now rewrite <-(mult_inverse (x↾Px)). Qed.
 
+Lemma mult_inv_proper_alt x y Px Py : x = y → // x↾Px = // y↾Py.
+Proof. intro. now apply sm_proper. Qed.
+
+Lemma mult_inv_irrelevant x Px1 Px2 : // x↾Px1 = // x↾Px2.
+Proof. now apply mult_inv_proper_alt. Qed.
+
+Lemma apart_0_proper {x y} : x ⪥ 0 → x = y → y ⪥ 0.
+Proof. intros ? E. now rewrite <-E. Qed.
+
 Global Instance: StrongInjective (-).
 Proof.
   repeat (split; try apply _); intros x y E.
@@ -143,6 +152,8 @@ Section morphisms.
     now ring_simplify.
   Qed.
 
+  (* We have the following for morphisms to non-trivial strong rings as well. However,
+    since we do not have an interface for strong rings, we ignore it. *)
   Global Instance: StrongInjective f.
   Proof.
     apply strong_injective_preserves_0.

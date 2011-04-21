@@ -212,23 +212,23 @@ Section from_stdlib_field_theory.
 End from_stdlib_field_theory.
 
 Section morphisms.
-  Context  `{DecField F1} `{DecField F2} `{∀ x y: F1, Decision (x = y)} `{∀ x y: F2, Decision (x = y)}
-    `{!SemiRing_Morphism (f : F1 → F2)}.
+  Context  `{DecField F} `{∀ x y: F, Decision (x = y)}.
 
-  Global Instance: Injective f.
+  Global Instance dec_field_to_domain_inj `{IntegralDomain R} 
+    `{!SemiRing_Morphism (f : F → R)} : Injective f.
   Proof.
     apply injective_preserves_0.
     intros x Efx.
     apply stable. intros Ex.
-    destruct (is_ne_0 (1:F2)).
+    destruct (is_ne_0 (1:R)).
     rewrite <-(rings.preserves_1 (f:=f)).
     rewrite <-(dec_mult_inverse x) by assumption.
     rewrite rings.preserves_mult, Efx.
     now apply left_absorb.
   Qed.
 
-  Lemma preserves_dec_mult_inv x : 
-    f (/ x) = / f x.
+  Lemma preserves_dec_mult_inv `{DecField F2} `{∀ x y: F2, Decision (x = y)} 
+    `{!SemiRing_Morphism (f : F → F2)} x : f (/ x) = / f x.
   Proof.
     case (decide (x = 0)) as [E | E].
      now rewrite E, dec_mult_inv_0, preserves_0, dec_mult_inv_0.
@@ -239,5 +239,18 @@ Section morphisms.
       now apply preserves_1.
      now apply injective_ne_0.
     easy.
+  Qed.
+
+  Lemma dec_mult_inv_to_mult_inv `{Field F2} `{!StrongSemiRing_Morphism (f : F → F2)} x Pfx : 
+    f (/ x) = // (f x)↾Pfx.
+  Proof.
+    assert (x ≠ 0).
+     intros Ex.
+     destruct (apart_ne (f x) 0 Pfx).
+     now rewrite Ex, preserves_0.
+    apply (left_cancellation_ne_0 (.*.) (f x)).
+     now apply injective_ne_0.
+    rewrite <-preserves_mult, dec_mult_inverse, mult_inverse_alt by assumption.
+    now apply preserves_1.
   Qed.
 End morphisms.
