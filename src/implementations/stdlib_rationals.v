@@ -112,3 +112,20 @@ Proof.
    exact Qpower_0. 
   intros. now apply Qpower_plus.
 Qed.
+
+Instance Q_Npow: Pow Q N := λ x n, Qpower x (coerce N Z n).
+
+Instance: NatPowSpec Q N Q_Npow.
+Proof.
+  split.
+    unfold pow, Q_Npow. solve_proper.
+   reflexivity.
+  intros. unfold pow, Q_Npow.
+  rewrite rings.preserves_plus.
+  rewrite Qpower_plus'.
+   reflexivity.
+  change (1 + coerce N Z n ≠ 0).
+  apply orders.lt_ne_flip.
+  rewrite commutativity.
+  now apply integers.le_iff_lt_plus_1, naturals.to_semiring_nonneg.
+Qed.
