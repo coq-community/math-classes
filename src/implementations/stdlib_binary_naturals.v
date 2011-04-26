@@ -62,27 +62,21 @@ Instance: Naturals N := retract_is_nat N_of_nat.
 Instance N_le: Le N := Nle.
 Instance N_lt: Lt N := Nlt.
 
-Instance: SemiRingOrder N_le.
-Proof with auto.
-  split.
-    repeat (split; try apply _)...
-    exact N.le_antisymm.
-   intros x y. split.
-    intros E. exists (Nminus y x).
-    split.
-     now apply N.le_add_le_sub_r.
-    symmetry. rewrite commutativity. now apply N.sub_add.
-   intros [z [_ Ez]]. rewrite Ez.
-   now apply N.le_add_r.
-  intros. now apply Nle_0. 
-Qed.
-
-Instance: TotalRelation N_le.
-Proof. intros x y. now apply N.le_ge_cases. Qed.
-
-Instance: PseudoSemiRingOrder N_le N_lt.
+Instance: FullPseudoSemiRingOrder N_le N_lt.
 Proof.
-  rapply semirings.dec_pseudo_srorder.
+  assert (SemiRingOrder N_le).
+   split.
+      repeat (split; try apply _).
+      exact N.le_antisymm.
+     intros x y E. exists (Nminus y x).
+     symmetry. rewrite commutativity. now apply N.sub_add.
+    repeat (split; try apply _); intros. 
+     now apply N.add_le_mono_l.
+    eapply N.add_le_mono_l. eassumption.
+   intros. now apply Nle_0. 
+  assert (TotalRelation N_le).
+   intros x y. now apply N.le_ge_cases.
+  rapply semirings.dec_full_pseudo_srorder.
   split.
    intro. now apply N.le_neq.
   intros [E1 E2]. now apply N.T.le_neq_lt.

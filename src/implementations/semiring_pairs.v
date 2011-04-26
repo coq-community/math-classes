@@ -2,7 +2,7 @@ Require
   theory.rings.
 Require Import
   Morphisms Ring Setoid Program
-  abstract_algebra interfaces.orders orders.semirings.
+  abstract_algebra interfaces.orders orders.rings.
 
 Inductive SRpair (SR : Type) := C { pos : SR ; neg : SR }.
 Implicit Arguments C [[SR]].
@@ -156,6 +156,9 @@ Section with_semiring_order.
     now apply (antisymmetry (≤)).
   Qed.
 
+  Instance: PartialOrder SRpair_le.
+  Proof. repeat (split; try apply _). Qed.
+
   Instance: ∀ z : SRpair SR, OrderPreserving ((+) z).
   Proof.
     repeat (split; try apply _). unfold_le.
@@ -165,17 +168,20 @@ Section with_semiring_order.
     now apply (order_preserving _).
   Qed.
 
-  Global Instance: RingOrder SRpair_le.
-  Proof with trivial; try ring.
-    repeat (split; try apply _). unfold_le.
-    intros [xp xn] [yp yn] E1 E2. simpl in *.
+  Instance: ∀ x y : SRpair SR, PropHolds (0 ≤ x) → PropHolds (0 ≤ y) → PropHolds (0 ≤ x * y).
+  Proof.
+    intros [xp xn] [yp yn].
+    unfold PropHolds. unfold_le. intros E1 E2.
     ring_simplify in E1. ring_simplify in E2.
     destruct (decompose_le E1) as [a [Ea1 Ea2]], (decompose_le E2) as [b [Eb1 Eb2]].
     rewrite Ea2, Eb2. ring_simplify.
-    apply srorder_plus. exists (a * b). split.
+    apply compose_le with (a * b).
      now apply nonneg_mult_compat.
     ring.
   Qed. 
+
+  Global Instance: SemiRingOrder SRpair_le.
+  Proof. apply rings.from_ring_order; apply _. Qed.
 End with_semiring_order.
 
 Section with_strict_semiring_order.
@@ -215,26 +221,27 @@ Section with_strict_semiring_order.
     now apply (strictly_order_preserving _).
   Qed.
 
-  Lemma SRpair_lt_nonneg_mult_compat (x y : SRpair SR) : 0 < x → 0 < y → 0 < x * y.
+  Instance: StrictSetoidOrder SRpair_lt.
+  Proof. repeat (split; try apply _). Qed.
+
+  Instance: ∀ x y : SRpair SR, PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x * y).
   Proof.
-    destruct x as [xp xn], y as [yp yn]. unfold_lt. intros E1 E2. 
+    intros [xp xn] [yp yn]. 
+    unfold PropHolds. unfold_lt. intros E1 E2. 
     ring_simplify in E1. ring_simplify in E2.
     destruct (decompose_lt E1) as [a [Ea1 Ea2]], (decompose_lt E2) as [b [Eb1 Eb2]].
     rewrite Ea2, Eb2. ring_simplify.
-    apply strict_srorder_plus. exists (a * b). split.
+    apply compose_lt with (a * b).
      now apply pos_mult_compat.
     ring.
   Qed.
 
-  Global Instance: StrictRingOrder SRpair_lt.
-  Proof with trivial; try ring.
-    repeat (split; try apply _).
-    now apply SRpair_lt_nonneg_mult_compat.
-  Qed. 
+  Global Instance: StrictSemiRingOrder SRpair_lt.
+  Proof. apply from_strict_ring_order; apply _. Qed.
 End with_strict_semiring_order.
 
-Section with_pseudo_semiring_order.
-  Context `{!PseudoSemiRingOrder SRle SRlt}.
+Section with_full_pseudo_semiring_order.
+  Context `{!FullPseudoSemiRingOrder SRle SRlt}.
 
   Instance: StrongSetoid SR := pseudo_order_setoid.
 
@@ -255,7 +262,7 @@ Section with_pseudo_semiring_order.
     intros [??] [??]. now rapply tight_apart.
   Qed.
 
-  Instance: PseudoPartialOrder SRpair_le SRpair_lt.
+  Instance: FullPseudoOrder SRpair_le SRpair_lt.
   Proof.
     split. 
      split; try apply _.
@@ -284,13 +291,12 @@ Section with_pseudo_semiring_order.
     symmetry. now apply (strong_extensionality (zn *.)).
   Qed.
 
-  Global Instance: PseudoRingOrder SRpair_le SRpair_lt.
-  Proof.
-    split; try apply _.
-     now apply strong_setoids.strong_binary_setoid_morphism_commutative.
-    now apply SRpair_lt_nonneg_mult_compat.
+  Global Instance: FullPseudoSemiRingOrder SRpair_le SRpair_lt.
+  Proof. 
+    apply from_full_pseudo_ring_order; try apply _.
+    now apply strong_setoids.strong_binary_setoid_morphism_commutative.
   Qed. 
-End with_pseudo_semiring_order.
+End with_full_pseudo_semiring_order.
 
 Global Instance SRpair_dec `{∀ x y : SR, Decision (x = y)} : ∀ x y : SRpair SR, Decision (x = y)
   := λ x y, decide_rel (=) (pos x + neg y) (pos y + neg x).

@@ -96,15 +96,15 @@ Qed.
 Instance: OrderEmbedding to_Q.
 Proof. now repeat (split; try apply _). Qed.
 
-Instance: RingOrder QType_le.
-Proof rings.projected_ringorder to_Q.
+Instance: SemiRingOrder QType_le.
+Proof rings.projected_ring_order to_Q.
 
 Instance: TotalRelation QType_le.
 Proof maps.projected_total_order to_Q.
 
-Instance: PseudoRingOrder QType_le QType_lt.
+Instance: FullPseudoSemiRingOrder QType_le QType_lt.
 Proof.
-  rapply rings.dec_pseudo_ringorder.
+  rapply semirings.dec_full_pseudo_srorder.
   intros x y. 
   change (to_Q x < to_Q y ↔ x ≤ y ∧ x ≠ y).
   now rewrite orders.lt_iff_le_ne.

@@ -62,6 +62,9 @@ Section pseudo_order.
   Lemma pseudo_order_lt_apart_flip x y : x < y → y ⪥ x.
   Proof. intros. apply apart_iff_total_lt. tauto. Qed.
 
+  Lemma not_lt_apart_lt_flip x y : ¬x < y → x ⪥ y → y < x.
+  Proof. rewrite apart_iff_total_lt. intuition. Qed.
+
   Lemma pseudo_order_cotrans_twice x₁ y₁ x₂ y₂ : x₁ < y₁ → x₂ < y₂ ∨ x₁ < x₂ ∨ y₂ < y₁.
   Proof.
     intros E1.
@@ -103,11 +106,7 @@ Section pseudo_order.
   Qed.
 
   Global Instance: AntiSymmetric (complement (<)).
-  Proof.
-    intros x y E1 E2.
-    apply tight_apart. intro.
-    destruct (apart_total_lt x y); intuition.
-  Qed.
+  Proof. intros x y. rewrite <-tight_apart, apart_iff_total_lt. intuition. Qed.
 
   Lemma ne_total_lt `{!TrivialApart A} x y : x ≠ y → x < y ∨ y < x.
   Proof. rewrite <-trivial_apart. now apply apart_total_lt. Qed.
@@ -232,8 +231,8 @@ Hint Extern 5 (PropHolds (_ ≠ _)) => eapply @strict_po_apart_ne :  typeclass_i
 Hint Extern 10 (PropHolds (_ ≤ _)) => eapply @lt_le : typeclass_instances. 
 Hint Extern 20 (Decision (_ < _)) => eapply @lt_dec_slow : typeclass_instances. 
 
-Section pseudo_partial_order.
-  Context `{PseudoPartialOrder A}.
+Section full_pseudo_order.
+  Context `{FullPseudoOrder A}.
 
   Instance: StrongSetoid A := pseudo_order_setoid.
 
@@ -244,10 +243,7 @@ Section pseudo_partial_order.
   Proof.
     split; try apply _.
       intros ? ? E1 ? ? E2.
-      rewrite !le_iff_not_lt_flip.
-      split; intros E3 E4.
-       destruct E3. now rewrite E1, E2.
-      destruct E3. now rewrite <-E1, <-E2.
+      now rewrite !le_iff_not_lt_flip, E1, E2.
      split.
       intros x. apply not_lt_le_flip, (irreflexivity (<)).
      intros x y z.
@@ -266,9 +262,9 @@ Section pseudo_partial_order.
     intros x y. rewrite !le_iff_not_lt_flip. split.
      intros E. split.
       now apply lt_flip.
-     apply pseudo_order_lt_apart. tauto.
+     now apply pseudo_order_lt_apart.
     intros [? E].
-    destruct (apart_total_lt x y); tauto.
+    now apply not_lt_apart_lt_flip.
   Qed.
 
   Global Instance: ∀ x y, Stable (x ≤ y).
@@ -300,7 +296,7 @@ Section pseudo_partial_order.
     end.
   Next Obligation. now apply le_not_lt_flip. Qed.
   Next Obligation. now apply not_le_lt_flip. Qed.
-End pseudo_partial_order.
+End full_pseudo_order.
 
 Hint Extern 8 (Decision (_ < _)) => eapply @lt_dec : typeclass_instances. 
 (*
@@ -363,7 +359,7 @@ Section dec_partial_order.
     intros [[??]|[??]]; intuition.
   Qed.
 
-  Instance dec_pseudo_partial_order: PseudoPartialOrder (≤) (<).
+  Instance dec_full_pseudo_order: FullPseudoOrder (≤) (<).
   Proof.
     split; try apply _.
     intros x y. rewrite lt_correct. split.

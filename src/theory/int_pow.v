@@ -16,7 +16,7 @@ Add Ring B : (rings.stdlib_ring_theory B).
 Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 0.
 Proof int_pow_proper.
 
-Lemma int_pow_S_nonneg `{Apart B} `{!TrivialApart B} `{!PseudoRingOrder (A:=B) Ble Blt} (x : A) (n : B) : 
+Lemma int_pow_S_nonneg `{Apart B} `{!TrivialApart B} `{!FullPseudoSemiRingOrder (A:=B) Ble Blt} (x : A) (n : B) : 
   0 ≤ n → x ^ (1+n) = x * x ^ n.
 Proof.
   intros En.
@@ -187,8 +187,8 @@ Proof.
   now apply int_pow_ne_0.
 Qed.
 
-Context `{Apart A} `{!TrivialApart A} `{!PseudoRingOrder (A:=A) Ale Alt}.
-Context `{Apart B} `{!TrivialApart B} `{!PseudoRingOrder (A:=B) Ble Blt}.
+Context `{Apart A} `{!TrivialApart A} `{!FullPseudoSemiRingOrder (A:=A) Ale Alt}.
+Context `{Apart B} `{!TrivialApart B} `{!FullPseudoSemiRingOrder (A:=B) Ble Blt}.
 
 Instance int_pow_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ^ n).
 Proof.
@@ -261,7 +261,7 @@ Proof.
   assert (PropHolds (0 < x))
    by (apply orders.lt_le_trans with 1; [solve_propholds | easy]).
   intros n m E.
-  apply srorder_plus in E. destruct E as [z [Ea Eb]].
+  destruct (semirings.decompose_le E) as [z [Ea Eb]].
   rewrite Eb.
   rewrite int_pow_exp_plus by now apply orders.lt_ne_flip.
   rewrite <-rings.mult_1_r at 1.
@@ -277,7 +277,7 @@ Proof.
    by (apply orders.le_lt_trans with 1; [solve_propholds | easy]).
   intros n m E.
   apply integers.lt_iff_plus_1_le in E.
-  apply srorder_plus in E. destruct E as [z [Ea Eb]].
+  destruct (semirings.decompose_le E) as [z [Ea Eb]].
   rewrite Eb.
   rewrite <-associativity, int_pow_exp_plus by now apply orders.lt_ne_flip.
   rewrite <-(rings.mult_1_r (x ^ n)) at 1.
@@ -376,7 +376,7 @@ End exp_preservation.
 (* Very slow default implementation by translation into Peano *)
 Section int_pow_default.
   Context `{DecField A} `{∀ x y, Decision (x = y)} 
-    `{Integers B} `{Apart B} `{!TrivialApart B} `{!PseudoRingOrder (A:=B) Ble Blt}.
+    `{Integers B} `{Apart B} `{!TrivialApart B} `{!FullPseudoSemiRingOrder (A:=B) Ble Blt}.
 
   Add Ring B3 : (rings.stdlib_ring_theory B).
 

@@ -59,26 +59,29 @@ Instance: Rationals Q := rationals.alt_Build_Rationals Q_to_fracZ inject_Z.
 Instance Q_le: Le Q := Qle.
 Instance Q_lt: Lt Q := Qlt.
 
-Instance: RingOrder Q_le.
-Proof with auto.
-  repeat (split; try apply _)...
+Instance: SemiRingOrder Q_le.
+Proof.
+  assert (PartialOrder Q_le).
+   repeat (split; try apply _).
       exact Qle_refl.
-     exact Qle_trans.
-    exact Qle_antisym.
-   intros. apply Qplus_le_compat... apply Qle_refl.
-  intros. apply Qmult_le_0_compat...
+    exact Qle_trans.
+   exact Qle_antisym.
+  apply (rings.from_ring_order (Rle:=Q_le)).
+   repeat (split; try apply _).
+   intros. apply Qplus_le_compat. now apply Qle_refl. easy.
+  intros. now apply Qmult_le_0_compat.
 Qed.
 
 Instance: TotalRelation Q_le.
-Proof with auto.
+Proof.
   intros x y.
-  destruct (Qlt_le_dec x y)...
-  left. apply Qlt_le_weak...
+  destruct (Qlt_le_dec x y); auto.
+  left. now apply Qlt_le_weak.
 Qed.
 
-Instance: PseudoRingOrder Q_le Q_lt.
+Instance: FullPseudoSemiRingOrder Q_le Q_lt.
 Proof.
-  rapply (rings.dec_pseudo_ringorder (A:=Q)).
+  rapply (semirings.dec_full_pseudo_srorder (A:=Q)).
   split.
    intro. split. now apply Zorder.Zlt_le_weak. now apply Zorder.Zlt_not_eq.
   intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1). easy. now destruct E2.

@@ -6,9 +6,9 @@ Require Import
   orders.rings theory.rings.
 
 Section naturals_order.
-Context `{Naturals N} `{Apart N} `{!TrivialApart N} `{!PseudoSemiRingOrder Nle Nlt}.
+Context `{Naturals N} `{Apart N} `{!TrivialApart N} `{!FullPseudoSemiRingOrder Nle Nlt}.
 
-Lemma to_semiring_nonneg `{SemiRing R} `{Apart R} `{!PseudoSemiRingOrder (A:=R) Rle Rlt}
+Lemma to_semiring_nonneg `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder (A:=R) Rle Rlt}
      `{∀ z : R, LeftCancellation (+) z} {f : N → R} `{!SemiRing_Morphism f} n : 
   0 ≤ f n.
 Proof.
@@ -27,15 +27,16 @@ Proof. now apply (to_semiring_nonneg (f:=id)). Qed.
 Lemma natural_le_plus {x y: N}: x ≤ y ↔ ∃ z: N, y = x + z.
 Proof with auto.
   split; intros E.
-   apply srorder_plus in E. destruct E as [z [Ez1 Ez2]].
+   destruct (decompose_le E) as [z [Ez1 Ez2]].
    exists z...
   destruct E as [z Ez].
-  apply srorder_plus. exists z.
-  split... apply naturals_nonneg.
+  apply compose_le with z.
+   apply naturals_nonneg.
+  easy.
 Qed.
 
 Section another_semiring.
-  Context `{SemiRing R} `{Apart R} `{!PseudoSemiRingOrder (A:=R) Rle Rlt} `{∀ z : R, LeftCancellation (+) z}
+  Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder (A:=R) Rle Rlt} `{∀ z : R, LeftCancellation (+) z}
     {f : N → R} `{!SemiRing_Morphism f}.
 
   Global Instance morphism_order_preserving: OrderPreserving f.
@@ -47,7 +48,7 @@ Section another_semiring.
 End another_semiring.
 
 Section another_ring.
-  Context `{Ring R} `{Apart R} `{!PseudoRingOrder (A:=R) Rle Rlt}.
+  Context `{Ring R} `{Apart R} `{!FullPseudoSemiRingOrder (A:=R) Rle Rlt}.
 
   Lemma opp_to_semiring_nonpos n : - naturals_to_semiring N R n ≤ 0.
   Proof. apply flip_nonneg_opp. apply to_semiring_nonneg. Qed.
@@ -68,8 +69,8 @@ End naturals_order.
 (* A PseudoSemiRingOrder uniquely specifies the orders on the naturals *)
 Section order_unique.
 Context `{Naturals N} `{Naturals N2} {f : N → N2} `{!SemiRing_Morphism f}
-  `{Apart N} `{!TrivialApart N} `{!PseudoSemiRingOrder (A:=N) Nle Nlt} 
-  `{Apart N2} `{!TrivialApart N2} `{!PseudoSemiRingOrder (A:=N2) N2le N2lt}.
+  `{Apart N} `{!TrivialApart N} `{!FullPseudoSemiRingOrder (A:=N) Nle Nlt} 
+  `{Apart N2} `{!TrivialApart N2} `{!FullPseudoSemiRingOrder (A:=N2) N2le N2lt}.
 
 Global Instance: OrderEmbedding f.
 Proof.
@@ -82,7 +83,7 @@ Qed.
 End order_unique.
 
 Section other_results.
-Context `{Naturals N} `{Apart N} `{!TrivialApart N} `{!PseudoSemiRingOrder Nle Nlt}.
+Context `{Naturals N} `{Apart N} `{!TrivialApart N} `{!FullPseudoSemiRingOrder Nle Nlt}.
 Add Ring N : (stdlib_semiring_theory N).
 
 Global Program Instance slow_nat_le_dec: ∀ x y: N, Decision (x ≤ y) | 10 := λ x y,
@@ -137,7 +138,7 @@ Proof.
 Qed.
 End other_results.
 
-Instance nat_le `{Naturals N} : Le N | 10 :=  λ x y, ∃ z, y = x + z.
+Instance nat_le `{Naturals N} : Le N | 10 :=  λ x y, ∃ z, x + z = y.
 Instance nat_lt  `{Naturals N} : Lt N | 10 := dec_lt.
 
 Section default_order.
@@ -153,17 +154,20 @@ Proof.
 Qed.
 
 Instance: SemiRingOrder nat_le.
-Proof with trivial; try ring.
+Proof.
   repeat (split; try apply _).
-       intros x. exists 0...
-      intros x y z [a A] [b B]. exists (a + b). rewrite associativity, <-A, B...
-     intros x y [a A] [b B].
-     destruct (naturals.zero_sum a b) as [E1 E2].
-      apply (left_cancellation (+) x). rewrite B at 2. rewrite A...
-     rewrite A, B, E1, E2...
-    intros [a A]. exists a. split... exists a...
-   intros [a [_ A]]. rewrite A. exists a...
-  intros x y _ _. exists (x * y)...
+        intros x. exists 0. ring.
+       intros x y z [a A] [b B]. exists (a + b). now rewrite associativity, A, B.
+      intros x y [a A] [b B].
+      destruct (naturals.zero_sum a b) as [E1 E2].
+       apply (left_cancellation (+) x). 
+       rewrite associativity, A, B. ring.
+      rewrite <-A, <-B, E1, E2. ring.
+     intros x y [a A]. now exists a.
+    intros x y [a A]. exists a. rewrite <-A. ring.
+   intros x y [a A]. exists a.
+   apply (left_cancellation (+) z). rewrite <-A. ring.
+  intros x y _ _. exists (x * y). ring.
 Qed.
 
 Notation n_to_sr := (naturals_to_semiring N nat).
@@ -171,8 +175,8 @@ Notation n_to_sr := (naturals_to_semiring N nat).
 Instance: TotalRelation nat_le.
 Proof.
   assert (∀ x y, n_to_sr x ≤ n_to_sr y → x ≤ y) as P.
-   intros x y E. apply srorder_plus in E. 
-   destruct E as [a [_ A]].
+   intros x y E. 
+   destruct (decompose_le E) as [a [_ A]].
    exists (naturals_to_semiring nat N a). 
    apply (injective n_to_sr).
    rewrite preserves_plus. now rewrite (naturals.to_semiring_involutive _ _).
@@ -180,6 +184,6 @@ Proof.
   destruct (total (≤) (n_to_sr x) (n_to_sr y)); [left | right]; now apply P.
 Qed.
 
-Global Instance: PseudoSemiRingOrder nat_le nat_lt.
-Proof. now apply dec_pseudo_srorder. Qed.
+Global Instance: FullPseudoSemiRingOrder nat_le nat_lt.
+Proof. now apply dec_full_pseudo_srorder. Qed.
 End default_order.

@@ -20,7 +20,7 @@ Implicit Arguments expo [[Z]].
 Infix "$" := dyadic (at level 80).
 
 Section dyadics.
-Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!PseudoRingOrder Zle Zlt} 
+Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt} 
   `{equiv_dec : ∀ (x y : Z), Decision (x = y)}
   `{le_dec : ∀ (x y : Z), Decision (x ≤ y)}
   `{!ShiftLSpec Z (Z⁺) sl}.
@@ -289,8 +289,8 @@ Qed.
 Instance: OrderEmbedding DtoStdQ.
 Proof. now repeat (split; try apply _). Qed.
 
-Instance: RingOrder dy_le.
-Proof rings.projected_ringorder DtoStdQ.
+Instance: SemiRingOrder dy_le.
+Proof rings.projected_ring_order DtoStdQ.
 
 Instance: TotalRelation dy_le.
 Proof maps.projected_total_order DtoStdQ.
@@ -304,8 +304,8 @@ Proof.
   right. apply (injective DtoStdQ). now rewrite Ey, rings.preserves_0.
 Qed.
 
-Global Instance: PseudoRingOrder dy_le dy_lt.
-Proof. rapply (rings.dec_pseudo_ringorder (A:=Dyadic)). reflexivity. Qed. 
+Global Instance: FullPseudoSemiRingOrder dy_le dy_lt.
+Proof. now rapply (semirings.dec_full_pseudo_srorder (A:=Dyadic)). Qed. 
 
 Lemma nonneg_mant (x : Dyadic) : 0 ≤ x ↔ 0 ≤ mant x.
 Proof.
@@ -416,7 +416,7 @@ End DtoQ.
 
 Section embed_rationals.
   Context `{Rationals Q} `{!IntPowSpec Q Z ipw} `{!SemiRing_Morphism (ZtoQ: Z → Q)}.
-  Context `{Apart Q} `{!TrivialApart Q} `{!PseudoRingOrder Qlt Qle}.
+  Context `{Apart Q} `{!TrivialApart Q} `{!FullPseudoSemiRingOrder Qlt Qle}.
 
   Add Ring Q2 : (rings.stdlib_ring_theory Q).
 

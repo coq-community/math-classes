@@ -134,7 +134,7 @@ Proof.
   now rewrite shiftl_base_0.
 Qed.
 
-Context `{Apart A} `{!PseudoSemiRingOrder Ale Alt} `{!PropHolds ((1:A) ⪥ 0)}.
+Context `{Apart A} `{!FullPseudoSemiRingOrder Ale Alt} `{!PropHolds ((1:A) ⪥ 0)}.
 
 Let shiftl_strict_order_embedding (x y : A) (n : B) : x < y ↔ x ≪ n < y ≪ n.
 Proof.
@@ -147,26 +147,22 @@ Proof.
   now apply (strictly_order_preserving_back (2 *.)).
 Qed.
 
-Global Instance: ∀ n, StrictlyOrderPreserving (≪ n).
+Global Instance: ∀ n, StrictOrderEmbedding (≪ n).
 Proof. 
-  repeat (split; try apply _). 
-  intros. now apply shiftl_strict_order_embedding. 
+  repeat (split; try apply _); intros.
+   now apply shiftl_strict_order_embedding.
+  eapply shiftl_strict_order_embedding. eassumption.
 Qed.
 
-Global Instance: ∀ n, StrictlyOrderPreservingBack (≪ n).
+Global Instance: ∀ n, OrderEmbedding (≪ n).
 Proof. 
-  repeat (split; try apply _). 
-  intros. eapply shiftl_strict_order_embedding. now eauto. 
+  split.
+   now apply maps.full_pseudo_order_preserving.
+  now apply maps.full_pseudo_order_preserving_back.
 Qed.
-
-Global Instance: ∀ n, OrderPreserving (≪ n).
-Proof. intros. now apply maps.pseudo_partial_order_preserving. Qed.
-
-Global Instance: ∀ n, OrderPreservingBack (≪ n).
-Proof. intros. now apply maps.pseudo_partial_order_preserving_back. Qed.
 
 Global Instance shiftl_strong_inj: ∀ n, StrongInjective (≪ n).
-Proof. intros. now apply maps.pseudo_partial_order_embedding_inj. Qed.
+Proof. intros. apply maps.pseudo_order_embedding_inj. Qed.
 
 Lemma shiftl_le_flip_r `{GroupInv B} `{!Ring B} (x y : A) (n : B) : 
   x ≤ y ≪ (-n)  ↔  x ≪ n ≤ y.

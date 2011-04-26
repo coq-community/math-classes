@@ -44,14 +44,36 @@ Section strictly_order_preserving_dec.
   Proof. pose proof (order_morphism_mor f). pose proof (dec_strong_morphism f). apply _. Qed.
 End strictly_order_preserving_dec.
 
-(* If a function between pseudo partial orders is strictly order preserving (back), we can 
-  derive that it is order preserving (back) *)
-Section pseudo_partial_strictly_preserving.
-  Context `{PseudoPartialOrder B} `{PseudoPartialOrder A}.
+Section pseudo_injective.
+  Context `{PseudoOrder A} `{PseudoOrder B}.
 
   Existing Instance pseudo_order_setoid.
 
-  Lemma pseudo_partial_order_preserving `{!StrictlyOrderPreservingBack (f : A → B)} : OrderPreserving f.
+  Instance pseudo_order_embedding_ext `{!StrictOrderEmbedding (f : A → B)} :
+    StrongSetoid_Morphism f.
+  Proof.
+    split; try apply _.
+    intros x y. rewrite !apart_iff_total_lt.
+    intros [|]; [left | right]; now apply (strictly_order_preserving_back f).
+  Qed.
+
+  Lemma pseudo_order_embedding_inj `{!StrictOrderEmbedding (f : A → B)} :
+    StrongInjective f.
+  Proof.
+    split; try apply _.
+    intros x y. rewrite !apart_iff_total_lt.
+    intros [|]; [left | right]; now apply (strictly_order_preserving f).
+  Qed.
+End pseudo_injective.
+
+(* If a function between pseudo partial orders is strictly order preserving (back), we can 
+  derive that it is order preserving (back) *)
+Section full_pseudo_strictly_preserving.
+  Context `{FullPseudoOrder A} `{FullPseudoOrder B}.
+
+  Existing Instance pseudo_order_setoid.
+
+  Lemma full_pseudo_order_preserving `{!StrictlyOrderPreservingBack (f : A → B)} : OrderPreserving f.
   Proof.
     pose proof (strict_order_morphism_mor f).
     repeat (split; try apply _).
@@ -60,7 +82,7 @@ Section pseudo_partial_strictly_preserving.
     now apply (strictly_order_preserving_back f).
   Qed.
 
-  Lemma pseudo_partial_order_preserving_back `{!StrictlyOrderPreserving (f : A → B)} : OrderPreservingBack f.
+  Lemma full_pseudo_order_preserving_back `{!StrictlyOrderPreserving (f : A → B)} : OrderPreservingBack f.
   Proof.
     pose proof (strict_order_morphism_mor f).
     repeat (split; try apply _).
@@ -68,23 +90,7 @@ Section pseudo_partial_strictly_preserving.
     intros E1 E2. apply E1.
     now apply (strictly_order_preserving f).
   Qed.
-
-  Instance pseudo_partial_order_embedding_ext `{!StrictlyOrderPreserving (f : A → B)} `{!StrictlyOrderPreservingBack f} :
-    StrongSetoid_Morphism f.
-  Proof.
-    split; try apply _.
-    intros x y. rewrite !apart_iff_total_lt.
-    intros [|]; [left | right]; now apply (strictly_order_preserving_back f).
-  Qed.
-
-  Lemma pseudo_partial_order_embedding_inj `{!StrictlyOrderPreserving (f : A → B)} `{!StrictlyOrderPreservingBack f} :
-    StrongInjective f.
-  Proof.
-    split; try apply _.
-    intros x y. rewrite !apart_iff_total_lt.
-    intros [|]; [left | right]; now apply (strictly_order_preserving f).
-  Qed.
-End pseudo_partial_strictly_preserving.
+End full_pseudo_strictly_preserving.
 
 (* Some helper lemmas to easily transform order preserving instances. *)
 Section order_preserving_ops.
@@ -228,10 +234,10 @@ Proof.
   destruct E; [left | right]; now apply (strictly_order_preserving _).
 Qed.
 
-Lemma projected_pseudo_partial_order `{Equiv A} `{Apart A} `{Ale : Le A} `{Alt : Lt A} 
+Lemma projected_full_pseudo_order `{Equiv A} `{Apart A} `{Ale : Le A} `{Alt : Lt A} 
   `{Equiv B} `{Apart B} `{Ble : Le B} `{Blt : Lt B} 
   (f : A → B) `{!OrderEmbedding f} `{!StrictOrderEmbedding f} `{!StrongInjective f} 
-  `{!PseudoPartialOrder Ble Blt} : PseudoPartialOrder Ale Alt.
+  `{!FullPseudoOrder Ble Blt} : FullPseudoOrder Ale Alt.
 Proof.
   split.
    now apply (projected_pseudo_order f).

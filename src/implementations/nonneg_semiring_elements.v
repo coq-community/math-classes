@@ -5,7 +5,7 @@ Require Import
   abstract_algebra interfaces.orders orders.semirings.
 
 Section nonneg_semiring_elements.
-Context `{SemiRing R} `{Apart R} `{!PseudoSemiRingOrder Rlt Rle}.
+Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder Rlt Rle}.
 
 Add Ring R : (rings.stdlib_semiring_theory R).
 

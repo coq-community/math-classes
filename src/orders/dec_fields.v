@@ -5,7 +5,7 @@ Require Export
   orders.rings.
 
 Section contents.
-Context `{DecField F} `{Apart F} `{!TrivialApart F} `{!PseudoRingOrder Fle Flt} `{∀ x y : F, Decision (x = y)}.
+Context `{DecField F} `{Apart F} `{!TrivialApart F} `{!FullPseudoSemiRingOrder Fle Flt} `{∀ x y : F, Decision (x = y)}.
 Add Ring F : (stdlib_ring_theory F).
 
 Instance pos_dec_mult_inv_compat x : PropHolds (0 < x) → PropHolds (0 < /x).

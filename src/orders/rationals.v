@@ -6,8 +6,8 @@ Require Import
   orders.integers orders.dec_fields.
 
 Section rationals_and_integers.
-  Context `{Rationals Q} `{!RingOrder Qle} 
-    Z `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!PseudoRingOrder (A:=Z) Zle Zlt}
+  Context `{Rationals Q} `{!SemiRingOrder Qle} 
+    Z `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder (A:=Z) Zle Zlt}
     {f : Z → Q} `{!SemiRing_Morphism f}.
   Add Field Q : (stdlib_field_theory Q).
 
@@ -31,8 +31,8 @@ End rationals_and_integers.
 
 (* A PseudoRingOrder uniquely specifies the orders on the rationals *)
 Section rationals_and_another_rationals.
-  Context `{Rationals Q1} `{Apart Q1} `{!TrivialApart Q1} `{!PseudoRingOrder Q1le Q1lt}.
-  Context `{Rationals Q2} `{Apart Q2} `{!TrivialApart Q2} `{!PseudoRingOrder (A:=Q2) Q2le Q2lt}
+  Context `{Rationals Q1} `{Apart Q1} `{!TrivialApart Q1} `{!FullPseudoSemiRingOrder (A:=Q1) Q1le Q1lt}.
+  Context `{Rationals Q2} `{Apart Q2} `{!TrivialApart Q2} `{!FullPseudoSemiRingOrder (A:=Q2) Q2le Q2lt}
      {f : Q1 → Q2} `{!SemiRing_Morphism f}.
 
   Add Field Q1 : (stdlib_field_theory Q1).
@@ -71,8 +71,8 @@ Section rationals_and_another_rationals.
 End rationals_and_another_rationals.
 
 Section rationals_order_isomorphic.
-  Context `{Rationals Q1} `{Apart Q1} `{!TrivialApart Q1} `{!PseudoRingOrder (A:=Q1) Q1le Q1lt}
-    `{Rationals Q2} `{Apart Q2} `{!TrivialApart Q2} `{!PseudoRingOrder (A:=Q2) Q2le Q2lt}
+  Context `{Rationals Q1} `{Apart Q1} `{!TrivialApart Q1} `{!FullPseudoSemiRingOrder (A:=Q1) Q1le Q1lt}
+    `{Rationals Q2} `{Apart Q2} `{!TrivialApart Q2} `{!FullPseudoSemiRingOrder (A:=Q2) Q2le Q2lt}
      {f : Q1 → Q2} `{!SemiRing_Morphism f}.
 
   Global Instance: OrderEmbedding f.
@@ -158,9 +158,13 @@ Section default_order.
     contradiction.
   Qed.
 
-  Instance: RingOrder rationals_le.
+  Instance: PartialOrder rationals_le.
+  Proof. repeat (split; try apply _). Qed.
+
+  Instance: SemiRingOrder rationals_le.
   Proof.
-    repeat (split; try apply _).
+    apply from_ring_order.
+     repeat (split; try apply _).
      intros x y [n [d E]]. exists n d. rewrite E. ring.
     intros x y [n1 [d1 E1]] [n2 [d2 E2]].
     exists (n1 * n2) (d1 * d2).
@@ -195,6 +199,6 @@ Section default_order.
     destruct (total (≤) (xn * yd) (yn * xd)); [left | right]; now apply P.
   Qed.
 
-  Global Instance: PseudoRingOrder rationals_le rationals_lt.
-  Proof. now apply dec_pseudo_ringorder. Qed.
+  Global Instance: FullPseudoSemiRingOrder rationals_le rationals_lt.
+  Proof. now apply dec_full_pseudo_srorder. Qed.
 End default_order.

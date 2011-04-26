@@ -8,7 +8,7 @@ Require Export
   implementations.nonneg_semiring_elements.
 
 Section nonneg_integers_naturals.
-Context Z `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!PseudoRingOrder Zle Zlt}.
+Context Z `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt}.
 
 Add Ring Z: (rings.stdlib_ring_theory Z).
 

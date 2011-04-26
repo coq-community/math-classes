@@ -7,7 +7,7 @@ Require Import
 
 (* * Properties of Cut off Minus *)
 Section cut_minus_properties.
-  Context `{SemiRing R} `{Apart R} `{!PseudoSemiRingOrder Rle Rlt} `{!TrivialApart R} 
+  Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder Rle Rlt} `{!TrivialApart R} 
     `{∀ x y, Decision (x = y)} `{!CutMinusSpec R cm}.
 
   Add Ring SR: (rings.stdlib_semiring_theory R).
@@ -206,7 +206,7 @@ End cut_minus_properties.
 
 (* * Default implementation for Rings *)
 Section cut_minus_default.
-  Context `{Ring R} `{!RingOrder o} `{∀ (x y : R), Decision (x ≤ y)}.
+  Context `{Ring R} `{!SemiRingOrder o} `{∀ (x y : R), Decision (x ≤ y)}.
 
   Global Instance default_cut_minus: CutMinus R | 10 := λ x y, if decide_rel (≤) x y then 0 else x - y.
 
@@ -226,9 +226,9 @@ Typeclasses Opaque default_cut_minus.
 
 Section order_preserving.
   Context `{SemiRing A} `{Apart A} `{!TrivialApart A} 
-   `{!PseudoSemiRingOrder (A:=A) Ale Alt} `{!CutMinusSpec A cmA} `{∀ (x y : A), Decision (x = y)}
+   `{!FullPseudoSemiRingOrder (A:=A) Ale Alt} `{!CutMinusSpec A cmA} `{∀ (x y : A), Decision (x = y)}
    `{SemiRing B} `{Apart B} `{!TrivialApart B} 
-   `{!PseudoSemiRingOrder (A:=B) Ble Blt} `{!CutMinusSpec B cmB} `{∀ (x y : B), Decision (x = y)}
+   `{!FullPseudoSemiRingOrder (A:=B) Ble Blt} `{!CutMinusSpec B cmB} `{∀ (x y : B), Decision (x = y)}
      {f : A → B} `{!OrderPreserving f} `{!SemiRing_Morphism f}.
   
   Lemma preserves_cut_minus x y : f (x ∸ y) = f x ∸ f y.

@@ -6,7 +6,7 @@ Require Import
   theory.integers theory.rings orders.naturals orders.rings.
 
 Section contents. 
-Context `{Integers Int} `{Apart Int} `{!TrivialApart Int} `{!PseudoRingOrder Ile Ilt} `{Naturals N}.
+Context `{Integers Int} `{Apart Int} `{!TrivialApart Int} `{!FullPseudoSemiRingOrder Ile Ilt} `{Naturals N}.
 
 Lemma int_abs_uniq (a b : IntAbs Int N) (z : Int) : a z = b z.
 Proof.

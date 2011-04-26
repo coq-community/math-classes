@@ -109,24 +109,27 @@ Instance: Integers Z := integers.retract_is_int Npair_to_Z.
 Instance Z_le: Le Z := Zle.
 Instance Z_lt: Lt Z := Zlt.
 
-Instance: RingOrder Z_le.
+Instance: SemiRingOrder Z_le.
 Proof.
-  repeat (split; try apply _).
-    exact Zorder.Zle_antisym.
+  assert (PartialOrder Z_le).
+   repeat (split; try apply _).
+   exact Zorder.Zle_antisym.
+  rapply rings.from_ring_order.
+   repeat (split; try apply _).
    intros x y E. now apply Zorder.Zplus_le_compat_l.
   intros x E y F. now apply Zorder.Zmult_le_0_compat.
 Qed.
 
 Instance: TotalRelation Z_le.
-Proof with intuition. 
+Proof. 
   intros x y.
-  destruct (Zorder.Zle_or_lt x y)...
-  right. apply Zorder.Zlt_le_weak...
+  destruct (Zorder.Zle_or_lt x y); intuition.
+  right. now apply Zorder.Zlt_le_weak.
 Qed.
 
-Instance: PseudoRingOrder Z_le Z_lt.
+Instance: FullPseudoSemiRingOrder Z_le Z_lt.
 Proof.
-  rapply rings.dec_pseudo_ringorder.
+  rapply semirings.dec_full_pseudo_srorder.
   split.
    intro. split. now apply Zorder.Zlt_le_weak. now apply Zorder.Zlt_not_eq.
   intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1). easy. now destruct E2.

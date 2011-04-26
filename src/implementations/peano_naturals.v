@@ -97,9 +97,6 @@ Instance: Naturals nat := {}.
 Instance: NoZeroDivisors nat.
 Proof. intros x [Ex [y [Ey1 Ey2]]]. destruct (Mult.mult_is_O x y Ey2); intuition. Qed.
 
-Instance: ∀ z : nat, LeftCancellation (+) z.
-Proof. intros x y z. now apply Plus.plus_reg_l. Qed.
-
 Instance: ∀ z : nat, PropHolds (z ≠ 0) → LeftCancellation (.*.) z.
 Proof. intros z Ez x y. now apply NPeano.Nat.mul_cancel_l. Qed. 
 
@@ -107,24 +104,18 @@ Proof. intros z Ez x y. now apply NPeano.Nat.mul_cancel_l. Qed.
 Instance nat_le: Le nat := Peano.le.
 Instance nat_lt: Lt nat := Peano.lt.
 
-Instance: TotalRelation nat_le.
-Proof. intros x y. destruct (le_ge_dec x y); intuition. Qed.
-
-Instance: PseudoSemiRingOrder nat_le nat_lt.
+Instance: FullPseudoSemiRingOrder nat_le nat_lt.
 Proof.
+  assert (TotalRelation nat_le).
+   intros x y. now destruct (le_ge_dec x y); intuition.
   assert (SemiRingOrder nat_le).
    repeat (split; try apply _).
-      intros x y E. now apply Le.le_antisym.
-     intros E.
-     assert (y ≡ x + (y - x))%nat as F by now apply le_plus_minus.
-     exists (y - x)%nat. split; trivial.
-     apply plus_le_reg_l with x.
-     rewrite <-F. now rewrite Plus.plus_0_r.
-    intros [z [Ez1 Ez2]].
-    rewrite Ez2. now apply le_plus_trans.
-   intros x y E1 E2.
-   change (0 * 0 <= x * y)%nat. now apply Mult.mult_le_compat.
-  apply dec_pseudo_srorder.
+       intros x y E. now apply Le.le_antisym.
+      intros x y E. exists (y - x)%nat. now apply le_plus_minus.
+     intros. now apply Plus.plus_le_compat_l.
+    intros. now apply plus_le_reg_l with z.
+   intros x y ? ?. change (0 * 0 <= x * y)%nat. now apply Mult.mult_le_compat.
+  apply dec_full_pseudo_srorder.
   now apply NPeano.Nat.le_neq.
 Qed.
 

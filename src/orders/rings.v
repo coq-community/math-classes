@@ -4,8 +4,71 @@ Require Import
 Require Export 
   orders.semirings.
 
+Section from_ring_order.
+  Context `{Ring R} `{!PartialOrder Rle}
+    (plus_spec : ∀ z, OrderPreserving (z +))
+    (mult_spec : ∀ x y, PropHolds (0 ≤ x) → PropHolds (0 ≤ y) → PropHolds (0 ≤ x * y)).
+
+  Lemma from_ring_order: SemiRingOrder (≤).
+  Proof.
+    repeat (split; try apply _). 
+     intros x y E. exists (- x + y). 
+     now rewrite associativity, plus_opp_r, plus_0_l.
+    intros x y E.
+    rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_opp_l z), <-!associativity.
+    now apply (order_preserving _).
+  Qed.
+End from_ring_order.
+
+Section from_strict_ring_order.
+  Context `{Ring R} `{!StrictSetoidOrder Rle}
+    (plus_spec : ∀ z, StrictlyOrderPreserving (z +))
+    (mult_spec : ∀ x y, PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x * y)).
+
+  Lemma from_strict_ring_order: StrictSemiRingOrder (<).
+  Proof.
+    repeat (split; try apply _). 
+     intros x y E. exists (- x + y). 
+     now rewrite associativity, plus_opp_r, plus_0_l.
+    intros x y E.
+    rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_opp_l z), <-!associativity.
+    now apply (strictly_order_preserving _).
+  Qed.
+End from_strict_ring_order.
+
+Section from_pseudo_ring_order.
+  Context `{Ring R} `{Apart R} `{!PseudoOrder Rlt}
+    (plus_spec : ∀ z, StrictlyOrderPreserving (z +))
+    (mult_ext : StrongSetoid_BinaryMorphism (.*.))
+    (mult_spec : ∀ x y, PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x * y)).
+
+  Lemma from_pseudo_ring_order: PseudoSemiRingOrder (<).
+  Proof.
+    repeat (split; try apply _).
+     intros x y E. exists (- x + y). 
+     now rewrite associativity, plus_opp_r, plus_0_l.
+    intros x y E.
+    rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_opp_l z), <-!associativity.
+    now apply (strictly_order_preserving _).
+  Qed.
+End from_pseudo_ring_order.
+
+Section from_full_pseudo_ring_order.
+  Context `{Ring R} `{Apart R} `{!FullPseudoOrder Rle Rlt}
+    (plus_spec : ∀ z, StrictlyOrderPreserving (z +))
+    (mult_ext : StrongSetoid_BinaryMorphism (.*.))
+    (mult_spec : ∀ x y, PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x * y)).
+
+  Lemma from_full_pseudo_ring_order: FullPseudoSemiRingOrder (≤) (<).
+  Proof.
+    split.
+     now apply from_pseudo_ring_order.
+    now apply le_iff_not_lt_flip.
+  Qed.
+End from_full_pseudo_ring_order.
+
 Section ring_order.
-  Context `{Ring R} `{!RingOrder Rle}.
+  Context `{Ring R} `{!SemiRingOrder Rle}.
   Add Ring R : (stdlib_ring_theory R).
 
   Lemma flip_le_opp x y : -y ≤ -x ↔ x ≤ y.
@@ -85,24 +148,10 @@ Section ring_order.
     transitivity 0; trivial.
     now apply flip_nonneg_opp.
   Qed.
-
-  Global Instance: SemiRingOrder Rle.
-  Proof.
-    split; try apply _.
-     split.
-      intros E.
-      exists (y - x). split.
-       now apply flip_nonneg_minus.
-      ring.
-     intros [z [Ez1 Ez2]].
-     rewrite Ez2, <-(plus_0_r x) at 1.
-     now apply (order_preserving (x +)).
-    now apply ringorder_mult.
-  Qed.
 End ring_order.
 
 Section strict_ring_order.
-  Context `{Ring R} `{!StrictRingOrder Rlt}.
+  Context `{Ring R} `{!StrictSemiRingOrder Rlt}.
   Add Ring Rs : (stdlib_ring_theory R).
 
   Lemma flip_lt_opp x y : -y < -x ↔ x < y.
@@ -175,105 +224,35 @@ Section strict_ring_order.
     transitivity 0; trivial.
     now apply flip_pos_opp.
   Qed.
-
-  Global Instance: StrictSemiRingOrder Rlt.
-  Proof.
-    split; try apply _.
-     split.
-      intros E.
-      exists (y - x). split.
-       now apply flip_pos_minus.
-      ring.
-     intros [z [Ez1 Ez2]].
-     rewrite Ez2, <-(plus_0_r x) at 1.
-     now apply (strictly_order_preserving (x +)).
-    now apply strict_ringorder_mult.
-  Qed.
 End strict_ring_order.
 
-Section pseudo_ring_order.
-  Context `{Ring R} `{Apart R} `{!PseudoRingOrder Rle Rlt}.
-  Add Ring Rp : (stdlib_ring_theory R).
-
-  Instance: StrongSetoid R := pseudo_order_setoid.
-
-  Global Instance: StrictRingOrder Rlt.
-  Proof.
-    split; try apply _.
-    exact pseudo_ringorder_mult.
-  Qed.
-
-  Global Instance: PseudoSemiRingOrder Rle Rlt.
-  Proof.
-    split; try apply _.
-      intros x y E1. 
-      exists (y - x). split.
-       rewrite le_iff_not_lt_flip in E1 |- *. 
-       intros E2. apply E1. now apply flip_neg_minus.
-      ring.
-     exact strict_srorder_plus.
-    exact pos_mult_compat.
-  Qed.
-
-  Global Instance: RingOrder Rle.
-  Proof.
-    split; try apply _.
-    now apply nonneg_mult_compat.
-  Qed.
-End pseudo_ring_order.
-
-Section dec_semiring_order.
-  Context `{Ring A} `{Apart A} `{!TrivialApart A} `{!RingOrder Rle} 
-    `{!NoZeroDivisors A} `{!TotalRelation (≤)} `{∀ x y, Decision (x = y)}.
-
-  Context `{Rlt : Lt A} (lt_correct : ∀ x y, x < y ↔ x ≤ y ∧ x ≠ y).
-
-  Instance: PseudoPartialOrder Rle Rlt := dec_pseudo_partial_order lt_correct.
-  Instance: StrongSetoid A := pseudo_order_setoid.
-
-  Instance dec_pseudo_ringorder: PseudoRingOrder (≤) (<).
-  Proof.
-    split; try apply _.
-      apply (strong_setoids.dec_strong_binary_morphism (+)).
-     intros z. split; try apply _. intros x y. 
-     rewrite !lt_correct. intros [E1a E1b]. split.
-      now apply (order_preserving (z+)).
-     intros E2. apply E1b.
-     now apply (left_cancellation (+) z).
-    intros x y. rewrite !lt_correct.
-    intros [E1a E1b] [E2a E2b]. split.
-     now apply nonneg_mult_compat.
-    apply not_symmetry. 
-    now apply mult_ne_0; apply not_symmetry.
-  Qed.
-End dec_semiring_order.
-
 Section another_ring_order.
-  Context `{Ring R} `{!RingOrder Rle} `{Ring R2} `{R2le : Le R2}.
+  Context `{Ring R} `{!SemiRingOrder Rle} `{Ring R2} `{R2le : Le R2}.
 
-  Lemma projected_ringorder (f : R2 → R) `{!SemiRing_Morphism f} `{!Injective f} `{!OrderEmbedding f} : 
-    RingOrder R2le.
+  Lemma projected_ring_order (f : R2 → R) `{!SemiRing_Morphism f} `{!Injective f} `{!OrderEmbedding f} : 
+    SemiRingOrder R2le.
   Proof.
-    split.
-      apply (projected_partial_order f).
+    pose proof (projected_partial_order f).
+    apply from_ring_order.
      repeat (split; try apply _). intros x y E. 
      apply (order_preserving_back f). rewrite 2!preserves_plus.
-     apply ringorder_plus. now apply (order_preserving f).
-    intros x E1 y E2. 
-    apply (order_preserving_back f). rewrite preserves_mult, preserves_0.
-    apply ringorder_mult; rewrite <-(preserves_0 (f:=f)); now apply (order_preserving f).
+     now do 2 apply (order_preserving _).
+    intros x y E1 E2. 
+    apply (order_preserving_back f). 
+    rewrite preserves_mult, preserves_0.
+    solve_propholds.
   Qed.
 
-  Context `{!RingOrder R2le} {f : R → R2} `{!SemiRing_Morphism f}.
+  Context `{!SemiRingOrder R2le} {f : R → R2} `{!SemiRing_Morphism f}.
 
   Lemma preserving_back_preserves_nonneg : (∀ x, 0 ≤ f x → 0 ≤ x) → OrderPreservingBack f.
   Proof.
     intros E.
     repeat (split; try apply _).
     intros x y F.
-    apply flip_nonneg_minus. apply E.
+    apply flip_nonneg_minus, E.
     rewrite preserves_plus, preserves_opp.
-    apply flip_nonneg_minus. now apply F.
+    now apply flip_nonneg_minus, F.
   Qed.
 
   Lemma preserves_ge_opp1 `{!OrderPreserving f} x : -1 ≤ x → -1 ≤ f x.
@@ -284,38 +263,52 @@ Section another_ring_order.
 End another_ring_order.
 
 Section another_strict_ring_order.
-  Context `{Ring R} `{!StrictRingOrder Rlt} `{Ring R2} `{R2lt : Lt R2}.
+  Context `{Ring R} `{!StrictSemiRingOrder Rlt} `{Ring R2} `{R2lt : Lt R2}.
 
-  Lemma projected_strict_ringorder (f : R2 → R) `{!SemiRing_Morphism f} `{!StrictOrderEmbedding f} : 
-    StrictRingOrder R2lt.
+  Lemma projected_strict_ring_order (f : R2 → R) `{!SemiRing_Morphism f} `{!StrictOrderEmbedding f} : 
+    StrictSemiRingOrder R2lt.
   Proof.
-    split.
-      apply (projected_strict_order f).
+    pose proof (projected_strict_order f).
+    apply from_strict_ring_order.
      repeat (split; try apply _). intros x y E. 
      apply (strictly_order_preserving_back f). rewrite 2!preserves_plus.
-     apply strict_ringorder_plus. now apply (strictly_order_preserving f).
-    intros x E1 y E2. 
+     now do 2 apply (strictly_order_preserving _).
+    intros x y E1 E2. 
     apply (strictly_order_preserving_back f). rewrite preserves_mult, preserves_0.
-    apply strict_ringorder_mult; rewrite <-(preserves_0 (f:=f)); now apply (strictly_order_preserving f).
+    solve_propholds.
   Qed.
 End another_strict_ring_order.
 
 Section another_pseudo_ring_order.
-  Context `{Ring R} `{Apart R} `{!PseudoRingOrder Rle Rlt} 
-    `{Ring R2} `{Apart R2} `{R2le : Le R2} `{R2lt : Lt R2}.
+  Context `{Ring R} `{Apart R} `{!PseudoSemiRingOrder Rlt} 
+    `{Ring R2} `{Apart R2} `{R2lt : Lt R2}.
 
-  Lemma projected_pseudo_ringorder (f : R2 → R) `{!SemiRing_Morphism f} `{!StrongInjective f} 
-    `{!StrictOrderEmbedding f} `{!OrderEmbedding f} : PseudoRingOrder R2le R2lt.
+  Lemma projected_pseudo_ring_order (f : R2 → R) `{!SemiRing_Morphism f} `{!StrongInjective f} 
+    `{!StrictOrderEmbedding f} : PseudoSemiRingOrder R2lt.
   Proof.
-    pose proof (projected_strict_ringorder f).
-    pose proof (projected_pseudo_partial_order f).
+    pose proof (projected_pseudo_order f).
+    pose proof (projected_strict_ring_order f).
+    apply from_pseudo_ring_order; try apply _.
+    pose proof (pseudo_order_setoid : StrongSetoid R).
     pose proof (pseudo_order_setoid : StrongSetoid R2).
     pose proof (strong_injective_mor f).
     repeat (split; try apply _).
-     intros x₁ y₁ x₂ y₂ E.
-     apply (strong_injective f) in E. rewrite 2!preserves_mult in E.
-     destruct (strong_binary_extensionality (.*.) _ _ _ _ E); [left | right];
-      now apply (strong_extensionality f).
-    now apply pos_mult_compat.
+    intros x₁ y₁ x₂ y₂ E.
+    apply (strong_injective f) in E. rewrite 2!preserves_mult in E.
+    destruct (strong_binary_extensionality (.*.) _ _ _ _ E); [left | right]; now apply (strong_extensionality f).
   Qed.
 End another_pseudo_ring_order.
+
+Section another_full_pseudo_ring_order.
+  Context `{Ring R} `{Apart R} `{!FullPseudoSemiRingOrder Rle Rlt} 
+    `{Ring R2} `{Apart R2} `{R2le : Le R2} `{R2lt : Lt R2}.
+
+  Lemma projected_full_pseudo_ringorder (f : R2 → R) `{!SemiRing_Morphism f} `{!StrongInjective f} 
+    `{!StrictOrderEmbedding f} `{!OrderEmbedding f} : FullPseudoSemiRingOrder R2le R2lt.
+  Proof.
+    pose proof (projected_full_pseudo_order f).
+    pose proof (projected_pseudo_ring_order f).
+    split; try apply _.
+    apply le_iff_not_lt_flip.
+  Qed.
+End another_full_pseudo_ring_order.

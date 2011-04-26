@@ -3,7 +3,7 @@ Require Import
   abstract_algebra interfaces.orders orders.rings.
 
 Section contents.
-Context `{Ring R} `{Apart R} `{!TrivialApart R} `{!PseudoRingOrder Rle Rlt} `{∀ x y, Decision (x = y)} `{a : !Abs R}.
+Context `{Ring R} `{Apart R} `{!TrivialApart R} `{!FullPseudoSemiRingOrder Rle Rlt} `{∀ x y, Decision (x = y)} `{a : !Abs R}.
 
 Add Ring R : (rings.stdlib_ring_theory R).
 
@@ -84,17 +84,16 @@ Qed.
 End contents.
 
 Section order_preserving.
-  Context `{Ring A} `{oA : Le A} `{!RingOrder oA} `{!TotalRelation oA} `{!Abs A}
-    `{Ring B} `{oB : Le B} `{!RingOrder oB} `{!TotalRelation oB} `{!Abs B}
+  Context `{Ring A} `{oA : Le A} `{!SemiRingOrder oA} `{!TotalRelation oA} `{!Abs A}
+    `{Ring B} `{oB : Le B} `{!SemiRingOrder oB} `{!TotalRelation oB} `{!Abs B}
     {f : A → B} `{!OrderPreserving f} `{!SemiRing_Morphism f}.
 
   Lemma preserves_abs x : f (abs x) = abs (f x).
-  Proof with trivial.
+  Proof.
     destruct (total (≤) 0 x).
-     rewrite ?abs_nonneg...
-      reflexivity.
-     now apply preserves_nonneg.
-    rewrite ?abs_nonpos...
+     rewrite ?abs_nonneg; try easy.
+     now apply semirings.preserves_nonneg.
+    rewrite ?abs_nonpos; try easy.
      apply rings.preserves_opp.
     now apply preserves_nonpos.
   Qed.
