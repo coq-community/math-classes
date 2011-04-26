@@ -303,7 +303,7 @@ Section another_full_pseudo_ring_order.
   Context `{Ring R} `{Apart R} `{!FullPseudoSemiRingOrder Rle Rlt} 
     `{Ring R2} `{Apart R2} `{R2le : Le R2} `{R2lt : Lt R2}.
 
-  Lemma projected_full_pseudo_ringorder (f : R2 → R) `{!SemiRing_Morphism f} `{!StrongInjective f} 
+  Lemma projected_full_pseudo_ring_order (f : R2 → R) `{!SemiRing_Morphism f} `{!StrongInjective f} 
     `{!StrictOrderEmbedding f} `{!OrderEmbedding f} : FullPseudoSemiRingOrder R2le R2lt.
   Proof.
     pose proof (projected_full_pseudo_order f).
