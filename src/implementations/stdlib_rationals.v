@@ -41,7 +41,7 @@ Proof.
  intros x y. change (x * 1 = y * 1 → x = y). rewrite 2!rings.mult_1_r. intuition.
 Qed.
 
-Program Definition Q_to_fracZ (x : Q) : Frac Z := frac (Qnum x) (Zpos (Qden x)) _.
+Program Instance Q_to_fracZ: Coerce Q (Frac Z) := λ x, frac (Qnum x) (Zpos (Qden x)) _.
 
 Instance: Proper ((=) ==> (=)) Q_to_fracZ.
 Proof. intros ? ? E. easy. Qed.

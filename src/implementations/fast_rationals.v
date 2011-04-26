@@ -10,7 +10,7 @@ Module Import BigQ_Rationals := QType_Rationals BigQ.
 Definition fastQ: Type := BigQ.t.
 
 (* Embedding of [fastZ] into [fastQ] *)
-Definition fastZ_to_fastQ := BigQ.Qz.
+Instance fastZ_to_fastQ: Coerce fastZ fastQ := BigQ.Qz.
 
 Instance: Proper ((=) ==> (=)) fastZ_to_fastQ.
 Proof.
@@ -22,7 +22,7 @@ Instance: SemiRing_Morphism fastZ_to_fastQ.
 Proof. repeat (split; try apply _). Qed.
 
 (* Embedding of [fastQ] into [Frac fastZ] *)
-Definition fastQ_to_frac_fastZ (x : fastQ) : Frac fastZ :=
+Instance fastQ_to_frac_fastZ: Coerce fastQ (Frac fastZ) := λ x,
   match x with
   | BigQ.Qz n => 'n
   | BigQ.Qq n d =>
@@ -33,13 +33,13 @@ Definition fastQ_to_frac_fastZ (x : fastQ) : Frac fastZ :=
   end.
 
 Lemma fastQ_to_frac_fastZ_correct :
-  fastQ_to_frac_fastZ = Frac_lift BigZ.of_Z ∘ Q_to_fracZ ∘ BigQ.to_Q.
+  coerce fastQ (Frac fastZ) = Frac_lift (coerce Z fastZ) ∘ coerce Q (Frac Z) ∘ coerce fastQ Q.
 Proof.
   intros x y E. rewrite <-E. clear y E.
   destruct x as [n | n d]. 
    unfold equiv, Frac_equiv. simpl.
    now posed_rewrite (jections.surjective_applied' BigZ.of_Z n).
-  unfold equiv, Frac_equiv. simpl.
+  unfold equiv, Frac_equiv, coerce, fastQ_to_frac_fastZ. simpl.
   case (decide_rel equiv (BigN_BigZ.Z_of_N d) 0); 
        case_eq (BigN.eq_bool d BigN.zero); simpl; intros E1 E2.
      reflexivity.
