@@ -7,7 +7,7 @@ Existing Instance e.
 Existing Instance setoid_proof.
 
 Section contents.
-  Global Instance: Arrows Object := λ A B, sig (@Setoid_Morphism A B _ _).
+  Global Instance Arrow: Arrows Object := λ A B, sig (@Setoid_Morphism A B _ _).
 
   Global Program Instance: ∀ x y: Object, Equiv (x ⟶ y) := λ _ _, respectful (=) (=).
 
