@@ -1,5 +1,5 @@
 Require Import
-  Morphisms Ring
+  Setoid Morphisms Ring
   abstract_algebra interfaces.orders orders.rings.
 
 Section contents.
@@ -80,8 +80,16 @@ Proof with trivial.
    reflexivity.
   apply flip_nonpos_opp...
 Qed.
-
 End contents.
+
+Program Instance default_abs `{Ring R} `{!SemiRingOrder Rle} `{∀ x y, Decision (x ≤ y)} : Abs R | 20 
+  := λ x, if decide_rel (≤) 0 x then x else (-x).
+Next Obligation.
+  split; intros E; try reflexivity.
+  setoid_replace x with 0 by now apply (antisymmetry (≤)).
+  now rewrite rings.opp_0.
+Qed.
+Next Obligation. intuition. Qed.
 
 Section order_preserving.
   Context `{Ring A} `{oA : Le A} `{!SemiRingOrder oA} `{!TotalRelation oA} `{!Abs A}
