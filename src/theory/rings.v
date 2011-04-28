@@ -292,7 +292,24 @@ Section from_another_ring.
       || rewrite opp_correct); ring.
   Qed.
 End from_another_ring.
-  
+
+Section from_stdlib_semiring_theory.
+  Context
+    `(H: @semi_ring_theory R zero one pl mu e)
+    `{!@Setoid R e}
+    `{!Proper (e ==> e ==> e) pl}
+    `{!Proper (e ==> e ==> e) mu}.
+
+  Add Ring R2: H.
+
+  Definition from_stdlib_semiring_theory: @SemiRing R e pl mu zero one.
+  Proof.
+   repeat (constructor; try assumption); repeat intro
+   ; unfold equiv, mon_unit, sg_op, ringzero_is_monoidunit, ringplus_is_semigroupop, 
+     ringone_is_monoidunit, ringmult_is_semigroupop, ring_zero, ring_mult, ring_plus; ring.
+  Qed.
+End from_stdlib_semiring_theory.
+
 Section from_stdlib_ring_theory.
   Context
     `(H: @ring_theory R zero one pl mu mi op e)
@@ -301,7 +318,7 @@ Section from_stdlib_ring_theory.
     `{!Proper (e ==> e ==> e) mu}
     `{!Proper (e ==> e) op}.
 
-  Add Ring R2: H.
+  Add Ring R3: H.
 
   Definition from_stdlib_ring_theory: @Ring R e pl mu zero one op.
   Proof.

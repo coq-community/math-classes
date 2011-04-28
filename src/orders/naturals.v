@@ -9,8 +9,7 @@ Section naturals_order.
 Context `{Naturals N} `{Apart N} `{!TrivialApart N} `{!FullPseudoSemiRingOrder Nle Nlt}.
 
 Lemma to_semiring_nonneg `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder (A:=R) Rle Rlt}
-     `{∀ z : R, LeftCancellation (+) z} {f : N → R} `{!SemiRing_Morphism f} n : 
-  0 ≤ f n.
+  `{!SemiRing_Morphism (f : N → R)} n : 0 ≤ f n.
 Proof.
   pattern n. apply naturals.induction; clear n.
     solve_proper.
@@ -36,7 +35,7 @@ Proof with auto.
 Qed.
 
 Section another_semiring.
-  Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder (A:=R) Rle Rlt} `{∀ z : R, LeftCancellation (+) z}
+  Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder (A:=R) Rle Rlt}
     {f : N → R} `{!SemiRing_Morphism f}.
 
   Global Instance morphism_order_preserving: OrderPreserving f.
