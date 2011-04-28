@@ -129,3 +129,30 @@ Proof.
   rewrite commutativity.
   now apply integers.le_iff_lt_plus_1, naturals.to_semiring_nonneg.
 Qed.
+
+Instance Q_shiftl: ShiftL Q Z := λ x k,
+  match k with
+  | Z0 => x
+  | Zpos p => Qmake (Zshiftl (Qnum x) (Zpos p)) (Qden x)
+  | Zneg p => Qmake (Qnum x) (shift_pos p (Qden x))
+  end.
+
+Instance: ShiftLSpec Q Z Q_shiftl.
+Proof.
+  apply shiftl_spec_from_int_pow.
+  unfold shiftl, Q_shiftl.
+  intros [n d] [|p|p].
+    change ((n#d) = (n#d) * 1).
+    now rewrite rings.mult_1_r.
+   unfold Qnum, Qden.
+   rewrite !Qmake_Qdiv. unfold Qdiv. 
+   rewrite Z.shiftl_mul_pow2 by auto with zarith.
+   rewrite Zmult_comm, inject_Z_mult, Zpower_Qpower by now destruct p.
+   now rewrite <-Qmult_assoc, Qmult_comm.
+  unfold Qnum, Qden.
+  rewrite !Qmake_Qdiv. unfold Qdiv.
+  rewrite shift_pos_correct.
+  change (Zpower_pos 2 p) with (2 ^ (Zpos p))%Z.
+  rewrite Zmult_comm, inject_Z_mult, Zpower_Qpower by now destruct p.
+  now rewrite Qinv_mult_distr, Qmult_assoc.
+Qed.
