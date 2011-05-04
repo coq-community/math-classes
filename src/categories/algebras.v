@@ -1,8 +1,8 @@
 (* Show that algebras with homomorphisms between them form a category. *)
 Require Import
-  Morphisms Setoid abstract_algebra Program universal_algebra ua_homomorphisms theory.categories.
+  abstract_algebra universal_algebra ua_homomorphisms theory.categories.
 Require
-  categories.setoid categories.product.
+  categories.setoids categories.product.
 
 Record Object (sign: Signature) : Type := object
   { algebra_carriers:> sorts sign → Type

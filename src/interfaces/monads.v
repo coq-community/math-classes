@@ -1,6 +1,5 @@
 
 Require Import
-  Setoid Morphisms
   abstract_algebra canonical_names.
 
 Section ops.

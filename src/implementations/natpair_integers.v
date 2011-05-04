@@ -7,8 +7,7 @@
 Require
  theory.naturals orders.naturals.
 Require Import
- Morphisms Ring Program
- abstract_algebra theory.categories
+ Ring abstract_algebra theory.categories
  interfaces.naturals interfaces.integers.
 Require Export
  implementations.semiring_pairs.
@@ -101,7 +100,7 @@ Section for_another_ring.
   End for_another_morphism.
 End for_another_ring.
 
-Instance: Initial (ring.object Z).
+Instance: Initial (rings.object Z).
 Proof. apply integer_initial. intros. apply same_morphism. auto. Qed.
 
 Global Instance: Integers Z := {}.

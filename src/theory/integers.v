@@ -4,7 +4,7 @@ Require Export
 Require
  theory.naturals theory.nat_distance.
 Require Import
- RelationClasses Morphisms Ring Program Setoid
+ RelationClasses Ring
  interfaces.naturals abstract_algebra natpair_integers.
 
 (* Any two integer implementations are trivially isomorphic because of their initiality,
@@ -12,7 +12,7 @@ Require Import
 Lemma to_ring_involutive `{Integers Int} Int2 `{Integers Int2} x :
   integers_to_ring Int2 Int (integers_to_ring Int Int2 x) = x.
 Proof.
-  rapply (proj2 (@categories.initials_unique' _ _ _ _ _ _ (ring.object Int) (ring.object Int2) _
+  rapply (proj2 (@categories.initials_unique' _ _ _ _ _ _ (rings.object Int) (rings.object Int2) _
     integers_initial _ integers_initial) tt x).
 Qed.
 
@@ -20,8 +20,8 @@ Lemma to_ring_unique `{Integers Int} `{Ring R} (f: Int → R) {h: SemiRing_Morph
   f x = integers_to_ring Int R x.
 Proof.
   symmetry.
-  pose proof (ring.encode_morphism_and_ops (f:=f)).
-  set (@variety.arrow ring.theory _ _ _ (ring.encode_variety_and_ops _) _ _ _ (ring.encode_variety_and_ops _) (λ _, f) _).
+  pose proof (rings.encode_morphism_and_ops (f:=f)).
+  set (@varieties.arrow rings.theory _ _ _ (rings.encode_variety_and_ops _) _ _ _ (rings.encode_variety_and_ops _) (λ _, f) _).
   exact (integers_initial _ a tt x).
 Qed.
 

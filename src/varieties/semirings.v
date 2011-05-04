@@ -1,8 +1,7 @@
 (* To be imported qualified. *)
 Require
-  theory.rings categories.variety.
+  theory.rings categories.varieties.
 Require Import
-  Program Morphisms
   abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
 
 Inductive op := plus | mult | zero | one.
@@ -68,8 +67,8 @@ Section from_instance.
   Global Instance variety: InVariety theory (λ _, A).
   Proof. constructor. apply _. exact laws. Qed.
 
-  Definition Object := variety.Object theory.
-  Definition object: Object := variety.object theory (λ _, A).
+  Definition Object := varieties.Object theory.
+  Definition object: Object := varieties.object theory (λ _, A).
 End from_instance.
 
 (* Similarly, given a categorical object, we can make the corresponding class instances: *)

@@ -1,16 +1,16 @@
 Require Import
  workaround_tactics
- Relation_Definitions Morphisms Program Ring
+ Relation_Definitions Ring
  abstract_algebra peano_naturals theory.rings
- categories.variety theory.ua_transference.
+ categories.varieties theory.ua_transference.
 Require Export
  interfaces.naturals.
 
 Lemma to_semiring_involutive N `{Naturals N} N2 `{Naturals N2} x :
  naturals_to_semiring N2 N (naturals_to_semiring N N2 x) = x.
 Proof.
-  rapply (proj2 (@categories.initials_unique' (variety.Object semiring.theory)
-    _ _ _ _ _ (semiring.object N) (semiring.object N2) _ naturals_initial _ naturals_initial) tt x).
+  rapply (proj2 (@categories.initials_unique' (varieties.Object semirings.theory)
+    _ _ _ _ _ (semirings.object N) (semirings.object N2) _ naturals_initial _ naturals_initial) tt x).
   (* todo: separate pose necessary due to Coq bug *)
 Qed.
 
@@ -18,8 +18,8 @@ Lemma to_semiring_unique `{Naturals N} `{SemiRing SR} (f: N → SR) `{!SemiRing_
  f x = naturals_to_semiring N SR x.
 Proof.
   symmetry.
-  pose proof (@semiring.mor_from_sr_to_alg _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (λ _, f) _).
-  set (@variety.arrow semiring.theory _ _ _ (semiring.variety N) _ _ _ (semiring.variety SR) (λ _, f) _).
+  pose proof (@semirings.mor_from_sr_to_alg _ _ _ (semirings.variety N) _ _ _ (semirings.variety SR) (λ _, f) _).
+  set (@varieties.arrow semirings.theory _ _ _ (semirings.variety N) _ _ _ (semirings.variety SR) (λ _, f) _).
   apply (naturals_initial _ a tt x).
 Qed.
 
@@ -59,7 +59,7 @@ Section retract_is_nat.
   (* If we make this an instance, then instance resolution will often loop *)
   Definition retract_is_nat_to_sr : NaturalsToSemiRing SR := λ R _ _ _ _ , naturals_to_semiring N R ∘ f⁻¹.
 
-  Section for_another_semiring.
+  Section for_another_semirings.
     Context `{SemiRing R}.
 
     Instance: SemiRing_Morphism (naturals_to_semiring N R ∘ f⁻¹) := {}.
@@ -73,7 +73,7 @@ Section retract_is_nat.
        symmetry. apply (to_semiring_unique (h ∘ f)).
       unfold compose. now rewrite jections.surjective_applied.
     Qed.
-  End for_another_semiring.
+  End for_another_semirings.
 
   (* If we make this an instance, then instance resolution will often loop *)
   Program Definition retract_is_nat: Naturals SR (U:=retract_is_nat_to_sr). 
@@ -109,15 +109,15 @@ Section borrowed_from_nat.
   Proof. repeat intro. apply induction; firstorder. Qed.
 
   Lemma from_nat_stmt:
-    ∀ (s: Statement varieties.semiring.theory) (w : Vars varieties.semiring.theory (varieties.semiring.object N) nat),
-     (∀ v: Vars varieties.semiring.theory (varieties.semiring.object nat) nat,
-       eval_stmt varieties.semiring.theory v s) → eval_stmt varieties.semiring.theory w s.
+    ∀ (s: Statement varieties.semirings.theory) (w : Vars varieties.semirings.theory (varieties.semirings.object N) nat),
+     (∀ v: Vars varieties.semirings.theory (varieties.semirings.object nat) nat,
+       eval_stmt varieties.semirings.theory v s) → eval_stmt varieties.semirings.theory w s.
   Proof.
    pose proof (@naturals_initial nat _ _ _ _ _ _ _) as AI.
    pose proof (@naturals_initial N _ _ _ _ _ _ _) as BI.
    intros s w ?.
-   apply (transfer_statement _ (@categories.initials_unique' semiring.Object _ _ _ _ _
-     (semiring.object nat) (semiring.object N) _ AI _ BI)).
+   apply (transfer_statement _ (@categories.initials_unique' semirings.Object _ _ _ _ _
+     (semirings.object nat) (semirings.object N) _ AI _ BI)).
    intuition.
   Qed.
 
@@ -125,9 +125,9 @@ Section borrowed_from_nat.
   Let two_vars (x y : N) (_: unit) v := match v with 0%nat => x | _ => y end.
   Let no_vars (_: unit) (v: nat) := 0.
 
-  Local Notation x' := (Var varieties.semiring.sig _ 0 tt).
-  Local Notation y' := (Var varieties.semiring.sig _ 1 tt).
-  Local Notation z' := (Var varieties.semiring.sig _ 2%nat tt).
+  Local Notation x' := (Var varieties.semirings.sig _ 0 tt).
+  Local Notation y' := (Var varieties.semirings.sig _ 1 tt).
+  Local Notation z' := (Var varieties.semirings.sig _ 2%nat tt).
 
   (* Some clever autoquoting tactic might make what follows even more automatic. *)
   (* The ugly [pose proof ... . apply that_thing.]'s are because of Coq bug 2185. *)

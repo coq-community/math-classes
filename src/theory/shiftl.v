@@ -1,7 +1,7 @@
 Require
   orders.integers theory.dec_fields theory.nat_pow.
 Require Import 
-  Program Morphisms Setoid Ring
+  Ring
   abstract_algebra interfaces.naturals interfaces.integers 
   interfaces.additional_operations interfaces.orders.
 

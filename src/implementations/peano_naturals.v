@@ -79,7 +79,7 @@ Proof. rewrite commutativity. reflexivity. Qed.
 Lemma S_nat_1_plus x : S x ≡ 1 + x.
 Proof. reflexivity. Qed.
 
-Instance: Initial (semiring.object nat).
+Instance: Initial (semirings.object nat).
 Proof.
   intros. apply natural_initial. intros. 
   intros x y E. unfold equiv, nat_equiv in E. subst y. induction x. 

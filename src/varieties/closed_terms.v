@@ -2,7 +2,7 @@ Require Import
   RelationClasses Relation_Definitions List Morphisms
   universal_algebra ua_homomorphisms
   abstract_algebra canonical_names
-  theory.categories categories.variety.
+  theory.categories categories.varieties.
 
 Section contents. 
   Variable et: EquationalTheory.
@@ -91,14 +91,14 @@ Section contents.
 
   (* And hence, an object in the category: *)
 
-  Definition the_object: variety.Object et := variety.object et ClosedTerm0.
+  Definition the_object: varieties.Object et := varieties.object et ClosedTerm0.
 
   (* Interestingly, this object is initial, which we prove in the remainder of this file. *)
 
   (* To show its initiality, we begin by constructing arrows to arbitrary other objects: *)
 
   Section for_another_object. 
-    Variable other: variety.Object et.
+    Variable other: varieties.Object et.
 
     (* Computationally, the arrow simply evaluates closed terms in the other
      model. For induction purposes, we first define this for arbitrary op_types: *)
@@ -167,13 +167,13 @@ Section contents.
 
     (* Furthermore, we can show preservation of operations, giving us a homomorphism (and an arrow): *)
 
-    Instance: @HomoMorphism et ClosedTerm0 other _ (variety.variety_equiv et other) _ _ (λ _, eval_in_other).
+    Instance: @HomoMorphism et ClosedTerm0 other _ (varieties.variety_equiv et other) _ _ (λ _, eval_in_other).
     Proof with intuition.
      constructor; try apply _.
      intro.
-     change (Preservation et ClosedTerm0 other (λ _, eval_in_other) (app_tree (Op _ _ o)) (variety.variety_ops _ other o)).
-     generalize (algebra_propers o  : eval_in_other (Op _ _ o) = variety.variety_ops _ other o).
-     generalize (Op _ False o) (variety.variety_ops et other o).
+     change (Preservation et ClosedTerm0 other (λ _, eval_in_other) (app_tree (Op _ _ o)) (varieties.variety_ops _ other o)).
+     generalize (algebra_propers o  : eval_in_other (Op _ _ o) = varieties.variety_ops _ other o).
+     generalize (Op _ False o) (varieties.variety_ops et other o).
      induction (et o)...
      simpl. intro. apply IHo0, H.
      apply reflexivity. (* todo: shouldn't have to say [apply] here. file bug *)

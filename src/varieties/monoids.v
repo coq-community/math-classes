@@ -1,10 +1,9 @@
 (* To be imported qualified. *)
 Require Import
-  Program Morphisms
   abstract_algebra universal_algebra ua_homomorphisms workaround_tactics
-  categories.cat.
+  categories.categories.
 Require
-  categories.variety categories.product forget_algebra forget_variety.
+  categories.varieties categories.product forget_algebra forget_variety.
 
 Inductive op := mult | one.
 
@@ -29,13 +28,13 @@ Section laws.
 End laws.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
-Definition Object := variety.Object theory.
+Definition Object := varieties.Object theory.
 
 Local Hint Extern 3 => progress simpl : typeclass_instances.
 
-Definition forget: Object → setoid.Object :=
+Definition forget: Object → setoids.Object :=
   @product.project unit
-    (λ _, setoid.Object)
+    (λ _, setoids.Object)
     (λ _, _) _
     (λ _, _) (λ _, _) (λ _, _) tt
      ∘ forget_algebra.object theory ∘ forget_variety.forget theory.
@@ -70,7 +69,7 @@ Section encode_variety_and_ops.
    apply right_identity.
   Qed.
 
-  Definition object: Object := variety.object theory (λ _, A).
+  Definition object: Object := varieties.object theory (λ _, A).
 End encode_variety_and_ops.
 
 Lemma encode_algebra_only `{!AlgebraOps theory A} `{∀ u, Equiv (A u)} `{!Monoid (A tt)}: Algebra theory A .

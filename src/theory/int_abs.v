@@ -1,7 +1,6 @@
 Require
   theory.nat_distance.
 Require Import
-  Morphisms Setoid Program
   interfaces.naturals abstract_algebra interfaces.orders natpair_integers
   theory.integers theory.rings orders.naturals orders.rings.
 

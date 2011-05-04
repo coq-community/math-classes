@@ -1,5 +1,5 @@
 Require Import
- Morphisms List Program
+ List
  abstract_algebra interfaces.monads.
 
 Implicit Arguments app [[A]].

@@ -1,7 +1,7 @@
 Require Import
   RelationClasses Relation_Definitions List Morphisms
   universal_algebra abstract_algebra canonical_names
-  theory.categories categories.variety.
+  theory.categories categories.varieties.
 
 Section contents.
   Context
@@ -92,7 +92,7 @@ Section contents.
   Global Instance: InVariety et OpenTerm0.
   Proof. constructor. apply _. intros. apply laws_hold. assumption. Qed.
 
-  Definition the_object: variety.Object et := variety.object et OpenTerm0.
+  Definition the_object: varieties.Object et := varieties.object et OpenTerm0.
 
 End contents.
 

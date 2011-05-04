@@ -1,5 +1,5 @@
 Require Import
-  QArith BigQ Morphisms Program Field workaround_tactics
+  QArith BigQ Field workaround_tactics
   abstract_algebra interfaces.integers 
   fast_integers field_of_fractions stdlib_rationals.
 Require Export 

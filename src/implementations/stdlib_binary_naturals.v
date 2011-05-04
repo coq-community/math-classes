@@ -1,6 +1,5 @@
 Require Import 
-  Program NArith
-  peano_naturals theory.naturals
+  NArith peano_naturals theory.naturals
   abstract_algebra interfaces.naturals interfaces.orders.  
 
 (* canonical names for relations/operations/constants: *)

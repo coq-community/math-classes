@@ -1,5 +1,5 @@
 Require Import
-  Morphisms Program Setoid Field Ring
+  Field Ring
   abstract_algebra theory.fields theory.strong_setoids.
 Require Export
   theory.rings.

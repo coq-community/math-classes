@@ -1,6 +1,5 @@
 Require Import 
-  Morphisms Setoid Program 
-  interfaces.orders abstract_algebra strong_setoids.
+  abstract_algebra interfaces.orders strong_setoids.
 
 Lemma le_flip `{Le A} `{!TotalRelation (≤)} x y : ¬y ≤ x → x ≤ y.
 Proof. firstorder. Qed.

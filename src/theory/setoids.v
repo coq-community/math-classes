@@ -1,6 +1,6 @@
 (* To be imported qualified. *)
 Require Import
-  Morphisms Setoid abstract_algebra Program.
+  abstract_algebra.
 
 Instance ext_equiv_trans `{Setoid A} `{Setoid B}: Transitive (_ : Equiv (A → B)).
 Proof. intros ? y ???? w ?. transitivity (y w); firstorder. Qed.

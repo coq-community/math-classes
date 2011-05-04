@@ -1,7 +1,5 @@
 Require Import
-  Morphisms Setoid Program
-  abstract_algebra
-  universal_algebra.
+  abstract_algebra universal_algebra.
 
 Section contents. 
   Variable σ: Signature.

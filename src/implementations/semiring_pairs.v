@@ -1,7 +1,7 @@
 Require
   theory.rings.
 Require Import
-  Morphisms Ring Setoid Program
+  Ring
   abstract_algebra interfaces.orders orders.rings.
 
 Inductive SRpair (SR : Type) := C { pos : SR ; neg : SR }.

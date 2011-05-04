@@ -1,7 +1,7 @@
 Require 
   stdlib_binary_integers theory.integers orders.semirings.
 Require Import 
-  ZSig ZSigZAxioms NArith ZArith Program Morphisms
+  ZSig ZSigZAxioms NArith ZArith
   nonneg_integers_naturals interfaces.orders
   abstract_algebra interfaces.integers interfaces.additional_operations.  
 

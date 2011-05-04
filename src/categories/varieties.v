@@ -5,7 +5,7 @@ factor out the commonality.
 
  *)
 Require Import 
-  Morphisms abstract_algebra Program universal_algebra ua_homomorphisms.
+  abstract_algebra universal_algebra ua_homomorphisms.
 
 Record Object (et: EquationalTheory) : Type := object
   { variety_carriers:> sorts et → Type

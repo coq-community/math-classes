@@ -1,6 +1,6 @@
 Require Import 
-  Program Morphisms abstract_algebra.
-Require setoids.
+  abstract_algebra.
+Require theory.setoids.
 
 Section functor_class.
   Context `{Category C} `{Category D} (map_obj: C → D).

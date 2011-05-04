@@ -1,8 +1,8 @@
 Require Import
-  Morphisms Setoid abstract_algebra Program
+  abstract_algebra
   universal_algebra ua_homomorphisms 
-  theory.categories categories.variety.
-Require setoids.
+  theory.categories categories.varieties.
+Require theory.setoids.
 
 Section algebras.
   Context
@@ -182,26 +182,26 @@ Section varieties.
 
 End varieties.
 
-Require categories.variety.
+Require categories.varieties.
 
 Section categorical.
 
   Context
     (et: EquationalTheory).
 
-  Global Instance: Producer (variety.Object et) := λ I carriers,
-    {| variety.variety_carriers := λ s, ∀ i, carriers i s
-    ; variety.variety_proof := product_variety et I _ _ _ (fun H => variety.variety_proof et (carriers H)) |}.
+  Global Instance: Producer (varieties.Object et) := λ I carriers,
+    {| varieties.variety_carriers := λ s, ∀ i, carriers i s
+    ; varieties.variety_proof := product_variety et I _ _ _ (fun H => varieties.variety_proof et (carriers H)) |}.
       (* todo: clean up *)
 
   Section for_a_given_c. 
-  Context (I: Type) (c: I → variety.Object et).
+  Context (I: Type) (c: I → varieties.Object et).
 
   Global Program Instance: ElimProduct c (product c) := λ i _ c, c i.
 
   Next Obligation.
    apply (@algebra_projection_morphisms et I c
-     (λ x, @variety.variety_equiv et (c x)) (λ x, variety.variety_ops et (c x)) ).
+     (λ x, @varieties.variety_equiv et (c x)) (λ x, varieties.variety_ops et (c x)) ).
    intro. apply _.
   Qed.
 
@@ -213,8 +213,8 @@ Section categorical.
     intro.
     pose proof (λ i, @preserves _ _ _ _ _ _ _ _ (proj2_sig (h i)) o).
     unfold product_ops, algebra_op.
-    set (λ i, variety.variety_ops et (c i) o).
-    set (variety.variety_ops et H o) in *.
+    set (λ i, varieties.variety_ops et (c i) o).
+    set (varieties.variety_ops et H o) in *.
     change (∀i : I, Preservation et H (c i) (` (h i)) o1 (o0 i)) in H0.
     clearbody o0 o1. revert o0 o1 H0.
     induction (et o); simpl...
@@ -229,7 +229,7 @@ Section categorical.
 
   End for_a_given_c.
 
-  Global Instance: HasProducts (variety.Object et) := {}.
+  Global Instance: HasProducts (varieties.Object et) := {}.
 
 End categorical.
 

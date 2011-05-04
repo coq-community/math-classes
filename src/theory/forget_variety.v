@@ -2,13 +2,13 @@
 
 Require Import 
   canonical_names universal_algebra interfaces.functors 
-  theory.categories categories.variety categories.algebra.
+  theory.categories categories.varieties categories.algebras.
 
 Section contents.
 
   Variable et: EquationalTheory.
 
-  Definition forget (v: variety.Object et) := algebra.object et v.
+  Definition forget (v: varieties.Object et) := algebras.object et v.
 
   Global Instance: Fmap forget := λ _ _, id.
 

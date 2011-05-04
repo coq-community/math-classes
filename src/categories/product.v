@@ -1,7 +1,7 @@
 Require Import
-  Relation_Definitions Morphisms Setoid Program
+  Relation_Definitions
   abstract_algebra ChoiceFacts interfaces.functors 
-  theory.categories categories.cat.
+  theory.categories categories.categories.
 
 (* Axiom dependent_functional_choice: DependentFunctionalChoice. *)
 
@@ -42,12 +42,12 @@ Section contents.
    repeat intro. apply id_r.
   Qed.
 
-  Let product_object := cat.object (Object O).
+  Let product_object := categories.object (Object O).
 
-  Notation ith_obj i := (cat.object (O i)).
+  Notation ith_obj i := (categories.object (O i)).
 
-  Program Definition project i: cat.object (Object O) ⟶ ith_obj i :=
-    cat.arrow (λ d, d i) (λ _ _ a, a i) _.
+  Program Definition project i: categories.object (Object O) ⟶ ith_obj i :=
+    categories.arrow (λ d, d i) (λ _ _ a, a i) _.
   Next Obligation. Proof. (* functorial *)
    constructor; intros; try reflexivity; try apply _.
    constructor; try apply _.
@@ -56,13 +56,13 @@ Section contents.
 
   Section factors.
 
-    Variables (C: cat.Object) (X: ∀ i, C ⟶ ith_obj i).
+    Variables (C: categories.Object) (X: ∀ i, C ⟶ ith_obj i).
 
-    Let ith_functor i := cat.Functor_inst _ _ (X i).
+    Let ith_functor i := categories.Functor_inst _ _ (X i).
       (* todo: really necessary? *)
 
     Program Definition factor: C ⟶ product_object
-      := cat.arrow (λ (c: C) i, X i c) (λ (x y: C) (c: x ⟶ y) i, fmap (X i) c) _.
+      := categories.arrow (λ (c: C) i, X i c) (λ (x y: C) (c: x ⟶ y) i, fmap (X i) c) _.
     Next Obligation. Proof with try reflexivity; intuition. (* functorial *)
      constructor; intros; try apply _.
        constructor; try apply _.
@@ -86,7 +86,7 @@ Section contents.
      simpl.
      intros [x H4].
      unfold equiv.
-     unfold cat.e.
+     unfold categories.e.
      unfold compose in H4.
      set (P := λ v, prod (alt v ⟶ (λ i, (X i) v)) ((λ i, (X i) v) ⟶ alt v)).
      set (d := λ v, (λ i, snd (` (x i v)), λ i, fst (` (x i v))): P v).
@@ -107,17 +107,17 @@ Section contents.
      simpl in *.
      unfold uncurry in *.
      unfold iso_arrows in *.
-     destruct (cat.Functor_inst _ _ alt).
+     destruct (categories.Functor_inst _ _ alt).
      unfold compose in x, aa0, a1a2.
      simpl in *.
      unfold fmap.
      match goal with
-       |- appcontext [ cat.Fmap_inst _ ?cat ?alt ] => set (f:=cat.Fmap_inst _ cat alt) in |- *
+       |- appcontext [ categories.Fmap_inst _ ?cat ?alt ] => set (f:=categories.Fmap_inst _ cat alt) in |- *
      end.
      setoid_rewrite <- (left_identity (f p q r i ◎ fst aa0)).
      transitivity ((fst a1a2 ◎ snd a1a2) ◎ (f p q r i ◎ fst aa0)).
       apply comp_proper...
-     apply transitivity with ((fst a1a2) ◎ (((snd a1a2) ◎ (cat.Fmap_inst _ _ alt p q r i)) ◎ (fst aa0))).
+     apply transitivity with ((fst a1a2) ◎ (((snd a1a2) ◎ (categories.Fmap_inst _ _ alt p q r i)) ◎ (fst aa0))).
       repeat rewrite associativity...
      simpl.
      rewrite <- H5.

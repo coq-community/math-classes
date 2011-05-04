@@ -1,5 +1,4 @@
 Require Import
-  Program Morphisms
   abstract_algebra
   interfaces.monads
   interfaces.functors.

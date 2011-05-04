@@ -1,5 +1,5 @@
 Require Import 
-  Program Morphisms Ring
+  Ring
   abstract_algebra interfaces.integers interfaces.naturals interfaces.rationals
   field_of_fractions natpair_integers
   theory.rings theory.integers theory.dec_fields.

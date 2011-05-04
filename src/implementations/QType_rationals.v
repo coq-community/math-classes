@@ -1,7 +1,7 @@
 Require
   theory.fields stdlib_rationals theory.int_pow.
 Require Import
-  Program QArith QSig
+  QArith QSig
   abstract_algebra interfaces.orders
   interfaces.integers interfaces.rationals interfaces.additional_operations
   theory.rings theory.rationals.

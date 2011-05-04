@@ -2,9 +2,8 @@
 
 Set Automatic Coercions Import.
 Require
-  categories.variety categories.product forget_algebra forget_variety.
+  categories.varieties categories.product forget_algebra forget_variety.
 Require Import
-  Program Morphisms
   abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
 
 Inductive op := mult.
@@ -27,15 +26,15 @@ Section laws.
 End laws.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
-Definition Object := variety.Object theory.
+Definition Object := varieties.Object theory.
 
-Definition forget: Object → setoid.Object :=
+Definition forget: Object → setoids.Object :=
   @product.project unit
-    (λ _, setoid.Object)
-    (λ _, _: Arrows setoid.Object) _
-    (λ _, _: CatId setoid.Object)
-    (λ _, _: CatComp setoid.Object) 
-    (λ _, _: Category setoid.Object) tt
+    (λ _, setoids.Object)
+    (λ _, _: Arrows setoids.Object) _
+    (λ _, _: CatId setoids.Object)
+    (λ _, _: CatComp setoids.Object) 
+    (λ _, _: Category setoids.Object) tt
      ∘ forget_algebra.object theory ∘ forget_variety.forget theory.
   (* todo: too ugly *)
 
@@ -65,7 +64,7 @@ Section encode_variety_and_ops.
    apply associativity.
   Qed.
 
-  Definition object: Object := variety.object theory (λ _, A).
+  Definition object: Object := varieties.object theory (λ _, A).
 End encode_variety_and_ops.
 
 Lemma encode_algebra_only `{!AlgebraOps theory A} `{∀ u, Equiv (A u)} `{!SemiGroup (A tt)}: Algebra theory A .
