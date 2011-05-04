@@ -198,7 +198,7 @@ Hint Extern 18 (PropHolds (0 < _ ≪ _)) => eapply @shiftl_pos : typeclass_insta
 
 Section preservation.
   Context `{SemiRing B} `{!Biinduction B}
-    `{Ring A1} `{!ShiftLSpec A1 B sl1} `{Ring A2} `{!LeftCancellation (.*.) (2:A2)} `{!ShiftLSpec A2 B sl2} 
+    `{SemiRing A1} `{!ShiftLSpec A1 B sl1} `{SemiRing A2} `{!LeftCancellation (.*.) (2:A2)} `{!ShiftLSpec A2 B sl2} 
     `{!SemiRing_Morphism (f : A1 → A2)}.
 
   Lemma preserves_shiftl x (n : B) : f (x ≪ n) = (f x) ≪ n.
@@ -218,7 +218,7 @@ End preservation.
 
 Section exp_preservation.
   Context `{SemiRing B1} `{!Biinduction B1} `{SemiRing B2} `{!Biinduction B2}
-   `{Ring A} `{!LeftCancellation (.*.) (2:A)} `{!ShiftLSpec A B1 sl1} `{!ShiftLSpec A B2 sl2} 
+   `{SemiRing A} `{!LeftCancellation (.*.) (2:A)} `{!ShiftLSpec A B1 sl1} `{!ShiftLSpec A B2 sl2} 
    `{!SemiRing_Morphism (f : B1 → B2)}.
 
   Lemma preserves_shiftl_exp x (n : B1) : x ≪ f n = x ≪ n.
@@ -235,7 +235,7 @@ Section exp_preservation.
 End exp_preservation.
 
 Section shiftl_dec_field.
-  Context `{Ring R} `{Integers Z} `{!ShiftLSpec R Z sl}
+  Context `{SemiRing R} `{Integers Z} `{!ShiftLSpec R Z sl}
      `{DecField F} `{∀ x y : F, Decision (x = y)} `{!PropHolds ((2:F) ≠ 0)} `{!IntPowSpec F Z ipw}
      `{!SemiRing_Morphism (f : R → F)}.
 

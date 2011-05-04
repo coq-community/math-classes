@@ -589,8 +589,25 @@ Section dec_semiring_order.
 End dec_semiring_order.
 
 Section another_semiring.
-  Context `{SemiRing R1} `{SemiRing R2} `{!SemiRingOrder (A:=R1) o1} `{!SemiRingOrder (A:=R2) o2} 
-    `{!SemiRing_Morphism (f : R1 → R2)}.
+  Context `{SemiRing R1} `{SemiRing R2} `{!SemiRingOrder (A:=R1) R1le} `{R2le : Le R2}.
+
+  Lemma projected_srorder (f : R2 → R1) `{!SemiRing_Morphism f} `{!Injective f} `{!OrderEmbedding f} : 
+    (∀ x y : R2, x ≤ y → ∃ z, y = x + z) → SemiRingOrder R2le.
+  Proof.
+    pose proof (projected_partial_order f).
+    repeat (split; try apply _).
+       assumption.
+      intros. apply (order_preserving_back f). rewrite 2!preserves_plus.
+      now do 2 apply (order_preserving _).
+     intros. apply (order_preserving_back f). apply (order_preserving_back (f z +)). 
+     rewrite <-2!preserves_plus.
+     now apply (order_preserving _).
+    intros. apply (order_preserving_back f). 
+    rewrite preserves_mult, preserves_0.
+    now apply nonneg_mult_compat; rewrite <-(preserves_0 (f:=f)); apply (order_preserving _).
+  Qed.
+
+ Context `{!SemiRingOrder (A:=R2) R2le} `{!SemiRing_Morphism (f : R1 → R2)}.
 
   (* If a morphism agrees on the positive cone then it is order preserving *)    
   Lemma preserving_preserves_nonneg : (∀ x, 0 ≤ x → 0 ≤ f x) → OrderPreserving f.
@@ -618,7 +635,7 @@ Section another_semiring.
 End another_semiring.
 
 Section another_semiring_strict.
-  Context `{SemiRing R1} `{SemiRing R2} `{!StrictSemiRingOrder (A:=R1) o1} `{!StrictSemiRingOrder (A:=R2) o2} 
+  Context `{SemiRing R1} `{SemiRing R2} `{!StrictSemiRingOrder (A:=R1) R1le} `{!StrictSemiRingOrder (A:=R2) R2le} 
     `{!SemiRing_Morphism (f : R1 → R2)}.
 
   Instance preserves_pos `{!StrictlyOrderPreserving f} x : PropHolds (0 < x) → PropHolds (0 < f x).

@@ -55,6 +55,8 @@ Class FullPseudoOrder `{e : Equiv A} `{ap : Apart A} (Ale : Le A) (Alt : Lt A) :
 Section order_maps.
   Context {A B : Type} {Ae: Equiv A} {Ale: Le A} {Alt: Lt A} {Be: Equiv B} {Ble: Le B} {Blt: Lt B} (f : A → B).
 
+  (* An Order_Morphism is just the factoring out of the common parts of 
+    OrderPreserving and OrderPreservingBack *)
   Class Order_Morphism := 
     { order_morphism_mor : Setoid_Morphism f
     ; order_morphism_proper_a :> Proper ((=) ==> (=) ==> iff) Ale

@@ -185,6 +185,20 @@ Proof.
   now destruct n.
 Qed.
 
+Instance Z_Npow: Pow Z N := λ x n, Z.pow x ('n).
+
+Instance: NatPowSpec Z N Z_Npow.
+Proof.
+  split; unfold pow, Z_Npow.
+    solve_proper.
+   intros. now apply Z.pow_0_r.
+  intros x n.
+  rewrite rings.preserves_plus, rings.preserves_1.
+  rewrite <-(Z.pow_1_r x) at 2. apply Z.pow_add_r.
+   auto with zarith.
+  now destruct n.
+Qed.
+
 (* Efficient shiftl *)
 Program Instance Z_shiftl: ShiftL Z (Z⁺) := Z.shiftl.
 
@@ -194,6 +208,16 @@ Proof.
   intros x [n En].
   apply Z.shiftl_mul_pow2.
   now apply En.
+Qed.
+
+Instance Z_Nshiftl: ShiftL Z N := λ x n, Z.shiftl x ('n).
+
+Instance: ShiftLSpec Z N Z_Nshiftl.
+Proof.
+  apply shiftl_spec_from_nat_pow.
+  intros x n.
+  apply Z.shiftl_mul_pow2.
+  now destruct n.
 Qed.
 
 Program Instance: Abs Z := Zabs.
