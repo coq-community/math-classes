@@ -6,6 +6,12 @@ Require Import
 Section group_props. 
 Context `{Group G}.
 
+Global Instance sg_op_mor_1: ∀ x, Setoid_Morphism (x &) | 0.
+Proof. split; try apply _. Qed.
+
+Global Instance sg_op_mor_2: ∀ x, Setoid_Morphism (& x) | 0.
+Proof. split; try apply _. solve_proper. Qed.
+
 Lemma inv_involutive x: - - x = x.
 Proof.
   rewrite <-(left_identity x) at 2.

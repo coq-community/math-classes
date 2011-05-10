@@ -90,6 +90,8 @@ Class EuclidSpec A (d : DivEuclid A) (m : ModEuclid A) `{Equiv A} `{Le A} `{Lt A
 Class CutMinus A := cut_minus : A → A → A.
 Infix "∸" := cut_minus (at level 50, left associativity).
 Notation "(∸)" := cut_minus (only parsing).
+Notation "( x ∸)" := (cut_minus x) (only parsing).
+Notation "(∸ y )" := (λ x, x ∸ y) (only parsing).
 Instance: Params (@cut_minus) 2.
 
 Class CutMinusSpec A (cm : CutMinus A) `{Equiv A} `{RingZero A} `{RingPlus A} `{Le A} := {

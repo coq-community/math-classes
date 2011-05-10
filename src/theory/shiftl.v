@@ -14,6 +14,12 @@ Add Ring B: (rings.stdlib_semiring_theory B).
 Global Instance: Proper ((=) ==> (=) ==> (=)) (≪) | 1.
 Proof shiftl_proper.
 
+Global Instance shiftl_mor_1: ∀ x : A, Setoid_Morphism (x≪) | 0.
+Proof. split; try apply _. Qed.
+
+Global Instance shiftl_mor_2: ∀ n : B, Setoid_Morphism (≪n) | 0.
+Proof. split; try apply _. solve_proper. Qed.
+
 Lemma shiftl_nat_pow_alt `{Naturals B2} `{!NatPowSpec A B2 pw} 
   `{!SemiRing_Morphism (f : B2 → B)} x n : x ≪ f n = x * 2 ^ n.
 Proof.
@@ -110,9 +116,6 @@ Proof.
   rewrite (rings.opp_mult x), (rings.opp_mult (x ≪ n)).
   symmetry. now apply shiftl_mult_l.
 Qed.
-
-Instance: ∀ n, Setoid_Morphism (≪ n).
-Proof. intros. split; try apply _. solve_proper. Qed.
 
 Global Instance shiftl_inj: ∀ n, Injective (≪ n).
 Proof.

@@ -7,9 +7,9 @@ Context `{Ring R} `{Apart R} `{!TrivialApart R} `{!FullPseudoSemiRingOrder Rle R
 
 Add Ring R : (rings.stdlib_ring_theory R).
 
-Global Instance abs_proper: Proper ((=) ==> (=)) abs.
+Global Instance abs_proper: Setoid_Morphism abs | 0.
 Proof.
-  intros x y E.
+  split; try apply _. intros x y E.
   unfold abs, abs_sig. destruct (a x) as [z1 [Ez1 Fz1]]. destruct (a y) as [z2 [Ez2 Fz2]].
   simpl.
   rewrite <-E in Ez2, Fz2.

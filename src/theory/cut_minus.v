@@ -23,6 +23,12 @@ Section cut_minus_properties.
     rewrite <-E, <-F. apply cut_minus_le. now rewrite E, F.
   Qed.
 
+  Global Instance cut_minus_mor_1: ∀ x : R, Setoid_Morphism (x ∸) | 0.
+  Proof. split; try apply _. Qed.
+
+  Global Instance cut_minus_mor_2: ∀ x : R, Setoid_Morphism (∸ x) | 0.
+  Proof. split; try apply _. solve_proper. Qed.
+
   Hint Resolve cut_minus_0.
   Hint Resolve cut_minus_le.
 

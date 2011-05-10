@@ -14,6 +14,12 @@ Add Ring B: (rings.stdlib_semiring_theory B).
 Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 0.
 Proof nat_pow_proper.
 
+Global Instance nat_pow_mor_1: ∀ x : A, Setoid_Morphism (x^) | 0.
+Proof. split; try apply _. Qed.
+
+Global Instance nat_pow_mor_2: ∀ n : B, Setoid_Morphism (^n) | 0.
+Proof. split; try apply _. solve_proper. Qed.
+
 Lemma nat_pow_base_0 (n : B) : n ≠ 0 → 0 ^ n = 0.
 Proof.
   pattern n. apply naturals.induction; clear n.

@@ -37,8 +37,9 @@ Qed.
 
 Context `{!IntAbs Z N}.
 
-Global Instance int_abs_proper: Proper ((=) ==> (=)) (int_abs Z N).
+Global Instance int_abs_proper: Setoid_Morphism (int_abs Z N) | 0.
 Proof.
+  split; try apply _.
   intros z z' E.
   unfold int_abs.
   destruct int_abs_sig as [a A], int_abs_sig as [b B].

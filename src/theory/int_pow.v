@@ -16,6 +16,12 @@ Add Ring B : (rings.stdlib_ring_theory B).
 Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 0.
 Proof int_pow_proper.
 
+Global Instance int_pow_mor_1: ∀ x : A, Setoid_Morphism (x^) | 0.
+Proof. split; try apply _. Qed.
+
+Global Instance int_pow_mor_2: ∀ n : B, Setoid_Morphism (^n) | 0.
+Proof. split; try apply _. solve_proper. Qed.
+
 Lemma int_pow_S_nonneg `{Apart B} `{!TrivialApart B} `{!FullPseudoSemiRingOrder (A:=B) Ble Blt} (x : A) (n : B) : 
   0 ≤ n → x ^ (1+n) = x * x ^ n.
 Proof.
