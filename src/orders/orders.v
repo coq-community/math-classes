@@ -310,6 +310,28 @@ It will then loop like:
 semirings.lt_0_1 → lt_ne_flip → ...
 *)
 
+Section dec_strict_setoid_order.
+  Context `{StrictSetoidOrder A} `{Apart A} `{!TrivialApart A} `{∀ x y, Decision (x = y)}.
+
+  Instance: Setoid A := strict_setoid_order_setoid.
+  Instance: StrongSetoid A := dec_strong_setoid.
+
+  Context `{!Trichotomy (<)}.
+
+  Instance dec_strict_pseudo_order: PseudoOrder (<).
+  Proof.
+    split; try apply _.
+      intros x y [??]. destruct (lt_antisym x y); tauto.
+     intros x y Exy z. 
+     destruct (trichotomy (<) x z) as [? | [Exz | Exz]]; try tauto.
+      right. now rewrite <-Exz.
+     right. now transitivity x.
+    intros x y. rewrite trivial_apart. split. 
+     destruct (trichotomy (<) x y); intuition.
+    intros [?|?]. now apply lt_ne. now apply lt_ne_flip.
+  Qed.
+End dec_strict_setoid_order.
+
 Section dec_partial_order.
   Context `{PartialOrder A} `{∀ x y, Decision (x = y)}.
 
@@ -342,22 +364,15 @@ Section dec_partial_order.
 
   Context `{!TotalRelation (≤)}.
 
-  Instance dec_pseudo_order: PseudoOrder (<).
-  Proof.
-    split; try apply _.
-      intros x y [??]. destruct (lt_antisym x y); tauto.
-     intros x y E z. rewrite !lt_correct in *. destruct E.
-     destruct (decide (x = z)) as [Exz|Exz].
-      rewrite <-Exz. now intuition.
-     destruct (decide (z = y)) as [Ezy|Ezy].
-      rewrite Ezy. now intuition.
-     destruct (total (≤) y z).
-      left. split. now transitivity y. assumption.
-     intuition.
-    intros x y. rewrite !lt_correct, trivial_apart. split. 
-     destruct (total (≤) x y); intuition.
-    intros [[??]|[??]]; intuition.
+  Instance: Trichotomy (<).
+  Proof. 
+    intros x y. rewrite !lt_correct.
+    destruct (decide (x = y)); try tauto.
+    destruct (total (≤) x y); intuition.
   Qed.
+
+  Instance dec_pseudo_order: PseudoOrder (<).
+  Proof dec_strict_pseudo_order.
 
   Instance dec_full_pseudo_order: FullPseudoOrder (≤) (<).
   Proof.
