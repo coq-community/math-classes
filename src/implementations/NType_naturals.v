@@ -36,7 +36,7 @@ Proof. repeat split; repeat intro; axioms.zify; auto with zarith. Qed.
 
 Instance: SemiRing t | 10 := rings.from_stdlib_semiring_theory NType_semiring_theory.
 
-Instance inject_NType_N: Coerce t N := to_N.
+Instance inject_NType_N: Cast t N := to_N.
 
 Instance: Proper ((=) ==> (=)) to_N. 
 Proof. intros x y E. unfold equiv, NType_equiv, eq in E. unfold to_N. now rewrite E. Qed.
@@ -50,7 +50,7 @@ Proof.
   unfold mon_unit, ringone_is_monoidunit, NType_1. now rewrite spec_1.
 Qed.
 
-Instance inject_N_NType: Coerce N t := of_N.
+Instance inject_N_NType: Cast N t := of_N.
 Instance: Inverse to_N := of_N.
 
 Instance: Surjective to_N.
@@ -81,7 +81,7 @@ Proof. change (SemiRing_Morphism (to_N⁻¹)). split; apply _. Qed.
 Instance: NaturalsToSemiRing t := naturals.retract_is_nat_to_sr of_N.
 Instance: Naturals t := naturals.retract_is_nat of_N.
 
-Instance inject_NType_Z: Coerce t Z := to_Z.
+Instance inject_NType_Z: Cast t Z := to_Z.
 
 Instance: Proper ((=) ==> (=)) to_Z. 
 Proof. now intros x y E. Qed.

@@ -35,7 +35,7 @@ Global Program Instance dy_plus: RingPlus Dyadic := λ x y,
 Next Obligation. now apply rings.flip_nonneg_minus. Qed.
 Next Obligation. apply rings.flip_nonneg_minus. now apply orders.le_flip. Qed.
 
-Global Instance dy_inject: Coerce Z Dyadic := λ x, x $ 0.
+Global Instance dy_inject: Cast Z Dyadic := λ x, x $ 0.
 Global Instance dy_opp: GroupInv Dyadic := λ x, -mant x $ expo x.
 Global Instance dy_mult: RingMult Dyadic := λ x y, mant x * mant y $ expo x + expo y.
 Global Instance dy_0: RingZero Dyadic := ('0 : Dyadic).
@@ -67,7 +67,7 @@ Section with_rationals.
   Proof.
     rewrite shiftl_nat_pow.
     rewrite rings.preserves_mult, nat_pow.preserves_nat_pow, rings.preserves_2.
-    now rewrite <-(int_pow_nat_pow (f:=coerce (Z⁺) Z)).
+    now rewrite <-(int_pow_nat_pow (f:=cast (Z⁺) Z)).
   Qed.
 
   Lemma DtoQ_slow_preserves_plus x y : DtoQ_slow' (x + y) = DtoQ_slow' x + DtoQ_slow' y.

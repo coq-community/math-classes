@@ -26,8 +26,8 @@ Qed.
 
 Instance: ∀ x y: N, Decision (x = y) := N_eq_dec.
 
-Instance inject_nat_N: Coerce nat N := N_of_nat.
-Instance inject_N_nat: Coerce N nat := nat_of_N.
+Instance inject_nat_N: Cast nat N := N_of_nat.
+Instance inject_N_nat: Cast N nat := nat_of_N.
 
 Instance: SemiRing_Morphism nat_of_N.
 Proof. 

@@ -11,9 +11,9 @@ Require Export
 Module Import BigQ_Rationals := QType_Rationals BigQ.
 
 (* Embedding of [bigZ] into [bigQ] *)
-Instance inject_bigZ_bigQ: Coerce bigZ bigQ := BigQ.Qz.
-Instance inject_bigN_bigQ: Coerce bigN bigQ := coerce bigZ bigQ ∘ coerce bigN bigZ.
-Instance inject_Z_bigQ: Coerce Z bigQ := coerce bigZ bigQ ∘ coerce Z bigZ.
+Instance inject_bigZ_bigQ: Cast bigZ bigQ := BigQ.Qz.
+Instance inject_bigN_bigQ: Cast bigN bigQ := cast bigZ bigQ ∘ cast bigN bigZ.
+Instance inject_Z_bigQ: Cast Z bigQ := cast bigZ bigQ ∘ cast Z bigZ.
 
 Instance: Proper ((=) ==> (=)) inject_bigZ_bigQ.
 Proof.
@@ -55,11 +55,11 @@ Proof.
 Qed.
 
 Lemma bigQ_div_bigQq_alt (n : bigZ) (d : bigN) :
-  BigQ.Qq n d = 'n / 'coerce bigN bigZ d.
+  BigQ.Qq n d = 'n / 'cast bigN bigZ d.
 Proof. apply bigQ_div_bigQq. Qed.
 
 (* Embedding of [bigQ] into [Frac bigZ] *)
-Instance inject_bigQ_frac_bigZ: Coerce bigQ (Frac bigZ) := λ x,
+Instance inject_bigQ_frac_bigZ: Cast bigQ (Frac bigZ) := λ x,
   match x with
   | BigQ.Qz n => 'n
   | BigQ.Qq n d =>
@@ -70,19 +70,19 @@ Instance inject_bigQ_frac_bigZ: Coerce bigQ (Frac bigZ) := λ x,
   end.
 
 Lemma inject_bigQ_frac_bigZ_correct:
- coerce bigQ (Frac bigZ) = rationals_to_frac bigQ bigZ.
+ cast bigQ (Frac bigZ) = rationals_to_frac bigQ bigZ.
 Proof.
   intros x y E. rewrite <-E. clear y E.
   destruct x as [n|n d].
    rapply (integers.to_ring_unique_alt 
-     (coerce bigZ (Frac bigZ)) (rationals_to_frac bigQ bigZ ∘ coerce bigZ bigQ)).
-  unfold coerce at 1. simpl.
+     (cast bigZ (Frac bigZ)) (rationals_to_frac bigQ bigZ ∘ cast bigZ bigQ)).
+  unfold cast at 1. simpl.
   rewrite bigQ_div_bigQq_alt.
   rewrite rings.preserves_mult, dec_fields.preserves_dec_mult_inv.
   case (decide_rel (=) ('d : bigZ) 0); intros Ed.
    rewrite Ed, !rings.preserves_0, dec_mult_inv_0.
    now rewrite rings.mult_0_r.
-  rewrite 2!(integers.to_ring_twice _ _ (coerce bigZ (Frac bigZ))).
+  rewrite 2!(integers.to_ring_twice _ _ (cast bigZ (Frac bigZ))).
   now rewrite Frac_dec_mult_num_den at 1.
 Qed.
 
@@ -121,18 +121,18 @@ Proof.
     change (BigZ.Neg k) with (-'k : bigZ).
     rewrite int_pow.int_pow_opp.
     rewrite bigQ_div_bigQq, shiftl.preserves_shiftl.
-    rewrite <-(shiftl.preserves_shiftl_exp (f:=coerce bigN bigZ)).
+    rewrite <-(shiftl.preserves_shiftl_exp (f:=cast bigN bigZ)).
     now rewrite rings.preserves_1, shiftl.shiftl_base_1_int_pow.
    rewrite 2!bigQ_div_bigQq.
    rewrite shiftl.preserves_shiftl.
-   rewrite <-(shiftl.preserves_shiftl_exp (f:=coerce bigN bigZ)).
+   rewrite <-(shiftl.preserves_shiftl_exp (f:=cast bigN bigZ)).
    rewrite shiftl.shiftl_int_pow.
-   now rewrite <-2!associativity, (commutativity (/coerce bigN bigQ d)).
+   now rewrite <-2!associativity, (commutativity (/cast bigN bigQ d)).
   change (BigZ.Neg k) with (-'k : bigZ).
   rewrite int_pow.int_pow_opp.
   rewrite 2!bigQ_div_bigQq.
   rewrite shiftl.preserves_shiftl.
-  rewrite <-(shiftl.preserves_shiftl_exp (f:=coerce bigN bigZ)).
+  rewrite <-(shiftl.preserves_shiftl_exp (f:=cast bigN bigZ)).
   rewrite shiftl.shiftl_int_pow.
   now rewrite dec_fields.dec_mult_inv_distr, associativity.
 Qed.
