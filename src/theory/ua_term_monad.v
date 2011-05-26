@@ -1,5 +1,4 @@
 Require Import
-  Morphisms Setoid
   abstract_algebra universal_algebra interfaces.monads canonical_names.
 
 Section contents.

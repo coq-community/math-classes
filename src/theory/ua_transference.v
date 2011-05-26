@@ -1,15 +1,14 @@
 Require Import
-  Morphisms Setoid Program
   abstract_algebra universal_algebra ua_homomorphisms
   canonical_names theory.categories ua_mapped_operations.
 
-Require categories.variety.
+Require categories.varieties.
 
 Section contents.
 
   Context (et: EquationalTheory) `{InVariety et A} `{InVariety et B}
     `{!HomoMorphism et A B ab} `{!HomoMorphism et B A ba}
-    (i: iso_arrows (variety.arrow et ab) (variety.arrow et ba)).
+    (i: iso_arrows (varieties.arrow et ab) (varieties.arrow et ba)).
 
   Implicit Arguments ab [[a]].
   Implicit Arguments ba [[a]].

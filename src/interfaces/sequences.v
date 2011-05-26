@@ -1,11 +1,10 @@
 Require Import
-  Morphisms List Program
-  abstract_algebra theory.categories forget_algebra forget_variety 
+  List abstract_algebra theory.categories forget_algebra forget_variety 
   theory.rings interfaces.universal_algebra interfaces.functors 
-  categories.setoid categories.variety.
+  categories.setoids categories.varieties.
 Require
-  categories.product varieties.monoid categories.algebra
-  categories.cat theory.setoids.
+  categories.product varieties.monoids categories.algebras
+  categories.categories theory.setoids.
 
 Module ua := universal_algebra.
 
@@ -15,9 +14,9 @@ Instance: Arrows Type := λ X Y, X → Y.
 (* First, the nice clean high level encapsulated version: *)
 
 Class PoshSequence
-   (free: setoid.Object → monoid.Object) `{!Fmap free}
-   (inject: id ⇛ monoid.forget ∘ free)
-   (extend: `((x ⟶ monoid.forget y) → (free x ⟶ y))): Prop :=
+   (free: setoids.Object → monoids.Object) `{!Fmap free}
+   (inject: id ⇛ monoids.forget ∘ free)
+   (extend: `((x ⟶ monoids.forget y) → (free x ⟶ y))): Prop :=
    { sequence_adjunction: ηAdjunction _ _ inject extend
    ; extend_morphism: `(Setoid_Morphism (extend x y)) }.
      (* todo: how come extend_morphism isn't part of ηAdjunction? *)
@@ -69,12 +68,12 @@ Section practical.
 
   Context `{PS: Sequence}.
 
-  Program Definition posh_free (X: setoid.Object): monoid.Object := monoid.object (free X).
+  Program Definition posh_free (X: setoids.Object): monoids.Object := monoids.object (free X).
 
   Program Instance posh_fmap: functors.Fmap posh_free :=
     λ _ _ X _, raw_fmap _ _ X.
 
-  Next Obligation. apply monoid.encode_morphism_only. destruct X. apply _. Qed.
+  Next Obligation. apply monoids.encode_morphism_only. destruct X. apply _. Qed.
 
   Instance: Functor posh_free posh_fmap.
   Proof with try apply _.
@@ -97,23 +96,23 @@ Section practical.
    reflexivity.
   Qed.
 
-  Program Definition posh_inject: id ⇛ monoid.forget ∘ posh_free := λ a, inject a.
+  Program Definition posh_inject: id ⇛ monoids.forget ∘ posh_free := λ a, inject a.
 
   Next Obligation. apply PS, _. Qed.
 
   (* Needed for some type conversions. *)
   Typeclasses Transparent compose.
 
-  Program Definition posh_extend (x: setoid.Object) (y: monoid.Object)
-    (X: x ⟶ monoid.forget y): posh_free x ⟶ y
+  Program Definition posh_extend (x: setoids.Object) (y: monoids.Object)
+    (X: x ⟶ monoids.forget y): posh_free x ⟶ y
     := λ u, match u return posh_free x u → y u with
-      tt => @extend free ExtendToSeq0 x (monoid.forget y) _ _ X end.
+      tt => @extend free ExtendToSeq0 x (monoids.forget y) _ _ X end.
 
   Next Obligation. apply _. Defined.
   Next Obligation. apply _. Defined.
 
   Next Obligation.
-   apply monoid.encode_morphism_only.
+   apply monoids.encode_morphism_only.
    destruct X. simpl in *. 
    apply (sequence_extend_makes_morphisms _). apply _.
   Qed.
@@ -136,7 +135,7 @@ Section practical.
    constructor.
     constructor; try apply _.
     intros [x xE xH] y [f fM].
-    pose proof (@monoid.decode_variety_and_ops y _ _ _).
+    pose proof (@monoids.decode_variety_and_ops y _ _ _).
     split.
      repeat intro.
      simpl in *.
@@ -152,10 +151,10 @@ Section practical.
      reflexivity.
     unfold compose.
     intros [x0 h] H4 [] a.
-    unfold equiv, setoid.Equiv_instance_0 in H4.
+    unfold equiv, setoids.Equiv_instance_0 in H4.
     simpl in *.
     apply (@sequence_only_extend_commutes PS x _ _ _ _ _ _ H2 f _ (x0 tt)).
-     apply (@monoid.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+     apply (@monoids.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
     intros. symmetry. apply H4. reflexivity.
    unfold posh_extend.
    intros [x ??] [y ?? yV].
@@ -163,7 +162,7 @@ Section practical.
    intros [] [] E [] a.
    simpl in *.
    apply (@sequence_extend_morphism PS x _ _ _ _ _ _
-     (@monoid.decode_variety_and_ops _ _ _ yV) _ _ _ _).
+     (@monoids.decode_variety_and_ops _ _ _ yV) _ _ _ _).
    intro. apply E. reflexivity.
   Qed. (* todo: clean up *)
 

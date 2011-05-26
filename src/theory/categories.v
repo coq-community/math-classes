@@ -1,5 +1,6 @@
 Require Import
-  Relation_Definitions Morphisms Setoid Program abstract_algebra setoids interfaces.functors theory.jections.
+  Relation_Definitions
+  abstract_algebra theory.setoids interfaces.functors theory.jections.
 
 Notation "x ⇛ y" := (∀ a, x a ⟶ y a) (at level 90, right associativity).
   (* Transformations (polymorphic arrows). Couldn't find an "arrow with dot over it" unicode character. *)

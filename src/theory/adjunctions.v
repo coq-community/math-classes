@@ -1,8 +1,8 @@
 (** We prove the equivalence of the two definitions of adjunction. *)
 
 Require Import
-  Relation_Definitions Morphisms Setoid Program
-  abstract_algebra setoids interfaces.functors categories
+  Relation_Definitions
+  abstract_algebra theory.setoids interfaces.functors theory.categories
   workaround_tactics theory.jections.
 Require dual.
 

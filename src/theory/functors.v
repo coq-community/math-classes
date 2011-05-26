@@ -1,17 +1,15 @@
-
 Require Import
-  Program
   canonical_names abstract_algebra
   interfaces.functors.
 Require
-  categories.setoid.
+  categories.setoids.
 
 Section setoid_functor_as_posh_functor.
 
   Context `{SFunctor F}.
 
-  Program Definition map_setoid: setoid.Object → setoid.Object :=
-    λ o, @setoid.object (F (setoid.T o)) (map_eq (setoid.T o) (setoid.e o)) _.
+  Program Definition map_setoid: setoids.Object → setoids.Object :=
+    λ o, @setoids.object (F (setoids.T o)) (map_eq (setoids.T o) (setoids.e o)) _.
 
   Next Obligation. Proof.
    destruct o.

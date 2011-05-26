@@ -1,9 +1,9 @@
 Require Import
-  Program RelationClasses Relation_Definitions List Morphisms
+  Morphisms RelationClasses Relation_Definitions List
   universal_algebra ua_homomorphisms canonical_names ua_subalgebraT util.
 Require ua_products.
 
-Require categories.
+Require theory.categories.
 
 (* Remove this *)
 Local Hint Transparent Equiv : typeclass_instances.
@@ -235,8 +235,8 @@ Section first_iso.
    apply _.
   Qed.
 
-  Definition quot_obj: algebra.Object σ := algebra.object σ A (algebra_equiv:=Φ). (* A/Φ *)
-  Definition subobject: algebra.Object σ := algebra.object σ (ua_subalgebraT.carrier image).
+  Definition quot_obj: algebras.Object σ := algebras.object σ A (algebra_equiv:=Φ). (* A/Φ *)
+  Definition subobject: algebras.Object σ := algebras.object σ (ua_subalgebraT.carrier image).
 
   Program Definition back: subobject ⟶ quot_obj := λ _ X, projT1 (projT2 X).
 

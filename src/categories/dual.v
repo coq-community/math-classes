@@ -1,6 +1,5 @@
 Require Import
-  Relation_Definitions Morphisms Setoid Program
-  abstract_algebra theory.categories interfaces.functors.
+  Relation_Definitions abstract_algebra theory.categories interfaces.functors.
 
 Section contents.
 

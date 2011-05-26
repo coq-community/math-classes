@@ -1,6 +1,5 @@
 Require Import
-  Relation_Definitions Morphisms Setoid Program
-  abstract_algebra interfaces.functors theory.categories.
+  Relation_Definitions abstract_algebra interfaces.functors theory.categories.
 
 Record Object := object
   { obj:> Type

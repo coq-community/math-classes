@@ -1,7 +1,7 @@
 Require
-  varieties.monoid theory.groups strong_setoids.
+  varieties.monoids theory.groups strong_setoids.
 Require Import
-  Ring Program Morphisms abstract_algebra.
+  Ring abstract_algebra.
 
 Definition is_ne_0 `(x : R) `{Equiv R} `{RingZero R} `{p : PropHolds (x ≠ 0)} : x ≠ 0 := p.
 Definition is_nonneg `(x : R) `{Equiv R} `{Le R} `{RingZero R} `{p : PropHolds (0 ≤ x)} : 0 ≤ x := p.

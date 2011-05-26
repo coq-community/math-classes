@@ -1,7 +1,6 @@
 Require
-  theory.rings categories.variety.
+  theory.rings categories.varieties.
 Require Import
-  Program Morphisms
   abstract_algebra universal_algebra.
 
 Definition op := False.
@@ -25,5 +24,5 @@ Proof. constructor; intuition. Qed.
 Instance variety: InVariety theory carriers.
 Proof. constructor; intuition. Qed.
 
-Definition Object := variety.Object theory.
-Definition object: Object := variety.object theory carriers.
+Definition Object := varieties.Object theory.
+Definition object: Object := varieties.object theory carriers.

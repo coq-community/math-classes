@@ -1,4 +1,4 @@
-Require Import Program Morphisms abstract_algebra.
+Require Import abstract_algebra.
 
 Section contents.
 Context `{StrongSetoid A}.

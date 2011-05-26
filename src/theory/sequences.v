@@ -1,5 +1,4 @@
 Require Import
-  Program
   theory.categories
   interfaces.functors
   abstract_algebra

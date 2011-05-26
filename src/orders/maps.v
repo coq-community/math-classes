@@ -1,6 +1,5 @@
 Require Import 
-  Program Morphisms Setoid 
-  interfaces.orders abstract_algebra orders.orders theory.setoids theory.strong_setoids.
+  abstract_algebra interfaces.orders orders.orders theory.setoids theory.strong_setoids.
 
 (* If a function between strict partial orders is order preserving (back), we can 
   derive that it is strcitly order preserving (back) *)

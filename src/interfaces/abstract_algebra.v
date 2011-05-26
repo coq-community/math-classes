@@ -1,8 +1,7 @@
 Require
  Equivalence.
-Require Import
- Morphisms Setoid Program.
 Require Export
+ Morphisms Setoid Program
  canonical_names util workarounds setoid_tactics.
 
 (* 

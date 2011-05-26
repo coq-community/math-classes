@@ -1,7 +1,7 @@
 Require 
   interfaces.naturals theory.naturals peano_naturals theory.integers.
 Require Import
-  BinInt Morphisms Ring Program Arith NArith ZBinary
+  BinInt Ring Arith NArith ZBinary
   abstract_algebra interfaces.integers
   natpair_integers stdlib_binary_naturals
   interfaces.additional_operations interfaces.orders

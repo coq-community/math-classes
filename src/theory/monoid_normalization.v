@@ -1,8 +1,8 @@
-Require Import Setoid Morphisms Program Omega.
+Require Import Omega.
 Require Import abstract_algebra ua_packed.
-Require universal_algebra varieties.monoid.
+Require universal_algebra varieties.monoids.
 
-Notation msig := varieties.monoid.sig.
+Notation msig := varieties.monoids.sig.
 Notation Op := (universal_algebra.Op msig False).
 Notation App := (universal_algebra.App msig False _ _).
 
@@ -26,8 +26,8 @@ Section contents.
   Fixpoint to_ua (e: Term): Applied :=
     match e with
     | Var v => ua_packed.AppliedVar msig v tt
-    | Unit => ua_packed.AppliedOp msig monoid.one (ua_packed.NoMoreArguments msig tt)
-    | Comp x y => ua_packed.AppliedOp msig monoid.mult
+    | Unit => ua_packed.AppliedOp msig monoids.one (ua_packed.NoMoreArguments msig tt)
+    | Comp x y => ua_packed.AppliedOp msig monoids.mult
        (MoreArguments msig tt _ (to_ua x) (MoreArguments msig tt _ (to_ua y) (NoMoreArguments msig tt)))
     end.
 
@@ -117,7 +117,7 @@ Section contents.
 
   Instance: Equiv V := eq.
 
-  Goal ∀ (x y: uaTerm), open_terms.ee msig msig monoid.Laws (ne_list.one tt) x y →
+  Goal ∀ (x y: uaTerm), open_terms.ee msig msig monoids.Laws (ne_list.one tt) x y →
    ` (simplify x) ≡ ` (simplify y).
   Proof.
 

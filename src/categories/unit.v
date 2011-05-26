@@ -1,6 +1,6 @@
 Require Import
-  Morphisms RelationClasses Equivalence Setoid
-  categories abstract_algebra functors.
+  RelationClasses Equivalence
+  categories.categories abstract_algebra categories.functors.
 
 Instance: Arrows unit := λ _ _, unit.
 Instance: CatId unit := λ _, tt.

@@ -1,7 +1,7 @@
 Require Import
-  Relation_Definitions Morphisms Setoid Program Basics
+  Relation_Definitions Basics
   abstract_algebra canonical_names workaround_tactics.
-Require setoids.
+Require theory.setoids.
 
 Local Existing Instance injective_mor.
 Local Existing Instance surjective_mor.

@@ -1,13 +1,12 @@
-Require Import Morphisms Program.
 Require Import abstract_algebra.
 Require universal_algebra.
 
 Module ua := universal_algebra.
 
-Require varieties.monoid.
+Require varieties.monoids.
 Require monoid_normalization.
 
-Notation msig := varieties.monoid.sig.
+Notation msig := varieties.monoids.sig.
 Notation Op := (ua.Op msig False).
 Notation App := (ua.App msig False _ _).
 Notation Term V := (ua.Term0 msig V tt).
@@ -43,9 +42,9 @@ Section contents.
 
   End Lookup.
 
-  Instance: MonoidUnit (Term V) := λ V, ua.Op msig _ monoid.one.
+  Instance: MonoidUnit (Term V) := λ V, ua.Op msig _ monoids.one.
   Instance: SemiGroupOp (Term V) :=
-    λ V x, ua.App msig _ _ _ (ua.App msig _ _ _ (ua.Op msig _ monoid.mult) x).
+    λ V x, ua.App msig _ _ _ (ua.App msig _ _ _ (ua.Op msig _ monoids.mult) x).
 
   Notation eval V vs := (ua.eval _ (λ _, (vs: Vars V))).
 

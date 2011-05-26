@@ -1,11 +1,11 @@
 Require
   theory.shiftl theory.int_pow.
 Require Import
-  QArith BigQ Morphisms Program
-  abstract_algebra interfaces.integers interfaces.rationals 
-  interfaces.additional_operations
+  QArith BigQ
+  abstract_algebra
+  interfaces.integers interfaces.rationals interfaces.additional_operations
   fast_naturals fast_integers field_of_fractions stdlib_rationals.
-Require Export 
+Require Export
   QType_rationals.
 
 Module Import BigQ_Rationals := QType_Rationals BigQ.

@@ -1,5 +1,4 @@
 Require Import
-  Setoid Morphisms
   abstract_algebra universal_algebra.
 
 Section contents.

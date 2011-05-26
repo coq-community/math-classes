@@ -1,5 +1,5 @@
 Require Import
-  Morphisms Ring Program Setoid
+  Ring
   abstract_algebra additional_operations 
   interfaces.orders interfaces.integers
   orders.semirings theory.shiftl theory.int_pow.

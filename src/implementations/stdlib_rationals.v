@@ -1,7 +1,7 @@
 Require
   stdlib_binary_integers Field QArith.Qfield theory.rationals.
 Require Import
-  Program Ring Morphisms QArith_base Qabs Qpower
+  Ring QArith_base Qabs Qpower
   abstract_algebra interfaces.rationals 
   interfaces.orders interfaces.additional_operations
   field_of_fractions.

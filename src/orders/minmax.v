@@ -1,5 +1,5 @@
 Require Import
-  RelationClasses Morphisms
+  RelationClasses
   abstract_algebra interfaces.orders orders.orders theory.setoids.
 
 Section contents.

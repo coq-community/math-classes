@@ -1,5 +1,5 @@
 Require Import 
-  Setoid Program Morphisms Ring
+  Ring
   abstract_algebra 
   theory.fields.
 

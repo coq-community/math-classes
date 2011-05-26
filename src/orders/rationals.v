@@ -1,5 +1,5 @@
 Require Import
-  Morphisms Ring Field Program Setoid
+  Ring Field
   abstract_algebra interfaces.orders
   interfaces.naturals interfaces.rationals interfaces.integers
   natpair_integers theory.rationals theory.dec_fields theory.rings 

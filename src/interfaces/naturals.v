@@ -1,10 +1,10 @@
 Require Import
  Relation_Definitions Morphisms
  abstract_algebra theory.categories
- varieties.semiring categories.variety.
+ varieties.semirings categories.varieties.
 
 Module bad.
-  Class Naturals (A: semiring.Object) `{!InitialArrow A}: Prop :=
+  Class Naturals (A: semirings.Object) `{!InitialArrow A}: Prop :=
     { naturals_initial:> Initial A }.
 End bad.
 
@@ -16,11 +16,11 @@ Section initial_maps.
 
   Context `{NaturalsToSemiRing} `{SemiRing A} `{∀ `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring B)}.
 
-  Program Definition natural_initial_arrow: InitialArrow (semiring.object A) :=
+  Program Definition natural_initial_arrow: InitialArrow (semirings.object A) :=
     λ y u, match u return A → y u with tt => naturals_to_semiring (y tt) end.
 
   Next Obligation.
-   apply (@semiring.mor_from_sr_to_alg (λ _, A) _ _ (semiring.variety A)); apply _.
+   apply (@semirings.mor_from_sr_to_alg (λ _, A) _ _ (semirings.variety A)); apply _.
   Qed.
 
   Global Existing Instance natural_initial_arrow.
@@ -28,12 +28,12 @@ Section initial_maps.
     definition, Program suddenly generates 5 subgoals.. *)
 
   Lemma natural_initial (same_morphism : ∀ `{SemiRing B} {h :  A → B} `{!SemiRing_Morphism h}, naturals_to_semiring B = h) : 
-    Initial (semiring.object A).
+    Initial (semirings.object A).
   Proof.
     intros y [x h] [] ?. simpl in *.
     apply same_morphism.
-      apply semiring.decode_variety_and_ops. 
-     apply (@semiring.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
+      apply semirings.decode_variety_and_ops. 
+     apply (@semirings.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
     reflexivity.
   Qed.
 End initial_maps.
@@ -43,7 +43,7 @@ Instance: Params (@naturals_to_semiring) 7.
 Class Naturals A {e plus mult zero one} `{U: NaturalsToSemiRing A} :=
   { naturals_ring:> @SemiRing A e plus mult zero one
   ; naturals_to_semiring_mor:> ∀ `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
-  ; naturals_initial:> Initial (semiring.object A) }.
+  ; naturals_initial:> Initial (semirings.object A) }.
 
 (* Specializable operations: *)
 Class NatDistance N `{Equiv N} `{RingPlus N}

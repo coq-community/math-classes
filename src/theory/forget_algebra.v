@@ -3,19 +3,19 @@
 This functor should nicely compose with the one forgetting variety laws. *)
 
 Require Import
-  Morphisms Setoid abstract_algebra universal_algebra interfaces.functors
+  Morphisms Coq.Setoids.Setoid abstract_algebra universal_algebra interfaces.functors
   ua_homomorphisms theory.categories
-  categories.setoid categories.product categories.algebra.
+  categories.setoids categories.product categories.algebras.
 
 Section contents.
   Variable sign: Signature.
 
-  Notation TargetObject := (product.Object (λ _: sorts sign, setoid.Object)).
+  Notation TargetObject := (product.Object (λ _: sorts sign, setoids.Object)).
 
-  Let TargetArrows: Arrows TargetObject := @product.pa _ (λ _: sorts sign, setoid.Object) (λ _, _: Arrows setoid.Object).
+  Let TargetArrows: Arrows TargetObject := @product.pa _ (λ _: sorts sign, setoids.Object) (λ _, _: Arrows setoids.Object).
     (* hm, not happy about this *)
 
-  Definition object (v: algebra.Object sign): TargetObject := λ i, setoid.object (v i) (algebra.algebra_equiv sign v i) _.
+  Definition object (v: algebras.Object sign): TargetObject := λ i, setoids.object (v i) (algebras.algebra_equiv sign v i) _.
  
   Global Program Instance: Fmap object := λ _ _, id.
   Next Obligation. destruct x. simpl. apply _. Qed.
@@ -40,7 +40,7 @@ Section contents.
 
   Let hintje: ∀ x y, Equiv (object x ⟶ object y). intros. apply _. Defined. (* todo: shouldn't be necessary *)
 
-  Global Instance mono: ∀ (X Y: algebra.Object sign) (a: X ⟶ Y),
+  Global Instance mono: ∀ (X Y: algebras.Object sign) (a: X ⟶ Y),
     Mono (@fmap _ _ _ TargetArrows object _ _ _ a) → (* todo: too ugly *)
     Mono a.
   Proof with simpl in *; intuition.

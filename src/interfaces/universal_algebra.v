@@ -1,7 +1,7 @@
 Require
-  setoids ne_list.
+  theory.setoids ne_list.
 Require Import
-  Morphisms Setoid Program List
+  List
   abstract_algebra util jections.
 Require Export
   ua_basic.

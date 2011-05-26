@@ -1,5 +1,5 @@
 Require Import 
-  Morphisms Setoid Program List
+  List
   abstract_algebra.
 
 Section contents.

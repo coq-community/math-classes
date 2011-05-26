@@ -1,6 +1,5 @@
 Require Import
-  Morphisms Program Ring
-  abstract_algebra strong_setoids.
+  Ring abstract_algebra strong_setoids.
 Require Export
   theory.rings.
 

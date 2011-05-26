@@ -1,13 +1,14 @@
 Require Import
-  Relation_Definitions Morphisms Setoid Program
-  abstract_algebra setoids interfaces.functors categories.
-Require categories.setoid.
+  Relation_Definitions
+  abstract_algebra theory.setoids interfaces.functors theory.categories.
+
+Require categories.setoids.
 
 Section contents.
 
   Context `{Category C} (x: C).
 
-  Definition homFrom (y: C): setoid.Object := @setoid.object (x ⟶ y) _ _.
+  Definition homFrom (y: C): setoids.Object := @setoids.object (x ⟶ y) _ _.
 
   Global Program Instance: Fmap homFrom := λ v w X, (X ◎): (x ⟶ v) → (x ⟶ w).
   Next Obligation. constructor; apply _. Qed.

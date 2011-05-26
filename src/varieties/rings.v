@@ -1,8 +1,8 @@
 (* To be imported qualified. *)
 Require
-  categories.variety theory.rings.
+  categories.varieties theory.rings.
 Require Import
-  Program Morphisms Ring
+  Ring
   abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
 
 Inductive op := plus | mult | zero | one | opp.
@@ -40,7 +40,7 @@ Section laws.
 End laws.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
-Definition Object := variety.Object theory.
+Definition Object := varieties.Object theory.
 
 (* Now follow a series of encoding/decoding functions to convert between the
  specialized Ring/Ring_Morphism type classes and the universal
@@ -70,7 +70,7 @@ Section encode_with_ops.
   Global Instance encode_variety_and_ops: InVariety theory (λ _, A).
   Proof. constructor. apply _. intros ? [] ?; simpl; unfold algebra_op; simpl; ring. Qed.
 
-  Definition object: Object := variety.object theory (λ _, A).
+  Definition object: Object := varieties.object theory (λ _, A).
 End encode_with_ops.
 
 Lemma encode_algebra_only `{!AlgebraOps theory A} `{∀ u, Equiv (A u)} `{!Ring (A tt)}: Algebra sig A .

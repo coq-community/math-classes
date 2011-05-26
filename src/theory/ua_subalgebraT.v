@@ -4,10 +4,10 @@ instead of Prop (and with carrier sigT instead of sig).
 Hopefully one day Coq's universe polymorphism will permit a merge of sig and sigT,
 at which point we may try to merge ua_subalgebra and ua_subalgebraT as well. *)
 Require Import
-  RelationClasses Morphisms Program
+  RelationClasses
   universal_algebra ua_homomorphisms theory.categories abstract_algebra.
 Require
-  categories.algebra.
+  categories.algebras.
 
 Section subalgebras.
   Context `{Algebra sign A} (P: ∀ s, A s → Type).

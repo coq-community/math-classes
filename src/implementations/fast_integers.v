@@ -1,6 +1,6 @@
 Require Import 
-  Morphisms BigZ
-  interfaces.abstract_algebra interfaces.integers 
+  BigZ
+  interfaces.abstract_algebra interfaces.integers
   interfaces.additional_operations fast_naturals.
 Require Export
   ZType_integers.

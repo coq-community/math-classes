@@ -2,9 +2,9 @@
  define what a kernel is, and show that kernels are ideal. *)
 
 Require Import
-  Ring Morphisms Program
+  Ring
   ua_congruence abstract_algebra theory.rings.
-Require varieties.ring.
+Require varieties.rings.
 
 Section ideal_congruence. 
   Context `{Ring R}.
@@ -79,11 +79,11 @@ Section ideal_congruence.
    rewrite E. intuition.
   Qed.
 
-  Let hint := ring.encode_operations R.
+  Let hint := rings.encode_operations R.
 
-  Instance: Congruence ring.sig (λ _, congruence).
+  Instance: Congruence rings.sig (λ _, congruence).
   Proof.
-   constructor. intro. apply _. apply ring.encode_algebra_and_ops.
+   constructor. intro. apply _. apply rings.encode_algebra_and_ops.
    assert (∀ x y, @equiv _ e x y → congruence x y) as e_cong.
      unfold congruence. intros ? ? E. rewrite E, plus_opp_r. intuition.
    repeat (constructor; try apply _); repeat intro; apply e_cong; try firstorder.
@@ -91,9 +91,9 @@ Section ideal_congruence.
 
   Instance: Ring R (e:=congruence).
   Proof.
-   apply (@ring.decode_variety_and_ops (λ _, R) (λ _, congruence) hint).
-   pose proof (ring.encode_variety_and_ops R).
-   apply (quotient_variety ring.theory); try apply _.
+   apply (@rings.decode_variety_and_ops (λ _, R) (λ _, congruence) hint).
+   pose proof (rings.encode_variety_and_ops R).
+   apply (quotient_variety rings.theory); try apply _.
    intros ? []; intuition.
   Qed.
 
