@@ -118,13 +118,13 @@ Section pseudo_order.
   Qed.
 End pseudo_order.
 
-Section strict_partial_order.
-  Context `{StrictPartialOrder A}.
+Section full_partial_order.
+  Context `{FullPartialOrder A}.
 
   Instance: StrongSetoid A := strict_po_setoid.
 
   (* Duplicate of strong_setoids.apart_ne. This is useful because a
-    StrongSetoid is not defined as a substructure of a StrictPartialOrder *)
+    StrongSetoid is not defined as a substructure of a FullPartialOrder *)
   Instance strict_po_apart_ne x y : PropHolds (x ⪥ y) → PropHolds (x ≠ y).
   Proof. intros. apply _. Qed.
 
@@ -223,7 +223,7 @@ Section strict_partial_order.
      left. apply lt_iff_le_ne; intuition.
     right. now apply not_le_not_lt.
   Defined.
-End strict_partial_order.
+End full_partial_order.
 
 (* Due to bug #2528 *)
 Hint Extern 5 (PropHolds (_ ≠ _)) => eapply @strict_po_apart_ne :  typeclass_instances.
@@ -255,7 +255,7 @@ Section full_pseudo_order.
     now apply (antisymmetry (complement (<))).
   Qed.
 
-  Global Instance: StrictPartialOrder (_ : Le A) (_ : Lt A).
+  Global Instance: FullPartialOrder (_ : Le A) (_ : Lt A).
   Proof.
     split; try apply _.
     intros x y. rewrite !le_iff_not_lt_flip. split.
@@ -358,7 +358,7 @@ Section dec_partial_order.
 
   Instance: StrongSetoid A := dec_strong_setoid.
 
-  Instance dec_strict_partial_order: StrictPartialOrder (≤) (<).
+  Instance dec_full_partial_order: FullPartialOrder (≤) (<).
   Proof. split; try apply _. intros x y. now rewrite trivial_apart, lt_correct. Qed.
 
   Context `{!TotalRelation (≤)}.

@@ -4,7 +4,7 @@ Require Import
 (* If a function between strict partial orders is order preserving (back), we can 
   derive that it is strcitly order preserving (back) *)
 Section strictly_order_preserving.
-  Context `{StrictPartialOrder A} `{StrictPartialOrder B}.
+  Context `{FullPartialOrder A} `{FullPartialOrder B}.
 
   Global Instance strictly_order_preserving_inj  `{!OrderPreserving (f : A → B)} `{!StrongInjective f} : 
     StrictlyOrderPreserving f | 20.
@@ -29,7 +29,7 @@ End strictly_order_preserving.
 
 (* For structures with a trivial apartness relation we have a stronger result of the above *)
 Section strictly_order_preserving_dec.
-  Context `{StrictPartialOrder A} `{!TrivialApart A} `{StrictPartialOrder B} `{!TrivialApart B}.
+  Context `{FullPartialOrder A} `{!TrivialApart A} `{FullPartialOrder B} `{!TrivialApart B}.
 
   Instance: StrongSetoid A := strict_po_setoid.
   Instance: StrongSetoid B := strict_po_setoid.

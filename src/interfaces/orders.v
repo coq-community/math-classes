@@ -11,7 +11,7 @@ between the usual classical notions and these constructive notions.
  
 On the one hand, if we have an ordinary (total) partial order (≤) with a 
 corresponding strict order (<), we will prove that we can construct a
-StrictPartialOrder and PseudoPartialOrder, respectively.
+FullPartialOrder and PseudoPartialOrder, respectively.
   
 On the other hand, if equality is decidable, we will prove that we have the
 usual properties like Trichotomy (<) and TotalRelation (≤).
@@ -40,7 +40,7 @@ Class PseudoOrder `{e : Equiv A} `{ap : Apart A} (so : Lt A) : Prop :=
 
 (* A partial order (≤) with a corresponding (<). We will prove that (<) is in fact
   a StrictSetoidOrder *)
-Class StrictPartialOrder `{e : Equiv A} `{ap : Apart A} (o : Le A) (so : Lt A) : Prop :=
+Class FullPartialOrder `{e : Equiv A} `{ap : Apart A} (o : Le A) (so : Lt A) : Prop :=
   { strict_po_setoid : StrongSetoid A 
   ; strict_po_po :> PartialOrder (≤)
   ; strict_po_trans :> Transitive (<)
