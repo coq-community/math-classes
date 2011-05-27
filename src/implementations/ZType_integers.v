@@ -38,7 +38,7 @@ Proof. repeat split; repeat intro; axioms.zify; auto with zarith. Qed.
 
 Instance: Ring t | 10 := rings.from_stdlib_ring_theory ZType_ring_theory.
 
-Instance inject_ZType_Z: Coerce t Z := to_Z.
+Instance inject_ZType_Z: Cast t Z := to_Z.
 
 Instance: Proper ((=) ==> (=)) to_Z. 
 Proof. intros x y E. easy. Qed.
@@ -52,7 +52,7 @@ Proof.
   exact spec_1.
 Qed.
 
-Instance inject_Z_ZType: Coerce Z t := of_Z.
+Instance inject_Z_ZType: Cast Z t := of_Z.
 Instance: Inverse to_Z := of_Z.
 
 Instance: Surjective to_Z.

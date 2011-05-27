@@ -10,7 +10,7 @@ Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder Rlt Rle}.
 Add Ring R : (rings.stdlib_semiring_theory R).
 
 (* * Embedding of R⁺ into R *)
-Global Instance NonNeg_inject: Coerce (R⁺) R := @proj1_sig R _.
+Global Instance NonNeg_inject: Cast (R⁺) R := @proj1_sig R _.
 
 (* Operations *)
 Global Program Instance NonNeg_plus: RingPlus (R⁺) := λ x y, (x + y)↾_. 

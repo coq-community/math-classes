@@ -73,7 +73,7 @@ Section for_another_ring.
   Section for_another_morphism.
     Context (f : Z → R) `{!SemiRing_Morphism f}.
 
-    Definition g : N → R := f ∘ coerce N (SRpair N).
+    Definition g : N → R := f ∘ cast N (SRpair N).
 
     Instance: Proper ((=) ==> (=)) g.
     Proof. intros x y E. unfold g. now rewrite E. Qed.
@@ -106,7 +106,7 @@ Proof. apply integer_initial. intros. apply same_morphism. auto. Qed.
 Global Instance: Integers Z := {}.
 
 Lemma NtoZ_uniq x : naturals_to_semiring N Z x = 'x.
-Proof. symmetry. apply (naturals.to_semiring_unique (coerce N (SRpair N)) x). Qed. 
+Proof. symmetry. apply (naturals.to_semiring_unique (cast N (SRpair N)) x). Qed. 
 
 Context `{!NatDistance N}.
 Global Program Instance simpleZ_abs : IntAbs Z N := λ x, nat_distance (pos x) (neg x).

@@ -205,10 +205,10 @@ Notation "(◎ f )" := (λ g, comp _ _ _ g f) (only parsing).
 (* Haskell style! *)
 Notation "(→)" := (λ x y, x → y).
 
-Class Coerce A B := coerce: A → B.
-Implicit Arguments coerce [[Coerce]].
-Notation "' x" := (coerce _ _ x) (at level 20).
-Instance: Params (@coerce) 3.
+Class Cast A B := cast: A → B.
+Implicit Arguments cast [[Cast]].
+Notation "' x" := (cast _ _ x) (at level 20).
+Instance: Params (@cast) 3.
 
 Class Abs A `{Equiv A} `{Le A} `{RingZero A} `{GroupInv A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
 Definition abs `{Abs A} := λ x : A, ` (abs_sig x).

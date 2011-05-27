@@ -32,7 +32,7 @@ Global Instance Frac_dec : ∀ x y: Frac R, Decision (x = y)
   := λ x y, decide_rel (=) (num x * den y) (num y * den x).
 
 (* injection from R *)
-Global Program Instance Frac_inject: Coerce R (Frac R) := λ r, frac r 1 _.
+Global Program Instance Frac_inject: Cast R (Frac R) := λ r, frac r 1 _.
 Next Obligation. exact (is_ne_0 1). Qed.
 
 Instance: Proper ((=) ==> (=)) Frac_inject.

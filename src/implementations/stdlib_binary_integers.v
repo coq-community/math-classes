@@ -38,7 +38,7 @@ Instance: ∀ x y : Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
 (* * Embedding N into Z *)
-Instance inject_N_Z: Coerce BinNat.N Z := Z_of_N.
+Instance inject_N_Z: Cast BinNat.N Z := Z_of_N.
 
 Instance: SemiRing_Morphism Z_of_N.
 Proof.
@@ -79,7 +79,7 @@ Proof.
   split; try apply _.
   intros [xp xn] [yp yn] E.
   unfold Npair_to_Z in E. do 2 red. simpl in *.
-  apply (injective (coerce N Z)).
+  apply (injective (cast N Z)).
   rewrite ?rings.preserves_plus.
   apply (right_cancellation (+) ('xp - 'xn)). rewrite E at 1. ring.
 Qed.
@@ -136,7 +136,7 @@ Proof.
 Qed.
 
 (* * Embedding of the Peano naturals into [Z] *)
-Instance inject_nat_Z: Coerce nat Z := Z_of_nat.
+Instance inject_nat_Z: Cast nat Z := Z_of_nat.
 
 Instance: SemiRing_Morphism Z_of_nat.
 Proof.

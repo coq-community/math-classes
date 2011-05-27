@@ -7,7 +7,7 @@ Require Export
 
 Module BigZ_Integers := ZType_Integers BigZ.
 
-Instance inject_fastN_fastZ: Coerce bigN bigZ := BigZ.Pos.
+Instance inject_fastN_fastZ: Cast bigN bigZ := BigZ.Pos.
 
 Instance: SemiRing_Morphism inject_fastN_fastZ.
 Proof. repeat (split; try apply _); intuition. Qed.
@@ -22,7 +22,7 @@ Proof.
   intros x n.
   rewrite rings.preserves_plus, rings.preserves_1, BigZ.add_1_l.
   apply BigZ.pow_succ_r.
-  change (0 ≤ coerce bigN bigZ n).
+  change (0 ≤ cast bigN bigZ n).
   now apply naturals.to_semiring_nonneg.
 Qed.
 
@@ -32,6 +32,6 @@ Instance: ShiftLSpec bigZ bigN _.
 Proof.
   apply shiftl_spec_from_nat_pow.
   intros. apply BigZ.shiftl_mul_pow2.
-  change (0 ≤ coerce bigN bigZ n).
+  change (0 ≤ cast bigN bigZ n).
   now apply naturals.to_semiring_nonneg.
 Qed.

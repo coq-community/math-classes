@@ -24,7 +24,7 @@ Proof dec_fields.from_stdlib_field_theory Qfield.Qsft eq_refl.
 (* misc: *)
 Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 
-Instance inject_Z_Q: Coerce Z Q := inject_Z.
+Instance inject_Z_Q: Cast Z Q := inject_Z.
 
 Instance: Proper ((=) ==> (=)) inject_Z. 
 Proof. intros x y H. unfold inject_Z. repeat red. simpl. now rewrite H. Qed.
@@ -41,7 +41,7 @@ Proof.
  intros x y. change (x * 1 = y * 1 → x = y). rewrite 2!rings.mult_1_r. intuition.
 Qed.
 
-Program Instance Q_to_fracZ: Coerce Q (Frac Z) := λ x, frac (Qnum x) (Zpos (Qden x)) _.
+Program Instance Q_to_fracZ: Cast Q (Frac Z) := λ x, frac (Qnum x) (Zpos (Qden x)) _.
 
 Instance: Proper ((=) ==> (=)) Q_to_fracZ.
 Proof. intros ? ? E. easy. Qed.
@@ -113,7 +113,7 @@ Proof.
   intros. now apply Qpower_plus.
 Qed.
 
-Instance Q_Npow: Pow Q N := λ x n, Qpower x (coerce N Z n).
+Instance Q_Npow: Pow Q N := λ x n, Qpower x (cast N Z n).
 
 Instance: NatPowSpec Q N Q_Npow.
 Proof.
@@ -124,7 +124,7 @@ Proof.
   rewrite rings.preserves_plus.
   rewrite Qpower_plus'.
    reflexivity.
-  change (1 + coerce N Z n ≠ 0).
+  change (1 + cast N Z n ≠ 0).
   apply orders.lt_ne_flip.
   rewrite commutativity.
   now apply integers.le_iff_lt_plus_1, naturals.to_semiring_nonneg.
