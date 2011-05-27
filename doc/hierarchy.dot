@@ -1,0 +1,25 @@
+digraph {
+  size="5,3";
+  margin=0;
+  rankdir=BT;
+  ranksep="0.4;
+  StrongSetoid [fillcolor=lightgrey,style=filled]
+  Field [fillcolor=lightgrey,style=filled]
+  StrongSetoid -> Setoid [style=dotted]
+  SemiGroup -> Setoid
+  Monoid -> SemiGroup
+  CommutativeMonoid -> Monoid
+  Group -> Monoid
+  AbGroup -> Group
+  SemiRing -> CommutativeMonoid
+  SemiRing -> CommutativeMonoid
+  Ring -> SemiRing [style=dotted]
+  Ring -> AbGroup
+  Ring -> CommutativeMonoid
+  IntegralDomain -> Ring
+  Field -> Ring
+  Field -> StrongSetoid
+  Field -> IntegralDomain [style=dotted]
+  DecField -> Ring
+  DecField -> Field [style=dotted]
+}

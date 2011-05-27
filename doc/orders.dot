@@ -1,0 +1,30 @@
+digraph {
+  size="5,3";
+  margin=0;
+  rankdir=BT;
+//  StrongSetoid [fillcolor=lightgrey,style=filled]
+  FullPartialOrder [fillcolor=lightgrey,style=filled]
+  PseudoOrder [fillcolor=lightgrey,style=filled]
+  FullPseudoOrder [fillcolor=lightgrey,style=filled]
+  PseudoSemiRingOrder [fillcolor=lightgrey,style=filled]
+  FullPseudoSemiRingOrder [fillcolor=lightgrey,style=filled]
+  
+  StrictSetoidOrder -> StrictOrder
+//  StrictSetoidOrder -> Setoid
+  PartialOrder -> PreOrder
+//  PartialOrder -> Setoid
+  FullPartialOrder -> PartialOrder
+//  FullPartialOrder -> StrongSetoid
+  FullPartialOrder -> StrictSetoidOrder [style=dotted]
+  PseudoOrder -> StrictSetoidOrder [style=dotted]
+//  PseudoOrder -> StrongSetoid
+  FullPseudoOrder -> PseudoOrder
+  FullPseudoOrder -> FullPartialOrder [style=dotted]
+  SemiRingOrder -> PartialOrder
+  StrictSemiRingOrder -> StrictSetoidOrder
+  PseudoSemiRingOrder -> PseudoOrder
+  PseudoSemiRingOrder -> StrictSemiRingOrder [style=dotted]
+  FullPseudoSemiRingOrder -> PseudoSemiRingOrder
+  FullPseudoSemiRingOrder -> FullPseudoOrder [style=dotted]
+  FullPseudoSemiRingOrder -> SemiRingOrder [style=dotted]
+}
