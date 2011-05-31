@@ -200,7 +200,7 @@ Proof.
    rewrite int_pow_S.
     now apply pos_mult_compat.
    apply not_symmetry. now apply orders.lt_ne.
-  apply (strictly_order_preserving_back (x *.)).
+  apply (strictly_order_reflecting (x *.)).
   rewrite <-int_pow_S.
    now rewrite right_absorb.
   apply not_symmetry. now apply orders.lt_ne.
@@ -288,7 +288,7 @@ Proof.
 Qed.
 
 Instance int_pow_exp_le_back:
-  ∀ x : A, PropHolds (1 < x) → OrderPreservingBack (x^).
+  ∀ x : A, PropHolds (1 < x) → OrderReflecting (x^).
 Proof.
   split; try apply _. intros n m E1.
   destruct (total (≤) n m) as [E2|E2]; trivial. 
@@ -300,14 +300,14 @@ Proof.
 Qed.
 
 Instance int_pow_exp_lt_back: 
-  ∀ x : A, PropHolds (1 < x) → StrictlyOrderPreservingBack (x^).
+  ∀ x : A, PropHolds (1 < x) → StrictlyOrderReflecting (x^).
 Proof. intros ? E1. apply _. Qed.
 
 Instance int_pow_inj:
   ∀ x : A, PropHolds (1 < x) → Injective (x^).
 Proof.
   repeat (split; try apply _). intros n m E.
-  apply (antisymmetry (≤)); apply (order_preserving_back (x^)); trivial; rewrite E; reflexivity.
+  apply (antisymmetry (≤)); apply (order_reflecting (x^)); trivial; rewrite E; reflexivity.
 Qed.
 End int_pow_properties.
 
@@ -408,9 +408,9 @@ Section int_pow_default.
       apply (antisymmetry (≤)).
        apply orders.not_le_lt_flip in E1.
        apply integers.lt_iff_plus_1_le in E1. 
-       apply (order_preserving_back (+1)).
+       apply (order_reflecting (+1)).
        now ring_simplify.
-      apply (order_preserving_back (1+)). now rewrite rings.plus_opp_r.
+      apply (order_reflecting (1+)). now rewrite rings.plus_opp_r.
      destruct E2. apply semirings.nonneg_plus_compat; [solve_propholds | assumption].
      rewrite <-int_abs_opp, <-(int_abs_opp n).
      setoid_replace (-n) with (1 - (1 + n)) by ring.

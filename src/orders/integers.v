@@ -69,7 +69,7 @@ Section another_ring.
   Global Instance: OrderEmbedding f.
   Proof.
     split. apply _.
-    now apply preserving_back_preserves_nonneg, f_preserves_nonneg_back.
+    now apply reflecting_preserves_nonneg, f_preserves_nonneg_back.
   Qed.
 End another_ring.
 End integers_order.
@@ -84,7 +84,7 @@ Global Program Instance: ∀ x y: Int, Decision (x ≤ y) | 10 := λ x y,
   | right E => right _
   end.
 Next Obligation.
-  now apply (order_preserving_back (integers_to_ring _ (SRpair nat))). 
+  now apply (order_reflecting (integers_to_ring _ (SRpair nat))). 
 Qed.
 Next Obligation.
   intros F. apply E.
@@ -105,7 +105,7 @@ Proof.
     now ring_simplify in F1.
    intros F3. apply F2. 
    simpl. rewrite associativity, F3. ring.
-  apply (order_preserving_back (integers_to_ring _ (SRpair nat))), P.
+  apply (order_reflecting (integers_to_ring _ (SRpair nat))), P.
   rewrite <-(preserves_1 (f:=integers_to_ring Int (SRpair nat))), <-preserves_plus.
   now apply (strictly_order_preserving (integers_to_ring _ (SRpair nat))).
 Qed.
@@ -114,7 +114,7 @@ Lemma lt_iff_plus_1_le x y : x < y ↔ x + 1 ≤ y.
 Proof.
   split; intros E.
    apply le_iff_lt_plus_1. now apply (strictly_order_preserving (+ 1)).
-  apply (strictly_order_preserving_back (+ 1)). now apply le_iff_lt_plus_1.
+  apply (strictly_order_reflecting (+ 1)). now apply le_iff_lt_plus_1.
 Qed.
 
 Lemma induction
@@ -150,8 +150,8 @@ Proof with auto.
   intros n E1 ? E2.
   destruct (is_ne_0 1).
   apply (antisymmetry (≤)).
-   apply (order_preserving_back ((n - 1) +)). ring_simplify. now transitivity 0.
-  transitivity (n - 1)... apply (order_preserving_back (1 +)). ring_simplify.
+   apply (order_reflecting ((n - 1) +)). ring_simplify. now transitivity 0.
+  transitivity (n - 1)... apply (order_reflecting (1 +)). ring_simplify.
   transitivity 0... apply semirings.le_0_2.
 Qed.
 

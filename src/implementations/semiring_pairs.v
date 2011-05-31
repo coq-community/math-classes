@@ -122,7 +122,7 @@ Section with_semiring_order.
   Proof.
     assert (∀ x1 y1 : SRpair SR, x1 = y1 → ∀ x2 y2, x2 = y2 → x1 ≤ x2 → y1 ≤ y2) as E.
      unfold_le. intros [xp1 xn1] [yp1 yn1] E1 [xp2 xn2] [yp2 yn2] E2 F. simpl in *.
-     apply (order_preserving_back (+ (xp2 + xn1))).
+     apply (order_reflecting (+ (xp2 + xn1))).
      setoid_replace (yp1 + yn2 + (xp2 + xn1)) with ((yp1 + xn1) + (xp2 + yn2)) by ring.
      rewrite <-E1, E2.
      setoid_replace (xp1 + yn1 + (yp2 + xn2)) with ((yp2 + yn1) + (xp1 + xn2)) by ring.
@@ -144,7 +144,7 @@ Section with_semiring_order.
   Proof.
     intros [xp xn] [yp yn] [zp zn] E1 E2. 
     unfold SRpair_le in *. simpl in *.
-    apply (order_preserving_back (+ (yn + yp))).
+    apply (order_reflecting (+ (yn + yp))).
     setoid_replace (xp + zn + (yn + yp)) with ((xp + yn) + (yp + zn)) by ring.
     setoid_replace (zp + xn + (yn + yp)) with ((yp + xn) + (zp + yn)) by ring.
     now apply plus_le_compat.
@@ -191,7 +191,7 @@ Section with_strict_semiring_order.
   Proof.
     assert (∀ x1 y1 : SRpair SR, x1 = y1 → ∀ x2 y2, x2 = y2 → x1 < x2 → y1 < y2) as E.
      unfold_le. intros [xp1 xn1] [yp1 yn1] E1 [xp2 xn2] [yp2 yn2] E2 F. simpl in *.
-     apply (strictly_order_preserving_back (+ (xp2 + xn1))).
+     apply (strictly_order_reflecting (+ (xp2 + xn1))).
      setoid_replace (yp1 + yn2 + (xp2 + xn1)) with ((yp1 + xn1) + (xp2 + yn2)) by ring.
      rewrite <-E1, E2.
      setoid_replace (xp1 + yn1 + (yp2 + xn2)) with ((yp2 + yn1) + (xp1 + xn2)) by ring.
@@ -206,7 +206,7 @@ Section with_strict_semiring_order.
   Proof.
     intros [xp xn] [yp yn] [zp zn] E1 E2. 
     unfold SRpair_lt in *. simpl in *.
-    apply (strictly_order_preserving_back (+ (yn + yp))).
+    apply (strictly_order_reflecting (+ (yn + yp))).
     setoid_replace (xp + zn + (yn + yp)) with ((xp + yn) + (yp + zn)) by ring.
     setoid_replace (zp + xn + (yn + yp)) with ((yp + xn) + (zp + yn)) by ring.
     now apply plus_lt_compat.
@@ -270,9 +270,9 @@ Section with_full_pseudo_semiring_order.
       intros [xp xn] [yp yn] E [zp zn]. unfold lt, SRpair_lt in *. simpl in *.
       apply (strictly_order_preserving (zn +)) in E.
       edestruct (cotransitive E).
-       left. apply (strictly_order_preserving_back (+ yn)). 
+       left. apply (strictly_order_reflecting (+ yn)). 
        setoid_replace (xp + zn + yn) with (zn + (xp + yn)) by ring. eassumption.
-      right. apply (strictly_order_preserving_back (+ xn)).
+      right. apply (strictly_order_reflecting (+ xn)).
       setoid_replace (zp + yn + xn) with (zp + xn + yn) by ring.
       setoid_replace (yp + zn + xn) with (zn + (yp + xn)) by ring.
       eassumption.

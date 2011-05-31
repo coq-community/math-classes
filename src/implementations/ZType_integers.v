@@ -159,11 +159,11 @@ Proof.
     destruct (Z_mod_remainder (to_Z x) (to_Z y)) as [[Hl Hr] | [Hl Hr]].
       intro. apply Ey. apply (injective to_Z). now rewrite rings.preserves_0.
      left; split.
-      apply (order_preserving_back to_Z). now rewrite spec_modulo, rings.preserves_0.
-     apply (strictly_order_preserving_back to_Z). now rewrite spec_modulo.
+      apply (order_reflecting to_Z). now rewrite spec_modulo, rings.preserves_0.
+     apply (strictly_order_reflecting to_Z). now rewrite spec_modulo.
     right; split.
-      apply (strictly_order_preserving_back to_Z). now rewrite spec_modulo.
-     apply (order_preserving_back to_Z). now rewrite spec_modulo, rings.preserves_0.
+      apply (strictly_order_reflecting to_Z). now rewrite spec_modulo.
+     apply (order_reflecting to_Z). now rewrite spec_modulo, rings.preserves_0.
    intros x. unfold_equiv. rewrite spec_div, rings.preserves_0. now apply Zdiv_0_r.
   intros x. unfold_equiv. rewrite spec_modulo, rings.preserves_0. now apply Zmod_0_r.
 Qed.

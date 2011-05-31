@@ -91,7 +91,7 @@ Global Program Instance slow_nat_le_dec: ∀ x y: N, Decision (x ≤ y) | 10 := 
   | right E => right _
   end.
 Next Obligation. 
-  now apply (order_preserving_back (naturals_to_semiring N nat)). 
+  now apply (order_reflecting (naturals_to_semiring N nat)). 
 Qed.
 Next Obligation.
   intros F. apply E.
@@ -124,13 +124,13 @@ Lemma lt_iff_plus_1_le x y : x < y ↔ x + 1 ≤ y.
 Proof.
   split; intros E.
    apply le_iff_lt_plus_1. now apply (strictly_order_preserving (+ 1)).
-  apply (strictly_order_preserving_back (+ 1)). now apply le_iff_lt_plus_1.
+  apply (strictly_order_reflecting (+ 1)). now apply le_iff_lt_plus_1.
 Qed.
 
-Global Instance: ∀ (z : N), PropHolds (z ≠ 0) → OrderPreservingBack (z *.).
+Global Instance: ∀ (z : N), PropHolds (z ≠ 0) → OrderReflecting (z *.).
 Proof.
    intros z ?. 
-   apply (order_preserving_back_pos (.*.) z).
+   apply (order_reflecting_pos (.*.) z).
    apply lt_iff_le_ne. split.
     apply naturals_nonneg. 
    now apply not_symmetry.

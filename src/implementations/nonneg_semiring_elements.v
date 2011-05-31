@@ -94,11 +94,11 @@ Proof.
     exists (z↾Ez1); intuition.
    destruct E as [z [Ez1 Ez2]].
    rewrite Ez2.
-   apply (order_preserving_back NonNeg_inject).
+   apply (order_reflecting NonNeg_inject).
    rewrite rings.preserves_plus.
    now apply nonneg_plus_compat_r.
   intros x E1 y E2.
-  apply (order_preserving_back NonNeg_inject).
+  apply (order_reflecting NonNeg_inject).
   rewrite rings.preserves_0, rings.preserves_mult.
   now apply srorder_mult.
 Qed.

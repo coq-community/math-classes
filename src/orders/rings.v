@@ -235,17 +235,17 @@ Section another_ring_order.
     pose proof (projected_partial_order f).
     apply from_ring_order.
      repeat (split; try apply _). intros x y E. 
-     apply (order_preserving_back f). rewrite 2!preserves_plus.
+     apply (order_reflecting f). rewrite 2!preserves_plus.
      now do 2 apply (order_preserving _).
     intros x y E1 E2. 
-    apply (order_preserving_back f). 
+    apply (order_reflecting f). 
     rewrite preserves_mult, preserves_0.
     solve_propholds.
   Qed.
 
   Context `{!SemiRingOrder R2le} {f : R1 → R2} `{!SemiRing_Morphism f}.
 
-  Lemma preserving_back_preserves_nonneg : (∀ x, 0 ≤ f x → 0 ≤ x) → OrderPreservingBack f.
+  Lemma reflecting_preserves_nonneg : (∀ x, 0 ≤ f x → 0 ≤ x) → OrderReflecting f.
   Proof.
     intros E.
     repeat (split; try apply _).
@@ -271,10 +271,10 @@ Section another_strict_ring_order.
     pose proof (projected_strict_order f).
     apply from_strict_ring_order.
      repeat (split; try apply _). intros x y E. 
-     apply (strictly_order_preserving_back f). rewrite 2!preserves_plus.
+     apply (strictly_order_reflecting f). rewrite 2!preserves_plus.
      now do 2 apply (strictly_order_preserving _).
     intros x y E1 E2. 
-    apply (strictly_order_preserving_back f). rewrite preserves_mult, preserves_0.
+    apply (strictly_order_reflecting f). rewrite preserves_mult, preserves_0.
     solve_propholds.
   Qed.
 End another_strict_ring_order.

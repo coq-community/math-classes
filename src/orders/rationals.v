@@ -45,7 +45,7 @@ Section rationals_and_another_rationals.
     destruct (rationals_decompose_pos_den (SRpair nat) x) as [num [den [E1 E2]]].
     rewrite E2 in E |- *. clear E2.
     rewrite preserves_mult, preserves_dec_mult_inv.
-    apply (order_preserving_back_pos (.*.) (f (i_to_r den))).
+    apply (order_reflecting_pos (.*.) (f (i_to_r den))).
      change (0 < (f ∘ i_to_r) den).
      rewrite (integers.to_ring_unique _).
      apply semirings.preserves_pos. unfold lt in *. apply E1.
@@ -57,7 +57,7 @@ Section rationals_and_another_rationals.
        rewrite (integers.to_ring_unique _).
        rewrite <-(preserves_0 (f:=integers_to_ring (SRpair nat) Q2)).
        apply (order_preserving _).
-       apply (order_preserving_back i_to_r).
+       apply (order_reflecting i_to_r).
        now rewrite preserves_0.
       apply injective_ne_0. now apply lt_ne_flip.
      change ((f ∘ i_to_r) den ≠ 0).

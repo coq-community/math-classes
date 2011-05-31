@@ -311,8 +311,8 @@ Lemma nonneg_mant (x : Dyadic) : 0 ≤ x ↔ 0 ≤ mant x.
 Proof.
   split; intros E.
    unfold le, dy_le, DtoQ_slow in E. simpl in *.
-   apply (order_preserving_back ZtoStdQ).
-   apply (order_preserving_back (.* 2 ^ expo x)).
+   apply (order_reflecting ZtoStdQ).
+   apply (order_reflecting (.* 2 ^ expo x)).
    now rewrite rings.preserves_0, left_absorb in E |- *.
   unfold le, dy_le, DtoQ_slow. simpl.
   apply (order_preserving ZtoStdQ) in E.

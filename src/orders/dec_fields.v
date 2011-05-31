@@ -11,7 +11,7 @@ Add Ring F : (stdlib_ring_theory F).
 Instance pos_dec_mult_inv_compat x : PropHolds (0 < x) → PropHolds (0 < /x).
 Proof.
   intros E.
-  apply (strictly_order_preserving_back (x *.)).
+  apply (strictly_order_reflecting (x *.)).
   rewrite dec_mult_inverse by now apply orders.lt_ne_flip.
   rewrite mult_0_r. solve_propholds.
 Qed.
@@ -44,10 +44,10 @@ Qed.
 Lemma flip_le_dec_mult_inv x y : 0 < y → y ≤ x  → /x ≤ /y.
 Proof with trivial.
   intros E1 E2.
-  apply (order_preserving_back_pos (.*.) x)...
+  apply (order_reflecting_pos (.*.) x)...
    now apply lt_le_trans with y.
   rewrite dec_mult_inverse.
-   apply (order_preserving_back_pos (.*.) y)...
+   apply (order_reflecting_pos (.*.) y)...
    rewrite (commutativity x), associativity, dec_mult_inverse.
     now ring_simplify.
    now apply lt_ne_flip.
@@ -74,10 +74,10 @@ Lemma flip_lt_dec_mult_inv x y : 0 < y → y < x  → /x < /y.
 Proof.
   intros E1 E2.
   assert (PropHolds (0 < x)) by (red; now transitivity y).
-  apply (strictly_order_preserving_back (x *.)).
+  apply (strictly_order_reflecting (x *.)).
   rewrite dec_mult_inverse.
    assert (PropHolds (0 < y)) by easy.
-   apply (strictly_order_preserving_back (y *.)).
+   apply (strictly_order_reflecting (y *.)).
    rewrite (commutativity x), associativity, dec_mult_inverse.
     now ring_simplify.
    now apply lt_ne_flip.

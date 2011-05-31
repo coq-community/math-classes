@@ -12,13 +12,13 @@ Section semiring_order.
   Proof.
     intro. split.
      now apply order_preserving_flip.
-    now apply order_preserving_back_flip.
+    now apply order_reflecting_flip.
   Qed.
 
   Global Instance: ∀ z, LeftCancellation (+) z.
   Proof.
     intros z x y E.
-    apply (antisymmetry (≤)); apply (order_preserving_back (z+)); now apply eq_le.
+    apply (antisymmetry (≤)); apply (order_reflecting (z+)); now apply eq_le.
   Qed.
 
   Global Instance: ∀ z, RightCancellation (+) z.
@@ -55,7 +55,7 @@ Section semiring_order.
     intros E.
     destruct (srorder_partial_minus x y E) as [z Ez].
     exists z. split; [| easy].
-    apply (order_preserving_back (x+)).
+    apply (order_reflecting (x+)).
     now rewrite plus_0_r, <-Ez.
   Qed.
 
@@ -148,7 +148,7 @@ Section strict_semiring_order.
   Proof.
     intro. split.
      now apply strictly_order_preserving_flip.
-    now apply strictly_order_preserving_back_flip.
+    now apply strictly_order_reflecting_flip.
   Qed.
 
   Lemma pos_plus_lt_compat_r x z : 0 < z → x < x + z.
@@ -189,7 +189,7 @@ Section strict_semiring_order.
     intros E.
     destruct (strict_srorder_partial_minus x y E) as [z Ez].
     exists z. split; [| easy].
-    apply (strictly_order_preserving_back (x+)).
+    apply (strictly_order_reflecting (x+)).
     now rewrite <-Ez, rings.plus_0_r.
   Qed.
 
@@ -333,7 +333,7 @@ Section pseudo_semiring_order.
     now apply neg_pos_mult.
   Qed.
 
-  Global Instance: ∀ (z : R), PropHolds (0 < z) → StrictlyOrderPreservingBack (z *.).
+  Global Instance: ∀ (z : R), PropHolds (0 < z) → StrictlyOrderReflecting (z *.).
   Proof.
     intros z Ez. repeat (split; try apply _). intros x y E1.
     apply not_lt_apart_lt_flip.
@@ -343,8 +343,8 @@ Section pseudo_semiring_order.
     now apply pseudo_order_lt_apart_flip.
   Qed.
 
-  Global Instance: ∀ (z : R), PropHolds (0 < z) → StrictlyOrderPreservingBack (.* z).
-  Proof. intros. now apply strictly_order_preserving_back_flip. Qed.
+  Global Instance: ∀ (z : R), PropHolds (0 < z) → StrictlyOrderReflecting (.* z).
+  Proof. intros. now apply strictly_order_reflecting_flip. Qed.
 
   Global  Instance: ∀ z, PropHolds (z ⪥ 0) → StrongLeftCancellation (.*.) z.
   Proof.
@@ -439,7 +439,7 @@ Section full_pseudo_semiring_order.
      intros z. repeat (split; try apply _); intros x y.
       rewrite !le_iff_not_lt_flip.
       intros E1 E2. apply E1.
-      now apply (strictly_order_preserving_back (z+)).
+      now apply (strictly_order_reflecting (z+)).
      rewrite !le_iff_not_lt_flip.
      intros E1 E2. apply E1.
      now apply (strictly_order_preserving _).
@@ -447,11 +447,11 @@ Section full_pseudo_semiring_order.
     destruct (neg_mult_decompose x y); now intuition.
   Qed.
 
-  Global Instance: ∀ (z : R), PropHolds (0 < z) → OrderPreservingBack (z *.).
-  Proof. intros z E. now apply full_pseudo_order_preserving_back. Qed.
+  Global Instance: ∀ (z : R), PropHolds (0 < z) → OrderReflecting (z *.).
+  Proof. intros z E. now apply full_pseudo_order_reflecting. Qed.
 
-  Global Instance: ∀ (z : R), PropHolds (0 < z) → OrderPreservingBack (.* z).
-  Proof. intros. now apply order_preserving_back_flip. Qed.
+  Global Instance: ∀ (z : R), PropHolds (0 < z) → OrderReflecting (.* z).
+  Proof. intros. now apply order_reflecting_flip. Qed.
 
   Lemma plus_lt_le_compat x₁ y₁ x₂ y₂ : x₁ < y₁ → x₂ ≤ y₂ → x₁ + x₂ < y₁ + y₂.
   Proof.
@@ -597,12 +597,12 @@ Section another_semiring.
     pose proof (projected_partial_order f).
     repeat (split; try apply _).
        assumption.
-      intros. apply (order_preserving_back f). rewrite 2!preserves_plus.
+      intros. apply (order_reflecting f). rewrite 2!preserves_plus.
       now do 2 apply (order_preserving _).
-     intros. apply (order_preserving_back f). apply (order_preserving_back (f z +)). 
+     intros. apply (order_reflecting f). apply (order_reflecting (f z +)). 
      rewrite <-2!preserves_plus.
      now apply (order_preserving _).
-    intros. apply (order_preserving_back f). 
+    intros. apply (order_reflecting f). 
     rewrite preserves_mult, preserves_0.
     now apply nonneg_mult_compat; rewrite <-(preserves_0 (f:=f)); apply (order_preserving _).
   Qed.
