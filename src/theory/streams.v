@@ -40,6 +40,9 @@ Proof. now intros ? ? []. Qed.
 Global Instance: Proper ((=) ==> (=)) (@tl A).
 Proof. now intros ? ? []. Qed.
 
+Lemma Str_nth_tl_S (s : Stream A) n : Str_nth_tl (S n) s ≡ tl (Str_nth_tl n s).
+Proof. now rewrite tl_nth_tl. Qed.
+
 Global Instance: Proper ((=) ==> (=) ==> (=)) (@Str_nth_tl A).
 Proof.
   intros n m E1 ? ? E2.
