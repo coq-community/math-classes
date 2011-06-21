@@ -19,3 +19,4 @@ ParseDepends('deps')
 open('coqidescript', 'w').write('#!/bin/sh\ncoqide ' + Rs + ' $@ \n')
 os.chmod('coqidescript', 0755)
 
+env.Command('deps.dot', [], '../tools/DepsToDot.hs < deps > $TARGET')
