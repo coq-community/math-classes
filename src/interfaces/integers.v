@@ -5,6 +5,12 @@ Require Import
 Require
   varieties.rings.
 
+(** * interfaces.integers :
+
+ A model of the the integers, ZZ.
+
+*)
+
 Section initial_maps.
   Variable Int: Type.
 
