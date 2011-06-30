@@ -17,7 +17,7 @@ Implicit Arguments dyadic [[Z]].
 Implicit Arguments mant [[Z]].
 Implicit Arguments expo [[Z]].
 
-Infix "$" := dyadic (at level 80).
+Infix "▼" := dyadic (at level 80).
 
 Section dyadics.
 Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt} 
@@ -30,14 +30,14 @@ Add Ring Z: (rings.stdlib_ring_theory Z).
 
 Global Program Instance dy_plus: RingPlus Dyadic := λ x y, 
   if decide_rel (≤) (expo x) (expo y)
-  then mant x + mant y ≪ (expo y - expo x)↾_ $ min (expo x) (expo y)
-  else mant x ≪ (expo x - expo y)↾_ + mant y $ min (expo x) (expo y).
+  then mant x + mant y ≪ (expo y - expo x)↾_ ▼ min (expo x) (expo y)
+  else mant x ≪ (expo x - expo y)↾_ + mant y ▼ min (expo x) (expo y).
 Next Obligation. now apply rings.flip_nonneg_minus. Qed.
 Next Obligation. apply rings.flip_nonneg_minus. now apply orders.le_flip. Qed.
 
-Global Instance dy_inject: Cast Z Dyadic := λ x, x $ 0.
-Global Instance dy_opp: GroupInv Dyadic := λ x, -mant x $ expo x.
-Global Instance dy_mult: RingMult Dyadic := λ x y, mant x * mant y $ expo x + expo y.
+Global Instance dy_inject: Cast Z Dyadic := λ x, x ▼ 0.
+Global Instance dy_opp: GroupInv Dyadic := λ x, -mant x ▼ expo x.
+Global Instance dy_mult: RingMult Dyadic := λ x y, mant x * mant y ▼ expo x + expo y.
 Global Instance dy_0: RingZero Dyadic := ('0 : Dyadic).
 Global Instance dy_1: RingOne Dyadic := ('1 : Dyadic).
 
@@ -229,7 +229,7 @@ Next Obligation. apply rings.flip_nonneg_minus. now apply orders.le_flip. Qed.
 Next Obligation. symmetry. eapply dy_eq_dec_aux. symmetry. eassumption. Qed.
 Next Obligation. apply not_symmetry. eapply dy_eq_dec_aux_neg. apply not_symmetry. eassumption. Qed.
 
-Global Instance dy_pow `{!Pow Z (Z⁺)} : Pow Dyadic (Z⁺) := λ x n, (mant x) ^ n $ 'n * expo x.
+Global Instance dy_pow `{!Pow Z (Z⁺)} : Pow Dyadic (Z⁺) := λ x n, (mant x) ^ n ▼ 'n * expo x.
 
 Global Instance dy_pow_spec `{!NatPowSpec Z (Z⁺) pw} : NatPowSpec Dyadic (Z⁺) dy_pow.
 Proof.
@@ -253,7 +253,7 @@ Proof.
   now rewrite distribute_r, left_identity.
 Qed.
 
-Global Instance dy_shiftl: ShiftL Dyadic Z := λ x n, mant x $ n + expo x.
+Global Instance dy_shiftl: ShiftL Dyadic Z := λ x n, mant x ▼ n + expo x.
 
 Global Instance: ShiftLSpec Dyadic Z dy_shiftl.
 Proof.
@@ -326,7 +326,7 @@ Proof.
   apply nonneg_mant.
 Qed.
 
-Global Program Instance dy_abs `{!Abs Z} : Abs Dyadic := λ x, abs (mant x) $ expo x.
+Global Program Instance dy_abs `{!Abs Z} : Abs Dyadic := λ x, abs (mant x) ▼ expo x.
 Next Obligation.
   split; intros E.
    rewrite abs_nonneg. 

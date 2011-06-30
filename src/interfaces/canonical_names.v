@@ -204,6 +204,7 @@ Notation "(◎ f )" := (λ g, comp _ _ _ g f) (only parsing).
 
 (* Haskell style! *)
 Notation "(→)" := (λ x y, x → y).
+Notation "t $ r" := (t r) (at level 65, right associativity, only parsing).
 
 Class Cast A B := cast: A → B.
 Implicit Arguments cast [[Cast]].
