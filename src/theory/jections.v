@@ -3,6 +3,14 @@ Require Import
   abstract_algebra canonical_names workaround_tactics.
 Require theory.setoids.
 
+Lemma morphism_ne `{Equiv A} `{Equiv B} `(f : A → B) `{!Setoid_Morphism f} x y :
+  f x ≠ f y → x ≠ y.
+Proof. intros E1 E2. apply E1. now apply sm_proper. Qed.
+
+Lemma injective_ne `{Equiv A} `{Equiv B} `(f : A → B) `{Injective A B f} x y :
+  x ≠ y → f x ≠ f y.
+Proof. intros E1 E2. apply E1. now apply (injective f). Qed.
+
 Local Existing Instance injective_mor.
 Local Existing Instance surjective_mor.
 

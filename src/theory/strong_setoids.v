@@ -1,4 +1,5 @@
-Require Import abstract_algebra.
+Require Import 
+  abstract_algebra jections.
 
 Section contents.
 Context `{StrongSetoid A}.
@@ -181,9 +182,8 @@ Section dec_setoid_morphisms.
   Instance dec_strong_morphism (f : A → B) `{!Setoid_Morphism f} :
     StrongSetoid_Morphism f.
   Proof.
-    split; try apply _.
-    intros x y E1. apply trivial_apart.
-    intros E2. destruct (apart_ne _ _ E1). now rewrite E2.
+    split; try apply _. 
+    intros x y E. apply trivial_apart, (morphism_ne f). now apply apart_ne.
   Qed.
 
   Context `{!TrivialApart B}.
@@ -193,8 +193,7 @@ Section dec_setoid_morphisms.
   Proof.
     pose proof (injective_mor f).
     split; try apply _.
-    intros x y. rewrite !trivial_apart.
-    intros E1 E2. destruct E1. now apply (injective f).
+    intros x y. rewrite !trivial_apart. now apply (injective_ne f).
   Qed.
 
   Context `{StrongSetoid C}.

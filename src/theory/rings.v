@@ -124,16 +124,10 @@ Section semiringmor_props.
 
   Context `{!Injective f}.
   Instance injective_ne_0 x : PropHolds (x ≠ 0) → PropHolds (f x ≠ 0).
-  Proof.
-    intros E G. apply E. 
-    apply (injective f). now rewrite preserves_0.
-  Qed.
+  Proof. intros. rewrite <-preserves_0. now apply (jections.injective_ne f). Qed.
 
   Lemma injective_ne_1 x : x ≠ 1 → f x ≠ 1.
-  Proof.
-    intros E G. apply E. 
-    apply (injective f). now rewrite preserves_1.
-  Qed.
+  Proof. intros. rewrite <-preserves_1. now apply (jections.injective_ne f). Qed.
 End semiringmor_props.
 
 (* Due to bug #2528 *)

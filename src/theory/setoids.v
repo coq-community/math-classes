@@ -44,6 +44,14 @@ Section simple_product.
 
   Global Instance: Setoid_Morphism (@snd A B).
   Proof. constructor; try apply _. firstorder. Qed.
+
+  Context `(A_dec : ∀ x y : A, Decision (x = y)) `(B_dec : ∀ x y : B, Decision (x = y)).
+  Program Instance prod_dec: ∀ x y : A * B, Decision (x = y) := λ x y,
+    match A_dec (fst x) (fst y) with
+    | left _ => match B_dec (snd x) (snd y) with left _ => left _ | right _ => right _ end
+    | right _ => right _
+    end.
+  Solve Obligations using (program_simpl; firstorder).
 End simple_product.
 
 Section product.

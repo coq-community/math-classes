@@ -20,11 +20,8 @@ Definition uncurry {A B C} (f: A → B → C) (p: A * B): C := f (fst p) (snd p)
 Definition is_sole `{Equiv T} (P: T → Prop) (x: T): Prop := P x ∧ `(P y → y = x).
 
 Definition DN (T: Type): Prop := (T → False) → False.
-
 Class Stable P := stable: DN P → P.
-
-Instance: ∀ P, Decision P → Stable P.
-Proof. firstorder. Qed.
+(* TODO: include useful things from corn/logic/Stability.v and move to separate file *)
 
 Class Obvious (T : Type) := obvious: T.
 
@@ -43,57 +40,6 @@ Section obvious.
   Proof. repeat intro. intuition. Defined.
 End obvious.
 
-(* 
-  The following class is nice to parametrize instances by additional properties, for example:
-  [∀ z, PropHolds (z ≠ 0) → LeftCancellation op z]
-  This tool is very powerful as we can combine it with instances as:
-  [∀ x y, PropHolds (x ≠ 0) → PropHolds (y ≠ 0) → PropHolds (x * y ≠ 0)]
-  Of course, one should be very careful not to make too many instances as that could
-  easily lead to a blow-up of the search space (or worse, cycles).
-*)
-Class PropHolds (P : Prop) := prop_holds: P.
-
-Instance: Proper (iff ==> iff) PropHolds.
-Proof. now repeat intro. Qed.
-
-Ltac solve_propholds := 
-  match goal with
-  | [ |- PropHolds (?P) ] => apply _
-  | [ |- ?P ] => change (PropHolds P); apply _
-  end.
-
-Definition bool_decide (P : Prop) `{dec : !Decision P} : bool := if dec then true else false.
-
-Lemma bool_decide_true `{dec : Decision P} : bool_decide P ≡ true ↔ P.
-Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
-
-Lemma bool_decide_false `{dec : !Decision P} : bool_decide P ≡ false ↔ ¬P.
-Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
-
-(* 
-  Because [vm_compute] evaluates terms in [Prop] eagerly and does not remove dead code we 
-  need the decide_rel hack. Suppose we have [(x = y) =def  (f x = f y)], now:
-     bool_decide (x = y) → bool_decide (f x = f y) → ...
-  As we see, the dead code [f x] and [f y] is actually evaluated, which is of course an utter waste. 
-  Therefore we introduce decide_rel and bool_decide_rel.
-     bool_decide_rel (=) x y → bool_decide_rel (λ a b, f a = f b) x y → ...
-  Now the definition of equality remains under a lambda and our problem does not occur anymore!
-*)
-
-Definition decide_rel `(R : relation A) {dec : ∀ x y, Decision (R x y)} (x : A) (y : A) : Decision (R x y)
-  := dec x y.
-
-Definition bool_decide_rel `(R : relation A) {dec : ∀ x y, Decision (R x y)} : A → A → bool 
-  := λ x y, if dec x y then true else false.
-
-Lemma bool_decide_rel_true `(R : relation A) {dec : ∀ x y, Decision (R x y)} : 
-  ∀ x y, bool_decide_rel R x y ≡ true ↔ R x y.
-Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder. Qed.
-
-Lemma bool_decide_rel_false `(R : relation A)`{dec : ∀ x y, Decision (R x y)} : 
-  ∀ x y, bool_decide_rel R x y ≡ false ↔ ¬R x y.
-Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder. Qed.
-
 Lemma not_symmetry `{Symmetric A R} (x y: A): ¬R x y → ¬R y x.
 Proof. firstorder. Qed.
 (* Also see Coq bug #2358. A totally different approach would be to define negated relations 
@@ -104,3 +50,9 @@ Lemma biinduction_iff `{Biinduction R}
   (P1 : Prop) (P2 : R → Prop) (P2_proper : Proper ((=) ==> iff) P2) :
   (P1 ↔ P2 0) → (∀ n, P2 n ↔ P2 (1 + n)) → ∀ n, P1 ↔ P2 n.
 Proof. intros ? ?. apply biinduction; [solve_proper | easy | firstorder]. Qed.
+
+Definition is_Some `(x : option A) :=
+  match x with
+  | None => False
+  | Some _ => True
+  end.

@@ -2,7 +2,7 @@ Require
  Equivalence.
 Require Export
  Morphisms Setoid Program
- canonical_names util workarounds setoid_tactics.
+ canonical_names util decision propholds workarounds setoid_tactics.
 
 (* 
 For various structures we omit declaration of substructures. For example, if we 
