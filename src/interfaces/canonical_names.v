@@ -72,8 +72,6 @@ Definition sig_apart `{Apart A} (P: A → Prop) : Equiv (sig P) := λ x y, `x �
 Hint Extern 10 (Apart (sig _)) => apply @sig_apart : typeclass_instances. 
 
 (* Other canonically named relations/operations/constants: *)
-Class Decision P := decide: sumbool P (¬P).
-
 Class SemiGroupOp A := sg_op: A → A → A.
 Class MonoidUnit A := mon_unit: A.
 Class RingPlus A := ring_plus: A → A → A.
@@ -104,7 +102,6 @@ Class RingMultInverse {R} (x: R): Type := ring_mult_inverse: R.
 
 Implicit Arguments ring_mult_inverse [[R] [RingMultInverse]].
 Implicit Arguments cat_id [[O] [H] [CatId] [x]].
-Implicit Arguments decide [[Decision]].
 Implicit Arguments comp [[O] [H] [CatComp]].
 
 Instance: Params (@ring_mult) 2.

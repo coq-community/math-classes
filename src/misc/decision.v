@@ -1,8 +1,20 @@
 Require Import
   Program Morphisms Setoid canonical_names util.
 
+Class Decision P := decide: sumbool P (¬P).
+Implicit Arguments decide [[Decision]].
+
 Instance: ∀ P, Decision P → Stable P.
 Proof. firstorder. Qed.
+
+Ltac solve_trivial_decision := 
+  match goal with
+  | [ |- Decision (?P) ] => apply _
+  | [ |- sumbool ?P (¬?P) ] => change (Decision P); apply _
+  end.
+
+Ltac solve_decision := 
+  first [solve_trivial_decision | unfold Decision; decide equality; solve_trivial_decision].
 
 (* We cannot state this as Proper (iff ==> iffT) Decision due to the lack of setoid rewriting in Type *)
 Program Instance decision_proper (P Q : Prop) (PiffQ : P ↔ Q) (P_dec : Decision P) : Decision Q :=
@@ -72,6 +84,12 @@ Program Instance is_Some_dec `(x : option A) : Decision (is_Some x) :=
   | Some _ => left _
   end.
 
+Program Instance is_None_dec `(x : option A) : Decision (is_None x) :=
+  match x with
+  | None => left _
+  | Some _ => right _
+  end.
+
 Program Instance option_eq_dec `(A_dec : ∀ x y : A, Decision (x ≡ y))
      : ∀ x y : option A, Decision (x ≡ y) := λ x y,
   match x with
@@ -86,3 +104,6 @@ Program Instance option_eq_dec `(A_dec : ∀ x y : A, Decision (x ≡ y))
     | None => left _
     end
   end.
+
+Program Instance True_dec: Decision True := left _.
+Program Instance False_dec: Decision False := right _.

@@ -51,8 +51,27 @@ Lemma biinduction_iff `{Biinduction R}
   (P1 ↔ P2 0) → (∀ n, P2 n ↔ P2 (1 + n)) → ∀ n, P1 ↔ P2 n.
 Proof. intros ? ?. apply biinduction; [solve_proper | easy | firstorder]. Qed.
 
+(* Isn't this in the stdlib? *)
 Definition is_Some `(x : option A) :=
   match x with
   | None => False
   | Some _ => True
   end.
+
+Lemma is_Some_def `(x : option A) :
+  is_Some x ↔ ∃ y, x ≡ Some y.
+Proof. unfold is_Some. destruct x; firstorder (eauto; discriminate). Qed.
+
+Definition is_None `(x : option A) :=
+  match x with
+  | None => True
+  | Some _ => False
+  end.
+
+Lemma is_None_def `(x : option A) :
+  is_None x ↔ x ≡ None.
+Proof. unfold is_None. destruct x; firstorder discriminate. Qed.
+
+Lemma None_ne_Some `(x : option A) y :
+  x ≡ None → x ≢ Some y.
+Proof. congruence. Qed.
