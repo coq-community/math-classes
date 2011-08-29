@@ -34,10 +34,10 @@ Another advantage of our approach is that classes describing structures (e.g.
 Field) can remain in Prop. 
 *)
 Class Apart A := apart: relation A.
-Infix "⪥" := apart (at level 70, no associativity) : type_scope.
-Notation "(⪥)" := apart (only parsing).
-Notation "( x ⪥)" := (apart x) (only parsing).
-Notation "(⪥ x )" := (λ y, apart y x) (only parsing).
+Infix "≶" := apart (at level 70, no associativity) : type_scope.
+Notation "(≶)" := apart (only parsing).
+Notation "( x ≶)" := (apart x) (only parsing).
+Notation "(≶ x )" := (λ y, apart y x) (only parsing).
 
 (* Coq sometimes uses an incorrect DefaultRelation, so we override it. *)
 Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3.
@@ -68,7 +68,7 @@ Hint Extern 10 (Equiv (sig _)) => apply @sig_equiv : typeclass_instances.
 Definition sigT_equiv `{Equiv A} (P: A → Type) : Equiv (sigT P) := λ a b, projT1 a = projT1 b.
 Hint Extern 10 (Equiv (sigT _)) => apply @sigT_equiv : typeclass_instances. 
 
-Definition sig_apart `{Apart A} (P: A → Prop) : Equiv (sig P) := λ x y, `x ⪥ `y.
+Definition sig_apart `{Apart A} (P: A → Prop) : Equiv (sig P) := λ x y, `x ≶ `y.
 Hint Extern 10 (Apart (sig _)) => apply @sig_apart : typeclass_instances. 
 
 (* Other canonically named relations/operations/constants: *)
@@ -80,7 +80,7 @@ Class RingOne A := ring_one: A.
 Class RingZero A := ring_zero: A.
 Class GroupInv A := group_inv: A → A.
 Class DecMultInv A := dec_mult_inv: A → A.
-Definition ApartZero R `{RingZero R} `{Apart R} := sig (⪥ ring_zero).
+Definition ApartZero R `{RingZero R} `{Apart R} := sig (≶ ring_zero).
 Class MultInv A `{Apart A} `{RingZero A} := mult_inv: ApartZero A → A.
 
 Class Le A := le: relation A.
@@ -270,9 +270,9 @@ Class ZeroDivisor {R} `{Equiv R} `{RingZero R} `{RingMult R} (x: R): Prop
 Class NoZeroDivisors R `{Equiv R} `{RingZero R} `{RingMult R}: Prop
   := no_zero_divisors x: ¬ZeroDivisor x.
 
-(* Even for setoids with decidable equality, we do not have x ≠ y → x ⪥ y. 
+(* Even for setoids with decidable equality, we do not have x ≠ y → x ≶ y. 
 Therefore we introduce the following class. *)
-Class TrivialApart R `{Equiv R} {ap : Apart R} := trivial_apart : ∀ x y, x ⪥ y ↔ x ≠ y.
+Class TrivialApart R `{Equiv R} {ap : Apart R} := trivial_apart : ∀ x y, x ≶ y ↔ x ≠ y.
 
 Instance zero_product_no_zero_divisors `{ZeroProduct A} : NoZeroDivisors A.
 Proof. intros x [? [? [? E]]]. destruct (zero_product _ _ E); intuition. Qed.

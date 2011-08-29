@@ -7,20 +7,20 @@ Context `{StrongSetoid A}.
 Global Instance: Setoid A.
 Proof.
   split.
-    intros x. rewrite <-tight_apart. now apply (irreflexivity (⪥)).
+    intros x. rewrite <-tight_apart. now apply (irreflexivity (≶)).
    intros x y. rewrite <-?tight_apart. now apply not_symmetry.
   intros x y z. rewrite <-?tight_apart. intros E1 E2 E3. 
   destruct (cotransitive E3 y); contradiction.
 Qed.
 
-Global Instance apart_proper: Proper ((=) ==> (=) ==> iff) (⪥).
+Global Instance apart_proper: Proper ((=) ==> (=) ==> iff) (≶).
 Proof.
-  assert (∀ x₁ y x₂, x₁ ⪥ y → x₁ = x₂ → x₂ ⪥ y) as P1.
+  assert (∀ x₁ y x₂, x₁ ≶ y → x₁ = x₂ → x₂ ≶ y) as P1.
    intros ? ? ? E Ex.
    destruct (cotransitive E x₂); trivial.
    apply tight_apart in Ex. destruct Ex.
    now symmetry.
-  assert (∀ x₁ y₁ x₂ y₂, x₁ ⪥ y₁ → x₁ = x₂ → y₁ = y₂ → x₂ ⪥ y₂) as P2.
+  assert (∀ x₁ y₁ x₂ y₂, x₁ ≶ y₁ → x₁ = x₂ → y₁ = y₂ → x₂ ≶ y₂) as P2.
    intros ? ? ? ? E Ex Ey.
    apply P1 with x₁; trivial.
    symmetry. apply P1 with y₁; trivial. now symmetry.
@@ -28,7 +28,7 @@ Proof.
   split; intro; eapply P2; eauto; now symmetry.
 Qed.
 
-Instance apart_ne x y : PropHolds (x ⪥ y) → PropHolds (x ≠ y).
+Instance apart_ne x y : PropHolds (x ≶ y) → PropHolds (x ≠ y).
 Proof. firstorder. Qed.
 
 Global Instance: ∀ x y, Stable (x = y).
@@ -42,10 +42,10 @@ End contents.
 Hint Extern 3 (PropHolds (_ ≠ _)) => eapply @apart_ne : typeclass_instances.
 
 Lemma projected_strong_setoid `{StrongSetoid B} `{Equiv A} `{Apart A} (f: A → B)
-  (eq_correct : ∀ x y, x = y ↔ f x = f y) (apart_correct : ∀ x y, x ⪥ y ↔ f x ⪥ f y) : StrongSetoid A.
+  (eq_correct : ∀ x y, x = y ↔ f x = f y) (apart_correct : ∀ x y, x ≶ y ↔ f x ≶ f y) : StrongSetoid A.
 Proof.
   split.
-     intros x. red. rewrite apart_correct. apply (irreflexivity (⪥)).
+     intros x. red. rewrite apart_correct. apply (irreflexivity (≶)).
     intros x y. rewrite !apart_correct. now symmetry.
    intros x y E z. rewrite !apart_correct. apply cotransitive. now apply apart_correct.
   intros x y. rewrite apart_correct, eq_correct. now apply tight_apart.
@@ -89,7 +89,7 @@ Section morphisms.
     split; try apply _.
     intros x y E.
     destruct (strong_binary_extensionality f z x z y); trivial.
-    now destruct (irreflexivity (⪥) z).
+    now destruct (irreflexivity (≶) z).
   Qed.
 
   Global Instance strong_setoid_morphism_unary_2 `{!StrongSetoid_BinaryMorphism (f : A → B → C)} :
@@ -102,7 +102,7 @@ Section morphisms.
     split; try apply _.
     intros x y E.
     destruct (strong_binary_extensionality f x z y z); trivial.
-    now destruct (irreflexivity (⪥) z).
+    now destruct (irreflexivity (≶) z).
   Qed.
 
   (* Conversely, if a morphism is strongly extensional in both coordinates, it 
@@ -158,7 +158,7 @@ Section dec_setoid.
   Context `{Setoid A} `{Apart A} `{!TrivialApart A} `{∀ x y, Decision (x = y)}.
 
   (* Not Global in order to avoid loops *)
-  Instance ne_apart x y : PropHolds (x ≠ y) → PropHolds (x ⪥ y).
+  Instance ne_apart x y : PropHolds (x ≠ y) → PropHolds (x ≶ y).
   Proof. rewrite trivial_apart. easy. Qed.
 
   Instance dec_strong_setoid: StrongSetoid A.

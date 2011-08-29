@@ -17,7 +17,7 @@ Add Ring SR : (rings.stdlib_semiring_theory SR).
 
 (* Equivalence *)
 Global Instance SRpair_equiv : Equiv (SRpair SR) := λ x y, pos x + neg y = pos y + neg x.
-Global Instance SRpair_apart `{Apart SR} : Apart (SRpair SR) := λ x y, pos x + neg y ⪥ pos y + neg x.
+Global Instance SRpair_apart `{Apart SR} : Apart (SRpair SR) := λ x y, pos x + neg y ≶ pos y + neg x.
 
 Global Instance SRpair_trivial_apart `{!TrivialApart SR} :  TrivialApart (SRpair SR).
 Proof. intros x y. now rapply trivial_apart. Qed. 
@@ -248,7 +248,7 @@ Section with_full_pseudo_semiring_order.
   Instance: StrongSetoid (SRpair SR).
   Proof.
     split.
-       intros [??] E. now eapply (irreflexivity (⪥)); eauto.
+       intros [??] E. now eapply (irreflexivity (≶)); eauto.
       intros [??] [??] E. unfold apart, SRpair_apart. now symmetry.
      intros [xp xn] [yp yn] E [zp zn]. unfold apart, SRpair_apart in *. simpl in *.
      apply (strong_left_cancellation (+) zn) in E.

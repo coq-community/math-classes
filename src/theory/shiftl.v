@@ -134,7 +134,7 @@ Proof.
   now rewrite shiftl_base_0.
 Qed.
 
-Context `{Apart A} `{!FullPseudoSemiRingOrder Ale Alt} `{!PropHolds ((1:A) ⪥ 0)}.
+Context `{Apart A} `{!FullPseudoSemiRingOrder Ale Alt} `{!PropHolds ((1:A) ≶ 0)}.
 
 Let shiftl_strict_order_embedding (x y : A) (n : B) : x < y ↔ x ≪ n < y ≪ n.
 Proof.
@@ -305,7 +305,7 @@ End more_shiftl_dec_field.
 
 Section shiftl_field.
   Context `{Ring R} `{Integers Z} `{!ShiftLSpec R Z sl}
-    `{Field F} `{!PropHolds ((2:F) ⪥ 0)} `{Naturals N} `{!NatPowSpec F N npw}
+    `{Field F} `{!PropHolds ((2:F) ≶ 0)} `{Naturals N} `{!NatPowSpec F N npw}
     `{!SemiRing_Morphism (g : N → Z)} `{!SemiRing_Morphism (f : R → F)}.
 
   Add Ring F2: (rings.stdlib_ring_theory F).

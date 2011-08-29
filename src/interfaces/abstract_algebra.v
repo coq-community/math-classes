@@ -28,10 +28,10 @@ Class Setoid A {e: Equiv A} : Prop := setoid_eq:> Equivalence (@equiv A e).
 (* An unbundled variant of the former CoRN CSetoid. We do not 
   include that a proof that A is a Setoid because that can be derived. *)
 Class StrongSetoid A {e: Equiv A} `{ap : Apart A} : Prop :=
-  { strong_setoid_irreflexive :> Irreflexive (⪥) 
-  ; strong_setoid_symmetric :> Symmetric (⪥) 
-  ; strong_setoid_cotrans :> CoTransitive (⪥) 
-  ; tight_apart : ∀ x y, ¬x ⪥ y ↔ x = y }.
+  { strong_setoid_irreflexive :> Irreflexive (≶) 
+  ; strong_setoid_symmetric :> Symmetric (≶) 
+  ; strong_setoid_cotrans :> CoTransitive (≶) 
+  ; tight_apart : ∀ x y, ¬x ≶ y ↔ x = y }.
 
 Section setoid_morphisms.
   Context {A B : Type} {Ae: Equiv A} {Aap: Apart A} {Be: Equiv B} {Bap : Apart B} (f: A → B).
@@ -44,7 +44,7 @@ Section setoid_morphisms.
   Class StrongSetoid_Morphism :=
     { strong_setoidmor_a: StrongSetoid A
     ; strong_setoidmor_b: StrongSetoid B
-    ; strong_extensionality : ∀ x y, f x ⪥ f y → x ⪥ y }.
+    ; strong_extensionality : ∀ x y, f x ≶ f y → x ≶ y }.
 End setoid_morphisms.
 
 Implicit Arguments sm_proper [[A] [B] [Ae] [Be] [f] [Setoid_Morphism]].
@@ -57,7 +57,7 @@ Section setoid_binary_morphisms.
     { strong_binary_setoidmor_a: StrongSetoid A
     ; strong_binary_setoidmor_b: StrongSetoid B
     ; strong_binary_setoidmor_c: StrongSetoid C
-    ; strong_binary_extensionality : ∀ x₁ y₁ x₂ y₂, f x₁ y₁ ⪥ f x₂ y₂ → x₁ ⪥ x₂ ∨ y₁ ⪥ y₂ }.
+    ; strong_binary_extensionality : ∀ x₁ y₁ x₂ y₂, f x₁ y₁ ≶ f x₂ y₂ → x₁ ≶ x₂ ∨ y₁ ≶ y₂ }.
 End setoid_binary_morphisms.
 
 (*
@@ -121,7 +121,7 @@ Section upper_classes.
     ; field_strongsetoid:> StrongSetoid A
     ; field_plus_ext:> StrongSetoid_BinaryMorphism (+)
     ; field_mult_ext:> StrongSetoid_BinaryMorphism (.*.)
-    ; field_nontrivial: PropHolds (1 ⪥ 0)
+    ; field_nontrivial: PropHolds (1 ≶ 0)
     ; mult_inv_proper:> Setoid_Morphism (//)
     ; mult_inverse: ∀ x, `x // x = 1 }.
 
@@ -137,7 +137,7 @@ End upper_classes.
 
 (* Due to bug #2528 *)
 Hint Extern 4 (PropHolds (1 ≠ 0)) => eapply @intdom_nontrivial : typeclass_instances.
-Hint Extern 5 (PropHolds (1 ⪥ 0)) => eapply @field_nontrivial : typeclass_instances.
+Hint Extern 5 (PropHolds (1 ≶ 0)) => eapply @field_nontrivial : typeclass_instances.
 Hint Extern 5 (PropHolds (1 ≠ 0)) => eapply @decfield_nontrivial : typeclass_instances.
 
 (* 
@@ -162,8 +162,8 @@ Section cancellation.
   Class LeftCancellation := left_cancellation : `(op z x = op z y → x = y).
   Class RightCancellation := right_cancellation : `(op x z = op y z → x = y).
 
-  Class StrongLeftCancellation := strong_left_cancellation : `(x ⪥ y → op z x ⪥ op z y).
-  Class StrongRightCancellation := strong_right_cancellation : `(x ⪥ y → op x z ⪥ op y z).
+  Class StrongLeftCancellation := strong_left_cancellation : `(x ≶ y → op z x ≶ op z y).
+  Class StrongRightCancellation := strong_right_cancellation : `(x ≶ y → op x z ≶ op y z).
 End cancellation.
 
 Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatComp O}: Prop :=
@@ -218,7 +218,7 @@ Section jections.
     {Be: Equiv B} {Bap : Apart B} (f: A → B) `{inv: !Inverse f}.
 
   Class StrongInjective: Prop :=
-    { strong_injective: ∀ x y, x ⪥ y → f x ⪥ f y
+    { strong_injective: ∀ x y, x ≶ y → f x ≶ f y
     ; strong_injective_mor: StrongSetoid_Morphism f }.
 
   Class Injective: Prop :=

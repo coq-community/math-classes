@@ -298,10 +298,10 @@ Section pseudo_semiring_order.
   Lemma neg_mult_decompose x y : x * y < 0 → (x < 0 ∧ 0 < y) ∨ (0 < x ∧ y < 0).
   Proof.
     intros.
-    assert (0 ⪥ x) as Ex.
+    assert (0 ≶ x) as Ex.
      apply (strong_extensionality (.* y)).
      rewrite mult_0_l. now apply pseudo_order_lt_apart_flip.
-    assert (0 ⪥ y) as Ey.
+    assert (0 ≶ y) as Ey.
      apply (strong_extensionality (x *.)).
      rewrite mult_0_r. now apply pseudo_order_lt_apart_flip.
     rewrite apart_iff_total_lt in Ex, Ey. 
@@ -317,10 +317,10 @@ Section pseudo_semiring_order.
   Lemma pos_mult_decompose x y : 0 < x * y → (0 < x ∧ 0 < y) ∨ (x < 0 ∧ y < 0).
   Proof.
     intros.
-    assert (0 ⪥ x) as Ex.
+    assert (0 ≶ x) as Ex.
      apply (strong_extensionality (.* y)).
      rewrite mult_0_l. now apply pseudo_order_lt_apart.
-    assert (0 ⪥ y) as Ey.
+    assert (0 ≶ y) as Ey.
      apply (strong_extensionality (x *.)).
      rewrite mult_0_r. now apply pseudo_order_lt_apart.
     rewrite apart_iff_total_lt in Ex, Ey. 
@@ -346,7 +346,7 @@ Section pseudo_semiring_order.
   Global Instance: ∀ (z : R), PropHolds (0 < z) → StrictlyOrderReflecting (.* z).
   Proof. intros. now apply strictly_order_reflecting_flip. Qed.
 
-  Global  Instance: ∀ z, PropHolds (z ⪥ 0) → StrongLeftCancellation (.*.) z.
+  Global  Instance: ∀ z, PropHolds (z ≶ 0) → StrongLeftCancellation (.*.) z.
   Proof.
     intros z Ez x y E. red in Ez.
     rewrite apart_iff_total_lt in E, Ez |- *.
@@ -357,16 +357,16 @@ Section pseudo_semiring_order.
     right. now apply (strictly_order_preserving_pos (.*.) z).
   Qed.
 
-  Global Instance: ∀ z, PropHolds (z ⪥ 0) → StrongRightCancellation (.*.) z.
+  Global Instance: ∀ z, PropHolds (z ≶ 0) → StrongRightCancellation (.*.) z.
   Proof. intros. now apply (strong_right_cancel_from_left (.*.)). Qed.
 
-  Global Instance: ∀ z, PropHolds (z ⪥ 0) → LeftCancellation (.*.) z.
+  Global Instance: ∀ z, PropHolds (z ≶ 0) → LeftCancellation (.*.) z.
   Proof. intros. now apply _. Qed.
 
-  Global Instance: ∀ z, PropHolds (z ⪥ 0) → RightCancellation (.*.) z.
+  Global Instance: ∀ z, PropHolds (z ≶ 0) → RightCancellation (.*.) z.
   Proof. intros. now apply _. Qed.
 
-  Lemma square_pos x : x ⪥ 0 → 0 < x * x.
+  Lemma square_pos x : x ≶ 0 → 0 < x * x.
   Proof.
     intros E. apply apart_iff_total_lt in E. 
     destruct E as [E|E].
@@ -381,7 +381,7 @@ Section pseudo_semiring_order.
     now apply pos_mult_compat.
   Qed.
 
-  Context `{PropHolds (1 ⪥ 0)}.
+  Context `{PropHolds (1 ≶ 0)}.
 
   Instance lt_0_1 : PropHolds (0 < 1).
   Proof. red. setoid_replace 1 with (1 * 1) by ring. now apply square_pos. Qed.
@@ -413,7 +413,7 @@ Section pseudo_semiring_order.
   Lemma lt_3_4 : 3 < 4.
   Proof. apply (strictly_order_preserving (1+)), lt_2_3. Qed.
 
-  Instance apart_0_2 : PropHolds (2 ⪥ 0).
+  Instance apart_0_2 : PropHolds (2 ≶ 0).
   Proof. red. symmetry. now apply pseudo_order_lt_apart, lt_0_2. Qed.
 End pseudo_semiring_order.
 
@@ -421,7 +421,7 @@ Hint Extern 7 (PropHolds (0 < 1)) => eapply @lt_0_1 : typeclass_instances.
 Hint Extern 7 (PropHolds (0 < 2)) => eapply @lt_0_2 : typeclass_instances.
 Hint Extern 7 (PropHolds (0 < 3)) => eapply @lt_0_3 : typeclass_instances.
 Hint Extern 7 (PropHolds (0 < 4)) => eapply @lt_0_4 : typeclass_instances.
-Hint Extern 7 (PropHolds (2 ⪥ 0)) => eapply @apart_0_2 : typeclass_instances.
+Hint Extern 7 (PropHolds (2 ≶ 0)) => eapply @apart_0_2 : typeclass_instances.
 
 Section full_pseudo_semiring_order.
   Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder Rle Rlt}.
@@ -540,7 +540,7 @@ Section full_pseudo_semiring_order.
   Lemma ge_1_gt_1_mult_compat x y : 1 ≤ x → 1 < y → 1 < x * y.
   Proof. intros. rewrite commutativity. now apply gt_1_ge_1_mult_compat. Qed.
 
-  Context `{PropHolds (1 ⪥ 0)}.
+  Context `{PropHolds (1 ≶ 0)}.
 
   Lemma not_le_1_0 : ¬1 ≤ 0.
   Proof. now apply lt_not_le_flip, lt_0_1. Qed.

@@ -158,7 +158,7 @@ Section borrowed_from_nat.
   Qed.
 
   Instance nat_nontrivial_apart `{Apart N} `{!TrivialApart N} : 
-    PropHolds ((1:N) ⪥ 0).
+    PropHolds ((1:N) ≶ 0).
   Proof. apply strong_setoids.ne_apart. solve_propholds. Qed.
 
   Lemma zero_sum x y : x + y = 0 → x = 0 ∧ y = 0.
@@ -205,4 +205,4 @@ End contents.
 
 (* Due to bug #2528 *)
 Hint Extern 6 (PropHolds (1 ≠ 0)) => eapply @nat_nontrivial : typeclass_instances.
-Hint Extern 6 (PropHolds (1 ⪥ 0)) => eapply @nat_nontrivial_apart : typeclass_instances.
+Hint Extern 6 (PropHolds (1 ≶ 0)) => eapply @nat_nontrivial_apart : typeclass_instances.

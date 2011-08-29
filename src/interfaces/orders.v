@@ -36,7 +36,7 @@ Class PseudoOrder `{e : Equiv A} `{ap : Apart A} (so : Lt A) : Prop :=
   { pseudo_order_setoid : StrongSetoid A
   ; pseudo_order_antisym : ∀ x y, ¬(x < y ∧ y < x)
   ; pseudo_order_cotrans :> CoTransitive (<) 
-  ; apart_iff_total_lt : ∀ x y, x ⪥ y ↔ x < y ∨ y < x }.
+  ; apart_iff_total_lt : ∀ x y, x ≶ y ↔ x < y ∨ y < x }.
 
 (* A partial order (≤) with a corresponding (<). We will prove that (<) is in fact
   a StrictSetoidOrder *)
@@ -44,7 +44,7 @@ Class FullPartialOrder `{e : Equiv A} `{ap : Apart A} (o : Le A) (so : Lt A) : P
   { strict_po_setoid : StrongSetoid A 
   ; strict_po_po :> PartialOrder (≤)
   ; strict_po_trans :> Transitive (<)
-  ; lt_iff_le_apart : ∀ x y, x < y ↔ x ≤ y ∧ x ⪥ y }.
+  ; lt_iff_le_apart : ∀ x y, x < y ↔ x ≤ y ∧ x ≶ y }.
 
 (* A pseudo order (<) with a corresponding (≤). We will prove that (≤) is in fact
   a PartialOrder. *)

@@ -229,12 +229,12 @@ Section integral_domain_props.
   Context `{IntegralDomain R}.
 
   Instance intdom_nontrivial_apart `{Apart R} `{!TrivialApart R} : 
-    PropHolds (1 ⪥ 0).
+    PropHolds (1 ≶ 0).
   Proof. apply strong_setoids.ne_apart. solve_propholds. Qed.
 End integral_domain_props. 
 
 (* Due to bug #2528 *)
-Hint Extern 6 (PropHolds (1 ⪥ 0)) => eapply @intdom_nontrivial_apart : typeclass_instances.
+Hint Extern 6 (PropHolds (1 ≶ 0)) => eapply @intdom_nontrivial_apart : typeclass_instances.
 
 Section ringmor_props. 
   Context `{Ring A} `{Ring B} {f : A → B} `{!SemiRing_Morphism f}.

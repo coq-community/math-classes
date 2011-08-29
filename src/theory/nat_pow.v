@@ -92,11 +92,11 @@ Proof.
   apply (no_zero_divisors x); split; eauto.
 Qed. 
 
-Context `{Apart A} `{!FullPseudoSemiRingOrder Ale Alt} `{PropHolds (1 ⪥ 0)}.
+Context `{Apart A} `{!FullPseudoSemiRingOrder Ale Alt} `{PropHolds (1 ≶ 0)}.
 
 Instance: StrongSetoid A := pseudo_order_setoid.
 
-Instance nat_pow_apart_0 (x : A) (n : B) : PropHolds (x ⪥ 0) → PropHolds (x ^ n ⪥ 0).
+Instance nat_pow_apart_0 (x : A) (n : B) : PropHolds (x ≶ 0) → PropHolds (x ^ n ≶ 0).
 Proof.
   pattern n. apply naturals.induction; clear n.
     solve_proper.
@@ -135,7 +135,7 @@ End nat_pow_properties.
 
 (* Due to bug #2528 *)
 Hint Extern 18 (PropHolds (_ ^ _ ≠ 0)) => eapply @nat_pow_ne_0 : typeclass_instances.
-Hint Extern 18 (PropHolds (_ ^ _ ⪥ 0)) => eapply @nat_pow_apart_0 : typeclass_instances.
+Hint Extern 18 (PropHolds (_ ^ _ ≶ 0)) => eapply @nat_pow_apart_0 : typeclass_instances.
 Hint Extern 18 (PropHolds (0 ≤ _ ^ _)) => eapply @nat_pow_nonneg : typeclass_instances.
 Hint Extern 18 (PropHolds (0 < _ ^ _)) => eapply @nat_pow_pos : typeclass_instances.
 

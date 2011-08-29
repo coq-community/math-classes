@@ -5,7 +5,7 @@ Require Import
   orders.semirings theory.shiftl theory.int_pow.
 
 Section positive_semiring_elements.
-Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder Rle Rlt} `{!PropHolds (1 ⪥ 0)}.
+Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder Rle Rlt} `{!PropHolds (1 ≶ 0)}.
 
 Add Ring R : (rings.stdlib_semiring_theory R).
 

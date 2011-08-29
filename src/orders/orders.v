@@ -52,16 +52,16 @@ Section pseudo_order.
 
   Instance: StrongSetoid A := pseudo_order_setoid.
 
-  Lemma apart_total_lt x y : x ⪥ y → x < y ∨ y < x.
+  Lemma apart_total_lt x y : x ≶ y → x < y ∨ y < x.
   Proof. intros. now apply apart_iff_total_lt. Qed.
 
-  Lemma pseudo_order_lt_apart x y : x < y → x ⪥ y.
+  Lemma pseudo_order_lt_apart x y : x < y → x ≶ y.
   Proof. intros. apply apart_iff_total_lt. tauto. Qed.
 
-  Lemma pseudo_order_lt_apart_flip x y : x < y → y ⪥ x.
+  Lemma pseudo_order_lt_apart_flip x y : x < y → y ≶ x.
   Proof. intros. apply apart_iff_total_lt. tauto. Qed.
 
-  Lemma not_lt_apart_lt_flip x y : ¬x < y → x ⪥ y → y < x.
+  Lemma not_lt_apart_lt_flip x y : ¬x < y → x ≶ y → y < x.
   Proof. rewrite apart_iff_total_lt. intuition. Qed.
 
   Lemma pseudo_order_cotrans_twice x₁ y₁ x₂ y₂ : x₁ < y₁ → x₂ < y₂ ∨ x₁ < x₂ ∨ y₂ < y₁.
@@ -71,7 +71,7 @@ Section pseudo_order.
     destruct (cotransitive E2 y₂); try tauto.
   Qed.
 
-  Lemma pseudo_order_lt_ext x₁ y₁ x₂ y₂ : x₁ < y₁ → x₂ < y₂ ∨ x₁ ⪥ x₂ ∨ y₂ ⪥ y₁.
+  Lemma pseudo_order_lt_ext x₁ y₁ x₂ y₂ : x₁ < y₁ → x₂ < y₂ ∨ x₁ ≶ x₂ ∨ y₂ ≶ y₁.
   Proof.
     intros E.
     destruct (pseudo_order_cotrans_twice x₁ y₁ x₂ y₂ E) as [?|[?|?]]; auto using pseudo_order_lt_apart.
@@ -125,10 +125,10 @@ Section full_partial_order.
 
   (* Duplicate of strong_setoids.apart_ne. This is useful because a
     StrongSetoid is not defined as a substructure of a FullPartialOrder *)
-  Instance strict_po_apart_ne x y : PropHolds (x ⪥ y) → PropHolds (x ≠ y).
+  Instance strict_po_apart_ne x y : PropHolds (x ≶ y) → PropHolds (x ≠ y).
   Proof. intros. apply _. Qed.
 
-  Global Instance apart_proper: Proper ((=) ==> (=) ==> iff) (⪥).
+  Global Instance apart_proper: Proper ((=) ==> (=) ==> iff) (≶).
   Proof. apply _. Qed.
 
   Global Instance: StrictSetoidOrder (_ : Lt A).
@@ -139,7 +139,7 @@ Section full_partial_order.
      now rewrite E1, E2.
     split; try apply _.
     intros x. red. rewrite lt_iff_le_apart. intros [_ ?].
-    now destruct (irreflexivity (⪥) x).
+    now destruct (irreflexivity (≶) x).
   Qed.
 
   Lemma lt_le x y : PropHolds (x < y) → PropHolds (x ≤ y).
@@ -148,10 +148,10 @@ Section full_partial_order.
   Lemma not_le_not_lt x y : ¬x ≤ y → ¬x < y.
   Proof. firstorder using lt_le. Qed.
 
-  Lemma lt_apart x y : x < y → x ⪥ y.
+  Lemma lt_apart x y : x < y → x ≶ y.
   Proof. intro. now apply lt_iff_le_apart. Qed.
 
-  Lemma lt_apart_flip x y : x < y → y ⪥ x.
+  Lemma lt_apart_flip x y : x < y → y ≶ x.
   Proof. intro. now apply symmetry, lt_iff_le_apart. Qed.
 
   Lemma le_not_lt_flip x y : y ≤ x → ¬x < y.
