@@ -1,0 +1,19 @@
+#! /bin/sh
+
+
+coqdoc=`which coqdoc`        # foo/bar/bin/coqdoc
+coqlibpath=${coqdoc%/*/*}    # foo/bar/
+
+tmp=coqdoc-`date +%s`.pdf
+
+if [ $# -lt 1 ]
+then
+    echo "Usage: `basename $0` [file1.v] [file2.v] [...]"
+    exit 65 #E_BADARGS
+fi
+
+set -x
+
+$coqdoc --parse-comments --interpolate --inline-notmono -l --utf8 \
+       --coqlib_path $coqlibpath \
+       -o $tmp --pdf $* && mv $tmp /tmp && evince /tmp/$tmp
