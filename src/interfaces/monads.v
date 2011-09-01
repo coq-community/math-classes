@@ -1,14 +1,11 @@
-
 Require Import
   abstract_algebra canonical_names.
 
 Section ops.
-
   Context (M: Type → Type).
 
   Class MonadReturn := ret: ∀ {A}, A → M A.
   Class MonadBind := bind: ∀ {A B}, M A → (A → M B) → M B.
-
 End ops.
 
 Implicit Arguments ret [[M] [MonadReturn] [A]].
@@ -19,7 +16,6 @@ Notation "x ← y ; z" := (y >>= (λ x : _, z)) (at level 30, right associativit
 Notation "x >> y" := (_ ← x ; y) (at level 30, right associativity).
 
 Section structure.
-
   Context (M: Type → Type).
 
   Class Monad {Me: ∀ A, Equiv A → Equiv (M A)} `{MonadReturn M} `{MonadBind M}: Prop :=
@@ -36,5 +32,11 @@ Section structure.
     ; mon_assoc: ∀ `{Setoid A} `{Setoid B} `{Setoid C} (n: M A) (f: A → M B) (g: B → M C),
         (n >>= f) >>= g = n >>= (λ x, f x >>= g)
     }.
-
 End structure.
+
+Section monadic_functions.
+  Context `{Monad M}.
+
+  Definition map `(f : A → B) : M A → M B := λ ma, a ← ma ; ret (f a).
+  Definition join `(mma : M (M A)) : M A := ma ← mma ; ma.
+End monadic_functions.
