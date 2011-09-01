@@ -29,7 +29,7 @@ Section practical.
   (* Here, again, are the ingredients, this time in somewhat more raw form: *)
 
   Class ExtendToSeq (free: Type → Type) :=
-    extend: ∀ {x y} `{!SemiGroupOp y} `{!MonoidUnit y}, (x → y) → (free x → y).
+    extend: ∀ {x y} `{!SgOp y} `{!MonUnit y}, (x → y) → (free x → y).
       (* todo: rename to extend_to_seq or something *)
 
   Class InjectToSeq (free: Type → Type) := inject: ∀ x, x → free x.
@@ -37,8 +37,8 @@ Section practical.
 
   Context
    (free: Type → Type) {raw_fmap: Fmap free}
-   `{∀ a, MonoidUnit (free a)}
-   `{∀ a, SemiGroupOp (free a)}
+   `{∀ a, MonUnit (free a)}
+   `{∀ a, SgOp (free a)}
    `{∀ a, Equiv a → Equiv (free a)}
    `{!InjectToSeq free} `{!ExtendToSeq free}.
 
@@ -166,7 +166,7 @@ Section practical.
    intro. apply E. reflexivity.
   Qed. (* todo: clean up *)
 
-  Definition fold `{MonoidUnit M} `{SemiGroupOp M}: free M → M := extend id.
+  Definition fold `{MonUnit M} `{SgOp M}: free M → M := extend id.
 
   Global Instance fold_mor `{Monoid M}: Monoid_Morphism (fold (M:=M)).
   Proof. apply _. Qed.

@@ -8,14 +8,14 @@ Context `{Field F}.
 
 Add Ring F : (stdlib_ring_theory F).
 
-Lemma mult_inverse_alt (x : F) Px : x // x↾Px = 1.
-Proof. now rewrite <-(mult_inverse (x↾Px)). Qed.
+Lemma reciperse_alt (x : F) Px : x // x↾Px = 1.
+Proof. now rewrite <-(recip_inverse (x↾Px)). Qed.
 
-Lemma mult_inv_proper_alt x y Px Py : x = y → // x↾Px = // y↾Py.
+Lemma recip_proper_alt x y Px Py : x = y → // x↾Px = // y↾Py.
 Proof. intro. now apply sm_proper. Qed.
 
-Lemma mult_inv_irrelevant x Px1 Px2 : // x↾Px1 = // x↾Px2.
-Proof. now apply mult_inv_proper_alt. Qed.
+Lemma recip_irrelevant x Px1 Px2 : // x↾Px1 = // x↾Px2.
+Proof. now apply recip_proper_alt. Qed.
 
 Lemma apart_0_proper {x y} : x ≶ 0 → x = y → y ≶ 0.
 Proof. intros ? E. now rewrite <-E. Qed.
@@ -33,14 +33,14 @@ Global Instance: StrongInjective (//).
 Proof.
   repeat (split; try apply _); intros x y E.
    apply (strong_extensionality (`x *.)).
-   rewrite mult_inverse, commutativity.
+   rewrite recip_inverse, commutativity.
    apply (strong_extensionality (`y *.)).
-   rewrite associativity, mult_inverse.
+   rewrite associativity, recip_inverse.
    ring_simplify. now symmetry.
   apply (strong_extensionality (.* // x)).
-  rewrite mult_inverse, commutativity.
+  rewrite recip_inverse, commutativity.
   apply (strong_extensionality (.* // y)).
-  rewrite <-associativity, mult_inverse.
+  rewrite <-associativity, recip_inverse.
   ring_simplify. now symmetry.
 Qed.
 
@@ -55,7 +55,7 @@ Proof.
   intros z Ez x y E. red in Ez.
   rewrite !(commutativity z).
   apply (strong_extensionality (.* // z↾(Ez : (≶0) z))).
-  rewrite <-!associativity, !mult_inverse_alt.
+  rewrite <-!associativity, !reciperse_alt.
   now ring_simplify.
 Qed.
 
@@ -73,7 +73,7 @@ Instance mult_apart_zero x y :
 Proof.
   intros Ex Ey.
   apply (strong_extensionality (.* // y↾(Ey : (≶0) y))).
-  now rewrite <-associativity, mult_inverse_alt, mult_1_r, mult_0_l.
+  now rewrite <-associativity, reciperse_alt, mult_1_r, mult_0_l.
 Qed.
 
 Instance: NoZeroDivisors F.
@@ -81,7 +81,7 @@ Proof.
   intros x [x_nonzero [y [y_nonzero E]]].
   rewrite <-tight_apart in y_nonzero. destruct y_nonzero. intro y_apartzero.
   apply x_nonzero.
-  rewrite <- mult_1_r. rewrite <- (mult_inverse_alt y y_apartzero).
+  rewrite <- mult_1_r. rewrite <- (reciperse_alt y y_apartzero).
   rewrite associativity, E. ring.
 Qed.
 
@@ -91,49 +91,49 @@ Proof. split; try apply _. Qed.
 Global Instance apart_0_sig_apart_0: ∀ (x : F ₀), PropHolds (`x ≶ 0).
 Proof. now intros [??]. Qed.
 
-Instance mult_inv_apart_zero x : PropHolds (// x ≶ 0).
+Instance recip_apart_zero x : PropHolds (// x ≶ 0).
 Proof.
   red.
   apply mult_apart_zero_r with (`x).
-  rewrite mult_inverse. solve_propholds.
+  rewrite recip_inverse. solve_propholds.
 Qed.
 
 Lemma field_div_0_l x y : x = 0 → x // y = 0.
 Proof. intros E. rewrite E. apply left_absorb. Qed.
 
 Lemma field_div_diag x y : x = `y → x // y = 1.
-Proof. intros E. rewrite E. apply mult_inverse. Qed.
+Proof. intros E. rewrite E. apply recip_inverse. Qed.
 
 Lemma equal_quotients (a c: F) b d : a * `d = c * `b ↔ a // b = c // d.
 Proof with try ring.
   split; intro E.
    transitivity (1 * (a // b))...
-   rewrite <- (mult_inverse d).
+   rewrite <- (recip_inverse d).
    transitivity (// d * (a * `d) // b)...
    rewrite E.
    transitivity (// d * c * (`b // b))...
-   rewrite mult_inverse...
+   rewrite recip_inverse...
   transitivity (a * `d * 1)...
-  rewrite <- (mult_inverse b).
+  rewrite <- (recip_inverse b).
   transitivity (a // b * `d * `b)...
   rewrite E.
   transitivity (c * (`d // d) * `b)...
-  rewrite mult_inverse...
+  rewrite recip_inverse...
 Qed. (* todo: should be cleanable *)
 
-Lemma mult_inv_distr_alt (x y : F) Px Py Pxy : 
+Lemma recip_distr_alt (x y : F) Px Py Pxy : 
   // (x * y)↾Pxy = // x↾Px * // y↾Py.
 Proof with try ring.
   apply (left_cancellation_ne_0 (.*.) (x * y)).
    now apply apart_ne.
   transitivity ((x // x↾Px) *  (y // y↾Py))...
   transitivity ((x * y) // (x * y)↾Pxy)...
-  rewrite 3!mult_inverse_alt...
+  rewrite 3!reciperse_alt...
 Qed.
 End field_properties.
 
 (* Due to bug #2528 *)
-Hint Extern 8 (PropHolds (// _ ≶ 0)) => eapply @mult_inv_apart_zero : typeclass_instances.
+Hint Extern 8 (PropHolds (// _ ≶ 0)) => eapply @recip_apart_zero : typeclass_instances.
 Hint Extern 8 (PropHolds (_ * _ ≶ 0)) => eapply @mult_apart_zero : typeclass_instances.
 
 Section morphisms.
@@ -145,7 +145,7 @@ Section morphisms.
   Proof.
     intros E1. split; try apply _. intros x y E2.
     apply (strong_extensionality (+ -f y)).
-    rewrite plus_opp_r, <-preserves_minus.
+    rewrite plus_negate_r, <-preserves_minus.
     apply E1.
     apply (strong_extensionality (+ y)).
     now ring_simplify.
@@ -159,17 +159,17 @@ Section morphisms.
     intros x Ex.
     apply mult_apart_zero_l with (f (// exist (≶0) x Ex)).
     rewrite <-rings.preserves_mult.
-    rewrite mult_inverse_alt.
+    rewrite reciperse_alt.
     rewrite rings.preserves_1.
     solve_propholds.
   Qed.
 
-  Lemma preserves_mult_inv x Px Pfx : f (// x↾Px) = // (f x)↾Pfx.
+  Lemma preserves_recip x Px Pfx : f (// x↾Px) = // (f x)↾Pfx.
   Proof.
     apply (left_cancellation_ne_0 (.*.) (f x)).
      now apply apart_ne.
     rewrite <-rings.preserves_mult.
-    rewrite !mult_inverse_alt.
+    rewrite !reciperse_alt.
     now apply preserves_1.
   Qed.
 End morphisms.

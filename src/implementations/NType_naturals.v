@@ -10,10 +10,10 @@ Module NType_Integers (Import anyN: NType).
 Module axioms := NTypeIsNAxioms anyN.
 
 Instance NType_equiv : Equiv t := eq.
-Instance NType_plus : RingPlus t := add.
-Instance NType_0 : RingZero t := zero.
-Instance NType_1 : RingOne t := one.
-Instance NType_mult : RingMult t := mul.
+Instance NType_plus : Plus t := add.
+Instance NType_0 : Zero t := zero.
+Instance NType_1 : One t := one.
+Instance NType_mult : Mult t := mul.
 
 Instance: Setoid t | 10 := {}.
 
@@ -45,9 +45,9 @@ Instance: SemiRing_Morphism to_N.
 Proof.
   repeat (split; try apply _); unfold to_N; intros.
      now rewrite spec_add, Zabs_N_plus by apply spec_pos.
-    unfold mon_unit, ringzero_is_monoidunit, NType_0. now rewrite spec_0.
+    unfold mon_unit, zero_is_mon_unit, NType_0. now rewrite spec_0.
    now rewrite spec_mul, Zabs_N_mult by apply spec_pos.
-  unfold mon_unit, ringone_is_monoidunit, NType_1. now rewrite spec_1.
+  unfold mon_unit, one_is_mon_unit, NType_1. now rewrite spec_1.
 Qed.
 
 Instance inject_N_NType: Cast N t := of_N.

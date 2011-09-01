@@ -9,8 +9,8 @@ Section contents.
 
   Coercion poly_constant (c : R) : poly := [c].
 
-  Global Instance poly_zero: RingZero poly := [].
-  Global Instance poly_one: RingOne poly := poly_constant 1.
+  Global Instance poly_zero: Zero poly := [].
+  Global Instance poly_one: One poly := poly_constant 1.
 
   Definition all (l: list Prop): Prop := fold_left and l True.
 
@@ -41,14 +41,14 @@ Section contents.
   Global Instance: Setoid poly.
   Proof. split; try apply _. Qed.
 
-  Global Instance: RingPlus poly := fix F p q :=
+  Global Instance: Plus poly := fix F p q :=
     match p, q with
     | [], _ => q
     | _, [] => p
     | h :: t, h' :: t' => h + h' :: F t t'
     end.
 
-  Global Instance: GroupInv poly := map (-).
+  Global Instance: Negate poly := map (-).
 
   Fixpoint poly_mult_cr (q: poly) (c: R): poly :=
     match q with
@@ -56,7 +56,7 @@ Section contents.
     | d :: q1 => c*d :: poly_mult_cr q1 c
     end.
 
-  Global Instance: RingMult poly := fix F p q :=
+  Global Instance: Mult poly := fix F p q :=
     match p with
     | [] => 0
     | c :: p1 => poly_mult_cr q c + (0 :: F p1 q)
@@ -75,8 +75,8 @@ Section test.
   Context `{Ring R} (x y: poly (poly (poly (poly R)))).
 
   Goal x + y == x * y.
-    set (d := RingPlus_instance_0 ).
-    set (u := RingMult_instance_0).
+    set (d := Plus_instance_0 ).
+    set (u := Mult_instance_0).
     set (t := poly (poly R)).
     unfold poly_zero.
 

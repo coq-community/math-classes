@@ -6,21 +6,21 @@ Require Import
   interfaces.additional_operations interfaces.orders orders.semirings.
 
 Instance nat_equiv: Equiv nat := eq.
-Instance nat_plus: RingPlus nat := plus.
-Instance nat_0: RingZero nat := 0%nat.
-Instance nat_1: RingOne nat := 1%nat.
-Instance nat_mult: RingMult nat := mult.
+Instance nat_plus: Plus nat := Peano.plus.
+Instance nat_0: Zero nat := 0%nat.
+Instance nat_1: One nat := 1%nat.
+Instance nat_mult: Mult nat := Peano.mult.
 
 Instance: SemiRing nat.
 Proof.
   repeat (split; try apply _); repeat intro.
-          now apply mult_assoc.
-         now apply mult_1_l.
-        now apply mult_1_r.
-       now apply mult_comm.
-      now apply plus_assoc.
-     now apply plus_0_r.
-    now apply plus_comm.
+          now apply plus_assoc.
+         now apply plus_0_r.
+        now apply plus_comm.
+       now apply mult_assoc.
+      now apply mult_1_l.
+     now apply mult_1_r.
+    now apply mult_comm.
    now apply mult_plus_distr_l.
   now apply mult_plus_distr_r.
 Qed.
@@ -83,7 +83,7 @@ Instance: Initial (semirings.object nat).
 Proof.
   intros. apply natural_initial. intros. 
   intros x y E. unfold equiv, nat_equiv in E. subst y. induction x. 
-  replace 0%nat with (ring_zero:nat) by reflexivity.
+  replace 0%nat with (zero:nat) by reflexivity.
   rewrite 2!rings.preserves_0. reflexivity.
   rewrite S_nat_1_plus.
   rewrite 2!rings.preserves_plus, 2!rings.preserves_1. 

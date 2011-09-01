@@ -15,7 +15,7 @@ Section initial_maps.
   Variable Int: Type.
 
   Class IntegersToRing :=
-    integers_to_ring: ∀ R `{RingMult R} `{RingPlus R} `{RingOne R} `{RingZero R} `{GroupInv R}, Int → R.
+    integers_to_ring: ∀ R `{Mult R} `{Plus R} `{One R} `{Zero R} `{Negate R}, Int → R.
 
   Context `{IntegersToRing} `{Ring Int} `{∀ `{Ring B}, SemiRing_Morphism (integers_to_ring B)}.
 
@@ -38,14 +38,14 @@ End initial_maps.
 
 Instance: Params (@integers_to_ring) 8.
 
-Class Integers A {e plus mult zero one opp} `{U : IntegersToRing A} :=
-  { integers_ring:> @Ring A e plus mult zero one opp
+Class Integers A {e plus mult zero one negate} `{U : IntegersToRing A} :=
+  { integers_ring:> @Ring A e plus mult zero one negate
   ; integers_to_ring_mor:> ∀ `{Ring B}, SemiRing_Morphism (integers_to_ring A B)
   ; integers_initial:> Initial (rings.object A) }.
 
 Section specializable.
-  Context (Int N: Type) `{Equiv Int} `{RingMult Int} `{RingPlus Int} `{RingOne Int}
-    `{GroupInv Int} `{RingZero Int} `{NaturalsToSemiRing N}.
+  Context (Int N: Type) `{Equiv Int} `{Mult Int} `{Plus Int} `{One Int}
+    `{Negate Int} `{Zero Int} `{NaturalsToSemiRing N}.
 
   Class IntAsNat := int_as_nat: ∀ i: Int, 
     { n: N | i = naturals_to_semiring N Int n } + { n: N | i = - naturals_to_semiring N Int n }.

@@ -1,13 +1,13 @@
 Require theory.fields.
 Require Import Morphisms Ring abstract_algebra theory.rings.
 
-Inductive Frac R `{ap : Equiv R} `{zero : RingZero R} : Type := frac { num: R; den: R; den_ne_0: den ≠ 0 }.
+Inductive Frac R `{Rap : Equiv R} `{Rzero : Zero R} : Type := frac { num: R; den: R; den_ne_0: den ≠ 0 }.
   (* We used to have [den] and [den_nonzero] bundled, which did work relatively nicely with Program, but the
    extra messyness in proofs etc turned out not to be worth it. *)
-Implicit Arguments frac [[R] [ap] [zero]].
-Implicit Arguments num [[R] [ap] [zero]].
-Implicit Arguments den [[R] [ap] [zero]].
-Implicit Arguments den_ne_0 [[R] [ap] [zero]].
+Implicit Arguments frac [[R] [Rap] [Rzero]].
+Implicit Arguments num [[R] [Rap] [Rzero]].
+Implicit Arguments den [[R] [Rap] [Rzero]].
+Implicit Arguments den_ne_0 [[R] [Rap] [Rzero]].
 
 Section contents.
 Context `{IntegralDomain R} `{∀ x y, Decision (x = y)}.
@@ -39,19 +39,19 @@ Instance: Proper ((=) ==> (=)) Frac_inject.
 Proof. intros x1 x2 E. unfold equiv, Frac_equiv. simpl. now rewrite E. Qed.
 
 (* Relations, operations and constants *)
-Global Program Instance Frac_plus: RingPlus (Frac R) :=
+Global Program Instance Frac_plus: Plus (Frac R) :=
   λ x y, frac (num x * den y + num y * den x) (den x * den y) _.
 Next Obligation. destruct x, y. simpl. now apply mult_ne_0. Qed.
 
-Global Instance Frac_0: RingZero (Frac R) := ('0 : Frac R).
-Global Instance Frac_1: RingOne (Frac R) := ('1 : Frac R).
+Global Instance Frac_0: Zero (Frac R) := ('0 : Frac R).
+Global Instance Frac_1: One (Frac R) := ('1 : Frac R).
 
-Global Instance Frac_opp: GroupInv (Frac R) := λ x, frac (- num x) (den x) (den_ne_0 x).
+Global Instance Frac_negate: Negate (Frac R) := λ x, frac (- num x) (den x) (den_ne_0 x).
 
-Global Program Instance Frac_mult: RingMult (Frac R) := λ x y, frac (num x * num y) (den x * den y) _.
+Global Program Instance Frac_mult: Mult (Frac R) := λ x y, frac (num x * num y) (den x * den y) _.
 Next Obligation. destruct x, y. simpl. now apply mult_ne_0. Qed.
 
-Ltac unfolds := unfold Frac_opp, Frac_plus, equiv, Frac_equiv in *; simpl in *.
+Ltac unfolds := unfold Frac_negate, Frac_plus, equiv, Frac_equiv in *; simpl in *.
 Ltac ring_on_ring := repeat intro; unfolds; try ring.
 
 Lemma Frac_nonzero_num x : x ≠ 0 ↔ num x ≠ 0.
@@ -69,10 +69,10 @@ Proof with try ring.
   rewrite E, E'...
 Qed.
 
-Instance: Proper ((=) ==> (=)) Frac_opp.
+Instance: Proper ((=) ==> (=)) Frac_negate.
 Proof. 
   intros x y E. unfolds. 
-  rewrite <-opp_mult_distr_l, E. ring. 
+  rewrite <-negate_mult_distr_l, E. ring. 
 Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) Frac_mult.
@@ -85,16 +85,16 @@ Qed.
 Instance: Ring (Frac R).
 Proof. repeat (split; try apply _); ring_on_ring. Qed.
 
-Global Instance Frac_dec_mult_inv: DecMultInv (Frac R) := λ x,
+Global Instance Frac_dec_recip: DecRecip (Frac R) := λ x,
   match decide_rel (=) (num x) 0 with
   | left _ => 0
   | right P => frac (den x) (num x) P
   end.
 
-Instance: Setoid_Morphism Frac_dec_mult_inv.
+Instance: Setoid_Morphism Frac_dec_recip.
 Proof.
   split; try apply _.
-  intros [xn xd Px] [yn yd Py]. unfolds. unfold Frac_dec_mult_inv. simpl.
+  intros [xn xd Px] [yn yd Py]. unfolds. unfold Frac_dec_recip. simpl.
   case (decide_rel (=) xn 0); case (decide_rel (=) yn 0); intros Ey Ex; simpl.
      reflexivity.
     rewrite Ex. intros E. destruct Ey. 
@@ -113,10 +113,10 @@ Proof.
     red. unfolds.
     rewrite 2!mult_1_r.
     apply (is_ne_0 1).
-   unfold dec_mult_inv, Frac_dec_mult_inv.
+   unfold dec_recip, Frac_dec_recip.
    case (decide_rel _); simpl; intuition.
   intros [xn xs] Ex.
-  unfold dec_mult_inv, Frac_dec_mult_inv.
+  unfold dec_recip, Frac_dec_recip.
   case (decide_rel _); simpl.
    intros E. destruct Ex. unfolds. rewrite E. ring.
   intros. ring_on_ring.
@@ -125,7 +125,7 @@ Qed.
 Lemma Frac_dec_mult_num_den x :
   x = 'num x / 'den x.
 Proof.
-  unfold dec_mult_inv, Frac_dec_mult_inv.
+  unfold dec_recip, Frac_dec_recip.
   case (decide_rel _); simpl; intros E.
    now destruct (den_ne_0 x).
   unfolds. ring.

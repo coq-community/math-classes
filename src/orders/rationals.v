@@ -18,11 +18,11 @@ Section rationals_and_integers.
     destruct (total (≤) den 0).
      exists (-num) (-den). split.
       apply lt_iff_le_ne. split.
-       now apply rings.flip_nonpos_opp.
-      apply not_symmetry. now apply flip_opp_ne_0.
-     rewrite 2!preserves_opp. rewrite E2. field.
+       now apply rings.flip_nonpos_negate.
+      apply not_symmetry. now apply flip_negate_ne_0.
+     rewrite 2!preserves_negate. rewrite E2. field.
      split.
-      apply flip_opp_ne_0. now apply injective_ne_0.
+      apply flip_negate_ne_0. now apply injective_ne_0.
      now apply injective_ne_0.
     exists num. exists den. split; try assumption.
     apply lt_iff_le_ne. split. assumption. now apply not_symmetry.
@@ -44,15 +44,15 @@ Section rationals_and_another_rationals.
     intros E.
     destruct (rationals_decompose_pos_den (SRpair nat) x) as [num [den [E1 E2]]].
     rewrite E2 in E |- *. clear E2.
-    rewrite preserves_mult, preserves_dec_mult_inv.
+    rewrite preserves_mult, preserves_dec_recip.
     apply (order_reflecting_pos (.*.) (f (i_to_r den))).
      change (0 < (f ∘ i_to_r) den).
      rewrite (integers.to_ring_unique _).
      apply semirings.preserves_pos. unfold lt in *. apply E1.
     apply (order_preserving_nonneg (.*.) (i_to_r den)) in E.
      rewrite right_absorb. rewrite right_absorb in E.
-     rewrite (commutativity (f (i_to_r num))), associativity, dec_mult_inverse, left_identity.
-      rewrite (commutativity (i_to_r num)), associativity, dec_mult_inverse, left_identity in E. 
+     rewrite (commutativity (f (i_to_r num))), associativity, dec_recip_inverse, left_identity.
+      rewrite (commutativity (i_to_r num)), associativity, dec_recip_inverse, left_identity in E. 
        change (0 ≤ (f ∘ i_to_r) num).
        rewrite (integers.to_ring_unique _).
        rewrite <-(preserves_0 (f:=integers_to_ring (SRpair nat) Q2)).
@@ -116,7 +116,7 @@ Section default_order.
     destruct (decide (d = 0)) as [A|A]...
     exists (0:nat) (1:nat).
     split. discriminate.
-    rewrite E, A, preserves_0, preserves_1, dec_mult_inv_0.
+    rewrite E, A, preserves_0, preserves_1, dec_recip_0.
     ring.
   Qed.
 
@@ -146,9 +146,9 @@ Section default_order.
       apply (injective n_to_sr).
       rewrite preserves_plus, preserves_mult, preserves_mult, preserves_0.
       apply (left_cancellation_ne_0 (.*.) (/n_to_sr d1)).
-       apply dec_mult_inv_ne_0. apply injective_ne_0...
+       apply dec_recip_ne_0. apply injective_ne_0...
       apply (left_cancellation_ne_0 (.*.) (/n_to_sr d2)).
-       apply dec_mult_inv_ne_0. apply injective_ne_0...
+       apply dec_recip_ne_0. apply injective_ne_0...
       ring_simplify. 
       etransitivity.
        2: now symmetry; eauto.
@@ -169,7 +169,7 @@ Section default_order.
     intros x y [n1 [d1 E1]] [n2 [d2 E2]].
     exists (n1 * n2) (d1 * d2).
     rewrite 2!preserves_mult. 
-    rewrite E1, E2, dec_mult_inv_distr. ring.
+    rewrite E1, E2, dec_recip_distr. ring.
   Qed.
 
   Notation i_to_r := (integers_to_ring (SRpair nat) Q).

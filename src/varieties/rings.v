@@ -5,19 +5,19 @@ Require Import
   Ring
   abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
 
-Inductive op := plus | mult | zero | one | opp.
+Inductive op := plus | mult | zero | one | negate.
 
 Definition sig: Signature := single_sorted_signature
-  (λ o, match o with zero | one => O | opp => 1%nat | plus | mult => 2%nat end).
+  (λ o, match o with zero | one => O | negate => 1%nat | plus | mult => 2%nat end).
 
 Section laws.
-  Global Instance: RingPlus (Term0 sig nat tt) :=
+  Global Instance: Plus (Term0 sig nat tt) :=
     λ x, App sig _ _ _ (App sig _ _ _ (Op sig _ plus) x).
-  Global Instance: RingMult (Term0 sig nat tt) :=
+  Global Instance: Mult (Term0 sig nat tt) :=
     λ x, App sig _ _ _ (App sig _ _ _ (Op sig _ mult) x).
-  Global Instance: RingZero (Term0 sig nat tt) := Op sig _ zero.
-  Global Instance: RingOne (Term0 sig nat tt) := Op sig _ one.
-  Global Instance: GroupInv (Term0 sig nat tt) := App sig _ _ _ (Op sig _ opp).
+  Global Instance: Zero (Term0 sig nat tt) := Op sig _ zero.
+  Global Instance: One (Term0 sig nat tt) := Op sig _ one.
+  Global Instance: Negate (Term0 sig nat tt) := App sig _ _ _ (Op sig _ negate).
 
   Local Notation x := (Var sig nat 0%nat tt).
   Local Notation y := (Var sig nat 1%nat tt).
@@ -35,8 +35,8 @@ Section laws.
     |e_mult_0_l: Laws (0 * x === 0)
     |e_distr: Laws (x * (y + z) === x * y + x * z)
     |e_distr_l: Laws ((x + y) * z === x * z + y * z)
-    |e_plus_opp_r: Laws (x + - x === 0)
-    |e_plus_opp_l: Laws (- x + x === 0).
+    |e_plus_negate_r: Laws (x + - x === 0)
+    |e_plus_negate_l: Laws (- x + x === 0).
 End laws.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
@@ -49,18 +49,18 @@ Definition Object := varieties.Object theory.
 
 Section decode_operations. 
   Context `{AlgebraOps theory A}.
-  Global Instance: RingPlus (A tt) := algebra_op plus.
-  Global Instance: RingMult (A tt) := algebra_op mult.
-  Global Instance: RingZero (A tt) := algebra_op zero.
-  Global Instance: RingOne (A tt) := algebra_op one.
-  Global Instance: GroupInv (A tt) := algebra_op opp.
+  Global Instance: Plus (A tt) := algebra_op plus.
+  Global Instance: Mult (A tt) := algebra_op mult.
+  Global Instance: Zero (A tt) := algebra_op zero.
+  Global Instance: One (A tt) := algebra_op one.
+  Global Instance: Negate (A tt) := algebra_op negate.
 End decode_operations.
 
 Section encode_with_ops.
   Context A `{Ring A}.
 
   Global Instance encode_operations: AlgebraOps sig (λ _, A) := λ o,
-    match o with plus => (+) | mult => (.*.) | zero => 0:A | one => 1:A | opp => (-) end.
+    match o with plus => (+) | mult => (.*.) | zero => 0:A | one => 1:A | negate => (-) end.
 
   Global Instance encode_algebra_and_ops: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
@@ -87,9 +87,9 @@ Proof with simpl; auto.
             transitivity (algebra_op plus (algebra_op zero) x).
              apply_simplified (laws _ e_plus_comm)...
             apply_simplified (laws _ e_plus_0_l)...
-           apply (algebra_propers opp)...
-          apply_simplified (laws _ e_plus_opp_l)...
-         apply_simplified (laws _ e_plus_opp_r)...
+           apply (algebra_propers negate)...
+          apply_simplified (laws _ e_plus_negate_l)...
+         apply_simplified (laws _ e_plus_negate_r)...
         apply_simplified (laws _ e_plus_comm)...
        apply_simplified (laws _ e_mult_assoc)...
       apply (algebra_propers mult)...
@@ -114,7 +114,7 @@ Proof.
       apply rings.preserves_mult.
      change (f tt 0 = 0). apply rings.preserves_0.
     change (f tt 1 = 1). apply rings.preserves_1.
-   apply rings.preserves_opp.
+   apply rings.preserves_negate.
   apply encode_algebra_only.
  apply encode_algebra_only.
 Qed.

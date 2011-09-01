@@ -4,27 +4,27 @@ Require Import
 
 (* canonical names for relations/operations/constants: *)
 Instance N_equiv : Equiv N := eq.
-Instance N_0 : RingZero N := 0%N.
-Instance N_1 : RingOne N := 1%N.
-Instance N_plus : RingPlus N := Nplus.
-Instance N_mult : RingMult N := Nmult.
+Instance N_0 : Zero N := 0%N.
+Instance N_1 : One N := 1%N.
+Instance N_plus : Plus N := Nplus.
+Instance N_mult : Mult N := Nmult.
 
 (* properties: *)
 Instance: SemiRing N.
 Proof.
   repeat (split; try apply _); repeat intro.
-          now apply Nmult_assoc.
-         now apply Nmult_1_l.
-        now apply Nmult_1_r.
-       now apply Nmult_comm.
-      now apply Nplus_assoc.
-     now apply Nplus_0_r.
-    now apply Nplus_comm.
+          now apply Nplus_assoc.
+         now apply Nplus_0_r.
+        now apply Nplus_comm.
+       now apply Nmult_assoc.
+      now apply Nmult_1_l.
+     now apply Nmult_1_r.
+    now apply Nmult_comm.
    now apply Nmult_plus_distr_l.
   now apply Nmult_plus_distr_r.
 Qed.
 
-Instance: ∀ x y: N, Decision (x = y) := N_eq_dec.
+Instance: ∀ x y : N, Decision (x = y) := N_eq_dec.
 
 Instance inject_nat_N: Cast nat N := N_of_nat.
 Instance inject_N_nat: Cast N nat := nat_of_N.

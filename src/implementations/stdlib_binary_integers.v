@@ -9,11 +9,11 @@ Require Import
 
 (* canonical names: *)
 Instance Z_equiv: Equiv Z := eq.
-Instance Z_plus: RingPlus Z := Zplus.
-Instance Z_0: RingZero Z := 0%Z.
-Instance Z_1: RingOne Z := 1%Z.
-Instance Z_mult: RingMult Z := Zmult.
-Instance Z_opp: GroupInv Z := Zopp.
+Instance Z_plus: Plus Z := Zplus.
+Instance Z_0: Zero Z := 0%Z.
+Instance Z_1: One Z := 1%Z.
+Instance Z_mult: Mult Z := Zmult.
+Instance Z_negate: Negate Z := Zopp.
   (* some day we'd like to do this with [Existing Instance] *)
 
 Instance: Ring Z.
@@ -154,7 +154,7 @@ Next Obligation.
    left. 
    now apply Z.abs_eq.
   right.
-  rewrite Z.abs_neq by easy. now apply rings.opp_involutive.
+  rewrite Z.abs_neq by easy. now apply rings.negate_involutive.
 Qed.
 
 Program Instance: IntAbs Z N := Zabs_N.
@@ -165,7 +165,7 @@ Next Obligation.
    left. 
    now apply Z.abs_eq.
   right.
-  rewrite Z.abs_neq by easy. now apply rings.opp_involutive.
+  rewrite Z.abs_neq by easy. now apply rings.negate_involutive.
 Qed.
 
 (* Efficient nat_pow *)

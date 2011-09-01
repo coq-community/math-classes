@@ -12,7 +12,7 @@ Definition sig: Signature := single_sorted_signature
   (λ o, match o with mult => 2%nat end).
 
 Section laws.
-  Global Instance: SemiGroupOp (Term0 sig nat tt) :=
+  Global Instance: SgOp (Term0 sig nat tt) :=
     λ x, App sig _ _ _ (App sig _ _ _ (Op sig nat mult) x).
 
   Local Notation x := (Var sig nat 0%nat tt).
@@ -43,12 +43,12 @@ Definition forget: Object → setoids.Object :=
  Algebra/InVariety/HomoMorphism type classes instantiated with the above
  signature and theory. *)
 
-Instance encode_operations A `{!SemiGroupOp A}: AlgebraOps sig (λ _, A) :=
+Instance encode_operations A `{!SgOp A}: AlgebraOps sig (λ _, A) :=
   λ o, match o with mult => (&) end.
 
 Section decode_operations.
   Context `{AlgebraOps theory A}.
-  Global Instance: SemiGroupOp (A tt) := algebra_op mult.
+  Global Instance: SgOp (A tt) := algebra_op mult.
 End decode_operations.
 
 Section encode_variety_and_ops.
@@ -110,9 +110,9 @@ Qed.
 (* Finally, we use these encoding/decoding functions to specialize some universal results: *)
 Section specialized.
   Context (A B C: Type)
-    `{!SemiGroupOp A} `{!Equiv A}
-    `{!SemiGroupOp B} `{!Equiv B}
-    `{!SemiGroupOp C} `{!Equiv C}
+    `{!SgOp A} `{!Equiv A}
+    `{!SgOp B} `{!Equiv B}
+    `{!SgOp C} `{!Equiv C}
     (f: A → B) (g: B → C).
 
   Global Instance id_morphism `{!SemiGroup A}: SemiGroup_Morphism id.

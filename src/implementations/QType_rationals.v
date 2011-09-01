@@ -11,12 +11,12 @@ Module QType_Rationals (Import anyQ: QType).
 Module Import props := QProperties anyQ.
 
 Instance QType_equiv: Equiv t := eq.
-Instance QType_plus: RingPlus t := add.
-Instance QType_0: RingZero t := zero.
-Instance QType_1: RingOne t := one.
-Instance QType_mult: RingMult t := mul.
-Instance QType_opp: GroupInv t := opp.
-Instance QType_dec_mult_inv: DecMultInv t := inv.
+Instance QType_plus: Plus t := add.
+Instance QType_0: Zero t := zero.
+Instance QType_1: One t := one.
+Instance QType_mult: Mult t := mul.
+Instance QType_negate: Negate t := opp.
+Instance QType_dec_recip: DecRecip t := inv.
 
 Instance: Setoid t := {}.
 

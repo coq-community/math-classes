@@ -17,7 +17,7 @@ On the other hand, if equality is decidable, we will prove that we have the
 usual properties like Trichotomy (<) and TotalRelation (≤).
 *)
 
-Class PartialOrder `{e: Equiv A} (o : Le A) : Prop :=
+Class PartialOrder `{Ae: Equiv A} (Ale : Le A) : Prop :=
   { po_setoid : Setoid A (* Making this a coercion makes instance search slow *)
   ; po_proper:> Proper ((=) ==> (=) ==> iff) (≤)
   ; po_preorder:> PreOrder (≤)
@@ -25,14 +25,14 @@ Class PartialOrder `{e: Equiv A} (o : Le A) : Prop :=
 
 (* The strict order from the standard library does not include (=) and thus
   does not require (<) to be Proper. *)
-Class StrictSetoidOrder `{e : Equiv A} (o : Lt A) : Prop :=
+Class StrictSetoidOrder `{Ae : Equiv A} (Alt : Lt A) : Prop :=
   { strict_setoid_order_setoid : Setoid A
   ; strict_setoid_order_proper :> Proper ((=) ==> (=) ==> iff) (<)
   ; strict_setoid_order_strict :> StrictOrder (<) }.
 
 (* The constructive notion of a total strict total order. Note that we get Proper (<) 
   from cotransitivity. We will prove that (<) is in fact a StrictSetoidOrder. *)
-Class PseudoOrder `{e : Equiv A} `{ap : Apart A} (so : Lt A) : Prop :=
+Class PseudoOrder `{Ae : Equiv A} `{Aap : Apart A} (Alt : Lt A) : Prop :=
   { pseudo_order_setoid : StrongSetoid A
   ; pseudo_order_antisym : ∀ x y, ¬(x < y ∧ y < x)
   ; pseudo_order_cotrans :> CoTransitive (<) 
@@ -40,7 +40,7 @@ Class PseudoOrder `{e : Equiv A} `{ap : Apart A} (so : Lt A) : Prop :=
 
 (* A partial order (≤) with a corresponding (<). We will prove that (<) is in fact
   a StrictSetoidOrder *)
-Class FullPartialOrder `{e : Equiv A} `{ap : Apart A} (o : Le A) (so : Lt A) : Prop :=
+Class FullPartialOrder `{Ae : Equiv A} `{Aap : Apart A} (Ale : Le A) (Alt : Lt A) : Prop :=
   { strict_po_setoid : StrongSetoid A 
   ; strict_po_po :> PartialOrder (≤)
   ; strict_po_trans :> Transitive (<)
@@ -48,7 +48,7 @@ Class FullPartialOrder `{e : Equiv A} `{ap : Apart A} (o : Le A) (so : Lt A) : P
 
 (* A pseudo order (<) with a corresponding (≤). We will prove that (≤) is in fact
   a PartialOrder. *)
-Class FullPseudoOrder `{e : Equiv A} `{ap : Apart A} (Ale : Le A) (Alt : Lt A) : Prop :=
+Class FullPseudoOrder `{Ae : Equiv A} `{Aap : Apart A} (Ale : Le A) (Alt : Lt A) : Prop :=
   { full_pseudo_order_pseudo :> PseudoOrder Alt 
   ; le_iff_not_lt_flip : ∀ x y, x ≤ y ↔ ¬y < x }.
 
@@ -103,30 +103,30 @@ specifies the order on the naturals, integers, rationals and reals. This notion
 is quite similar to a strictly linearly ordered unital commutative protoring in 
 Davorin Lešnik's PhD thesis.
 *)
-Class SemiRingOrder `{Equiv A} `{RingPlus A} `{RingMult A} 
-    `{RingZero A} (Ale : Le A) :=
+Class SemiRingOrder `{Equiv A} `{Plus A} `{Mult A} 
+    `{Zero A} (Ale : Le A) :=
   { srorder_po :> PartialOrder Ale
   ; srorder_partial_minus : ∀ x y, x ≤ y → ∃ z, y = x + z
   ; srorder_plus :> ∀ z, OrderEmbedding (z +)
   ; nonneg_mult_compat : ∀ x y, PropHolds (0 ≤ x) → PropHolds (0 ≤ y) → PropHolds (0 ≤ x * y) }.
 
-Class StrictSemiRingOrder `{Equiv A} `{RingPlus A} `{RingMult A} 
-    `{RingZero A} (Alt : Lt A) :=
+Class StrictSemiRingOrder `{Equiv A} `{Plus A} `{Mult A} 
+    `{Zero A} (Alt : Lt A) :=
   { strict_srorder_so :> StrictSetoidOrder Alt
   ; strict_srorder_partial_minus : ∀ x y, x < y → ∃ z, y = x + z
   ; strict_srorder_plus :> ∀ z, StrictOrderEmbedding (z +)
   ; pos_mult_compat : ∀ x y, PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x * y) }.
 
-Class PseudoSemiRingOrder `{Equiv A} `{Apart A} `{RingPlus A} 
-    `{RingMult A} `{RingZero A} (Alt : Lt A) :=
+Class PseudoSemiRingOrder `{Equiv A} `{Apart A} `{Plus A} 
+    `{Mult A} `{Zero A} (Alt : Lt A) :=
   { pseudo_srorder_strict :> PseudoOrder Alt
   ; pseudo_srorder_partial_minus : ∀ x y, ¬y < x → ∃ z, y = x + z
   ; pseudo_srorder_plus :> ∀ z, StrictOrderEmbedding (z +)
   ; pseudo_srorder_mult_ext :> StrongSetoid_BinaryMorphism (.*.)
   ; pseudo_srorder_pos_mult_compat : ∀ x y, PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x * y) }.
 
-Class FullPseudoSemiRingOrder `{Equiv A} `{Apart A} `{RingPlus A} 
-    `{RingMult A} `{RingZero A} (Ale : Le A) (Alt : Lt A) :=
+Class FullPseudoSemiRingOrder `{Equiv A} `{Apart A} `{Plus A} 
+    `{Mult A} `{Zero A} (Ale : Le A) (Alt : Lt A) :=
   { full_pseudo_srorder_pso :> PseudoSemiRingOrder Alt
   ; full_pseudo_srorder_le_iff_not_lt_flip : ∀ x y, x ≤ y ↔ ¬y < x }.
 
@@ -137,7 +137,7 @@ Hint Extern 7 (PropHolds (0 ≤ _ * _)) => eapply @nonneg_mult_compat : typeclas
 (*
 Alternatively, we could have defined the standard notion of a RingOrder:
 
-Class RingOrder `{Equiv A} `{RingPlus A} `{RingMult A} `{RingZero A} (Ale : Le A) :=
+Class RingOrder `{Equiv A} `{Plus A} `{Mult A} `{Zero A} (Ale : Le A) :=
   { ringorder_po :> PartialOrder Ale
   ; ringorder_plus :> ∀ z, OrderPreserving (z +)
   ; ringorder_mult : ∀ x y, 0 ≤ x → 0 ≤ y → 0 ≤ x * y }.
@@ -149,8 +149,8 @@ defining such a class.
 
 Similarly we prove that a FullSemiRingOrder and a FullPseudoRingOrder are equivalent.
 
-Class FullPseudoRingOrder `{Equiv A} `{Apart A} `{RingPlus A} 
-    `{RingMult A} `{RingZero A} (Ale : Le A) (Alt : Lt A) :=
+Class FullPseudoRingOrder `{Equiv A} `{Apart A} `{Plus A} 
+    `{Mult A} `{Zero A} (Ale : Le A) (Alt : Lt A) :=
   { pseudo_ringorder_spo :> FullPseudoOrder Ale Alt
   ; pseudo_ringorder_mult_ext :> StrongSetoid_BinaryMorphism (.*.)
   ; pseudo_ringorder_plus :> ∀ z, StrictlyOrderPreserving (z +)

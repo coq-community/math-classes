@@ -13,9 +13,9 @@ Section from_ring_order.
   Proof.
     repeat (split; try apply _). 
      intros x y E. exists (- x + y). 
-     now rewrite associativity, plus_opp_r, plus_0_l.
+     now rewrite associativity, plus_negate_r, plus_0_l.
     intros x y E.
-    rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_opp_l z), <-!associativity.
+    rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_negate_l z), <-!associativity.
     now apply (order_preserving _).
   Qed.
 End from_ring_order.
@@ -29,9 +29,9 @@ Section from_strict_ring_order.
   Proof.
     repeat (split; try apply _). 
      intros x y E. exists (- x + y). 
-     now rewrite associativity, plus_opp_r, plus_0_l.
+     now rewrite associativity, plus_negate_r, plus_0_l.
     intros x y E.
-    rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_opp_l z), <-!associativity.
+    rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_negate_l z), <-!associativity.
     now apply (strictly_order_preserving _).
   Qed.
 End from_strict_ring_order.
@@ -46,9 +46,9 @@ Section from_pseudo_ring_order.
   Proof.
     repeat (split; try apply _).
      intros x y E. exists (- x + y). 
-     now rewrite associativity, plus_opp_r, plus_0_l.
+     now rewrite associativity, plus_negate_r, plus_0_l.
     intros x y E.
-    rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_opp_l z), <-!associativity.
+    rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_negate_l z), <-!associativity.
     now apply (strictly_order_preserving _).
   Qed.
 End from_pseudo_ring_order.
@@ -71,7 +71,7 @@ Section ring_order.
   Context `{Ring R} `{!SemiRingOrder Rle}.
   Add Ring R : (stdlib_ring_theory R).
 
-  Lemma flip_le_opp x y : -y ≤ -x ↔ x ≤ y.
+  Lemma flip_le_negate x y : -y ≤ -x ↔ x ≤ y.
   Proof.
     assert (∀ a b, a ≤ b → -b ≤ -a).
      intros a b E.
@@ -79,20 +79,20 @@ Section ring_order.
      setoid_replace (-a) with (-a + -b + b) at 2 by ring.
      now apply (order_preserving _).
     split; intros; auto.
-    rewrite <-(opp_involutive x), <-(opp_involutive y); auto.
+    rewrite <-(negate_involutive x), <-(negate_involutive y); auto.
   Qed.
 
-  Lemma flip_nonneg_opp x : 0 ≤ x ↔ -x ≤ 0. 
+  Lemma flip_nonneg_negate x : 0 ≤ x ↔ -x ≤ 0. 
   Proof.
     split; intros E.
-     rewrite <-opp_0. now apply flip_le_opp.
-    apply flip_le_opp. now rewrite opp_0.
+     rewrite <-negate_0. now apply flip_le_negate.
+    apply flip_le_negate. now rewrite negate_0.
   Qed.
 
-  Lemma flip_nonpos_opp x : x ≤ 0 ↔ 0 ≤ -x. 
+  Lemma flip_nonpos_negate x : x ≤ 0 ↔ 0 ≤ -x. 
   Proof.
-    rewrite <-(opp_involutive x) at 1. 
-    split; intros; now apply flip_nonneg_opp.
+    rewrite <-(negate_involutive x) at 1. 
+    split; intros; now apply flip_nonneg_negate.
   Qed.
 
   Lemma flip_le_minus_r (x y z : R) : z ≤ y - x ↔ z + x ≤ y.
@@ -108,7 +108,7 @@ Section ring_order.
 
   Lemma flip_le_minus_l (x y z : R) : y - x ≤ z ↔ y ≤ z + x.
   Proof.
-    rewrite <-(opp_involutive x) at 2.
+    rewrite <-(negate_involutive x) at 2.
     split; now apply flip_le_minus_r.
   Qed.
 
@@ -146,7 +146,7 @@ Section ring_order.
   Proof.
     intros E.
     transitivity 0; trivial.
-    now apply flip_nonneg_opp.
+    now apply flip_nonneg_negate.
   Qed.
 End ring_order.
 
@@ -154,7 +154,7 @@ Section strict_ring_order.
   Context `{Ring R} `{!StrictSemiRingOrder Rlt}.
   Add Ring Rs : (stdlib_ring_theory R).
 
-  Lemma flip_lt_opp x y : -y < -x ↔ x < y.
+  Lemma flip_lt_negate x y : -y < -x ↔ x < y.
   Proof.
     assert (∀ a b, a < b → -b < -a).
      intros a b E.
@@ -162,20 +162,20 @@ Section strict_ring_order.
      setoid_replace (-a) with (-a + -b + b) at 2 by ring.
      now apply (strictly_order_preserving _).
     split; intros; auto.
-    rewrite <-(opp_involutive x), <-(opp_involutive y); auto.
+    rewrite <-(negate_involutive x), <-(negate_involutive y); auto.
   Qed.
 
-  Lemma flip_pos_opp x : 0 < x ↔ -x < 0. 
+  Lemma flip_pos_negate x : 0 < x ↔ -x < 0. 
   Proof.
     split; intros E.
-     rewrite <- opp_0. now apply flip_lt_opp.
-    apply flip_lt_opp. now rewrite opp_0.
+     rewrite <- negate_0. now apply flip_lt_negate.
+    apply flip_lt_negate. now rewrite negate_0.
   Qed.
 
-  Lemma flip_neg_opp x : x < 0 ↔ 0 < -x. 
+  Lemma flip_neg_negate x : x < 0 ↔ 0 < -x. 
   Proof.
-    rewrite <-(opp_involutive x) at 1. 
-    split; intros; now apply flip_pos_opp.
+    rewrite <-(negate_involutive x) at 1. 
+    split; intros; now apply flip_pos_negate.
   Qed.
 
   Lemma flip_lt_minus_r (x y z : R) : z < y - x ↔ z + x < y.
@@ -191,7 +191,7 @@ Section strict_ring_order.
 
   Lemma flip_lt_minus_l (x y z : R) : y - x < z ↔ y < z + x.
   Proof.
-    rewrite <-(opp_involutive x) at 2.
+    rewrite <-(negate_involutive x) at 2.
     split; now apply flip_lt_minus_r.
   Qed.
 
@@ -222,7 +222,7 @@ Section strict_ring_order.
   Proof.
     intros E.
     transitivity 0; trivial.
-    now apply flip_pos_opp.
+    now apply flip_pos_negate.
   Qed.
 End strict_ring_order.
 
@@ -251,15 +251,15 @@ Section another_ring_order.
     repeat (split; try apply _).
     intros x y F.
     apply flip_nonneg_minus, E.
-    rewrite preserves_plus, preserves_opp.
+    rewrite preserves_plus, preserves_negate.
     now apply flip_nonneg_minus, F.
   Qed.
 
-  Lemma preserves_ge_opp1 `{!OrderPreserving f} x : -1 ≤ x → -1 ≤ f x.
-  Proof. intros. rewrite <-(preserves_1 (f:=f)), <-preserves_opp. now apply (order_preserving f). Qed.
+  Lemma preserves_ge_negate1 `{!OrderPreserving f} x : -1 ≤ x → -1 ≤ f x.
+  Proof. intros. rewrite <-(preserves_1 (f:=f)), <-preserves_negate. now apply (order_preserving f). Qed.
 
-  Lemma preserves_le_opp1 `{!OrderPreserving f} x : x ≤ -1 → f x ≤ -1.
-  Proof. intros. rewrite <-(preserves_1 (f:=f)), <-preserves_opp. now apply (order_preserving f). Qed.
+  Lemma preserves_le_negate1 `{!OrderPreserving f} x : x ≤ -1 → f x ≤ -1.
+  Proof. intros. rewrite <-(preserves_1 (f:=f)), <-preserves_negate. now apply (order_preserving f). Qed.
 End another_ring_order.
 
 Section another_strict_ring_order.

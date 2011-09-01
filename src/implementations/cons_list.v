@@ -39,7 +39,7 @@ Section contents.
   Global Instance: Setoid (list A).
   Proof. constructor; apply _. Qed.
 
-  Global Instance: SemiGroupOp (list A) := app.
+  Global Instance: SgOp (list A) := app.
 
   Global Instance app_proper: Proper (=) (@app A).
   Proof. clear H. intro x. induction x; destruct y; firstorder. Qed.
@@ -49,7 +49,7 @@ Section contents.
 
   Global Instance: SemiGroup (list A) := {}.
 
-  Global Instance: MonoidUnit (list A) := nil.
+  Global Instance: MonUnit (list A) := nil.
 
   Global Instance: Monoid (list A).
   Proof.

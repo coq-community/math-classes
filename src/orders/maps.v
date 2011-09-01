@@ -143,27 +143,27 @@ Section order_preserving_ops.
     now rewrite 2!(commutativity z).
   Qed.
 
-  Lemma order_preserving_nonneg (op : R → R → R) `{!RingZero R} `{∀ z, PropHolds (0 ≤ z) → OrderPreserving (op z)} z :
+  Lemma order_preserving_nonneg (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 ≤ z) → OrderPreserving (op z)} z :
     0 ≤ z → OrderPreserving (op z).
   Proof. auto. Qed.
 
-  Lemma order_preserving_flip_nonneg (op : R → R → R) `{!RingZero R} `{∀ z, PropHolds (0 ≤ z) → OrderPreserving (λ y, op y z)} z :
+  Lemma order_preserving_flip_nonneg (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 ≤ z) → OrderPreserving (λ y, op y z)} z :
     0 ≤ z → OrderPreserving (λ y, op y z).
   Proof. auto. Qed.
 
-  Lemma strictly_order_preserving_pos (op : R → R → R) `{!RingZero R} `{∀ z, PropHolds (0 < z) → StrictlyOrderPreserving (op z)} z :
+  Lemma strictly_order_preserving_pos (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 < z) → StrictlyOrderPreserving (op z)} z :
     0 < z → StrictlyOrderPreserving (op z).
   Proof. auto. Qed.
 
-  Lemma strictly_order_preserving_flip_pos (op : R → R → R) `{!RingZero R} `{∀ z, PropHolds (0 < z) → StrictlyOrderPreserving (λ y, op y z)} z :
+  Lemma strictly_order_preserving_flip_pos (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 < z) → StrictlyOrderPreserving (λ y, op y z)} z :
     0 < z → StrictlyOrderPreserving (λ y, op y z).
   Proof. auto. Qed.
 
-  Lemma order_reflecting_pos (op : R → R → R) `{!RingZero R} `{∀ z, PropHolds (0 < z) → OrderReflecting (op z)} z :
+  Lemma order_reflecting_pos (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 < z) → OrderReflecting (op z)} z :
     0 < z → OrderReflecting (op z).
   Proof. auto. Qed.
 
-  Lemma order_reflecting_flip_pos (op : R → R → R) `{!RingZero R} `{∀ z, PropHolds (0 < z) → OrderReflecting (λ y, op y z)} z :
+  Lemma order_reflecting_flip_pos (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 < z) → OrderReflecting (λ y, op y z)} z :
     0 < z → OrderReflecting (λ y, op y z).
   Proof. auto. Qed.
 End order_preserving_ops. 

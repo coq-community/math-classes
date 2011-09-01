@@ -78,9 +78,9 @@ Proof.
      (cast bigZ (Frac bigZ)) (rationals_to_frac bigQ bigZ ∘ cast bigZ bigQ)).
   unfold cast at 1. simpl.
   rewrite bigQ_div_bigQq_alt.
-  rewrite rings.preserves_mult, dec_fields.preserves_dec_mult_inv.
+  rewrite rings.preserves_mult, dec_fields.preserves_dec_recip.
   case (decide_rel (=) ('d : bigZ) 0); intros Ed.
-   rewrite Ed, !rings.preserves_0, dec_mult_inv_0.
+   rewrite Ed, !rings.preserves_0, dec_recip_0.
    now rewrite rings.mult_0_r.
   rewrite 2!(integers.to_ring_twice _ _ (cast bigZ (Frac bigZ))).
   now rewrite Frac_dec_mult_num_den at 1.
@@ -119,7 +119,7 @@ Proof.
      rewrite shiftl.preserves_shiftl.
      now rewrite <-shiftl.shiftl_int_pow, shiftl.preserves_shiftl_exp.
     change (BigZ.Neg k) with (-'k : bigZ).
-    rewrite int_pow.int_pow_opp.
+    rewrite int_pow.int_pow_negate.
     rewrite bigQ_div_bigQq, shiftl.preserves_shiftl.
     rewrite <-(shiftl.preserves_shiftl_exp (f:=cast bigN bigZ)).
     now rewrite rings.preserves_1, shiftl.shiftl_base_1_int_pow.
@@ -129,12 +129,12 @@ Proof.
    rewrite shiftl.shiftl_int_pow.
    now rewrite <-2!associativity, (commutativity (/cast bigN bigQ d)).
   change (BigZ.Neg k) with (-'k : bigZ).
-  rewrite int_pow.int_pow_opp.
+  rewrite int_pow.int_pow_negate.
   rewrite 2!bigQ_div_bigQq.
   rewrite shiftl.preserves_shiftl.
   rewrite <-(shiftl.preserves_shiftl_exp (f:=cast bigN bigZ)).
   rewrite shiftl.shiftl_int_pow.
-  now rewrite dec_fields.dec_mult_inv_distr, associativity.
+  now rewrite dec_fields.dec_recip_distr, associativity.
 Qed.
 
 Instance bigQ_Zshiftl: ShiftL bigQ Z := λ x k, x ≪ 'k.

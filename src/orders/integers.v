@@ -19,7 +19,7 @@ Proof.
     setoid_replace 0 with z; auto.
     apply (antisymmetry (≤)).
      assumption.
-    rewrite <-Ek. apply flip_nonneg_opp. 
+    rewrite <-Ek. apply flip_nonneg_negate. 
     apply to_semiring_nonneg.
    destruct E as [z E].
    apply compose_le with (naturals_to_semiring nat Int z).
@@ -57,12 +57,12 @@ Section another_ring.
      apply to_semiring_nonneg.
     rewrite <-Ez in E |- *.
     setoid_replace z with (0 : nat).
-     now rewrite preserves_0, opp_0.
+     now rewrite preserves_0, negate_0.
     apply (injective (f ∘ naturals_to_semiring nat Int)).
     rewrite (naturals.to_semiring_unique _), preserves_0.
-    rewrite preserves_opp, (naturals.to_semiring_twice _ _ (naturals_to_semiring nat R)) in E.
+    rewrite preserves_negate, (naturals.to_semiring_twice _ _ (naturals_to_semiring nat R)) in E.
     apply (antisymmetry (≤)).
-     now apply flip_nonpos_opp.
+     now apply flip_nonpos_negate.
     apply to_semiring_nonneg.
   Qed.
   
@@ -133,12 +133,12 @@ Proof with auto.
   rewrite <-E. clear E. pattern m. 
   apply naturals.induction; clear m.
     intros ? ? E. rewrite E. tauto.
-   rewrite preserves_0, opp_0...
+   rewrite preserves_0, negate_0...
   intros m E. 
   rewrite preserves_plus, preserves_1.
-  rewrite opp_distr, commutativity.
+  rewrite negate_plus_distr, commutativity.
   apply Psuc2...
-  apply opp_to_semiring_nonpos.
+  apply negate_to_semiring_nonpos.
 Qed.
 
 Lemma induction_nonneg

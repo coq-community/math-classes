@@ -9,7 +9,6 @@ Notation App := (universal_algebra.App msig False _ _).
 Import universal_algebra.
 
 Section contents.
-
   (* Ideally, we would like to operate exclusively on the universal term representation(s).
    If Coq had decent support for dependent pattern matching, this would be no problem.
    Unfortunately, Coq does not, and so we resort to defining an ad-hoc data type for
@@ -79,7 +78,7 @@ Section contents.
   Next Obligation.
    destruct internal_simplify.
    simpl.
-   rewrite e0.
+   rewrite e.
    transitivity (mon_unit & universal_algebra.eval msig (λ _, v) (curry (to_ua y))).
     symmetry.
     apply left_identity.
@@ -89,24 +88,24 @@ Section contents.
   Next Obligation.
    destruct internal_simplify.
    simpl.
-   rewrite e0.
+   rewrite e.
    transitivity (universal_algebra.eval msig (λ _, v) (curry (to_ua x)) & mon_unit).
     symmetry.
     apply right_identity.
    reflexivity.
   Qed.
 
-  Next Obligation. destruct internal_simplify. simpl. rewrite e0. reflexivity. Qed.
-  Next Obligation. destruct internal_simplify. simpl. rewrite e0. simpl. apply associativity. Qed.
+  Next Obligation. destruct internal_simplify. simpl. rewrite e. reflexivity. Qed.
+  Next Obligation. destruct internal_simplify. simpl. rewrite e. simpl. apply associativity. Qed.
 
   Program Definition simplify (t: uaTerm): { r: uaTerm | ∀ v, eval v r = eval v t } :=
     curry (to_ua (internal_simplify (from_ua (decode0 t)))).
 
   Next Obligation.
    destruct @internal_simplify. simpl.
-   destruct @from_ua in e0. simpl in *.
+   destruct @from_ua in e. simpl in *.
+   rewrite e.
    rewrite e0.
-   rewrite e1.
    rewrite @curry_decode0.
    reflexivity.
   Qed.

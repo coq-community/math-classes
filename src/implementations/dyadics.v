@@ -28,7 +28,7 @@ Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Z
 Notation Dyadic := (Dyadic Z).
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
-Global Program Instance dy_plus: RingPlus Dyadic := λ x y, 
+Global Program Instance dy_plus: Plus Dyadic := λ x y, 
   if decide_rel (≤) (expo x) (expo y)
   then mant x + mant y ≪ (expo y - expo x)↾_ ▼ min (expo x) (expo y)
   else mant x ≪ (expo x - expo y)↾_ + mant y ▼ min (expo x) (expo y).
@@ -36,10 +36,10 @@ Next Obligation. now apply rings.flip_nonneg_minus. Qed.
 Next Obligation. apply rings.flip_nonneg_minus. now apply orders.le_flip. Qed.
 
 Global Instance dy_inject: Cast Z Dyadic := λ x, x ▼ 0.
-Global Instance dy_opp: GroupInv Dyadic := λ x, -mant x ▼ expo x.
-Global Instance dy_mult: RingMult Dyadic := λ x y, mant x * mant y ▼ expo x + expo y.
-Global Instance dy_0: RingZero Dyadic := ('0 : Dyadic).
-Global Instance dy_1: RingOne Dyadic := ('1 : Dyadic).
+Global Instance dy_negate: Negate Dyadic := λ x, -mant x ▼ expo x.
+Global Instance dy_mult: Mult Dyadic := λ x y, mant x * mant y ▼ expo x + expo y.
+Global Instance dy_0: Zero Dyadic := ('0 : Dyadic).
+Global Instance dy_1: One Dyadic := ('1 : Dyadic).
 
 (* 
 We define equality on the dyadics by injecting them into the rationals. 
@@ -73,7 +73,7 @@ Section with_rationals.
   Lemma DtoQ_slow_preserves_plus x y : DtoQ_slow' (x + y) = DtoQ_slow' x + DtoQ_slow' y.
   Proof.
     destruct x as [xn xe], y as [yn ye].
-    unfold ring_plus at 1. unfold DtoQ_slow, dy_plus. simpl.
+    unfold plus at 1. unfold DtoQ_slow, dy_plus. simpl.
     case (decide_rel (≤) xe ye); intros E; simpl.
      rewrite rings.preserves_plus, ZtoQ_shift.
      rewrite min_l; try assumption. 
@@ -90,10 +90,10 @@ Section with_rationals.
     now apply orders.le_flip.
   Qed. 
 
-  Lemma DtoQ_slow_preserves_opp x : DtoQ_slow' (-x) = -DtoQ_slow' x.
+  Lemma DtoQ_slow_preserves_negate x : DtoQ_slow' (-x) = -DtoQ_slow' x.
   Proof.
     unfold DtoQ_slow. simpl.
-    rewrite rings.preserves_opp. ring.
+    rewrite rings.preserves_negate. ring.
   Qed.
 
   Lemma DtoQ_slow_preserves_mult x y : DtoQ_slow' (x * y) = DtoQ_slow' x * DtoQ_slow' y.
@@ -143,7 +143,7 @@ Proof.
       exact DtoQ_slow_preserves_0.
      exact DtoQ_slow_preserves_mult.
     exact DtoQ_slow_preserves_1.
-   exact DtoQ_slow_preserves_opp.
+   exact DtoQ_slow_preserves_negate.
 Qed.
 
 Global Instance dyadic_proper: Proper ((=) ==> (=) ==> (=)) dyadic.
@@ -181,15 +181,15 @@ Qed.
 Global Instance: SemiRing_Morphism dy_inject.
 Proof.
   repeat (split; try apply _).
-   intros x y. unfold sg_op at 2, ringplus_is_semigroupop, dy_plus.
+   intros x y. unfold sg_op at 2, plus_is_sg_op, dy_plus.
    unfold equiv, dy_equiv, dy_inject, DtoQ_slow; simpl.
    case (le_dec 0 0); intros E; simpl.
     rewrite 2!rings.preserves_plus, ZtoQ_shift.
-    rewrite rings.plus_opp_r.
+    rewrite rings.plus_negate_r.
     rewrite min_l, int_pow_0. ring.
     reflexivity.
    now destruct E.
-  intros x y. unfold sg_op at 2, ringmult_is_semigroupop, dy_mult. simpl.
+  intros x y. unfold sg_op at 2, mult_is_sg_op, dy_mult. simpl.
   now setoid_replace (0 + 0) with 0 by ring.
 Qed.
 
@@ -322,7 +322,7 @@ Qed.
 
 Lemma nonpos_mant (x : Dyadic) : x ≤ 0 ↔ mant x ≤ 0.
 Proof.
-  rewrite 2!rings.flip_nonpos_opp.
+  rewrite 2!rings.flip_nonpos_negate.
   apply nonneg_mant.
 Qed.
 
@@ -364,11 +364,11 @@ Qed.
 Next Obligation.
   intros x y E1 E2.
   apply orders.lt_not_le_flip.
-  apply orders.not_le_lt_flip in E2. apply rings.flip_lt_opp in E2.
+  apply orders.not_le_lt_flip in E2. apply rings.flip_lt_negate in E2.
   rewrite orders.lt_iff_le_ne in E2. destruct E2 as [E2a E2b]. split.
-   apply rings.flip_le_opp.
+   apply rings.flip_le_negate.
    eapply dy_le_dec_aux.
-   simpl. rewrite shiftl_opp. eassumption.
+   simpl. rewrite shiftl_negate. eassumption.
   intros E3. apply E2b. apply sm_proper.
   apply dy_eq_dec_aux. now symmetry.
 Qed.
@@ -380,9 +380,9 @@ Next Obligation.
   apply orders.le_equiv_lt in E2. destruct E2 as [E2 | E2].
    apply orders.eq_le. symmetry in E2 |- *. 
    eapply dy_eq_dec_aux. eassumption.
-  apply rings.flip_le_opp.
+  apply rings.flip_le_negate.
   eapply dy_le_dec_aux.
-  simpl. rewrite shiftl_opp. apply rings.flip_le_opp, orders.lt_le. eapply E2.
+  simpl. rewrite shiftl_negate. apply rings.flip_le_negate, orders.lt_le. eapply E2.
 Qed.
 Next Obligation. 
   intros x y E1 E2.
@@ -409,7 +409,7 @@ Section DtoQ.
     then ZtoQ (mant x ≪ (expo x)↾_)
     else ZtoQ (mant x) / ZtoQ (1 ≪ (-expo x)↾_).
   Next Obligation. 
-    apply rings.flip_nonpos_opp.
+    apply rings.flip_nonpos_negate.
     now apply orders.le_flip.
   Qed.
 End DtoQ.
@@ -448,7 +448,7 @@ Section embed_rationals.
     destruct x as [xm xe]. simpl. 
     case (decide_rel _); intros E.
      now rewrite ZtoQ_shift.
-    rewrite int_pow_opp_alt, ZtoQ_shift.
+    rewrite int_pow_negate_alt, ZtoQ_shift.
     now rewrite rings.preserves_1, left_identity.
   Qed.
 
