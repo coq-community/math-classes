@@ -3,7 +3,7 @@ import os
 env = DefaultEnvironment(ENV = os.environ, tools=['default', 'Coq'])
 (vs, vos, globs) = env.SConscript(dirs='.')
 
-env['COQFLAGS'] = Rs = ' -R . "" '
+env['COQFLAGS'] = Rs = ' -R . MathClasses '
 
 Default('implementations', 'theory', 'categories', 'orders', 'varieties', 'misc')
 
