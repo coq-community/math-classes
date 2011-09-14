@@ -23,6 +23,12 @@ Section cut_minus_properties.
     rewrite <-E, <-F. apply cut_minus_le. now rewrite E, F.
   Qed.
 
+  Global Instance cut_minus_mor_1: ∀ x : R, Setoid_Morphism (x ∸) | 0.
+  Proof. split; try apply _. Qed.
+
+  Global Instance cut_minus_mor_2: ∀ x : R, Setoid_Morphism (∸ x) | 0.
+  Proof. split; try apply _. solve_proper. Qed.
+
   Hint Resolve cut_minus_0.
   Hint Resolve cut_minus_le.
 
@@ -188,7 +194,7 @@ Section cut_minus_properties.
   End min.
 
   (* The relation to ring minus *)
-  Context `{GroupInv R} `{!Ring R}.
+  Context `{Negate R} `{!Ring R}.
   Add Ring R: (rings.stdlib_ring_theory R).
 
   Lemma cut_minus_ring_minus (x y : R) : y ≤ x → x ∸ y = x - y.
@@ -197,7 +203,7 @@ Section cut_minus_properties.
     apply (right_cancellation (+) y)... ring_simplify...
   Qed.
 
-  Lemma cut_minus_opp (x : R) : x ≤ 0 → 0 ∸ x = -x.
+  Lemma cut_minus_negate (x : R) : x ≤ 0 → 0 ∸ x = -x.
   Proof with auto.
     intros E. rewrite <-(rings.plus_0_l (-x)). 
     rewrite cut_minus_ring_minus... ring.

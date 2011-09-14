@@ -12,10 +12,10 @@ Definition sig: Signature := single_sorted_signature
   (λ o, match o with one => O | inv => 1%nat | mult => 2%nat end).
 
 Section laws.
-  Global Instance: SemiGroupOp (Term0 sig nat tt) :=
+  Global Instance: SgOp (Term0 sig nat tt) :=
     λ x, App sig _ _ _ (App sig _ _ _ (Op sig nat mult) x).
-  Global Instance: MonoidUnit (Term0 sig nat tt) := Op sig nat one.
-  Global Instance: GroupInv (Term0 sig nat tt) :=
+  Global Instance: MonUnit (Term0 sig nat tt) := Op sig nat one.
+  Global Instance: Negate (Term0 sig nat tt) :=
     λ x, App sig _ _ _ (Op sig nat inv) x.
 
   Local Notation x := (Var sig nat 0%nat tt).
@@ -28,8 +28,8 @@ Section laws.
     | e_mult_assoc: Laws (x & (y & z) === (x & y) & z)
     | e_mult_1_l: Laws (mon_unit & x === x)
     | e_mult_1_r: Laws (x & mon_unit === x)
-    | e_mult_inv_l: Laws (-x & x === mon_unit)
-    | e_mult_inv_r: Laws (x & -x === mon_unit).
+    | e_recip_l: Laws (-x & x === mon_unit)
+    | e_recip_r: Laws (x & -x === mon_unit).
 End laws.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
@@ -50,15 +50,15 @@ Definition forget: Object → setoids.Object :=
  Algebra/InVariety/HomoMorphism type classes instantiated with the above
  signature and theory. *)
 
-Instance encode_operations A `{!SemiGroupOp A} `(GroupInv A) `{!MonoidUnit A}: AlgebraOps sig (λ _, A) :=
+Instance encode_operations A `{!SgOp A} `(Negate A) `{!MonUnit A}: AlgebraOps sig (λ _, A) :=
   λ o, match o with mult => (&) | inv => (-) | one => mon_unit: A end.
 
 Section decode_operations.
   Context `{AlgebraOps theory A}.
 
-  Global Instance: MonoidUnit (A tt) := algebra_op one.
-  Global Instance: SemiGroupOp (A tt) := algebra_op mult.
-  Global Instance: GroupInv (A tt) := algebra_op inv.
+  Global Instance: MonUnit (A tt) := algebra_op one.
+  Global Instance: SgOp (A tt) := algebra_op mult.
+  Global Instance: Negate (A tt) := algebra_op inv.
 End decode_operations.
 
 Section encode_variety_and_ops.
@@ -94,8 +94,8 @@ Proof with simpl; auto.
      intro. apply_simplified (laws _ e_mult_1_l)...
     intro. apply_simplified (laws _ e_mult_1_r)...
    apply (algebra_propers inv).
-  intro. apply_simplified (laws _ e_mult_inv_l)...
- intro. apply_simplified (laws _ e_mult_inv_r)...
+  intro. apply_simplified (laws _ e_recip_l)...
+ intro. apply_simplified (laws _ e_recip_r)...
 Qed.
 
 Lemma encode_morphism_only
@@ -109,8 +109,8 @@ Proof.
     intros []. apply _.
    intros []; simpl.
      apply preserves_sg_op.
-    apply groups.preserves_inv.
-   apply (@preserves_mon_unit (A tt) (B tt) _ _ _ _ _ _ (f tt) _).
+    apply groups.preserves_negate.
+   rapply preserves_mon_unit.
   eapply encode_algebra_only.
  eapply encode_algebra_only.
 Qed.

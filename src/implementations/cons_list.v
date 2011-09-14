@@ -1,62 +1,38 @@
 Require Import
- List
+ SetoidList
  abstract_algebra interfaces.monads.
 
 Implicit Arguments app [[A]].
 
 Section contents.
-  Context A `{Setoid A}.
+  Context `{Setoid A}.
 
-  Global Instance list_eq: Equiv (list A) :=
-    fix F (a b: list A) :=
-      match a, b with
-      | nil, nil => True
-      | x::y, x'::y' => x = x' ∧ @equiv _ F y y'
-      | _, _ => False
-      end.
+  Global Instance list_eq: Equiv (list A) := eqlistA (=).
 
   Global Instance: Proper (=) (@cons A).
-  Proof. repeat intro. split; assumption. Qed.
-
-  Instance: Reflexive (_: Equiv (list A)).
-  Proof. intro x. induction x. reflexivity. split. reflexivity. assumption. Qed.
-
-  Instance: Symmetric (_: Equiv (list A)).
-  Proof with trivial.
-   unfold equiv. intro x. induction x; destruct y...
-   simpl. intros [P Q].
-   split. symmetry...
-   apply IHx...
-  Qed.
-
-  Instance: Transitive (_: Equiv (list A)).
-  Proof with simpl; intuition.
-   unfold equiv. intro x. induction x; destruct y...
-   destruct z... transitivity a0...
-   firstorder.
-  Qed.
+  Proof. repeat intro. now apply eqlistA_cons. Qed.
 
   Global Instance: Setoid (list A).
   Proof. constructor; apply _. Qed.
 
-  Global Instance: SemiGroupOp (list A) := app.
+  Global Instance: SgOp (list A) := app.
 
   Global Instance app_proper: Proper (=) (@app A).
-  Proof. clear H. intro x. induction x; destruct y; firstorder. Qed.
+  Proof. apply _. Qed. 
 
   Global Instance app_assoc_inst: Associative (@app A).
-  Proof. repeat intro. symmetry. rewrite (app_ass x y z). reflexivity. Qed.
+  Proof. repeat intro. symmetry. now rewrite (app_ass x y z). Qed.
 
   Global Instance: SemiGroup (list A) := {}.
 
-  Global Instance: MonoidUnit (list A) := nil.
+  Global Instance: MonUnit (list A) := nil.
 
   Global Instance: Monoid (list A).
   Proof.
    constructor. apply _.
     repeat intro. reflexivity.
    intro x. change (x ++ [] = x).
-   rewrite <- (app_nil_end x). reflexivity.
+   now rewrite <-(app_nil_end x).
   Qed.
 
   Definition concat: list (list A) → list A := fold_right app nil.
@@ -68,24 +44,24 @@ End contents.
 Implicit Arguments concat [[A]].
 
 Instance concat_proper `{Equiv A}: Proper (=) (@concat A).
-Proof with intuition.
- intro x. induction x; destruct y...
- simpl. apply app_proper; firstorder.
+Proof.
+  intros l. induction l.
+   intros k E. inversion_clear E. now apply eqlistA_nil.
+  intros k E. inversion_clear E. apply app_proper; firstorder.
 Qed.
 
-Instance: MonadReturn list := λ _ x, [x].
-Instance: MonadBind list := λ _ _ l f, concat (map f l).
+Instance list_ret: MonadReturn list := λ _ x, [x].
+Instance list_bind: MonadBind list := λ _ _ l f, concat (List.map f l).
 
-Instance ret_proper `{Equiv A}: Proper (=) ((_: MonadReturn list) A).
-Proof. firstorder. Qed.
+Instance ret_proper `{Equiv A}: Proper (=) (list_ret A).
+Proof. compute. firstorder. Qed.
 
-Instance bind_proper `{Equiv A} `{Equiv B}: Proper (=) ((_: MonadBind list) A B).
+Instance bind_proper `{Equiv A} `{Equiv B}: Proper (=) (list_bind A B).
 Proof.
- intro x. induction x; destruct y; intuition.
-  intro. intuition.
- intros v w E.
- change (v a ++ concat (map v x) = w a0 ++ concat (map w y)).
- apply app_proper; firstorder.
+  intros x₁ x₂. induction 1.
+   intros f₁ f₂ E₂. compute. firstorder.
+  intros f₁ f₂ E₂. unfold list_bind. simpl.
+  apply app_proper; firstorder.
 Qed.
 
 (* Can't [Qed] due to universe inconsistency:

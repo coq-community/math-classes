@@ -26,7 +26,7 @@ Section another_integers.
      now apply den_ne_0.
     apply (injective QtoFrac).
     rewrite preserves_mult.
-    rewrite preserves_dec_mult_inv.
+    rewrite preserves_dec_recip.
     change (QtoFrac x = (QtoFrac ∘ f) (num (QtoFrac x)) / (QtoFrac ∘ f) (den (QtoFrac x))).
     rewrite 2!(to_ring_unique_alt (QtoFrac ∘ f) Frac_inject).
     assert (Frac_inject (den (QtoFrac x)) ≠ 0) as P.
@@ -56,7 +56,7 @@ Section another_integers.
     apply (left_cancellation_ne_0 (.*.) (f (ZtoQ (den x)))).
      do 2 apply injective_ne_0. apply den_ne_0.
     rewrite <-preserves_mult, associativity.
-    rewrite dec_mult_inverse, left_identity.
+    rewrite dec_recip_inverse, left_identity.
      change ((f ∘ ZtoQ) (num x) = (f ∘ ZtoQ) (den x) * x).
      rewrite 2!(to_ring_unique_alt (f ∘ ZtoQ) Frac_inject).
      unfold equiv, Frac_equiv. simpl. ring.

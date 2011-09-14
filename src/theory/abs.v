@@ -7,9 +7,9 @@ Context `{Ring R} `{Apart R} `{!TrivialApart R} `{!FullPseudoSemiRingOrder Rle R
 
 Add Ring R : (rings.stdlib_ring_theory R).
 
-Global Instance abs_proper: Proper ((=) ==> (=)) abs.
+Global Instance abs_proper: Setoid_Morphism abs | 0.
 Proof.
-  intros x y E.
+  split; try apply _. intros x y E.
   unfold abs, abs_sig. destruct (a x) as [z1 [Ez1 Fz1]]. destruct (a y) as [z2 [Ez2 Fz2]].
   simpl.
   rewrite <-E in Ez2, Fz2.
@@ -70,15 +70,15 @@ Proof.
   apply le_0_1.
 Qed.
 
-Lemma abs_opp (x : R) : abs (-x) = abs x.
+Lemma abs_negate (x : R) : abs (-x) = abs x.
 Proof with trivial.
   destruct (total (≤) 0 x).
    rewrite (abs_nonneg x), abs_nonpos...
-    apply rings.opp_involutive.
-   apply flip_nonneg_opp...
+    apply rings.negate_involutive.
+   apply flip_nonneg_negate...
   rewrite (abs_nonneg (-x)), abs_nonpos...
    reflexivity.
-  apply flip_nonpos_opp...
+  apply flip_nonpos_negate...
 Qed.
 End contents.
 
@@ -87,7 +87,7 @@ Program Instance default_abs `{Ring R} `{!SemiRingOrder Rle} `{∀ x y, Decision
 Next Obligation.
   split; intros E; try reflexivity.
   setoid_replace x with 0 by now apply (antisymmetry (≤)).
-  now rewrite rings.opp_0.
+  now rewrite rings.negate_0.
 Qed.
 Next Obligation. intuition. Qed.
 
@@ -102,7 +102,7 @@ Section order_preserving.
      rewrite ?abs_nonneg; try easy.
      now apply semirings.preserves_nonneg.
     rewrite ?abs_nonpos; try easy.
-     apply rings.preserves_opp.
+     apply rings.preserves_negate.
     now apply preserves_nonpos.
   Qed.
 End order_preserving.

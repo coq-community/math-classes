@@ -42,8 +42,8 @@ Section contents.
 
   End Lookup.
 
-  Instance: MonoidUnit (Term V) := λ V, ua.Op msig _ monoids.one.
-  Instance: SemiGroupOp (Term V) :=
+  Instance: MonUnit (Term V) := λ V, ua.Op msig _ monoids.one.
+  Instance: SgOp (Term V) :=
     λ V x, ua.App msig _ _ _ (ua.App msig _ _ _ (ua.Op msig _ monoids.mult) x).
 
   Notation eval V vs := (ua.eval _ (λ _, (vs: Vars V))).
@@ -113,7 +113,7 @@ Section contents.
    do 2 destruct monoid_normalization.simplify.
    simpl. intros. subst.
    apply (quote_equality l r) .
-   rewrite <- e1, <- e0...
+   rewrite <- e, <- e0...
   Qed.
 
   Ltac monoid := apply (equal_by_normal _ _); vm_compute; reflexivity.

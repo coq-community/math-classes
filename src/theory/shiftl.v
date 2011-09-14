@@ -14,6 +14,12 @@ Add Ring B: (rings.stdlib_semiring_theory B).
 Global Instance: Proper ((=) ==> (=) ==> (=)) (≪) | 1.
 Proof shiftl_proper.
 
+Global Instance shiftl_mor_1: ∀ x : A, Setoid_Morphism (x≪) | 0.
+Proof. split; try apply _. Qed.
+
+Global Instance shiftl_mor_2: ∀ n : B, Setoid_Morphism (≪n) | 0.
+Proof. split; try apply _. solve_proper. Qed.
+
 Lemma shiftl_nat_pow_alt `{Naturals B2} `{!NatPowSpec A B2 pw} 
   `{!SemiRing_Morphism (f : B2 → B)} x n : x ≪ f n = x * 2 ^ n.
 Proof.
@@ -105,14 +111,11 @@ Proof.
   now rewrite shiftl_mult_l, shiftl_mult_r.
 Qed.
 
-Lemma shiftl_opp `{GroupInv A} `{!Ring A} x n : (-x) ≪ n = -(x ≪ n).
+Lemma shiftl_negate `{Negate A} `{!Ring A} x n : (-x) ≪ n = -(x ≪ n).
 Proof.
-  rewrite (rings.opp_mult x), (rings.opp_mult (x ≪ n)).
+  rewrite (rings.negate_mult x), (rings.negate_mult (x ≪ n)).
   symmetry. now apply shiftl_mult_l.
 Qed.
-
-Instance: ∀ n, Setoid_Morphism (≪ n).
-Proof. intros. split; try apply _. solve_proper. Qed.
 
 Global Instance shiftl_inj: ∀ n, Injective (≪ n).
 Proof.
@@ -164,19 +167,19 @@ Qed.
 Global Instance shiftl_strong_inj: ∀ n, StrongInjective (≪ n).
 Proof. intros. apply maps.pseudo_order_embedding_inj. Qed.
 
-Lemma shiftl_le_flip_r `{GroupInv B} `{!Ring B} (x y : A) (n : B) : 
+Lemma shiftl_le_flip_r `{Negate B} `{!Ring B} (x y : A) (n : B) : 
   x ≤ y ≪ (-n)  ↔  x ≪ n ≤ y.
 Proof.
   split; intros E.
    apply (order_reflecting (≪ -n)).
-   now rewrite shiftl_reverse by now apply rings.plus_opp_r.
+   now rewrite shiftl_reverse by now apply rings.plus_negate_r.
   apply (order_reflecting (≪ n)).
-  now rewrite shiftl_reverse by now apply rings.plus_opp_l.
+  now rewrite shiftl_reverse by now apply rings.plus_negate_l.
 Qed.
 
-Lemma shiftl_le_flip_l `{GroupInv B} `{!Ring B} (x y : A) (n : B) : 
+Lemma shiftl_le_flip_l `{Negate B} `{!Ring B} (x y : A) (n : B) : 
   x ≪ (-n) ≤ y  ↔  x ≤ y ≪ n.
-Proof. now rewrite <-shiftl_le_flip_r, rings.opp_involutive. Qed.
+Proof. now rewrite <-shiftl_le_flip_r, rings.negate_involutive. Qed.
 
 Instance shiftl_nonneg (x : A) (n : B) : PropHolds (0 ≤ x) → PropHolds (0 ≤ x ≪ n).
 Proof.
@@ -261,17 +264,17 @@ Section shiftl_dec_field.
   Lemma shiftl_base_1_to_int_pow n : f (1 ≪ n) = 2 ^ n.
   Proof. now rewrite shiftl_to_int_pow, rings.preserves_1, rings.mult_1_l. Qed.
 
-  Lemma shiftl_opp_1_to_half x : f (x ≪ -1) = f x / 2.
+  Lemma shiftl_negate_1_to_half x : f (x ≪ -1) = f x / 2.
   Proof. 
     rewrite shiftl_to_int_pow.
     apply (left_cancellation (.*.) 2).
     transitivity (f x * (2 * 2 ^ (-1))); [ring |].
     transitivity (f x * (2 / 2)); [| ring].
-    rewrite dec_mult_inverse, <-int_pow_S by assumption.
-    now rewrite rings.plus_opp_r, int_pow_0. 
+    rewrite dec_recip_inverse, <-int_pow_S by assumption.
+    now rewrite rings.plus_negate_r, int_pow_0. 
  Qed.
 
-  Lemma shiftl_opp_1_to_fourth x : f (x ≪ -2) = f x / 4.
+  Lemma shiftl_negate_1_to_fourth x : f (x ≪ -2) = f x / 4.
   Proof.
     rewrite shiftl_to_int_pow.
     apply (left_cancellation (.*.) (2 * 2)).
@@ -280,7 +283,7 @@ Section shiftl_dec_field.
     assert ((4:F) ≠ 0).
      setoid_replace 4 with (2*2) by ring.
      solve_propholds.
-    rewrite dec_mult_inverse, <-!int_pow_S by assumption.
+    rewrite dec_recip_inverse, <-!int_pow_S by assumption.
     setoid_replace (1 + (1 - 2) : Z) with (0 : Z) by ring.
     now rewrite int_pow_0. 
  Qed.
@@ -296,11 +299,11 @@ Section more_shiftl_dec_field.
   Lemma shiftl_base_1_int_pow n : 1 ≪ n = 2 ^ n.
   Proof. now rewrite shiftl_int_pow, rings.mult_1_l. Qed.
 
-  Lemma shiftl_opp_1_half x : x ≪ (-1) = x / 2.
-  Proof. change (id (x ≪ (-1)) = id x / 2). now apply shiftl_opp_1_to_half. Qed.
+  Lemma shiftl_negate_1_half x : x ≪ (-1) = x / 2.
+  Proof. change (id (x ≪ (-1)) = id x / 2). now apply shiftl_negate_1_to_half. Qed.
 
-  Lemma shiftl_opp_1_fourth x : x ≪ (-2) = x / 4.
-  Proof. change (id (x ≪ (-2)) = id x / 4). now apply shiftl_opp_1_to_fourth. Qed.
+  Lemma shiftl_negate_1_fourth x : x ≪ (-2) = x / 4.
+  Proof. change (id (x ≪ (-2)) = id x / 4). now apply shiftl_negate_1_to_fourth. Qed.
 End more_shiftl_dec_field.
 
 Section shiftl_field.
@@ -311,12 +314,12 @@ Section shiftl_field.
   Add Ring F2: (rings.stdlib_ring_theory F).
   Add Ring Z2: (rings.stdlib_ring_theory Z).
 
-  Lemma shiftl_opp_nat_pow x n : f (x ≪ (-g n)) * 2 ^ n = f x.
+  Lemma shiftl_negate_nat_pow x n : f (x ≪ (-g n)) * 2 ^ n = f x.
   Proof.
     pose proof nat_pow_proper.
     pattern n. apply naturals.induction; clear n.
       solve_proper.
-     rewrite rings.preserves_0, rings.opp_0, shiftl_0.
+     rewrite rings.preserves_0, rings.negate_0, shiftl_0.
      rewrite nat_pow_0. ring.
     intros n E.
     rewrite rings.preserves_plus, rings.preserves_1.
@@ -326,12 +329,12 @@ Section shiftl_field.
     rewrite nat_pow_S. ring.
   Qed.
 
-  Lemma shiftl_opp_to_mult_inv_nat_pow x n P2n : f (x ≪ (-g n)) = f x // (2 ^ n)↾P2n.
+  Lemma shiftl_negate_to_recip_nat_pow x n P2n : f (x ≪ (-g n)) = f x // (2 ^ n)↾P2n.
   Proof.
     apply (right_cancellation (.*.) (2 ^ n)).
-    rewrite shiftl_opp_nat_pow.
+    rewrite shiftl_negate_nat_pow.
     transitivity (f x * (2 ^ n // (2 ^ n)↾P2n)); [| ring].
-    rewrite fields.mult_inverse_alt. ring.
+    rewrite fields.reciperse_alt. ring.
   Qed.
 End shiftl_field.
 

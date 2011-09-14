@@ -203,7 +203,7 @@ Section powers.
   End with_nat_pow.
 
   Section with_int_pow. 
-  Context `{!GroupInv A} `{!DecMultInv A} `{!DecField A} `{∀ x y : A, Decision (x = y)}
+  Context `{!Negate A} `{!DecRecip A} `{!DecField A} `{∀ x y : A, Decision (x = y)}
      `{Integers Z} `{!IntPowSpec A Z pw} (f : nat → Z) `{!SemiRing_Morphism f}.
 
   Lemma Str_nth_powers_help_int_pow (n : nat) (c : A) : Str_nth n (powers_help c) = c * a ^ (f n).

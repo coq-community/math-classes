@@ -49,18 +49,18 @@ End another_semiring.
 Section another_ring.
   Context `{Ring R} `{Apart R} `{!FullPseudoSemiRingOrder (A:=R) Rle Rlt}.
 
-  Lemma opp_to_semiring_nonpos n : - naturals_to_semiring N R n ≤ 0.
-  Proof. apply flip_nonneg_opp. apply to_semiring_nonneg. Qed.
+  Lemma negate_to_semiring_nonpos n : - naturals_to_semiring N R n ≤ 0.
+  Proof. apply flip_nonneg_negate. apply to_semiring_nonneg. Qed.
 
-  Lemma opp_to_sr_le_to_sr n : - naturals_to_semiring N R n ≤ naturals_to_semiring N R n.
-  Proof. transitivity (0:R). apply opp_to_semiring_nonpos. apply to_semiring_nonneg. Qed.
+  Lemma negate_to_sr_le_to_sr n : - naturals_to_semiring N R n ≤ naturals_to_semiring N R n.
+  Proof. transitivity (0:R). apply negate_to_semiring_nonpos. apply to_semiring_nonneg. Qed.
 
-  Lemma opp_to_semiring x y : - naturals_to_semiring N R x = naturals_to_semiring N R y
+  Lemma negate_to_semiring x y : - naturals_to_semiring N R x = naturals_to_semiring N R y
     → naturals_to_semiring N R x = naturals_to_semiring N R y.
   Proof.
     intros E. apply (antisymmetry (≤)).
-     apply flip_le_opp. rewrite E. apply opp_to_sr_le_to_sr.
-    rewrite <-E. apply opp_to_sr_le_to_sr.
+     apply flip_le_negate. rewrite E. apply negate_to_sr_le_to_sr.
+    rewrite <-E. apply negate_to_sr_le_to_sr.
   Qed.
 End another_ring. 
 End naturals_order.

@@ -16,6 +16,12 @@ Add Ring B : (rings.stdlib_ring_theory B).
 Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 0.
 Proof int_pow_proper.
 
+Global Instance int_pow_mor_1: ∀ x : A, Setoid_Morphism (x^) | 0.
+Proof. split; try apply _. Qed.
+
+Global Instance int_pow_mor_2: ∀ n : B, Setoid_Morphism (^n) | 0.
+Proof. split; try apply _. solve_proper. Qed.
+
 Lemma int_pow_S_nonneg `{Apart B} `{!TrivialApart B} `{!FullPseudoSemiRingOrder (A:=B) Ble Blt} (x : A) (n : B) : 
   0 ≤ n → x ^ (1+n) = x * x ^ n.
 Proof.
@@ -27,31 +33,31 @@ Proof.
   now rewrite int_pow_S.
 Qed.
 
-Lemma int_pow_opp (x : A) (n : B) : x ^ (-n) = /(x ^ n).
+Lemma int_pow_negate (x : A) (n : B) : x ^ (-n) = /(x ^ n).
 Proof.
   destruct (decide (x = 0)) as [Ex | Ex].
    rewrite Ex.
    destruct (decide (n = 0)) as [En | En].
-    now rewrite En, rings.opp_0, int_pow_0, dec_mult_inv_1.
+    now rewrite En, rings.negate_0, int_pow_0, dec_recip_1.
    rewrite 2!int_pow_base_0; trivial.
-    now rewrite dec_mult_inv_0.
-   now apply rings.flip_opp_ne_0.
+    now rewrite dec_recip_0.
+   now apply rings.flip_negate_ne_0.
   pattern n. apply integers.biinduction; clear n.
     solve_proper.
-   now rewrite rings.opp_0, int_pow_0, dec_mult_inv_1.
+   now rewrite rings.negate_0, int_pow_0, dec_recip_1.
   intros n.
   setoid_replace (-n) with (1 - (1 + n)) by ring.
-  rewrite 2!int_pow_S, dec_mult_inv_distr; trivial.
+  rewrite 2!int_pow_S, dec_recip_distr; trivial.
   split; intros E.
    rewrite <-E. now field.
-  rewrite E, associativity, dec_mult_inverse; trivial.
+  rewrite E, associativity, dec_recip_inverse; trivial.
   ring.
 Qed.
 
-Lemma int_pow_opp_alt (x : A) (n : B) : x ^ n = /(x ^ (-n)).
+Lemma int_pow_negate_alt (x : A) (n : B) : x ^ n = /(x ^ (-n)).
 Proof.
-  rewrite <-int_pow_opp.
-  now rewrite rings.opp_involutive.
+  rewrite <-int_pow_negate.
+  now rewrite rings.negate_involutive.
 Qed.
 
 Lemma int_pow_mult (x y : A) (n : B) : (x * y) ^ n = x ^ n * y ^ n.
@@ -74,19 +80,19 @@ Proof.
   intros E. apply Exy. rewrite E. ring.
 Qed.
 
-Lemma int_pow_mult_inv (x : A) (n : B) : (/x) ^ n = /(x ^ n).
+Lemma int_pow_recip (x : A) (n : B) : (/x) ^ n = /(x ^ n).
 Proof.
   destruct (decide (x = 0)) as [Ex | Ex].
-   rewrite Ex, dec_mult_inv_0.
+   rewrite Ex, dec_recip_0.
    destruct (decide (n = 0)) as [En | En].
-    now rewrite En, int_pow_0, dec_mult_inv_1.
-   now rewrite int_pow_base_0, dec_mult_inv_0.
+    now rewrite En, int_pow_0, dec_recip_1.
+   now rewrite int_pow_base_0, dec_recip_0.
   revert n. apply integers.biinduction.
     solve_proper.
-   now rewrite 2!int_pow_0, dec_mult_inv_1.
+   now rewrite 2!int_pow_0, dec_recip_1.
   intros n.
-  assert (/x ≠ 0) by now apply dec_mult_inv_ne_0.
-  rewrite 2!int_pow_S, dec_mult_inv_distr; trivial.
+  assert (/x ≠ 0) by now apply dec_recip_ne_0.
+  rewrite 2!int_pow_S, dec_recip_distr; trivial.
   split; intros E.
    now rewrite E.
   now apply (rings.left_cancellation_ne_0 (.*.) (/x)).
@@ -397,28 +403,28 @@ Section int_pow_default.
      intros n ?. case (decide_rel _); intros E.
       now apply nat_pow_base_0, int_abs_ne_0.
      rewrite nat_pow_base_0. 
-     apply dec_mult_inv_0.
+     apply dec_recip_0.
      now apply int_abs_ne_0.
     intros x n E. case (decide_rel _); case (decide_rel _); intros E1 E2.
        now rewrite int_abs_nonneg_plus, int_abs_1 by (auto;solve_propholds).
       setoid_replace n with (-1 : B).
-       rewrite rings.plus_opp_r, int_abs_0, nat_pow_0. 
-       rewrite int_abs_opp, int_abs_1, right_identity. 
-       symmetry. now apply dec_mult_inverse.
+       rewrite rings.plus_negate_r, int_abs_0, nat_pow_0. 
+       rewrite int_abs_negate, int_abs_1, right_identity. 
+       symmetry. now apply dec_recip_inverse.
       apply (antisymmetry (≤)).
        apply orders.not_le_lt_flip in E1.
        apply integers.lt_iff_plus_1_le in E1. 
        apply (order_reflecting (+1)).
        now ring_simplify.
-      apply (order_reflecting (1+)). now rewrite rings.plus_opp_r.
+      apply (order_reflecting (1+)). now rewrite rings.plus_negate_r.
      destruct E2. apply semirings.nonneg_plus_compat; [solve_propholds | assumption].
-     rewrite <-int_abs_opp, <-(int_abs_opp n).
+     rewrite <-int_abs_negate, <-(int_abs_negate n).
      setoid_replace (-n) with (1 - (1 + n)) by ring.
      rewrite (int_abs_nonneg_plus 1 (-(1 + n))), int_abs_1.
        rewrite nat_pow_S. 
-       rewrite dec_mult_inv_distr, associativity.
-       now rewrite dec_mult_inverse, left_identity.
+       rewrite dec_recip_distr, associativity.
+       now rewrite dec_recip_inverse, left_identity.
       now apply (rings.is_nonneg 1).
-     now apply rings.flip_nonpos_opp, orders.le_flip.
+     now apply rings.flip_nonpos_negate, orders.le_flip.
   Qed.
 End int_pow_default.

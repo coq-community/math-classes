@@ -8,12 +8,12 @@ Require Import
 
 (* canonical names for relations/operations/constants: *)
 Instance Q_eq: Equiv Q := Qeq.
-Instance Q_0 : RingZero Q := 0%Q.
-Instance Q_1 : RingOne Q := 1%Q.
-Instance Q_opp : GroupInv Q := Qopp.
-Instance Q_plus : RingPlus Q := Qplus.
-Instance Q_mult : RingMult Q := Qmult.
-Instance Q_mult_inv : DecMultInv Q := Qinv.
+Instance Q_0 : Zero Q := 0%Q.
+Instance Q_1 : One Q := 1%Q.
+Instance Q_opp : Negate Q := Qopp.
+Instance Q_plus : Plus Q := Qplus.
+Instance Q_mult : Mult Q := Qmult.
+Instance Q_recip : DecRecip Q := Qinv.
 
 (* properties: *)
 Instance: Setoid Q := {}.

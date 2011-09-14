@@ -6,7 +6,13 @@ Require Import
 Section group_props. 
 Context `{Group G}.
 
-Lemma inv_involutive x: - - x = x.
+Global Instance sg_op_mor_1: ∀ x, Setoid_Morphism (x &) | 0.
+Proof. split; try apply _. Qed.
+
+Global Instance sg_op_mor_2: ∀ x, Setoid_Morphism (& x) | 0.
+Proof. split; try apply _. solve_proper. Qed.
+
+Lemma negate_involutive x : - - x = x.
 Proof.
   rewrite <-(left_identity x) at 2.
   rewrite <-(left_inverse (- x)).
@@ -17,14 +23,13 @@ Qed.
 
 Global Instance: Injective (-).
 Proof.
-  constructor.
-   intros x y E.
-   now rewrite <-(inv_involutive x), <-(inv_involutive y), E.
-  constructor; apply _.
+  repeat (split; try apply _).
+  intros x y E.
+  now rewrite <-(negate_involutive x), <-(negate_involutive y), E.
 Qed.
 
-Lemma inv_0: - mon_unit = mon_unit.
-Proof. rewrite <- (left_inverse mon_unit) at 2. rewrite right_identity. reflexivity. Qed.
+Lemma negate_mon_unit : -mon_unit = mon_unit.
+Proof. rewrite <-(left_inverse mon_unit) at 2. now rewrite right_identity. Qed.
 
 Global Instance: ∀ z : G, LeftCancellation (&) z.
 Proof.
@@ -40,15 +45,15 @@ Proof.
   rewrite <-(right_identity x), <-(right_inverse z), associativity.
   rewrite E.
   now rewrite <-associativity, right_inverse, right_identity.
-Qed.  
+Qed.
 
-Lemma sg_inv_distr `{!AbGroup G} x y: - (x & y) = - x & - y.
+Lemma negate_sg_op_distr `{!AbGroup G} x y: -(x & y) = -x & -y.
 Proof.
-  rewrite <-(left_identity (- x & - y)).
+  rewrite <-(left_identity (-x & -y)).
   rewrite <-(left_inverse (x & y)).
   rewrite <-associativity.
   rewrite <-associativity.
-  rewrite (commutativity (- x) (- y)).
+  rewrite (commutativity (-x) (-y)).
   rewrite (associativity y).
   rewrite right_inverse.
   rewrite left_identity.
@@ -60,7 +65,7 @@ End group_props.
 Section groupmor_props. 
   Context `{Group A} `{Group B} {f : A → B} `{!Monoid_Morphism f}.
 
-  Lemma preserves_inv x: f (- x) = - f x.
+  Lemma preserves_negate x : f (-x) = -f x.
   Proof.
     apply (left_cancellation (&) (f x)).
     rewrite <-preserves_sg_op.

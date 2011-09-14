@@ -91,7 +91,7 @@ Section for_another_ring.
      intros [p n] z' E. rewrite <- E. clear E z'.
      rewrite SRpair_splits.
      preservation.
-     rewrite 2!rings.preserves_opp.
+     rewrite 2!rings.preserves_negate.
      rewrite (agree_on_nat p p), (agree_on_nat n n)...
      unfold integers_to_ring, z_to_ring. simpl. 
      rewrite rings.preserves_0.
@@ -138,15 +138,15 @@ Proof with auto.
   destruct (simpleZ_abs x) as [a [A|A]], (simpleZ_abs y) as [b [B|B]]; rewrite <-A, <-B in E |- *.
      now apply zero_product_aux.
     destruct (zero_product_aux a b) as [C|C]...
-     now apply rings.opp_zero_prod_r.
-    right. rewrite C. apply rings.opp_0.
+     now apply rings.negate_zero_prod_r.
+    right. rewrite C. apply rings.negate_0.
    destruct (zero_product_aux a b) as [C|C]...
-    now apply rings.opp_zero_prod_l.
-   left. rewrite C. apply rings.opp_0.
-  rewrite rings.opp_mult_opp in E. 
+    now apply rings.negate_zero_prod_l.
+   left. rewrite C. apply rings.negate_0.
+  rewrite rings.negate_mult_negate in E. 
   destruct (zero_product_aux a b) as [C|C]...
-   left. rewrite C. apply rings.opp_0.
-  right. rewrite C. apply rings.opp_0.
+   left. rewrite C. apply rings.negate_0.
+  right. rewrite C. apply rings.negate_0.
 Qed.
 
 End contents.

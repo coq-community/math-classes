@@ -9,4 +9,8 @@ src/.sconsign.dblite
 coqidescript
 coqdoc
 *#
-
+*.ml
+*.cmi
+*.cmx
+*.cmxs
+*.o

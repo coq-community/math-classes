@@ -8,7 +8,7 @@ Section contents.
   Context `{Sequence sq}.
 
   (* Some derived properties about inject, extend, and fmap: *)
-  Lemma inject_epi `{Setoid A} `{Equiv B} `{SemiGroupOp B} `{MonoidUnit B}
+  Lemma inject_epi `{Setoid A} `{Equiv B} `{SgOp B} `{MonUnit B}
     (f g: sq A → B) `{!Monoid_Morphism f} `{!Monoid_Morphism g} :
       f ∘ inject A = g ∘ inject A → f = g.
   Proof with intuition.
@@ -25,8 +25,8 @@ Section contents.
 
   Lemma extend_comp
     `{Equiv A}
-    `{Equiv B} `{SemiGroupOp B} `{MonoidUnit B}
-    `{Equiv C} `{SemiGroupOp C} `{MonoidUnit C}
+    `{Equiv B} `{SgOp B} `{MonUnit B}
+    `{Equiv C} `{SgOp C} `{MonUnit C}
      (f: B → C) (g: A → B) `{!Monoid_Morphism f} `{!Setoid_Morphism g} :
     extend (f ∘ g) (free:=sq) = f ∘ extend g (free:=sq).
   Proof with try apply _.
@@ -84,7 +84,7 @@ Section semiring_folds.
   Context `{SemiRing R} `{Sequence sq}.
 
   Definition sum: sq R → R := @fold sq _ _ (0:R) (+).
-  Definition product: sq R → R := @fold sq _ _ (1:R) ring_mult.
+  Definition product: sq R → R := @fold sq _ _ (1:R) mult.
 
   (* These are implicitly Monoid_Morphisms, and we also easily have: *)
 

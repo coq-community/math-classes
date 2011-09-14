@@ -12,7 +12,7 @@ Section initial_maps.
   Variable A: Type.
 
   Class NaturalsToSemiRing :=
-    naturals_to_semiring: ∀ B `{RingMult B} `{RingPlus B} `{RingOne B} `{RingZero B}, A → B.
+    naturals_to_semiring: ∀ B `{Mult B} `{Plus B} `{One B} `{Zero B}, A → B.
 
   Context `{NaturalsToSemiRing} `{SemiRing A} `{∀ `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring B)}.
 
@@ -46,6 +46,6 @@ Class Naturals A {e plus mult zero one} `{U: NaturalsToSemiRing A} :=
   ; naturals_initial:> Initial (semirings.object A) }.
 
 (* Specializable operations: *)
-Class NatDistance N `{Equiv N} `{RingPlus N}
+Class NatDistance N `{Equiv N} `{Plus N}
   := nat_distance_sig : ∀ (x y: N), { z: N | x + z = y ∨ y + z = x }.
 Definition nat_distance `{NatDistance N} : N → N → N := λ x y, proj1_sig (nat_distance_sig x y).

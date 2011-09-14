@@ -146,10 +146,10 @@ Section more_morphisms.
   Qed.
 End more_morphisms.
 
-Global Instance default_apart `{Equiv A} : Apart A | 20 := (≠).
+Instance default_apart `{Equiv A} : Apart A | 20 := (≠).
 Typeclasses Opaque default_apart.
 
-Global Instance default_apart_trivial `{Equiv A} : TrivialApart A (ap:=default_apart).
+Instance default_apart_trivial `{Equiv A} : TrivialApart A (Aap:=default_apart).
 Proof. red. reflexivity. Qed.
 
 (* In case we have a decidable setoid, we can construct a strong setoid. Again

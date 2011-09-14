@@ -13,19 +13,19 @@ Add Ring R : (rings.stdlib_semiring_theory R).
 Global Instance Pos_inject: Cast (R₊) R := @proj1_sig R _.
 
 (* Operations *)
-Global Program Instance Pos_plus: RingPlus (R₊) := λ x y, (x + y : R). 
+Global Program Instance Pos_plus: Plus (R₊) := λ x y, (`x + `y)↾_. 
 Next Obligation.
   destruct x as [x Hx], y as [y Hy].
   now apply pos_plus_compat.
 Qed.
 
-Global Program Instance Pos_mult: RingMult (R₊) := λ x y, (x * y : R). 
+Global Program Instance Pos_mult: Mult (R₊) := λ x y, (`x * `y)↾_. 
 Next Obligation with auto.
   destruct x as [x Hx], y as [y Hy].
   now apply pos_mult_compat.
 Qed.
 
-Global Program Instance Pos_1: RingOne (R₊) := (1 : R).
+Global Program Instance Pos_1: One (R₊) := (1 : R).
 Next Obligation. now apply lt_0_1. Qed.
 
 (* * Equalitity *)

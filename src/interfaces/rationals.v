@@ -17,8 +17,8 @@ a rationals implementation if the required properties hold for some specific
 implementation of the integers.
 *)
 
-Class Rationals A {e plus mult zero one opp inv} `{U : !RationalsToFrac A} : Prop :=
-  { rationals_field:> @DecField A e plus mult zero one opp inv
+Class Rationals A {e plus mult zero one neg recip} `{U : !RationalsToFrac A} : Prop :=
+  { rationals_field:> @DecField A e plus mult zero one neg recip
   ; rationals_frac :> ∀ `{Integers Z}, Injective (rationals_to_frac A Z)
   ; rationals_frac_mor :> ∀ `{Integers Z}, SemiRing_Morphism (rationals_to_frac A Z)
   ; rationals_embed_ints :> ∀ `{Integers Z}, Injective (integers_to_ring Z A) }.

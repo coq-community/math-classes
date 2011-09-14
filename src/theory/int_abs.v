@@ -14,8 +14,8 @@ Proof.
   apply (injective (naturals_to_semiring N Z)).
   destruct A as [A|A], B as [B|B]; rewrite <-A in B; clear A.
      now symmetry.
-    symmetry. now apply opp_to_semiring.
-   apply opp_to_semiring. now symmetry.
+    symmetry. now apply negate_to_semiring.
+   apply negate_to_semiring. now symmetry.
   apply (injective (-)). now symmetry.
 Qed.
 
@@ -29,7 +29,7 @@ Next Obligation.
     reflexivity.
    now rewrite (naturals.to_semiring_unique _).
   apply (injective (integers_to_ring Z (SRpair N))).
-  rewrite preserves_opp. 
+  rewrite preserves_negate. 
   transitivity (-(integers_to_ring Z (SRpair N) ∘ (naturals_to_semiring N Z)) z).
     reflexivity.
   now rewrite (naturals.to_semiring_unique _).
@@ -37,8 +37,9 @@ Qed.
 
 Context `{!IntAbs Z N}.
 
-Global Instance int_abs_proper: Proper ((=) ==> (=)) (int_abs Z N).
+Global Instance int_abs_proper: Setoid_Morphism (int_abs Z N) | 0.
 Proof.
+  split; try apply _.
   intros z z' E.
   unfold int_abs.
   destruct int_abs_sig as [a A], int_abs_sig as [b B].
@@ -46,8 +47,8 @@ Proof.
   apply (injective (naturals_to_semiring N Z)).
   destruct A as [A|A], B as [B|B]; rewrite <-B in A; clear B z'.
      assumption.
-    symmetry. apply opp_to_semiring. now symmetry.
-   now apply opp_to_semiring.
+    symmetry. apply negate_to_semiring. now symmetry.
+   now apply negate_to_semiring.
   now apply (injective (-)).
 Qed.
 
@@ -55,14 +56,14 @@ Lemma int_abs_nat (n: N) : int_abs Z N (naturals_to_semiring N Z n) = n.
 Proof.
   apply (injective (naturals_to_semiring N Z)).
   unfold int_abs. destruct int_abs_sig as [a [A | A]]; simpl; trivial.
-  now apply opp_to_semiring.
+  now apply negate_to_semiring.
 Qed. 
 
-Lemma int_abs_opp_nat (n: N) : int_abs Z N (-naturals_to_semiring N Z n) = n.
+Lemma int_abs_negate_nat (n: N) : int_abs Z N (-naturals_to_semiring N Z n) = n.
 Proof.
   apply (injective (naturals_to_semiring N Z)). 
   unfold int_abs. destruct int_abs_sig as [a [A | A]]; simpl.
-   symmetry. apply opp_to_semiring. now symmetry.
+   symmetry. apply negate_to_semiring. now symmetry.
   now apply (injective (-)).
 Qed. 
 
@@ -72,8 +73,8 @@ Proof.
   intro E.
   split; apply (injective (naturals_to_semiring N Z)); rewrite rings.preserves_0; 
       apply (antisymmetry (≤)); try apply to_semiring_nonneg.
-   apply flip_nonpos_opp. rewrite E. now apply to_semiring_nonneg.
-  rewrite <-E. now apply opp_to_semiring_nonpos.
+   apply flip_nonpos_negate. rewrite E. now apply to_semiring_nonneg.
+  rewrite <-E. now apply negate_to_semiring_nonpos.
 Qed. 
 
 Lemma int_abs_nonneg x : 0 ≤ x → naturals_to_semiring N Z (int_abs Z N x) = x.
@@ -85,7 +86,7 @@ Proof.
   apply (antisymmetry (≤)).
    apply flip_nonneg_minus.
    now apply nonneg_plus_compat.
-  now apply opp_to_sr_le_to_sr.
+  now apply negate_to_sr_le_to_sr.
 Qed.
 
 Lemma int_abs_nonneg_plus x y : 
@@ -110,7 +111,7 @@ Proof.
   split; intros E.
    unfold int_abs in E. destruct int_abs_sig as [z [E1 | E1]]; simpl in E.
     now rewrite <-E1, E, preserves_0.
-   rewrite <-E1, E, preserves_0. now apply opp_0.
+   rewrite <-E1, E, preserves_0. now apply negate_0.
   rewrite E. now apply int_abs_0.
 Qed.
 
@@ -135,12 +136,12 @@ Proof.
   now apply le_0_1.
 Qed.
 
-Lemma int_abs_opp z : int_abs Z N (- z) = int_abs Z N z.
+Lemma int_abs_negate z : int_abs Z N (- z) = int_abs Z N z.
 Proof.
   unfold int_abs at 2.
   destruct int_abs_sig as [x [E | E]]; simpl; rewrite <- E. 
-   now apply int_abs_opp_nat.
-  rewrite opp_involutive.
+   now apply int_abs_negate_nat.
+  rewrite negate_involutive.
   now apply int_abs_nat.
 Qed.
 End contents.

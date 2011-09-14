@@ -10,11 +10,11 @@ Module ZType_Integers (Import anyZ: ZType).
 Module axioms := ZTypeIsZAxioms anyZ.
 
 Instance ZType_equiv : Equiv t := eq.
-Instance ZType_plus : RingPlus t := add.
-Instance ZType_0 : RingZero t := zero.
-Instance ZType_1 : RingOne t := one.
-Instance ZType_mult : RingMult t := mul.
-Instance ZType_opp: GroupInv t := opp.
+Instance ZType_plus : Plus t := add.
+Instance ZType_0 : Zero t := zero.
+Instance ZType_1 : One t := one.
+Instance ZType_mult : Mult t := mul.
+Instance ZType_negate: Negate t := opp.
 
 Instance: Setoid t | 10 := {}.
 
@@ -130,7 +130,7 @@ Qed.
 Next Obligation.
   rewrite <-(naturals.to_semiring_unique NonNeg_inject). simpl.
   unfold_equiv. 
-  rewrite rings.preserves_opp.
+  rewrite rings.preserves_negate.
   rewrite spec_abs.
   destruct (Zabs_dec (to_Z x)); auto.
 Qed.
@@ -141,7 +141,7 @@ Next Obligation.
    apply Z.abs_eq.
    apply (order_preserving to_Z) in E.
    now rewrite rings.preserves_0 in E.
-  rewrite rings.preserves_opp.
+  rewrite rings.preserves_negate.
   apply Z.abs_neq.
   apply (order_preserving to_Z) in E.
   now rewrite rings.preserves_0 in E.
