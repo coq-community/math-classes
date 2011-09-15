@@ -7,7 +7,7 @@ Implicit Arguments app [[A]].
 Section contents.
   Context `{Setoid A}.
 
-  Global Instance list_eq: Equiv (list A) := eqlistA (=).
+  Global Instance list_equiv: Equiv (list A) := eqlistA (=).
 
   Global Instance: Proper (=) (@cons A).
   Proof. repeat intro. now apply eqlistA_cons. Qed.
