@@ -1,5 +1,4 @@
 Require Import
-  RelationClasses
   abstract_algebra interfaces.orders orders.orders 
   orders.lattices theory.setoids.
 
