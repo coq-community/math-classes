@@ -8,7 +8,7 @@ Section partial_order.
   Context `{PartialOrder A}.
 
   Instance: Setoid A := po_setoid.
- 
+
   Lemma eq_le x y : x = y → x ≤ y.
   Proof. intros E. now rewrite E. Qed.
 
@@ -17,6 +17,9 @@ Section partial_order.
 
   Lemma not_le_ne x y : ¬x ≤ y → x ≠ y.
   Proof. intros E1 E2. destruct E1. now rewrite E2. Qed.
+
+  Lemma eq_iff_le x y : x = y ↔ x ≤ y ∧ y ≤ x.
+  Proof. split; intros E. now rewrite E. now apply (antisymmetry (≤) x y). Qed.
 End partial_order.
 
 Section strict_order.
@@ -24,7 +27,7 @@ Section strict_order.
 
   Instance: Setoid A := strict_setoid_order_setoid.
 
-  Lemma lt_flip x y : x < y → ¬(y < x).
+  Lemma lt_flip x y : x < y → ¬y < x.
   Proof.
     intros E1 E2.
     apply (irreflexivity (<) x).
@@ -279,8 +282,8 @@ Section full_pseudo_order.
     left. now apply eq_le_flip. 
   Qed.
 
-  Global Instance le_total `{!TrivialApart A} `{∀ x y, Decision (x = y)} : TotalRelation (≤).
-  Proof. intros x y. destruct (le_or_lt x y). tauto. right. now apply lt_le. Qed.
+  Global Instance le_total `{!TrivialApart A} `{∀ x y, Decision (x = y)} : TotalOrder (≤).
+  Proof. split; try apply _. intros x y. destruct (le_or_lt x y). tauto. right. now apply lt_le. Qed.
 
   Lemma not_le_lt_flip `{!TrivialApart A} `{∀ x y, Decision (x = y)} x y : ¬y ≤ x → x < y.
   Proof. intros. destruct (le_or_lt y x); intuition. Qed.

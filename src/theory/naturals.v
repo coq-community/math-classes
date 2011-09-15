@@ -1,11 +1,9 @@
 Require Import
- workaround_tactics
- Relation_Definitions Ring
- abstract_algebra peano_naturals theory.rings
- categories.varieties theory.ua_transference.
+  Ring abstract_algebra peano_naturals theory.rings
+  categories.varieties theory.ua_transference.
 Require Export
- interfaces.naturals.
-
+  interfaces.naturals.
+ 
 Lemma to_semiring_involutive N `{Naturals N} N2 `{Naturals N2} x :
  naturals_to_semiring N2 N (naturals_to_semiring N N2 x) = x.
 Proof.
@@ -65,7 +63,7 @@ Section retract_is_nat.
     Instance: SemiRing_Morphism (naturals_to_semiring N R ∘ f⁻¹) := {}.
 
     Context (h :  SR → R) `{!SemiRing_Morphism h}. 
-     
+
     Lemma same_morphism: naturals_to_semiring N R ∘ f⁻¹ = h.
     Proof.
       intros x y F. rewrite <-F.
@@ -75,13 +73,10 @@ Section retract_is_nat.
     Qed.
   End for_another_semirings.
 
-  (* If we make this an instance, then instance resolution will often loop *)
-  Program Definition retract_is_nat: Naturals SR (U:=retract_is_nat_to_sr). 
-  Proof. 
-    esplit; try apply _. (* for some reason split doesn't work... *)
-    intros. apply natural_initial. intros.
-    now apply same_morphism.
-  Qed.
+  (* If we make this an instance, instance resolution will often loop *)
+  Program Instance retract_is_nat: Naturals SR (U:=retract_is_nat_to_sr).
+  Next Obligation. unfold naturals_to_semiring, retract_is_nat_to_sr. apply _. Qed.
+  Next Obligation. apply natural_initial. intros. now apply same_morphism. Qed.
 End retract_is_nat.
 
 Section contents.

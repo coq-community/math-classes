@@ -4,8 +4,10 @@ Require Import
   Ring
   abstract_algebra interfaces.orders orders.semirings.
 
+Local Existing Instance pseudo_srorder_semiring.
+
 Section nonneg_semiring_elements.
-Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder Rlt Rle}.
+Context `{FullPseudoSemiRingOrder R} `{Apart R}.
 
 Add Ring R : (rings.stdlib_semiring_theory R).
 
@@ -76,11 +78,12 @@ Global Instance NonNeg_lt: Lt (R⁺) := λ x y, 'x < 'y.
 Global Instance: Proper ((=) ==> (=) ==> iff) NonNeg_le.
 Proof. intros x1 y1 E1 x2 y2 E2. unfold NonNeg_le. now rewrite E1, E2. Qed.
 
+Instance: PartialOrder NonNeg_le.
+Proof. now apply (maps.projected_partial_order NonNeg_inject). Qed.
+
 Global Instance: OrderEmbedding NonNeg_inject.
 Proof. repeat (split; try apply _); intuition. Qed.
 
-Instance: PartialOrder NonNeg_le.
-Proof maps.projected_partial_order NonNeg_inject.
 (*
 Global Instance: TotalOrder NonNeg_le.
 Proof maps.embed_totalorder NonNeg_le.

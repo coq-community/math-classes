@@ -73,7 +73,7 @@ Instance: Bijective to_N := {}.
 Instance: Inverse of_N := to_N.
 
 Instance: Bijective of_N.
-Proof. apply jections.flip_bijection. apply _. Qed.
+Proof. apply jections.flip_bijection. Qed.
 
 Instance: SemiRing_Morphism of_N.
 Proof. change (SemiRing_Morphism (to_N⁻¹)). split; apply _. Qed.
@@ -105,23 +105,21 @@ Proof.
   now rewrite E1, E2. 
 Qed.
 
-Instance: OrderEmbedding to_Z.
-Proof. now repeat (split; try apply _). Qed.
-
-Instance: PartialOrder NType_le.
-Proof maps.projected_partial_order to_Z.
-
 Instance: SemiRingOrder NType_le.
 Proof.
   apply (semirings.projected_srorder to_Z).
+   reflexivity.
   intros x y E. exists (sub y x).
   unfold_equiv. rewrite spec_add, spec_sub.
   rewrite Zmax_r by now apply Z.le_0_sub.
   ring.
 Qed.
 
+Instance: OrderEmbedding to_Z.
+Proof. now repeat (split; try apply _). Qed.
+
 Instance: TotalRelation NType_le.
-Proof maps.projected_total_order to_Z.
+Proof. now apply (maps.projected_total_order to_Z). Qed.
 
 Instance: FullPseudoSemiRingOrder NType_le NType_lt.
 Proof.

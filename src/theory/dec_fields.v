@@ -83,9 +83,9 @@ Proof.
   now apply dec_recip_ne_0.
 Qed.
 
-Lemma dec_recip_involutive x : / / x = x.
+Global Instance dec_recip_involutive: Involutive (/).
 Proof.
-  destruct (decide (x = 0)) as [Ex|Ex].
+  intros x. destruct (decide (x = 0)) as [Ex|Ex].
    now rewrite Ex, !dec_recip_0.
   apply (right_cancellation_ne_0 (.*.) (/x)).
    now apply dec_recip_ne_0.
@@ -126,10 +126,10 @@ Proof with auto.
 Qed.
 
 Lemma dec_recip_swap_l x y: x / y = / (/ x * y). 
-Proof. rewrite dec_recip_distr, dec_recip_involutive. ring. Qed.
+Proof. rewrite dec_recip_distr, involutive. ring. Qed.
 
 Lemma dec_recip_swap_r x y: / x * y = / (x / y). 
-Proof. rewrite dec_recip_distr, dec_recip_involutive. ring. Qed.
+Proof. rewrite dec_recip_distr, involutive. ring. Qed.
 
 Lemma dec_recip_negate x : -(/ x) = / (-x).
 Proof.

@@ -65,10 +65,8 @@ Section another_integers.
   Qed.
 
   (* Making this instance global results in loops *)
-  Instance: Bijective f := {}.
-
-  Global Instance: Bijective (f⁻¹) := {}.
-  
+  Instance to_frac_bijective: Bijective f := {}.
+  Global Instance to_frac_inverse_bijective: Bijective (f⁻¹) := {}.
   Global Instance: SemiRing_Morphism (f⁻¹) := {}.
 End another_integers.
 
@@ -78,7 +76,7 @@ Proof.
   intros x.
   apply (injective (g⁻¹)).
   change (f⁻¹ (f ⁻¹ ⁻¹ x) = g⁻¹ (g⁻¹ ⁻¹ x)).
-  now rewrite 2!jections.surjective_applied.
+  now rewrite 2!(jections.surjective_applied _).
 Qed.
 
 Definition rationals_to_rationals Q1 Q2 `{Rationals Q1} `{Rationals Q2} : Q1 → Q2
@@ -87,8 +85,13 @@ Definition rationals_to_rationals Q1 Q2 `{Rationals Q1} `{Rationals Q2} : Q1 →
 Section another_rationals.
   Context `{Rationals Q1} `{Rationals Q2}.
 
-  Global Instance: SemiRing_Morphism (rationals_to_rationals Q1 Q2) := {}.
-  Global Instance: Bijective (rationals_to_rationals Q1 Q2) := {}.
+  Local Existing Instance to_frac_bijective.
+  Global Instance: SemiRing_Morphism (rationals_to_rationals Q1 Q2).
+  Proof. unfold rationals_to_rationals. apply _. Qed.
+  Global Instance: Bijective (rationals_to_rationals Q1 Q2).
+  Proof. unfold rationals_to_rationals. apply _. Qed.
+  Global Instance: Bijective (rationals_to_rationals Q2 Q1).
+  Proof. unfold rationals_to_rationals. apply _. Qed.
 
   Instance: Bijective (rationals_to_frac Q1 (SRpair nat)) := {}.
 
@@ -97,8 +100,8 @@ Section another_rationals.
   Proof.
     intros x.
     unfold rationals_to_rationals, compose.
-    rewrite jections.surjective_applied.
-    apply jections.bijective_applied.
+    rewrite (jections.surjective_applied _).
+    apply (jections.bijective_applied _).
   Qed.
 
   Lemma to_rationals_unique (f : Q1 → Q2) `{!SemiRing_Morphism f} :
@@ -109,7 +112,7 @@ Section another_rationals.
     rewrite to_rationals_involutive.
     change ((rationals_to_frac Q1 (SRpair nat)⁻¹) ((rationals_to_frac Q2 (SRpair nat) ∘ f) x) = x).
     rewrite (to_frac_unique (rationals_to_frac Q2 (SRpair nat) ∘ f) (rationals_to_frac Q1 (SRpair nat))).
-    apply jections.bijective_applied.
+    apply (jections.bijective_applied _).
   Qed.
 End another_rationals.
 
@@ -142,13 +145,13 @@ Section isomorphic_image_is_rationals.
   Context (f : Q → F) `{!Inverse f} `{!Bijective f} `{!SemiRing_Morphism f}.
 
   Instance iso_to_frac: RationalsToFrac F := λ Z _ _ _ _ _ _ _ _, rationals_to_frac Q Z ∘ f⁻¹.
-  
+
   Instance: Bijective (f⁻¹) := {}.
   Instance: SemiRing_Morphism (f⁻¹) := {}.
 
   Lemma iso_is_rationals: Rationals F. 
   Proof.
-    repeat (split; try apply _).
+    repeat (split; unfold rationals_to_frac, iso_to_frac; try apply _).
     intros x y E.
     apply (injective (f ∘ integers_to_ring Z Q)).
     now rewrite 2!(to_ring_unique (f ∘ integers_to_ring Z Q)).

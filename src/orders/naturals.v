@@ -130,7 +130,7 @@ Qed.
 Global Instance: ∀ (z : N), PropHolds (z ≠ 0) → OrderReflecting (z *.).
 Proof.
    intros z ?. 
-   apply (order_reflecting_pos (.*.) z).
+   repeat (split; try apply _). apply (order_reflecting_pos (.*.) z).
    apply lt_iff_le_ne. split.
     apply naturals_nonneg. 
    now apply not_symmetry.
@@ -152,16 +152,21 @@ Proof.
   now rewrite E1, E2.
 Qed.
 
+Instance: PartialOrder nat_le.
+Proof.
+  repeat (split; try apply _).
+    intros x. exists 0. ring.
+   intros x y z [a A] [b B]. exists (a + b). now rewrite associativity, A, B.
+   intros x y [a A] [b B].
+  destruct (naturals.zero_sum a b) as [E1 E2].
+   apply (left_cancellation (+) x). 
+   rewrite associativity, A, B. ring.
+  rewrite <-A, <-B, E1, E2. ring.
+Qed.
+
 Instance: SemiRingOrder nat_le.
 Proof.
   repeat (split; try apply _).
-        intros x. exists 0. ring.
-       intros x y z [a A] [b B]. exists (a + b). now rewrite associativity, A, B.
-      intros x y [a A] [b B].
-      destruct (naturals.zero_sum a b) as [E1 E2].
-       apply (left_cancellation (+) x). 
-       rewrite associativity, A, B. ring.
-      rewrite <-A, <-B, E1, E2. ring.
      intros x y [a A]. now exists a.
     intros x y [a A]. exists a. rewrite <-A. ring.
    intros x y [a A]. exists a.

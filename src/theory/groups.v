@@ -3,17 +3,21 @@ Require
 Require Import
   Morphisms abstract_algebra.
 
-Section group_props. 
-Context `{Group G}.
+Section semigroup_props. 
+Context `{SemiGroup G}.
 
 Global Instance sg_op_mor_1: ∀ x, Setoid_Morphism (x &) | 0.
 Proof. split; try apply _. Qed.
 
 Global Instance sg_op_mor_2: ∀ x, Setoid_Morphism (& x) | 0.
 Proof. split; try apply _. solve_proper. Qed.
+End semigroup_props.
 
-Lemma negate_involutive x : - - x = x.
+Section group_props. 
+Context `{Group G}.
+Global Instance negate_involutive: Involutive (-).
 Proof.
+  intros x.
   rewrite <-(left_identity x) at 2.
   rewrite <-(left_inverse (- x)).
   rewrite <-associativity.
@@ -25,7 +29,7 @@ Global Instance: Injective (-).
 Proof.
   repeat (split; try apply _).
   intros x y E.
-  now rewrite <-(negate_involutive x), <-(negate_involutive y), E.
+  now rewrite <-(involutive x), <-(involutive y), E.
 Qed.
 
 Lemma negate_mon_unit : -mon_unit = mon_unit.
@@ -99,3 +103,85 @@ Proof.
    apply P with f. destruct Mor. now symmetry. apply _.
   now apply P with g. 
 Qed.
+
+Section from_another_sg.
+  Context `{SemiGroup A} `{Setoid B} 
+   `{Bop : SgOp B} (f : B → A) `{!Injective f} (op_correct : ∀ x y, f (x & y) = f x & f y).
+
+  Instance: Setoid_Morphism f := injective_mor f.
+  Instance: Proper ((=) ==> (=) ==> (=)) Bop.
+  Proof. intros ? ? E1 ? ? E2. apply (injective f). rewrite 2!op_correct. apply sg_op_proper; now apply sm_proper. Qed.
+
+  Lemma projected_sg: SemiGroup B.
+  Proof.
+    split; try apply _. 
+    repeat intro; apply (injective f). now rewrite !op_correct, associativity.
+  Qed.
+End from_another_sg.
+
+Section from_another_com_sg.
+  Context `{CommutativeSemiGroup A} `{Setoid B} 
+   `{Bop : SgOp B} (f : B → A) `{!Injective f} (op_correct : ∀ x y, f (x & y) = f x & f y).
+
+  Lemma projected_com_sg: CommutativeSemiGroup B.
+  Proof.
+    split. now apply (projected_sg f). 
+    repeat intro; apply (injective f). now rewrite !op_correct, commutativity.
+  Qed.
+End from_another_com_sg.
+
+Section from_another_monoid.
+  Context `{Monoid A} `{Setoid B} 
+   `{Bop : SgOp B} `{Bunit : MonUnit B} (f : B → A) `{!Injective f} 
+   (op_correct : ∀ x y, f (x & y) = f x & f y) (unit_correct : f mon_unit = mon_unit).
+
+  Lemma projected_monoid: Monoid B.
+  Proof.
+    split. now apply (projected_sg f).
+     repeat intro; apply (injective f). now rewrite op_correct, unit_correct, left_identity.
+    repeat intro; apply (injective f). now rewrite op_correct, unit_correct, right_identity.
+  Qed.
+End from_another_monoid.
+
+Section from_another_com_monoid.
+  Context `{CommutativeMonoid A} `{Setoid B} 
+   `{Bop : SgOp B} `{Bunit : MonUnit B} (f : B → A) `{!Injective f} 
+   (op_correct : ∀ x y, f (x & y) = f x & f y) (unit_correct : f mon_unit = mon_unit).
+
+  Lemma projected_com_monoid: CommutativeMonoid B.
+  Proof.
+    split. now apply (projected_monoid f).
+    repeat intro; apply (injective f). now rewrite op_correct, commutativity.
+  Qed.
+End from_another_com_monoid.
+
+Section from_another_group.
+  Context `{Group A} `{Setoid B} 
+   `{Bop : SgOp B} `{Bunit : MonUnit B} `{Bnegate : Negate B} (f : B → A) `{!Injective f} 
+   (op_correct : ∀ x y, f (x & y) = f x & f y) (unit_correct : f mon_unit = mon_unit)
+   (negate_correct : ∀ x, f (-x) = -f x).
+
+  Instance: Setoid_Morphism f := injective_mor f.
+  Instance: Setoid_Morphism Bnegate.
+  Proof. split; try apply _. intros ? ? E1. apply (injective f). rewrite 2!negate_correct. now do 2 apply sm_proper. Qed.
+
+  Lemma projected_group: Group B.
+  Proof.
+    split; try apply _. now apply (projected_monoid f).
+     repeat intro; apply (injective f). now rewrite op_correct, negate_correct, unit_correct, left_inverse.
+    repeat intro; apply (injective f). now rewrite op_correct, negate_correct, unit_correct, right_inverse.
+  Qed.
+End from_another_group.
+
+Section from_another_ab_group.
+  Context `{AbGroup A} `{Setoid B} 
+   `{Bop : SgOp B} `{Bunit : MonUnit B} `{Bnegate : Negate B} (f : B → A) `{!Injective f} 
+   (op_correct : ∀ x y, f (x & y) = f x & f y) (unit_correct : f mon_unit = mon_unit)
+   (negate_correct : ∀ x, f (-x) = -f x).
+
+  Lemma projected_ab_group: AbGroup B.
+  Proof.
+    split; try apply _. now apply (projected_group f).
+    repeat intro; apply (injective f). now rewrite op_correct, commutativity.
+  Qed.
+End from_another_ab_group.

@@ -16,13 +16,14 @@ Instance inject_bigN_bigQ: Cast bigN bigQ := cast bigZ bigQ ∘ cast bigN bigZ.
 Instance inject_Z_bigQ: Cast Z bigQ := cast bigZ bigQ ∘ cast Z bigZ.
 
 Instance: Proper ((=) ==> (=)) inject_bigZ_bigQ.
-Proof.
-  intros x y E. unfold_equiv. unfold Qeq. simpl.
-  now rewrite E.
-Qed.
-
+Proof. intros x y E. unfold_equiv. unfold Qeq. simpl. now rewrite E. Qed.
 Instance: SemiRing_Morphism inject_bigZ_bigQ.
 Proof. repeat (split; try apply _). Qed.
+
+Instance: SemiRing_Morphism inject_bigN_bigQ.
+Proof. unfold inject_bigN_bigQ. apply _. Qed.
+Instance: SemiRing_Morphism inject_Z_bigQ.
+Proof. unfold inject_Z_bigQ. apply _. Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) BigQ.Qq.
 Proof.
@@ -80,7 +81,7 @@ Proof.
   rewrite bigQ_div_bigQq_alt.
   rewrite rings.preserves_mult, dec_fields.preserves_dec_recip.
   case (decide_rel (=) ('d : bigZ) 0); intros Ed.
-   rewrite Ed, !rings.preserves_0, dec_recip_0.
+   rewrite Ed. rewrite !rings.preserves_0. rewrite dec_recip_0.
    now rewrite rings.mult_0_r.
   rewrite 2!(integers.to_ring_twice _ _ (cast bigZ (Frac bigZ))).
   now rewrite Frac_dec_mult_num_den at 1.

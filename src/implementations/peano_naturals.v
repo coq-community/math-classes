@@ -14,15 +14,14 @@ Instance nat_mult: Mult nat := Peano.mult.
 Instance: SemiRing nat.
 Proof.
   repeat (split; try apply _); repeat intro.
-          now apply plus_assoc.
-         now apply plus_0_r.
-        now apply plus_comm.
-       now apply mult_assoc.
-      now apply mult_1_l.
-     now apply mult_1_r.
-    now apply mult_comm.
-   now apply mult_plus_distr_l.
-  now apply mult_plus_distr_r.
+         now apply plus_assoc.
+        now apply plus_0_r.
+       now apply plus_comm.
+      now apply mult_assoc.
+     now apply mult_1_l.
+    now apply mult_1_r.
+   now apply mult_comm.
+  now apply mult_plus_distr_l.
 Qed.
 
 (* misc *)
@@ -108,9 +107,10 @@ Instance: FullPseudoSemiRingOrder nat_le nat_lt.
 Proof.
   assert (TotalRelation nat_le).
    intros x y. now destruct (le_ge_dec x y); intuition.
+  assert (PartialOrder nat_le).
+   split; try apply _. intros x y E. now apply Le.le_antisym.
   assert (SemiRingOrder nat_le).
    repeat (split; try apply _).
-       intros x y E. now apply Le.le_antisym.
       intros x y E. exists (y - x)%nat. now apply le_plus_minus.
      intros. now apply Plus.plus_le_compat_l.
     intros. now apply plus_le_reg_l with z.

@@ -17,11 +17,40 @@ On the other hand, if equality is decidable, we will prove that we have the
 usual properties like Trichotomy (<) and TotalRelation (≤).
 *)
 
-Class PartialOrder `{Ae: Equiv A} (Ale : Le A) : Prop :=
-  { po_setoid : Setoid A (* Making this a coercion makes instance search slow *)
+Class PartialOrder `{Ae : Equiv A} (Ale : Le A) : Prop :=
+  { po_setoid : Setoid A (* Making this a subclass makes instance search slow *)
   ; po_proper:> Proper ((=) ==> (=) ==> iff) (≤)
   ; po_preorder:> PreOrder (≤)
   ; po_antisym:> AntiSymmetric (≤) }.
+
+Class TotalOrder `{Ae : Equiv A} (Ale : Le A) : Prop :=
+  { total_order_po :> PartialOrder (≤)
+  ; total_order_total :> TotalRelation (≤) }.
+
+(* 
+We define a variant of the order theoretic definition of meet and join
+semilattices. Notice that we include a meet operation instead of the
+more common:
+  ∀ x y, ∃ m, m ≤ x ∧ m ≤ y ∧ ∀ z, z ≤ x → z ≤ y → m ≤ z
+Our definition is both stronger and more convenient than the above.
+This is needed to prove equavalence with the algebraic definition. We 
+do this in orders.lattices.
+*)
+Class MeetSemiLatticeOrder `{Ae : Equiv A} (Ale : Le A) `{Meet A} : Prop :=
+  { meet_sl_order :> PartialOrder (≤)
+  ; meet_lb_l : ∀ x y, x ⊓ y ≤ x
+  ; meet_lb_r : ∀ x y, x ⊓ y ≤ y
+  ; meet_glb : ∀ x y z, z ≤ x → z ≤ y → z ≤ x ⊓ y }.
+
+Class JoinSemiLatticeOrder `{Ae : Equiv A} (Ale : Le A) `{Join A} : Prop :=
+  { join_sl_order :> PartialOrder (≤)
+  ; join_ub_l : ∀ x y, x ≤ x ⊔ y
+  ; join_ub_r : ∀ x y, y ≤ x ⊔ y
+  ; join_lub : ∀ x y z, x ≤ z → y ≤ z → x ⊔ y ≤ z }.
+
+Class LatticeOrder `{Ae : Equiv A} (Ale : Le A) `{Meet A} `{Join A} : Prop :=
+  { lattice_order_meet :> MeetSemiLatticeOrder (≤)
+  ; lattice_order_join :> JoinSemiLatticeOrder (≤) }.
 
 (* The strict order from the standard library does not include (=) and thus
   does not require (<) to be Proper. *)
@@ -59,13 +88,13 @@ Section order_maps.
     OrderPreserving and OrderReflecting *)
   Class Order_Morphism := 
     { order_morphism_mor : Setoid_Morphism f
-    ; order_morphism_proper_a :> Proper ((=) ==> (=) ==> iff) Ale
-    ; order_morphism_proper_b :> Proper ((=) ==> (=) ==> iff) Ble }.
+    ; order_morphism_po_a : PartialOrder Ale
+    ; order_morphism_po_b : PartialOrder Ble }.
 
   Class StrictOrder_Morphism := 
     { strict_order_morphism_mor : Setoid_Morphism f
-    ; strict_order_morphism_proper_a :> Proper ((=) ==> (=) ==> iff) Alt
-    ; strict_order_morphism_proper_b :> Proper ((=) ==> (=) ==> iff) Blt }.
+    ; strict_order_morphism_so_a : StrictSetoidOrder Alt
+    ; strict_order_morphism_so_b : StrictSetoidOrder Blt }.
 
   Class OrderPreserving := 
     { order_preserving_morphism :> Order_Morphism 
@@ -104,29 +133,32 @@ is quite similar to a strictly linearly ordered unital commutative protoring in
 Davorin Lešnik's PhD thesis.
 *)
 Class SemiRingOrder `{Equiv A} `{Plus A} `{Mult A} 
-    `{Zero A} (Ale : Le A) :=
+    `{Zero A} `{One A} (Ale : Le A) :=
   { srorder_po :> PartialOrder Ale
+  ; srorder_semiring : SemiRing A
   ; srorder_partial_minus : ∀ x y, x ≤ y → ∃ z, y = x + z
   ; srorder_plus :> ∀ z, OrderEmbedding (z +)
   ; nonneg_mult_compat : ∀ x y, PropHolds (0 ≤ x) → PropHolds (0 ≤ y) → PropHolds (0 ≤ x * y) }.
 
 Class StrictSemiRingOrder `{Equiv A} `{Plus A} `{Mult A} 
-    `{Zero A} (Alt : Lt A) :=
+    `{Zero A} `{One A} (Alt : Lt A) :=
   { strict_srorder_so :> StrictSetoidOrder Alt
+  ; strict_srorder_semiring : SemiRing A
   ; strict_srorder_partial_minus : ∀ x y, x < y → ∃ z, y = x + z
   ; strict_srorder_plus :> ∀ z, StrictOrderEmbedding (z +)
   ; pos_mult_compat : ∀ x y, PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x * y) }.
 
 Class PseudoSemiRingOrder `{Equiv A} `{Apart A} `{Plus A} 
-    `{Mult A} `{Zero A} (Alt : Lt A) :=
+    `{Mult A} `{Zero A} `{One A} (Alt : Lt A) :=
   { pseudo_srorder_strict :> PseudoOrder Alt
+  ; pseudo_srorder_semiring : SemiRing A
   ; pseudo_srorder_partial_minus : ∀ x y, ¬y < x → ∃ z, y = x + z
   ; pseudo_srorder_plus :> ∀ z, StrictOrderEmbedding (z +)
   ; pseudo_srorder_mult_ext :> StrongSetoid_BinaryMorphism (.*.)
   ; pseudo_srorder_pos_mult_compat : ∀ x y, PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x * y) }.
 
 Class FullPseudoSemiRingOrder `{Equiv A} `{Apart A} `{Plus A} 
-    `{Mult A} `{Zero A} (Ale : Le A) (Alt : Lt A) :=
+    `{Mult A} `{Zero A} `{One A} (Ale : Le A) (Alt : Lt A) :=
   { full_pseudo_srorder_pso :> PseudoSemiRingOrder Alt
   ; full_pseudo_srorder_le_iff_not_lt_flip : ∀ x y, x ≤ y ↔ ¬y < x }.
 

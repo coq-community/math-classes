@@ -13,15 +13,14 @@ Instance N_mult : Mult N := Nmult.
 Instance: SemiRing N.
 Proof.
   repeat (split; try apply _); repeat intro.
-          now apply Nplus_assoc.
-         now apply Nplus_0_r.
-        now apply Nplus_comm.
-       now apply Nmult_assoc.
-      now apply Nmult_1_l.
-     now apply Nmult_1_r.
-    now apply Nmult_comm.
-   now apply Nmult_plus_distr_l.
-  now apply Nmult_plus_distr_r.
+         now apply Nplus_assoc.
+        now apply Nplus_0_r.
+       now apply Nplus_comm.
+      now apply Nmult_assoc.
+     now apply Nmult_1_l.
+    now apply Nmult_1_r.
+   now apply Nmult_comm.
+  now apply Nmult_plus_distr_l.
 Qed.
 
 Instance: ∀ x y : N, Decision (x = y) := N_eq_dec.
@@ -49,7 +48,7 @@ Instance: Bijective nat_of_N := {}.
 Instance: Inverse N_of_nat := nat_of_N.
 
 Instance: Bijective N_of_nat.
-Proof. apply jections.flip_bijection. apply _. Qed.
+Proof. apply jections.flip_bijection. Qed.
 
 Instance: SemiRing_Morphism N_of_nat.
 Proof. change (SemiRing_Morphism (nat_of_N⁻¹)). split; apply _. Qed.
@@ -63,10 +62,10 @@ Instance N_lt: Lt N := Nlt.
 
 Instance: FullPseudoSemiRingOrder N_le N_lt.
 Proof.
+  assert (PartialOrder N_le).
+   repeat (split; try apply _). exact N.le_antisymm.
   assert (SemiRingOrder N_le).
-   split.
-      repeat (split; try apply _).
-      exact N.le_antisymm.
+   split; try apply _.
      intros x y E. exists (Nminus y x).
      symmetry. rewrite commutativity. now apply N.sub_add.
     repeat (split; try apply _); intros. 

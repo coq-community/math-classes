@@ -19,17 +19,16 @@ Instance Z_negate: Negate Z := Zopp.
 Instance: Ring Z.
 Proof.
   repeat (split; try apply _); repeat intro.
-            now apply Zplus_assoc.
-           now apply Zplus_0_r.
-          now apply Zplus_opp_l.
-         now apply Zplus_opp_r.
-        now apply Zplus_comm.
-       now apply Zmult_assoc.
-      now apply Zmult_1_l.
-     now apply Zmult_1_r.
-    now apply Zmult_comm.
-   now apply Zmult_plus_distr_r.
-  now apply Zmult_plus_distr_l.
+           now apply Zplus_assoc.
+          now apply Zplus_0_r.
+         now apply Zplus_opp_l.
+        now apply Zplus_opp_r.
+       now apply Zplus_comm.
+      now apply Zmult_assoc.
+     now apply Zmult_1_l.
+    now apply Zmult_1_r.
+   now apply Zmult_comm.
+  now apply Zmult_plus_distr_r.
 Qed.
 
 (* misc: *)

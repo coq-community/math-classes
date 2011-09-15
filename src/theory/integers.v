@@ -1,11 +1,10 @@
 (* General results about arbitrary integer implementations. *)
-Require Export
- interfaces.integers.
 Require
  theory.naturals theory.nat_distance.
 Require Import
- RelationClasses Ring
- interfaces.naturals abstract_algebra natpair_integers.
+ Ring interfaces.naturals abstract_algebra natpair_integers.
+Require Export
+ interfaces.integers.
 
 (* Any two integer implementations are trivially isomorphic because of their initiality,
  but it's nice to have this stated in terms of integers_to_ring being self-inverse: *)
@@ -79,7 +78,7 @@ Section retract_is_int.
 
     Instance: SemiRing_Morphism (integers_to_ring Int R ∘ f⁻¹) := {}.
     Context (h :  Int2 → R) `{!SemiRing_Morphism h}. 
-      
+
     Lemma same_morphism: integers_to_ring Int R ∘ f⁻¹ = h.
     Proof with auto.
       intros x y F. rewrite <-F.
@@ -88,15 +87,11 @@ Section retract_is_int.
       unfold compose. now rewrite jections.surjective_applied.
     Qed.
   End for_another_ring.
-  
+
   (* If we make this an instance, then instance resolution will often loop *)
-  Program Definition retract_is_int: Integers Int2 (U:=retract_is_int_to_ring). 
-  Proof.
-    esplit; try apply _. (* for some reason split doesn't work... *)
-    apply integer_initial. intros. 
-    unfold integers_to_ring, retract_is_int_to_ring. 
-    now apply same_morphism.
-  Qed.
+  Program Instance retract_is_int: Integers Int2 (U:=retract_is_int_to_ring). 
+  Next Obligation. unfold integers_to_ring, retract_is_int_to_ring. apply _. Qed.
+  Next Obligation. apply integer_initial. intros. now apply same_morphism. Qed.
 End retract_is_int.
 
 Section contents.

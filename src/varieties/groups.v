@@ -1,5 +1,4 @@
 (* To be imported qualified. *)
-
 Set Automatic Coercions Import.
 Require
   categories.varieties categories.product forget_algebra forget_variety theory.groups.
@@ -103,8 +102,8 @@ Lemma encode_morphism_only
   `{AlgebraOps theory B} `{∀ u, Equiv (B u)}
   (f: ∀ u, A u → B u) `{!Group (A tt)} `{!Group (B tt)} `{!Monoid_Morphism (f tt)}: HomoMorphism sig A B f.
 Proof.
- pose proof (monmor_a (f tt)).
- pose proof (monmor_b (f tt)).
+ pose proof (monmor_a (f:=f tt)).
+ pose proof (monmor_b (f:=f tt)).
  constructor.
     intros []. apply _.
    intros []; simpl.

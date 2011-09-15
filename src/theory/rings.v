@@ -17,7 +17,8 @@ Proof.
      apply left_absorb.
     apply commutativity.
    apply associativity.
-  apply distribute_r.
+  rewrite commutativity, distribute_l.
+  now setoid_rewrite commutativity at 2 3.
 Qed.
 
 (* We cannot apply [left_cancellation (.*.) z] directly in case we have
@@ -85,8 +86,11 @@ Section semiring_props.
   Global Instance mult_0_r: RightAbsorb (.*.) 0.
   Proof. intro. ring. Qed.
 
+  Global Instance: RightDistribute (.*.) (+).
+  Proof. intros x y z. ring. Qed.
+
   Lemma plus_mult_distr_r x y z: (x + y) * z = x * z + y * z. Proof. ring. Qed.
-  Lemma plus_mult_distr_l x y z: x * (y + z) = x * y + x * z. Proof. ring. Qed.  
+  Lemma plus_mult_distr_l x y z: x * (y + z) = x * y + x * z. Proof. ring. Qed.
 
   Global Instance: ∀ r : R, @Monoid_Morphism R R _ _ (0:R) (0:R) (+) (+) (r *.).
   Proof.
@@ -143,7 +147,8 @@ Proof.
       apply left_identity.
      apply commutativity.
     apply associativity.
-   apply distribute_r.
+   rewrite commutativity, distribute_l. 
+   now setoid_rewrite commutativity at 2 3.
   reflexivity.
  apply (right_inverse x).
 Qed.
@@ -263,24 +268,13 @@ Section from_another_ring.
     (plus_correct : ∀ x y, f (x + y) = f x + f y) (zero_correct : f 0 = 0) 
     (mult_correct : ∀ x y, f (x * y) = f x * f y) (one_correct : f 1 = 1) (negate_correct : ∀ x, f (-x) = -f x).
 
-  Instance: Setoid_Morphism f := injective_mor f.
-  Add Ring A : (stdlib_ring_theory A).
-
-  Instance: Proper ((=) ==> (=) ==> (=)) Bplus.
-  Proof. intros ? ? E1 ? ? E2. apply (injective f). rewrite 2!plus_correct. apply sg_op_proper; now apply sm_proper. Qed.
-
-  Instance: Proper ((=) ==> (=) ==> (=)) Bmult.
-  Proof. intros ? ? E1 ? ? E2. apply (injective f). rewrite 2!mult_correct. apply sg_op_proper; now apply sm_proper. Qed.
-
-  Instance: Proper ((=) ==> (=)) Bnegate.
-  Proof. intros ? ? E1. apply (injective f). rewrite 2!negate_correct. now apply sm_proper; apply sm_proper. Qed.
-
   Lemma projected_ring: Ring B.
   Proof.
-    repeat split; try apply _; repeat intro; apply (injective f);
-      repeat (rewrite plus_correct || rewrite zero_correct 
-      || rewrite mult_correct || rewrite one_correct 
-      || rewrite negate_correct); ring.
+    split. 
+      now apply (groups.projected_ab_group f). 
+     now apply (groups.projected_com_monoid f mult_correct one_correct).
+    repeat intro; apply (injective f). rewrite plus_correct, !mult_correct, plus_correct.
+    now rewrite distribute_l.
   Qed.
 End from_another_ring.
 
@@ -319,23 +313,24 @@ Section from_stdlib_ring_theory.
   Qed.
 End from_stdlib_ring_theory.
 
+Instance id_sr_morphism `{SemiRing A}: SemiRing_Morphism (@id A) := {}.
+
 Section morphism_composition.
-  Context (A B C : Type)
-    `{!Mult A} `{!Plus A} `{!One A} `{!Zero A} `{!Equiv A}
-    `{!Mult B} `{!Plus B} `{!One B} `{!Zero B} `{!Equiv B}
-    `{!Mult C} `{!Plus C} `{!One C} `{!Zero C} `{!Equiv C}
+  Context `{Equiv A} `{Mult A} `{Plus A} `{One A} `{Zero A}
+    `{Equiv B} `{Mult B} `{Plus B} `{One B} `{Zero B}
+    `{Equiv C} `{Mult C} `{Plus C} `{One C} `{Zero C}
     (f : A → B) (g : B → C).
 
-  Global Instance id_semiring_morphism `{!SemiRing A}: SemiRing_Morphism id := {}.
-
-  Global Instance compose_semiring_morphisms `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} : 
-    SemiRing_Morphism (g ∘ f).
-  Proof.
-    constructor; try apply _.
-     now apply semiringmor_a.
-    now apply semiringmor_b.
-  Qed.
+  Instance compose_sr_morphism: 
+    SemiRing_Morphism f → SemiRing_Morphism g → SemiRing_Morphism (g ∘ f).
+  Proof. split; try apply _; firstorder. Qed.
+  Global Instance invert_sr_morphism: 
+    ∀ `{!Inverse f}, Bijective f → SemiRing_Morphism f → SemiRing_Morphism (f⁻¹).
+  Proof. split; try apply _; firstorder. Qed.
 End morphism_composition.
+
+Hint Extern 4 (SemiRing_Morphism (_ ∘ _)) => class_apply @compose_sr_morphism : typeclass_instances.
+Hint Extern 4 (SemiRing_Morphism (_⁻¹)) => class_apply @invert_sr_morphism : typeclass_instances.
 
 Instance semiring_morphism_proper {A B eA eB pA mA zA oA pB mB zB oB} : 
   Proper ((=) ==> (=)) (@SemiRing_Morphism A B eA eB pA mA zA oA pB mB zB oB).

@@ -78,7 +78,8 @@ Section for_another_ring.
     Instance: Proper ((=) ==> (=)) g.
     Proof. intros x y E. unfold g. now rewrite E. Qed.
 
-    Instance: SemiRing_Morphism g := {}.
+    Instance: SemiRing_Morphism g.
+    Proof. unfold g. apply _. Qed.
 
     Lemma agree_on_nat : g = n_to_sr.
     Proof.

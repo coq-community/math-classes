@@ -130,13 +130,6 @@ Section with_semiring_order.
     split; repeat intro; eapply E; eauto; symmetry; eauto.
   Qed.
 
-  Global Instance: OrderEmbedding SRpair_inject.
-  Proof.
-    repeat (split; try apply _).
-     intros x y E. unfold_le. simpl. now rewrite 2!rings.plus_0_r.
-    intros x y E. unfold le, SRpair_le in E. simpl in E. now rewrite 2!rings.plus_0_r in E.
-  Qed.
-
   Instance: Reflexive SRpair_le.
   Proof. intros [? ?]. unfold_le. reflexivity. Qed.
 
@@ -158,6 +151,13 @@ Section with_semiring_order.
 
   Instance: PartialOrder SRpair_le.
   Proof. repeat (split; try apply _). Qed.
+
+  Global Instance: OrderEmbedding SRpair_inject.
+  Proof.
+    repeat (split; try apply _).
+     intros x y E. unfold_le. simpl. now rewrite 2!rings.plus_0_r.
+    intros x y E. unfold le, SRpair_le in E. simpl in E. now rewrite 2!rings.plus_0_r in E.
+  Qed.
 
   Instance: ∀ z : SRpair SR, OrderPreserving ((+) z).
   Proof.

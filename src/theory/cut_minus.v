@@ -165,30 +165,31 @@ Section cut_minus_properties.
 
   (* * Properties of min and minus *)
   Section min.
-  Context `{∀ (x y : R), Decision (x ≤ y)}.
-  Lemma cut_minus_min1 x y z : x ∸ min y z = x ∸ y + (min x y ∸ z). 
+  Context `{∀ x y : R, Decision (x ≤ y)}.
+
+  Lemma cut_minus_min1 x y z : x ∸ (y ⊓ z) = x ∸ y + ((x ⊓ y) ∸ z). 
   Proof with eauto; try ring.
-    unfold min, sort.
+    unfold meet, min, sort.
     case (decide_rel (≤) x y); case (decide_rel (≤) y z); intros F G; simpl.
        rewrite (cut_minus_0 x z)... transitivity y...
       rewrite (cut_minus_0 x y)...
      rewrite (cut_minus_0 y z)...
     symmetry...
   Qed.
-  
-  Lemma cut_minus_min2 x y z : y ∸ z + (min y z ∸ x) = y ∸ x + (min x y ∸ z).
+
+  Lemma cut_minus_min2 x y z : y ∸ z + ((y ⊓ z) ∸ x) = y ∸ x + ((x ⊓ y) ∸ z).
   Proof.
-    rewrite <-cut_minus_min1. 
+    rewrite <-cut_minus_min1.
     rewrite (commutativity x y), <-cut_minus_min1.
     now rewrite commutativity.
   Qed.
 
-  Lemma cut_minus_min3 x y z : (x + min y z) ∸ min (x + y) (x + z) = min (x + y) (x + z) ∸ (x + min y z).
+  Lemma cut_minus_min3 x y z : (x + (y ⊓ z)) ∸ ((x + y) ⊓ (x + z)) = ((x + y) ⊓ (x + z)) ∸ (x + (y ⊓ z)).
   Proof with auto; try reflexivity.
     destruct (total (≤) y z) as [G1|G1].
-     rewrite (min_l y z), (min_l (x + y) (x + z))...
+     rewrite (lattices.meet_l y z), (lattices.meet_l (x + y) (x + z))...
      apply (order_preserving (x +))...
-    rewrite (min_r y z), (min_r (x + y) (x + z))...
+    rewrite (lattices.meet_r y z), (lattices.meet_r (x + y) (x + z))...
     apply (order_preserving (x +))...
   Qed.
   End min.
@@ -212,7 +213,7 @@ End cut_minus_properties.
 
 (* * Default implementation for Rings *)
 Section cut_minus_default.
-  Context `{Ring R} `{!SemiRingOrder o} `{∀ (x y : R), Decision (x ≤ y)}.
+  Context `{Ring R} `{!SemiRingOrder o} `{∀ x y : R, Decision (x ≤ y)}.
 
   Global Instance default_cut_minus: CutMinus R | 10 := λ x y, if decide_rel (≤) x y then 0 else x - y.
 

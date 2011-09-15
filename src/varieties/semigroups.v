@@ -107,33 +107,33 @@ Proof.
  apply (preserves theory x y f mult).
 Qed.
 
+Instance id_sg_morphism `{SemiGroup A}: SemiGroup_Morphism (@id A).
+Proof. repeat (split; try apply _); easy. Qed.
+
 (* Finally, we use these encoding/decoding functions to specialize some universal results: *)
 Section specialized.
-  Context (A B C: Type)
-    `{!SgOp A} `{!Equiv A}
-    `{!SgOp B} `{!Equiv B}
-    `{!SgOp C} `{!Equiv C}
-    (f: A → B) (g: B → C).
+  Context `{Equiv A} `{SgOp A} `{Equiv B} `{SgOp B} `{Equiv C} `{SgOp C}
+    (f : A → B) (g : B → C).
 
-  Global Instance id_morphism `{!SemiGroup A}: SemiGroup_Morphism id.
-  Proof. repeat (constructor; try apply _); reflexivity. Qed.
-
-  Global Instance compose_morphisms `{!SemiGroup A, !SemiGroup B, !SemiGroup C}
-    `{!SemiGroup_Morphism f} `{!SemiGroup_Morphism g}: SemiGroup_Morphism (g ∘ f).
+  Instance compose_sg_morphism:
+    SemiGroup_Morphism f → SemiGroup_Morphism g → SemiGroup_Morphism (g ∘ f).
   Proof.
-   pose proof (encode_morphism_and_ops (f:=f)) as P.
-   pose proof (encode_morphism_and_ops (f:=g)) as Q.
-   pose proof (@compose_homomorphisms theory _ _ _ _ _ _ _ _ _ _ _ P Q).
-   apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ H).
+    intros. pose proof (encode_morphism_and_ops (f:=f)) as P.
+    pose proof (encode_morphism_and_ops (f:=g)) as Q.
+    pose proof (@compose_homomorphisms theory _ _ _ _ _ _ _ _ _ _ _ P Q) as PP.
+    pose proof (sgmor_a (f:=f)). pose proof (sgmor_b (f:=f)). pose proof (sgmor_b (f:=g)).
+    apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ PP).
   Qed.
 
-  Global Instance: ∀ `{H: SemiGroup_Morphism A B f} `{!Inverse f},
-    Bijective f → SemiGroup_Morphism (inverse f).
+  Instance invert_sg_morphism: 
+    ∀ `{!Inverse f}, Bijective f → SemiGroup_Morphism f → SemiGroup_Morphism (f⁻¹).
   Proof.
-   intros.
-   pose proof (encode_morphism_and_ops (f:=f)) as P.
-   pose proof (@invert_homomorphism theory _ _ _ _ _ _ _ _ _ _ P) as Q.
-   destruct H.
-   apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ Q).
+    intros. pose proof (encode_morphism_and_ops (f:=f)) as P.
+    pose proof (@invert_homomorphism theory _ _ _ _ _ _ _ _ _ _ P) as Q.
+    pose proof (sgmor_a (f:=f)). pose proof (sgmor_b (f:=f)).
+    apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ Q).
   Qed.
 End specialized.
+
+Hint Extern 4 (SemiGroup_Morphism (_ ∘ _)) => class_apply @compose_sg_morphism : typeclass_instances.
+Hint Extern 4 (SemiGroup_Morphism (_⁻¹)) => class_apply @invert_sg_morphism : typeclass_instances.

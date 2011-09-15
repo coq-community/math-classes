@@ -14,7 +14,7 @@ Section contents.
   Proof with intuition.
    intros.
    pose proof (setoidmor_a f).
-   pose proof (monmor_b g).
+   pose proof (monmor_b (f:=g)).
    pose proof (sequence_only_extend_commutes sq (f ∘ inject A) _) as E.
    pose proof (_ : Setoid_Morphism (f ∘ inject A)) as cm.
    rewrite (E f), (E g)...
@@ -32,8 +32,8 @@ Section contents.
   Proof with try apply _.
    intros.
    pose proof (setoidmor_a g).
-   pose proof (monmor_a f).
-   pose proof (monmor_b f).
+   pose proof (monmor_a (f:=f)).
+   pose proof (monmor_b (f:=f)).
    symmetry.
    apply (sequence_only_extend_commutes sq (f ∘ g))...
    symmetry.

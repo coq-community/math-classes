@@ -76,6 +76,11 @@ Hint Extern 10 (Equiv (sigT _)) => apply @sigT_equiv : typeclass_instances.
 Definition sig_apart `{Apart A} (P: A → Prop) : Equiv (sig P) := λ x y, `x ≶ `y.
 Hint Extern 10 (Apart (sig _)) => apply @sig_apart : typeclass_instances. 
 
+Class Cast A B := cast: A → B.
+Implicit Arguments cast [[Cast]].
+Notation "' x" := (cast _ _ x) (at level 20).
+Instance: Params (@cast) 3.
+
 (* Other canonically named relations/operations/constants: *)
 Class SgOp A := sg_op: A → A → A.
 Class MonUnit A := mon_unit: A.
@@ -87,6 +92,15 @@ Class Negate A := negate: A → A.
 Class DecRecip A := dec_recip: A → A.
 Definition ApartZero R `{Zero R} `{Apart R} := sig (≶ zero).
 Class Recip A `{Apart A} `{Zero A} := recip: ApartZero A → A.
+
+Class Meet A := meet: A → A → A.
+Class Join A := join: A → A → A.
+Class Top A := top: A.
+Class Bottom A := bottom: A.
+
+Class Contains A B := contains: A → B → Prop.
+Class Singleton A B := singleton: A → B.
+Class Difference A := difference : A → A → A.
 
 Class Le A := le: relation A.
 Class Lt A := lt: relation A.
@@ -116,11 +130,21 @@ Instance: Params (@le) 2.
 Instance: Params (@lt) 2.
 Instance: Params (@recip) 4.
 Instance: Params (@dec_recip) 2.
+Instance: Params (@meet) 2.
+Instance: Params (@join) 2.
+Instance: Params (@contains) 3.
+Instance: Params (@singleton) 3.
+Instance: Params (@difference) 2.
 
 Instance plus_is_sg_op `{f : Plus A} : SgOp A := f.
 Instance mult_is_sg_op `{f : Mult A} : SgOp A := f.
 Instance one_is_mon_unit `{c : One A} : MonUnit A := c.
 Instance zero_is_mon_unit `{c : Zero A} : MonUnit A := c.
+Instance meet_is_sg_op `{f : Meet A} : SgOp A := f.
+Instance join_is_sg_op `{f : Join A} : SgOp A := f.
+Instance top_is_mon_unit `{s : Top A} : MonUnit A := s.
+Instance bottom_is_mon_unit `{s : Bottom A} : MonUnit A := s.
+Instance singleton_is_cast `{s : Singleton A B} : Cast A B := s.
 
 Hint Extern 10 (Equiv (_ ⟶ _)) => apply @ext_equiv : typeclass_instances.
 Hint Extern 4 (Equiv (ApartZero _)) => apply @sig_equiv : typeclass_instances. 
@@ -178,6 +202,19 @@ Notation "// x" := (recip x) (at level 35, right associativity).
 Notation "(//)" := recip (only parsing).
 Notation "x // y" := (x * //y) (at level 35, right associativity).
 
+Notation "⊤" := top.
+Notation "⊥" := bottom.
+
+Infix "⊓" := meet (at level 50, no associativity).
+Notation "(⊓)" := meet (only parsing).
+Notation "( X ⊓)" := (meet X) (only parsing).
+Notation "(⊓ X )" := (λ Y, Y ⊓ X) (only parsing).
+
+Infix "⊔" := join (at level 50, no associativity).
+Notation "(⊔)" := join (only parsing).
+Notation "( X ⊔)" := (join X) (only parsing).
+Notation "(⊔ X )" := (λ Y, Y ⊔ X) (only parsing).
+
 Infix "≤" := le.
 Notation "(≤)" := le (only parsing).
 Notation "( x ≤)" := (le x) (only parsing).
@@ -193,6 +230,24 @@ Notation "x ≤ y < z" := (x ≤ y ∧ y < z) (at level 70, y at next level).
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 Notation "x < y ≤ z" := (x < y ∧ y ≤ z) (at level 70, y at next level).
 
+Infix "∖" := difference (at level 35).
+Notation "(∖)" := difference (only parsing).
+Notation "( X ∖)" := (difference X) (only parsing).
+Notation "(∖ X )" := (λ Y, Y ∖ X) (only parsing).
+
+Infix "∈" := contains (at level 70, no associativity).
+Notation "(∈)" := contains (only parsing).
+Notation "( x ∈)" := (contains x) (only parsing).
+Notation "(∈ X )" := (λ x, x ∈ X) (only parsing).
+
+Notation "x ∉ y" := (¬x ∈ y) (at level 70, no associativity).
+Notation "(∉)" := (λ x X, x ∉ X).
+Notation "( x ∉)" := (λ X, x ∉ X) (only parsing).
+Notation "(∉ X )" := (λ x, x ∉ X) (only parsing).
+
+Notation "{{ x }}" := (singleton x).
+Notation "{{ x ; y ; .. ; z }}" := (join .. (join (singleton x) (singleton y)) .. (singleton z)).
+
 Infix "◎" := (comp _ _ _) (at level 40, left associativity).
   (* Taking over ∘ is just a little too zealous at this point. With our current
    approach, it would require changing all (nondependent) function types A → B
@@ -205,11 +260,7 @@ Notation "(◎ f )" := (λ g, comp _ _ _ g f) (only parsing).
 (* Haskell style! *)
 Notation "(→)" := (λ x y, x → y).
 Notation "t $ r" := (t r) (at level 65, right associativity, only parsing).
-
-Class Cast A B := cast: A → B.
-Implicit Arguments cast [[Cast]].
-Notation "' x" := (cast _ _ x) (at level 20).
-Instance: Params (@cast) 3.
+Notation "(∘)" := compose (only parsing).
 
 Class Abs A `{Equiv A} `{Le A} `{Zero A} `{Negate A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
 Definition abs `{Abs A} := λ x : A, ` (abs_sig x).
@@ -221,12 +272,22 @@ Class Inverse `(A → B) : Type := inverse: B → A.
 Implicit Arguments inverse [[A] [B] [Inverse]].
 Notation "f ⁻¹" := (inverse f) (at level 30).
 
+Class Idempotent `{ea : Equiv A} (f: A → A → A) (x : A) : Prop := idempotency: f x x = x.
+Implicit Arguments idempotency [[A] [ea] [Idempotent]].
+
+Class UnaryIdempotent `{Equiv A} (f: A → A) : Prop := unary_idempotent :> Idempotent (∘) f.
+Lemma unary_idempotency `{Equiv A} `{!Reflexive (=)} `{!UnaryIdempotent f} x : f (f x) = f x.
+Proof. firstorder. Qed.
+
+Class BinaryIdempotent `{Equiv A} (op: A → A → A) : Prop := binary_idempotent :> ∀ x, Idempotent op x.
+
 Class LeftIdentity {A} `{Equiv B} (op : A → B → B) (x : A): Prop := left_identity: ∀ y, op x y = y.
 Class RightIdentity `{Equiv A} {B} (op : A → B → A) (y : B): Prop := right_identity: ∀ x, op x y = x.
 
+Class Absorption `{Equiv A} {B} {C} (op1: A → C → A) (op2: A → B → C) : Prop := absorption: ∀ x y, op1 x (op2 x y) = x.
+
 Class LeftAbsorb `{Equiv A} {B} (op : A → B → A) (x : A): Prop := left_absorb: ∀ y, op x y = x.
 Class RightAbsorb {A} `{Equiv B} (op : A → B → B) (y : B): Prop := right_absorb: ∀ x, op x y = y.
-  (* hm, can we generate left/right instances from right/left+commutativity without causing loops? *)
 
 Class LeftInverse {A} {B} `{Equiv C} (op : A → B → C) (inv : B → A) (unit : C) := left_inverse: ∀ x, op (inv x) x = unit.
 Class RightInverse {A} {B} `{Equiv C} (op : A → B → C) (inv : A → B) (unit : C) := right_inverse: ∀ x, op x (inv x) = unit.
@@ -235,9 +296,11 @@ Class Commutative `{Equiv B} `(f : A → A → B) : Prop := commutativity: ∀ x
 
 Class HeteroAssociative {A B C AB BC} `{Equiv ABC} 
      (fA_BC: A → BC → ABC) (fBC: B → C → BC) (fAB_C: AB → C → ABC) (fAB : A → B → AB): Prop
-   := associativity : `(fA_BC x (fBC y z) = fAB_C (fAB x y) z).
+   := associativity : ∀ x y z, fA_BC x (fBC y z) = fAB_C (fAB x y) z.
 Class Associative `{Equiv A} f := simple_associativity:> HeteroAssociative f f f f.
 Notation ArrowsAssociative C := (∀ {w x y z: C}, HeteroAssociative (◎) (comp z _ _ ) (◎) (comp y x w)).
+
+Class Involutive `{Equiv A} (f : A → A) := involutive: ∀ x, f (f x) = x.
 
 Class TotalRelation `(R : relation A) : Prop := total : ∀ x y : A, R x y ∨ R y x.
 Implicit Arguments total [[A] [TotalRelation]].
@@ -249,19 +312,30 @@ Implicit Arguments irreflexivity [[A] [Irreflexive]].
 Class CoTransitive `(R : relation A) : Prop := cotransitive : ∀ x y, R x y → ∀ z, R x z ∨ R z y.
 Implicit Arguments cotransitive [[A] [R] [CoTransitive] [x] [y]].
 
-Class AntiSymmetric `{Ae : Equiv A} (R : relation A) : Prop := antisymmetry: `(R x y → R y x → x = y).
+Class AntiSymmetric `{Ae : Equiv A} (R : relation A) : Prop := antisymmetry: ∀ x y, R x y → R y x → x = y.
 Implicit Arguments antisymmetry [[A] [Ae] [AntiSymmetric]].
 
 Class LeftHeteroDistribute {A B} `{Equiv C} (f : A → B → C) (g_r : B → B → B) (g : C → C → C) : Prop 
   := distribute_l : ∀ a b c, f a (g_r b c) = g (f a b) (f a c).
 Class RightHeteroDistribute {A B} `{Equiv C} (f : A → B → C) (g_l : A → A → A) (g : C → C → C) : Prop 
   := distribute_r: ∀ a b c, f (g_l a b) c = g (f a c) (f b c).
-Class Distribute `{Equiv A} (f g: A → A → A) : Prop := 
-  { simple_distribute_l :> LeftHeteroDistribute f g g 
-  ; simple_distribute_r :> RightHeteroDistribute f g g }.
+Class LeftDistribute`{Equiv A} (f g: A → A → A) := simple_distribute_l :> LeftHeteroDistribute f g g.
+Class RightDistribute `{Equiv A} (f g: A → A → A) := simple_distribute_r :> RightHeteroDistribute f g g.
 
 Class HeteroSymmetric {A} {T : A → A → Type} (R : ∀ {x y}, T x y → T y x → Prop) : Prop :=
   hetero_symmetric `(a : T x y) (b : T y x) : R a b → R b a.
+
+(* Although cancellation is the same as being injective, we want a proper
+  name to refer to this commonly used property. *)
+Section cancellation.
+  Context `{Ae : Equiv A} `{Aap : Apart A} (op : A → A → A) (z : A).
+
+  Class LeftCancellation := left_cancellation : ∀ x y, op z x = op z y → x = y.
+  Class RightCancellation := right_cancellation : ∀ x y, op x z = op y z → x = y.
+
+  Class StrongLeftCancellation := strong_left_cancellation : ∀ x y, x ≶ y → op z x ≶ op z y.
+  Class StrongRightCancellation := strong_right_cancellation : ∀ x y, x ≶ y → op x z ≶ op y z.
+End cancellation.
 
 (* Common names for properties that hold in N, Z, Q, ... *)
 Class ZeroProduct A `{Equiv A} `{!Mult A} `{!Zero A} : Prop 

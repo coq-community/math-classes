@@ -30,8 +30,8 @@ Add Ring Z: (rings.stdlib_ring_theory Z).
 
 Global Program Instance dy_plus: Plus Dyadic := λ x y, 
   if decide_rel (≤) (expo x) (expo y)
-  then mant x + mant y ≪ (expo y - expo x)↾_ ▼ min (expo x) (expo y)
-  else mant x ≪ (expo x - expo y)↾_ + mant y ▼ min (expo x) (expo y).
+  then mant x + mant y ≪ (expo y - expo x)↾_ ▼ expo x ⊓ expo y
+  else mant x ≪ (expo x - expo y)↾_ + mant y ▼ expo x ⊓ expo y.
 Next Obligation. now apply rings.flip_nonneg_minus. Qed.
 Next Obligation. apply rings.flip_nonneg_minus. now apply orders.le_flip. Qed.
 
@@ -76,13 +76,13 @@ Section with_rationals.
     unfold plus at 1. unfold DtoQ_slow, dy_plus. simpl.
     case (decide_rel (≤) xe ye); intros E; simpl.
      rewrite rings.preserves_plus, ZtoQ_shift.
-     rewrite min_l; try assumption. 
+     rewrite (lattices.meet_l xe ye) by assumption. 
      ring_simplify.
      rewrite <-associativity, <-int_pow_exp_plus.
       now setoid_replace (ye - xe + xe) with ye by ring. 
      now apply (rings.is_ne_0 (2:Q)).
     rewrite rings.preserves_plus, ZtoQ_shift.
-    rewrite min_r. 
+    rewrite lattices.meet_r.
      ring_simplify.
      rewrite <-associativity, <-int_pow_exp_plus.
       now setoid_replace (xe - ye + ye) with xe by ring.
@@ -186,7 +186,7 @@ Proof.
    case (le_dec 0 0); intros E; simpl.
     rewrite 2!rings.preserves_plus, ZtoQ_shift.
     rewrite rings.plus_negate_r.
-    rewrite min_l, int_pow_0. ring.
+    rewrite lattices.meet_l, int_pow_0. ring.
     reflexivity.
    now destruct E.
   intros x y. unfold sg_op at 2, mult_is_sg_op, dy_mult. simpl.
@@ -286,14 +286,14 @@ Proof.
   now rewrite E1, E2.
 Qed.
 
-Instance: OrderEmbedding DtoStdQ.
-Proof. now repeat (split; try apply _). Qed.
-
 Instance: SemiRingOrder dy_le.
-Proof rings.projected_ring_order DtoStdQ.
+Proof. now apply (rings.projected_ring_order DtoStdQ). Qed.
 
 Instance: TotalRelation dy_le.
-Proof maps.projected_total_order DtoStdQ.
+Proof. now apply (maps.projected_total_order DtoStdQ). Qed.
+
+Instance: OrderEmbedding DtoStdQ.
+Proof. now repeat (split; try apply _). Qed.
 
 Global Instance: ZeroProduct Dyadic.
 Proof. 
@@ -305,7 +305,7 @@ Proof.
 Qed.
 
 Global Instance: FullPseudoSemiRingOrder dy_le dy_lt.
-Proof. now rapply (semirings.dec_full_pseudo_srorder (A:=Dyadic)). Qed. 
+Proof. now rapply (semirings.dec_full_pseudo_srorder (R:=Dyadic)). Qed. 
 
 Lemma nonneg_mant (x : Dyadic) : 0 ≤ x ↔ 0 ≤ mant x.
 Proof.

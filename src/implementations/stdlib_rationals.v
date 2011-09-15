@@ -81,7 +81,7 @@ Qed.
 
 Instance: FullPseudoSemiRingOrder Q_le Q_lt.
 Proof.
-  rapply (semirings.dec_full_pseudo_srorder (A:=Q)).
+  rapply (semirings.dec_full_pseudo_srorder (R:=Q)).
   split.
    intro. split. now apply Zorder.Zlt_le_weak. now apply Zorder.Zlt_not_eq.
   intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1). easy. now destruct E2.

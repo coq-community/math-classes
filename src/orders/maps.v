@@ -1,6 +1,13 @@
 Require Import 
   abstract_algebra interfaces.orders orders.orders theory.setoids theory.strong_setoids.
 
+Local Existing Instance order_morphism_po_a.
+Local Existing Instance order_morphism_po_b.
+Local Existing Instance strict_order_morphism_so_a.
+Local Existing Instance strict_order_morphism_so_b.
+Local Existing Instance order_morphism_mor.
+Local Existing Instance strict_order_morphism_mor.
+
 (* If a function between strict partial orders is order preserving (back), we can 
   derive that it is strcitly order preserving (back) *)
 Section strictly_order_preserving.
@@ -9,7 +16,6 @@ Section strictly_order_preserving.
   Global Instance strictly_order_preserving_inj  `{!OrderPreserving (f : A → B)} `{!StrongInjective f} : 
     StrictlyOrderPreserving f | 20.
   Proof.
-    pose proof (order_morphism_mor f).
     repeat (split; try apply _).
     intros x y. rewrite !lt_iff_le_apart. intros [E1 E2]. split.
      now apply (order_preserving f).
@@ -19,7 +25,6 @@ Section strictly_order_preserving.
   Global Instance strictly_order_reflecting_mor `{!OrderReflecting (f : A → B)} `{!StrongSetoid_Morphism f} : 
     StrictlyOrderReflecting f | 20.
   Proof.
-    pose proof (order_morphism_mor f).
     repeat (split; try apply _).
     intros x y. rewrite !lt_iff_le_apart. intros [E1 E2]. split.
      now apply (order_reflecting f).
@@ -31,8 +36,7 @@ End strictly_order_preserving.
 Section strictly_order_preserving_dec.
   Context `{FullPartialOrder A} `{!TrivialApart A} `{FullPartialOrder B} `{!TrivialApart B}.
 
-  Instance: StrongSetoid A := strict_po_setoid.
-  Instance: StrongSetoid B := strict_po_setoid.
+  Local Existing Instance strict_po_setoid.
 
   Global Instance dec_strictly_order_preserving_inj  `{!OrderPreserving (f : A → B)} `{!Injective f} : 
     StrictlyOrderPreserving f | 19.
@@ -46,7 +50,7 @@ End strictly_order_preserving_dec.
 Section pseudo_injective.
   Context `{PseudoOrder A} `{PseudoOrder B}.
 
-  Existing Instance pseudo_order_setoid.
+  Local Existing Instance pseudo_order_setoid.
 
   Instance pseudo_order_embedding_ext `{!StrictOrderEmbedding (f : A → B)} :
     StrongSetoid_Morphism f.
@@ -70,7 +74,7 @@ End pseudo_injective.
 Section full_pseudo_strictly_preserving.
   Context `{FullPseudoOrder A} `{FullPseudoOrder B}.
 
-  Existing Instance pseudo_order_setoid.
+  Local Existing Instance pseudo_order_setoid.
 
   Lemma full_pseudo_order_preserving `{!StrictlyOrderReflecting (f : A → B)} : OrderPreserving f.
   Proof.
@@ -144,154 +148,140 @@ Section order_preserving_ops.
   Qed.
 
   Lemma order_preserving_nonneg (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 ≤ z) → OrderPreserving (op z)} z :
-    0 ≤ z → OrderPreserving (op z).
-  Proof. auto. Qed.
+    0 ≤ z → ∀ x y, x ≤ y → op z x ≤ op z y.
+  Proof. firstorder. Qed.
 
   Lemma order_preserving_flip_nonneg (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 ≤ z) → OrderPreserving (λ y, op y z)} z :
-    0 ≤ z → OrderPreserving (λ y, op y z).
-  Proof. auto. Qed.
+    0 ≤ z → ∀ x y, x ≤ y → op x z ≤ op y z.
+  Proof. firstorder. Qed.
 
   Lemma strictly_order_preserving_pos (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 < z) → StrictlyOrderPreserving (op z)} z :
-    0 < z → StrictlyOrderPreserving (op z).
-  Proof. auto. Qed.
+    0 < z → ∀ x y, x < y → op z x < op z y.
+  Proof. firstorder. Qed.
 
   Lemma strictly_order_preserving_flip_pos (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 < z) → StrictlyOrderPreserving (λ y, op y z)} z :
-    0 < z → StrictlyOrderPreserving (λ y, op y z).
-  Proof. auto. Qed.
+    0 < z → ∀ x y, x < y → op x z < op y z.
+  Proof. firstorder. Qed.
 
   Lemma order_reflecting_pos (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 < z) → OrderReflecting (op z)} z :
-    0 < z → OrderReflecting (op z).
-  Proof. auto. Qed.
+    0 < z → ∀ x y, op z x ≤ op z y → x ≤ y.
+  Proof. firstorder. Qed.
 
   Lemma order_reflecting_flip_pos (op : R → R → R) `{!Zero R} `{∀ z, PropHolds (0 < z) → OrderReflecting (λ y, op y z)} z :
-    0 < z → OrderReflecting (λ y, op y z).
-  Proof. auto. Qed.
+    0 < z → ∀ x y, op x z ≤ op y z → x ≤ y.
+  Proof. firstorder. Qed.
 End order_preserving_ops. 
 
 Lemma projected_partial_order `{Equiv A} `{Ale : Le A} `{Equiv B} `{Ble : Le B} 
-  (f : A → B) `{!OrderEmbedding f} `{!Injective f} `{!PartialOrder Ble} : PartialOrder Ale.
+  (f : A → B) `{!Injective f} `{!PartialOrder Ble} : (∀ x y, x ≤ y ↔ f x ≤ f y) → PartialOrder Ale.
 Proof.
-  pose proof (order_morphism_mor f).
+  pose proof (injective_mor f).
   pose proof (setoidmor_a f).
   pose proof (setoidmor_b f).
-  repeat (split; try apply _).
-    intros x. now apply (order_reflecting f).
-   intros x y z E1 E2. apply (order_reflecting f).
-   transitivity (f y); now apply (order_preserving f).
+  intros P. split; try apply _.
+    intros ? ? E1 ? ? E2. now rewrite 2!P, E1, E2.
+   split.
+    intros x. now apply P.
+   intros x y z E1 E2. apply P.
+   transitivity (f y); now apply P.
   intros x y E1 E2. apply (injective f).
-  apply (antisymmetry (≤)); now apply (order_preserving f).
+  apply (antisymmetry (≤)); now apply P.
 Qed.
 
 Lemma projected_total_order `{Equiv A} `{Ale : Le A} `{Equiv B} `{Ble : Le B} 
-  (f : A → B) `{!OrderEmbedding f} `{!TotalRelation Ble} : TotalRelation Ale.
+  (f : A → B) `{!TotalRelation Ble} : (∀ x y, x ≤ y ↔ f x ≤ f y) → TotalRelation Ale.
 Proof.
-  intros x y. 
-  destruct (total (≤) (f x) (f y)); [left | right]; now apply (order_reflecting f).
+  intros P x y. 
+  destruct (total (≤) (f x) (f y)); [left | right]; now apply P.
 Qed.
 
 Lemma projected_strict_order `{Equiv A} `{Alt : Lt A} `{Equiv B} `{Blt : Lt B} 
-  (f : A → B) `{!StrictOrderEmbedding f} `{!StrictSetoidOrder Blt} : StrictSetoidOrder Alt.
+  (f : A → B) `{!StrictOrder Blt} : (∀ x y, x < y ↔ f x < f y) → StrictOrder Alt.
 Proof.
-  pose proof (strict_order_morphism_mor f).
-  pose proof (setoidmor_a f).
-  repeat (split; try apply _).
-   intros x E. destruct (irreflexivity (<) (f x)).
-   now apply (strictly_order_preserving _).
-  intros x y z E1 E2. apply (strictly_order_reflecting f).
-  transitivity (f y); now apply (strictly_order_preserving f).
+  intros P. split.
+   intros x E. destruct (irreflexivity (<) (f x)). now apply P.
+  intros x y z E1 E2. apply P. transitivity (f y); now apply P.
 Qed.
 
 Lemma projected_strict_setoid_order `{Equiv A} `{Alt : Lt A} `{Equiv B} `{Blt : Lt B} 
-  (f : A → B) `{!StrictOrderEmbedding f} `{!StrictOrder Blt} : StrictOrder Alt.
+  (f : A → B) `{!Setoid_Morphism f} `{!StrictSetoidOrder Blt} : (∀ x y, x < y ↔ f x < f y) → StrictSetoidOrder Alt.
 Proof.
-  repeat (split; try apply _).
-   intros x E. destruct (irreflexivity (<) (f x)).
-   now apply (strictly_order_preserving _).
-  intros x y z E1 E2. apply (strictly_order_reflecting f).
-  transitivity (f y); now apply (strictly_order_preserving f).
+  pose proof (setoidmor_a f).
+  intros P. split; try apply _.
+   intros ? ? E1 ? ? E2. now rewrite 2!P, E1, E2.
+  now apply (projected_strict_order f).
 Qed.
 
 Lemma projected_pseudo_order `{Equiv A} `{Apart A} `{Alt : Lt A} `{Equiv B} `{Apart B} `{Blt : Lt B} 
-  (f : A → B) `{!StrictOrderEmbedding f} `{!StrongInjective f} `{!PseudoOrder Blt} : PseudoOrder Alt.
+  (f : A → B) `{!StrongInjective f} `{!PseudoOrder Blt} : (∀ x y, x < y ↔ f x < f y) → PseudoOrder Alt.
 Proof.
   pose proof (strong_injective_mor f).
   pose proof (strong_setoidmor_a f).
   pose proof (strong_setoidmor_b f).
-  split; try apply _.
-    intros x y E. 
-    destruct (pseudo_order_antisym (f x) (f y)).
-    split; now apply (strictly_order_preserving _).
-   intros x y E z.
-   apply (strictly_order_preserving f) in E.
-   destruct (cotransitive E (f z)); [left | right]; now apply (strictly_order_reflecting f).
+  intros P. split; try apply _.
+    intros x y E. destruct (pseudo_order_antisym (f x) (f y)). split; now apply P.
+   intros x y E z. apply P in E.
+   destruct (cotransitive E (f z)); [left | right]; now apply P.
   intros x y; split; intros E.
    apply (strong_injective f) in E.
-   apply apart_iff_total_lt in E. 
-   destruct E; [left | right]; now apply (strictly_order_reflecting f).
+   apply apart_iff_total_lt in E. destruct E; [left | right]; now apply P.
   apply (strong_extensionality f).
-  apply apart_iff_total_lt.
-  destruct E; [left | right]; now apply (strictly_order_preserving _).
+  apply apart_iff_total_lt. destruct E; [left | right]; now apply P.
 Qed.
 
 Lemma projected_full_pseudo_order `{Equiv A} `{Apart A} `{Ale : Le A} `{Alt : Lt A} 
   `{Equiv B} `{Apart B} `{Ble : Le B} `{Blt : Lt B} 
-  (f : A → B) `{!OrderEmbedding f} `{!StrictOrderEmbedding f} `{!StrongInjective f} 
-  `{!FullPseudoOrder Ble Blt} : FullPseudoOrder Ale Alt.
+  (f : A → B) `{!StrongInjective f} `{!FullPseudoOrder Ble Blt} : (∀ x y, x ≤ y ↔ f x ≤ f y) → (∀ x y, x < y ↔ f x < f y) → FullPseudoOrder Ale Alt.
 Proof.
-  split.
+  intros P1 P2. split.
    now apply (projected_pseudo_order f).
   intros x y; split; intros E.
-   intros F. destruct (le_not_lt_flip (f y) (f x)).
-    now apply (order_preserving f).
-   now apply (strictly_order_preserving f).
-  apply (order_reflecting f).
-  apply not_lt_le_flip.
-  intros F. destruct E. now apply (strictly_order_reflecting f).
+   intros F. destruct (le_not_lt_flip (f y) (f x)); firstorder.
+  apply P1. apply not_lt_le_flip.
+  intros F. destruct E. now apply P2.
 Qed.
 
-Instance id_order_morphism `{Setoid A} `{Le A} `{!Proper ((=) ==> (=) ==> iff) (≤)} : Order_Morphism (@id A) := {}.
+Instance id_order_morphism `{PartialOrder A} : Order_Morphism (@id A).
+Proof. pose proof po_setoid. repeat (split; try apply _). Qed.
 
-Instance id_order_preserving `{Setoid A} `{Le A} `{!Proper ((=) ==> (=) ==> iff) (≤)} : OrderPreserving (@id A).
+Instance id_order_preserving `{PartialOrder A} : OrderPreserving (@id A).
 Proof. split; try apply _. easy. Qed.
 
-Instance id_order_reflecting `{Setoid A} `{Le A} `{!Proper ((=) ==> (=) ==> iff) (≤)} : OrderReflecting (@id A).
+Instance id_order_reflecting `{PartialOrder A} : OrderReflecting (@id A).
 Proof. split; try apply _. easy. Qed.
 
 Section composition.
-  Context `{Equiv A} `{Equiv B} `{Equiv C} `{Le A} `{Le B} `{Le C}.
+  Context `{Equiv A} `{Equiv B} `{Equiv C} 
+    `{Le A} `{Le B} `{Le C} (f : A → B) (g : B → C).
 
-  Instance compose_order_morphism `{!Order_Morphism (f : A → B)} `{!Order_Morphism (g : B → C)} : 
-    Order_Morphism (g ∘ f).
-  Proof.
-    pose proof (order_morphism_mor f).
-    pose proof (order_morphism_mor g).
-    split; [ apply _ | apply _ | apply (order_morphism_proper_b g) ].
-  Qed.
+  Instance compose_order_morphism: 
+    Order_Morphism f → Order_Morphism g → Order_Morphism (g ∘ f).
+  Proof. split; [ apply _ | apply _ | apply (order_morphism_po_b g) ]. Qed.
 
-  Instance compose_order_preserving `{!OrderPreserving (f : A → B)} `{!OrderPreserving (g : B → C)} : 
-    OrderPreserving (g ∘ f).
+  Instance compose_order_preserving: 
+    OrderPreserving f → OrderPreserving g → OrderPreserving (g ∘ f).
   Proof.
     repeat (split; try apply _).
     intros. unfold compose.
     now do 2 apply (order_preserving _).
   Qed.
 
-  Instance compose_order_reflecting `{!OrderReflecting (f : A → B)} `{!OrderReflecting (g : B → C)} : 
-    OrderReflecting (g ∘ f).
+  Instance compose_order_reflecting: 
+    OrderReflecting f → OrderReflecting g → OrderReflecting (g ∘ f).
   Proof.
     split; try apply _.
     intros x y E. unfold compose in E.
     now do 2 apply (order_reflecting _) in E.
   Qed.
 
-  Instance compose_order_embedding `{!OrderEmbedding (f : A → B)} `{!OrderEmbedding (g : B → C)} : 
-    OrderEmbedding (g ∘ f) := {}.
+  Instance compose_order_embedding: 
+    OrderEmbedding f → OrderEmbedding g → OrderEmbedding (g ∘ f) := {}.
 End composition.
 
-Hint Extern 4 (Order_Morphism (_ ∘ _)) => eapply @compose_order_morphism : typeclass_instances.
-Hint Extern 4 (OrderPreserving (_ ∘ _)) => eapply @compose_order_preserving : typeclass_instances.
-Hint Extern 4 (OrderReflecting (_ ∘ _)) => eapply @compose_order_reflecting : typeclass_instances.
-Hint Extern 4 (OrderEmbedding (_ ∘ _)) => eapply @compose_order_embedding : typeclass_instances.
+Hint Extern 4 (Order_Morphism (_ ∘ _)) => class_apply @compose_order_morphism : typeclass_instances.
+Hint Extern 4 (OrderPreserving (_ ∘ _)) => class_apply @compose_order_preserving : typeclass_instances.
+Hint Extern 4 (OrderReflecting (_ ∘ _)) => class_apply @compose_order_reflecting : typeclass_instances.
+Hint Extern 4 (OrderEmbedding (_ ∘ _)) => class_apply @compose_order_embedding : typeclass_instances.
 
 Section propers.
   Context `{Equiv A} `{Equiv B} `{Le A} `{Le B}.
@@ -300,8 +290,7 @@ Section propers.
   Proof.
     assert (∀ (f g : A → B), g = f → Order_Morphism f → Order_Morphism g) as P.
      intros f g E [[? ? ?] ?].
-     split; auto.
-     rewrite E. now split.
+     split; auto. apply morphism_proper with f. easy. split; easy.
     firstorder.
   Qed.
 

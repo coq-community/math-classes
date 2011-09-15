@@ -93,8 +93,8 @@ Lemma encode_morphism_only
   `{AlgebraOps theory B} `{∀ u, Equiv (B u)}
   (f: ∀ u, A u → B u) `{!Monoid_Morphism (f tt)}: HomoMorphism sig A B f.
 Proof.
- pose proof (monmor_a (f tt)).
- pose proof (monmor_b (f tt)).
+ pose proof (monmor_a (f:=f tt)).
+ pose proof (monmor_b (f:=f tt)).
  constructor.
     intros []. apply _.
    intros []; simpl.
@@ -120,35 +120,35 @@ Proof.
  apply (preserves theory x y f one).
 Qed.
 
+Instance id_monoid_morphism `{Monoid A}: Monoid_Morphism (@id A).
+Proof. repeat (split; try apply _); easy. Qed.
+
 (* Finally, we use these encoding/decoding functions to specialize some universal results: *)
-
 Section specialized.
-  Context (A B C: Type)
-    `{!MonUnit A} `{!SgOp A} `{!Equiv A}
-    `{!MonUnit B} `{!SgOp B} `{!Equiv B}
-    `{!MonUnit C} `{!SgOp C} `{!Equiv C}
-    (f: A → B) (g: B → C).
+  Context `{Equiv A}`{MonUnit A} `{SgOp A}
+     `{Equiv B} `{MonUnit B} `{SgOp B}
+     `{Equiv C} `{MonUnit C} `{SgOp C}
+    (f : A → B) (g : B → C).
 
-  Global Instance id_morphism `{!Monoid A}: Monoid_Morphism id.
-  Proof. repeat (constructor; try apply _); reflexivity. Qed.
-
-  Global Instance compose_morphisms
-    `{!Monoid_Morphism f} `{!Monoid_Morphism g}: Monoid_Morphism (g ∘ f).
+  Instance compose_monoid_morphism:
+    Monoid_Morphism f → Monoid_Morphism g → Monoid_Morphism (g ∘ f).
   Proof.
-   pose proof (encode_morphism_and_ops (f:=f)) as P.
-   pose proof (encode_morphism_and_ops (f:=g)) as Q.
-   pose proof (@compose_homomorphisms theory _ _ _ _ _ _ _ _ _ _ _ P Q).
-   pose proof (monmor_a f). pose proof (monmor_b f). pose proof (monmor_b g).
-   apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ H).
+    intros. pose proof (encode_morphism_and_ops (f:=f)) as P.
+    pose proof (encode_morphism_and_ops (f:=g)) as Q.
+    pose proof (@compose_homomorphisms theory _ _ _ _ _ _ _ _ _ _ _ P Q) as PP.
+    pose proof (monmor_a (f:=f)). pose proof (monmor_b (f:=f)). pose proof (monmor_b (f:=g)).
+    apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ PP).
   Qed.
 
-  Global Instance: ∀ `{H: Monoid_Morphism A B f} `{!Inverse f},
-    Bijective f → Monoid_Morphism (f⁻¹).
+  Instance invert_monoid_morphism: 
+    ∀ `{!Inverse f}, Bijective f → Monoid_Morphism f → Monoid_Morphism (f⁻¹).
   Proof.
-   intros.
-   pose proof (encode_morphism_and_ops (f:=f)) as P.
-   pose proof (@invert_homomorphism theory _ _ _ _ _ _ _ _ _ _ P) as Q.
-   destruct H.
-   apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ Q).
+    intros. pose proof (encode_morphism_and_ops (f:=f)) as P.
+    pose proof (@invert_homomorphism theory _ _ _ _ _ _ _ _ _ _ P) as Q.
+    pose proof (monmor_a (f:=f)). pose proof (monmor_b (f:=f)).
+    apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ Q).
   Qed.
 End specialized.
+
+Hint Extern 4 (Monoid_Morphism (_ ∘ _)) => class_apply @compose_monoid_morphism : typeclass_instances.
+Hint Extern 4 (Monoid_Morphism (_⁻¹)) => class_apply @invert_monoid_morphism : typeclass_instances.

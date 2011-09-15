@@ -26,7 +26,7 @@ Setoid_Morphism as a substructure, setoid rewriting will become horribly slow.
 Class Setoid A {Ae : Equiv A} : Prop := setoid_eq :> Equivalence (@equiv A Ae).
 
 (* An unbundled variant of the former CoRN CSetoid. We do not 
-  include that a proof that A is a Setoid because that can be derived. *)
+  include a proof that A is a Setoid because it can be derived. *)
 Class StrongSetoid A {Ae : Equiv A} `{Aap : Apart A} : Prop :=
   { strong_setoid_irreflexive :> Irreflexive (≶) 
   ; strong_setoid_symmetric :> Symmetric (≶) 
@@ -75,6 +75,14 @@ Section upper_classes.
     ; sg_ass :> Associative (&)
     ; sg_op_proper :> Proper ((=) ==> (=) ==> (=)) (&) }.
 
+  Class CommutativeSemiGroup {Aop : SgOp A} : Prop :=
+    { comsg_setoid :> @SemiGroup Aop
+    ; comsg_ass :> Commutative (&) }.
+
+  Class SemiLattice {Aop : SgOp A} : Prop :=
+    { semilattice_sg :> @CommutativeSemiGroup Aop
+    ; semilattice_idempotent :> BinaryIdempotent (&)}.
+
   Class Monoid {Aop : SgOp A} {Aunit : MonUnit A} : Prop :=
     { monoid_semigroup :> SemiGroup
     ; monoid_left_id :> LeftIdentity (&) mon_unit
@@ -90,6 +98,10 @@ Section upper_classes.
     ; negate_l :> LeftInverse (&) (-) mon_unit
     ; negate_r :> RightInverse (&) (-) mon_unit }.
 
+  Class BoundedSemiLattice {Aop Aunit} : Prop :=
+    { bounded_semilattice_mon :> @CommutativeMonoid Aop Aunit
+    ; bounded_semilattice_idempotent :> BinaryIdempotent (&)}.
+
   Class AbGroup {Aop Aunit Anegate} : Prop :=
     { abgroup_group :> @Group Aop Aunit Anegate
     ; abgroup_commutative :> Commutative (&) }.
@@ -99,7 +111,7 @@ Section upper_classes.
   Class SemiRing : Prop :=
     { semiplus_monoid :> @CommutativeMonoid plus_is_sg_op zero_is_mon_unit
     ; semimult_monoid :> @CommutativeMonoid mult_is_sg_op one_is_mon_unit
-    ; semiring_distr :> Distribute (.*.) (+)
+    ; semiring_distr :> LeftDistribute (.*.) (+)
     ; semiring_left_absorb :> LeftAbsorb (.*.) 0 }.
 
   Context {Anegate : Negate A}.
@@ -107,7 +119,7 @@ Section upper_classes.
   Class Ring : Prop :=
     { ring_group :> @AbGroup plus_is_sg_op zero_is_mon_unit _
     ; ring_monoid :> @CommutativeMonoid mult_is_sg_op one_is_mon_unit
-    ; ring_dist :> Distribute (.*.) (+) }.
+    ; ring_dist :> LeftDistribute (.*.) (+) }.
 
   (* For now, we follow CoRN/ring_theory's example in having Ring and SemiRing
     require commutative multiplication. *)
@@ -155,17 +167,26 @@ Implicit Arguments dec_recip_inverse [[A] [Ae] [Aplus] [Amult] [Azero] [Aone] [A
 Implicit Arguments dec_recip_0 [[A] [Ae] [Aplus] [Amult] [Azero] [Aone] [Anegate] [Adec_recip] [DecField]].
 Implicit Arguments sg_op_proper [[A] [Ae] [Aop] [SemiGroup]].
 
-(* Although cancellation is similar to being injective, we want a proper
-  name to refer to this commonly used notion. *)
-Section cancellation.
-  Context `{Ae : Equiv A} `{Aap : Apart A} (op : A → A → A) (z : A).
+Section lattice.
+  Context A `{Ae: Equiv A} {Ajoin: Join A} {Ameet: Meet A} `{Abottom : Bottom A}.
 
-  Class LeftCancellation := left_cancellation : ∀ x y, op z x = op z y → x = y.
-  Class RightCancellation := right_cancellation : ∀ x y, op x z = op y z → x = y.
+  Class JoinSemiLattice : Prop := 
+    join_semilattice :> @SemiLattice A Ae join_is_sg_op.
+  Class BoundedJoinSemiLattice : Prop := 
+    bounded_join_semilattice :> @BoundedSemiLattice A Ae join_is_sg_op bottom_is_mon_unit.
+  Class MeetSemiLattice : Prop := 
+    meet_semilattice :> @SemiLattice A Ae meet_is_sg_op.
 
-  Class StrongLeftCancellation := strong_left_cancellation : ∀ x y, x ≶ y → op z x ≶ op z y.
-  Class StrongRightCancellation := strong_right_cancellation : ∀ x y, x ≶ y → op x z ≶ op y z.
-End cancellation.
+  Class Lattice : Prop := 
+    { lattice_join :> JoinSemiLattice
+    ; lattice_meet :> MeetSemiLattice
+    ; join_meet_absorption :> Absorption (⊔) (⊓) 
+    ; meet_join_absorption :> Absorption (⊓) (⊔)}.
+
+  Class DistributiveLattice : Prop := 
+    { distr_lattice_lattice :> Lattice
+    ; join_meet_distr_l :> LeftDistribute (⊔) (⊓) }.
+End lattice.
 
 Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatComp O}: Prop :=
   { arrow_equiv :> ∀ x y, Setoid (x ⟶ y)
@@ -187,11 +208,26 @@ Section morphism_classes.
     ; sgmor_setmor :> Setoid_Morphism f
     ; preserves_sg_op : ∀ x y, f (x & y) = f x & f y }.
 
+  Class JoinSemiLattice_Morphism {Ajoin Bjoin} (f : A → B) :=
+    { join_slmor_a : @JoinSemiLattice A Ae Ajoin
+    ; join_slmor_b : @JoinSemiLattice B Be Bjoin
+    ; join_slmor_sgmor :> @SemiGroup_Morphism join_is_sg_op join_is_sg_op f }.
+
+  Class MeetSemiLattice_Morphism {Ameet Bmeet} (f : A → B) :=
+    { meet_slmor_a : @MeetSemiLattice A Ae Ameet
+    ; meet_slmor_b : @MeetSemiLattice B Be Bmeet
+    ; meet_slmor_sgmor :> @SemiGroup_Morphism meet_is_sg_op meet_is_sg_op f }.
+
   Class Monoid_Morphism {Aunit Bunit Aop Bop} (f : A → B) :=
     { monmor_a : @Monoid A Ae Aop Aunit
     ; monmor_b : @Monoid B Be Bop Bunit
     ; monmor_sgmor :> SemiGroup_Morphism f
     ; preserves_mon_unit : f mon_unit = mon_unit }.
+
+  Class BoundedJoinSemiLattice_Morphism {Abottom Bbottom Ajoin Bjoin} (f : A → B) :=
+    { bounded_join_slmor_a : @BoundedJoinSemiLattice A Ae Ajoin Abottom
+    ; bounded_join_slmor_b : @BoundedJoinSemiLattice B Be Bjoin Bbottom
+    ; bounded_join_slmor_monmor :> @Monoid_Morphism bottom_is_mon_unit bottom_is_mon_unit join_is_sg_op join_is_sg_op f }.
 
   Class SemiRing_Morphism {Aplus Amult Azero Aone Bplus Bmult Bzero Bone} (f : A → B) :=
     { semiringmor_a : @SemiRing A Ae Aplus Amult Azero Aone
@@ -199,16 +235,17 @@ Section morphism_classes.
     ; semiringmor_plus_mor :> @Monoid_Morphism zero_is_mon_unit zero_is_mon_unit plus_is_sg_op plus_is_sg_op f
     ; semiringmor_mult_mor :> @Monoid_Morphism one_is_mon_unit one_is_mon_unit mult_is_sg_op mult_is_sg_op f }.
 
+  Class Lattice_Morphism {Ajoin Ameet Bjoin Bmeet} (f : A → B) :=
+    { latticemor_a : @Lattice A Ae Ajoin Ameet
+    ; latticemor_b : @Lattice B Be Bjoin Bmeet
+    ; latticemor_join_mor :> JoinSemiLattice_Morphism f
+    ; latticemor_meet_mor :> MeetSemiLattice_Morphism f }.
+
   Context {Aap : Apart A} {Bap : Apart B}.
   Class StrongSemiRing_Morphism {Aplus Amult Azero Aone Bplus Bmult Bzero Bone} (f : A → B) :=
     { strong_semiringmor_sr_mor :> @SemiRing_Morphism Aplus Amult Azero Aone Bplus Bmult Bzero Bone f
     ; strong_semiringmor_strong_mor :> StrongSetoid_Morphism f }.
 End morphism_classes.
-
-Implicit Arguments monmor_a [[A] [B] [Ae] [Be] [Aunit] [Bunit] [Aop] [Bop] [Monoid_Morphism]].
-Implicit Arguments monmor_b [[A] [B] [Ae] [Be] [Aunit] [Bunit] [Aop] [Bop] [Monoid_Morphism]].
-(* These are only necessary because for reasons unknown to me the [f] argument is
- made implicit by default. Waiting to hear from Matthieu about this. *)
 
 Section jections.
   Context {A B} {Ae : Equiv A} {Aap : Apart A} 

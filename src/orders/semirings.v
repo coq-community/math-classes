@@ -4,8 +4,12 @@ Require Import
 Require Export 
   orders.orders orders.maps.
 
+Local Existing Instance srorder_semiring.
+Local Existing Instance strict_srorder_semiring.
+Local Existing Instance pseudo_srorder_semiring.
+
 Section semiring_order.
-  Context `{SemiRing R} `{!SemiRingOrder Rle}.
+  Context `{SemiRingOrder R}.
   Add Ring R : (stdlib_semiring_theory R).
 
   Global Instance: ∀ (z : R), OrderEmbedding (+z).
@@ -266,12 +270,12 @@ End strict_semiring_order.
 Hint Extern 7 (PropHolds (0 < _ + _)) => eapply @pos_plus_compat : typeclass_instances.
 
 Section pseudo_semiring_order.
-  Context `{SemiRing R} `{Apart R} `{!PseudoSemiRingOrder Rlt}.
+  Context `{PseudoSemiRingOrder R} `{Apart R}.
   Add Ring Rp : (stdlib_semiring_theory R).
 
   Instance: StrongSetoid R := pseudo_order_setoid.
 
-  Global Instance: StrictSemiRingOrder Rlt.
+  Global Instance: StrictSemiRingOrder (_ : Lt R).
   Proof.
     split; try apply _.
      intros. now apply pseudo_srorder_partial_minus, lt_flip.
@@ -424,14 +428,14 @@ Hint Extern 7 (PropHolds (0 < 4)) => eapply @lt_0_4 : typeclass_instances.
 Hint Extern 7 (PropHolds (2 ≶ 0)) => eapply @apart_0_2 : typeclass_instances.
 
 Section full_pseudo_semiring_order.
-  Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder Rle Rlt}.
+  Context `{FullPseudoSemiRingOrder R} `{Apart R}.
 
   Add Ring Rf : (stdlib_semiring_theory R).
 
-  Global Instance: FullPseudoOrder Rle Rlt.
+  Global Instance: FullPseudoOrder (_ : Le R) (_ : Lt R).
   Proof. split. apply _. apply full_pseudo_srorder_le_iff_not_lt_flip. Qed.
 
-  Global Instance: SemiRingOrder Rle.
+  Global Instance: SemiRingOrder (_ : Le R).
   Proof.
     split; try apply _.
       intros x y. rewrite le_iff_not_lt_flip.
@@ -557,13 +561,13 @@ Hint Extern 7 (PropHolds (0 ≤ 4)) => eapply @le_0_4 : typeclass_instances.
 
 Section dec_semiring_order.
   (* Maybe these assumptions can be weakened? *)
-  Context `{SemiRing A} `{Apart A} `{!TrivialApart A} `{!SemiRingOrder Rle} 
-    `{!NoZeroDivisors A} `{!TotalRelation (≤)} `{∀ x y, Decision (x = y)}.
+  Context `{SemiRingOrder R} `{Apart R} `{!TrivialApart R}
+    `{!NoZeroDivisors R} `{!TotalRelation (≤)} `{∀ x y, Decision (x = y)}.
 
-  Context `{Rlt : Lt A} (lt_correct : ∀ x y, x < y ↔ x ≤ y ∧ x ≠ y).
+  Context `{Rlt : Lt R} (lt_correct : ∀ x y, x < y ↔ x ≤ y ∧ x ≠ y).
 
-  Instance: FullPseudoOrder Rle Rlt := dec_full_pseudo_order lt_correct.
-  Instance: StrongSetoid A := pseudo_order_setoid.
+  Instance: FullPseudoOrder (_ : Le R) (_ : Lt R) := dec_full_pseudo_order lt_correct.
+  Instance: StrongSetoid R := pseudo_order_setoid.
 
   Instance dec_pseudo_srorder: PseudoSemiRingOrder (<).
   Proof.
@@ -589,25 +593,23 @@ Section dec_semiring_order.
 End dec_semiring_order.
 
 Section another_semiring.
-  Context `{SemiRing R1} `{SemiRing R2} `{!SemiRingOrder (A:=R1) R1le} `{R2le : Le R2}.
+  Context `{SemiRingOrder R1}.
 
-  Lemma projected_srorder (f : R2 → R1) `{!SemiRing_Morphism f} `{!Injective f} `{!OrderEmbedding f} : 
-    (∀ x y : R2, x ≤ y → ∃ z, y = x + z) → SemiRingOrder R2le.
+  Lemma projected_srorder `{SemiRing R2} `{R2le : Le R2} (f : R2 → R1) 
+      `{!SemiRing_Morphism f} `{!Injective f} : 
+    (∀ x y, x ≤ y ↔ f x ≤ f y) → (∀ x y : R2, x ≤ y → ∃ z, y = x + z) → SemiRingOrder R2le.
   Proof.
-    pose proof (projected_partial_order f).
+    intros P. pose proof (projected_partial_order f P).
     repeat (split; try apply _).
        assumption.
-      intros. apply (order_reflecting f). rewrite 2!preserves_plus.
-      now do 2 apply (order_preserving _).
-     intros. apply (order_reflecting f). apply (order_reflecting (f z +)). 
-     rewrite <-2!preserves_plus.
-     now apply (order_preserving _).
-    intros. apply (order_reflecting f). 
-    rewrite preserves_mult, preserves_0.
-    now apply nonneg_mult_compat; rewrite <-(preserves_0 (f:=f)); apply (order_preserving _).
+      intros. apply P. rewrite 2!preserves_plus. now apply (order_preserving _), P.
+     intros. apply P. apply (order_reflecting (f z +)). 
+     rewrite <-2!preserves_plus. now apply P.
+    intros. apply P. rewrite preserves_mult, preserves_0.
+    now apply nonneg_mult_compat; rewrite <-(preserves_0 (f:=f)); apply P.
   Qed.
 
- Context `{!SemiRingOrder (A:=R2) R2le} `{!SemiRing_Morphism (f : R1 → R2)}.
+ Context `{SemiRingOrder R2} `{!SemiRing_Morphism (f : R1 → R2)}.
 
   (* If a morphism agrees on the positive cone then it is order preserving *)    
   Lemma preserving_preserves_nonneg : (∀ x, 0 ≤ x → 0 ≤ f x) → OrderPreserving f.
@@ -635,7 +637,7 @@ Section another_semiring.
 End another_semiring.
 
 Section another_semiring_strict.
-  Context `{SemiRing R1} `{SemiRing R2} `{!StrictSemiRingOrder (A:=R1) R1le} `{!StrictSemiRingOrder (A:=R2) R2le} 
+  Context `{StrictSemiRingOrder R1} `{StrictSemiRingOrder R2}
     `{!SemiRing_Morphism (f : R1 → R2)}.
 
   Instance preserves_pos `{!StrictlyOrderPreserving f} x : PropHolds (0 < x) → PropHolds (0 < f x).

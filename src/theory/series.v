@@ -4,8 +4,11 @@ Require Import
   interfaces.naturals interfaces.integers
   theory.nat_pow theory.int_pow theory.streams.
 
+Local Existing Instance srorder_semiring.
+
 Section series.
-Context `{SemiRing A} `{!SemiRingOrder Ale}.
+Context `{SemiRingOrder A}.
+
 Add Ring A : (rings.stdlib_semiring_theory A).
 Add Ring nat : (rings.stdlib_semiring_theory nat).
 
@@ -307,9 +310,7 @@ End factorials.
 End series.
 
 Section preservation.
-  Context `{SemiRing A} `{!SemiRingOrder (A:=A) Ale}.
-  Context `{SemiRing B} `{!SemiRingOrder (A:=B) Ble}.
-  Context `{!SemiRing_Morphism (f : A → B)}.
+  Context `{SemiRingOrder A} `{SemiRingOrder B} `{!SemiRing_Morphism (f : A → B)}.
 
   Lemma preserves_powers_help (a c : A) (n : nat) :
     f (Str_nth n (powers_help a c)) = Str_nth n (powers_help (f a) (f c)).
