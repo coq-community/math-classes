@@ -2,7 +2,7 @@ digraph {
   size="5,3";
   margin=0;
   rankdir=BT;
-  ranksep="0.4;
+  ranksep="0.4";
   StrongSetoid [fillcolor=lightgrey,style=filled]
   Field [fillcolor=lightgrey,style=filled]
   StrongSetoid -> Setoid [style=dotted]

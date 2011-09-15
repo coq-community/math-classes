@@ -72,11 +72,18 @@ Section for_another_semiring.
   Qed.
 End for_another_semiring.
 
+Lemma O_nat_0 : O ≡ 0.
+Proof. reflexivity. Qed.
+
 Lemma S_nat_plus_1 x : S x ≡ x + 1.
 Proof. rewrite commutativity. reflexivity. Qed.
 
 Lemma S_nat_1_plus x : S x ≡ 1 + x.
 Proof. reflexivity. Qed.
+
+Lemma nat_induction (P : nat → Prop) :
+  P 0 → (∀ n, P n → P (1 + n)) → ∀ n, P n.
+Proof nat_ind P.
 
 Instance: Initial (semirings.object nat).
 Proof.

@@ -89,15 +89,12 @@ Section borrowed_from_nat.
   Lemma induction
     (P: N → Prop) `{!Proper ((=) ==> iff) P}:
     P 0 → (∀ n, P n → P (1 + n)) → ∀ n, P n.
-  Proof with auto.
-   intros.
-   rewrite <- (to_semiring_involutive _ nat n).
-   set (m := naturals_to_semiring _ nat n). (* This [set] is suddenly needed in 12609... Todo: File a ticket. *)
-   induction m.
-    change (P (naturals_to_semiring nat _ (0:nat))).
-    rewrite preserves_0...
-   change (P (naturals_to_semiring nat _ (1 + m))).
-   rewrite preserves_plus, preserves_1...
+  Proof.
+    intros. rewrite <-(to_semiring_involutive _ nat n).
+    generalize (naturals_to_semiring N nat n). clear n.
+    apply nat_induction.
+     now rewrite preserves_0.
+    intros n. rewrite preserves_plus, preserves_1. auto.
   Qed.
 
   Global Instance biinduction: Biinduction N.
