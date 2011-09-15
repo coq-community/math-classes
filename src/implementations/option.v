@@ -3,7 +3,7 @@ Require Import
   abstract_algebra interfaces.monads jections.
 
 Inductive option_equiv A `{Equiv A} : Equiv (option A) :=
-  | option_equiv_Some x₁ x₂ : x₁ = x₂ → Some x₁ = Some x₂
+  | option_equiv_Some : Proper ((=) ==> (=)) Some
   | option_equiv_None : None = None.
 
 Existing Instance option_equiv.
@@ -25,12 +25,12 @@ Section contents.
      red. induction 1. now apply option_equiv_Some. now apply option_equiv_None.
     intros x y z E. revert z. induction E.
      intros z E2. inversion_clear E2.
-     apply option_equiv_Some. now transitivity x₂. 
+     apply option_equiv_Some. etransitivity; eassumption.
     easy.
   Qed.
 
   Global Instance: Setoid_Morphism Some.
-  Proof. split; try apply _. intros ? ? ?. now apply option_equiv_Some. Qed.
+  Proof. split; try apply _. now apply option_equiv_Some. Qed.
 
   Global Instance: Injective Some.
   Proof. split; try apply _. intros ? ? E. now inversion E. Qed.
@@ -61,6 +61,7 @@ Section contents.
       | None => left _
       end
     end.
+  Next Obligation. now apply sm_proper. Qed.
   Next Obligation. now apply (injective_ne Some). Qed.
   Next Obligation. apply Some_ne_None. Qed.
   Next Obligation. apply None_ne_Some. Qed.
@@ -81,8 +82,7 @@ Proof. intros x y E. now apply option_equiv_Some. Qed.
 Instance option_bind_proper `{Setoid A} `{Setoid B}: Proper (=) (option_bind A B).
 Proof.
   intros x₁ x₂. destruct 1.
-   intros f₁ f₂ E₂. unfold option_bind. simpl.
-   now apply (E₂ x₁ x₂).
+   intros f₁ f₂ E₂. unfold option_bind. simpl. now apply E₂.
   easy.
 Qed.
 
@@ -95,3 +95,15 @@ Proof.
    now destruct (f x).
   easy.
 Qed.
+
+Section map.
+  Context `{Setoid A} `{Setoid B} `{!Injective (f : A → B)}.
+
+  Global Instance: Injective (map f).
+  Proof.
+    pose proof (injective_mor f).
+    repeat (split; try apply _).
+    intros [x|] [y|] E; try solve [inversion E | easy].
+    apply sm_proper. apply (injective f). now apply (injective Some).
+  Qed.
+End map.
