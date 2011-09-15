@@ -183,7 +183,7 @@ Section dec_setoid_morphisms.
     StrongSetoid_Morphism f.
   Proof.
     split; try apply _. 
-    intros x y E. apply trivial_apart, (morphism_ne f). now apply apart_ne.
+    intros x y E. apply trivial_apart, (setoids.morphism_ne f). now apply apart_ne.
   Qed.
 
   Context `{!TrivialApart B}.

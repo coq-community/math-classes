@@ -20,12 +20,12 @@ Section algebras.
     end.
 
   Let u (s: sorts sig): Equiv (forall i : I, carriers i s).
-   apply setoids.product_equiv.
+   apply products.dep_prod_equiv.
    intro. apply _.
   Defined.
 
   Instance rec_impl_proper: ∀ o,
-    Proper (@setoids.product_equiv I _ (fun _ => op_type_equiv _ _ _) ==> (=)) (rec_impl o).
+    Proper (@products.dep_prod_equiv I _ (fun _ => op_type_equiv _ _ _) ==> (=)) (rec_impl o).
   Proof with auto.
    induction o; simpl. repeat intro...
    intros ? ? Y x0 y0 ?. apply IHo.
@@ -54,7 +54,7 @@ Section algebras.
   Lemma algebra_projection_morphisms i: @HomoMorphism sig carrier (carriers i) _ _ _ _ (λ a v, v i). 
   Proof.
    constructor; try apply _.
-    intro. rapply (@setoids.projection_morphism I (λ i, carriers i a) (λ i, _: Equiv (carriers i a))).
+    intro. rapply (@products.dep_prod_morphism I (λ i, carriers i a) (λ i, _: Equiv (carriers i a))).
     intro. apply _.
    apply preservation.
   Qed.

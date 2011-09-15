@@ -19,7 +19,7 @@ Section contents.
   (* Given an equivalence on the algebra's carrier that respects its setoid equality... *)
 
   Let hint' (a: sorts σ): Equiv (ua_products.carrier σ bool (fun _: bool => v) a).
-  Proof. apply setoids.product_equiv. intro. apply _. Defined.
+  Proof. apply products.dep_prod_equiv. intro. apply _. Defined.
 
   Context (e: ∀ s, relation (v s)).
 

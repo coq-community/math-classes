@@ -1,7 +1,5 @@
 (** We prove the equivalence of the two definitions of adjunction. *)
-
 Require Import
-  Relation_Definitions
   abstract_algebra theory.setoids interfaces.functors theory.categories
   workaround_tactics theory.jections.
 Require dual.
@@ -85,12 +83,12 @@ Section for_φAdjunction.
    constructor; unfold compose.
     rewrite <- (φ_in_terms_of_η ((φ ⁻¹) f)).
     symmetry.
-    apply surjective_applied.
+    apply (surjective_applied _).
    intros ? E.
    rewrite E.
    rewrite <- (φ_in_terms_of_η y).
    symmetry.
-   apply bijective_applied.
+   apply (bijective_applied _).
   Qed.
 
   Instance φAdjunction_ηAdjunction: ηAdjunction F G η univwit := {}.
@@ -99,9 +97,9 @@ Section for_φAdjunction.
   Proof with try apply _.
    constructor; try apply _; intro x.
     rewrite <- @φ_in_terms_of_η.
-    unfold ε. apply surjective_applied.
+    unfold ε. apply (surjective_applied _).
    rewrite <- @φ_in_terms_of_ε.
-   unfold η. apply surjective_applied.
+   unfold η. apply (surjective_applied _).
   Qed.
 
   (* On a side note, if we let F and G map between the duals of C and D, the adjunction is reversed: *)
@@ -115,18 +113,16 @@ Section for_φAdjunction.
     change (d ⟶ G c) in f.
     change ((φ ⁻¹) (f ◎ k) = (φ ⁻¹) f ◎ fmap F k).
     apply (injective (@φ d' c)).
-    rewrite surjective_applied.
+    rewrite (surjective_applied _).
     rewrite φ_adjunction_natural_right...
-    rewrite surjective_applied.
-    reflexivity.
+    now rewrite (surjective_applied _).
    change (c ⟶ c') in h.
    change (d ⟶ G c) in f.
    change ((φ ⁻¹) (fmap G h ◎ f) = h ◎ (φ ⁻¹) f).
    apply (injective (@φ d c')).
-   rewrite surjective_applied.
+   rewrite (surjective_applied _).
    rewrite φ_adjunction_natural_left...
-   rewrite surjective_applied.
-   reflexivity.
+   now rewrite (surjective_applied _).
   Qed.
 
 End for_φAdjunction.

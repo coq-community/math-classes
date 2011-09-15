@@ -1,5 +1,5 @@
 Require
-  theory.rings categories.varieties.
+  categories.varieties.
 Require Import
   abstract_algebra universal_algebra ua_homomorphisms.
 

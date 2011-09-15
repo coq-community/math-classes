@@ -1,17 +1,36 @@
-(* To be imported qualified. *)
 Require Import
-  abstract_algebra.
+  abstract_algebra theory.products.
 
-Instance ext_equiv_trans `{Setoid A} `{Setoid B}: Transitive (_ : Equiv (A → B)).
+Lemma ext_equiv_refl `{Setoid_Morphism A B f} : f = f.
+Proof. intros ?? E. pose proof (setoidmor_b f). now rewrite E. Qed.
+
+Instance ext_equiv_trans `{Setoid A} `{Setoid B} : Transitive (_ : Equiv (A → B)).
 Proof. intros ? y ???? w ?. transitivity (y w); firstorder. Qed.
 
-Instance ext_equiv_sym `{Setoid A} `{Setoid B}: Symmetric (_ : Equiv (A → B)).
+Instance ext_equiv_sym `{Setoid A} `{Setoid B} : Symmetric (_ : Equiv (A → B)).
 Proof. firstorder. Qed.
+
+Lemma ext_equiv_applied `{Setoid A} `{Equiv B} {f g : A → B} :
+  f = g → ∀ x, f x = g x.
+Proof. intros E x. now apply E. Qed.
+
+Lemma ext_equiv_applied_iff `{Equiv A} `{Equiv B} `{!Setoid_Morphism (f : A → B)} 
+  `{!Setoid_Morphism (g : A → B)} : f = g ↔ ∀ x, f x = g x.
+Proof. 
+  pose proof (setoidmor_a f). pose proof (setoidmor_b f).
+  split; intros E1.
+   now apply ext_equiv_applied.
+  intros x y E2. now rewrite E2.
+Qed.
+
+Lemma morphism_ne `{Equiv A} `{Equiv B} (f : A → B) `{!Setoid_Morphism f} x y :
+  f x ≠ f y → x ≠ y.
+Proof. intros E1 E2. apply E1. now apply sm_proper. Qed.
 
 Instance: Equiv Prop := iff.
 Instance: Setoid Prop := {}.
 
-Lemma projected_setoid `{Setoid B} `{Equiv A} (f: A → B)
+Lemma projected_setoid `{Setoid B} `{Equiv A} (f : A → B)
   (eq_correct : ∀ x y, x = y ↔ f x = f y) : Setoid A.
 Proof.
  constructor; repeat intro; apply eq_correct.
@@ -20,83 +39,25 @@ Proof.
  transitivity (f y); now apply eq_correct.
 Qed.
 
-Instance sig_Setoid `{Setoid A} (P: A → Prop): Setoid (sig P).
+Instance sig_setoid `{Setoid A} (P : A → Prop) : Setoid (sig P).
 Proof. now apply (projected_setoid (@proj1_sig _ P)). Qed.
 
-Instance sigT_Setoid `{Setoid A} (P: A → Type): Setoid (sigT P).
+Instance sigT_setoid `{Setoid A} (P : A → Type) : Setoid (sigT P).
 Proof. now apply (projected_setoid (@projT1 _ P)). Qed.
 
-Definition prod_equiv `{Equiv A} `{Equiv B} : Equiv (A * B) := λ p q, fst p = fst q ∧ snd p = snd q.
-(* Avoid eager application *)
-Hint Extern 0 (Equiv (_ * _)) => eapply @prod_equiv : typeclass_instances.
+Instance id_morphism `{Setoid A} : Setoid_Morphism (@id A) := {}.
 
-Section simple_product.
-  Context `{Setoid A} `{Setoid B}.
+Lemma compose_setoid_morphism `{Equiv A} `{Equiv B} `{Equiv C} (f : A → B) (g : B → C) :
+  Setoid_Morphism f → Setoid_Morphism g → Setoid_Morphism (g ∘ f).
+Proof. firstorder. Qed.
+Hint Extern 4 (Setoid_Morphism (_ ∘ _)) => class_apply @compose_setoid_morphism : typeclass_instances.
 
-  Global Instance: Setoid (A * B) := {}.
-  Proof. firstorder auto. Qed.
-
-  Global Instance pair_proper : Proper ((=) ==> (=) ==> (=)) (@pair A B).
-  Proof. firstorder. Qed.
-
-  Global Instance: Setoid_Morphism (@fst A B).
-  Proof. constructor; try apply _. firstorder. Qed.
-
-  Global Instance: Setoid_Morphism (@snd A B).
-  Proof. constructor; try apply _. firstorder. Qed.
-
-  Context `(A_dec : ∀ x y : A, Decision (x = y)) `(B_dec : ∀ x y : B, Decision (x = y)).
-  Program Instance prod_dec: ∀ x y : A * B, Decision (x = y) := λ x y,
-    match A_dec (fst x) (fst y) with
-    | left _ => match B_dec (snd x) (snd y) with left _ => left _ | right _ => right _ end
-    | right _ => right _
-    end.
-  Solve Obligations using (program_simpl; firstorder).
-End simple_product.
-
-Section product.
-  Context (I: Type) (c: I → Type) `{∀ i, Equiv (c i)} `{∀ i, Setoid (c i)}.
-
-  Let product: Type := ∀ i, c i.
-
-  Instance product_equiv: Equiv product := `(∀ i, x i = y i).
-
-  Global Instance: Setoid product.
-  Proof.
-   constructor.
-     repeat intro. reflexivity.
-    intros ?? E ?. symmetry. apply E.
-   intros ? y ??? i. transitivity (y i); firstorder.
-  Qed.
-
-  Global Instance projection_morphism i: Setoid_Morphism (λ c: product, c i).
-  Proof. firstorder. Qed.
-End product.
-
-Instance id_morphism `{Setoid T}: Setoid_Morphism (@id T) := {}.
-
-Instance compose_morphisms (A B C: Type)
-  `{!Equiv A} `{!Equiv B} `{!Equiv C} (f: A → B) (g: B → C)
-  {P: Setoid_Morphism f} {Q: Setoid_Morphism g}: Setoid_Morphism (g ∘ f).
-Proof. destruct P, Q. constructor; apply _. Qed.
-
-Instance: ∀ `{Setoid_Morphism A B f} `{!Inverse f}, Bijective f → Setoid_Morphism (f⁻¹).
+Instance morphism_proper `{Equiv A} `{Equiv B}: Proper ((=) ==> iff) (@Setoid_Morphism A B _ _).
 Proof.
- intros.
- pose proof (setoidmor_a f).
- pose proof (setoidmor_b f).
- constructor; try apply _.
- repeat intro. apply (injective f).
- pose proof (surjective f) as E.
- unfold compose in E.
- rewrite (E x x), (E y y); intuition.
-Qed.
-
-Instance morphism_proper `{ea: Equiv A} `{eb: Equiv B}: Proper ((=) ==> (=)) (@Setoid_Morphism A B _ _).
-Proof.
- cut (∀ (x y: A → B), x = y → Setoid_Morphism x → Setoid_Morphism y).
-  firstorder.
- intros x y E [AS BS P].
- constructor; try apply _. intros v w E'.
- rewrite <- (E v), <- (E w), E'; reflexivity.
+  assert (∀ f g : A → B, f = g → Setoid_Morphism f → Setoid_Morphism g) as aux.
+   intros f g E1 ?. pose proof (setoidmor_a f). pose proof (setoidmor_b f).
+   split; try apply _. intros x y E2.
+   now rewrite <-!(ext_equiv_applied E1 _), E2.
+  intros f g; split; intros ?; eapply aux; eauto.
+  pose proof (setoidmor_a g). pose proof (setoidmor_b g). now symmetry.
 Qed.
