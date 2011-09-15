@@ -23,23 +23,19 @@ Proof.
   split; revert s; cofix FIX; intros s E.
    constructor.
     cut (hd s ≤ hd s); [|reflexivity].
-    set (x:=hd s).
-    unfold x at 1.
+    set (x:=hd s). unfold x at 1.
     generalize s E x. clear s E x.
     cofix FIX2. intros s E.
     constructor.
-     split; trivial.
-     destruct E. 
+     split; trivial. destruct E. 
      now transitivity (hd (tl s)).
     destruct E.
     apply FIX2; trivial.
     now transitivity (hd s).
-   destruct E.
-   now apply FIX. 
+   destruct E. now apply FIX. 
   constructor.
    now destruct E as [[? [? ?]] ?].
-  apply FIX.
-  now destruct E.
+  apply FIX. now destruct E.
 Qed.
 
 Definition dnn_Str_nth (s : Stream A) : 
@@ -62,10 +58,8 @@ Proof. now destruct dnn. Qed.
 
 Global Instance dnn_Str_nth_tl `(dnn : DecreasingNonNegative s) : ∀ n, DecreasingNonNegative (Str_nth_tl n s).
 Proof.
-  intros n.
-  revert s dnn.
-  induction n; [easy|].
-  intros s E.
+  intros n. revert s dnn.
+  induction n; [easy|]. intros s E.
   now apply IHn, _.
 Qed.
 
@@ -99,8 +93,7 @@ Proof. now destruct inn. Qed.
 Global Instance inn_Str_nth_tl `(inn : IncreasingNonNegative s) : ∀ n, IncreasingNonNegative (Str_nth_tl n s).
 Proof.
   intros n. revert s inn.
-  induction n; trivial.
-  intros s E.
+  induction n; trivial. intros s E.
   now apply IHn, _.
 Qed.
 
@@ -187,22 +180,14 @@ Section powers.
   Lemma Str_nth_powers_help (n : nat) (c : A) : Str_nth n (powers_help c) = c * a ^ (f n).
   Proof.
     revert c.
-    induction n; intros c; unfold Str_nth in *; simpl.
-     change O with (0 : nat).
-     rewrite rings.preserves_0.
-     rewrite nat_pow_0. ring.
-    rewrite peano_naturals.S_nat_1_plus. 
-    rewrite rings.preserves_plus, rings.preserves_1. 
-    rewrite nat_pow_S.
-    rewrite IHn. ring.
+    induction n using peano_naturals.nat_induction; intros c; unfold Str_nth in *; simpl.
+     rewrite rings.preserves_0, nat_pow_0. ring.
+    rewrite rings.preserves_plus, rings.preserves_1.
+    rewrite nat_pow_S, IHn. ring.
   Qed.
 
   Lemma Str_nth_powers (n : nat) : Str_nth n powers = a ^ (f n).
-  Proof.
-    unfold powers.
-    rewrite Str_nth_powers_help.
-    ring.
-  Qed.
+  Proof. unfold powers. rewrite Str_nth_powers_help. ring. Qed.
   End with_nat_pow.
 
   Section with_int_pow. 
@@ -210,33 +195,22 @@ Section powers.
      `{Integers Z} `{!IntPowSpec A Z pw} (f : nat → Z) `{!SemiRing_Morphism f}.
 
   Lemma Str_nth_powers_help_int_pow (n : nat) (c : A) : Str_nth n (powers_help c) = c * a ^ (f n).
-  Proof.
-    rewrite (Str_nth_powers_help id). unfold id.
-    now rewrite int_pow_nat_pow.
-  Qed.
+  Proof. rewrite (Str_nth_powers_help id). unfold id. now rewrite int_pow_nat_pow. Qed.
 
   Lemma Str_nth_powers_int_pow (n : nat) : Str_nth n powers = a ^ (f n).
-  Proof.
-    unfold powers.
-    rewrite Str_nth_powers_help_int_pow.
-    ring.
-  Qed.
+  Proof. unfold powers. rewrite Str_nth_powers_help_int_pow. ring. Qed.
   End with_int_pow.
 End powers.
 
 Global Instance powers_help_proper: Proper ((=) ==> (=) ==> (=)) powers_help.
 Proof.
-  intros ? ? E1 ? ? E2.
-  apply stream_eq_Str_nth.
-  intros n.
+  intros ? ? E1 ? ? E2. apply stream_eq_Str_nth. intros n.
   now rewrite 2!(Str_nth_powers_help _ id), E1, E2.
 Qed.
 
 Global Instance powers_proper: Proper ((=) ==> (=)) powers.
 Proof.
-  intros ? ? E.
-  apply stream_eq_Str_nth.
-  intros n.
+  intros ? ? E. apply stream_eq_Str_nth. intros n.
   now rewrite 2!(Str_nth_powers _ id), E.
 Qed.
 
@@ -247,24 +221,16 @@ Section positives.
     Str_nth n (positives_help x) = x + naturals_to_semiring nat A n.
   Proof.
     revert x.
-    induction n; intros c; unfold Str_nth in *; simpl. 
-     change (c = c + naturals_to_semiring nat A 0).
-     rewrite rings.preserves_0. 
-     now ring.
-    rewrite IHn. 
-    rewrite peano_naturals.S_nat_1_plus.
-    rewrite rings.preserves_plus, rings.preserves_1.
-    now ring.
+    induction n using peano_naturals.nat_induction; intros c; unfold Str_nth in *; simpl. 
+     rewrite rings.preserves_0. now ring.
+    rewrite IHn, rings.preserves_plus, rings.preserves_1. now ring.
   Qed.
 
   Definition positives : Stream A := positives_help 1.
 
   Lemma Str_nth_positives (n : nat) : 
     Str_nth n positives = 1 + naturals_to_semiring nat A n.
-  Proof.
-    unfold positives.
-    now rewrite Str_nth_positives_help.
-  Qed.
+  Proof. unfold positives. now rewrite Str_nth_positives_help. Qed.
 End positives.
 
 Section factorials.
@@ -273,23 +239,19 @@ Section factorials.
   Fixpoint fac_help (n : nat) (m c : A) : A := 
     match n with
     | O => c
-    | S n' => (m + naturals_to_semiring nat A n') * fac_help n' m c
+    | S n => (m + naturals_to_semiring nat A n) * fac_help n m c
     end.
 
   Lemma Str_nth_factorials_help (n : nat) (m c : A) :
     Str_nth n (factorials_help m c) = fac_help n m c.
   Proof.
     revert m c.
-    induction n; intros m c; unfold Str_nth in *; simpl.
+    induction n using peano_naturals.nat_induction; intros m c; unfold Str_nth in *; simpl.
      ring. 
     rewrite IHn. clear IHn.
-    induction n; simpl.
-     posed_rewrite (rings.preserves_0 (f:=naturals_to_semiring nat A)). 
-     now ring.
-    rewrite IHn.
-    rewrite peano_naturals.S_nat_1_plus.
-    rewrite rings.preserves_plus, rings.preserves_1.
-    now ring.
+    induction n using peano_naturals.nat_induction; simpl.
+     rewrite rings.preserves_0. now ring.
+    rewrite IHn, rings.preserves_plus, rings.preserves_1. now ring.
   Qed.
 
   Definition factorials := factorials_help 1 1.
@@ -299,12 +261,12 @@ Section factorials.
   Proof.
     unfold factorials.
     rewrite Str_nth_factorials_help.
-    induction n; simpl.
-     symmetry. now apply rings.preserves_1.
+    induction n using peano_naturals.nat_induction; simpl.
+     change (1 = naturals_to_semiring nat A 1).
+     now rewrite rings.preserves_1.
     rewrite IHn.
-    posed_rewrite (rings.preserves_plus (f:=naturals_to_semiring nat A)).
-    posed_rewrite (rings.preserves_mult (f:=naturals_to_semiring nat A)).
-    now ring.
+    setoid_rewrite rings.preserves_plus.
+    setoid_rewrite rings.preserves_mult. now ring.
   Qed.
 End factorials.
 End series.
