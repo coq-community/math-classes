@@ -42,7 +42,7 @@ Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
   Now the definition of equality remains under a lambda and our problem does not occur anymore!
 *)
 
-Definition decide_rel `(R : relation A) {dec : ∀ x y, Decision (R x y)} (x : A) (y : A) : Decision (R x y)
+Definition decide_rel `(R : A → B → Prop) {dec : ∀ x y, Decision (R x y)} (x : A) (y : B) : Decision (R x y)
   := dec x y.
 
 Definition bool_decide_rel `(R : relation A) {dec : ∀ x y, Decision (R x y)} : A → A → bool 
