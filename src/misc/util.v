@@ -13,11 +13,12 @@ End pointwise_dependent_relation.
 
 Definition iffT (A B: Type): Type := prod (A → B) (B → A).
 
-Class NonEmpty {A: Type} (P: A → Prop) : Prop := non_empty: ex P.
+Class NonEmpty (A : Type) : Prop := non_empty : inhabited A.
+Class NonEmptyT (A : Type) : Type := non_emptyT : A.
 
 Definition uncurry {A B C} (f: A → B → C) (p: A * B): C := f (fst p) (snd p).
 
-Definition is_sole `{Equiv T} (P: T → Prop) (x: T): Prop := P x ∧ `(P y → y = x).
+Definition is_sole `{Equiv T} (P: T → Prop) (x: T) : Prop := P x ∧ ∀ y, P y → y = x.
 
 Definition DN (T: Type): Prop := (T → False) → False.
 Class Stable P := stable: DN P → P.

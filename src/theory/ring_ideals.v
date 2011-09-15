@@ -9,7 +9,7 @@ Require Export
 
 Class RingIdeal A (P : A → Prop) `{Ring A} : Prop :=
   { ideal_proper :> Proper ((=) ==> iff) P
-  ; ideal_NonEmpty :> NonEmpty P
+  ; ideal_NonEmpty :> NonEmpty (sig P)
   ; ideal_closed_plus_negate : ∀ x y, P x → P y → P (x - y)
   ; ideal_closed_mult_r : ∀ x y, P x → P (x * y)
   ; ideal_closed_mult_l: ∀ x y, P y → P (x * y) }.
@@ -24,7 +24,7 @@ Section ideal_congruence.
   Hint Resolve ideal_closed_plus_negate ideal_closed_mult_l ideal_closed_mult_r.
 
   Lemma ideal_closed_0 : P 0.
-  Proof. destruct ideal_NonEmpty. destruct non_empty. rewrite <-(plus_negate_r x). intuition. Qed.
+  Proof. destruct ideal_NonEmpty as [[x Px]]. rewrite <-(plus_negate_r x). intuition. Qed.
   Hint Resolve ideal_closed_0.
 
   Lemma ideal_closed_negate x : P x → P (-x).
@@ -82,7 +82,7 @@ Section kernel_is_ideal.
    unfold kernel, compose, flip.
    split.
        intros ? ? E. now rewrite E.
-      exists 0. apply preserves_0.
+      split. exists 0. apply preserves_0.
      intros ?? E E'. rewrite preserves_plus, preserves_negate, E, E'...
     intros ?? E. rewrite preserves_mult, E...
    intros ?? E. rewrite preserves_mult, E...
