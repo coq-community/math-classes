@@ -173,7 +173,7 @@ Section full_fset_props.
     P ∅ → (∀ x X, x ∉ X → P X → P ({{ x }} ⊔ X)) → ∀ X, P X.
   Proof.
     intros Pempty Padd X.
-    ms_setoid_replace X with (from_listset (to_listset X))
+    mc_setoid_replace X with (from_listset (to_listset X))
      by (symmetry; apply (jections.bijective_applied _)).
     generalize (to_listset X). apply listset_induction.
       solve_proper.

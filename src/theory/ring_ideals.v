@@ -41,14 +41,14 @@ Section ideal_congruence.
         constructor.
           intros x. now rewrite plus_negate_r.
          intros x y E. rewrite negate_swap_r. intuition.
-        intros x y z E1 E2. ms_setoid_replace (x - z) with ((x - y) + (y - z)) by ring. intuition.
+        intros x y z E1 E2. mc_setoid_replace (x - z) with ((x - y) + (y - z)) by ring. intuition.
        intros ?? E. now rewrite E, plus_negate_r.
       intros x1 x2 E1 y1 y2 E2. 
-      ms_setoid_replace (x1 + y1 - (x2 + y2)) with ((x1 - x2) + (y1 - y2)) by ring. intuition.
+      mc_setoid_replace (x1 + y1 - (x2 + y2)) with ((x1 - x2) + (y1 - y2)) by ring. intuition.
      intros x1 x2 E1 y1 y2 E2.
-     ms_setoid_replace (x1 * y1 - (x2 * y2)) with ((x1 - x2) * y1 + x2 * (y1 - y2)) by ring. intuition.
+     mc_setoid_replace (x1 * y1 - (x2 * y2)) with ((x1 - x2) * y1 + x2 * (y1 - y2)) by ring. intuition.
     intros x1 x2 E. 
-    ms_setoid_replace (-x1 - - x2) with (-(x1 - x2)) by ring. intuition.
+    mc_setoid_replace (-x1 - - x2) with (-(x1 - x2)) by ring. intuition.
   Qed.
 
   Lemma factor_ring_eq (x y : Factor A P) : x = y ↔ P ('x - 'y).
