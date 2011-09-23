@@ -1,6 +1,5 @@
 Require Import
-  Ring Field
-  abstract_algebra interfaces.orders
+  Ring Field abstract_algebra interfaces.orders
   interfaces.naturals interfaces.rationals interfaces.integers
   natpair_integers theory.rationals theory.dec_fields theory.rings 
   orders.integers orders.dec_fields.
@@ -88,7 +87,7 @@ Section rationals_order_isomorphic.
 End rationals_order_isomorphic.
 
 Instance rationals_le `{Rationals Q} : Le Q | 10 := λ x y,
-    ∃ num, ∃ den, y = x + naturals_to_semiring nat Q num / naturals_to_semiring nat Q den.
+  ∃ num, ∃ den, y = x + naturals_to_semiring nat Q num / naturals_to_semiring nat Q den.
 Instance rationals_lt  `{Rationals Q} : Lt Q | 10 := dec_lt.
 
 Section default_order. 
@@ -180,7 +179,7 @@ Section default_order.
      rewrite !lt_iff_le_apart.
      intros [xd_ge0 xd_ne0] [yd_ge0 yd_ne0] E.
      destruct (semirings.decompose_le E) as [z [Ez1 Ex2]].
-     apply integers_le_plus in xd_ge0. apply integers_le_plus in yd_ge0. apply integers_le_plus in Ez1.
+     apply nat_int_le_plus in xd_ge0. apply nat_int_le_plus in yd_ge0. apply nat_int_le_plus in Ez1.
      destruct xd_ge0 as [xd' xd_ge0], yd_ge0 as [yd' yd_ge0], Ez1 as [z' Ez1].
      rewrite left_identity in xd_ge0, yd_ge0, Ez1.
      exists z'. exists (xd' * yd').

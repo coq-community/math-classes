@@ -25,8 +25,7 @@ Proof. split; try apply _. solve_proper. Qed.
 Lemma int_pow_S_nonneg `{Apart B} `{!TrivialApart B} `{!FullPseudoSemiRingOrder (A:=B) Ble Blt} (x : A) (n : B) : 
   0 ≤ n → x ^ (1+n) = x * x ^ n.
 Proof.
-  intros En.
-  destruct (decide (x = 0)) as [Ex | Ex]. 
+  intros En. destruct (decide (x = 0)) as [Ex | Ex]. 
    rewrite Ex. rewrite int_pow_base_0. ring.
    intros E. destruct semirings.not_le_1_0. 
    rewrite <-E. now apply semirings.nonneg_plus_le_compat_r.
@@ -42,7 +41,7 @@ Proof.
    rewrite 2!int_pow_base_0; trivial.
     now rewrite dec_recip_0.
    now apply rings.flip_negate_ne_0.
-  pattern n. apply integers.biinduction; clear n.
+  revert n. rapply biinduction.
     solve_proper.
    now rewrite rings.negate_0, int_pow_0, dec_recip_1.
   intros n.
@@ -67,7 +66,7 @@ Proof.
    destruct (decide (n = 0)) as [En | En].
     rewrite En, 3!int_pow_0. ring.
    destruct (zero_product x y Exy) as [E|E]; rewrite E, int_pow_base_0; trivial; ring.
-  revert n. apply integers.biinduction.
+  revert n. rapply biinduction.
     solve_proper.
    rewrite 3!int_pow_0. ring.
   intros n.
@@ -87,7 +86,7 @@ Proof.
    destruct (decide (n = 0)) as [En | En].
     now rewrite En, int_pow_0, dec_recip_1.
    now rewrite int_pow_base_0, dec_recip_0.
-  revert n. apply integers.biinduction.
+  revert n. rapply biinduction.
     solve_proper.
    now rewrite 2!int_pow_0, dec_recip_1.
   intros n.
@@ -101,7 +100,7 @@ Qed.
 Lemma int_pow_nat_pow `{Naturals N} `{!NatPowSpec A N pw} {f : N → B} `{!SemiRing_Morphism f} (x : A) (n : N) :
   x ^ (f n) = x ^ n.
 Proof.
-  revert n. apply naturals.induction.
+  revert n. rapply naturals.induction.
     solve_proper.
    now rewrite rings.preserves_0, int_pow_0, nat_pow_0.
   intros n E.
@@ -109,7 +108,7 @@ Proof.
   rewrite int_pow_S_nonneg, nat_pow_S.
    now rewrite E.
   apply semirings.preserves_nonneg.
-  now apply naturals.naturals_nonneg.
+  now apply naturals.nat_nonneg.
 Qed.
 
 Global Instance int_pow_1: RightIdentity (^) (1:B).
@@ -129,7 +128,7 @@ Proof. now rewrite int_pow_S_nonneg, int_pow_3 by solve_propholds. Qed.
 
 Global Instance int_pow_base_1: LeftAbsorb (^) 1.
 Proof. 
-  intro n. pattern n. apply integers.biinduction; clear n.
+  rapply biinduction.
     solve_proper.
    now apply int_pow_0.
   intros n. rewrite int_pow_S, left_identity.
@@ -141,7 +140,7 @@ Lemma int_pow_exp_plus (n m : B) (x : A) :
   x ≠ 0 → x ^ (n + m) = x ^ n * x ^ m.
 Proof.
   intros nonneg.
-  pattern n. apply integers.biinduction; clear n.
+  revert n. rapply biinduction.
     solve_proper.
    rewrite int_pow_0, left_identity. ring.
   intros n. rewrite <-associativity, 2!int_pow_S; trivial.
@@ -152,9 +151,9 @@ Proof.
 Qed.
 
 Instance int_pow_ne_0 (x : A) (n : B) : PropHolds (x ≠ 0) → PropHolds (x ^ n ≠ 0).
-Proof with eauto.
+Proof.
   intros nonneg. unfold PropHolds.
-  pattern n. apply integers.biinduction; clear n.
+  revert n. rapply biinduction.
     solve_proper.
    rewrite int_pow_0. apply (rings.is_ne_0 1).
   intros n. rewrite int_pow_S; trivial.
@@ -176,7 +175,7 @@ Proof.
     now rewrite Em, right_absorb, 2!int_pow_0.
    rewrite 3!int_pow_base_0; try easy.
    intros E. now destruct (zero_product n m E).
-  pattern m. apply integers.biinduction; clear m.
+  revert m. rapply biinduction.
     solve_proper.
    rewrite right_absorb. now rewrite 2!int_pow_0.
   intros m. split; intros E.
@@ -199,7 +198,7 @@ Context `{Apart B} `{!TrivialApart B} `{!FullPseudoSemiRingOrder (A:=B) Ble Blt}
 Instance int_pow_pos (x : A) (n : B) : PropHolds (0 < x) → PropHolds (0 < x ^ n).
 Proof.
   intros nonneg. unfold PropHolds.
-  pattern n. apply integers.biinduction; clear n.
+  revert n. rapply biinduction.
     solve_proper.
    intros. rewrite int_pow_0. now apply semirings.lt_0_1.
   intros n; split; intros E.
@@ -227,7 +226,7 @@ Qed.
 
 Lemma int_pow_ge_1 (x : A) (n : B) : 1 ≤ x → 0 ≤ n → 1 ≤ x ^ n.
 Proof.
-  intros. pattern n. apply integers.induction_nonneg; trivial.
+  intros E1 E2. revert n E2. rapply integers.induction_nonneg; trivial.
     solve_proper.
    now rewrite int_pow_0.
   intros.
@@ -242,13 +241,13 @@ Qed.
 Lemma int_pow_gt_1 (x : A) (n : B) : 1 < x → 0 < n → 1 < x ^ n.
 Proof.
   intros Ex En.
-  apply integers.lt_iff_plus_1_le in En.
+  apply nat_int.lt_iff_S_le in En.
   destruct (semirings.decompose_le En) as [z [Ez1 Ez2]]. ring_simplify in Ez2.
-  rewrite Ez2.
-  pattern z. apply integers.induction_nonneg; try assumption.
+  rewrite Ez2. clear En Ez2 n.
+  revert z Ez1. rapply integers.induction_nonneg; try assumption.
     solve_proper.
    now rewrite left_identity, right_identity.
-  intros.
+  intros n En E2.
   rewrite <-associativity, int_pow_S.
    apply semirings.gt_1_mult_lt_compat_l; auto.
    transitivity 1; [apply semirings.lt_0_1 | assumption].
@@ -258,7 +257,7 @@ Proof.
 Qed.
 
 (* Making these instances Global is not useful, we don't have PropHolds (1 ≤ x)
-  instances anyway and it will only slow down instance resolution (it increases the 
+  instances and it will only slow down instance resolution (it increases the 
   compilation time of dyadics from 1:35 to 2:28). *)
 Instance int_pow_exp_le: 
   ∀ x : A, PropHolds (1 ≤ x) → OrderPreserving (x^).
@@ -282,15 +281,14 @@ Proof.
   assert (PropHolds (0 < x)) 
    by (apply orders.le_lt_trans with 1; [solve_propholds | easy]).
   intros n m E.
-  apply integers.lt_iff_plus_1_le in E.
+  apply nat_int.lt_iff_plus_1_le in E.
   destruct (semirings.decompose_le E) as [z [Ea Eb]].
   rewrite Eb.
   rewrite <-associativity, int_pow_exp_plus by now apply orders.lt_ne_flip.
   rewrite <-(rings.mult_1_r (x ^ n)) at 1.
   apply (strictly_order_preserving (x^n *.)).
   apply int_pow_gt_1; trivial.
-  rewrite commutativity.
-  now apply integers.le_iff_lt_plus_1.
+  now apply nat_int.le_iff_lt_S.
 Qed.
 
 Instance int_pow_exp_le_back:
@@ -340,7 +338,7 @@ Section preservation.
       now apply rings.preserves_1.
      rewrite 2!int_pow_base_0; trivial.
      now apply rings.preserves_0.
-    revert n. apply integers.biinduction.
+    revert n. rapply biinduction.
       solve_proper.
      rewrite int_pow_0, int_pow_0. 
      now apply rings.preserves_1.
@@ -366,7 +364,7 @@ Section exp_preservation.
       now rewrite En, rings.preserves_0, 2!int_pow_0.
      rewrite 2!int_pow_base_0; try easy.
      now apply rings.injective_ne_0.
-    revert n. apply integers.biinduction.
+    revert n. rapply biinduction.
       solve_proper.
      rewrite rings.preserves_0.
      now rewrite 2!int_pow_0.
@@ -413,7 +411,7 @@ Section int_pow_default.
        symmetry. now apply dec_recip_inverse.
       apply (antisymmetry (≤)).
        apply orders.not_le_lt_flip in E1.
-       apply integers.lt_iff_plus_1_le in E1. 
+       apply nat_int.lt_iff_plus_1_le in E1. 
        apply (order_reflecting (+1)).
        now ring_simplify.
       apply (order_reflecting (1+)). now rewrite rings.plus_negate_r.

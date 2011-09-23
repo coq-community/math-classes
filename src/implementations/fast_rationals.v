@@ -52,7 +52,7 @@ Proof.
    unfold BigQ.mul. simpl. rewrite right_identity. reflexivity.
   destruct (BigZ.compare_spec BigZ.zero (BigZ.Pos d)); try discriminate.
   destruct (orders.lt_not_le_flip 0 ('d : bigZ)); trivial.
-  now apply naturals.to_semiring_nonneg.
+  now apply nat_int.to_semiring_nonneg.
 Qed.
 
 Lemma bigQ_div_bigQq_alt (n : bigZ) (d : bigN) :

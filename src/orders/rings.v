@@ -1,6 +1,5 @@
 Require Import
-  Relation_Definitions Ring
-  abstract_algebra interfaces.orders theory.rings.
+  Ring abstract_algebra interfaces.orders theory.rings.
 Require Export 
   orders.semirings.
 
@@ -240,9 +239,7 @@ Section another_ring_order.
 
   Lemma reflecting_preserves_nonneg : (∀ x, 0 ≤ f x → 0 ≤ x) → OrderReflecting f.
   Proof.
-    intros E.
-    repeat (split; try apply _).
-    intros x y F.
+    intros E. repeat (split; try apply _). intros x y F.
     apply flip_nonneg_minus, E.
     rewrite preserves_plus, preserves_negate.
     now apply flip_nonneg_minus, F.

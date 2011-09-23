@@ -51,7 +51,7 @@ Proof.
    apply nat_pow_0.
   intros n E. rewrite nat_pow_S. rewrite E. ring.
 Qed.
-  
+
 Lemma nat_pow_exp_plus (x : A) (n m : B) : 
   x ^ (n + m) = x ^ n * x ^ m.
 Proof.
@@ -63,7 +63,7 @@ Proof.
   rewrite 2!nat_pow_S.
   rewrite E. ring.
 Qed.
-  
+
 Lemma nat_pow_base_mult (x y : A) (n : B) : 
   (x * y) ^ n = x ^ n * y ^ n.
 Proof.

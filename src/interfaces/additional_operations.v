@@ -96,6 +96,6 @@ Notation "(∸ y )" := (λ x, x ∸ y) (only parsing).
 Instance: Params (@cut_minus) 2.
 
 Class CutMinusSpec A (cm : CutMinus A) `{Equiv A} `{Zero A} `{Plus A} `{Le A} := {
-  cut_minus_le : ∀ x y, y ≤ x → cut_minus x y + y = x ;
-  cut_minus_0 : ∀ x y, x ≤ y → cut_minus x y = 0
+  cut_minus_le : ∀ x y, y ≤ x → x ∸ y + y = x ;
+  cut_minus_0 : ∀ x y, x ≤ y → x ∸ y = 0
 }.

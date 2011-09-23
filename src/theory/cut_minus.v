@@ -7,19 +7,21 @@ Require Import
 
 (* * Properties of Cut off Minus *)
 Section cut_minus_properties.
-  Context `{SemiRing R} `{Apart R} `{!FullPseudoSemiRingOrder Rle Rlt} `{!TrivialApart R} 
+  Context `{FullPseudoSemiRingOrder R} `{!TrivialApart R} 
     `{∀ x y, Decision (x = y)} `{!CutMinusSpec R cm}.
+
+  Local Existing Instance pseudo_srorder_semiring.
 
   Add Ring SR: (rings.stdlib_semiring_theory R).
   Hint Resolve (@orders.le_flip R _ _).
 
   Global Instance cut_minus_proper: Proper ((=) ==> (=) ==> (=)) cut_minus | 1.
   Proof.
-    intros x1 x2 E y1 y2 F.
-    destruct (total (≤) x2 y2).
+    intros x₁ x₂ E y₁ y₂ F.
+    destruct (total (≤) x₂ y₂).
      rewrite cut_minus_0, cut_minus_0; try easy. now rewrite E, F.
-    apply (right_cancellation (+) y2).
-    rewrite cut_minus_le; try easy.
+    apply (right_cancellation (+) y₂).
+    rewrite cut_minus_le by easy.
     rewrite <-E, <-F. apply cut_minus_le. now rewrite E, F.
   Qed.
 
@@ -33,134 +35,118 @@ Section cut_minus_properties.
   Hint Resolve cut_minus_le.
 
   Lemma cut_minus_diag x : x ∸ x = 0.
-  Proof. 
-    now apply cut_minus_0.
-  Qed.
+  Proof. now apply cut_minus_0. Qed.
 
-  Lemma cut_minus_rightidentity x : 0 ≤ x → x ∸ 0 = x.
-  Proof.
-    intros E.
-    rewrite <-(rings.plus_0_r (x ∸ 0)). auto.
-  Qed.
+  Lemma cut_minus_nonneg_0_r x : 0 ≤ x → x ∸ 0 = x.
+  Proof. intros E. rewrite <-(rings.plus_0_r (x ∸ 0)). auto. Qed.
 
-  Lemma cut_minus_leftabsorb x : 0 ≤ x → 0 ∸ x = 0.
+  Lemma cut_minus_0_l x : 0 ≤ x → 0 ∸ x = 0.
   Proof. auto. Qed.
 
-  Lemma cut_minus_rightabsorb x : x ≤ 0 → x ∸ 0 = 0.
+  Lemma cut_minus_nonpos_0_r x : x ≤ 0 → x ∸ 0 = 0.
   Proof. auto. Qed.
 
   Lemma cut_minus_nonneg x y : 0 ≤ x ∸ y.
-  Proof with auto.
+  Proof.
     destruct (total (≤) x y) as [E|E].
-     apply orders.eq_le. symmetry...
-    apply (order_reflecting (+ y))...
-    rewrite cut_minus_le; ring_simplify...
+     apply orders.eq_le. symmetry. now auto.
+    apply (order_reflecting (+ y)).
+    now rewrite cut_minus_le; ring_simplify.
   Qed.
 
   Lemma cut_minus_le_trans x y z : y ≤ x → z ≤ y → (x ∸ y) + (y ∸ z) = x ∸ z.
-  Proof with auto; try reflexivity. 
-    intros. 
-    apply (right_cancellation (+) z)...
-    rewrite <-associativity. 
-    rewrite !cut_minus_le... 
-    transitivity y...
+  Proof.
+    intros. apply (right_cancellation (+) z).
+    rewrite <-associativity, !cut_minus_le; try easy.
+    now transitivity y.
   Qed.
   Hint Resolve cut_minus_le_trans.
 
-  Lemma cut_minus_plus_distr x1 x2 y1 y2 : 
-     y1 ≤ x1 → y2 ≤ x2 → (x1 ∸ y1) + (x2 ∸ y2) = (x1 + x2) ∸ (y1 + y2).
-  Proof with auto.
-    intros E F.
-    apply (right_cancellation (+) (y1 + y2))...
+  Lemma cut_minus_plus_distr x₁ x₂ y₁ y₂ :
+     y₁ ≤ x₁ → y₂ ≤ x₂ → (x₁ ∸ y₁) + (x₂ ∸ y₂) = (x₁ + x₂) ∸ (y₁ + y₂).
+  Proof.
+    intros E F. apply (right_cancellation (+) (y₁ + y₂)).
     rewrite cut_minus_le.
-     setoid_replace (x1 ∸ y1 + (x2 ∸ y2) + (y1 + y2)) with (((x1 ∸ y1) + y1) + ((x2 ∸ y2) + y2)) by ring.
-     rewrite !cut_minus_le... reflexivity. 
-    apply semirings.plus_le_compat...
+     setoid_replace (x₁ ∸ y₁ + (x₂ ∸ y₂) + (y₁ + y₂)) with (((x₁ ∸ y₁) + y₁) + ((x₂ ∸ y₂) + y₂)) by ring.
+     now rewrite !cut_minus_le.
+    now apply semirings.plus_le_compat.
   Qed.
 
-  Lemma cut_minus_mult_distr_l (x y z : R) : 0 ≤ x →  x * (y ∸ z) = x * y ∸ x * z.
+  Lemma cut_minus_mult_distr_l x y z : 0 ≤ x →  x * (y ∸ z) = x * y ∸ x * z.
   Proof.
-    intros E.
-    destruct (total (≤) y z).
-     rewrite ?cut_minus_0; trivial.
+    intros E. destruct (total (≤) y z).
+     rewrite !cut_minus_0; trivial.
       ring.
      now apply (maps.order_preserving_nonneg (.*.) x).
-    apply (right_cancellation (+) (x * z)). 
-    rewrite <-distribute_l.
-    rewrite !cut_minus_le; try easy.
+    apply (right_cancellation (+) (x * z)).
+    rewrite <-distribute_l, !cut_minus_le; try easy.
     now apply (maps.order_preserving_nonneg (.*.) x).
   Qed.
 
-  Lemma cut_minus_mult_distr_r (x y z : R) : 0 ≤ x →  (y ∸ z) * x = y * x ∸ z * x.
+  Lemma cut_minus_mult_distr_r x y z : 0 ≤ x →  (y ∸ z) * x = y * x ∸ z * x.
   Proof.
-    intros E.
-    rewrite 3!(commutativity _ x).
+    intros E. rewrite 3!(commutativity _ x).
     now apply cut_minus_mult_distr_l.
   Qed.
 
-  Lemma cut_minus_plus_l_rev x y z : y ∸ z = (x + y) ∸ (x + z).
-  Proof with auto; try reflexivity.
-    destruct (total (≤) y z) as [E|E].
-     rewrite ?cut_minus_0... 
-     apply (order_preserving (x +))...
-    apply (right_cancellation (+) (x + z))...
+  Lemma cut_minus_plus_rev_l x y z : y ∸ z = (x + y) ∸ (x + z).
+  Proof.
+    destruct (total (≤) y z).
+     rewrite ?cut_minus_0; intuition.
+     now apply (order_preserving (x +)).
+    apply (right_cancellation (+) (x + z)).
     setoid_replace (y ∸ z + (x + z)) with ((y ∸ z + z) + x) by ring.
-    rewrite !cut_minus_le... 
-     apply commutativity.
-    apply (order_preserving (x +))...
+    rewrite !cut_minus_le; try easy.
+     now apply commutativity.
+    now apply (order_preserving (x +)).
   Qed.
 
-  Lemma cut_minus_plus_r_rev x y z : y ∸ z = (y + x) ∸ (z + x).
-  Proof.
-    rewrite (commutativity y x), (commutativity z x).
-    apply cut_minus_plus_l_rev.
-  Qed.
+  Lemma cut_minus_plus_rev_r x y z : y ∸ z = (y + x) ∸ (z + x).
+  Proof. rewrite !(commutativity _ x). now apply cut_minus_plus_rev_l. Qed.
 
   Lemma cut_minus_plus_toggle1 x y z : x ≤ y → z ≤ y → (y ∸ x) + (x ∸ z) = (y ∸ z) + (z ∸ x).
-  Proof with auto.
+  Proof.
     intros. destruct (total (≤) x z).
-    rewrite (cut_minus_0 x z), cut_minus_le_trans... ring.
-    rewrite (cut_minus_0 z x), cut_minus_le_trans... ring.
+     rewrite (cut_minus_0 x z), cut_minus_le_trans by easy. ring.
+    rewrite (cut_minus_0 z x), cut_minus_le_trans by easy. ring.
   Qed.
 
   Lemma cut_minus_plus_toggle2 x y z : y ≤ x → y ≤ z →  (x ∸ z) + (z ∸ y) = (z ∸ x) + (x ∸ y).
-  Proof with auto.
+  Proof.
     intros. destruct (total (≤) x z).
-    rewrite (cut_minus_0 x z), cut_minus_le_trans... ring.
-    rewrite (cut_minus_0 z x)... ring_simplify...
+     rewrite (cut_minus_0 x z), cut_minus_le_trans by easy. ring.
+    rewrite (cut_minus_0 z x) by easy. ring_simplify. now auto.
   Qed.
 
-  Lemma cut_minus_plus_toggle3 x1 x2 y1 y2 : x1 ≤ y1 → y2 ≤ x2 
-     → (y1 ∸ x1) + ((x1 + x2) ∸ (y1 + y2)) = (x2 ∸ y2) + ((y1 + y2) ∸ (x1 + x2)).
-  Proof with auto.
-    intros E F.
-    destruct (total (≤) (x1 + x2) (y1 + y2)).
-     rewrite (cut_minus_0 (x1 + x2) (y1 + y2))...
-     rewrite cut_minus_plus_distr...
-     setoid_replace (x2 + (y1 + y2)) with (y1 + (x2 + y2)) by ring.
-     setoid_replace (y2 + (x1 + x2)) with (x1 + (x2 + y2)) by ring.
-     rewrite <-cut_minus_plus_r_rev. ring.
-    rewrite (cut_minus_0 (y1 + y2) (x1 + x2))...
-    rewrite cut_minus_plus_distr...
-    setoid_replace (y1 + (x1 + x2)) with (x2 + (x1 + y1)) by ring.
-    setoid_replace (x1 + (y1 + y2)) with (y2 + (x1 + y1)) by ring.
-    rewrite <-cut_minus_plus_r_rev. ring.
+  Lemma cut_minus_plus_toggle3 x₁ x₂ y₁ y₂ : x₁ ≤ y₁ → y₂ ≤ x₂ 
+     → (y₁ ∸ x₁) + ((x₁ + x₂) ∸ (y₁ + y₂)) = (x₂ ∸ y₂) + ((y₁ + y₂) ∸ (x₁ + x₂)).
+  Proof.
+    intros. destruct (total (≤) (x₁ + x₂) (y₁ + y₂)).
+     rewrite (cut_minus_0 (x₁ + x₂) (y₁ + y₂)) by easy.
+     rewrite cut_minus_plus_distr by easy.
+     setoid_replace (x₂ + (y₁ + y₂)) with (y₁ + (x₂ + y₂)) by ring.
+     setoid_replace (y₂ + (x₁ + x₂)) with (x₁ + (x₂ + y₂)) by ring.
+     rewrite <-cut_minus_plus_rev_r. ring.
+    rewrite (cut_minus_0 (y₁ + y₂) (x₁ + x₂)) by easy.
+    rewrite cut_minus_plus_distr by easy.
+    setoid_replace (y₁ + (x₁ + x₂)) with (x₂ + (x₁ + y₁)) by ring.
+    setoid_replace (x₁ + (y₁ + y₂)) with (y₂ + (x₁ + y₁)) by ring.
+    rewrite <-cut_minus_plus_rev_r. ring.
   Qed.
 
-  Lemma cut_minus_zero_plus_toggle x : x + (0 ∸ x) = x ∸ 0.
-  Proof with auto.
-    destruct (total (≤) 0 x) as [E|E].
-     rewrite (cut_minus_0 0 x), (cut_minus_rightidentity x)... ring.
-    rewrite (cut_minus_0 x 0), commutativity...
+  Lemma cut_minus_0_plus_toggle x : x + (0 ∸ x) = x ∸ 0.
+  Proof.
+    destruct (total (≤) 0 x).
+     rewrite (cut_minus_0 0 x), (cut_minus_nonneg_0_r x) by easy. ring.
+    rewrite (cut_minus_0 x 0), commutativity; auto.
   Qed.
 
-  Lemma cut_minus_zeros_le x y : x ≤ y → (y ∸ x) + (x ∸ 0) + (0 ∸ y) = (y ∸ 0) + (0 ∸ x).
-  Proof with auto; try reflexivity.
-    intros E.
-    rewrite <-?cut_minus_zero_plus_toggle.
-    apply (right_cancellation (+) x)...
+  Lemma cut_minus_0_le x y : x ≤ y → (y ∸ x) + (x ∸ 0) + (0 ∸ y) = (y ∸ 0) + (0 ∸ x).
+  Proof.
+    intros. rewrite <-!cut_minus_0_plus_toggle.
+    apply (right_cancellation (+) x).
     setoid_replace (y ∸ x + (x + (0 ∸ x)) + (0 ∸ y) + x) with ((y ∸ x + x) + (x + (0 ∸ x)) + (0 ∸ y)) by ring.
-    rewrite (cut_minus_le y x)... ring.
+    rewrite (cut_minus_le y x) by easy. ring.
   Qed.
 
   (* * Properties of min and minus *)
@@ -199,16 +185,10 @@ Section cut_minus_properties.
   Add Ring R: (rings.stdlib_ring_theory R).
 
   Lemma cut_minus_ring_minus (x y : R) : y ≤ x → x ∸ y = x - y.
-  Proof with auto.
-    intros E.
-    apply (right_cancellation (+) y)... ring_simplify...
-  Qed.
+  Proof. intros. apply (right_cancellation (+) y). ring_simplify. now auto. Qed.
 
   Lemma cut_minus_negate (x : R) : x ≤ 0 → 0 ∸ x = -x.
-  Proof with auto.
-    intros E. rewrite <-(rings.plus_0_l (-x)). 
-    rewrite cut_minus_ring_minus... ring.
-  Qed.
+  Proof. intros. now rewrite <-(rings.plus_0_l (-x)), cut_minus_ring_minus. Qed.
 End cut_minus_properties.
 
 (* * Default implementation for Rings *)
@@ -232,12 +212,12 @@ End cut_minus_default.
 Typeclasses Opaque default_cut_minus.
 
 Section order_preserving.
-  Context `{SemiRing A} `{Apart A} `{!TrivialApart A} 
-   `{!FullPseudoSemiRingOrder (A:=A) Ale Alt} `{!CutMinusSpec A cmA} `{∀ (x y : A), Decision (x = y)}
-   `{SemiRing B} `{Apart B} `{!TrivialApart B} 
-   `{!FullPseudoSemiRingOrder (A:=B) Ble Blt} `{!CutMinusSpec B cmB} `{∀ (x y : B), Decision (x = y)}
+  Context `{FullPseudoSemiRingOrder A} `{!TrivialApart A} `{!CutMinusSpec A cmA} `{∀ x y : A, Decision (x = y)}
+   `{FullPseudoSemiRingOrder B} `{!TrivialApart B} `{!CutMinusSpec B cmB} `{∀ x y : B, Decision (x = y)}
      {f : A → B} `{!OrderPreserving f} `{!SemiRing_Morphism f}.
-  
+
+  Local Existing Instance pseudo_srorder_semiring.
+
   Lemma preserves_cut_minus x y : f (x ∸ y) = f x ∸ f y.
   Proof.
     destruct (total (≤) x y) as [E|E].

@@ -1,8 +1,7 @@
 Require
   theory.rings.
 Require Import
-  Ring
-  abstract_algebra interfaces.orders orders.rings.
+  Ring abstract_algebra interfaces.orders orders.rings.
 
 Inductive SRpair (SR : Type) := C { pos : SR ; neg : SR }.
 Implicit Arguments C [[SR]].

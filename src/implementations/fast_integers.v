@@ -23,7 +23,7 @@ Proof.
   rewrite rings.preserves_plus, rings.preserves_1, BigZ.add_1_l.
   apply BigZ.pow_succ_r.
   change (0 ≤ cast bigN bigZ n).
-  now apply naturals.to_semiring_nonneg.
+  now apply nat_int.to_semiring_nonneg.
 Qed.
 
 Instance fastZ_shiftl: ShiftL bigZ bigN := λ x n, BigZ.shiftl x ('n).
@@ -33,5 +33,5 @@ Proof.
   apply shiftl_spec_from_nat_pow.
   intros. apply BigZ.shiftl_mul_pow2.
   change (0 ≤ cast bigN bigZ n).
-  now apply naturals.to_semiring_nonneg.
+  now apply nat_int.to_semiring_nonneg.
 Qed.

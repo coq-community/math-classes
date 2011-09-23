@@ -9,7 +9,7 @@ Local Existing Instance order_morphism_mor.
 Local Existing Instance strict_order_morphism_mor.
 
 (* If a function between strict partial orders is order preserving (back), we can 
-  derive that it is strcitly order preserving (back) *)
+  derive that it is strictly order preserving (back) *)
 Section strictly_order_preserving.
   Context `{FullPartialOrder A} `{FullPartialOrder B}.
 

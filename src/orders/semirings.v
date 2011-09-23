@@ -1,6 +1,5 @@
 Require Import
-  Relation_Definitions Ring
-  abstract_algebra interfaces.orders theory.rings.
+  Ring abstract_algebra interfaces.orders theory.rings.
 Require Export 
   orders.orders orders.maps.
 
@@ -385,6 +384,15 @@ Section pseudo_semiring_order.
     now apply pos_mult_compat.
   Qed.
 
+  Lemma pos_mult_rev_l x y : 0 < x * y → 0 < y → 0 < x.
+  Proof. 
+    intros. assert (PropHolds (0 < y)) by auto. 
+    apply (strictly_order_reflecting (.* y)). now rewrite rings.mult_0_l.
+  Qed.
+
+  Lemma pos_mult_rev_r x y : 0 < x * y → 0 < x → 0 < y.
+  Proof. intros. apply pos_mult_rev_l with x. now rewrite commutativity. easy. Qed.
+
   Context `{PropHolds (1 ≶ 0)}.
 
   Instance lt_0_1 : PropHolds (0 < 1).
@@ -495,6 +503,15 @@ Section full_pseudo_semiring_order.
     rewrite mult_0_r.
     now apply lt_apart.
   Qed.
+
+  Lemma nonneg_mult_rev_l x y : 0 ≤ x * y → 0 < y → 0 ≤ x.
+  Proof. 
+    intros. assert (PropHolds (0 < y)) by auto. 
+    apply (order_reflecting (.* y)). now rewrite rings.mult_0_l.
+  Qed.
+
+  Lemma nonneg_mult_rev_r x y : 0 ≤ x * y → 0 < x → 0 ≤ y.
+  Proof. intros. apply nonneg_mult_rev_l with x. now rewrite commutativity. easy. Qed.
 
   Instance le_0_1 : PropHolds (0 ≤ 1).
   Proof. red. setoid_replace 1 with (1 * 1) by ring. now apply square_nonneg. Qed.

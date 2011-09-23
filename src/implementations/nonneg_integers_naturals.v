@@ -1,20 +1,19 @@
 Require 
   peano_naturals orders.integers theory.integers.
 Require Import
-  Ring RelationClasses
-  abstract_algebra interfaces.integers interfaces.naturals interfaces.orders
+  Ring abstract_algebra interfaces.integers interfaces.naturals interfaces.orders
   interfaces.additional_operations int_abs.
 Require Export
   implementations.nonneg_semiring_elements.
 
 Section nonneg_integers_naturals.
-Context Z `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt}.
+Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt}.
 
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
 (* We show that [Z⁺] is an instance of the naturals by constructing a retract to [nat] *)
 Program Definition of_nat (x : nat) : Z⁺ := (naturals_to_semiring nat Z x)↾_.
-Next Obligation. apply naturals.to_semiring_nonneg. Qed.
+Next Obligation. apply nat_int.to_semiring_nonneg. Qed.
 
 Local Ltac unfold_equivs := unfold equiv, sig_equiv in *; simpl in *.
 

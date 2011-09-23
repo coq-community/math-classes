@@ -136,7 +136,7 @@ Proof.
   now apply le_0_1.
 Qed.
 
-Lemma int_abs_negate z : int_abs Z N (- z) = int_abs Z N z.
+Lemma int_abs_negate z : int_abs Z N (-z) = int_abs Z N z.
 Proof.
   unfold int_abs at 2.
   destruct int_abs_sig as [x [E | E]]; simpl; rewrite <- E. 

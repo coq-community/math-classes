@@ -111,7 +111,8 @@ Proof.
 Qed.
 
 (* Efficient comparison *)
-Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) with
+Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, 
+  match compare x y with
   | Gt => right _
   | _ => left _
   end.
@@ -151,7 +152,7 @@ Proof.
    intros. rewrite preserves_0. apply int_pow_0.
   intros ? ?. rewrite preserves_plus, preserves_1.
   apply int_pow.int_pow_S_nonneg.
-  apply naturals.to_semiring_nonneg.
+  apply nat_int.to_semiring_nonneg.
 Qed.
 
 End QType_Rationals.

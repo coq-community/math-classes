@@ -1,15 +1,8 @@
 Require Import
-  Relation_Definitions Morphisms Ring
   abstract_algebra interfaces.naturals theory.categories 
   categories.varieties.
 Require
   varieties.rings.
-
-(** * interfaces.integers :
-
- A model of the the integers, ZZ.
-
-*)
 
 Section initial_maps.
   Variable Int: Type.

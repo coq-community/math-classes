@@ -3,9 +3,9 @@ Require Import
   categories.varieties theory.ua_transference.
 Require Export
   interfaces.naturals.
- 
+
 Lemma to_semiring_involutive N `{Naturals N} N2 `{Naturals N2} x :
- naturals_to_semiring N2 N (naturals_to_semiring N N2 x) = x.
+  naturals_to_semiring N2 N (naturals_to_semiring N N2 x) = x.
 Proof.
   rapply (proj2 (@categories.initials_unique' (varieties.Object semirings.theory)
     _ _ _ _ _ (semirings.object N) (semirings.object N2) _ naturals_initial _ naturals_initial) tt x).
@@ -13,7 +13,7 @@ Proof.
 Qed.
 
 Lemma to_semiring_unique `{Naturals N} `{SemiRing SR} (f: N → SR) `{!SemiRing_Morphism f} x :
- f x = naturals_to_semiring N SR x.
+  f x = naturals_to_semiring N SR x.
 Proof.
   symmetry.
   pose proof (@semirings.mor_from_sr_to_alg _ _ _ (semirings.variety N) _ _ _ (semirings.variety SR) (λ _, f) _).
@@ -54,7 +54,7 @@ Section retract_is_nat.
   Context `{Naturals N} `{SemiRing SR}.
   Context (f : N → SR) `{inv_f : !Inverse f} `{!Surjective f} `{!SemiRing_Morphism f} `{!SemiRing_Morphism (f⁻¹)}.
 
-  (* If we make this an instance, then instance resolution will often loop *)
+  (* If we make this an instance, instance resolution will loop *)
   Definition retract_is_nat_to_sr : NaturalsToSemiRing SR := λ R _ _ _ _ , naturals_to_semiring N R ∘ f⁻¹.
 
   Section for_another_semirings.
@@ -73,7 +73,7 @@ Section retract_is_nat.
     Qed.
   End for_another_semirings.
 
-  (* If we make this an instance, instance resolution will often loop *)
+  (* If we make this an instance, instance resolution will loop *)
   Program Instance retract_is_nat: Naturals SR (U:=retract_is_nat_to_sr).
   Next Obligation. unfold naturals_to_semiring, retract_is_nat_to_sr. apply _. Qed.
   Next Obligation. apply natural_initial. intros. now apply same_morphism. Qed.
@@ -97,7 +97,7 @@ Section borrowed_from_nat.
     intros n. rewrite preserves_plus, preserves_1. auto.
   Qed.
 
-  Global Instance biinduction: Biinduction N.
+  Global Instance: Biinduction N.
   Proof. repeat intro. apply induction; firstorder. Qed.
 
   Lemma from_nat_stmt:
@@ -158,7 +158,7 @@ Section borrowed_from_nat.
     rapply (from_nat_stmt (x' + y' === 0 -=> Conj _ (x' === 0) (y' === 0)) (two_vars x y)).
     intro. simpl. apply Plus.plus_is_O.
   Qed.
-  
+
   Lemma one_sum x y : x + y = 1 → (x = 1 ∧ y = 0) ∨ (x = 0 ∧ y = 1).
   Proof. 
    rapply (from_nat_stmt (x' + y' === 1 -=> Disj _ (Conj _ (x' === 1) (y' === 0)) (Conj _ (x' === 0) (y' === 1))) (two_vars x y)).
@@ -173,26 +173,16 @@ Section borrowed_from_nat.
   Qed.
 End borrowed_from_nat.
 
-Lemma nz_one_plus_zero x : 1 + x ≠ 0.
-Proof.
-  intro E.
-  destruct (zero_sum 1 x E).
-  now apply nat_nontrivial.
-Qed.
+Lemma nat_1_plus_ne_0 x : 1 + x ≠ 0.
+Proof. intro E. destruct (zero_sum 1 x E). now apply nat_nontrivial. Qed.
 
 Global Program Instance: ∀ x y: N, Decision (x = y) | 10 := λ x y,
   match decide (naturals_to_semiring _ nat x = naturals_to_semiring _ nat y) with
   | left E => left _
   | right E => right _
   end.
-Next Obligation.
-  rewrite <- (to_semiring_involutive _ nat x), <- (to_semiring_involutive _ nat y).
-  now rewrite E.
-Qed.
-
-Next Obligation.
-  intros F. apply E. now rewrite F.
-Qed.
+Next Obligation. now rewrite <-(to_semiring_involutive _ nat x), <-(to_semiring_involutive _ nat y), E. Qed.
+Next Obligation. intros F. apply E. now rewrite F. Qed.
 End contents.
 
 (* Due to bug #2528 *)

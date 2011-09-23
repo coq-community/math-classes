@@ -25,6 +25,9 @@ Proof.
 Qed.
 
 (* misc *)
+Instance: Injective S.
+Proof. repeat (split; try apply _). intros ?? E. now injection E. Qed.
+
 Global Instance nat_dec: ∀ x y: nat, Decision (x = y) := eq_nat_dec.
 
 Add Ring nat: (rings.stdlib_semiring_theory nat).
@@ -125,6 +128,12 @@ Proof.
   apply dec_full_pseudo_srorder.
   now apply NPeano.Nat.le_neq.
 Qed.
+
+Instance: OrderEmbedding S.
+Proof. repeat (split; try apply _). exact le_n_S. exact le_S_n. Qed.
+
+Instance: StrictOrderEmbedding S.
+Proof. split; try apply _. Qed.
 
 Instance nat_le_dec: Decision (x ≤ y) := le_dec.
 
