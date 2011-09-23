@@ -154,6 +154,10 @@ Proof.
   now apply (order_preserving _).
 Qed.
 
+Lemma preserves_notin `{FullFSet A} `{FullFSet B} (f : A → B) `{!Inverse f} `{!Bijective f} x X :
+  f x ∉ fset_map f X ↔ x ∉ X.
+Proof. split; intros E ?; now apply E, (preserves_in f). Qed.
+
 Section full_fset_props.
   Context `{FullFSet A}.
 
@@ -188,11 +192,14 @@ Section full_fset_props.
   Next Obligation. now apply to_listset_preserves_in. Qed.
   Next Obligation. intros F. destruct E. now apply to_listset_preserves_in. Qed.
 
-  Lemma fset_in_empty x : x ∉ ∅.
+  Lemma fset_notin_empty x : x ∉ ∅.
   Proof. intro. now apply fset_singleton_ne_empty with x, below_bottom, fset_in_singleton_le. Qed.
 
   Lemma fset_in_join X Y x : x ∈ X ⊔ Y ↔ x ∈ X ∨ x ∈ Y.
   Proof. rewrite <-!to_listset_preserves_in, preserves_join. apply listset_in_join. Qed.
+
+  Lemma fset_notin_join X Y x : x ∉ X ⊔ Y ↔ x ∉ X ∧ x ∉ Y.
+  Proof. rewrite fset_in_join. tauto. Qed. 
 
   Lemma fset_in_singleton x : x ∈ {{ x }}.
   Proof. now rewrite fset_in_singleton_le, join_sl_le_spec, fset_join_singletons. Qed.
@@ -204,12 +211,18 @@ Section full_fset_props.
     rewrite E. apply fset_in_singleton.
   Qed.
 
+  Lemma fset_notin_singleton_neq x y : x ∉ {{ y }} ↔ x ≠ y.
+  Proof. now rewrite fset_in_singleton_eq. Qed.
+
   Lemma fset_in_add y X x : y ∈ {{ x }} ⊔ X ↔ y = x ∨ y ∈ X.
   Proof. 
     rewrite fset_in_join. split; intros [?|?]; try tauto.
      left. now apply fset_in_singleton_eq.
     left. now apply fset_in_singleton_eq.
   Qed.
+
+  Lemma fset_notin_add y X x : y ∉ {{ x }} ⊔ X ↔ y ≠ x ∧ y ∉ X.
+  Proof. rewrite fset_in_add. tauto. Qed.
 
   Lemma fset_in_inversion y X x : y ∈ {{ x }} ⊔ X → y = x ∨ y ∈ X.
   Proof. 
@@ -222,9 +235,9 @@ Section full_fset_props.
     pose proof (join_sl_mor_preserving to_listset).
     pose proof (join_sl_mor_reflecting to_listset).
     setoid_rewrite <-to_listset_preserves_in.
-    split.
-     intros E. now apply (order_preserving (to_listset)) in E.
-    intros. now apply (order_reflecting (to_listset)).
+    split; intros E.
+     now apply (order_preserving (to_listset)) in E.
+    now apply (order_reflecting (to_listset)).
   Qed.
 
   Lemma fset_eq_in X Y : X = Y ↔ ∀ x, x ∈ X ↔ x ∈ Y.
@@ -281,7 +294,7 @@ Section full_fset_props.
      intros [E2 E3]. destruct E1. 
      apply fset_in_singleton_eq in E2. apply fset_in_singleton_eq in E3.
      now rewrite <-E2, <-E3.
-    intro. now destruct (fset_in_empty z).
+    intro. now destruct (fset_notin_empty z).
   Qed.
 
   Global Instance: Proper ((=) ==> (=) ==> (=)) (∖).
@@ -290,13 +303,13 @@ Section full_fset_props.
   Global Instance fset_difference_empty_r: RightIdentity (∖) ∅.
   Proof. 
     intro. apply fset_eq_in. intro. rewrite fset_in_difference. 
-    split; intuition. edestruct fset_in_empty; eassumption.
+    split; intuition. edestruct fset_notin_empty; eassumption.
   Qed.
 
   Global Instance fset_difference_empty_l: LeftAbsorb (∖) ∅.
   Proof. 
     intro. apply fset_eq_in. intro. rewrite fset_in_difference. 
-    split; intuition. edestruct fset_in_empty; eassumption.
+    split; intuition. edestruct fset_notin_empty; eassumption.
   Qed.
 
   Global Instance diff_meet_distr_r: RightDistribute (∖) (⊓).
