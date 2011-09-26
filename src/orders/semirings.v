@@ -27,10 +27,14 @@ Section semiring_order.
   Global Instance: ∀ z, RightCancellation (+) z.
   Proof. intros. apply (right_cancel_from_left (+)). Qed.
 
-  Lemma nonneg_plus_le_compat_r x z : 0 ≤ z → x ≤ x + z.
-  Proof. intros E. rewrite <-(plus_0_r x) at 1. now apply (order_preserving _). Qed.
+  Lemma nonneg_plus_le_compat_r x z : 0 ≤ z ↔ x ≤ x + z.
+  Proof.
+    rewrite <-(plus_0_r x) at 1. split; intros. 
+     now apply (order_preserving _).
+    now apply (order_reflecting (x+)).
+  Qed.
 
-  Lemma nonneg_plus_le_compat_l x z : 0 ≤ z → x ≤ z + x.
+  Lemma nonneg_plus_le_compat_l x z : 0 ≤ z ↔ x ≤ z + x.
   Proof. rewrite commutativity. now apply nonneg_plus_le_compat_r. Qed.
 
   Lemma plus_le_compat x₁ y₁ x₂ y₂ : x₁ ≤ y₁ → x₂ ≤ y₂ → x₁ + x₂ ≤ y₁ + y₂.
@@ -154,8 +158,12 @@ Section strict_semiring_order.
     now apply strictly_order_reflecting_flip.
   Qed.
 
-  Lemma pos_plus_lt_compat_r x z : 0 < z → x < x + z.
-  Proof. intros E. rewrite <-(plus_0_r x) at 1. now apply (strictly_order_preserving _). Qed.
+  Lemma pos_plus_lt_compat_r x z : 0 < z ↔ x < x + z.
+  Proof.
+    rewrite <-(plus_0_r x) at 1. split; intros.
+     now apply (strictly_order_preserving _).
+    now apply (strictly_order_reflecting (x+)).
+  Qed.
 
   Lemma pos_plus_lt_compat_l x z : 0 < z → x < z + x.
   Proof. rewrite commutativity. now apply pos_plus_lt_compat_r. Qed.

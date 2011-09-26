@@ -4,8 +4,7 @@
    embedded into any [Rationals] implementation [Q]. 
 *)
 Require Import
-  Ring RelationClasses
-  abstract_algebra 
+  Ring abstract_algebra 
   interfaces.integers interfaces.naturals interfaces.rationals
   interfaces.additional_operations interfaces.orders
   orders.minmax orders.integers orders.rationals

@@ -22,25 +22,24 @@ Qed.
 Lemma nat_not_neg x : ¬x < 0.
 Proof. apply le_not_lt_flip, nat_nonneg. Qed.
 
-Lemma nat_0_or_0_lt x : x = 0 ∨ 0 < x.
+Lemma nat_0_or_pos x : x = 0 ∨ 0 < x.
 Proof. 
   destruct (trichotomy (<) 0 x) as [?|[?|?]]; intuition.
   now destruct (nat_not_neg x).
 Qed.
 
+Lemma nat_0_or_ge_1 x : x = 0 ∨ 1 ≤ x.
+Proof. rewrite <-pos_ge_1. apply nat_0_or_pos. Qed.
+
 Lemma nat_ne_0_pos x : x ≠ 0 ↔ 0 < x.
 Proof.
   split.
-   destruct (nat_0_or_0_lt x); intuition.
+   destruct (nat_0_or_pos x); intuition.
   intros E1 E2. rewrite E2 in E1. now destruct (irreflexivity (<) 0).
 Qed.
 
 Lemma nat_ne_0_ge_1 x : x ≠ 0 ↔ 1 ≤ x.
-Proof.
-  split; intros.
-   now apply le_iff_lt_S, pos_plus_lt_compat_r, nat_ne_0_pos.
-  intros E. destruct not_le_1_0. now rewrite <-E.
-Qed.
+Proof. rewrite <-pos_ge_1. now apply nat_ne_0_pos. Qed.
 
 Global Instance: ∀ (z : N), PropHolds (z ≠ 0) → OrderReflecting (z *.).
 Proof.
