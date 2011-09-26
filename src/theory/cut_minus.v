@@ -1,8 +1,7 @@
 Require
   orders.semirings.
 Require Import 
-  Ring
-  abstract_algebra interfaces.additional_operations
+  Ring abstract_algebra interfaces.additional_operations
   interfaces.orders orders.minmax.
 
 (* * Properties of Cut off Minus *)
@@ -54,6 +53,12 @@ Section cut_minus_properties.
     now rewrite cut_minus_le; ring_simplify.
   Qed.
 
+  Lemma cut_minus_le_r x y : y ≤ x → x ∸ y + y = x.
+  Proof cut_minus_le x y.
+
+  Lemma cut_minus_le_l x y : y ≤ x → y + (x ∸ y) = x.
+  Proof. rewrite commutativity. now apply cut_minus_le. Qed.
+
   Lemma cut_minus_le_trans x y z : y ≤ x → z ≤ y → (x ∸ y) + (y ∸ z) = x ∸ z.
   Proof.
     intros. apply (right_cancellation (+) z).
@@ -62,6 +67,8 @@ Section cut_minus_properties.
   Qed.
   Hint Resolve cut_minus_le_trans.
 
+  (* We need y₁ ≤ x₁ ∧ y₂ ≤ x₂, e.g. (5 ∸ 6) + (5 ∸0) = 0 + 5 = 5, whereas (10 ∸ 6) = 4 *)
+  (* This example illustrates that y₁ + y₂ ≤ x₁ + x₂ does not work either. *)
   Lemma cut_minus_plus_distr x₁ x₂ y₁ y₂ :
      y₁ ≤ x₁ → y₂ ≤ x₂ → (x₁ ∸ y₁) + (x₂ ∸ y₂) = (x₁ + x₂) ∸ (y₁ + y₂).
   Proof.
@@ -72,6 +79,7 @@ Section cut_minus_properties.
     now apply semirings.plus_le_compat.
   Qed.
 
+  (* We need 0 ≤ x, e.g. (-1) * (2 ∸ 1) = -1, whereas (-2) ∸ (-1) = 0 *)
   Lemma cut_minus_mult_distr_l x y z : 0 ≤ x →  x * (y ∸ z) = x * y ∸ x * z.
   Proof.
     intros E. destruct (total (≤) y z).
@@ -92,17 +100,30 @@ Section cut_minus_properties.
   Lemma cut_minus_plus_rev_l x y z : y ∸ z = (x + y) ∸ (x + z).
   Proof.
     destruct (total (≤) y z).
-     rewrite ?cut_minus_0; intuition.
+     rewrite !cut_minus_0; intuition.
      now apply (order_preserving (x +)).
     apply (right_cancellation (+) (x + z)).
-    setoid_replace (y ∸ z + (x + z)) with ((y ∸ z + z) + x) by ring.
-    rewrite !cut_minus_le; try easy.
-     now apply commutativity.
+    transitivity ((y ∸ z + z) + x); try ring.
+    rewrite !cut_minus_le; try easy; try ring.
     now apply (order_preserving (x +)).
   Qed.
 
   Lemma cut_minus_plus_rev_r x y z : y ∸ z = (y + x) ∸ (z + x).
   Proof. rewrite !(commutativity _ x). now apply cut_minus_plus_rev_l. Qed.
+
+  (* We need 0 ≤ z, e.g. 2 ∸ (5 - 5) = 2, whereas (2 ∸ 5) ∸ (-5) = 0 ∸ (-5) = 5 *)
+  Lemma cut_minus_plus_r x y z : 0 ≤ z → x ∸ (y + z) = (x ∸ y) ∸ z.
+  Proof.
+    intros E. case (total (≤) x y); intros Exy.
+     rewrite (cut_minus_0 x y) by easy.
+     rewrite cut_minus_0_l, cut_minus_0; try easy.
+     now apply semirings.plus_le_compat_r.
+    rewrite (cut_minus_plus_rev_r y (x ∸ y) z).
+    now rewrite cut_minus_le, commutativity.
+  Qed.
+
+  Lemma cut_minus_plus_l x y z : 0 ≤ y → x ∸ (y + z) = (x ∸ z) ∸ y.
+  Proof. rewrite commutativity. now apply cut_minus_plus_r. Qed.
 
   Lemma cut_minus_plus_toggle1 x y z : x ≤ y → z ≤ y → (y ∸ x) + (x ∸ z) = (y ∸ z) + (z ∸ x).
   Proof.
@@ -198,14 +219,14 @@ Section cut_minus_default.
   Global Instance default_cut_minus: CutMinus R | 10 := λ x y, if decide_rel (≤) x y then 0 else x - y.
 
   Add Ring R2: (rings.stdlib_ring_theory R).
-  
+
   Global Instance: CutMinusSpec R default_cut_minus.
   Proof.
     split; unfold cut_minus, default_cut_minus; intros x y ?.
-     case (decide_rel (≤) x y); intros E.
+     case (decide_rel (≤) x y); intros.
       ring_simplify. now apply (antisymmetry (≤)).
      ring.
-    case (decide_rel (≤) x y); easy.
+    now case (decide_rel (≤) x y).
   Qed.
 End cut_minus_default.
 
