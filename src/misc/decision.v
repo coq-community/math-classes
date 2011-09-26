@@ -56,6 +56,11 @@ Lemma bool_decide_rel_false `(R : relation A)`{dec : ∀ x y, Decision (R x y)} 
   ∀ x y, bool_decide_rel R x y ≡ false ↔ ¬R x y.
 Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder. Qed.
 
+Program Definition decision_from_bool_decide (P : Prop) (b : bool) (prf : b ≡ true ↔ P) : 
+  Decision P := match b with true => left _ | false => right _ end.
+Next Obligation. now apply prf. Qed. 
+Next Obligation. rewrite <-prf. discriminate. Qed.
+
 Program Instance prod_eq_dec `(A_dec : ∀ x y : A, Decision (x ≡ y))
      `(B_dec : ∀ x y : B, Decision (x ≡ y)) : ∀ x y : A * B, Decision (x ≡ y) := λ x y,
   match A_dec (fst x) (fst y) with
