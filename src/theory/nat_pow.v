@@ -1,8 +1,7 @@
 Require
-  theory.naturals orders.naturals.
+  theory.naturals.
 Require Import 
-  Ring
-  abstract_algebra interfaces.naturals interfaces.orders interfaces.additional_operations.
+  Ring abstract_algebra interfaces.naturals interfaces.orders interfaces.additional_operations.
 
 (* * Properties of Nat Pow *)
 Section nat_pow_properties.
@@ -129,7 +128,7 @@ Proof.
   red. now symmetry.
 Qed.
 
-Lemma nat_pow_ge_1 (x : A) (n : B) : 1 ≤ x → 0 ≤ n → 1 ≤ x ^ n.
+Lemma nat_pow_ge_1 (x : A) (n : B) : 1 ≤ x → 1 ≤ x ^ n.
 Proof.
   intros. pattern n. apply naturals.induction.
     solve_proper.

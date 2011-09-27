@@ -1,5 +1,4 @@
 Require Import
- Relation_Definitions Morphisms
  abstract_algebra theory.categories
  varieties.semirings categories.varieties.
 
@@ -18,7 +17,6 @@ Section initial_maps.
 
   Program Definition natural_initial_arrow: InitialArrow (semirings.object A) :=
     λ y u, match u return A → y u with tt => naturals_to_semiring (y tt) end.
-
   Next Obligation.
    apply (@semirings.mor_from_sr_to_alg (λ _, A) _ _ (semirings.variety A)); apply _.
   Qed.
@@ -47,5 +45,11 @@ Class Naturals A {e plus mult zero one} `{U: NaturalsToSemiRing A} :=
 
 (* Specializable operations: *)
 Class NatDistance N `{Equiv N} `{Plus N}
-  := nat_distance_sig : ∀ (x y: N), { z: N | x + z = y ∨ y + z = x }.
-Definition nat_distance `{NatDistance N} : N → N → N := λ x y, proj1_sig (nat_distance_sig x y).
+  := nat_distance_sig : ∀ x y : N, { z : N | x + z = y } + { z : N | y + z = x }.
+Definition nat_distance `{nd : NatDistance N} (x y : N) :=
+  match nat_distance_sig x y with
+  | inl (n↾_) => n
+  | inr (n↾_) => n
+  end.
+Instance: Params (@nat_distance_sig) 4.
+Instance: Params (@nat_distance) 4.

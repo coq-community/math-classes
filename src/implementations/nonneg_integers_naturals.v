@@ -49,7 +49,7 @@ Proof.
      now apply int_abs_nonneg_plus. 
     unfold mon_unit, zero_is_mon_unit. now apply int_abs_0.
    intros [x Ex] [y Ey]. unfold to_nat; unfold_equivs. simpl.
-   now apply int_abs_nonneg_mult.
+   now apply int_abs_mult.
   unfold mon_unit, one_is_mon_unit. apply int_abs_1.
 Qed.
 

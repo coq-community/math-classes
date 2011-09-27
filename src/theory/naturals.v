@@ -42,8 +42,7 @@ Lemma to_semiring_injective `{Naturals N} `{SemiRing A}
 Proof.
   repeat (split; try apply _).
   intros x y E.
-  rewrite <-(to_semiring_self (f ∘ g) x), <-(to_semiring_self (f ∘ g) y).
-  unfold compose. now rewrite E.
+  now rewrite <-(to_semiring_twice f g id x), <-(to_semiring_twice f g id y), E.
 Qed.
 
 Instance naturals_to_naturals_injective `{Naturals N} `{Naturals N2} (f: N → N2) `{!SemiRing_Morphism f}:
@@ -183,6 +182,25 @@ Global Program Instance: ∀ x y: N, Decision (x = y) | 10 := λ x y,
   end.
 Next Obligation. now rewrite <-(to_semiring_involutive _ nat x), <-(to_semiring_involutive _ nat y), E. Qed.
 Next Obligation. intros F. apply E. now rewrite F. Qed.
+
+Section with_a_ring.
+  Context `{Ring R} `{!SemiRing_Morphism (f : N → R)} `{!Injective f}.
+
+  Lemma to_ring_zero_sum x y : 
+    -f x = f y → x = 0 ∧ y = 0.
+  Proof.
+    intros E. apply zero_sum, (injective f).
+    rewrite rings.preserves_0, rings.preserves_plus, <-E.
+    now apply plus_negate_r.
+  Qed.
+
+  Lemma negate_to_ring x y : 
+    -f x = f y → f x = f y.
+  Proof.
+    intros E. destruct (to_ring_zero_sum x y E) as [E2 E3].
+    now rewrite E2, E3.
+  Qed.
+End with_a_ring.
 End contents.
 
 (* Due to bug #2528 *)

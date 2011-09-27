@@ -18,7 +18,8 @@ Instance ZType_negate: Negate t := opp.
 
 Instance: Setoid t | 10 := {}.
 
-Program Instance: ∀ x y: t, Decision (x = y) := λ x y, match (compare x y) with
+Program Instance: ∀ x y: t, Decision (x = y) := λ x y, 
+  match compare x y with
   | Eq => left _
   | _ => right _
   end.
@@ -102,7 +103,8 @@ Proof.
 Qed.
 
 (* Efficient comparison *)
-Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) with
+Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, 
+  match compare x y with
   | Gt => right _
   | _ => left _
   end.
@@ -111,28 +113,11 @@ Next Obligation.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate.
   now apply orders.lt_not_le_flip.
 Qed.
-
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate; try intuition.
    now apply Zeq_le.
   now apply orders.lt_le.
-Qed.
-
-Program Instance: IntAbs t (t⁺) := abs.
-Next Obligation.
-  unfold "≤", ZType_le, le.
-  rewrite spec_abs.
-  rewrite rings.preserves_0.
-  apply Zabs_pos.
-Qed.
-
-Next Obligation.
-  rewrite <-(naturals.to_semiring_unique NonNeg_inject). simpl.
-  unfold_equiv. 
-  rewrite rings.preserves_negate.
-  rewrite spec_abs.
-  destruct (Zabs_dec (to_Z x)); auto.
 Qed.
 
 Program Instance: Abs t := abs.

@@ -1,5 +1,3 @@
-Require
-  theory.rings.
 Require Import
   Ring abstract_algebra interfaces.orders orders.rings.
 

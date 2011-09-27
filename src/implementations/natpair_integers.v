@@ -5,7 +5,7 @@
   of these integers. *)
 
 Require
- theory.naturals orders.naturals.
+ theory.naturals.
 Require Import
  Ring abstract_algebra theory.categories
  interfaces.naturals interfaces.integers.
@@ -19,7 +19,7 @@ Add Ring N : (rings.stdlib_semiring_theory N).
 Notation Z := (SRpair N).
 
 (* We show that Z is initial, and therefore a model of the integers. *)
-Global Instance z_to_ring: IntegersToRing Z :=
+Global Instance SRpair_to_ring: IntegersToRing Z :=
   λ _ _ _ _ _ _ z, naturals_to_semiring N _ (pos z) + - naturals_to_semiring N _ (neg z).
 
 (* Hint Rewrite preserves_0 preserves_1 preserves_mult preserves_plus: preservation.
@@ -36,17 +36,15 @@ Section for_another_ring.
   Notation z_to_r := (integers_to_ring Z R).
 
   Instance: Proper ((=) ==> (=)) z_to_r.
-  Proof with try ring.
-   unfold equiv, SRpair_equiv, integers_to_ring, z_to_ring. 
-   intros [xp xn] [yp yn] E. simpl in *.
-   apply rings.equal_by_zero_sum.
-   transitivity (n_to_sr xp + n_to_sr yn + - (n_to_sr xn + n_to_sr yp))...
-   apply rings.equal_by_zero_sum.
-   rewrite <-2!rings.preserves_plus. rewrite E. 
-   now rewrite commutativity.
+  Proof.
+    intros [xp xn] [yp yn]. 
+    change (xp + yn = yp + xn → n_to_sr xp - n_to_sr xn = n_to_sr yp - n_to_sr yn). intros E.
+    apply rings.equal_by_zero_sum.
+    transitivity (n_to_sr xp + n_to_sr yn - (n_to_sr xn + n_to_sr yp)); [ring|].
+    rewrite <-2!rings.preserves_plus, E, (commutativity xn yp). ring.
   Qed.
 
-  Ltac derive_preservation := unfold integers_to_ring, z_to_ring; simpl; preservation; ring.
+  Ltac derive_preservation := unfold integers_to_ring, SRpair_to_ring; simpl; preservation; ring.
 
   Let preserves_plus x y: z_to_r (x + y) = z_to_r x + z_to_r y.
   Proof. derive_preservation. Qed.
@@ -62,7 +60,6 @@ Section for_another_ring.
 
   Global Instance: SemiRing_Morphism z_to_r.
   Proof.
-    pose proof (_ : Ring (SRpair N)).
     repeat (split; try apply _).
        exact preserves_plus.
       exact preserves_0.
@@ -75,79 +72,69 @@ Section for_another_ring.
 
     Definition g : N → R := f ∘ cast N (SRpair N).
 
-    Instance: Proper ((=) ==> (=)) g.
-    Proof. intros x y E. unfold g. now rewrite E. Qed.
-
     Instance: SemiRing_Morphism g.
-    Proof. unfold g. apply _. Qed.
-
-    Lemma agree_on_nat : g = n_to_sr.
-    Proof.
-     intros x y E. rewrite E.
-     apply (naturals.to_semiring_unique g).
-    Qed.
+    Proof. unfold g. repeat (split; try apply _). Qed.
 
     Lemma same_morphism: z_to_r = f.
-    Proof with intuition.
-     intros [p n] z' E. rewrite <- E. clear E z'.
-     rewrite SRpair_splits.
-     preservation.
-     rewrite 2!rings.preserves_negate.
-     rewrite (agree_on_nat p p), (agree_on_nat n n)...
-     unfold integers_to_ring, z_to_ring. simpl. 
-     rewrite rings.preserves_0.
-     ring.
+    Proof.
+      intros [p n] z' E. rewrite <- E. clear E z'.
+      rewrite SRpair_splits.
+      preservation. rewrite 2!rings.preserves_negate. 
+      now rewrite 2!(naturals.to_semiring_twice _ _ _).
     Qed.
   End for_another_morphism.
 End for_another_ring.
 
 Instance: Initial (rings.object Z).
-Proof. apply integer_initial. intros. apply same_morphism. auto. Qed.
+Proof. apply integer_initial. intros. now apply same_morphism. Qed.
 
 Global Instance: Integers Z := {}.
 
-Lemma NtoZ_uniq x : naturals_to_semiring N Z x = 'x.
-Proof. symmetry. apply (naturals.to_semiring_unique (cast N (SRpair N)) x). Qed. 
-
 Context `{!NatDistance N}.
-Global Program Instance simpleZ_abs : IntAbs Z N := λ x, nat_distance (pos x) (neg x).
+
+Global Program Instance SRpair_abs: IntAbs Z N := λ x, 
+  match nat_distance_sig (pos x) (neg x) with
+  | inl (n↾E) => inr n
+  | inr (n↾E) => inl n
+  end.
 Next Obligation.
-  rewrite NtoZ_uniq. destruct x as [xp xn].
-  unfold equiv, SRpair_equiv, nat_distance.
-  destruct nat_distance_sig as [z [Ez | Ez]]; simpl in *.
-   right. rewrite <-Ez. ring.
-  left. rewrite <-Ez. ring.
+  rewrite <-(naturals.to_semiring_unique (cast N (SRpair N))).
+  do 2 red. simpl. now rewrite rings.plus_0_r, commutativity.
+Qed.
+Next Obligation.
+  rewrite <-(naturals.to_semiring_unique (cast N (SRpair N))).
+  do 2 red. simpl. symmetry. now rewrite rings.plus_0_r, commutativity.
 Qed.
 
-Notation n_to_sr := (naturals_to_semiring N Z).
+Notation n_to_z := (naturals_to_semiring N Z).
 
-Lemma zero_product_aux (a b : N) : n_to_sr a * n_to_sr b = 0
-  → n_to_sr a = 0 ∨ n_to_sr b = 0.
+Let zero_product_aux a b : 
+  n_to_z a * n_to_z b = 0 → n_to_z a = 0 ∨ n_to_z b = 0.
 Proof.
-  intros E.
-  rewrite <-rings.preserves_mult in E. 
-  rewrite <-(naturals.to_semiring_unique (SRpair_inject)) in E.
-  apply (injective SRpair_inject) in E.
+  rewrite <-rings.preserves_mult.
+  rewrite <-(naturals.to_semiring_unique (SRpair_inject)).
+  intros E. apply (injective SRpair_inject) in E.
   destruct (zero_product _ _ E) as [C|C].
-   left. rewrite C. apply rings.preserves_0.
-  right. rewrite C. apply rings.preserves_0.
+   left. now rewrite C, rings.preserves_0.
+  right. now rewrite C, rings.preserves_0.
 Qed.
 
 Global Instance: ZeroProduct Z.
-Proof with auto.
+Proof.
   intros x y E.
-  destruct (simpleZ_abs x) as [a [A|A]], (simpleZ_abs y) as [b [B|B]]; rewrite <-A, <-B in E |- *.
-     now apply zero_product_aux.
-    destruct (zero_product_aux a b) as [C|C]...
-     now apply rings.negate_zero_prod_r.
-    right. rewrite C. apply rings.negate_0.
-   destruct (zero_product_aux a b) as [C|C]...
-    now apply rings.negate_zero_prod_l.
-   left. rewrite C. apply rings.negate_0.
-  rewrite rings.negate_mult_negate in E. 
-  destruct (zero_product_aux a b) as [C|C]...
-   left. rewrite C. apply rings.negate_0.
-  right. rewrite C. apply rings.negate_0.
+  destruct (SRpair_abs x) as [[a A]|[a A]], (SRpair_abs y) as [[b B]|[b B]].
+     rewrite <-A, <-B in E |- *. now apply zero_product_aux.
+    destruct (zero_product_aux a b) as [C|C].
+      rewrite A, B. now apply rings.negate_zero_prod_r.
+     left. now rewrite <-A.
+    right. apply rings.flip_negate_0. now rewrite <-B.
+   destruct (zero_product_aux a b) as [C|C].
+     rewrite A, B. now apply rings.negate_zero_prod_l.
+    left. apply rings.flip_negate_0. now rewrite <-A.
+   right. now rewrite <-B.
+  destruct (zero_product_aux a b) as [C|C].
+    now rewrite A, B, rings.negate_mult_negate.
+   left. apply rings.flip_negate_0. now rewrite <-A.
+  right. apply rings.flip_negate_0. now rewrite <-B.
 Qed.
-
 End contents.

@@ -57,21 +57,14 @@ Next Obligation. now apply (order_reflecting (naturals_to_semiring N nat)). Qed.
 Next Obligation. intros F. apply E. now apply (order_preserving _). Qed.
 
 Section another_ring.
-  Context `{Ring R} `{Apart R} `{!FullPseudoSemiRingOrder (A:=R) Rle Rlt}.
+  Context `{Ring R} `{Apart R} `{!FullPseudoSemiRingOrder (A:=R) Rle Rlt}
+    `{!SemiRing_Morphism (f : N → R)}.
 
-  Lemma negate_to_semiring_nonpos n : -naturals_to_semiring N R n ≤ 0.
-  Proof. apply flip_nonneg_negate. apply to_semiring_nonneg. Qed.
+  Lemma negate_to_ring_nonpos n : -f n ≤ 0.
+  Proof. apply flip_nonneg_negate. now apply to_semiring_nonneg. Qed.
 
-  Lemma negate_to_sr_le_to_sr n : -naturals_to_semiring N R n ≤ naturals_to_semiring N R n.
-  Proof. transitivity (0:R). apply negate_to_semiring_nonpos. apply to_semiring_nonneg. Qed.
-
-  Lemma negate_to_semiring x y : -naturals_to_semiring N R x = naturals_to_semiring N R y
-    → naturals_to_semiring N R x = naturals_to_semiring N R y.
-  Proof.
-    intros E. apply (antisymmetry (≤)).
-     apply flip_le_negate. rewrite E. apply negate_to_sr_le_to_sr.
-    rewrite <-E. apply negate_to_sr_le_to_sr.
-  Qed.
+  Lemma between_to_ring n : -f n ≤ f n.
+  Proof. apply between_nonneg. now apply to_semiring_nonneg. Qed.
 End another_ring. 
 End naturals_order.
 

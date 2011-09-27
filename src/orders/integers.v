@@ -8,34 +8,35 @@ Require Export
   orders.nat_int.
 
 Section integers.
-Context `{Integers Int} `{Apart Int} `{!TrivialApart Int} `{!FullPseudoSemiRingOrder Intle Intlt}.
+Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt}.
 
-Add Ring Int : (rings.stdlib_ring_theory Int).
+Add Ring Z : (rings.stdlib_ring_theory Z).
 Add Ring nat : (rings.stdlib_semiring_theory nat).
 
 Lemma induction
-  (P: Int → Prop) `{!Proper ((=) ==> iff) P}:
+  (P: Z → Prop) `{!Proper ((=) ==> iff) P}:
   P 0 → (∀ n, 0 ≤ n → P n → P (1 + n)) → (∀ n, n ≤ 0 → P n → P (n - 1)) → ∀ n, P n.
 Proof.
   intros P0 Psuc1 Psuc2 n.
-  destruct (int_abs_sig Int nat n) as [m [E|E]].
-   rewrite <-E. clear E. revert m. rapply naturals.induction.
+  destruct (int_abs_sig Z nat n) as [[a A]|[a A]].
+   rewrite <-A. clear A. revert a. rapply naturals.induction.
      solve_proper.
     now rewrite rings.preserves_0.
    intros m E. 
    rewrite rings.preserves_plus, rings.preserves_1.
    apply Psuc1. apply to_semiring_nonneg. easy.
-  rewrite <-E. clear E. revert m. rapply naturals.induction.
+  rewrite <-(groups.negate_involutive n), <-A. 
+  clear A. revert a. rapply naturals.induction.
     solve_proper.
    now rewrite rings.preserves_0, rings.negate_0.
   intros m E. 
   rewrite rings.preserves_plus, rings.preserves_1.
   rewrite rings.negate_plus_distr, commutativity.
-  apply Psuc2. apply naturals.negate_to_semiring_nonpos. easy.
+  apply Psuc2. apply naturals.negate_to_ring_nonpos. easy.
 Qed.
 
 Lemma induction_nonneg
-  (P: Int → Prop) `{!Proper ((=) ==> iff) P}:
+  (P: Z → Prop) `{!Proper ((=) ==> iff) P}:
   P 0 → (∀ n, 0 ≤ n → P n → P (1 + n)) → ∀ n, 0 ≤ n → P n.
 Proof.
   intros P0 PS. rapply induction; auto.
@@ -48,7 +49,7 @@ Proof.
   transitivity 0. easy. apply semirings.le_0_2.
 Qed.
 
-Global Instance: Biinduction Int.
+Global Instance: Biinduction Z.
 Proof.
   intros P ? P0 Psuc. apply induction; trivial.
    firstorder.
@@ -56,7 +57,7 @@ Proof.
   now setoid_replace (1 + (n - 1)) with n by ring.
 Qed.
 
-Global Program Instance: ∀ x y: Int, Decision (x ≤ y) | 10 := λ x y,
+Global Program Instance: ∀ x y: Z, Decision (x ≤ y) | 10 := λ x y,
   match decide (integers_to_ring _ (SRpair nat) x ≤ integers_to_ring _ (SRpair nat) y) with
   | left E => left _
   | right E => right _

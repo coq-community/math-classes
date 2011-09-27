@@ -1,6 +1,6 @@
 (* General results about arbitrary integer implementations. *)
 Require
- theory.naturals theory.nat_distance.
+ theory.nat_distance.
 Require Import
  Ring interfaces.naturals abstract_algebra natpair_integers.
 Require Export
@@ -44,8 +44,7 @@ Proof. now apply (to_ring_unique_alt f id). Qed.
 Lemma to_ring_injective `{Integers Int} `{Ring R} (f: R → Int) (g: Int → R) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: 
   Injective g.
 Proof.
-  repeat (split; try apply _).
-  intros x y E.
+  repeat (split; try apply _). intros x y E.
   rewrite <-(to_ring_self (f ∘ g) x), <-(to_ring_self (f ∘ g) y).
   unfold compose. now rewrite E.
 Qed.
@@ -57,13 +56,9 @@ Proof. apply (to_ring_injective (integers_to_ring Int2 Int) _). Qed.
 Instance naturals_to_integers_injective `{Integers Int} `{Naturals N} (f: N → Int) `{!SemiRing_Morphism f} : 
   Injective f.
 Proof.
-  constructor; try apply _.
-  intros x y E.
-  rewrite <- (rings.plus_0_r x), <- (rings.plus_0_r y).
-  change (('x : SRpair N) = ('y : SRpair N)).
-  rewrite <-2!NtoZ_uniq.
-  rewrite <-2!(naturals.to_semiring_unique (integers_to_ring Int (SRpair N) ∘ f)).
-  unfold compose. now rewrite E.
+  split; try apply _. intros x y E.
+  apply (injective (cast N (SRpair N))).
+  now rewrite <-2!(naturals.to_semiring_twice (integers_to_ring Int (SRpair N)) f (cast N (SRpair N))), E.
 Qed.
 
 Section retract_is_int.
@@ -113,7 +108,7 @@ Proof.
   now rewrite rings.preserves_0, rings.preserves_1.
 Qed.
 
-Global Instance zero_product: ZeroProduct Int.
+Global Instance: ZeroProduct Int.
 Proof.
   intros x y E.
   destruct (zero_product (integers_to_ring Int (SRpair nat) x) (integers_to_ring Int (SRpair nat) y)).

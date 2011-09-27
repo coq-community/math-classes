@@ -176,22 +176,21 @@ Section ring_props.
   Lemma negate_mult_negate x y : -x * -y = x * y. Proof. ring. Qed.
   Lemma negate_0: -0 = 0. Proof. ring. Qed.
 
-  Lemma equal_by_zero_sum x y : x + - y = 0 ↔ x = y.
+  Lemma equal_by_zero_sum x y : x - y = 0 ↔ x = y.
   Proof. 
     split; intros E. 
      rewrite <- (plus_0_l y). rewrite <- E. ring. 
     rewrite E. ring.
   Qed.
 
-  Lemma flip_negate_zero x : -x = 0 ↔ x = 0.
-  Proof.
-    split; intros E.
-     apply (injective (-)). now rewrite E, negate_0.
-    now rewrite E, negate_0.
-  Qed.
-  
+  Lemma flip_negate x y : -x = y ↔ x = -y.
+  Proof. split; intros E. now rewrite <-E, involutive. now rewrite E, involutive. Qed.
+
+  Lemma flip_negate_0 x : -x = 0 ↔ x = 0.
+  Proof. now rewrite flip_negate, negate_0. Qed.
+
   Lemma flip_negate_ne_0 x : -x ≠ 0 ↔ x ≠ 0.
-  Proof. split; intros E ?; apply E; now apply flip_negate_zero. Qed.
+  Proof. split; intros E ?; apply E; now apply flip_negate_0. Qed.
 
   Lemma negate_zero_prod_l x y : -x * y = 0 ↔ x * y = 0.
   Proof.

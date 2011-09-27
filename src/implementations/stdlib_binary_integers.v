@@ -145,27 +145,25 @@ Proof.
 Qed.
 
 (* absolute value *)
-Program Instance: IntAbs Z nat := Zabs_nat.
-Next Obligation.
-  rewrite <-(naturals.to_semiring_unique Z_of_nat).
-  rewrite Zabs.inj_Zabs_nat.
-  destruct (total (≤) 0 x).
-   left. 
-   now apply Z.abs_eq.
-  right.
-  rewrite Z.abs_neq by easy. now apply rings.negate_involutive.
-Qed.
+Program Instance: IntAbs Z nat := λ x,
+  match x with
+  | Z0 => inl (0:nat)
+  | Zpos p => inl (nat_of_P p)
+  | Zneg p => inr (nat_of_P p)
+  end.
+Next Obligation. reflexivity. Qed.
+Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_nat), Znat.Z_of_nat_of_P. Qed.
+Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_nat), Znat.Z_of_nat_of_P. Qed.
 
-Program Instance: IntAbs Z N := Zabs_N.
-Next Obligation.
-  rewrite <-(naturals.to_semiring_unique Z_of_N).
-  rewrite Znat.Z_of_N_abs.
-  destruct (total (≤) 0 x).
-   left. 
-   now apply Z.abs_eq.
-  right.
-  rewrite Z.abs_neq by easy. now apply rings.negate_involutive.
-Qed.
+Program Instance: IntAbs Z N := λ x,
+  match x with
+  | Z0 => inl (0:N)
+  | Zpos p => inl (Npos p)
+  | Zneg p => inr (Npos p)
+  end.
+Next Obligation. reflexivity. Qed.
+Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_N). Qed.
+Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_N). Qed.
 
 (* Efficient nat_pow *)
 Program Instance Z_pow: Pow Z (Z⁺) := Z.pow.
