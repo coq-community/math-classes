@@ -1,8 +1,8 @@
-Require Export
- List SetoidList.
 Require Import
- abstract_algebra interfaces.monads.
+  List SetoidList abstract_algebra interfaces.monads.
 
+Notation "( x ::)" := (cons x) (only parsing).
+Notation "(:: l )" := (λ x, cons x l) (only parsing).
 Implicit Arguments app [[A]].
 
 Section contents.
