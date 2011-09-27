@@ -1,5 +1,5 @@
 Require Import
-  Program Morphisms Setoid canonical_names util.
+  canonical_names util.
 
 Class Decision P := decide: sumbool P (¬P).
 Implicit Arguments decide [[Decision]].
@@ -56,7 +56,7 @@ Lemma bool_decide_rel_false `(R : relation A)`{dec : ∀ x y, Decision (R x y)} 
   ∀ x y, bool_decide_rel R x y ≡ false ↔ ¬R x y.
 Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder. Qed.
 
-Program Definition decision_from_bool_decide (P : Prop) (b : bool) (prf : b ≡ true ↔ P) : 
+Program Definition decision_from_bool_decide {P b} (prf : b ≡ true ↔ P) : 
   Decision P := match b with true => left _ | false => right _ end.
 Next Obligation. now apply prf. Qed. 
 Next Obligation. rewrite <-prf. discriminate. Qed.

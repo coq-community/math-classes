@@ -1,6 +1,5 @@
 Require Import
-  Setoid Morphisms Ring
-  abstract_algebra interfaces.orders orders.rings.
+  Ring abstract_algebra interfaces.orders orders.rings.
 
 Section contents.
 Context `{Ring R} `{Apart R} `{!TrivialApart R} `{!FullPseudoSemiRingOrder Rle Rlt} `{∀ x y, Decision (x = y)} `{a : !Abs R}.
