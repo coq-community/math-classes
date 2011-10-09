@@ -29,7 +29,7 @@ Instance: Proper ((=) ==> (=) ==> (=)) BigQ.Qq.
 Proof.
   intros x1 y1 E1 x2 y2 E2.
   do 4 red. simpl.
-  case_eq (BigN.eq_bool x2 BigN.zero); intros Ex2; case_eq (BigN.eq_bool y2 BigN.zero); intros Ey2.
+  case_eq (BigN.eqb x2 BigN.zero); intros Ex2; case_eq (BigN.eqb y2 BigN.zero); intros Ey2.
      reflexivity.
     rewrite E2 in Ex2. edestruct eq_true_false_abs; eassumption.
    rewrite E2 in Ex2. edestruct eq_true_false_abs; eassumption.
@@ -45,7 +45,7 @@ Proof.
   case_eq (BigZ.zero ?= BigZ.Pos d)%bigZ; intros Ed.
     transitivity BigQ.zero; [| ring].
     do 2 red. simpl.
-    case_eq (BigN.eq_bool d BigN.zero); intros Ed2; [reflexivity |].
+    case_eq (BigN.eqb d BigN.zero); intros Ed2; [reflexivity |].
     rewrite BigZ.spec_compare in Ed.
     destruct (proj2 (not_true_iff_false _) Ed2).
     apply BigN.eqb_eq. symmetry. now apply Zcompare_Eq_eq.

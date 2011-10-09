@@ -132,7 +132,7 @@ Qed.
 Instance Q_shiftl: ShiftL Q Z := λ x k,
   match k with
   | Z0 => x
-  | Zpos p => Qmake (Zshiftl (Qnum x) (Zpos p)) (Qden x)
+  | Zpos p => Qmake (Z.shiftl (Qnum x) (Zpos p)) (Qden x)
   | Zneg p => Qmake (Qnum x) (shift_pos p (Qden x))
   end.
 

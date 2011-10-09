@@ -44,9 +44,9 @@ Proof. intros x y E. unfold equiv, NType_equiv, eq in E. unfold to_N. now rewrit
 Instance: SemiRing_Morphism to_N.
 Proof.
   repeat (split; try apply _); unfold to_N; intros.
-     now rewrite spec_add, Zabs_N_plus by apply spec_pos.
+     now rewrite spec_add, Z2N.inj_add by apply spec_pos.
     unfold mon_unit, zero_is_mon_unit, NType_0. now rewrite spec_0.
-   now rewrite spec_mul, Zabs_N_mult by apply spec_pos.
+   now rewrite spec_mul, Z2N.inj_mul by apply spec_pos.
   unfold mon_unit, one_is_mon_unit, NType_1. now rewrite spec_1.
 Qed.
 
@@ -57,15 +57,15 @@ Instance: Surjective to_N.
 Proof.
   split; try apply _. intros x y E.
   rewrite <-E. unfold to_N, inverse, compose. rewrite spec_of_N.
-  now apply Zabs_of_N.
+  apply N2Z.id.
 Qed.
 
 Instance: Injective to_N.
 Proof.
   split; try apply _. intros x y E.
   unfold equiv, NType_equiv, eq. unfold to_N in E.
-  rewrite <-(Zabs_eq (to_Z x)), <-(Zabs_eq (to_Z y)) by now apply spec_pos.
-  now rewrite <-!Z_of_N_abs, E.
+  rewrite <-(Z2N.id (to_Z x)), <-(Z2N.id (to_Z y)) by now apply spec_pos.
+  now rewrite E.
 Qed.
 
 Instance: Bijective to_N := {}.

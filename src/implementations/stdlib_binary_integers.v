@@ -37,7 +37,7 @@ Instance: ∀ x y : Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
 (* * Embedding N into Z *)
-Instance inject_N_Z: Cast BinNat.N Z := Z_of_N.
+Instance inject_N_Z: Cast BinNat.N.t Z := Z_of_N.
 
 Instance: SemiRing_Morphism Z_of_N.
 Proof.

@@ -77,7 +77,7 @@ Proof.
   rapply semirings.dec_full_pseudo_srorder.
   split.
    intro. now apply N.le_neq.
-  intros [E1 E2]. now apply N.T.le_neq_lt.
+  intros [E1 E2]. now apply N.Private_Tac.le_neq_lt.
 Qed.
 
 Program Instance: ∀ x y: N, Decision (x ≤ y) := λ y x,
