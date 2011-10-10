@@ -1,5 +1,4 @@
 Require Import
-  RelationClasses Equivalence
   abstract_algebra interfaces.functors theory.categories.
 
 Section natural_transformations_id_comp.
