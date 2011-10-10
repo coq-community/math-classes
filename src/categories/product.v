@@ -1,6 +1,6 @@
 Require Import
   Relation_Definitions
-  abstract_algebra ChoiceFacts interfaces.functors 
+  abstract_algebra ChoiceFacts interfaces.functors
   theory.categories categories.categories.
 
 (* Axiom dependent_functional_choice: DependentFunctionalChoice. *)

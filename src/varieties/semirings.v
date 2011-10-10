@@ -73,7 +73,7 @@ End from_instance.
 
 (* Similarly, given a categorical object, we can make the corresponding class instances: *)
 
-Section ops_from_alg_to_sr. 
+Section ops_from_alg_to_sr.
   Context `{AlgebraOps theory A}.
   Global Instance: Plus (A tt) := algebra_op plus.
   Global Instance: Mult (A tt) := algebra_op mult.

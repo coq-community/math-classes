@@ -1,6 +1,6 @@
 Require Import
   Ring abstract_algebra interfaces.orders theory.rings.
-Require Export 
+Require Export
   orders.semirings.
 
 Section from_ring_order.
@@ -10,8 +10,8 @@ Section from_ring_order.
 
   Lemma from_ring_order: SemiRingOrder (≤).
   Proof.
-    repeat (split; try apply _). 
-     intros x y E. exists (- x + y). 
+    repeat (split; try apply _).
+     intros x y E. exists (- x + y).
      now rewrite associativity, plus_negate_r, plus_0_l.
     intros x y E.
     rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_negate_l z), <-!associativity.
@@ -26,8 +26,8 @@ Section from_strict_ring_order.
 
   Lemma from_strict_ring_order: StrictSemiRingOrder (<).
   Proof.
-    repeat (split; try apply _). 
-     intros x y E. exists (- x + y). 
+    repeat (split; try apply _).
+     intros x y E. exists (- x + y).
      now rewrite associativity, plus_negate_r, plus_0_l.
     intros x y E.
     rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_negate_l z), <-!associativity.
@@ -44,7 +44,7 @@ Section from_pseudo_ring_order.
   Lemma from_pseudo_ring_order: PseudoSemiRingOrder (<).
   Proof.
     repeat (split; try apply _).
-     intros x y E. exists (- x + y). 
+     intros x y E. exists (- x + y).
      now rewrite associativity, plus_negate_r, plus_0_l.
     intros x y E.
     rewrite <-(plus_0_l x), <-(plus_0_l y), <-!(plus_negate_l z), <-!associativity.
@@ -81,16 +81,16 @@ Section ring_order.
     rewrite <-(negate_involutive x), <-(negate_involutive y); auto.
   Qed.
 
-  Lemma flip_nonneg_negate x : 0 ≤ x ↔ -x ≤ 0. 
+  Lemma flip_nonneg_negate x : 0 ≤ x ↔ -x ≤ 0.
   Proof.
     split; intros E.
      rewrite <-negate_0. now apply flip_le_negate.
     apply flip_le_negate. now rewrite negate_0.
   Qed.
 
-  Lemma flip_nonpos_negate x : x ≤ 0 ↔ 0 ≤ -x. 
+  Lemma flip_nonpos_negate x : x ≤ 0 ↔ 0 ≤ -x.
   Proof.
-    rewrite <-(negate_involutive x) at 1. 
+    rewrite <-(negate_involutive x) at 1.
     split; intros; now apply flip_nonneg_negate.
   Qed.
 
@@ -164,16 +164,16 @@ Section strict_ring_order.
     rewrite <-(negate_involutive x), <-(negate_involutive y); auto.
   Qed.
 
-  Lemma flip_pos_negate x : 0 < x ↔ -x < 0. 
+  Lemma flip_pos_negate x : 0 < x ↔ -x < 0.
   Proof.
     split; intros E.
      rewrite <- negate_0. now apply flip_lt_negate.
     apply flip_lt_negate. now rewrite negate_0.
   Qed.
 
-  Lemma flip_neg_negate x : x < 0 ↔ 0 < -x. 
+  Lemma flip_neg_negate x : x < 0 ↔ 0 < -x.
   Proof.
-    rewrite <-(negate_involutive x) at 1. 
+    rewrite <-(negate_involutive x) at 1.
     split; intros; now apply flip_pos_negate.
   Qed.
 
@@ -228,7 +228,7 @@ End strict_ring_order.
 Section another_ring_order.
   Context `{Ring R1} `{!SemiRingOrder R1le} `{Ring R2} `{R2le : Le R2}.
 
-  Lemma projected_ring_order (f : R2 → R1) `{!SemiRing_Morphism f} `{!Injective f} : 
+  Lemma projected_ring_order (f : R2 → R1) `{!SemiRing_Morphism f} `{!Injective f} :
     (∀ x y, x ≤ y ↔ f x ≤ f y) → SemiRingOrder R2le.
   Proof.
     intros P. apply (projected_srorder f P).
@@ -260,17 +260,17 @@ Section another_strict_ring_order.
   Proof.
     intros P. pose proof (projected_strict_setoid_order f P).
     apply from_strict_ring_order.
-     repeat (split; try apply _). intros x y E. 
+     repeat (split; try apply _). intros x y E.
      apply P. rewrite 2!preserves_plus.
      now apply (strictly_order_preserving _), P.
-    intros x y E1 E2. 
+    intros x y E1 E2.
     apply P. rewrite preserves_mult, preserves_0.
     now apply pos_mult_compat; rewrite <-(preserves_0 (f:=f)); apply P.
   Qed.
 End another_strict_ring_order.
 
 Section another_pseudo_ring_order.
-  Context `{Ring R1} `{Apart R1} `{!PseudoSemiRingOrder R1lt} 
+  Context `{Ring R1} `{Apart R1} `{!PseudoSemiRingOrder R1lt}
     `{Ring R2} `{Apart R2} `{R2lt : Lt R2}.
 
   Lemma projected_pseudo_ring_order (f : R2 → R1) `{!SemiRing_Morphism f} `{!StrongInjective f} :
@@ -290,7 +290,7 @@ Section another_pseudo_ring_order.
 End another_pseudo_ring_order.
 
 Section another_full_pseudo_ring_order.
-  Context `{Ring R1} `{Apart R1} `{!FullPseudoSemiRingOrder R1le R1lt} 
+  Context `{Ring R1} `{Apart R1} `{!FullPseudoSemiRingOrder R1le R1lt}
     `{Ring R2} `{Apart R2} `{R2le : Le R2} `{R2lt : Lt R2}.
 
   Lemma projected_full_pseudo_ring_order (f : R2 → R1) `{!SemiRing_Morphism f} `{!StrongInjective f} :

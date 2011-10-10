@@ -32,7 +32,7 @@ Section contents.
 
   Global Instance: Category Object.
   Proof.
-   constructor; try apply _. 
+   constructor; try apply _.
      intros ? ? ? ? [??] [??] [??] ? ? E. simpl. now rewrite E.
     intros ? ? [??] ? ? E. simpl. now rewrite E.
    intros ? ? [??] ? ? E. simpl. now rewrite E.
@@ -41,7 +41,7 @@ Section contents.
   Global Instance: Producer Object := λ _ c, object (∀ i, c i) (λ x y, ∀ i, x i = y i) _.
     (* todo: use pointwise_relation or something like that *)
 
-  Section product. 
+  Section product.
     Context {Index: Type} (c: Index → Object).
 
     Global Program Instance: ElimProduct c (product c) := λ i x, x i.

@@ -1,6 +1,6 @@
 Require Import
   Ring abstract_algebra interfaces.orders theory.rings.
-Require Export 
+Require Export
   orders.orders orders.maps.
 
 Local Existing Instance srorder_semiring.
@@ -29,7 +29,7 @@ Section semiring_order.
 
   Lemma nonneg_plus_le_compat_r x z : 0 ≤ z ↔ x ≤ x + z.
   Proof.
-    rewrite <-(plus_0_r x) at 1. split; intros. 
+    rewrite <-(plus_0_r x) at 1. split; intros.
      now apply (order_preserving _).
     now apply (order_reflecting (x+)).
   Qed.
@@ -75,10 +75,10 @@ Section semiring_order.
 
   Global Instance: ∀ (z : R), PropHolds (0 ≤ z) → OrderPreserving (z *.).
   Proof.
-    intros z E. 
+    intros z E.
     repeat (split; try apply _).
     intros x y F.
-    destruct (decompose_le F) as [a [Ea1 Ea2]]. 
+    destruct (decompose_le F) as [a [Ea1 Ea2]].
     rewrite Ea2, plus_mult_distr_l.
     apply nonneg_plus_le_compat_r.
     now apply nonneg_mult_compat.
@@ -87,7 +87,7 @@ Section semiring_order.
   Global Instance: ∀ (z : R), PropHolds (0 ≤ z) → OrderPreserving (.* z).
   Proof. intros. now apply order_preserving_flip. Qed.
 
-  Lemma mult_le_compat x₁ y₁ x₂ y₂ : 
+  Lemma mult_le_compat x₁ y₁ x₂ y₂ :
     0 ≤ x₁ → 0 ≤ x₂ → x₁ ≤ y₁ → x₂ ≤ y₂ → x₁ * x₂ ≤ y₁ * y₂.
   Proof.
     intros Ex₁ Ey₁ E1 E2.
@@ -98,7 +98,7 @@ Section semiring_order.
   Qed.
 
   Lemma ge_1_mult_le_compat_r x y z : 1 ≤ z → 0 ≤ y → x ≤ y → x ≤ y * z.
-  Proof. 
+  Proof.
     intros.
     transitivity y; [easy |].
     rewrite <-(mult_1_r y) at 1.
@@ -113,7 +113,7 @@ Section semiring_order.
     intros Ez Exy.
     destruct (decompose_le Ez) as [a [Ea1 Ea2]], (decompose_le Exy) as [b [Eb1 Eb2]].
     rewrite Eb2.
-    apply compose_le with (a * b). 
+    apply compose_le with (a * b).
      now apply nonneg_mult_compat.
     transitivity (z * x + (z + a) * b).
      rewrite <-Ea2. ring.
@@ -207,7 +207,7 @@ Section strict_semiring_order.
   Global Instance: ∀ (z : R), PropHolds (0 < z) → StrictlyOrderPreserving (z *.).
   Proof.
     intros z E. repeat (split; try apply _). intros x y F.
-    destruct (decompose_lt F) as [a [Ea1 Ea2]]. 
+    destruct (decompose_lt F) as [a [Ea1 Ea2]].
     rewrite Ea2, plus_mult_distr_l.
     apply pos_plus_lt_compat_r.
     now apply pos_mult_compat.
@@ -216,7 +216,7 @@ Section strict_semiring_order.
   Global Instance: ∀ (z : R), PropHolds (0 < z) → StrictlyOrderPreserving (.* z).
   Proof. intros. now apply strictly_order_preserving_flip. Qed.
 
-  Lemma mult_lt_compat x₁ y₁ x₂ y₂ : 
+  Lemma mult_lt_compat x₁ y₁ x₂ y₂ :
     0 < x₁ → 0 < x₂ → x₁ < y₁ → x₂ < y₂ → x₁ * x₂ < y₁ * y₂.
   Proof.
     intros Ex₁ Ey₁ E1 E2.
@@ -227,7 +227,7 @@ Section strict_semiring_order.
   Qed.
 
   Lemma gt_1_mult_lt_compat_r x y z : 1 < z → 0 < y → x < y → x < y * z.
-  Proof. 
+  Proof.
     intros.
     transitivity y; [ easy |].
     rewrite <-(mult_1_r y) at 1.
@@ -315,7 +315,7 @@ Section pseudo_semiring_order.
     assert (0 ≶ y) as Ey.
      apply (strong_extensionality (x *.)).
      rewrite mult_0_r. now apply pseudo_order_lt_apart_flip.
-    rewrite apart_iff_total_lt in Ex, Ey. 
+    rewrite apart_iff_total_lt in Ex, Ey.
     destruct Ex as [Ex|Ex], Ey as [Ey|Ey]; try tauto.
      destruct (irreflexivity (<) 0).
      transitivity (x * y); [| easy].
@@ -334,7 +334,7 @@ Section pseudo_semiring_order.
     assert (0 ≶ y) as Ey.
      apply (strong_extensionality (x *.)).
      rewrite mult_0_r. now apply pseudo_order_lt_apart.
-    rewrite apart_iff_total_lt in Ex, Ey. 
+    rewrite apart_iff_total_lt in Ex, Ey.
     destruct Ex as [Ex|Ex], Ey as [Ey|Ey]; try tauto.
      destruct (irreflexivity (<) 0).
      transitivity (x * y); [easy |].
@@ -379,7 +379,7 @@ Section pseudo_semiring_order.
 
   Lemma square_pos x : x ≶ 0 → 0 < x * x.
   Proof.
-    intros E. apply apart_iff_total_lt in E. 
+    intros E. apply apart_iff_total_lt in E.
     destruct E as [E|E].
      destruct (decompose_lt E) as [z [Ez1 Ez2]].
      apply compose_lt with (z * z).
@@ -387,14 +387,14 @@ Section pseudo_semiring_order.
      rewrite plus_0_l.
      apply (left_cancellation (+) (x * z)).
      rewrite <-plus_mult_distr_r, <-plus_mult_distr_l.
-     rewrite (commutativity z x), <-!Ez2. 
+     rewrite (commutativity z x), <-!Ez2.
      ring.
     now apply pos_mult_compat.
   Qed.
 
   Lemma pos_mult_rev_l x y : 0 < x * y → 0 < y → 0 < x.
-  Proof. 
-    intros. assert (PropHolds (0 < y)) by auto. 
+  Proof.
+    intros. assert (PropHolds (0 < y)) by auto.
     apply (strictly_order_reflecting (.* y)). now rewrite rings.mult_0_l.
   Qed.
 
@@ -513,8 +513,8 @@ Section full_pseudo_semiring_order.
   Qed.
 
   Lemma nonneg_mult_rev_l x y : 0 ≤ x * y → 0 < y → 0 ≤ x.
-  Proof. 
-    intros. assert (PropHolds (0 < y)) by auto. 
+  Proof.
+    intros. assert (PropHolds (0 < y)) by auto.
     apply (order_reflecting (.* y)). now rewrite rings.mult_0_l.
   Qed.
 
@@ -552,15 +552,15 @@ Section full_pseudo_semiring_order.
   Proof. apply (order_preserving (1+)), le_2_3. Qed.
 
   Lemma ge_1_mult_compat x y : 1 ≤ x → 1 ≤ y → 1 ≤ x * y.
-  Proof. 
+  Proof.
     intros.
-    apply ge_1_mult_le_compat_r; trivial. 
+    apply ge_1_mult_le_compat_r; trivial.
     transitivity 1. now apply le_0_1. easy.
   Qed.
 
   Lemma gt_1_ge_1_mult_compat x y : 1 < x → 1 ≤ y → 1 < x * y.
-  Proof. 
-    intros. 
+  Proof.
+    intros.
     apply lt_le_trans with x; trivial.
     apply ge_1_mult_le_compat_r; try easy.
     transitivity 1. now apply le_0_1. now apply lt_le.
@@ -620,15 +620,15 @@ End dec_semiring_order.
 Section another_semiring.
   Context `{SemiRingOrder R1}.
 
-  Lemma projected_srorder `{SemiRing R2} `{R2le : Le R2} (f : R2 → R1) 
-      `{!SemiRing_Morphism f} `{!Injective f} : 
+  Lemma projected_srorder `{SemiRing R2} `{R2le : Le R2} (f : R2 → R1)
+      `{!SemiRing_Morphism f} `{!Injective f} :
     (∀ x y, x ≤ y ↔ f x ≤ f y) → (∀ x y : R2, x ≤ y → ∃ z, y = x + z) → SemiRingOrder R2le.
   Proof.
     intros P. pose proof (projected_partial_order f P).
     repeat (split; try apply _).
        assumption.
       intros. apply P. rewrite 2!preserves_plus. now apply (order_preserving _), P.
-     intros. apply P. apply (order_reflecting (f z +)). 
+     intros. apply P. apply (order_reflecting (f z +)).
      rewrite <-2!preserves_plus. now apply P.
     intros. apply P. rewrite preserves_mult, preserves_0.
     now apply nonneg_mult_compat; rewrite <-(preserves_0 (f:=f)); apply P.
@@ -636,7 +636,7 @@ Section another_semiring.
 
  Context `{SemiRingOrder R2} `{!SemiRing_Morphism (f : R1 → R2)}.
 
-  (* If a morphism agrees on the positive cone then it is order preserving *)    
+  (* If a morphism agrees on the positive cone then it is order preserving *)
   Lemma preserving_preserves_nonneg : (∀ x, 0 ≤ x → 0 ≤ f x) → OrderPreserving f.
   Proof.
     intros E.

@@ -32,7 +32,7 @@ Section cancellation.
   Lemma right_cancellation_ne_0 `{∀ z, PropHolds (z ≠ 0) → RightCancellation op z} z : z ≠ 0 → RightCancellation op z.
   Proof. auto. Qed.
 
-  Lemma right_cancel_from_left `{!Setoid A} `{!Commutative op} `{!LeftCancellation op z} : 
+  Lemma right_cancel_from_left `{!Setoid A} `{!Commutative op} `{!LeftCancellation op z} :
     RightCancellation op z.
   Proof.
     intros x y E.
@@ -44,7 +44,7 @@ End cancellation.
 Section strong_cancellation.
   Context `{StrongSetoid A} (op : A → A → A).
 
-  Lemma strong_right_cancel_from_left `{!Commutative op} `{!StrongLeftCancellation op z} : 
+  Lemma strong_right_cancel_from_left `{!Commutative op} `{!StrongLeftCancellation op z} :
     StrongRightCancellation op z.
   Proof.
     intros x y E.
@@ -94,7 +94,7 @@ Section semiring_props.
 
   Global Instance: ∀ r : R, @Monoid_Morphism R R _ _ (0:R) (0:R) (+) (+) (r *.).
   Proof.
-   repeat (constructor; try apply _). 
+   repeat (constructor; try apply _).
     apply distribute_l.
    apply right_absorb.
   Qed.
@@ -103,11 +103,11 @@ End semiring_props.
 (* Due to bug #2528 *)
 Hint Extern 3 (PropHolds (_ * _ ≠ 0)) => eapply @mult_ne_0 : typeclass_instances.
 
-Section semiringmor_props. 
+Section semiringmor_props.
   Context `{SemiRing_Morphism A B f}.
 
   Lemma preserves_0: f 0 = 0.
-  Proof (preserves_mon_unit (f:=f)). 
+  Proof (preserves_mon_unit (f:=f)).
   Lemma preserves_1: f 1 = 1.
   Proof (preserves_mon_unit (f:=f)).
   Lemma preserves_mult: ∀ x y, f (x * y) = f x * f y.
@@ -137,7 +137,7 @@ End semiringmor_props.
 (* Due to bug #2528 *)
 Hint Extern 12 (PropHolds (_ _ ≠ 0)) => eapply @injective_ne_0 : typeclass_instances.
 
-Lemma stdlib_ring_theory R `{Ring R} : 
+Lemma stdlib_ring_theory R `{Ring R} :
   Ring_theory.ring_theory 0 1 (+) (.*.) (λ x y, x - y) (-) (=).
 Proof.
  constructor; intros.
@@ -147,13 +147,13 @@ Proof.
       apply left_identity.
      apply commutativity.
     apply associativity.
-   rewrite commutativity, distribute_l. 
+   rewrite commutativity, distribute_l.
    now setoid_rewrite commutativity at 2 3.
   reflexivity.
  apply (right_inverse x).
 Qed.
 
-Section ring_props. 
+Section ring_props.
   Context `{Ring R}.
 
   Add Ring R: (stdlib_ring_theory R).
@@ -177,9 +177,9 @@ Section ring_props.
   Lemma negate_0: -0 = 0. Proof. ring. Qed.
 
   Lemma equal_by_zero_sum x y : x - y = 0 ↔ x = y.
-  Proof. 
-    split; intros E. 
-     rewrite <- (plus_0_l y). rewrite <- E. ring. 
+  Proof.
+    split; intros E.
+     rewrite <- (plus_0_l y). rewrite <- E. ring.
     rewrite E. ring.
   Qed.
 
@@ -218,7 +218,7 @@ Section ring_props.
    intros z z_nonzero x y E.
    apply stable.
    intro U.
-   apply (mult_ne_0 z (x - y) (is_ne_0 z)). 
+   apply (mult_ne_0 z (x - y) (is_ne_0 z)).
     intro. apply U. now apply equal_by_zero_sum.
    rewrite distribute_l, E. ring.
   Qed.
@@ -227,18 +227,18 @@ Section ring_props.
   Proof. intros ? ?. apply (right_cancel_from_left (.*.)). Qed.
 End ring_props.
 
-Section integral_domain_props. 
+Section integral_domain_props.
   Context `{IntegralDomain R}.
 
-  Instance intdom_nontrivial_apart `{Apart R} `{!TrivialApart R} : 
+  Instance intdom_nontrivial_apart `{Apart R} `{!TrivialApart R} :
     PropHolds (1 ≶ 0).
   Proof. apply strong_setoids.ne_apart. solve_propholds. Qed.
-End integral_domain_props. 
+End integral_domain_props.
 
 (* Due to bug #2528 *)
 Hint Extern 6 (PropHolds (1 ≶ 0)) => eapply @intdom_nontrivial_apart : typeclass_instances.
 
-Section ringmor_props. 
+Section ringmor_props.
   Context `{Ring A} `{Ring B} `{!SemiRing_Morphism (f : A → B)}.
 
   Definition preserves_negate x : f (-x) = -f x := groups.preserves_negate x. (* alias for convinience *)
@@ -247,7 +247,7 @@ Section ringmor_props.
   Proof.
     rewrite <-preserves_negate.
     apply preserves_plus.
-  Qed. 
+  Qed.
 
   Lemma injective_preserves_0 : (∀ x, f x = 0 → x = 0) → Injective f.
   Proof.
@@ -261,16 +261,16 @@ Section ringmor_props.
 End ringmor_props.
 
 Section from_another_ring.
-  Context `{Ring A} `{Setoid B} 
+  Context `{Ring A} `{Setoid B}
    `{Bplus : Plus B} `{Zero B} `{Bmult : Mult B} `{One B} `{Bnegate : Negate B}
     (f : B → A) `{!Injective f}
-    (plus_correct : ∀ x y, f (x + y) = f x + f y) (zero_correct : f 0 = 0) 
+    (plus_correct : ∀ x y, f (x + y) = f x + f y) (zero_correct : f 0 = 0)
     (mult_correct : ∀ x y, f (x * y) = f x * f y) (one_correct : f 1 = 1) (negate_correct : ∀ x, f (-x) = -f x).
 
   Lemma projected_ring: Ring B.
   Proof.
-    split. 
-      now apply (groups.projected_ab_group f). 
+    split.
+      now apply (groups.projected_ab_group f).
      now apply (groups.projected_com_monoid f mult_correct one_correct).
     repeat intro; apply (injective f). rewrite plus_correct, !mult_correct, plus_correct.
     now rewrite distribute_l.
@@ -289,7 +289,7 @@ Section from_stdlib_semiring_theory.
   Definition from_stdlib_semiring_theory: @SemiRing R Re Rplus Rmult Rzero Rone.
   Proof.
    repeat (constructor; try assumption); repeat intro
-   ; unfold equiv, mon_unit, sg_op, zero_is_mon_unit, plus_is_sg_op, 
+   ; unfold equiv, mon_unit, sg_op, zero_is_mon_unit, plus_is_sg_op,
      one_is_mon_unit, mult_is_sg_op, zero, mult, plus; ring.
   Qed.
 End from_stdlib_semiring_theory.
@@ -307,7 +307,7 @@ Section from_stdlib_ring_theory.
   Definition from_stdlib_ring_theory: @Ring R Re Rplus Rmult Rzero Rone Rnegate.
   Proof.
    repeat (constructor; try assumption); repeat intro
-   ; unfold equiv, mon_unit, sg_op, zero_is_mon_unit, plus_is_sg_op, 
+   ; unfold equiv, mon_unit, sg_op, zero_is_mon_unit, plus_is_sg_op,
      one_is_mon_unit, mult_is_sg_op, mult, plus, negate; ring.
   Qed.
 End from_stdlib_ring_theory.
@@ -320,10 +320,10 @@ Section morphism_composition.
     `{Equiv C} `{Mult C} `{Plus C} `{One C} `{Zero C}
     (f : A → B) (g : B → C).
 
-  Instance compose_sr_morphism: 
+  Instance compose_sr_morphism:
     SemiRing_Morphism f → SemiRing_Morphism g → SemiRing_Morphism (g ∘ f).
   Proof. split; try apply _; firstorder. Qed.
-  Global Instance invert_sr_morphism: 
+  Global Instance invert_sr_morphism:
     ∀ `{!Inverse f}, Bijective f → SemiRing_Morphism f → SemiRing_Morphism (f⁻¹).
   Proof. split; try apply _; firstorder. Qed.
 End morphism_composition.
@@ -331,7 +331,7 @@ End morphism_composition.
 Hint Extern 4 (SemiRing_Morphism (_ ∘ _)) => class_apply @compose_sr_morphism : typeclass_instances.
 Hint Extern 4 (SemiRing_Morphism (_⁻¹)) => class_apply @invert_sr_morphism : typeclass_instances.
 
-Instance semiring_morphism_proper {A B eA eB pA mA zA oA pB mB zB oB} : 
+Instance semiring_morphism_proper {A B eA eB pA mA zA oA pB mB zB oB} :
   Proper ((=) ==> (=)) (@SemiRing_Morphism A B eA eB pA mA zA oA pB mB zB oB).
 Proof.
   assert (∀ (f g : A → B), g = f → SemiRing_Morphism f → SemiRing_Morphism g) as P.

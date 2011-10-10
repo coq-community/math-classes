@@ -51,7 +51,7 @@ Section contents.
    induction (et o); simpl; repeat intro.
     rewrite <- ba_ab, H1...
    apply IHo0.
-     eapply Preservation_proper''; eauto; intros; try apply _. 
+     eapply Preservation_proper''; eauto; intros; try apply _.
      symmetry. apply H3, ab_proper, H4.
     apply H2...
    apply H3...
@@ -65,7 +65,7 @@ Section contents.
    rewrite (transfer_eval t v).
    apply (@map_iso _ A B _ _ (@ab) (@ba) ab_ba).
    apply _.
-  Qed. 
+  Qed.
 
   Program Lemma transfer_statement_and_vars (s: Statement et) (v: Vars et B nat):
     eval_stmt et v s ↔ eval_stmt et (A:=A) (λ _ i, ba (v _ i)) s.

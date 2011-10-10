@@ -1,7 +1,7 @@
 Require Import
   abstract_algebra interfaces.orders orders.maps theory.lattices.
 
-(* 
+(*
 We prove that the algebraic definition of a lattice corresponds to the
 order theoretic one. Note that we do not make any of these instances global,
 because that would cause loops.
@@ -38,11 +38,11 @@ Section join_semilattice_order.
   Proof.
     repeat (split; try apply _).
       intros x y z. apply (antisymmetry (≤)).
-       apply join_lub. 
-        now apply join_ub_3_l. 
+       apply join_lub.
+        now apply join_ub_3_l.
        apply join_lub. now apply join_ub_3_m. now apply join_ub_3_r.
-      apply join_lub. 
-       apply join_lub. now apply join_ub_3_assoc_l. now apply join_ub_3_assoc_m. 
+      apply join_lub.
+       apply join_lub. now apply join_ub_3_assoc_l. now apply join_ub_3_assoc_m.
       now apply join_ub_3_assoc_r.
      intros x y. apply (antisymmetry (≤)); apply join_lub; first [apply join_ub_l | try apply join_ub_r].
     intros x. red. apply (antisymmetry (≤)). now apply join_lub. now apply join_ub_l.
@@ -51,7 +51,7 @@ Section join_semilattice_order.
   Lemma join_le_compat_r x y z : z ≤ x → z ≤ x ⊔ y.
   Proof. intros E. transitivity x. easy. apply join_ub_l. Qed.
   Lemma join_le_compat_l x y z : z ≤ y → z ≤ x ⊔ y.
-  Proof. intros E. rewrite commutativity. now apply join_le_compat_r. Qed. 
+  Proof. intros E. rewrite commutativity. now apply join_le_compat_r. Qed.
 
   Lemma join_l x y : y ≤ x → x ⊔ y = x.
   Proof. intros E. apply (antisymmetry (≤)). now apply join_lub. apply join_ub_l. Qed.
@@ -62,7 +62,7 @@ Section join_semilattice_order.
   Proof. split; intros E. now apply join_r. rewrite <-E. now apply join_ub_l. Qed.
 
   Global Instance: ∀ z, OrderPreserving (z ⊔).
-  Proof. 
+  Proof.
     intros. repeat (split; try apply _). intros.
     apply join_lub. now apply join_ub_l. now apply  join_le_compat_l.
   Qed.
@@ -122,20 +122,20 @@ Section meet_semilattice_order.
   Proof.
     repeat (split; try apply _).
       intros x y z. apply (antisymmetry (≤)).
-       apply meet_glb. 
+       apply meet_glb.
         apply meet_glb. now apply meet_lb_3_assoc_l. now apply meet_lb_3_assoc_m.
-       now apply meet_lb_3_assoc_r. 
+       now apply meet_lb_3_assoc_r.
       apply meet_glb.
        now apply meet_lb_3_l.
-      apply meet_glb. now apply meet_lb_3_m. now apply meet_lb_3_r. 
+      apply meet_glb. now apply meet_lb_3_m. now apply meet_lb_3_r.
      intros x y. apply (antisymmetry (≤)); apply meet_glb; first [apply meet_lb_l | try apply meet_lb_r].
-    intros x. red. apply (antisymmetry (≤)). now apply meet_lb_l. now apply meet_glb. 
+    intros x. red. apply (antisymmetry (≤)). now apply meet_lb_l. now apply meet_glb.
   Qed.
 
   Lemma meet_le_compat_r x y z : x ≤ z → x ⊓ y ≤ z.
   Proof. intros E. transitivity x. apply meet_lb_l. easy. Qed.
   Lemma meet_le_compat_l x y z : y ≤ z → x ⊓ y ≤ z.
-  Proof. intros E. rewrite commutativity. now apply meet_le_compat_r. Qed. 
+  Proof. intros E. rewrite commutativity. now apply meet_le_compat_r. Qed.
 
   Lemma meet_l x y : x ≤ y → x ⊓ y = x.
   Proof. intros E. apply (antisymmetry (≤)). apply meet_lb_l. now apply meet_glb. Qed.
@@ -146,7 +146,7 @@ Section meet_semilattice_order.
   Proof. split; intros E. now apply meet_l. rewrite <-E. now apply meet_lb_r. Qed.
 
   Global Instance: ∀ z, OrderPreserving (z ⊓).
-  Proof. 
+  Proof.
     intros. repeat (split; try apply _). intros.
     apply meet_glb. now apply meet_lb_l. now apply  meet_le_compat_l.
   Qed.
@@ -178,7 +178,7 @@ Section lattice_order.
   Qed.
 
   Instance: Absorption (⊔) (⊓).
-  Proof. 
+  Proof.
     intros x y. apply (antisymmetry (≤)).
      apply join_le. easy. now apply meet_lb_l.
     now apply join_ub_l.
@@ -233,7 +233,7 @@ Section meet_sl_order_alt.
   Context `{MeetSemiLattice L} `{Le L} (le_correct : ∀ x y, x ≤ y ↔ x ⊓ y = x).
 
   Lemma alt_Build_MeetSemiLatticeOrder : MeetSemiLatticeOrder (≤).
-  Proof. 
+  Proof.
     split; try (split; try apply _).
          intros ?? E1 ?? E2. now rewrite !le_correct, E1, E2.
         split.
@@ -283,7 +283,7 @@ Section meet_order_preserving.
 End meet_order_preserving.
 
 Section order_preserving_join_sl_mor.
-  Context `{JoinSemiLatticeOrder L} `{JoinSemiLatticeOrder K} 
+  Context `{JoinSemiLatticeOrder L} `{JoinSemiLatticeOrder K}
     `{!TotalOrder (_ : Le L)} `{!TotalOrder (_ : Le K)} `{!OrderPreserving (f : L → K)}.
 
   Local Existing Instance join_sl_order_join_sl.
@@ -299,7 +299,7 @@ Section order_preserving_join_sl_mor.
 End order_preserving_join_sl_mor.
 
 Section order_preserving_meet_sl_mor.
-  Context `{MeetSemiLatticeOrder L} `{MeetSemiLatticeOrder K} 
+  Context `{MeetSemiLatticeOrder L} `{MeetSemiLatticeOrder K}
     `{!TotalOrder (_ : Le L)} `{!TotalOrder (_ : Le K)} `{!OrderPreserving (f : L → K)}.
 
   Local Existing Instance meet_sl_order_meet_sl.

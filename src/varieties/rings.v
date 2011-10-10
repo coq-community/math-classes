@@ -47,7 +47,7 @@ Definition Object := varieties.Object theory.
  Algebra/InVariety/HomoMorphism type classes instantiated with the above
  signature and theory. *)
 
-Section decode_operations. 
+Section decode_operations.
   Context `{AlgebraOps theory A}.
   Global Instance: Plus (A tt) := algebra_op plus.
   Global Instance: Mult (A tt) := algebra_op mult.

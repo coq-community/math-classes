@@ -39,7 +39,7 @@ Add Ring Q : Qsrt.
 Lemma anyQ_field_theory: field_theory zero one add mul sub opp div inv eq.
   (* No idea why this is missing in QSig. *)
 Proof.
- constructor. 
+ constructor.
     constructor; intros; qify; ring.
    exact neq_1_0.
   exact div_mul_inv.
@@ -47,8 +47,8 @@ Proof.
 Qed.
 
 Instance: DecField t.
-Proof. 
-  refine (dec_fields.from_stdlib_field_theory anyQ_field_theory _). 
+Proof.
+  refine (dec_fields.from_stdlib_field_theory anyQ_field_theory _).
   unfold eq. now rewrite spec_inv, spec_0.
 Qed.
 
@@ -88,8 +88,8 @@ Instance QType_le: Le t := le.
 Instance QType_lt: Lt t := lt.
 
 Instance: Proper ((=) ==> (=) ==> iff) QType_le.
-Proof. 
-  intros ? ? E1 ? ? E2. unfold QType_le, le, equiv, QType_equiv, eq in *. 
+Proof.
+  intros ? ? E1 ? ? E2. unfold QType_le, le, equiv, QType_equiv, eq in *.
   now rewrite E1, E2.
 Qed.
 
@@ -105,13 +105,13 @@ Proof. now apply (maps.projected_total_order to_Q). Qed.
 Instance: FullPseudoSemiRingOrder QType_le QType_lt.
 Proof.
   rapply semirings.dec_full_pseudo_srorder.
-  intros x y. 
+  intros x y.
   change (to_Q x < to_Q y ↔ x ≤ y ∧ x ≠ y).
   now rewrite orders.lt_iff_le_ne.
 Qed.
 
 (* Efficient comparison *)
-Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, 
+Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y,
   match compare x y with
   | Gt => right _
   | _ => left _
@@ -138,7 +138,7 @@ Proof.
     intros. now rewrite spec_power, preserves_1.
    intros. rewrite spec_power, preserves_0.
    now apply int_pow_base_0.
-  intros ? ? E. rewrite preserves_mult, 2!spec_power. 
+  intros ? ? E. rewrite preserves_mult, 2!spec_power.
   rewrite preserves_0 in E.
   now apply int_pow_S.
 Qed.

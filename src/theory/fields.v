@@ -3,7 +3,7 @@ Require Import
 Require Export
   theory.rings.
 
-Section field_properties. 
+Section field_properties.
 Context `{Field F}.
 
 Add Ring F : (stdlib_ring_theory F).
@@ -51,7 +51,7 @@ Global Instance: ∀ z, StrongRightCancellation (+) z.
 Proof. intros. apply (strong_right_cancel_from_left (+)). Qed.
 
 Global Instance: ∀ z, PropHolds (z ≶ 0) → StrongLeftCancellation (.*.) z.
-Proof. 
+Proof.
   intros z Ez x y E. red in Ez.
   rewrite !(commutativity z).
   apply (strong_extensionality (.* // z↾(Ez : (≶0) z))).
@@ -68,7 +68,7 @@ Proof. intros. apply (strong_extensionality (.* y)). now rewrite mult_0_l. Qed.
 Lemma mult_apart_zero_r x y : x * y ≶ 0 → y ≶ 0.
 Proof. intros. apply (strong_extensionality (x *.)). now rewrite mult_0_r. Qed.
 
-Instance mult_apart_zero x y : 
+Instance mult_apart_zero x y :
   PropHolds (x ≶ 0) → PropHolds (y ≶ 0) → PropHolds (x * y ≶ 0).
 Proof.
   intros Ex Ey.
@@ -121,7 +121,7 @@ Proof with try ring.
   rewrite recip_inverse...
 Qed. (* todo: should be cleanable *)
 
-Lemma recip_distr_alt (x y : F) Px Py Pxy : 
+Lemma recip_distr_alt (x y : F) Px Py Pxy :
   // (x * y)↾Pxy = // x↾Px * // y↾Py.
 Proof with try ring.
   apply (left_cancellation_ne_0 (.*.) (x * y)).

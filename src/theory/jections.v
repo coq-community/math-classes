@@ -4,11 +4,11 @@ Require Import
 Local Existing Instance injective_mor.
 Local Existing Instance surjective_mor.
 
-Lemma injective_compose_cancel `{Equiv A} `{Equiv B} `{Equiv C} (f : B → C) 
+Lemma injective_compose_cancel `{Equiv A} `{Equiv B} `{Equiv C} (f : B → C)
     `{!Injective f} `{!Setoid_Morphism (g : A → B)} `{!Setoid_Morphism (h : A → B)} :
   f ∘ g = f ∘ h → g = h.
 Proof.
-  pose proof (setoidmor_a g). 
+  pose proof (setoidmor_a g).
   intros E. apply setoids.ext_equiv_applied_iff. intros x.
   apply (injective f). now apply E.
 Qed.
@@ -23,14 +23,14 @@ Proof.
   intros x y E. apply (injective f). now rewrite !(surjective_applied f).
 Qed.
 
-Lemma bijective_cancel_left `{Equiv A} `{Equiv B} (f : A → B) `{!Inverse f} `{!Bijective f} x y : 
+Lemma bijective_cancel_left `{Equiv A} `{Equiv B} (f : A → B) `{!Inverse f} `{!Bijective f} x y :
   f x = y → x = f⁻¹ y.
 Proof.
   pose proof (setoidmor_b f).
   intros E. apply (injective f). now rewrite (surjective_applied f).
 Qed.
 
-Lemma bijective_cancel_inverse_left `{Equiv A} `{Equiv B} (f : A → B) `{!Inverse f} `{!Bijective f} x y : 
+Lemma bijective_cancel_inverse_left `{Equiv A} `{Equiv B} (f : A → B) `{!Inverse f} `{!Bijective f} x y :
   f⁻¹ x = y → x = f y.
 Proof.
   pose proof (setoidmor_a f). pose proof (setoidmor_b f).
@@ -38,13 +38,13 @@ Proof.
 Qed.
 
 Lemma bijective_applied `{Equiv A} `{Equiv B} (f : A → B) `{!Inverse f} `{!Bijective f} x: f⁻¹ (f x) = x.
-Proof. 
+Proof.
   pose proof (setoidmor_a f). pose proof (setoidmor_b f).
   symmetry. now apply (bijective_cancel_left f).
 Qed.
 
 Lemma bijective `{Equiv A} `{Equiv B} (f : A → B) `{!Inverse f} `{!Bijective f} : f⁻¹ ∘ f = id. (* a.k.a. "split-mono" *)
-Proof. 
+Proof.
   pose proof (setoidmor_a f).
   apply ext_equiv_applied_iff, (bijective_applied f).
 Qed.
@@ -113,7 +113,7 @@ Proof. apply alt_Build_Bijective; try apply _. apply (surjective f). apply (bije
 Hint Extern 4 (Bijective (_ ⁻¹)) => apply flip_bijection : typeclass_instances.
 
 Lemma inverse_involutive `(f : A → B) `{!Inverse f} : (f⁻¹)⁻¹ ≡ f.
-Proof. reflexivity. Qed. 
+Proof. reflexivity. Qed.
 
 (* This second version is strictly for manual application. *)
 Lemma flip_bijection_back `{Equiv A} `{Equiv B} (f: A → B) `{!Inverse f} : Bijective (f⁻¹) → Bijective f.
@@ -133,11 +133,11 @@ Qed.
 Lemma surjective_proper `{Equiv A} `{Equiv B} (f g : A → B) `{!Inverse f} `{!Inverse g} `{!Surjective g} :
   f = g → f⁻¹ = g⁻¹  → Surjective f.
 Proof.
-  intros E1 E2. 
+  intros E1 E2.
   pose proof (setoidmor_a g). pose proof (setoidmor_b g).
   split.
    intros ? ? E3. change (f  (f⁻¹ x) = y).
    rewrite <-E3, (ext_equiv_applied E1 _), (ext_equiv_applied E2 _).
    now apply surjective_applied.
   rewrite E1; apply _.
-Qed. 
+Qed.

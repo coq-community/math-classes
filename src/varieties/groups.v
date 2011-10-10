@@ -39,7 +39,7 @@ Definition forget: Object → setoids.Object :=
     (λ _, setoids.Object)
     (λ _, _: Arrows setoids.Object) _
     (λ _, _: CatId setoids.Object)
-    (λ _, _: CatComp setoids.Object) 
+    (λ _, _: CatComp setoids.Object)
     (λ _, _: Category setoids.Object) tt
      ∘ forget_algebra.object theory ∘ forget_variety.forget theory.
   (* todo: too ugly *)
@@ -73,7 +73,7 @@ Section encode_variety_and_ops.
        apply associativity.
       apply left_identity.
      apply right_identity.
-    eapply left_inverse. 
+    eapply left_inverse.
    eapply right_inverse.
   Qed.
 

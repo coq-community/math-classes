@@ -39,7 +39,7 @@ Section monadic_functions.
 
   Definition map `(f : A → B) : M A → M B := λ ma, a ← ma ; ret (f a).
 
-  Global Instance map_proper `{Setoid A} `{Setoid B} `(f : A → B) `{!Proper ((=) ==> (=)) f}: 
+  Global Instance map_proper `{Setoid A} `{Setoid B} `(f : A → B) `{!Proper ((=) ==> (=)) f}:
     Proper ((=) ==> (=)) (map f).
   Proof.
     assert (Proper ((=) ==> (=)) (λ a : A, ret (f a))) by solve_proper.

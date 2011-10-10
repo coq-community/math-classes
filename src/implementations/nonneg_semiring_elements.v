@@ -1,4 +1,4 @@
-Require 
+Require
   theory.rings.
 Require Import
   Ring
@@ -15,20 +15,20 @@ Add Ring R : (rings.stdlib_semiring_theory R).
 Global Instance NonNeg_inject: Cast (R⁺) R := @proj1_sig R _.
 
 (* Operations *)
-Global Program Instance NonNeg_plus: Plus (R⁺) := λ x y, (x + y)↾_. 
+Global Program Instance NonNeg_plus: Plus (R⁺) := λ x y, (x + y)↾_.
 Next Obligation.
   destruct x as [x Hx], y as [y Hy].
   now apply nonneg_plus_compat.
 Qed.
 
-Global Program Instance NonNeg_mult: Mult (R⁺) := λ x y, (x * y)↾_. 
+Global Program Instance NonNeg_mult: Mult (R⁺) := λ x y, (x * y)↾_.
 Next Obligation.
   destruct x as [x Hx], y as [y Hy].
   now apply nonneg_mult_compat.
 Qed.
 
 Global Program Instance NonNeg_0: Zero (R⁺) := 0↾_.
-Next Obligation. reflexivity. Qed. 
+Next Obligation. reflexivity. Qed.
 
 Global Program Instance NonNeg_1: One (R⁺) := 1↾_.
 Next Obligation. apply le_0_1. Qed.
@@ -44,12 +44,12 @@ Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) NonNeg_mult.
 Proof.
-  intros [x1 Ex1] [y1 Ey1] E1 [x2 Ex2] [y2 Ey2] E2. unfold_equivs. 
+  intros [x1 Ex1] [y1 Ey1] E1 [x2 Ex2] [y2 Ey2] E2. unfold_equivs.
   now rewrite E1, E2.
 Qed.
 
 (* It is indeed a semiring *)
-Global Instance: SemiRing (R⁺). 
+Global Instance: SemiRing (R⁺).
 Proof. repeat (split; try apply _); repeat intro; unfold_equivs; ring. Qed.
 
 Instance: Proper ((=) ==> (=)) NonNeg_inject.
@@ -63,12 +63,12 @@ Proof. split. trivial. apply _. Qed.
 
 (* Misc *)
 Global Instance NonNeg_trivial_apart `{!TrivialApart R} :  TrivialApart (R⁺).
-Proof. intros x y. now rapply trivial_apart. Qed. 
+Proof. intros x y. now rapply trivial_apart. Qed.
 
-Global Instance NonNeg_equiv_dec `{∀ x y : R, Decision (x = y)} : ∀ x y: R⁺, Decision (x = y) 
+Global Instance NonNeg_equiv_dec `{∀ x y : R, Decision (x = y)} : ∀ x y: R⁺, Decision (x = y)
   := λ x y, decide_rel (=) ('x) ('y).
 
-Global Instance NonNeg_apart_dec `{∀ x y : R, Decision (x ≶ y)} : ∀ x y: R⁺, Decision (x ≶ y) 
+Global Instance NonNeg_apart_dec `{∀ x y : R, Decision (x ≶ y)} : ∀ x y: R⁺, Decision (x ≶ y)
   := λ x y, decide_rel (≶) ('x) ('y).
 
 (* Order *)
@@ -91,7 +91,7 @@ Proof maps.embed_totalorder NonNeg_le.
 Global Instance: SemiRingOrder NonNeg_order.
 Proof.
   split; try apply _.
-   intros x y. split; intros E. 
+   intros x y. split; intros E.
     apply (order_preserving NonNeg_inject) in E.
     apply srorder_plus in E. destruct E as [z [Ez1 Ez2]].
     exists (z↾Ez1); intuition.
@@ -106,8 +106,8 @@ Proof.
   now apply srorder_mult.
 Qed.
 *)
-Global Program Instance NonNeg_le_dec `{∀ x y : R, Decision (x ≤ y)} : ∀ x y: R⁺, Decision (x ≤ y) := λ x y, 
-  match decide_rel (≤) ('x) ('y) with 
+Global Program Instance NonNeg_le_dec `{∀ x y : R, Decision (x ≤ y)} : ∀ x y: R⁺, Decision (x ≤ y) := λ x y,
+  match decide_rel (≤) ('x) ('y) with
   | left E => left _
   | right E => right _
   end.

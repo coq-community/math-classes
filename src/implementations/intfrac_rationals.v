@@ -1,5 +1,5 @@
-Require Import 
-  interfaces.rationals interfaces.integers 
+Require Import
+  interfaces.rationals interfaces.integers
   abstract_algebra theory.rationals.
 Require Export
   field_of_fractions.

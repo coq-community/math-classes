@@ -1,6 +1,6 @@
 Require Import
-  List abstract_algebra theory.categories forget_algebra forget_variety 
-  theory.rings interfaces.universal_algebra interfaces.functors 
+  List abstract_algebra theory.categories forget_algebra forget_variety
+  theory.rings interfaces.universal_algebra interfaces.functors
   categories.setoids categories.varieties.
 Require
   categories.product varieties.monoids categories.algebras
@@ -113,7 +113,7 @@ Section practical.
 
   Next Obligation.
    apply monoids.encode_morphism_only.
-   destruct X. simpl in *. 
+   destruct X. simpl in *.
    apply (sequence_extend_makes_morphisms _). apply _.
   Qed.
 

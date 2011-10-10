@@ -1,16 +1,16 @@
 Require Import
   Ring Field abstract_algebra interfaces.orders
   interfaces.naturals interfaces.rationals interfaces.integers
-  natpair_integers theory.rationals theory.dec_fields theory.rings 
+  natpair_integers theory.rationals theory.dec_fields theory.rings
   orders.integers orders.dec_fields.
 
 Section rationals_and_integers.
-  Context `{Rationals Q} `{!SemiRingOrder Qle} 
+  Context `{Rationals Q} `{!SemiRingOrder Qle}
     Z `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder (A:=Z) Zle Zlt}
     {f : Z → Q} `{!SemiRing_Morphism f}.
   Add Field Q : (stdlib_field_theory Q).
 
-  Lemma rationals_decompose_pos_den x : 
+  Lemma rationals_decompose_pos_den x :
     ∃ num, ∃ den, 0 < den ∧ x = f num / f den.
   Proof.
     destruct (rationals_decompose x) as [num [den [E1 E2]]].
@@ -51,7 +51,7 @@ Section rationals_and_another_rationals.
     apply (order_preserving_nonneg (.*.) (i_to_r den)) in E.
      rewrite right_absorb. rewrite right_absorb in E.
      rewrite (commutativity (f (i_to_r num))), associativity, dec_recip_inverse, left_identity.
-      rewrite (commutativity (i_to_r num)), associativity, dec_recip_inverse, left_identity in E. 
+      rewrite (commutativity (i_to_r num)), associativity, dec_recip_inverse, left_identity in E.
        change (0 ≤ (f ∘ i_to_r) num).
        rewrite (integers.to_ring_unique _).
        rewrite <-(preserves_0 (f:=integers_to_ring (SRpair nat) Q2)).
@@ -90,7 +90,7 @@ Instance rationals_le `{Rationals Q} : Le Q | 10 := λ x y,
   ∃ num, ∃ den, y = x + naturals_to_semiring nat Q num / naturals_to_semiring nat Q den.
 Instance rationals_lt  `{Rationals Q} : Lt Q | 10 := dec_lt.
 
-Section default_order. 
+Section default_order.
   Context `{Rationals Q} `{Apart Q} `{!TrivialApart Q}.
 
   Add Field F: (stdlib_field_theory Q).
@@ -108,7 +108,7 @@ Section default_order.
   Proof. intro. exists (0:nat) (0:nat). rewrite preserves_0. ring. Qed.
 
   (* rationals_le can actually only happen if the denominator is nonzero: *)
-  Lemma rationals_decompose_le (x y: Q) : 
+  Lemma rationals_decompose_le (x y: Q) :
     x ≤ y → ∃ num, ∃ den, den ≠ 0 ∧ y = x + n_to_sr num * / n_to_sr den.
   Proof with eauto.
     intros [n [d E]].
@@ -133,7 +133,7 @@ Section default_order.
 
   Instance: AntiSymmetric rationals_le.
   Proof with auto.
-    intros x y E1 E2. 
+    intros x y E1 E2.
     destruct (rationals_decompose_le x y) as [n1 [d1 [A1 B1]]]...
     destruct (rationals_decompose_le y x) as [n2 [d2 [A2 B2]]]...
     rewrite B1 in B2 |- *.
@@ -148,7 +148,7 @@ Section default_order.
        apply dec_recip_ne_0. apply injective_ne_0...
       apply (left_cancellation_ne_0 (.*.) (/n_to_sr d2)).
        apply dec_recip_ne_0. apply injective_ne_0...
-      ring_simplify. 
+      ring_simplify.
       etransitivity.
        2: now symmetry; eauto.
       field.
@@ -167,7 +167,7 @@ Section default_order.
      intros x y [n [d E]]. exists n d. rewrite E. ring.
     intros x y [n1 [d1 E1]] [n2 [d2 E2]].
     exists (n1 * n2) (d1 * d2).
-    rewrite 2!preserves_mult. 
+    rewrite 2!preserves_mult.
     rewrite E1, E2, dec_recip_distr. ring.
   Qed.
 

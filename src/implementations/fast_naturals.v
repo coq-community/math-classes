@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   BigN interfaces.naturals.
 Require Export
   NType_naturals.

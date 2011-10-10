@@ -3,7 +3,7 @@ Require
 Require Import
   Morphisms abstract_algebra.
 
-Section semigroup_props. 
+Section semigroup_props.
 Context `{SemiGroup G}.
 
 Global Instance sg_op_mor_1: ∀ x, Setoid_Morphism (x &) | 0.
@@ -13,7 +13,7 @@ Global Instance sg_op_mor_2: ∀ x, Setoid_Morphism (& x) | 0.
 Proof. split; try apply _. solve_proper. Qed.
 End semigroup_props.
 
-Section group_props. 
+Section group_props.
 Context `{Group G}.
 Global Instance negate_involutive: Involutive (-).
 Proof.
@@ -41,7 +41,7 @@ Proof.
   rewrite <-(left_identity x), <-(left_inverse z), <-associativity.
   rewrite E.
   now rewrite associativity, left_inverse, left_identity.
-Qed.  
+Qed.
 
 Global Instance: ∀ z : G, RightCancellation (&) z.
 Proof.
@@ -66,7 +66,7 @@ Proof.
 Qed.
 End group_props.
 
-Section groupmor_props. 
+Section groupmor_props.
   Context `{Group A} `{Group B} {f : A → B} `{!Monoid_Morphism f}.
 
   Lemma preserves_negate x : f (-x) = -f x.
@@ -78,7 +78,7 @@ Section groupmor_props.
   Qed.
 End groupmor_props.
 
-Instance semigroup_morphism_proper {A B eA eB opA opB} : 
+Instance semigroup_morphism_proper {A B eA eB opA opB} :
   Proper ((=) ==> iff) (@SemiGroup_Morphism A B eA eB opA opB) | 1.
 Proof.
   assert (∀ (f g : A → B), g = f → SemiGroup_Morphism f → SemiGroup_Morphism g) as P.
@@ -91,7 +91,7 @@ Proof.
   now apply P with g.
 Qed.
 
-Instance monoid_morphism_proper {A B eA eB opA uA opB uB} : 
+Instance monoid_morphism_proper {A B eA eB opA uA opB uB} :
   Proper ((=) ==> iff) (@Monoid_Morphism A B eA eB opA uA opB uB) | 1.
 Proof.
   assert (∀ (f g : A → B), g = f → Monoid_Morphism f → Monoid_Morphism g) as P.
@@ -101,11 +101,11 @@ Proof.
    now rewrite (E mon_unit mon_unit).
   intros f g ?; split; intros Mor.
    apply P with f. destruct Mor. now symmetry. apply _.
-  now apply P with g. 
+  now apply P with g.
 Qed.
 
 Section from_another_sg.
-  Context `{SemiGroup A} `{Setoid B} 
+  Context `{SemiGroup A} `{Setoid B}
    `{Bop : SgOp B} (f : B → A) `{!Injective f} (op_correct : ∀ x y, f (x & y) = f x & f y).
 
   Instance: Setoid_Morphism f := injective_mor f.
@@ -114,25 +114,25 @@ Section from_another_sg.
 
   Lemma projected_sg: SemiGroup B.
   Proof.
-    split; try apply _. 
+    split; try apply _.
     repeat intro; apply (injective f). now rewrite !op_correct, associativity.
   Qed.
 End from_another_sg.
 
 Section from_another_com_sg.
-  Context `{CommutativeSemiGroup A} `{Setoid B} 
+  Context `{CommutativeSemiGroup A} `{Setoid B}
    `{Bop : SgOp B} (f : B → A) `{!Injective f} (op_correct : ∀ x y, f (x & y) = f x & f y).
 
   Lemma projected_com_sg: CommutativeSemiGroup B.
   Proof.
-    split. now apply (projected_sg f). 
+    split. now apply (projected_sg f).
     repeat intro; apply (injective f). now rewrite !op_correct, commutativity.
   Qed.
 End from_another_com_sg.
 
 Section from_another_monoid.
-  Context `{Monoid A} `{Setoid B} 
-   `{Bop : SgOp B} `{Bunit : MonUnit B} (f : B → A) `{!Injective f} 
+  Context `{Monoid A} `{Setoid B}
+   `{Bop : SgOp B} `{Bunit : MonUnit B} (f : B → A) `{!Injective f}
    (op_correct : ∀ x y, f (x & y) = f x & f y) (unit_correct : f mon_unit = mon_unit).
 
   Lemma projected_monoid: Monoid B.
@@ -144,8 +144,8 @@ Section from_another_monoid.
 End from_another_monoid.
 
 Section from_another_com_monoid.
-  Context `{CommutativeMonoid A} `{Setoid B} 
-   `{Bop : SgOp B} `{Bunit : MonUnit B} (f : B → A) `{!Injective f} 
+  Context `{CommutativeMonoid A} `{Setoid B}
+   `{Bop : SgOp B} `{Bunit : MonUnit B} (f : B → A) `{!Injective f}
    (op_correct : ∀ x y, f (x & y) = f x & f y) (unit_correct : f mon_unit = mon_unit).
 
   Lemma projected_com_monoid: CommutativeMonoid B.
@@ -156,8 +156,8 @@ Section from_another_com_monoid.
 End from_another_com_monoid.
 
 Section from_another_group.
-  Context `{Group A} `{Setoid B} 
-   `{Bop : SgOp B} `{Bunit : MonUnit B} `{Bnegate : Negate B} (f : B → A) `{!Injective f} 
+  Context `{Group A} `{Setoid B}
+   `{Bop : SgOp B} `{Bunit : MonUnit B} `{Bnegate : Negate B} (f : B → A) `{!Injective f}
    (op_correct : ∀ x y, f (x & y) = f x & f y) (unit_correct : f mon_unit = mon_unit)
    (negate_correct : ∀ x, f (-x) = -f x).
 
@@ -174,8 +174,8 @@ Section from_another_group.
 End from_another_group.
 
 Section from_another_ab_group.
-  Context `{AbGroup A} `{Setoid B} 
-   `{Bop : SgOp B} `{Bunit : MonUnit B} `{Bnegate : Negate B} (f : B → A) `{!Injective f} 
+  Context `{AbGroup A} `{Setoid B}
+   `{Bop : SgOp B} `{Bunit : MonUnit B} `{Bnegate : Negate B} (f : B → A) `{!Injective f}
    (op_correct : ∀ x y, f (x & y) = f x & f y) (unit_correct : f mon_unit = mon_unit)
    (negate_correct : ∀ x, f (-x) = -f x).
 

@@ -20,7 +20,7 @@ Instance nonneg_dec_recip_compat x : PropHolds (0 ≤ x) → PropHolds (0 ≤ /x
 Proof.
   intros E. red.
   destruct (decide (x = 0)) as [E2 | E2].
-   now rewrite E2, dec_recip_0. 
+   now rewrite E2, dec_recip_0.
   apply lt_le. apply pos_dec_recip_compat.
   apply lt_iff_le_ne. split. easy. now apply not_symmetry.
 Qed.

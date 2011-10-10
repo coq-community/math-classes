@@ -33,7 +33,7 @@ Instance: Arrows Object := Arrow.
 Section contents.
   Implicit Arguments map_obj [[x] [y]].
 
-  Section more_arrows. 
+  Section more_arrows.
     Context (x y: Object).
 
     Global Instance e: Equiv (x ⟶ y) := λ a b,

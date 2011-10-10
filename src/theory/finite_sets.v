@@ -17,9 +17,9 @@ Section fset_props.
   Lemma fset_extend_unique_applied `{Equiv B} `{Join B} `{Bottom B} (f : A → B) `{!Setoid_Morphism f}
       (h : set_type A → B) `{!BoundedJoinSemiLattice_Morphism (h : set_type A → B)} :
     (∀ x, f x = h {{ x }}) → ∀ x, h x = fset_extend f x.
-  Proof. 
+  Proof.
     intros. apply setoids.ext_equiv_applied, (fset_extend_unique _ _).
-    now apply setoids.ext_equiv_applied_iff. 
+    now apply setoids.ext_equiv_applied_iff.
   Qed.
 
   Let F (x y z : A) := if decide (z = x) then false else true.
@@ -45,7 +45,7 @@ Section fset_props.
     assert (Setoid_Morphism g) by (split; try apply _; firstorder).
     assert (fset_extend g {{ x }} ≠ ⊥) as E2.
      rewrite <-(fset_extend_correct_applied g). discriminate.
-    destruct E2. now rewrite E1, preserves_bottom. 
+    destruct E2. now rewrite E1, preserves_bottom.
   Qed.
 
   Lemma fset_join_singletons x : {{ x ;  x }} = {{ x }}.
@@ -66,7 +66,7 @@ Section fset_props.
   Proof. rewrite commutativity, fset_join_singletons_eq_l. intuition. Qed.
 End fset_props.
 
-Instance fset_map_mor `{FSet A} `{FSet B} (f : A → B) `{!Setoid_Morphism f} : 
+Instance fset_map_mor `{FSet A} `{FSet B} (f : A → B) `{!Setoid_Morphism f} :
   BoundedJoinSemiLattice_Morphism (fset_map f).
 Proof. apply _. Qed.
 
@@ -76,12 +76,12 @@ Proof (fset_extend_correct _).
 
 Lemma fset_map_correct_applied `{FSet A} `{FSet B} (f : A → B) `{!Setoid_Morphism f} x :
   {{ f x }} = fset_map f {{ x }}.
-Proof. 
+Proof.
   pose proof (fset_car_setoid A).
   now apply (setoids.ext_equiv_applied (fset_map_correct f)).
-Qed. 
+Qed.
 
-Lemma fset_map_unique `{FSet A} `{FSet B} (f : A → B) `{!Setoid_Morphism f} 
+Lemma fset_map_unique `{FSet A} `{FSet B} (f : A → B) `{!Setoid_Morphism f}
     (h : set_type A → set_type B) `{!BoundedJoinSemiLattice_Morphism h} :
   singleton ∘ f = h ∘ singleton → h = fset_map f.
 Proof. intros. unfold fset_map. now apply (fset_extend_unique _ _). Qed.
@@ -90,7 +90,7 @@ Lemma fset_map_id `{FSet A} :
   fset_map id = id.
 Proof.
   pose proof (fset_car_setoid A).
-  symmetry. apply (fset_map_unique id id). 
+  symmetry. apply (fset_map_unique id id).
   now apply setoids.ext_equiv_refl.
 Qed.
 
@@ -132,7 +132,7 @@ Instance fset_map_bijective `{FSet A} `{FSet B}
   (f : A → B) `{!Inverse f} `{!Bijective f} : Bijective (fset_map f).
 Proof.
   pose proof (fset_car_setoid A). pose proof (fset_car_setoid B).
-  pose proof (injective_mor f). 
+  pose proof (injective_mor f).
   pose proof (fset_map_surjective f). pose proof (fset_map_surjective (f⁻¹)).
   repeat (split; try apply _). intros x y E.
   rewrite <-(jections.surjective_applied (fset_map (f⁻¹)) x).
@@ -199,7 +199,7 @@ Section full_fset_props.
   Proof. rewrite <-!to_listset_preserves_in, preserves_join. apply listset_in_join. Qed.
 
   Lemma fset_notin_join X Y x : x ∉ X ⊔ Y ↔ x ∉ X ∧ x ∉ Y.
-  Proof. rewrite fset_in_join. tauto. Qed. 
+  Proof. rewrite fset_in_join. tauto. Qed.
 
   Lemma fset_in_singleton x : x ∈ {{ x }}.
   Proof. now rewrite fset_in_singleton_le, join_sl_le_spec, fset_join_singletons. Qed.
@@ -215,7 +215,7 @@ Section full_fset_props.
   Proof. now rewrite fset_in_singleton_eq. Qed.
 
   Lemma fset_in_add y X x : y ∈ {{ x }} ⊔ X ↔ y = x ∨ y ∈ X.
-  Proof. 
+  Proof.
     rewrite fset_in_join. split; intros [?|?]; try tauto.
      left. now apply fset_in_singleton_eq.
     left. now apply fset_in_singleton_eq.
@@ -225,7 +225,7 @@ Section full_fset_props.
   Proof. rewrite fset_in_add. tauto. Qed.
 
   Lemma fset_in_inversion y X x : y ∈ {{ x }} ⊔ X → y = x ∨ y ∈ X.
-  Proof. 
+  Proof.
     rewrite fset_in_join. intros [?|?]; try tauto.
     left. now apply fset_in_singleton_eq.
   Qed.
@@ -244,7 +244,7 @@ Section full_fset_props.
   Proof.
     setoid_rewrite <-to_listset_preserves_in.
     split.
-     intros E. change (to_listset X = to_listset Y). 
+     intros E. change (to_listset X = to_listset Y).
      now apply sm_proper.
     intros. now apply (injective (to_listset)).
   Qed.
@@ -261,13 +261,13 @@ Section full_fset_props.
   Proof. repeat (split; try apply _). Qed.
 
   Global Instance: DistributiveLattice (set_type A).
-  Proof. 
-    repeat (split; try apply _); repeat intro; apply fset_eq_in; intro; 
-      repeat (rewrite fset_in_meet || rewrite fset_in_join); tauto. 
+  Proof.
+    repeat (split; try apply _); repeat intro; apply fset_eq_in; intro;
+      repeat (rewrite fset_in_meet || rewrite fset_in_join); tauto.
   Qed.
 
   Global Instance: MeetSemiLatticeOrder (≤).
-  Proof. 
+  Proof.
     apply alt_Build_MeetSemiLatticeOrder. intros.
     rewrite fset_le_in, fset_eq_in. setoid_rewrite fset_in_meet. firstorder trivial.
   Qed.
@@ -288,10 +288,10 @@ Section full_fset_props.
   Proof. rewrite commutativity, fset_meet_singletons_eq_l. intuition. Qed.
 
   Lemma fset_meet_distinct_singletons x y : x ≠ y → {{ x }} ⊓ {{ y }} = ∅.
-  Proof. 
+  Proof.
     intros E1. apply fset_eq_in. intros z.
     rewrite fset_in_meet. split.
-     intros [E2 E3]. destruct E1. 
+     intros [E2 E3]. destruct E1.
      apply fset_in_singleton_eq in E2. apply fset_in_singleton_eq in E3.
      now rewrite <-E2, <-E3.
     intro. now destruct (fset_notin_empty z).
@@ -301,25 +301,25 @@ Section full_fset_props.
   Proof. intros ?? E1 ?? E2. apply fset_eq_in. intros. now rewrite !fset_in_difference, E1, E2. Qed.
 
   Global Instance fset_difference_empty_r: RightIdentity (∖) ∅.
-  Proof. 
-    intro. apply fset_eq_in. intro. rewrite fset_in_difference. 
+  Proof.
+    intro. apply fset_eq_in. intro. rewrite fset_in_difference.
     split; intuition. edestruct fset_notin_empty; eassumption.
   Qed.
 
   Global Instance fset_difference_empty_l: LeftAbsorb (∖) ∅.
-  Proof. 
-    intro. apply fset_eq_in. intro. rewrite fset_in_difference. 
+  Proof.
+    intro. apply fset_eq_in. intro. rewrite fset_in_difference.
     split; intuition. edestruct fset_notin_empty; eassumption.
   Qed.
 
   Global Instance diff_meet_distr_r: RightDistribute (∖) (⊓).
-  Proof. 
+  Proof.
     intros X Y Z. apply fset_eq_in. intro.
     repeat (rewrite fset_in_meet || rewrite fset_in_difference). intuition.
   Qed.
 
   Global Instance diff_join_distr_r: RightDistribute (∖) (⊔).
-  Proof. 
+  Proof.
     intros X Y Z. apply fset_eq_in. intro.
     repeat (rewrite fset_in_join || rewrite fset_in_difference). intuition.
   Qed.
@@ -327,7 +327,7 @@ Section full_fset_props.
   Lemma diff_meet_join_diff X Y Z : X ∖ (Y ⊓ Z) = X ∖ Y ⊔ X ∖ Z.
   Proof.
     apply fset_eq_in. intro.
-    repeat (rewrite fset_in_join || rewrite fset_in_meet || rewrite fset_in_difference). 
+    repeat (rewrite fset_in_join || rewrite fset_in_meet || rewrite fset_in_difference).
     split; try tauto. intros [??]. case (decide (x ∈ Y)); tauto.
   Qed.
 
@@ -339,11 +339,11 @@ Section full_fset_props.
 End full_fset_props.
 
 Section iso_is_fset.
-  Context `{Setoid A} `{At : SetType A} 
-    `{BoundedJoinSemiLattice (set_type A)} `{fsetB : FSet B} 
+  Context `{Setoid A} `{At : SetType A}
+    `{BoundedJoinSemiLattice (set_type A)} `{fsetB : FSet B}
     `{SetSingleton A} `{!Setoid_Morphism (singleton : A → At)}
     (A_to_B : A → B) `{!Inverse A_to_B} `{!Bijective A_to_B}
-    (At_to_Bt : set_type A → set_type B) `{!Inverse At_to_Bt} 
+    (At_to_Bt : set_type A → set_type B) `{!Inverse At_to_Bt}
    `{!Bijective At_to_Bt} `{!BoundedJoinSemiLattice_Morphism At_to_Bt}
    `{∀ a₁ a₂ : A, Decision (a₁ = a₂)}
     (singleton_correct : At_to_Bt ∘ singleton = singleton ∘ A_to_B).
@@ -362,7 +362,7 @@ Section iso_is_fset.
     now apply setoids.ext_equiv_refl.
   Qed.
 
-  Instance iso_is_fset_extend: FSetExtend A := λ C _ _ f, 
+  Instance iso_is_fset_extend: FSetExtend A := λ C _ _ f,
     fset_extend (f ∘ A_to_B⁻¹) ∘ At_to_Bt.
 
   Instance iso_is_fset: FSet A.

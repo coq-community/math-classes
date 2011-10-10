@@ -9,7 +9,7 @@ Section contents.
 
   Global Instance: @CatId Object flipA := Aid.
   Global Instance: @CatComp Object flipA := λ _ _ _, flip (Acomp _ _ _).
-  Global Instance e: ∀ x y, Equiv (flipA x y) := λ x y, Aeq y x. 
+  Global Instance e: ∀ x y, Equiv (flipA x y) := λ x y, Aeq y x.
 
   Global Instance: ∀ (x y: Object), Equivalence (e x y).
   Proof. intros. change (Equivalence ((=): Equiv (A y x))). apply _. Qed.
@@ -23,7 +23,7 @@ Section contents.
    unfold equiv, e.
    destruct c. rewrite E, F. reflexivity.
   Qed.
-  
+
   Global Instance cat: @Category Object flipA _ _ _.
   Proof with auto.
    destruct c.
