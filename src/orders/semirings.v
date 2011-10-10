@@ -665,6 +665,17 @@ Section another_semiring_strict.
   Context `{StrictSemiRingOrder R1} `{StrictSemiRingOrder R2}
     `{!SemiRing_Morphism (f : R1 → R2)}.
 
+  Lemma strictly_preserving_preserves_pos : (∀ x, 0 < x → 0 < f x) → StrictlyOrderPreserving f.
+  Proof.
+    intros E.
+    repeat (split; try apply _).
+    intros x y F.
+    destruct (decompose_lt F) as [z [Ez1 Ez2]].
+    apply compose_lt with (f z).
+     now apply E.
+    now rewrite Ez2, preserves_plus.
+  Qed.
+
   Instance preserves_pos `{!StrictlyOrderPreserving f} x : PropHolds (0 < x) → PropHolds (0 < f x).
   Proof. intros. rewrite <-(preserves_0 (f:=f)). now apply (strictly_order_preserving f). Qed.
 
@@ -681,3 +692,7 @@ End another_semiring_strict.
 (* Due to bug #2528 *)
 Hint Extern 15 (PropHolds (_ ≤ _ _)) => eapply @preserves_nonneg : typeclass_instances.
 Hint Extern 15 (PropHolds (_ < _ _)) => eapply @preserves_pos : typeclass_instances.
+
+(* Oddly enough, the above hints do not work for goals of the following shape? *)
+Hint Extern 15 (PropHolds (_ ≤ '_)) => eapply @preserves_nonneg : typeclass_instances.
+Hint Extern 15 (PropHolds (_ < '_)) => eapply @preserves_pos : typeclass_instances.
