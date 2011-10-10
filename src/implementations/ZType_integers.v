@@ -133,7 +133,7 @@ Next Obligation.
 Qed.
 
 (* Efficient division *)
-Instance ZType_div: DivEuclid t := div.
+Instance ZType_div: DivEuclid t := anyZ.div.
 Instance ZType_mod: ModEuclid t := modulo.
 
 Instance: EuclidSpec t ZType_div ZType_mod.

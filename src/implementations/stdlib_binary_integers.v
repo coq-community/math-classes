@@ -1,7 +1,7 @@
 Require 
   interfaces.naturals theory.naturals peano_naturals theory.integers.
 Require Import
-  BinInt Ring Arith NArith ZBinary
+  BinInt Ring Arith NArith ZArith ZBinary
   abstract_algebra interfaces.integers
   natpair_integers stdlib_binary_naturals
   interfaces.additional_operations interfaces.orders
@@ -145,7 +145,7 @@ Proof.
 Qed.
 
 (* absolute value *)
-Program Instance: IntAbs Z nat := λ x,
+Program Instance Z_abs_nat: IntAbs Z nat := λ x,
   match x with
   | Z0 => inl (0:nat)
   | Zpos p => inl (nat_of_P p)
@@ -155,7 +155,7 @@ Next Obligation. reflexivity. Qed.
 Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_nat), Znat.Z_of_nat_of_P. Qed.
 Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_nat), Znat.Z_of_nat_of_P. Qed.
 
-Program Instance: IntAbs Z N := λ x,
+Program Instance Z_abs_N: IntAbs Z N := λ x,
   match x with
   | Z0 => inl (0:N)
   | Zpos p => inl (Npos p)
@@ -217,9 +217,21 @@ Proof.
   now destruct n.
 Qed.
 
-Program Instance: Abs Z := Zabs.
+Program Instance Z_abs: Abs Z := Zabs.
 Next Obligation.
   split; intros E.
    now apply Z.abs_eq.
   now apply Z.abs_neq.
+Qed.
+
+Instance Z_div: DivEuclid Z := Zdiv.
+Instance Z_mod: ModEuclid Z := Zmod.
+
+Instance: EuclidSpec Z _ _.
+Proof.
+  split; try apply _.
+     exact Z_div_mod_eq_full.
+    intros x y Ey. destruct (Z_mod_remainder x y); intuition.
+   now intros [].
+  now intros [].
 Qed.

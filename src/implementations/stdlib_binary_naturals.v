@@ -1,6 +1,7 @@
 Require Import 
   NArith peano_naturals theory.naturals
-  abstract_algebra interfaces.naturals interfaces.orders.  
+  abstract_algebra interfaces.naturals interfaces.orders
+  interfaces.additional_operations.  
 
 (* canonical names for relations/operations/constants: *)
 Instance N_equiv : Equiv N := eq.
@@ -86,3 +87,11 @@ Program Instance: ∀ x y: N, Decision (x ≤ y) := λ y x,
   | _ => left _
   end.
 Next Obligation. now apply not_symmetry. Qed.
+
+Instance N_cut_minus: CutMinus N := Nminus.
+Instance: CutMinusSpec N _.
+Proof.
+  split; try apply _.
+   intros. now apply N.sub_add.
+  intros. now apply Nminus_N0_Nle.
+Qed.

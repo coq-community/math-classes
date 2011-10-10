@@ -36,7 +36,7 @@ Proof with intuition. apply Qeq_bool_iff... apply Qeq_bool_neq... Qed.
 Ltac unfold_equiv := unfold equiv, QType_equiv, eq.
 
 Add Ring Q : Qsrt.
-Lemma anyQ_field_theory: field_theory zero one add mul sub opp div inv eq.
+Lemma anyQ_field_theory: field_theory zero one add mul sub opp anyQ.div inv eq.
   (* No idea why this is missing in QSig. *)
 Proof.
  constructor. 

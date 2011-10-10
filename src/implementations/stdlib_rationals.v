@@ -4,7 +4,7 @@ Require Import
   Ring QArith_base Qabs Qpower
   abstract_algebra interfaces.rationals 
   interfaces.orders interfaces.additional_operations
-  field_of_fractions.
+  field_of_fractions orders.integers.
 
 (* canonical names for relations/operations/constants: *)
 Instance Q_eq: Equiv Q := Qeq.
