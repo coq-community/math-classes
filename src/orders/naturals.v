@@ -8,7 +8,7 @@ Require Export
 Section naturals_order.
 Context `{Naturals N} `{Apart N} `{!TrivialApart N} `{!FullPseudoSemiRingOrder Nle Nlt}.
 
-Global Instance nat_nonneg x : PropHolds (0 ≤ x).
+Instance nat_nonneg x : PropHolds (0 ≤ x).
 Proof. now apply (to_semiring_nonneg (f:=id)). Qed.
 
 Lemma nat_le_plus {x y: N}: x ≤ y ↔ ∃ z, y = x + z.
@@ -67,6 +67,8 @@ Section another_ring.
   Proof. apply between_nonneg. now apply to_semiring_nonneg. Qed.
 End another_ring. 
 End naturals_order.
+
+Hint Extern 20 (PropHolds (_ ≤ _)) => eapply @nat_nonneg : typeclass_instances.
 
 (* A default order on the naturals *)
 Instance nat_le `{Naturals N} : Le N | 10 :=  λ x y, ∃ z, x + z = y.
