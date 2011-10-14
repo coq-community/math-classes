@@ -28,7 +28,8 @@ Record Arrow (x y: Object): Type := arrow
   ; Fmap_inst: Fmap map_obj
   ; Functor_inst: Functor map_obj _ }.
 
-Implicit Arguments arrow [[x] [y]].
+Implicit Arguments arrow [[x][y]] [[x][y][Functor_inst]][[x][y][Fmap_inst][Functor_inst]].
+Implicit Arguments map_obj [[x][y]].
 Existing Instance Fmap_inst.
 Existing Instance Functor_inst.
 
@@ -37,8 +38,6 @@ Instance: Arrows Object := Arrow.
   (* Matthieu is adding [Existing Instance (c: T).], which is nicer. *)
 
 Section contents.
-  Implicit Arguments map_obj [[x] [y]].
-
   Section more_arrows.
     Context (x y: Object).
 

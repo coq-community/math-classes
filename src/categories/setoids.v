@@ -65,3 +65,5 @@ Section contents.
   Global Instance mono (X Y: Object) (a: X ⟶ Y): Injective (` a) → Mono a.
   Proof. intros A ??? E1 ?? E2. apply A. apply (E1 _ _ E2). Qed.
 End contents.
+
+Implicit Arguments object [] [[setoid_proof]] [[e] [setoid_proof]].
