@@ -1,19 +1,21 @@
 #! /bin/sh
 
-
-coqdoc=`which coqdoc`        # foo/bar/bin/coqdoc
-coqlibpath=${coqdoc%/*/*}    # foo/bar/
+set -x
 
 tmp=coqdoc-`date +%s`.pdf
 
-if [ $# -lt 1 ]
-then
-    echo "Usage: `basename $0` [file1.v] [file2.v] [...]"
-    exit 65 #E_BADARGS
-fi
+cat > /tmp/moreunicode.sty <<EOF
+\usepackage{mathabx,bbm,ucs}
+\\newcommand{\\textPi}{\ensuremath{\Pi}}
+\DeclareUnicodeCharacter{10230}{\ensuremath{\longrightarrow}}
+\DeclareUnicodeCharacter{9678}{\ensuremath{\ocirc}}
+\DeclareUnicodeCharacter{9675}{\ensuremath{\circ}}
+\DeclareUnicodeCharacter{1013}{\ensuremath{\in}}
+\DeclareUnicodeCharacter{8638}{\ensuremath{\upharpoonright}}
+EOF
 
-set -x
-
-$coqdoc --parse-comments --interpolate --inline-notmono -l --utf8 \
-       --coqlib_path $coqlibpath \
+#ps=`basename $1 .v`.ps
+coqdoc --interpolate --inline-notmono -l \
+       --utf8 --coqlib_path /home/wires/opt/coq-trunk-14023-p_coqdoc/trunk/ \
+       -p "\usepackage{moreunicode}" \
        -o $tmp --pdf $* && mv $tmp /tmp && evince /tmp/$tmp
