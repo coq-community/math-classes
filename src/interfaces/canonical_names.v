@@ -177,6 +177,10 @@ Notation "R ⁻" := (NonPos R) (at level 20, no associativity).
 Notation "R ∞" := (PosInf R) (at level 20, no associativity).
 Notation "x ↾ p" := (exist _ x p) (at level 20).
 
+Ltac simpl_sig_equiv := match goal with [ |- (@equiv _ (sig_equiv (H:=?e) ?P) (?x↾_) (?y ↾_))] => change (@equiv _ e x y) end.
+Hint Extern 4 (@equiv _ (sig_equiv (H:=?e) ?P) (?x↾_) (?y ↾_)) => simpl_sig_equiv.
+
+
 Infix "&" := sg_op (at level 50, left associativity).
 Notation "(&)" := sg_op (only parsing).
 Notation "( x &)" := (sg_op x) (only parsing).
