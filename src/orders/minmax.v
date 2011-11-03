@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.orders orders.orders 
+  abstract_algebra interfaces.orders orders.orders
   orders.lattices theory.setoids.
 
 Section contents.
@@ -12,7 +12,7 @@ Section contents.
   Global Instance: Proper ((=) ==> (=) ==> (=)) sort.
   Proof.
     intros ? ? E1 ? ? E2. unfold sort. do 2 case (decide_rel _); simpl.
-        firstorder. 
+        firstorder.
        intros F ?. destruct F. now rewrite <-E1, <-E2.
       intros ? F. destruct F. now rewrite E1, E2.
     firstorder.
@@ -23,13 +23,13 @@ Section contents.
 
   Global Instance: LatticeOrder (≤).
   Proof.
-    repeat (split; try apply _); unfold join, meet, max, min, sort; 
+    repeat (split; try apply _); unfold join, meet, max, min, sort;
      intros; case (decide_rel _); try easy; now apply le_flip.
   Qed.
 
   Instance: LeftDistribute max min.
-  Proof. 
-    intros x y z. unfold min, max, sort. 
+  Proof.
+    intros x y z. unfold min, max, sort.
     repeat case (decide_rel _); simpl; try solve [intuition].
       intros E1 ? ? ? ?. destruct E1. now transitivity y.
      intros. apply (antisymmetry (≤)); [|easy]. now transitivity y; apply le_flip.

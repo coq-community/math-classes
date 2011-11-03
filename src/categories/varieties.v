@@ -4,7 +4,7 @@ Hm, this file is almost identical to categories/algebra because the morphism are
 factor out the commonality.
 
  *)
-Require Import 
+Require Import
   abstract_algebra universal_algebra ua_homomorphisms.
 
 Record Object (et: EquationalTheory) : Type := object

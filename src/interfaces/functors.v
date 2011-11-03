@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   abstract_algebra.
 Require theory.setoids.
 

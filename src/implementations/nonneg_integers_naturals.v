@@ -1,4 +1,4 @@
-Require 
+Require
   peano_naturals orders.integers theory.integers.
 Require Import
   Ring abstract_algebra interfaces.integers interfaces.naturals interfaces.orders
@@ -19,7 +19,7 @@ Local Ltac unfold_equivs := unfold equiv, sig_equiv in *; simpl in *.
 
 Instance: Proper ((=) ==> (=)) of_nat.
 Proof.
-  intros x y E. unfold_equivs. 
+  intros x y E. unfold_equivs.
   now rewrite E.
 Qed.
 
@@ -37,16 +37,16 @@ Program Instance to_nat: Inverse of_nat := λ x, int_abs Z nat (`x).
 
 Instance: Proper ((=) ==> (=)) to_nat.
 Proof.
-  intros [x Ex] [y Ey] E. unfold to_nat. unfold_equivs. 
+  intros [x Ex] [y Ey] E. unfold to_nat. unfold_equivs.
   now rewrite E.
 Qed.
 
 Instance ZPos_to_nat_sr_morphism: SemiRing_Morphism to_nat.
 Proof.
   pose proof (_ : SemiRing (Z⁺)).
-  repeat (split; try apply _). 
+  repeat (split; try apply _).
      intros [x Ex] [y Ey]. unfold to_nat; unfold_equivs. simpl.
-     now apply int_abs_nonneg_plus. 
+     now apply int_abs_nonneg_plus.
     unfold mon_unit, zero_is_mon_unit. now apply int_abs_0.
    intros [x Ex] [y Ey]. unfold to_nat; unfold_equivs. simpl.
    now apply int_abs_mult.
@@ -64,10 +64,10 @@ Qed.
 Global Instance: NaturalsToSemiRing (Z⁺) := naturals.retract_is_nat_to_sr of_nat.
 Global Instance: Naturals (Z⁺) := naturals.retract_is_nat of_nat.
 
-Global Program Instance ZPos_cut_minus `{∀ x y : Z, Decision (x ≤ y)} : CutMinus (Z⁺) 
+Global Program Instance ZPos_cut_minus `{∀ x y : Z, Decision (x ≤ y)} : CutMinus (Z⁺)
   := λ x y, if decide_rel (≤) x y then 0 else ((x : Z) - (y : Z))↾_.
 Next Obligation.
-  apply <-rings.flip_nonneg_minus. 
+  apply <-rings.flip_nonneg_minus.
   now apply orders.le_flip.
 Qed.
 

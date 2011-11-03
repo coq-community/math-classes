@@ -10,6 +10,6 @@ Instance: ∀ x y : unit, Setoid (x ⟶ y) := {}.
 
 Instance: Category unit.
 Proof.
- constructor; try constructor; compute; repeat intro; 
+ constructor; try constructor; compute; repeat intro;
    repeat match goal with [ x : unit |- _ ] => destruct x end; reflexivity.
 Qed.

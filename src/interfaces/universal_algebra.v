@@ -6,7 +6,7 @@ Require Import
 Require Export
   ua_basic.
 
-Section for_signature. 
+Section for_signature.
   Variable σ: Signature.
 
   Notation OpType := (OpType (sorts σ)).
@@ -70,7 +70,7 @@ Section for_signature.
    but will want terms /without/ variables when constructing initial objects
    in variety categories generically in theory/ua_initial (which we get by taking
    False as the variable index set). *)
-   
+
   Definition T := Term nat.
   Definition T0 := Term0 nat.
 
@@ -108,7 +108,7 @@ Section for_signature.
      (fold_right Impl (identity_as_eq (entailment_conclusion _ e)) (map identity_as_eq (entailment_premises _ e))).
 
   Definition entailment_as_conjunctive_statement (e: EqEntailment): Statement :=
-    Impl (fold_right Conj (Ext True) (map identity_as_eq (entailment_premises _ e))) 
+    Impl (fold_right Conj (Ext True) (map identity_as_eq (entailment_premises _ e)))
       (identity_as_eq (entailment_conclusion _ e)).
 
   (* The first one (the coercion) converts an entailment of the form (A, B, C |- D) into a statement of

@@ -2,7 +2,7 @@ Require
   stdlib_binary_integers Field QArith.Qfield theory.rationals.
 Require Import
   Ring QArith_base Qabs Qpower
-  abstract_algebra interfaces.rationals 
+  abstract_algebra interfaces.rationals
   interfaces.orders interfaces.additional_operations
   field_of_fractions.
 
@@ -26,10 +26,10 @@ Instance: ∀ x y: Q, Decision (x = y) := Qeq_dec.
 
 Instance inject_Z_Q: Cast Z Q := inject_Z.
 
-Instance: Proper ((=) ==> (=)) inject_Z. 
+Instance: Proper ((=) ==> (=)) inject_Z.
 Proof. intros x y H. unfold inject_Z. repeat red. simpl. now rewrite H. Qed.
 
-Instance: SemiRing_Morphism inject_Z. 
+Instance: SemiRing_Morphism inject_Z.
 Proof.
   repeat (split; try apply _).
   intros x y. repeat red. simpl. now rewrite ?Zmult_1_r.
@@ -87,12 +87,12 @@ Proof.
   intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1). easy. now destruct E2.
 Qed.
 
-Program Instance: ∀ x y: Q, Decision (x ≤ y) := λ y x, 
+Program Instance: ∀ x y: Q, Decision (x ≤ y) := λ y x,
   match Qlt_le_dec x y with
   | left _ => right _
   | right _ => left _
   end.
-Next Obligation. now apply Qlt_not_le. Qed. 
+Next Obligation. now apply Qlt_not_le. Qed.
 
 (* additional operations *)
 Program Instance: Abs Q := Qabs.
@@ -109,7 +109,7 @@ Proof.
   split.
      apply _.
     reflexivity.
-   exact Qpower_0. 
+   exact Qpower_0.
   intros. now apply Qpower_plus.
 Qed.
 
@@ -144,7 +144,7 @@ Proof.
     change ((n#d) = (n#d) * 1).
     now rewrite rings.mult_1_r.
    unfold Qnum, Qden.
-   rewrite !Qmake_Qdiv. unfold Qdiv. 
+   rewrite !Qmake_Qdiv. unfold Qdiv.
    rewrite Z.shiftl_mul_pow2 by auto with zarith.
    rewrite Zmult_comm, inject_Z_mult, Zpower_Qpower by now destruct p.
    now rewrite <-Qmult_assoc, Qmult_comm.

@@ -1,7 +1,7 @@
 Require Import
   Program Morphisms Setoid canonical_names.
 
-Section pointwise_dependent_relation. 
+Section pointwise_dependent_relation.
   Context A (B: A → Type) (R: ∀ a, relation (B a)).
 
   Definition pointwise_dependent_relation: relation (∀ a, B a) :=
@@ -33,21 +33,21 @@ Section obvious.
   Global Instance: Obvious (False → A) := False_rect _.
   Global Instance: Obvious (A → A + B) := inl.
   Global Instance: Obvious (A → B + A) := inr.
-  Global Instance obvious_sum_src  `{Obvious (A → C)} `{Obvious (B → C)}: Obvious (A+B → C). 
+  Global Instance obvious_sum_src  `{Obvious (A → C)} `{Obvious (B → C)}: Obvious (A+B → C).
   Proof. repeat intro. intuition. Defined.
-  Global Instance obvious_sum_dst_l `{Obvious (A → B)}: Obvious (A → B+C). 
+  Global Instance obvious_sum_dst_l `{Obvious (A → B)}: Obvious (A → B+C).
   Proof. repeat intro. intuition. Defined.
-  Global Instance obvious_sum_dst_r `{Obvious (A → B)}: Obvious (A → C+B). 
+  Global Instance obvious_sum_dst_r `{Obvious (A → B)}: Obvious (A → C+B).
   Proof. repeat intro. intuition. Defined.
 End obvious.
 
 Lemma not_symmetry `{Symmetric A R} (x y: A): ¬R x y → ¬R y x.
 Proof. firstorder. Qed.
-(* Also see Coq bug #2358. A totally different approach would be to define negated relations 
-    such as inequality as separate relations rather than notations, so that the existing [symmetry] 
+(* Also see Coq bug #2358. A totally different approach would be to define negated relations
+    such as inequality as separate relations rather than notations, so that the existing [symmetry]
     will work for them. However, this most likely breaks other things. *)
 
-Lemma biinduction_iff `{Biinduction R} 
+Lemma biinduction_iff `{Biinduction R}
   (P1 : Prop) (P2 : R → Prop) (P2_proper : Proper ((=) ==> iff) P2) :
   (P1 ↔ P2 0) → (∀ n, P2 n ↔ P2 (1 + n)) → ∀ n, P1 ↔ P2 n.
 Proof. intros ? ?. apply biinduction; [solve_proper | easy | firstorder]. Qed.

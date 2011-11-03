@@ -1,4 +1,4 @@
-(* In the standard library equality on streams is defined as pointwise Leibniz equality. 
+(* In the standard library equality on streams is defined as pointwise Leibniz equality.
     Here we prove similar results, but we use setoid equality instead. *)
 Require Export Streams.
 Require Import Morphisms peano_naturals abstract_algebra.
@@ -27,7 +27,7 @@ Proof.
 Qed.
 
 Global Instance: Proper ((=) ==> (=)) (@Cons A).
-Proof. 
+Proof.
   intros ? ? E.
   constructor.
    simpl. now rewrite E.
@@ -74,7 +74,7 @@ Proof.
   intros. now apply (E (S n)).
 Qed.
 
-Global Instance ForAll_proper `{!Proper ((=) ==> iff) (P : Stream A → Prop)} : 
+Global Instance ForAll_proper `{!Proper ((=) ==> iff) (P : Stream A → Prop)} :
   Proper ((=) ==> iff) (ForAll P).
 Proof.
   assert (∀ x y, x = y → ForAll P x → ForAll P y).
@@ -99,16 +99,16 @@ Definition EventuallyForAll (P : Stream A → Prop) := ForAll (λ s, P s → P (
 Lemma EventuallyForAll_tl P s : EventuallyForAll P s → EventuallyForAll P (tl s).
 Proof. repeat intro. now apply ForAll_tl. Qed.
 
-Lemma EventuallyForAll_Str_nth_tl P n s : 
+Lemma EventuallyForAll_Str_nth_tl P n s :
   EventuallyForAll P s → EventuallyForAll P (Str_nth_tl n s).
 Proof.
-  revert s. 
-  induction n. 
+  revert s.
+  induction n.
    easy.
   intros. now apply IHn, EventuallyForAll_tl.
 Qed.
 
-Global Instance EventuallyForAll_proper `{!Proper ((=) ==> iff) (P : Stream A → Prop)} : 
+Global Instance EventuallyForAll_proper `{!Proper ((=) ==> iff) (P : Stream A → Prop)} :
   Proper ((=) ==> iff) (EventuallyForAll P).
 Proof.
   assert (Proper ((=) ==> iff) (λ s, P s → P (tl s))).
@@ -125,7 +125,7 @@ Context `{Setoid A} `{Setoid B}.
 CoInductive ForAllIf (PA : Stream A → Prop) (PB : Stream B → Prop) : Stream A → Stream B → Prop :=
   ext_if : ∀ s1 s2, (PA s1 → PB s2) → ForAllIf PA PB (tl s1) (tl s2) → ForAllIf PA PB s1 s2.
 
-Global Instance ForAllIf_proper `{!Proper ((=) ==> iff) (PA : Stream A → Prop)} `{!Proper ((=) ==> iff) (PB : Stream B → Prop)} : 
+Global Instance ForAllIf_proper `{!Proper ((=) ==> iff) (PA : Stream A → Prop)} `{!Proper ((=) ==> iff) (PB : Stream B → Prop)} :
   Proper ((=) ==> (=) ==> iff) (ForAllIf PA PB).
 Proof.
   assert (∀ x1 y1 x2 y2, x1 = y1 → x2 = y2 → ForAllIf PA PB x1 x2 → ForAllIf PA PB y1 y2) as P.
@@ -140,7 +140,7 @@ Proof.
   repeat intro. now split; apply P.
 Qed.
 
-Global Instance map_proper `{!Proper ((=) ==> (=)) (f : A → B)} : 
+Global Instance map_proper `{!Proper ((=) ==> (=)) (f : A → B)} :
   Proper ((=) ==> (=)) (map f).
 Proof.
   cofix FIX.
@@ -151,7 +151,7 @@ Proof.
 Qed.
 
 Context `{Setoid C}.
-Global Instance zipWith_proper `{!Proper ((=) ==> (=) ==> (=)) (f : A → B → C)} : 
+Global Instance zipWith_proper `{!Proper ((=) ==> (=) ==> (=)) (f : A → B → C)} :
   Proper ((=) ==> (=) ==> (=)) (zipWith f).
 Proof.
   cofix FIX.

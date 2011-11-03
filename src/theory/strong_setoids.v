@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   abstract_algebra jections.
 
 Section contents.
@@ -9,7 +9,7 @@ Proof.
   split.
     intros x. rewrite <-tight_apart. now apply (irreflexivity (≶)).
    intros x y. rewrite <-?tight_apart. now apply not_symmetry.
-  intros x y z. rewrite <-?tight_apart. intros E1 E2 E3. 
+  intros x y z. rewrite <-?tight_apart. intros E1 E2 E3.
   destruct (cotransitive E3 y); contradiction.
 Qed.
 
@@ -24,7 +24,7 @@ Proof.
    intros ? ? ? ? E Ex Ey.
    apply P1 with x₁; trivial.
    symmetry. apply P1 with y₁; trivial. now symmetry.
-  intros ? ? E1 ? ? E2. 
+  intros ? ? E1 ? ? E2.
   split; intro; eapply P2; eauto; now symmetry.
 Qed.
 
@@ -105,10 +105,10 @@ Section morphisms.
     now destruct (irreflexivity (≶) z).
   Qed.
 
-  (* Conversely, if a morphism is strongly extensional in both coordinates, it 
-    satisfies the binary strong extensionality property. We don't make this an 
+  (* Conversely, if a morphism is strongly extensional in both coordinates, it
+    satisfies the binary strong extensionality property. We don't make this an
     instance in order to avoid loops. *)
-  Lemma strong_binary_setoid_morphism_both_coordinates 
+  Lemma strong_binary_setoid_morphism_both_coordinates
     `{!StrongSetoid A} `{!StrongSetoid B} `{!StrongSetoid C} {f : A → B → C}
     `{∀ z, StrongSetoid_Morphism (f z)} `{∀ z, StrongSetoid_Morphism (λ x, f x z)} : StrongSetoid_BinaryMorphism f.
   Proof.
@@ -125,7 +125,7 @@ Section morphisms.
     pose proof (strong_binary_setoidmor_a f).
     pose proof (strong_binary_setoidmor_b f).
     pose proof (strong_binary_setoidmor_c f).
-    intros x₁ y₁ E1 x₂ y₂ E2. 
+    intros x₁ y₁ E1 x₂ y₂ E2.
     rewrite <-tight_apart in E1. rewrite <-tight_apart in E2.
     apply tight_apart. intros E3.
     edestruct (cotransitive E3 (f y₁ x₂)).
@@ -169,7 +169,7 @@ Section dec_setoid.
      intros x y E1 z. rewrite !trivial_apart.
      destruct (decide (x = z)) as [E2|E2]; [|tauto].
      right. intros E3. rewrite trivial_apart in E1. apply E1. now rewrite E2.
-    intros x y. rewrite trivial_apart. split. 
+    intros x y. rewrite trivial_apart. split.
      intros E. now apply stable.
     firstorder.
   Qed.
@@ -182,7 +182,7 @@ Section dec_setoid_morphisms.
   Instance dec_strong_morphism (f : A → B) `{!Setoid_Morphism f} :
     StrongSetoid_Morphism f.
   Proof.
-    split; try apply _. 
+    split; try apply _.
     intros x y E. apply trivial_apart, (setoids.morphism_ne f). now apply apart_ne.
   Qed.
 

@@ -3,12 +3,12 @@ Require Import
 
 Class RingCongruence A (R : relation A) `{Ring A} :=
   { ring_congr_equivalence : Equivalence R
-  ; ring_congr_subrelation : subrelation (=) R 
+  ; ring_congr_subrelation : subrelation (=) R
   ; ring_congr_plus : Proper (R ==> R ==> R) (+)
   ; ring_congr_mult : Proper (R ==> R ==> R) (.*.)
   ; ring_congr_negate : Proper (R ==> R) (-)}.
 
-(* 
+(*
 As far as I see, there are three ways to represent the quotient ring:
 - Define the congruence as a new Equiv instance. This leads to ambiguity.
 - Wrap it into a definition and define a ring structure on top of it.
@@ -62,7 +62,7 @@ Section quotient_ring.
   Global Instance: Ring (Quotient A R).
   Proof.
     repeat (constructor; try apply _); repeat intros [?];
-      unfold mult, plus, sg_op, mon_unit, one_is_mon_unit, zero_is_mon_unit, plus_is_sg_op, mult_is_sg_op, 
+      unfold mult, plus, sg_op, mon_unit, one_is_mon_unit, zero_is_mon_unit, plus_is_sg_op, mult_is_sg_op,
       quotient_0, negate, quotient_negate, quotient_1, quotient_plus, quotient_mult, cast in *; simpl; apply sm_proper; ring.
   Qed.
 End quotient_ring.

@@ -42,7 +42,7 @@ Qed.
 Local Instance: Setoid_Morphism singleton.
 Proof. split; try apply _. Qed.
 
-Definition to_listset (X : @set_type _ mset) : @set_type _ (listset elt) 
+Definition to_listset (X : @set_type _ mset) : @set_type _ (listset elt)
   := props.to_list X↾elements_spec2w X.
 Instance from_listset: Inverse to_listset := λ l, props.of_list (`l).
 
@@ -62,7 +62,7 @@ Qed.
 
 Instance: BoundedJoinSemiLattice_Morphism to_listset.
 Proof.
-  split; try apply _; split; try apply _. 
+  split; try apply _; split; try apply _.
    split; try apply _. intros X Y z.
    setoid_rewrite listset_in_join.
    repeat setoid_rewrite elements_spec1.
@@ -73,7 +73,7 @@ Qed.
 Instance mset_extend: FSetExtend elt := iso_is_fset_extend id to_listset.
 
 Local Instance: FSet elt.
-Proof. 
+Proof.
   apply (iso_is_fset id to_listset).
   intros x y E z.
   change (InA E.eq z (elements (singleton x)) ↔ InA E.eq z [y]).
@@ -84,11 +84,11 @@ Instance: FullFSet elt.
 Proof.
   split; try apply _. split.
      apply lattices.alt_Build_JoinSemiLatticeOrder.
-     intros X Y. split; intros E. 
-      now apply props.union_subset_equal. 
+     intros X Y. split; intros E.
+      now apply props.union_subset_equal.
      rewrite <-E. now apply props.union_subset_1.
     intros x X. split; intros E.
-     transitivity (add x empty). 
+     transitivity (add x empty).
       now apply props.subset_equal, props.singleton_equal_add.
      apply props.subset_add_3. auto. now apply props.subset_empty.
     apply props.union_subset_equal in E. rewrite <-E.

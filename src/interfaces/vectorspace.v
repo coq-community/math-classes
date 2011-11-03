@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   Morphisms abstract_algebra.
 
 Class ScalarMult F G := scalar_mult: F → G → G.
@@ -16,5 +16,5 @@ Class VectorSpace (F G : Type) {Fe Fplus Fmult Fzero Fone Fnegate Frecip}
   vs_distr_l :> LeftHeteroDistribute (·) (&) (&) ;
   vs_distr_r :> RightHeteroDistribute (·) (+) (&) ;
   vs_assoc :> HeteroAssociative (·) (·) (·) (.*.) ;
-  vs_left_identity :> LeftIdentity (·) 1 
+  vs_left_identity :> LeftIdentity (·) 1
 }.

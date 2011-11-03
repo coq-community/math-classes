@@ -23,12 +23,12 @@ Proof with auto.
    intros x y E. now symmetry.
   intros [nx dx] [ny dy] [nz dz] V W. simpl in *.
   apply (left_cancellation_ne_0 (.*.) dy)...
-  rewrite 2!associativity. 
+  rewrite 2!associativity.
   rewrite 2!(commutativity dy).
   rewrite V, <- W. ring.
 Qed.
 
-Global Instance Frac_dec : ∀ x y: Frac R, Decision (x = y) 
+Global Instance Frac_dec : ∀ x y: Frac R, Decision (x = y)
   := λ x y, decide_rel (=) (num x * den y) (num y * den x).
 
 (* injection from R *)
@@ -70,9 +70,9 @@ Proof with try ring.
 Qed.
 
 Instance: Proper ((=) ==> (=)) Frac_negate.
-Proof. 
-  intros x y E. unfolds. 
-  rewrite <-negate_mult_distr_l, E. ring. 
+Proof.
+  intros x y E. unfolds.
+  rewrite <-negate_mult_distr_l, E. ring.
 Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) Frac_mult.
@@ -97,10 +97,10 @@ Proof.
   intros [xn xd Px] [yn yd Py]. unfolds. unfold Frac_dec_recip. simpl.
   case (decide_rel (=) xn 0); case (decide_rel (=) yn 0); intros Ey Ex; simpl.
      reflexivity.
-    rewrite Ex. intros E. destruct Ey. 
+    rewrite Ex. intros E. destruct Ey.
     apply (right_cancellation_ne_0 (.*.) xd); trivial.
     rewrite <-E. ring.
-   rewrite Ey. intros E. destruct Ex. 
+   rewrite Ey. intros E. destruct Ex.
    apply (right_cancellation_ne_0 (.*.) yd); trivial.
    rewrite E. ring.
   symmetry.
@@ -140,7 +140,7 @@ Proof.
 Qed.
 
 Global Instance: Injective Frac_inject.
-Proof. 
+Proof.
   repeat (constructor; try apply _).
   intros x y. unfolds. rewrite 2!mult_1_r. intuition.
 Qed.

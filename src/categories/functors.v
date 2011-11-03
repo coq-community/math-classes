@@ -40,7 +40,7 @@ Section contents.
   Global Existing Instance NaturalTransformation_inst.
   Global Instance: Arrows Object := Arrow.
 
-  Section arrow_setoid. 
+  Section arrow_setoid.
     Context (F G: Object).
 
     Global Program Instance e: Equiv (F ⟶ G) :=
@@ -58,7 +58,7 @@ Section contents.
     Instance: Equivalence e := {}.
     Global Instance: Setoid (F ⟶ G) := {}.
   End arrow_setoid.
- 
+
   Global Instance: CatId Object := λ _, arrow (λ _, cat_id) _.
   Global Instance: CatComp Object := λ _ _ _ m n, arrow (λ a, m a ◎ n a) _.
 

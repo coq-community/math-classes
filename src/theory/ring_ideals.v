@@ -16,7 +16,7 @@ Class RingIdeal A (P : A → Prop) `{Ring A} : Prop :=
 
 Notation Factor A P := (Quotient A (λ x y, P (x - y))).
 
-Section ideal_congruence. 
+Section ideal_congruence.
   Context `{ideal : RingIdeal A P}.
   Add Ring A2 : (rings.stdlib_ring_theory A).
 
@@ -43,11 +43,11 @@ Section ideal_congruence.
          intros x y E. rewrite negate_swap_r. intuition.
         intros x y z E1 E2. mc_setoid_replace (x - z) with ((x - y) + (y - z)) by ring. intuition.
        intros ?? E. now rewrite E, plus_negate_r.
-      intros x1 x2 E1 y1 y2 E2. 
+      intros x1 x2 E1 y1 y2 E2.
       mc_setoid_replace (x1 + y1 - (x2 + y2)) with ((x1 - x2) + (y1 - y2)) by ring. intuition.
      intros x1 x2 E1 y1 y2 E2.
      mc_setoid_replace (x1 * y1 - (x2 * y2)) with ((x1 - x2) * y1 + x2 * (y1 - y2)) by ring. intuition.
-    intros x1 x2 E. 
+    intros x1 x2 E.
     mc_setoid_replace (-x1 - - x2) with (-(x1 - x2)) by ring. intuition.
   Qed.
 
@@ -55,7 +55,7 @@ Section ideal_congruence.
   Proof. intuition. Qed.
 
   Lemma factor_ring_eq_0 (x y : Factor A P) : x = 0 ↔ P ('x).
-  Proof. 
+  Proof.
     transitivity (P ('x - cast (Factor A P) A 0)).
      intuition.
     apply ideal_proper. unfold cast. simpl. ring.
@@ -69,7 +69,7 @@ Section ideal_congruence.
 *)
 End ideal_congruence.
 
-Section kernel_is_ideal. 
+Section kernel_is_ideal.
   Context `{Ring A} `{Ring B} `{f : A → B} `{!SemiRing_Morphism f}.
 
   Add Ring A3 : (rings.stdlib_ring_theory A).

@@ -19,7 +19,7 @@ Section contents.
   Global Instance: SgOp (list A) := app.
 
   Global Instance app_proper: Proper (=) (@app A).
-  Proof. apply _. Qed. 
+  Proof. apply _. Qed.
 
   Global Instance app_assoc_inst: Associative (@app A).
   Proof. repeat intro. symmetry. now rewrite (app_ass x y z). Qed.
@@ -101,7 +101,7 @@ Qed. *)
     Lemma sm_app (a a': list A):
       sm M _ _ f (a ++ a') = sm M _ _ f a & sm M _ _ f a'.
     Proof with reflexivity.
-     induction a; simpl; intros. 
+     induction a; simpl; intros.
       rewrite monoid_lunit...
      unfold compose. rewrite IHa, associativity...
     Qed.
