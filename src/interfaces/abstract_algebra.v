@@ -1,8 +1,8 @@
 Require Export
   canonical_names util decision propholds workarounds setoid_tactics.
 
-(* 
-For various structures we omit declaration of substructures. For example, if we 
+(*
+For various structures we omit declaration of substructures. For example, if we
 say:
 
 Class Setoid_Morphism :=
@@ -14,7 +14,7 @@ then each time a Setoid instance is required, Coq will try to prove that a
 Setoid_Morphism exists. This obviously results in an enormous blow-up of the
 search space. Moreover, one should be careful to declare a Setoid_Morphisms
 as a substructure. Consider [f t1 t2], now if we want to perform setoid rewriting
-in [t2] Coq will first attempt to prove that [f t1] is Proper, for which it will 
+in [t2] Coq will first attempt to prove that [f t1] is Proper, for which it will
 attempt to prove [Setoid_Morphism (f t1)]. If many structures declare
 Setoid_Morphism as a substructure, setoid rewriting will become horribly slow.
 *)
@@ -22,12 +22,12 @@ Setoid_Morphism as a substructure, setoid rewriting will become horribly slow.
 (* An unbundled variant of the former CoRN RSetoid *)
 Class Setoid A {Ae : Equiv A} : Prop := setoid_eq :> Equivalence (@equiv A Ae).
 
-(* An unbundled variant of the former CoRN CSetoid. We do not 
+(* An unbundled variant of the former CoRN CSetoid. We do not
   include a proof that A is a Setoid because it can be derived. *)
 Class StrongSetoid A {Ae : Equiv A} `{Aap : Apart A} : Prop :=
-  { strong_setoid_irreflexive :> Irreflexive (≶) 
-  ; strong_setoid_symmetric :> Symmetric (≶) 
-  ; strong_setoid_cotrans :> CoTransitive (≶) 
+  { strong_setoid_irreflexive :> Irreflexive (≶)
+  ; strong_setoid_symmetric :> Symmetric (≶)
+  ; strong_setoid_cotrans :> CoTransitive (≶)
   ; tight_apart : ∀ x y, ¬x ≶ y ↔ x = y }.
 
 Implicit Arguments tight_apart [[A] [Ae] [Aap] [StrongSetoid]].
@@ -38,7 +38,7 @@ Section setoid_morphisms.
   Class Setoid_Morphism :=
     { setoidmor_a : Setoid A
     ; setoidmor_b : Setoid B
-    ; sm_proper :> Proper ((=) ==> (=)) f }. 
+    ; sm_proper :> Proper ((=) ==> (=)) f }.
 
   Class StrongSetoid_Morphism :=
     { strong_setoidmor_a : StrongSetoid A
@@ -49,7 +49,7 @@ End setoid_morphisms.
 Implicit Arguments sm_proper [[A] [B] [Ae] [Be] [f] [Setoid_Morphism]].
 
 Section setoid_binary_morphisms.
-  Context {A B C} {Ae: Equiv A} {Aap: Apart A} 
+  Context {A B C} {Ae: Equiv A} {Aap: Apart A}
     {Be: Equiv B} {Bap : Apart B} {Ce: Equiv C} {Cap : Apart C} (f : A → B → C).
 
   Class StrongSetoid_BinaryMorphism :=
@@ -60,7 +60,7 @@ Section setoid_binary_morphisms.
 End setoid_binary_morphisms.
 
 (*
-Since apartness usually only becomes relevant when considering fields (e.g. the 
+Since apartness usually only becomes relevant when considering fields (e.g. the
 real numbers), we do not include it in the lower part of the algebraic hierarchy
 (as opposed to CoRN).
 *)
@@ -122,7 +122,7 @@ Section upper_classes.
     require commutative multiplication. *)
 
   Class IntegralDomain : Prop :=
-    { intdom_ring : Ring 
+    { intdom_ring : Ring
     ; intdom_nontrivial : PropHolds (1 ≠ 0)
     ; intdom_nozeroes :> NoZeroDivisors A }.
 
@@ -136,7 +136,7 @@ Section upper_classes.
     ; recip_proper :> Setoid_Morphism (//)
     ; recip_inverse : ∀ x, `x // x = 1 }.
 
-  (* We let /0 = 0 so properties as Injective (/), f (/x) = / (f x), / /x = x, /x * /y = /(x * y) 
+  (* We let /0 = 0 so properties as Injective (/), f (/x) = / (f x), / /x = x, /x * /y = /(x * y)
     hold without any additional assumptions *)
   Class DecField {Adec_recip : DecRecip A} : Prop :=
     { decfield_ring :> Ring
@@ -151,11 +151,11 @@ Hint Extern 4 (PropHolds (1 ≠ 0)) => eapply @intdom_nontrivial : typeclass_ins
 Hint Extern 5 (PropHolds (1 ≶ 0)) => eapply @field_nontrivial : typeclass_instances.
 Hint Extern 5 (PropHolds (1 ≠ 0)) => eapply @decfield_nontrivial : typeclass_instances.
 
-(* 
+(*
 For a strange reason Ring instances of Integers are sometimes obtained by
 Integers -> IntegralDomain -> Ring and sometimes directly. Making this an
 instance with a low priority instead of using intdom_ring:> Ring forces Coq to
-take the right way 
+take the right way
 *)
 Hint Extern 10 (Ring _) => apply @intdom_ring : typeclass_instances.
 
@@ -167,20 +167,20 @@ Implicit Arguments sg_op_proper [[A] [Ae] [Aop] [SemiGroup]].
 Section lattice.
   Context A `{Ae: Equiv A} {Ajoin: Join A} {Ameet: Meet A} `{Abottom : Bottom A}.
 
-  Class JoinSemiLattice : Prop := 
+  Class JoinSemiLattice : Prop :=
     join_semilattice :> @SemiLattice A Ae join_is_sg_op.
-  Class BoundedJoinSemiLattice : Prop := 
+  Class BoundedJoinSemiLattice : Prop :=
     bounded_join_semilattice :> @BoundedSemiLattice A Ae join_is_sg_op bottom_is_mon_unit.
-  Class MeetSemiLattice : Prop := 
+  Class MeetSemiLattice : Prop :=
     meet_semilattice :> @SemiLattice A Ae meet_is_sg_op.
 
-  Class Lattice : Prop := 
+  Class Lattice : Prop :=
     { lattice_join :> JoinSemiLattice
     ; lattice_meet :> MeetSemiLattice
-    ; join_meet_absorption :> Absorption (⊔) (⊓) 
+    ; join_meet_absorption :> Absorption (⊔) (⊓)
     ; meet_join_absorption :> Absorption (⊓) (⊔)}.
 
-  Class DistributiveLattice : Prop := 
+  Class DistributiveLattice : Prop :=
     { distr_lattice_lattice :> Lattice
     ; join_meet_distr_l :> LeftDistribute (⊔) (⊓) }.
 End lattice.
@@ -245,7 +245,7 @@ Section morphism_classes.
 End morphism_classes.
 
 Section jections.
-  Context {A B} {Ae : Equiv A} {Aap : Apart A} 
+  Context {A B} {Ae : Equiv A} {Aap : Apart A}
     {Be : Equiv B} {Bap : Apart B} (f : A → B) `{inv : !Inverse f}.
 
   Class StrongInjective : Prop :=

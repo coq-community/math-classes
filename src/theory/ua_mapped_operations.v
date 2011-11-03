@@ -29,7 +29,7 @@ Section contents.
 
   (* If the maps between the sorts are eachother's inverse, then so are the two generated op_type maps: *)
 
-  Context {A B: Sorts → Type} {e: ∀ a, Equiv (B a)} `{∀ b, Equivalence (e b)} 
+  Context {A B: Sorts → Type} {e: ∀ a, Equiv (B a)} `{∀ b, Equivalence (e b)}
    (ab: ∀ a, A a → B a) (ba: ∀ a, B a → A a).
 
   Implicit Arguments ab [a].

@@ -256,7 +256,7 @@ Section first_iso.
    intros ? [x [? E]]. apply IHo0... simpl in *. rewrite <- E...
   Defined.
 
-  Program Definition forth: quot_obj ⟶ subobject := 
+  Program Definition forth: quot_obj ⟶ subobject :=
     λ a X, existT _ (f a X) (existT _ X (reflexivity _)).
 
   Next Obligation. Proof with try apply _; intuition.

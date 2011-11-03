@@ -1,4 +1,4 @@
-Require 
+Require
   ua_homomorphisms.
 Require Import
   Morphisms Ring Arith_base
@@ -90,12 +90,12 @@ Proof nat_ind P.
 
 Instance: Initial (semirings.object nat).
 Proof.
-  intros. apply natural_initial. intros. 
-  intros x y E. unfold equiv, nat_equiv in E. subst y. induction x. 
+  intros. apply natural_initial. intros.
+  intros x y E. unfold equiv, nat_equiv in E. subst y. induction x.
   replace 0%nat with (zero:nat) by reflexivity.
   rewrite 2!rings.preserves_0. reflexivity.
   rewrite S_nat_1_plus.
-  rewrite 2!rings.preserves_plus, 2!rings.preserves_1. 
+  rewrite 2!rings.preserves_plus, 2!rings.preserves_1.
   now rewrite IHx.
 Qed.
 
@@ -107,7 +107,7 @@ Instance: NoZeroDivisors nat.
 Proof. intros x [Ex [y [Ey1 Ey2]]]. destruct (Mult.mult_is_O x y Ey2); intuition. Qed.
 
 Instance: ∀ z : nat, PropHolds (z ≠ 0) → LeftCancellation (.*.) z.
-Proof. intros z Ez x y. now apply NPeano.Nat.mul_cancel_l. Qed. 
+Proof. intros z Ez x y. now apply NPeano.Nat.mul_cancel_l. Qed.
 
 (* Order *)
 Instance nat_le: Le nat := Peano.le.

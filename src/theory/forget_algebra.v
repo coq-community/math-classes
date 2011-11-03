@@ -16,7 +16,7 @@ Section contents.
     (* hm, not happy about this *)
 
   Definition object (v: algebras.Object sign): TargetObject := λ i, setoids.object (v i) (algebras.algebra_equiv sign v i) _.
- 
+
   Global Program Instance: Fmap object := λ _ _, id.
   Next Obligation. destruct x. simpl. apply _. Qed.
 

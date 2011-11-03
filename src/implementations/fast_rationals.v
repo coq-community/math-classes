@@ -75,7 +75,7 @@ Lemma inject_bigQ_frac_bigZ_correct:
 Proof.
   intros x y E. rewrite <-E. clear y E.
   destruct x as [n|n d].
-   rapply (integers.to_ring_unique_alt 
+   rapply (integers.to_ring_unique_alt
      (cast bigZ (Frac bigZ)) (rationals_to_frac bigQ bigZ ∘ cast bigZ bigQ)).
   unfold cast at 1. simpl.
   rewrite bigQ_div_bigQq_alt.
@@ -91,10 +91,10 @@ Instance: Injective inject_bigQ_frac_bigZ.
 Proof. rewrite inject_bigQ_frac_bigZ_correct. apply _. Qed.
 
 Instance: SemiRing_Morphism inject_bigQ_frac_bigZ.
-Proof. 
+Proof.
   eapply rings.semiring_morphism_proper.
-   apply inject_bigQ_frac_bigZ_correct. 
-  apply _. 
+   apply inject_bigQ_frac_bigZ_correct.
+  apply _.
 Qed.
 
 (* Efficient shiftl on [bigQ] *)
@@ -105,7 +105,7 @@ Instance bigQ_shiftl: ShiftL bigQ bigZ := λ x k,
     | BigQ.Qz n => '(n ≪ k)
     | BigQ.Qq n d => BigQ.Qq (n ≪ k) d
     end
-  | BigZ.Neg k => 
+  | BigZ.Neg k =>
     match x with
     | BigQ.Qz n => BigQ.Qq n (1 ≪ k)
     | BigQ.Qq n d => BigQ.Qq n (d ≪ k)
@@ -142,7 +142,7 @@ Instance bigQ_Zshiftl: ShiftL bigQ Z := λ x k, x ≪ 'k.
 
 Instance: ShiftLSpec bigQ Z _.
 Proof.
-  split; unfold shiftl, bigQ_Zshiftl. 
+  split; unfold shiftl, bigQ_Zshiftl.
     solve_proper.
    intro. now apply shiftl_0.
   intros x n.

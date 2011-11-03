@@ -1,4 +1,4 @@
-Require 
+Require
   interfaces.naturals theory.naturals peano_naturals theory.integers.
 Require Import
   BinInt Ring Arith NArith ZBinary
@@ -74,7 +74,7 @@ Proof.
 Qed.
 
 Instance: Injective Npair_to_Z.
-Proof. 
+Proof.
   split; try apply _.
   intros [xp xn] [yp yn] E.
   unfold Npair_to_Z in E. do 2 red. simpl in *.
@@ -93,7 +93,7 @@ Instance Z_to_Npair: Inverse Npair_to_Z := λ x,
 Instance: Surjective Npair_to_Z.
 Proof.
   split; try apply _.
-  intros x y E. rewrite E. 
+  intros x y E. rewrite E.
   now destruct y as [|p|p].
 Qed.
 
@@ -120,7 +120,7 @@ Proof.
 Qed.
 
 Instance: TotalRelation Z_le.
-Proof. 
+Proof.
   intros x y.
   destruct (Zorder.Zle_or_lt x y); intuition.
   right. now apply Zorder.Zlt_le_weak.
@@ -176,7 +176,7 @@ Proof.
     simpl in *. now rewrite E1, E2.
    intros. now apply Z.pow_0_r.
   intros x n.
-  rewrite rings.preserves_plus, rings.preserves_1.  
+  rewrite rings.preserves_plus, rings.preserves_1.
   rewrite <-(Z.pow_1_r x) at 2. apply Z.pow_add_r.
    auto with zarith.
   now destruct n.

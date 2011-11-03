@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   abstract_algebra interfaces.orders strong_setoids.
 
 Lemma le_flip `{Le A} `{!TotalRelation (≤)} x y : ¬y ≤ x → x ≤ y.
@@ -175,22 +175,22 @@ Section full_partial_order.
   Lemma lt_le_trans x y z : x < y → y ≤ z → x < z.
   Proof.
     rewrite !lt_iff_le_apart.
-    intros [E1a E1b] E2. 
-    split. 
+    intros [E1a E1b] E2.
+    split.
      now transitivity y.
     destruct (cotransitive E1b z) as [E3 | E3]; trivial.
-    apply lt_apart. symmetry in E3. 
+    apply lt_apart. symmetry in E3.
     transitivity y; rewrite lt_iff_le_apart; tauto.
   Qed.
 
   Lemma le_lt_trans x y z : x ≤ y → y < z → x < z.
   Proof.
     rewrite !lt_iff_le_apart.
-    intros E2 [E1a E1b]. 
-    split. 
+    intros E2 [E1a E1b].
+    split.
      now transitivity y.
     destruct (cotransitive E1b x) as [E3 | E3]; trivial.
-    apply lt_apart. symmetry in E3. 
+    apply lt_apart. symmetry in E3.
     transitivity y; rewrite lt_iff_le_apart; tauto.
   Qed.
 
@@ -203,8 +203,8 @@ Section full_partial_order.
     right. rewrite lt_iff_le_ne; tauto.
   Qed.
 
-  Program Instance dec_from_lt_dec `{!TrivialApart A} `{∀ x y, Decision (x ≤ y)} : 
-     ∀ x y, Decision (x = y) := λ x y, 
+  Program Instance dec_from_lt_dec `{!TrivialApart A} `{∀ x y, Decision (x ≤ y)} :
+     ∀ x y, Decision (x = y) := λ x y,
     match decide_rel (≤) x y with
     | left E1 => match decide_rel (≤) y x with
        | left E2 => left _
@@ -213,10 +213,10 @@ Section full_partial_order.
      | right E1 => right _
      end.
   Next Obligation. now apply (antisymmetry (≤)). Qed.
-  Next Obligation. apply not_symmetry. now apply not_le_ne. Qed. 
+  Next Obligation. apply not_symmetry. now apply not_le_ne. Qed.
   Next Obligation. now apply not_le_ne. Qed.
 
-  Definition lt_dec_slow `{!TrivialApart A} `{∀ x y, Decision (x ≤ y)} : 
+  Definition lt_dec_slow `{!TrivialApart A} `{∀ x y, Decision (x ≤ y)} :
     ∀ x y, Decision (x < y).
   Proof.
     intros x y.
@@ -230,8 +230,8 @@ End full_partial_order.
 
 (* Due to bug #2528 *)
 Hint Extern 5 (PropHolds (_ ≠ _)) => eapply @strict_po_apart_ne :  typeclass_instances.
-Hint Extern 10 (PropHolds (_ ≤ _)) => eapply @lt_le : typeclass_instances. 
-Hint Extern 20 (Decision (_ < _)) => eapply @lt_dec_slow : typeclass_instances. 
+Hint Extern 10 (PropHolds (_ ≤ _)) => eapply @lt_le : typeclass_instances.
+Hint Extern 20 (Decision (_ < _)) => eapply @lt_dec_slow : typeclass_instances.
 
 Section full_pseudo_order.
   Context `{FullPseudoOrder A}.
@@ -278,8 +278,8 @@ Section full_pseudo_order.
   Lemma le_or_lt `{!TrivialApart A} `{∀ x y, Decision (x = y)} x y : x ≤ y ∨ y < x.
   Proof.
     destruct (trichotomy (<) x y) as [|[|]]; try tauto.
-     left. now apply lt_le. 
-    left. now apply eq_le_flip. 
+     left. now apply lt_le.
+    left. now apply eq_le_flip.
   Qed.
 
   Global Instance le_total `{!TrivialApart A} `{∀ x y, Decision (x = y)} : TotalOrder (≤).
@@ -290,8 +290,8 @@ Section full_pseudo_order.
 
   Existing Instance dec_from_lt_dec.
 
-  Program Definition lt_dec `{!TrivialApart A} `{∀ x y, Decision (x ≤ y)} : 
-      ∀ x y, Decision (x < y) := λ x y, 
+  Program Definition lt_dec `{!TrivialApart A} `{∀ x y, Decision (x ≤ y)} :
+      ∀ x y, Decision (x < y) := λ x y,
     match decide_rel (≤) y x with
     | left E => right _
     | right E => left _
@@ -300,12 +300,12 @@ Section full_pseudo_order.
   Next Obligation. now apply not_le_lt_flip. Qed.
 End full_pseudo_order.
 
-Hint Extern 8 (Decision (_ < _)) => eapply @lt_dec : typeclass_instances. 
+Hint Extern 8 (Decision (_ < _)) => eapply @lt_dec : typeclass_instances.
 (*
 The following instances would be tempting, but turn out to be a bad idea.
 
-Hint Extern 10 (PropHolds (_ ≠ _)) => eapply @le_ne : typeclass_instances. 
-Hint Extern 10 (PropHolds (_ ≠ _)) => eapply @le_ne_flip : typeclass_instances. 
+Hint Extern 10 (PropHolds (_ ≠ _)) => eapply @le_ne : typeclass_instances.
+Hint Extern 10 (PropHolds (_ ≠ _)) => eapply @le_ne_flip : typeclass_instances.
 
 It will then loop like:
 
@@ -324,11 +324,11 @@ Section dec_strict_setoid_order.
   Proof.
     split; try apply _.
       intros x y [??]. destruct (lt_antisym x y); tauto.
-     intros x y Exy z. 
+     intros x y Exy z.
      destruct (trichotomy (<) x z) as [? | [Exz | Exz]]; try tauto.
       right. now rewrite <-Exz.
      right. now transitivity x.
-    intros x y. rewrite trivial_apart. split. 
+    intros x y. rewrite trivial_apart. split.
      destruct (trichotomy (<) x y); intuition.
     intros [?|?]. now apply lt_ne. now apply lt_ne_flip.
   Qed.
@@ -367,7 +367,7 @@ Section dec_partial_order.
   Context `{!TotalRelation (≤)}.
 
   Instance: Trichotomy (<).
-  Proof. 
+  Proof.
     intros x y. rewrite !lt_correct.
     destruct (decide (x = y)); try tauto.
     destruct (total (≤) x y); intuition.

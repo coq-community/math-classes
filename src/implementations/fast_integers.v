@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   BigZ
   interfaces.abstract_algebra interfaces.integers
   interfaces.additional_operations fast_naturals.
@@ -16,7 +16,7 @@ Program Instance bigZ_pow: Pow bigZ bigN := λ x n, BigZ.pow x ('n).
 
 Instance: NatPowSpec bigZ bigN _.
 Proof.
-  split; unfold pow, bigZ_pow. 
+  split; unfold pow, bigZ_pow.
     solve_proper.
    intro. apply BigZ.pow_0_r.
   intros x n.

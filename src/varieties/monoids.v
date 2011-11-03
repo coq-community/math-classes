@@ -140,7 +140,7 @@ Section specialized.
     apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ PP).
   Qed.
 
-  Instance invert_monoid_morphism: 
+  Instance invert_monoid_morphism:
     ∀ `{!Inverse f}, Bijective f → Monoid_Morphism f → Monoid_Morphism (f⁻¹).
   Proof.
     intros. pose proof (encode_morphism_and_ops (f:=f)) as P.

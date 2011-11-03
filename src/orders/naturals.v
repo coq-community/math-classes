@@ -1,5 +1,5 @@
 Require
-  theory.naturals. 
+  theory.naturals.
 Require Import
   Ring abstract_algebra interfaces.naturals interfaces.orders orders.rings.
 Require Export
@@ -23,7 +23,7 @@ Lemma nat_not_neg x : ¬x < 0.
 Proof. apply le_not_lt_flip, nat_nonneg. Qed.
 
 Lemma nat_0_or_pos x : x = 0 ∨ 0 < x.
-Proof. 
+Proof.
   destruct (trichotomy (<) 0 x) as [?|[?|?]]; intuition.
   now destruct (nat_not_neg x).
 Qed.
@@ -43,7 +43,7 @@ Proof. rewrite <-pos_ge_1. now apply nat_ne_0_pos. Qed.
 
 Global Instance: ∀ (z : N), PropHolds (z ≠ 0) → OrderReflecting (z *.).
 Proof.
-   intros z ?. 
+   intros z ?.
    repeat (split; try apply _). apply (order_reflecting_pos (.*.) z).
    now apply nat_ne_0_pos.
 Qed.
@@ -65,7 +65,7 @@ Section another_ring.
 
   Lemma between_to_ring n : -f n ≤ f n.
   Proof. apply between_nonneg. now apply to_semiring_nonneg. Qed.
-End another_ring. 
+End another_ring.
 End naturals_order.
 
 (* A default order on the naturals *)
@@ -91,7 +91,7 @@ Proof.
    intros x y z [a A] [b B]. exists (a + b). now rewrite associativity, A, B.
    intros x y [a A] [b B].
   destruct (naturals.zero_sum a b) as [E1 E2].
-   apply (left_cancellation (+) x). 
+   apply (left_cancellation (+) x).
    rewrite associativity, A, B. ring.
   rewrite <-A, <-B, E1, E2. ring.
 Qed.
@@ -111,9 +111,9 @@ Notation n_to_sr := (naturals_to_semiring N nat).
 Instance: TotalRelation nat_le.
 Proof.
   assert (∀ x y, n_to_sr x ≤ n_to_sr y → x ≤ y) as P.
-   intros x y E. 
+   intros x y E.
    destruct (decompose_le E) as [a [_ A]].
-   exists (naturals_to_semiring nat N a). 
+   exists (naturals_to_semiring nat N a).
    apply (injective n_to_sr).
    rewrite rings.preserves_plus. now rewrite (naturals.to_semiring_involutive _ _).
   intros x y.

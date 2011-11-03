@@ -1,6 +1,6 @@
 Require Import
   abstract_algebra
-  universal_algebra ua_homomorphisms 
+  universal_algebra ua_homomorphisms
   theory.categories categories.varieties.
 Require theory.setoids.
 
@@ -51,7 +51,7 @@ Section algebras.
    intros. intro. apply IHo0.
   Qed.
 
-  Lemma algebra_projection_morphisms i: @HomoMorphism sig carrier (carriers i) _ _ _ _ (λ a v, v i). 
+  Lemma algebra_projection_morphisms i: @HomoMorphism sig carrier (carriers i) _ _ _ _ (λ a v, v i).
   Proof.
    constructor; try apply _.
     intro. rapply (@products.dep_prod_morphism I (λ i, carriers i a) (λ i, _: Equiv (carriers i a))).
@@ -194,7 +194,7 @@ Section categorical.
     ; varieties.variety_proof := product_variety et I _ _ _ (fun H => varieties.variety_proof et (carriers H)) |}.
       (* todo: clean up *)
 
-  Section for_a_given_c. 
+  Section for_a_given_c.
   Context (I: Type) (c: I → varieties.Object et).
 
   Global Program Instance: ElimProduct c (product c) := λ i _ c, c i.

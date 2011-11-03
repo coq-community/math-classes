@@ -17,7 +17,7 @@ Section contents.
 
     Context {A: Type} `{Setoid A}.
 
-    Fixpoint geneq {s s'} (x: Term sign A s) (y: Term sign A s'): Prop := 
+    Fixpoint geneq {s s'} (x: Term sign A s) (y: Term sign A s'): Prop :=
       match x, y with
       | Var v _, Var w _ => v = w
       | App _ z t t', App _ z' t'' t''' => geneq t t'' ∧ geneq t' t'''

@@ -33,7 +33,7 @@ Definition forget: Object → setoids.Object :=
     (λ _, setoids.Object)
     (λ _, _: Arrows setoids.Object) _
     (λ _, _: CatId setoids.Object)
-    (λ _, _: CatComp setoids.Object) 
+    (λ _, _: CatComp setoids.Object)
     (λ _, _: Category setoids.Object) tt
      ∘ forget_algebra.object theory ∘ forget_variety.forget theory.
   (* todo: too ugly *)
@@ -125,7 +125,7 @@ Section specialized.
     apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ PP).
   Qed.
 
-  Instance invert_sg_morphism: 
+  Instance invert_sg_morphism:
     ∀ `{!Inverse f}, Bijective f → SemiGroup_Morphism f → SemiGroup_Morphism (f⁻¹).
   Proof.
     intros. pose proof (encode_morphism_and_ops (f:=f)) as P.

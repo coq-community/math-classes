@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   abstract_algebra interfaces.functors.
 
 Definition Empty_map {A: Empty_set → Type} : ∀ x : Empty_set, A x := λ x, match x with end.

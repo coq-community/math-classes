@@ -9,7 +9,7 @@ Add Ring N : (rings.stdlib_semiring_theory N).
 
 (* NatDistance instances are all equivalent, because their behavior is fully
  determined by the specification. *)
-Lemma nat_distance_unique_respectful {a b : NatDistance N} : 
+Lemma nat_distance_unique_respectful {a b : NatDistance N} :
   ((=) ==> (=) ==> (=))%signature (nat_distance (nd:=a)) (nat_distance (nd:= b)).
 Proof.
   intros x1 y1 E x2 y2 F.
@@ -39,8 +39,8 @@ Proof. apply nat_distance_unique_respectful. Qed.
 End contents.
 
 (* An existing instance of [CutMinus] allows to create an instance of [NatDistance] *)
-Program Instance natdistance_cut_minus `{Naturals N} `{Apart N} `{!TrivialApart N} `{!FullPseudoSemiRingOrder Nle Nlt} 
-    `{!CutMinusSpec N cm} `{∀ x y, Decision (x ≤ y)} : NatDistance N := 
+Program Instance natdistance_cut_minus `{Naturals N} `{Apart N} `{!TrivialApart N} `{!FullPseudoSemiRingOrder Nle Nlt}
+    `{!CutMinusSpec N cm} `{∀ x y, Decision (x ≤ y)} : NatDistance N :=
   λ x y, if decide_rel (≤) x y then inl (y ∸ x) else inr (x ∸ y).
 Next Obligation. rewrite commutativity. now apply cut_minus_le. Qed.
 Next Obligation. rewrite commutativity. now apply cut_minus_le, orders.le_flip. Qed.

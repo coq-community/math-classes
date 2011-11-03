@@ -1,6 +1,6 @@
 Require Import
   abstract_algebra theory.groups.
-Require 
+Require
   varieties.semigroups varieties.monoids.
 
 Instance bounded_sl_is_sl `{BoundedSemiLattice L} : SemiLattice L.
@@ -13,15 +13,15 @@ Instance bounded_sl_mor_is_sl_mor `{H : BoundedJoinSemiLattice_Morphism A B f} :
   JoinSemiLattice_Morphism f.
 Proof. destruct H. split; apply _. Qed.
 
-Lemma preserves_join `{JoinSemiLattice_Morphism L K f} x y : 
+Lemma preserves_join `{JoinSemiLattice_Morphism L K f} x y :
   f (x ⊔ y) = f x ⊔ f y.
 Proof preserves_sg_op x y.
 
-Lemma preserves_bottom `{BoundedJoinSemiLattice_Morphism L K f} : 
+Lemma preserves_bottom `{BoundedJoinSemiLattice_Morphism L K f} :
   f ⊥ = ⊥.
 Proof (preserves_mon_unit (f:=f)).
 
-Lemma preserves_meet `{MeetSemiLattice_Morphism L K f} x y : 
+Lemma preserves_meet `{MeetSemiLattice_Morphism L K f} x y :
   f (x ⊓ y) = f x ⊓ f y.
 Proof preserves_sg_op x y.
 
@@ -51,11 +51,11 @@ Section distributive_lattice_props.
   Global Instance meet_join_distr_l: LeftDistribute (⊓) (⊔).
   Proof.
     intros x y z.
-    rewrite distribute_l. 
+    rewrite distribute_l.
     rewrite distribute_r.
     rewrite (idempotency (⊔) x).
     rewrite (commutativity y x), meet_join_absorption.
-    rewrite <-(meet_join_absorption x z) at 1. 
+    rewrite <-(meet_join_absorption x z) at 1.
     rewrite <-associativity.
     now rewrite <-distribute_r.
   Qed.
@@ -64,7 +64,7 @@ Section distributive_lattice_props.
   Proof. intros x y z. rewrite !(commutativity _ z). now apply distribute_l. Qed.
 
   Lemma distribute_alt x y z : (x ⊓ y) ⊔ (x ⊓ z) ⊔ (y ⊓ z) = (x ⊔ y) ⊓ (x ⊔ z) ⊓ (y ⊔ z).
-  Proof. 
+  Proof.
     rewrite (distribute_r x y (x ⊓ z)), join_meet_absorption.
     rewrite (distribute_r _ _ (y ⊓ z)).
     rewrite (distribute_l x y z).
@@ -89,7 +89,7 @@ Section lower_bounded_lattice.
 End lower_bounded_lattice.
 
 Section from_another_sl.
-  Context `{SemiLattice A} `{Setoid B} 
+  Context `{SemiLattice A} `{Setoid B}
    `{Bop : SgOp B} (f : B → A) `{!Injective f} (op_correct : ∀ x y, f (x & y) = f x & f y).
 
   Lemma projected_sl: SemiLattice B.
@@ -100,8 +100,8 @@ Section from_another_sl.
 End from_another_sl.
 
 Section from_another_bounded_sl.
-  Context `{BoundedSemiLattice A} `{Setoid B} 
-   `{Bop : SgOp B} `{Bunit : MonUnit B} (f : B → A) `{!Injective f} 
+  Context `{BoundedSemiLattice A} `{Setoid B}
+   `{Bop : SgOp B} `{Bunit : MonUnit B} (f : B → A) `{!Injective f}
    (op_correct : ∀ x y, f (x & y) = f x & f y) (unit_correct : f mon_unit = mon_unit).
 
   Lemma projected_bounded_sl: BoundedSemiLattice B.
@@ -126,16 +126,16 @@ Section morphism_composition.
     `{Equiv C}`{Join C} `{Meet C} `{Bottom C}
     (f : A → B) (g : B → C).
 
-  Instance compose_join_sl_morphism: 
+  Instance compose_join_sl_morphism:
     JoinSemiLattice_Morphism f → JoinSemiLattice_Morphism g → JoinSemiLattice_Morphism (g ∘ f).
   Proof. split; try apply _; firstorder. Qed.
-  Instance compose_meet_sl_morphism: 
+  Instance compose_meet_sl_morphism:
     MeetSemiLattice_Morphism f → MeetSemiLattice_Morphism g → MeetSemiLattice_Morphism (g ∘ f).
   Proof. split; try apply _; firstorder. Qed.
-  Instance compose_bounded_join_sl_morphism: 
+  Instance compose_bounded_join_sl_morphism:
     BoundedJoinSemiLattice_Morphism f → BoundedJoinSemiLattice_Morphism g → BoundedJoinSemiLattice_Morphism (g ∘ f).
   Proof. split; try apply _; firstorder. Qed.
-  Instance compose_lattice_morphism: 
+  Instance compose_lattice_morphism:
     Lattice_Morphism f → Lattice_Morphism g → Lattice_Morphism (g ∘ f).
   Proof. split; try apply _; firstorder. Qed.
 
