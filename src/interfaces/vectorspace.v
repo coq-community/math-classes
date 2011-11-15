@@ -2,7 +2,7 @@ Require Import
   Morphisms abstract_algebra interfaces.orders.
 
 (** Scalar multiplication function class *)
-Class ScalarMult F G := scalar_mult: F → G → G.
+Class ScalarMult K V := scalar_mult: K → V → V.
 Instance: Params (@scalar_mult) 3.
 
 Infix "·" := scalar_mult (at level 50).
@@ -14,44 +14,57 @@ Notation "(· x )" := (λ y, y · x) (only parsing).
 Class Inproduct K V := inprod : V → V → K.
 Instance: Params (@inprod) 3.
 
-Notation "⟨ u , v ⟩" := (inprod u v) (at level 50).
+Notation "⟨ u , v ⟩" := (inprod u v) (at level 51).
+Notation "⟨ u , ⟩" := (λ v, ⟨u,v⟩) (at level 50, only parsing).
+Notation "⟨ , v ⟩" := (λ u, ⟨u,v⟩) (at level 50, only parsing).
 Notation "x ⊥ y" := (⟨x,y⟩ = 0) (at level 70).
 
 (* The norm function class *)
-Class Norm V K := norm : V → K.
+Class Norm K V := norm : V → K.
 Instance: Params (@norm) 2.
 
 Notation "∥ L ∥" := (norm L) (at level 50).
 Notation "∥·∥" := norm (only parsing).
 
-(** Vectorspace with scalars F *)
-Class VectorSpace (F G : Type) {Fe Fplus Fmult Fzero Fone Fnegate Frecip}
-     {Ge Gop Gunit Gnegate} {sm : ScalarMult F G} := {
-  vs_field :> @DecField F Fe Fplus Fmult Fzero Fone Fnegate Frecip ;
-  vs_abgroup :> @AbGroup G Ge Gop Gunit Gnegate ;
-  vs_distr_l :> LeftHeteroDistribute (·) (&) (&) ;
-  vs_distr_r :> RightHeteroDistribute (·) (+) (&) ;
-  vs_assoc :> HeteroAssociative (·) (·) (·) (.*.) ;
-  vs_left_identity :> LeftIdentity (·) 1 
-}.
+Class Metric K V := d : V → V → K.
 
 Section spaces.
 
-Context K V `{VectorSpace K V}.
+(** A Vector space: This class says that [K] is the field
+    of scalars, [V] the abelian group of vectors and together
+    with the scalar multiplication they satisfy the laws
+    of a vector space
+*)
+Class VectorSpace (K V : Type)
+   {Ke Kplus Kmult Kzero Kone Knegate Krecip} (* scalar operations *)
+   {Ve Vop Vunit Vnegate}                     (* vector operations *)
+   {sm : ScalarMult K V}
+ :=
+   { vs_field         :> @DecField K Ke Kplus Kmult Kzero Kone Knegate Krecip
+   ; vs_abgroup       :> @AbGroup V Ve Vop Vunit Vnegate
+   ; vs_distr_l       :> LeftHeteroDistribute (·) (&) (&)
+   ; vs_distr_r       :> RightHeteroDistribute (·) (+) (&)
+   ; vs_assoc         :> HeteroAssociative (·) (·) (·) (.*.)
+   ; vs_left_identity :> LeftIdentity (·) 1
+   }.
 
 (** Given some vector space V over a ordered field K,
   we define the inner product space *)
 
-Class InnerProductSpace `{Kle: Le K} (ip: Inproduct K V) :=
-  { in_vectorspace :> VectorSpace K V
-  ; in_srorder     :> SemiRingOrder Kle
-  ; in_comm        :> Commutative inprod
-  ; in_linear_l    :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
-  ; in_nonneg      :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
-  }.
+Class InnerProductSpace (K V : Type)
+   {Ke Kplus Kmult Kzero Kone Knegate Krecip} (* scalar operations *)
+   {Ve Vop Vunit Vnegate}                     (* vector operations *)
+   {sm : ScalarMult K V} {inp: Inproduct K V} {Kle: Le K}
+ :=
+   { in_vectorspace :> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
+                                    Krecip Ve Vop Vunit Vnegate sm
+   ; in_srorder     :> SemiRingOrder Kle
+   ; in_comm        :> Commutative inprod
+   ; in_linear_l    :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
+   ; in_nonneg      :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
+   }.
 
-(*
- (* TODO complex conjugate? *)
+(* TODO complex conjugate?
  Section proof_in_linear_r.
  Context `{InnerProductSpace}.
  Lemma in_linear_r a u v : ⟨u,a·v⟩ = a*⟨u,v⟩.
@@ -59,17 +72,88 @@ Class InnerProductSpace `{Kle: Le K} (ip: Inproduct K V) :=
  End proof_in_linear_r.
 *)
 
- Class  SemiNormedSpace `{Abs K} `(n: @Norm V K) :=
-  { sn_vectorspace :> VectorSpace K V
-  ; sn_scale       :  ∀ a v, ∥ a · v ∥ = (abs a) * ∥ v ∥   (* positive homgeneity *)
-  ; sn_triangle    :  ∀ u v, ∥ u & v ∥ = ∥ u ∥ + ∥ v ∥     (* triangle inequality *)
-  }.
+(* This is probably a bad idea?
+   because ∣ ≠ |
 
-(*
- Class NormedSpace `{Abs K} `(n: @Norm V K) :=
-  { norm_semi :> SemiNormedSpace n
-  ; norm_separates : ∀ (v:V), ∥v∥ = 0 ↔ v = unit.
-  }.
+   Notation "∣ a ∣" := (abs a).
+*)
+
+Class SemiNormedSpace (K V : Type)
+  `{a:Abs K} `{n : @Norm K V}                 (* scalar and vector norms *)
+   {Ke Kplus Kmult Kzero Kone Knegate Krecip} (* scalar operations *)
+   {Ve Vop Vunit Vnegate}                     (* vector operations *)
+   {sm : ScalarMult K V}
+ :=
+   { sn_vectorspace :> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
+                                    Krecip Ve Vop Vunit Vnegate sm
+   ; sn_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
+   ; sn_triangle    :  ∀ u v, ∥u & v∥ = ∥u∥ + ∥v∥     (* triangle inequality *)
+   }.
+
+
+(* For normed spaces:
+   n_separates : ∀ (v:V), ∥v∥ = 0 ↔ v = unit
+*)
+
+(* - Induced metric:    d x y := ∥ x - y ∥
+
+   - Induced norm. If the metric is
+
+      1). translation invariant: d x y = d (x + a) (y + a)
+      2). and homogeneous: d (α * x) (α * y) = ∣α∣ * (d x y)
+     
+     then we can define the norm as:
+       
+        ∥ x ∥ := d 0 x
+
+   - Same for seminorm
 *)
 
 End spaces.
+
+Section module.
+
+ Class Module (R M : Type)
+   {Re Rplus Rmult Rzero Rone Rnegate}
+   {Me Mop Munit Mnegate}
+   {sm : ScalarMult R M}
+ :=
+   { lm_ring     :> @Ring R Re Rplus Rmult Rzero Rone Rnegate
+   ; lm_group    :> @AbGroup M Me Mop Munit Mnegate
+   ; lm_distr_l  : ∀ (r:R) (x y:M), r·(x & y) = (r·x) & (r·y)
+   ; lm_distr_r  : ∀ (r s:R) (x:M), (r + s)·x = (r·x) & (r·x)
+   ; lm_assoc    : ∀ (r s:R) (x:M), (r * s)·x = r · (s · x)
+   ; lm_identity : ∀ (x:M), 1 · x = x 
+   }.
+
+ (* TODO require K to be commutative and derive right module laws *)
+ (* TODO split into left/right module... *)
+ Section if_commutative.
+ End if_commutative.
+  
+ Section vectorspace_is_module.
+ Context `{VectorSpace K V}.
+  
+  Section helpers.
+    Variable (r s:K) (x y:V).
+     
+    Lemma vsm_distr_l: r·(x & y) = (r·x) & (r·y).
+    Admitted.
+     
+    Lemma vsm_distr_r: (r + s)·x = (r·x) & (r·x).
+    Admitted.
+     
+    Lemma vsm_assoc: (r * s)·x = r · (s · x).
+    Admitted.
+     
+    Lemma vsm_identity : 1 · x = x. 
+    Admitted.
+  End helpers.
+  
+ Instance vs_module: Module K V.
+   now repeat split; try apply _; auto using vsm_distr_l, vsm_distr_r, vsm_assoc, vsm_identity.
+ Defined.
+
+End vectorspace_is_module.
+
+End module.
