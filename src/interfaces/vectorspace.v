@@ -111,8 +111,10 @@ Class SemiNormedSpace (K V : Type)
 
 End spaces.
 
+(** Modules *)
 Section module.
 
+ (** Let [M] be an R-Module *)
  Class Module (R M : Type)
    {Re Rplus Rmult Rzero Rone Rnegate}
    {Me Mop Munit Mnegate}
@@ -120,40 +122,19 @@ Section module.
  :=
    { lm_ring     :> @Ring R Re Rplus Rmult Rzero Rone Rnegate
    ; lm_group    :> @AbGroup M Me Mop Munit Mnegate
-   ; lm_distr_l  : ∀ (r:R) (x y:M), r·(x & y) = (r·x) & (r·y)
-   ; lm_distr_r  : ∀ (r s:R) (x:M), (r + s)·x = (r·x) & (r·x)
-   ; lm_assoc    : ∀ (r s:R) (x:M), (r * s)·x = r · (s · x)
-   ; lm_identity : ∀ (x:M), 1 · x = x 
+   ; lm_distr_l  :> LeftHeteroDistribute (·) (&) (&)
+   ; lm_distr_r  :> RightHeteroDistribute (·) (+) (&)
+   ; lm_assoc    :> HeteroAssociative (·) (·) (·) (.*.)
+   ; lm_identity :> LeftIdentity (·) 1
    }.
 
- (* TODO require K to be commutative and derive right module laws *)
- (* TODO split into left/right module... *)
+ (* TODO K is commutative, so derive right module laws? *)
+ (* TODO split into left/right module? *)
  Section if_commutative.
  End if_commutative.
   
- Section vectorspace_is_module.
- Context `{VectorSpace K V}.
-  
-  Section helpers.
-    Variable (r s:K) (x y:V).
-     
-    Lemma vsm_distr_l: r·(x & y) = (r·x) & (r·y).
-    Admitted.
-     
-    Lemma vsm_distr_r: (r + s)·x = (r·x) & (r·x).
-    Admitted.
-     
-    Lemma vsm_assoc: (r * s)·x = r · (s · x).
-    Admitted.
-     
-    Lemma vsm_identity : 1 · x = x. 
-    Admitted.
-  End helpers.
-  
- Instance vs_module: Module K V.
-   now repeat split; try apply _; auto using vsm_distr_l, vsm_distr_r, vsm_assoc, vsm_identity.
- Defined.
-
-End vectorspace_is_module.
+ (** Every vectorspace is trivially a module *)
+ Instance vs_module `{VectorSpace K V}: Module K V.
+ Proof. now repeat split; try apply _. Defined.
 
 End module.
