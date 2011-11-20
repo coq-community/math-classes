@@ -323,7 +323,7 @@ Section morphism_composition.
   Instance compose_sr_morphism:
     SemiRing_Morphism f → SemiRing_Morphism g → SemiRing_Morphism (g ∘ f).
   Proof. split; try apply _; firstorder. Qed.
-  Global Instance invert_sr_morphism:
+  Instance invert_sr_morphism:
     ∀ `{!Inverse f}, Bijective f → SemiRing_Morphism f → SemiRing_Morphism (f⁻¹).
   Proof. split; try apply _; firstorder. Qed.
 End morphism_composition.

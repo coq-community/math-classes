@@ -80,14 +80,14 @@ Section subalgebras.
 
   (* Which is mono because proj is injective. *)
 
-  Instance: Injective (proj i).
+  Instance: Injective ((λ i, proj i) i).
   Proof.
    constructor. firstorder.
-   constructor; try apply _.
-   firstorder.
+   change (@Setoid_Morphism ((λ i, @sig (A i) (P i)) i) (A i) ((λ i, @sig_equiv (A i) (e i) (P i)) i) (e i) (proj i)).
+   apply _.
   Qed.
 
-  Global Instance: Mono (algebras.arrow _ proj).
+  Global Instance: Mono (algebras.arrow _ proj) := {}.
   Proof.
    apply forget_algebra.mono.
    apply categories.product.mono.

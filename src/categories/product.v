@@ -29,7 +29,7 @@ Section contents.
     `{∀ i, CatId (O i)} `{∀ i, CatComp (O i)}
     `{∀ i, Category (O i)}.
 
-  Global Instance: ∀ x y: Object O, Setoid (x ⟶ y) := {}.
+  Global Instance: ∀ x y: Object O, Setoid (x ⟶ y) := _.
 
   Global Instance: Category (Object O).
   Proof with try reflexivity.

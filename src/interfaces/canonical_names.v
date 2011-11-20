@@ -7,6 +7,10 @@ Require Export
 (* Equality *)
 Class Equiv A := equiv: relation A.
 
+(* Revert to transparency to allow conversions during unification. *)
+Typeclasses Transparent Equiv.
+Typeclasses Transparent compose flip.
+
 (* We use this virtually everywhere, and so use "=" for it: *)
 Infix "=" := equiv : type_scope.
 Notation "(=)" := equiv (only parsing).
@@ -78,6 +82,7 @@ Class Cast A B := cast: A → B.
 Implicit Arguments cast [[Cast]].
 Notation "' x" := (cast _ _ x) (at level 20).
 Instance: Params (@cast) 3.
+Typeclasses Transparent Cast.
 
 (* Other canonically named relations/operations/constants: *)
 Class SgOp A := sg_op: A → A → A.
@@ -90,18 +95,22 @@ Class Negate A := negate: A → A.
 Class DecRecip A := dec_recip: A → A.
 Definition ApartZero R `{Zero R} `{Apart R} := sig (≶ zero).
 Class Recip A `{Apart A} `{Zero A} := recip: ApartZero A → A.
+Typeclasses Transparent SgOp MonUnit Plus Mult Zero One Negate.
 
 Class Meet A := meet: A → A → A.
 Class Join A := join: A → A → A.
 Class Top A := top: A.
 Class Bottom A := bottom: A.
+Typeclasses Transparent Meet Join Top Bottom.
 
 Class Contains A B := contains: A → B → Prop.
 Class Singleton A B := singleton: A → B.
 Class Difference A := difference : A → A → A.
+Typeclasses Transparent Contains Singleton Difference.
 
 Class Le A := le: relation A.
 Class Lt A := lt: relation A.
+Typeclasses Transparent Le Lt.
 
 Definition NonNeg R `{Zero R} `{Le R} := sig (le zero).
 Definition Pos R `{Zero R} `{Equiv R} `{Lt R} := sig (lt zero).
@@ -268,6 +277,7 @@ Instance: Params (@abs) 6.
 (* Common properties: *)
 Class Inverse `(A → B) : Type := inverse: B → A.
 Implicit Arguments inverse [[A] [B] [Inverse]].
+Typeclasses Transparent Inverse.
 Notation "f ⁻¹" := (inverse f) (at level 30).
 
 Class Idempotent `{ea : Equiv A} (f: A → A → A) (x : A) : Prop := idempotency: f x x = x.

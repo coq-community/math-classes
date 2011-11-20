@@ -97,7 +97,7 @@ Proof.
   apply (no_zero_divisors x); split; eauto.
 Qed.
 
-Context `{Apart A} `{!FullPseudoSemiRingOrder Ale Alt} `{PropHolds (1 ≶ 0)}.
+Context `{Apart A} `{!FullPseudoSemiRingOrder (A:=A) Ale Alt} `{PropHolds (1 ≶ 0)}.
 
 Instance: StrongSetoid A := pseudo_order_setoid.
 

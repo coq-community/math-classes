@@ -49,7 +49,7 @@ Proof.
   apply ext_equiv_applied_iff, (bijective_applied f).
 Qed.
 
-Lemma injective_ne `{Equiv A} `{Equiv B} `(f : A → B) `{Injective A B f} x y :
+Lemma injective_ne `{Equiv A} `{Equiv B} `(f : A → B) `{!Injective f} x y :
   x ≠ y → f x ≠ f y.
 Proof. intros E1 E2. apply E1. now apply (injective f). Qed.
 
@@ -65,7 +65,7 @@ Proof. split; try apply _. Qed.
 Section compositions.
   Context `{Equiv A} `{Equiv B} `{Equiv C} (g: A → B) (f: B → C) `{!Inverse f} `{!Inverse g}.
 
-  Global Instance compose_inverse: Inverse (f ∘ g) := g⁻¹ ∘ f⁻¹.
+  Instance compose_inverse: Inverse (f ∘ g) := g⁻¹ ∘ f⁻¹.
 
   Instance compose_injective: Injective f → Injective g → Injective (f ∘ g).
   Proof. firstorder. Qed.
@@ -80,6 +80,7 @@ Section compositions.
   Instance compose_bijective: Bijective f → Bijective g → Bijective (f ∘ g) := {}.
 End compositions.
 
+Hint Extern 4 (Inverse (_ ∘ _)) => class_apply @compose_inverse : typeclass_instances.
 Hint Extern 4 (Injective (_ ∘ _)) => class_apply @compose_injective : typeclass_instances.
 Hint Extern 4 (Surjective (_ ∘ _)) => class_apply @compose_surjective : typeclass_instances.
 Hint Extern 4 (Bijective (_ ∘ _)) => class_apply @compose_bijective : typeclass_instances.
@@ -103,7 +104,8 @@ Proof.
   split; auto.
 Qed.
 
-Instance inverse_inverse `{Inverse A B f} : Inverse (f⁻¹) := f.
+Definition inverse_inverse `{Inverse A B f} : Inverse (f⁻¹) := f.
+Hint Extern 4 (Inverse (_ ⁻¹)) => class_apply @inverse_inverse : typeclass_instances.
 
 Lemma flip_bijection `{Bijective A B f} : Bijective (f⁻¹).
 Proof. apply alt_Build_Bijective; try apply _. apply (surjective f). apply (bijective f). Qed.

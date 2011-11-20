@@ -277,7 +277,7 @@ End strict_semiring_order.
 Hint Extern 7 (PropHolds (0 < _ + _)) => eapply @pos_plus_compat : typeclass_instances.
 
 Section pseudo_semiring_order.
-  Context `{PseudoSemiRingOrder R} `{Apart R}.
+  Context `{PseudoSemiRingOrder R}.
   Add Ring Rp : (stdlib_semiring_theory R).
 
   Instance: StrongSetoid R := pseudo_order_setoid.
@@ -444,7 +444,7 @@ Hint Extern 7 (PropHolds (0 < 4)) => eapply @lt_0_4 : typeclass_instances.
 Hint Extern 7 (PropHolds (2 ≶ 0)) => eapply @apart_0_2 : typeclass_instances.
 
 Section full_pseudo_semiring_order.
-  Context `{FullPseudoSemiRingOrder R} `{Apart R}.
+  Context `{FullPseudoSemiRingOrder R}.
 
   Add Ring Rf : (stdlib_semiring_theory R).
 

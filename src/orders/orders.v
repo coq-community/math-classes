@@ -134,7 +134,7 @@ Section full_partial_order.
   Global Instance apart_proper: Proper ((=) ==> (=) ==> iff) (≶).
   Proof. apply _. Qed.
 
-  Global Instance: StrictSetoidOrder (_ : Lt A).
+  Global Instance: StrictSetoidOrder (<).
   Proof.
     split; try apply _.
      intros x1 y1 E1 x2 y2 E2.
@@ -241,7 +241,7 @@ Section full_pseudo_order.
   Lemma not_lt_le_flip x y : ¬y < x → x ≤ y.
   Proof. intros. now apply le_iff_not_lt_flip. Qed.
 
-  Instance: PartialOrder (_ : Le A).
+  Instance: PartialOrder (≤).
   Proof.
     split; try apply _.
       intros ? ? E1 ? ? E2.
@@ -340,7 +340,7 @@ Section dec_partial_order.
   Instance: Setoid A := po_setoid.
   Definition dec_lt: Lt A := λ x y, x ≤ y ∧ x ≠ y.
 
-  Context `{Lt A} (lt_correct : ∀ x y, x < y ↔ x ≤ y ∧ x ≠ y).
+  Context `{Alt : Lt A} (lt_correct : ∀ x y, x < y ↔ x ≤ y ∧ x ≠ y).
 
   Instance dec_order: StrictSetoidOrder (<).
   Proof.
@@ -361,8 +361,8 @@ Section dec_partial_order.
 
   Instance: StrongSetoid A := dec_strong_setoid.
 
-  Instance dec_full_partial_order: FullPartialOrder (≤) (<).
-  Proof. split; try apply _. intros x y. now rewrite trivial_apart, lt_correct. Qed.
+  Instance dec_full_partial_order: FullPartialOrder (≤) (<) := {}.
+  Proof. setoid_rewrite trivial_apart; apply lt_correct. Qed.
 
   Context `{!TotalRelation (≤)}.
 

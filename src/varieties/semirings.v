@@ -47,7 +47,7 @@ Section from_instance.
     match o with plus => (+) | mult => (.*.) | zero => 0: A | one => 1:A end.
 
   Global Instance: Algebra sig _.
-  Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
+  Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; apply reflexivity. Qed.
 
   Lemma laws en (l: Laws en) vars: eval_stmt sig vars en.
   Proof.

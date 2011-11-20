@@ -93,7 +93,7 @@ Instance Z_to_Npair: Inverse Npair_to_Z := λ x,
 Instance: Surjective Npair_to_Z.
 Proof.
   split; try apply _.
-  intros x y E. rewrite E.
+  intros x y E. compute in E. rewrite E. (* FIXME: loop without the compute *)
   now destruct y as [|p|p].
 Qed.
 

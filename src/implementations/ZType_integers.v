@@ -37,7 +37,7 @@ Ltac unfold_equiv := unfold equiv, ZType_equiv, eq in *.
 Lemma ZType_ring_theory: ring_theory zero one add mul sub opp eq.
 Proof. repeat split; repeat intro; axioms.zify; auto with zarith. Qed.
 
-Instance: Ring t | 10 := rings.from_stdlib_ring_theory ZType_ring_theory.
+Instance t_ring: Ring t | 10 := rings.from_stdlib_ring_theory ZType_ring_theory.
 
 Instance inject_ZType_Z: Cast t Z := to_Z.
 
@@ -74,6 +74,7 @@ Proof. change (SemiRing_Morphism (to_Z⁻¹)). split; apply _. Qed.
 
 Instance: IntegersToRing t := integers.retract_is_int_to_ring of_Z.
 Instance: Integers t := integers.retract_is_int of_Z.
+Instance: Ring t := integers_ring. (* Avoid coming back to t_ring *)
 
 (* Order *)
 Instance ZType_le: Le t := le.

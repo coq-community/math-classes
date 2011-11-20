@@ -195,7 +195,7 @@ Global Instance listset_in: SetContains A := λ x l, x ∈ 'l.
 Global Instance listset_le: SetLe A := λ l k, ∀ x, x ∈ l → x ∈ k.
 Global Instance listset_equiv: SetEquiv A := λ l k, ∀ x, x ∈ l ↔ x ∈ k.
 
-Instance: Setoid (listset A).
+Instance: Setoid (set_type A).
 Proof. now apply (setoids.projected_setoid listset_to_list). Qed.
 
 Global Instance: Setoid_Morphism listset_to_list.

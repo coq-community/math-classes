@@ -8,6 +8,8 @@ Require Export
 Section naturals_order.
 Context `{Naturals N} `{Apart N} `{!TrivialApart N} `{!FullPseudoSemiRingOrder Nle Nlt}.
 
+Close Scope nat_scope.
+
 Global Instance nat_nonneg x : PropHolds (0 ≤ x).
 Proof. now apply (to_semiring_nonneg (f:=id)). Qed.
 

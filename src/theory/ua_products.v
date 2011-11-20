@@ -19,7 +19,8 @@ Section algebras.
     | ne_list.cons _ g => λ X X0, rec_impl g (λ i, X i (X0 i))
     end.
 
-  Let u (s: sorts sig): Equiv (forall i : I, carriers i s).
+  Instance u (s: sorts sig): Equiv (forall i : I, carriers i s).
+  Proof.
    apply products.dep_prod_equiv.
    intro. apply _.
   Defined.
@@ -69,10 +70,8 @@ Section varieties.
     `(∀ i, AlgebraOps et (carriers i))
     `(∀ i, InVariety et (carriers i)).
 
-  Typeclasses Transparent Equiv.
-
   Notation carrier := (carrier et I carriers).
-  Let carrier_e := product_e et I carriers _.
+  Instance carrier_e : forall s, Equiv _ := product_e et I carriers _.
 
   Fixpoint nqe {t}: op_type carrier t → (∀ i, op_type (carriers i) t) → Prop :=
    match t with
@@ -108,8 +107,6 @@ Section varieties.
       apply sig_type_refl.
        intro. apply _.
       apply eval_proper; try apply _.
-        apply product_algebra.
-        intro. apply _.
        reflexivity.
       reflexivity.
      apply (nqe_proper t (eval et vars term1 (eval et vars term2)) (eval et vars term1 (eval et vars term2)) H2 k p).

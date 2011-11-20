@@ -11,10 +11,8 @@ Section contents.
   Global Instance: @CatComp Object flipA := λ _ _ _, flip (Acomp _ _ _).
   Global Instance e: ∀ x y, Equiv (flipA x y) := λ x y, Aeq y x.
 
-  Global Instance: ∀ (x y: Object), Equivalence (e x y).
-  Proof. intros. change (Equivalence ((=): Equiv (A y x))). apply _. Qed.
-
-  Global Instance: ∀ (x y: Object), Setoid (x ⟶ y) := {}.
+  Global Instance: ∀ (x y: Object), Setoid (flipA x y).
+  Proof. intros. change (Setoid (A y x)). apply arrow_equiv. Qed.
 
   Instance: ∀ (x y z: Object), Proper ((=) ==> (=) ==> (=)) (@comp Object flipA _ x y z).
   Proof.
@@ -28,9 +26,6 @@ Section contents.
   Proof with auto.
    destruct c.
    constructor; try apply _; auto.
-      unfold Setoid, equiv, e.
-      intros.
-      apply arrow_equiv.
      unfold comp, Arrow, flip.
      repeat intro. symmetry. apply comp_assoc.
     intros. apply id_r.

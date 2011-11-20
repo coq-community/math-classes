@@ -14,11 +14,11 @@ Section contents.
   Notation op_type := (op_type (sorts σ)).
   Notation vv := (ua_products.carrier σ bool (λ _: bool, v)).
 
-  Let hint := @ua_products.product_algebra σ bool (λ _, v) _ _ _.
+  Instance hint: Algebra σ vv := @ua_products.product_algebra σ bool (λ _, v) _ _ _.
 
   (* Given an equivalence on the algebra's carrier that respects its setoid equality... *)
 
-  Let hint' (a: sorts σ): Equiv (ua_products.carrier σ bool (fun _: bool => v) a).
+  Instance hint' (a: sorts σ): Equiv (ua_products.carrier σ bool (fun _: bool => v) a).
   Proof. apply products.dep_prod_equiv. intro. apply _. Defined.
 
   Context (e: ∀ s, relation (v s)).

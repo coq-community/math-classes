@@ -29,7 +29,7 @@ Section fset_props.
     do 2 case (decide _); try reflexivity; rewrite E; contradiction.
   Qed.
 
-  Global Instance: Injective singleton.
+  Global Instance: Injective (singleton : A -> set_type A).
   Proof.
     split; try apply _. intros x y E1. apply stable; intros E2.
     assert (fset_extend (F x y) {{ x }} ≠ fset_extend (F x y) {{ y }}) as E3.
@@ -67,7 +67,7 @@ Section fset_props.
 End fset_props.
 
 Instance fset_map_mor `{FSet A} `{FSet B} (f : A → B) `{!Setoid_Morphism f} :
-  BoundedJoinSemiLattice_Morphism (fset_map f).
+  BoundedJoinSemiLattice_Morphism (fset_map (H:=At) (H0:=At0) (SetSingleton0:=Asingle0)  f).
 Proof. apply _. Qed.
 
 Lemma fset_map_correct `{FSet A} `{FSet B} (f : A → B) `{!Setoid_Morphism f} :
@@ -163,7 +163,7 @@ Section full_fset_props.
 
   Instance: Setoid A := fset_car_setoid A.
 
-  Notation to_listset := (fset_map id : set_type A → listset A).
+  Notation to_listset := (fset_map id : set_type A → @set_type _ (listset A)).
   Notation from_listset := (to_listset⁻¹).
 
   Lemma to_listset_preserves_in x X : x ∈ to_listset X ↔ x ∈ X.
@@ -184,7 +184,7 @@ Section full_fset_props.
     apply Padd; auto. intros E3. destruct E1. now apply (preserves_in id x).
   Qed.
 
-  Global Instance fset_in_proper : Proper ((=) ==> (=) ==> iff) (∈).
+  Global Instance fset_in_proper : Proper ((=) ==> (=) ==> iff) ((∈): A → set_type A).
   Proof. intros x y E1 X Y E2. now rewrite !fset_in_singleton_le, E1, E2. Qed.
 
   Global Program Instance fset_in_dec_slow: ∀ x X, Decision (x ∈ X) | 50 := λ x X,
@@ -287,7 +287,7 @@ Section full_fset_props.
   Lemma fset_meet_singletons_eq_r x y : {{ x }} ⊓ {{ y }} = {{ y }} ↔ x = y.
   Proof. rewrite commutativity, fset_meet_singletons_eq_l. intuition. Qed.
 
-  Lemma fset_meet_distinct_singletons x y : x ≠ y → {{ x }} ⊓ {{ y }} = ∅.
+  Lemma fset_meet_distinct_singletons (x y: A) : x ≠ y → {{ x }} ⊓ {{ y }} = ∅.
   Proof.
     intros E1. apply fset_eq_in. intros z.
     rewrite fset_in_meet. split.

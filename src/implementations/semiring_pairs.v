@@ -13,7 +13,7 @@ Context `{∀ z, LeftCancellation (+) z}.
 Add Ring SR : (rings.stdlib_semiring_theory SR).
 
 (* Equivalence *)
-Global Instance SRpair_equiv : Equiv (SRpair SR) := λ x y, pos x + neg y = pos y + neg x.
+Global Instance SRpair_equiv : Equiv (SRpair SR) | 4 := λ x y, pos x + neg y = pos y + neg x.
 Global Instance SRpair_apart `{Apart SR} : Apart (SRpair SR) := λ x y, pos x + neg y ≶ pos y + neg x.
 
 Global Instance SRpair_trivial_apart `{!TrivialApart SR} :  TrivialApart (SRpair SR).
@@ -288,6 +288,7 @@ Section with_full_pseudo_semiring_order.
     symmetry. now apply (strong_extensionality (zn *.)).
   Qed.
 
+  Strategy -10 [ le lt ].
   Global Instance: FullPseudoSemiRingOrder SRpair_le SRpair_lt.
   Proof.
     apply from_full_pseudo_ring_order; try apply _.

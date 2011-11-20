@@ -4,8 +4,6 @@ Require Import
 Section contents.
   Variable σ: Signature.
 
-  Typeclasses Transparent Equiv. (* Need to instantiate a [relation] existential with [H0 t : Equiv] *)
-
   Notation OpType := (OpType (sorts σ)).
 
   Section homo.
@@ -143,7 +141,6 @@ Section contents.
   Proof with try assumption; try apply _.
    intros ? [? ? ? ?].
    constructor...
-    intro. fold ((f a)⁻¹). apply _.
    intro.
    generalize (ao o) (bo o) (preserves _ _ f o)
      (algebra_propers o: Proper (=) (ao o)) (algebra_propers o: Proper (=) (bo o)).

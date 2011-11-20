@@ -126,7 +126,8 @@ Proof.
    reflexivity.
   change (1 + cast N Z n ≠ 0).
   apply orders.lt_ne_flip.
-  now apply nat_int.le_iff_lt_S, nat_int.to_semiring_nonneg.
+  apply nat_int.le_iff_lt_S.
+  apply nat_int.to_semiring_nonneg.
 Qed.
 
 Instance Q_shiftl: ShiftL Q Z := λ x k,

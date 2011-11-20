@@ -66,7 +66,7 @@ Section another_integers.
 
   (* Making this instance global results in loops *)
   Instance to_frac_bijective: Bijective f := {}.
-  Global Instance to_frac_inverse_bijective: Bijective (f⁻¹) := {}.
+  Global Instance to_frac_inverse_bijective: Bijective (f⁻¹) := _.
   Global Instance: SemiRing_Morphism (f⁻¹) := {}.
 End another_integers.
 
@@ -81,17 +81,15 @@ Qed.
 
 Definition rationals_to_rationals Q1 Q2 `{Rationals Q1} `{Rationals Q2} : Q1 → Q2
   := (rationals_to_frac Q2 (SRpair nat))⁻¹ ∘ rationals_to_frac Q1 (SRpair nat).
+Hint Unfold rationals_to_rationals : typeclass_instances.
 
 Section another_rationals.
   Context `{Rationals Q1} `{Rationals Q2}.
 
   Local Existing Instance to_frac_bijective.
-  Global Instance: SemiRing_Morphism (rationals_to_rationals Q1 Q2).
-  Proof. unfold rationals_to_rationals. apply _. Qed.
-  Global Instance: Bijective (rationals_to_rationals Q1 Q2).
-  Proof. unfold rationals_to_rationals. apply _. Qed.
-  Global Instance: Bijective (rationals_to_rationals Q2 Q1).
-  Proof. unfold rationals_to_rationals. apply _. Qed.
+  Global Instance: SemiRing_Morphism (rationals_to_rationals Q1 Q2) := _.
+  Global Instance: Bijective (rationals_to_rationals Q1 Q2) := _.
+  Global Instance: Bijective (rationals_to_rationals Q2 Q1) := _.
 
   Instance: Bijective (rationals_to_frac Q1 (SRpair nat)) := {}.
 
@@ -145,13 +143,14 @@ Section isomorphic_image_is_rationals.
   Context (f : Q → F) `{!Inverse f} `{!Bijective f} `{!SemiRing_Morphism f}.
 
   Instance iso_to_frac: RationalsToFrac F := λ Z _ _ _ _ _ _ _ _, rationals_to_frac Q Z ∘ f⁻¹.
+  Hint Unfold iso_to_frac: typeclass_instances.
 
-  Instance: Bijective (f⁻¹) := {}.
+  Instance: Bijective (f⁻¹) := _.
   Instance: SemiRing_Morphism (f⁻¹) := {}.
 
   Lemma iso_is_rationals: Rationals F.
   Proof.
-    repeat (split; unfold rationals_to_frac, iso_to_frac; try apply _).
+    repeat (split; unfold rationals_to_frac; try apply _).
     intros x y E.
     apply (injective (f ∘ integers_to_ring Z Q)).
     now rewrite 2!(to_ring_unique (f ∘ integers_to_ring Z Q)).

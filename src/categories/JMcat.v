@@ -40,19 +40,19 @@ Section contents.
       (∀ v, a v ≡ b v) ∧
       (∀ `(f: v ⟶ w), JMrelation.R (=) (fmap a f) _ (=) (fmap b f)).
 
-    Let e_refl: Reflexive e.
+    Instance e_refl: Reflexive e.
     Proof.
      intro a. unfold e. intuition.
      apply JMrelation.reflexive, _.
     Qed.
 
-    Let e_sym: Symmetric e.
+    Instance e_sym: Symmetric e.
     Proof with intuition.
      unfold e. intros ?? [P Q]...
      apply JMrelation.symmetric...
     Qed.
 
-    Let e_trans: Transitive e.
+    Instance e_trans: Transitive e.
     Proof with intuition.
      unfold e. intros a b c [P Q] [R S]...
       transitivity (b v)...
@@ -60,7 +60,7 @@ Section contents.
     Qed.
 
     Global Instance: Setoid (x ⟶ y).
-    Proof. split; try apply _. Qed.
+    Proof. split; apply _. Qed.
   End more_arrows.
 
   Global Instance: CatId Object := λ _, arrow id _ _.

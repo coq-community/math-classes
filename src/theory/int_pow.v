@@ -13,7 +13,7 @@ Context `{DecField A} `{∀ x y, Decision (x = y)} `{Integers B} `{!IntPowSpec A
 Add Field A : (dec_fields.stdlib_field_theory A).
 Add Ring B : (rings.stdlib_ring_theory B).
 
-Global Instance: Proper ((=) ==> (=) ==> (=)) (^) | 0.
+Global Instance: @Proper (A -> B -> A) ((=) ==> (=) ==> (=)) (^) | 0.
 Proof int_pow_proper.
 
 Global Instance int_pow_mor_1: ∀ x : A, Setoid_Morphism (x^) | 0.
@@ -126,7 +126,7 @@ Proof. now rewrite int_pow_S_nonneg, int_pow_2 by solve_propholds. Qed.
 Lemma int_pow_4 x : x ^ (4:B) = x * (x * (x * x)).
 Proof. now rewrite int_pow_S_nonneg, int_pow_3 by solve_propholds. Qed.
 
-Global Instance int_pow_base_1: LeftAbsorb (^) 1.
+Global Instance int_pow_base_1: LeftAbsorb (^) (1:A).
 Proof.
   rapply biinduction.
     solve_proper.
@@ -250,7 +250,7 @@ Proof.
   intros n En E2.
   rewrite <-associativity, int_pow_S.
    apply semirings.gt_1_mult_lt_compat_l; auto.
-   transitivity 1; [apply semirings.lt_0_1 | assumption].
+   transitivity (1:A); [apply semirings.lt_0_1 | assumption].
   apply orders.lt_ne_flip.
   apply orders.le_lt_trans with 1; trivial.
   now apply semirings.le_0_1.
@@ -264,7 +264,7 @@ Instance int_pow_exp_le:
 Proof.
   repeat (split; try apply _).
   assert (PropHolds (0 < x))
-   by (apply orders.lt_le_trans with 1; [solve_propholds | easy]).
+    by (apply orders.lt_le_trans with 1; [solve_propholds | easy]).
   intros n m E.
   destruct (semirings.decompose_le E) as [z [Ea Eb]].
   rewrite Eb.
@@ -364,7 +364,7 @@ Section exp_preservation.
       now rewrite En, rings.preserves_0, 2!int_pow_0.
      rewrite 2!int_pow_base_0; try easy.
      now apply rings.injective_ne_0.
-    revert n. rapply biinduction.
+    revert n. apply biinduction.
       solve_proper.
      rewrite rings.preserves_0.
      now rewrite 2!int_pow_0.

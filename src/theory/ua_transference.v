@@ -81,7 +81,7 @@ Section contents.
   Qed.
 
   Theorem transfer_statement (s: Statement et): (∀ v, eval_stmt et (A:=A) v s) → (∀ v, eval_stmt et (A:=B) v s).
-  Proof with intuition.
+  Proof with intuition auto.
    intros ? v.
    assert (v = (λ _ i, ab (ba (v _ i)))) as P.
     destruct i. intros a a0. symmetry...

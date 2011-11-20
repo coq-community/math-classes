@@ -35,7 +35,7 @@ Proof.
      now apply props.empty_union_1, empty_spec.
     now apply props.empty_union_2, empty_spec.
    now apply props.union_sym.
-  apply props.union_subset_equal. reflexivity.
+  apply props.union_subset_equal, props.subset_refl.
   Local Transparent Equal.
 Qed.
 

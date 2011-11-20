@@ -16,6 +16,8 @@ Section functor_class.
 
 End functor_class.
 
+Typeclasses Transparent Fmap.
+
 (* The usual notational convention for functor application is to use the
 name of the functor to refer to both its object map and its arrow map, relying
 on additional conventions regarding object/arrow names for disambiguation

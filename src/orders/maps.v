@@ -256,7 +256,7 @@ Section composition.
 
   Instance compose_order_morphism:
     Order_Morphism f → Order_Morphism g → Order_Morphism (g ∘ f).
-  Proof. split; [ apply _ | apply _ | apply (order_morphism_po_b g) ]. Qed.
+  Proof. split; [ apply _ | apply (order_morphism_po_a f) | apply (order_morphism_po_b g) ]. Qed.
 
   Instance compose_order_preserving:
     OrderPreserving f → OrderPreserving g → OrderPreserving (g ∘ f).
