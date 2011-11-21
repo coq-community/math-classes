@@ -28,12 +28,12 @@ Lemma to_ring_unique_alt `{Integers Z} `{Ring R} (f g: Z → R) `{!SemiRing_Morp
   f x = g x.
 Proof. now rewrite (to_ring_unique f), (to_ring_unique g). Qed.
 
-Lemma morphisms_involutive `{Integers Z} `{Integers Z2} (f: Z → Z2) (g: Z2 → Z) 
+Lemma morphisms_involutive `{Integers Z} `{Integers Z2} (f: Z → Z2) (g: Z2 → Z)
   `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} x : f (g x) = x.
 Proof. now apply (to_ring_unique_alt (f ∘ g) id). Qed.
 
 Lemma to_ring_twice `{Integers Z} `{Ring R1} `{Ring R2} (f : R1 → R2) (g : Z → R1) (h : Z → R2)
-     `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} `{!SemiRing_Morphism h} x : 
+     `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} `{!SemiRing_Morphism h} x :
   f (g x) = h x.
 Proof. now apply (to_ring_unique_alt (f ∘ g) h). Qed.
 
@@ -41,7 +41,7 @@ Lemma to_ring_self `{Integers Z} (f : Z → Z) `{!SemiRing_Morphism f} x : f x =
 Proof. now apply (to_ring_unique_alt f id). Qed.
 
 (* A ring morphism from integers to another ring is injective if there's an injection in the other direction: *)
-Lemma to_ring_injective `{Integers Z} `{Ring R} (f: R → Z) (g: Z → R) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: 
+Lemma to_ring_injective `{Integers Z} `{Ring R} (f: R → Z) (g: Z → R) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} :
   Injective g.
 Proof.
   repeat (split; try apply _). intros x y E.
@@ -49,11 +49,11 @@ Proof.
   unfold compose. now rewrite E.
 Qed.
 
-Instance integers_to_integers_injective `{Integers Z} `{Integers Z2} (f: Z → Z2) `{!SemiRing_Morphism f}: 
+Instance integers_to_integers_injective `{Integers Z} `{Integers Z2} (f: Z → Z2) `{!SemiRing_Morphism f} :
   Injective f.
 Proof. apply (to_ring_injective (integers_to_ring Z2 Z) _). Qed.
 
-Instance naturals_to_integers_injective `{Integers Z} `{Naturals N} (f: N → Z) `{!SemiRing_Morphism f} : 
+Instance naturals_to_integers_injective `{Integers Z} `{Naturals N} (f: N → Z) `{!SemiRing_Morphism f} :
   Injective f.
 Proof.
   split; try apply _. intros x y E.
@@ -72,7 +72,7 @@ Section retract_is_int.
     Context `{Ring R}.
 
     Instance: SemiRing_Morphism (integers_to_ring Z R ∘ f⁻¹) := {}.
-    Context (h :  Z2 → R) `{!SemiRing_Morphism h}. 
+    Context (h :  Z2 → R) `{!SemiRing_Morphism h}.
 
     Lemma same_morphism: integers_to_ring Z R ∘ f⁻¹ = h.
     Proof with auto.
@@ -84,7 +84,7 @@ Section retract_is_int.
   End for_another_ring.
 
   (* If we make this an instance, then instance resolution will often loop *)
-  Program Instance retract_is_int: Integers Z2 (U:=retract_is_int_to_ring). 
+  Program Instance retract_is_int: Integers Z2 (U:=retract_is_int_to_ring).
   Next Obligation. unfold integers_to_ring, retract_is_int_to_ring. apply _. Qed.
   Next Obligation. apply integer_initial. intros. now apply same_morphism. Qed.
 End retract_is_int.

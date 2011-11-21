@@ -20,6 +20,8 @@ Local Ltac unfold_equivs := unfold equiv, sig_equiv in *; simpl in *.
 Instance: Proper ((=) ==> (=)) of_nat.
 Proof. intros ?? E. unfold_equivs. now rewrite E. Qed.
 
+Instance: Setoid_Morphism of_nat := {}.
+
 Instance: SemiRing_Morphism of_nat.
 Proof.
   repeat (split; try apply _); repeat intro; unfold_equivs.
@@ -33,13 +35,17 @@ Program Let to_nat: Inverse of_nat := λ x, int_abs Z nat (`x).
 Existing Instance to_nat.
 
 Instance: Proper ((=) ==> (=)) to_nat.
-Proof. intros [??] [??] E. unfold to_nat. unfold_equivs. now rewrite E. Qed.
+Proof.
+  intros [x Ex] [y Ey] E. unfold to_nat. do 2 red in E. simpl in E. simpl.
+  now rewrite E.
+Qed.
 
 Instance: SemiRing_Morphism to_nat.
 Proof.
-  repeat (split; try apply _). 
+  pose proof (_ : SemiRing (Z⁺)).
+  repeat (split; try apply _).
      intros [x Ex] [y Ey]. unfold to_nat; unfold_equivs. simpl.
-     now apply int_abs_nonneg_plus. 
+     now apply int_abs_nonneg_plus.
     unfold mon_unit, zero_is_mon_unit. now apply int_abs_0.
    intros [x Ex] [y Ey]. unfold to_nat; unfold_equivs. simpl.
    now apply int_abs_mult.
@@ -62,7 +68,7 @@ Context `{∀ x y : Z, Decision (x ≤ y)}.
 Global Program Instance ZPos_cut_minus: CutMinus (Z⁺) := λ x y, 
   if decide_rel (≤) x y then 0 else ((x : Z) - (y : Z))↾_.
 Next Obligation.
-  apply <-rings.flip_nonneg_minus. 
+  apply <-rings.flip_nonneg_minus.
   now apply orders.le_flip.
 Qed.
 

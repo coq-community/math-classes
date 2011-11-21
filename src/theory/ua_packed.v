@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   canonical_names universal_algebra Program.
 
 Section packed.

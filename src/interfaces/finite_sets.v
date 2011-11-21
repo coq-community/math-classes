@@ -1,12 +1,12 @@
-Require Import 
+Require Import
   abstract_algebra interfaces.orders.
 
 (*
 We define finite sets as the initial join semi lattice over a decidable type.
 
-An important aspect of our interface is the possibility to make fast 
-implementations. Therefore it is important that various properties of the 
-carrier set can be used to create an implementation. Examples of 
+An important aspect of our interface is the possibility to make fast
+implementations. Therefore it is important that various properties of the
+carrier set can be used to create an implementation. Examples of
 implementations are:
 * Finite sets as unordered lists.
 * Finite sets as AVLs (here we need order).
@@ -18,6 +18,7 @@ type class:
 
 Class SetType (A : Type) := set_type: Type.
 Implicit Arguments set_type [[SetType]].
+(* We can't make this type transparent to typeclass resolution. *)
 
 (*
 The key idea is that an implementation can let instances of this class depend
@@ -38,8 +39,8 @@ Notation SetContains A := (Contains A (set_type A)).
 Class FSetExtend A `{t : SetType A} :=
   fset_extend `{Join B} `{Bottom B} : (A → B) → set_type A → B.
 
-Class FSet A `{At : SetType A} `{Ae : Equiv A} `{Ate : SetEquiv A} 
-   `{Aempty : EmptySet A} `{Ajoin : SetJoin A} `{Asingle : SetSingleton A} 
+Class FSet A `{At : SetType A} `{Ae : Equiv A} `{Ate : SetEquiv A}
+   `{Aempty : EmptySet A} `{Ajoin : SetJoin A} `{Asingle : SetSingleton A}
    `{∀ a₁ a₂ : A, Decision (a₁ = a₂)} `{U : !FSetExtend A} :=
  { fset_bounded_sl :> BoundedJoinSemiLattice (set_type A)
   ; singleton_mor :> Setoid_Morphism singleton
@@ -47,7 +48,7 @@ Class FSet A `{At : SetType A} `{Ae : Equiv A} `{Ate : SetEquiv A}
       BoundedJoinSemiLattice_Morphism (fset_extend f)
   ; fset_extend_correct `{BoundedJoinSemiLattice B}  (f : A → B) `{!Setoid_Morphism f} :
       f = fset_extend f ∘ singleton
-  ; fset_extend_unique `{Equiv B} `{Join B} `{Bottom B} (f : A → B) `{!Setoid_Morphism f} 
+  ; fset_extend_unique `{Equiv B} `{Join B} `{Bottom B} (f : A → B) `{!Setoid_Morphism f}
       (h : set_type A → B) `{!BoundedJoinSemiLattice_Morphism h} : f = h ∘ singleton → h = fset_extend f }.
 
 Definition fset_map `(f : A → B) `{SetType A} `{SetType B} `{EmptySet B} `{SetJoin B} `{SetSingleton B}
@@ -60,16 +61,16 @@ algebraic definition of a lattice in FSet. However, an implementation can
 freely use orders.lattices.alt_Build_JoinSemiLatticeOrder.
 *)
 
-Class FSetContainsSpec A `{At : SetType A} `{Ae : Equiv A} `{Ate : SetEquiv A} 
+Class FSetContainsSpec A `{At : SetType A} `{Ae : Equiv A} `{Ate : SetEquiv A}
      `{SetLe A} `{SetContains A} `{Ajoin : SetJoin A} `{Asingle : SetSingleton A} :=
   { fset_join_sl_order :> JoinSemiLatticeOrder (≤)
   ; fset_in_singleton_le : ∀ x X, x ∈ X ↔ {{ x }} ≤ X }.
 
 (*
-Unfortunately, properties as meet and the differences cannot be uniquely 
+Unfortunately, properties as meet and the differences cannot be uniquely
 defined in an algebraic way, therefore we just use set inclusion.
 *)
-Class FullFSet A {car Ae conAe conAle Acontains Aempty Ajoin Asingle U Adec} `{Adiff : SetDifference A} `{Ameet : SetMeet A} := 
+Class FullFSet A {car Ae conAe conAle Acontains Aempty Ajoin Asingle U Adec} `{Adiff : SetDifference A} `{Ameet : SetMeet A} :=
   { full_fset_fset :> @FSet A car Ae conAe Aempty Ajoin Asingle U Adec
   ; full_fset_contains :> @FSetContainsSpec A car Ae conAe conAle Acontains Ajoin Asingle
   ; fset_in_meet : ∀ X Y x, x ∈ X ⊓ Y ↔ (x ∈ X ∧ x ∈ Y)

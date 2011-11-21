@@ -46,11 +46,11 @@ Section contents.
      now apply E1.
     easy.
   Qed.
- 
+
   Program Instance option_dec `(A_dec : ∀ x y : A, Decision (x = y))
      : ∀ x y : option A, Decision (x = y) := λ x y,
     match x with
-    | Some r => 
+    | Some r =>
       match y with
       | Some s => match A_dec r s with left _ => left _ | right _ => right _ end
       | None => right _
@@ -67,7 +67,7 @@ Section contents.
   Next Obligation. apply None_ne_Some. Qed.
 End contents.
 
-Hint Extern 10 (Equiv (option _)) => apply @option_equiv : typeclass_instances. 
+Hint Extern 10 (Equiv (option _)) => apply @option_equiv : typeclass_instances.
 
 Instance option_ret: MonadReturn option := λ A x, Some x.
 Instance option_bind: MonadBind option := λ A B x f,

@@ -1,7 +1,7 @@
 Require
   theory.integers theory.int_abs.
 Require Import
-  Ring abstract_algebra interfaces.integers interfaces.naturals 
+  Ring abstract_algebra interfaces.integers interfaces.naturals
   interfaces.additional_operations interfaces.orders
   natpair_integers orders.rings.
 Require Export
@@ -22,14 +22,14 @@ Proof.
    rewrite <-A. clear A. revert a. rapply naturals.induction.
      solve_proper.
     now rewrite rings.preserves_0.
-   intros m E. 
+   intros m E.
    rewrite rings.preserves_plus, rings.preserves_1.
    apply Psuc1. apply to_semiring_nonneg. easy.
-  rewrite <-(groups.negate_involutive n), <-A. 
+  rewrite <-(groups.negate_involutive n), <-A.
   clear A. revert a. rapply naturals.induction.
     solve_proper.
    now rewrite rings.preserves_0, rings.negate_0.
-  intros m E. 
+  intros m E.
   rewrite rings.preserves_plus, rings.preserves_1.
   rewrite rings.negate_plus_distr, commutativity.
   apply Psuc2. apply naturals.negate_to_ring_nonpos. easy.
@@ -53,7 +53,7 @@ Global Instance: Biinduction Z.
 Proof.
   intros P ? P0 Psuc. apply induction; trivial.
    firstorder.
-  intros. apply Psuc. 
+  intros. apply Psuc.
   now setoid_replace (1 + (n - 1)) with n by ring.
 Qed.
 
@@ -86,13 +86,13 @@ Instance: PartialOrder int_le.
 Proof.
   repeat (split; try apply _).
     intros x. exists (0:nat). rewrite rings.preserves_0. ring.
-   intros x y z [a A] [b B]. exists (a + b). 
+   intros x y z [a A] [b B]. exists (a + b).
    now rewrite rings.preserves_plus, associativity, <-A, B.
   intros x y [a A] [b B].
   destruct (naturals.zero_sum a b) as [E1 E2].
    apply (injective (naturals_to_semiring nat Int)).
    rewrite rings.preserves_plus, rings.preserves_0.
-   apply (left_cancellation (+) x). 
+   apply (left_cancellation (+) x).
    rewrite B at 2. rewrite A. ring.
   rewrite A, B, E1, E2, rings.preserves_0. ring.
 Qed.
@@ -112,7 +112,7 @@ Proof.
   assert (∀ x y, i_to_r x ≤ i_to_r y → x ≤ y) as P.
    intros x y E.
    destruct (decompose_le E) as [a [A B]].
-   exists (pos a ∸ neg a). 
+   exists (pos a ∸ neg a).
    apply (injective i_to_r).
    rewrite rings.preserves_plus, B. clear B. apply sm_proper.
    rewrite (naturals.to_semiring_twice _ _ SRpair_inject).

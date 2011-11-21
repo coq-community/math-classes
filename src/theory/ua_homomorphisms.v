@@ -1,10 +1,8 @@
 Require Import
   abstract_algebra universal_algebra.
 
-Section contents. 
+Section contents.
   Variable σ: Signature.
-
-  Typeclasses Transparent Equiv. (* Need to instantiate a [relation] existential with [H0 t : Equiv] *)
 
   Notation OpType := (OpType (sorts σ)).
 
@@ -14,7 +12,7 @@ Section contents.
     `{A_equiv : ∀ a, Equiv (A a)} `{B_equiv : ∀ a, Equiv (B a)}
     `{A_ops : AlgebraOps σ A} `{B_ops : AlgebraOps σ B}.
 
-  Section with_f. 
+  Section with_f.
     Context (f : ∀ a, A a → B a).
 
     Implicit Arguments f [[a]].
@@ -39,7 +37,7 @@ Section contents.
     Proof with auto.
      induction n; simpl; intros x y E x' y' E'.
       split; intro F. rewrite <- E, <- E'... rewrite E, E'...
-     split; simpl; intros. 
+     split; simpl; intros.
       eapply IHn; eauto; symmetry; [now apply E | now apply E'].
      eapply IHn; eauto; [now apply E | now apply E'].
    Qed.
@@ -143,7 +141,6 @@ Section contents.
   Proof with try assumption; try apply _.
    intros ? [? ? ? ?].
    constructor...
-    intro. fold ((f a)⁻¹). apply _.
    intro.
    generalize (ao o) (bo o) (preserves _ _ f o)
      (algebra_propers o: Proper (=) (ao o)) (algebra_propers o: Proper (=) (bo o)).
@@ -155,8 +152,8 @@ Section contents.
     symmetry...
    intros P Q R S T x.
    apply IHo0.
-     eapply Preservation_proper''; eauto; intros; try apply _. 
-     symmetry. now apply T, (surjective (f t) x x). 
+     eapply Preservation_proper''; eauto; intros; try apply _.
+     symmetry. now apply T, (surjective (f t) x x).
     apply S. reflexivity.
    apply T. reflexivity.
   Qed.

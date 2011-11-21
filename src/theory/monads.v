@@ -15,7 +15,6 @@ Section contents.
       pose proof (setoidmor_a f).
       pose proof (setoidmor_b f).
       constructor; try apply _.
-      intros ?? E. rewrite E...
      intros ?? E. repeat intro.
      apply (@bind_proper M _ _ _ _ v _ _ w _ _)...
      intros c d. intros.

@@ -1,8 +1,8 @@
 Require
   orders.integers theory.dec_fields theory.nat_pow.
-Require Import 
+Require Import
   Ring
-  abstract_algebra interfaces.naturals interfaces.integers 
+  abstract_algebra interfaces.naturals interfaces.integers
   interfaces.additional_operations interfaces.orders.
 
 Section shiftl.
@@ -11,7 +11,7 @@ Context `{SemiRing A} `{!LeftCancellation (.*.) (2:A)} `{SemiRing B} `{!Biinduct
 Add Ring A: (rings.stdlib_semiring_theory A).
 Add Ring B: (rings.stdlib_semiring_theory B).
 
-Global Instance: Proper ((=) ==> (=) ==> (=)) (≪) | 1.
+Global Instance: Proper ((=) ==> (=) ==> (=)) ((≪) : A → B → A) | 1.
 Proof shiftl_proper.
 
 Global Instance shiftl_mor_1: ∀ x : A, Setoid_Morphism (x≪) | 0.
@@ -20,7 +20,7 @@ Proof. split; try apply _. Qed.
 Global Instance shiftl_mor_2: ∀ n : B, Setoid_Morphism (≪n) | 0.
 Proof. split; try apply _. solve_proper. Qed.
 
-Lemma shiftl_nat_pow_alt `{Naturals B2} `{!NatPowSpec A B2 pw} 
+Lemma shiftl_nat_pow_alt `{Naturals B2} `{!NatPowSpec A B2 pw}
   `{!SemiRing_Morphism (f : B2 → B)} x n : x ≪ f n = x * 2 ^ n.
 Proof.
   revert n. apply naturals.induction.
@@ -31,7 +31,7 @@ Proof.
   rewrite E, nat_pow_S. ring.
 Qed.
 
-Lemma shiftl_nat_pow `{!NaturalsToSemiRing B} `{!Naturals B} `{!NatPowSpec A B np} x n : 
+Lemma shiftl_nat_pow `{!NaturalsToSemiRing B} `{!Naturals B} `{!NatPowSpec A B np} x n :
   x ≪ n = x * 2 ^ n.
 Proof. change (x ≪ id n = x * 2 ^ n). apply shiftl_nat_pow_alt. Qed.
 
@@ -42,7 +42,7 @@ Lemma shiftl_2 x : x ≪ (2:B) = 4 * x.
 Proof. rewrite shiftl_S, shiftl_1. ring. Qed.
 
 Global Instance shiftl_base_0: LeftAbsorb (≪) 0.
-Proof. 
+Proof.
   intros n. pattern n. apply biinduction; clear n.
     solve_proper.
    now apply shiftl_0.
@@ -72,7 +72,7 @@ Lemma shiftl_reverse (x : A) (n m : B) : n + m = 0 → x ≪ n ≪ m = x.
 Proof. intros E. now rewrite <-shiftl_exp_plus, E, shiftl_0. Qed.
 
 Lemma shiftl_mult_l x y n : x * (y ≪ n) = (x * y) ≪ n.
-Proof. 
+Proof.
   pattern n. apply biinduction; clear n.
     solve_proper.
    now rewrite ?shiftl_0.
@@ -97,15 +97,15 @@ Proof.
   apply (left_cancellation (.*.) 2). rewrite E. ring.
 Qed.
 
-Lemma shiftl_base_nat_pow `{Naturals B2} `{!NatPowSpec A B2 pw} `{!SemiRing_Morphism (f : B2 → B)} x n m : 
+Lemma shiftl_base_nat_pow `{Naturals B2} `{!NatPowSpec A B2 pw} `{!SemiRing_Morphism (f : B2 → B)} x n m :
   (x ≪ n) ^ m = (x ^ m) ≪ (n * f m).
 Proof.
   revert m. apply naturals.induction.
     solve_proper.
-   rewrite ?nat_pow_0. 
+   rewrite ?nat_pow_0.
    now rewrite rings.preserves_0, rings.mult_0_r, shiftl_0.
   intros m E.
-  rewrite rings.preserves_plus, rings.preserves_1. 
+  rewrite rings.preserves_plus, rings.preserves_1.
   rewrite rings.plus_mult_distr_l, rings.mult_1_r, shiftl_exp_plus.
   rewrite !nat_pow_S, E.
   now rewrite shiftl_mult_l, shiftl_mult_r.
@@ -129,15 +129,15 @@ Proof.
   apply E1. now rewrite ?shiftl_S, E2.
 Qed.
 
-Instance shiftl_ne_0 x n : 
+Instance shiftl_ne_0 x n :
   PropHolds (x ≠ 0) → PropHolds (x ≪ n ≠ 0).
 Proof.
-  intros E1 E2. apply E1. 
+  intros E1 E2. apply E1.
   apply (injective (≪ n)).
   now rewrite shiftl_base_0.
 Qed.
 
-Context `{Apart A} `{!FullPseudoSemiRingOrder Ale Alt} `{!PropHolds ((1:A) ≶ 0)}.
+Context `{Apart A} `{!FullPseudoSemiRingOrder (A:=A) Ale Alt} `{!PropHolds ((1:A) ≶ 0)}.
 
 Let shiftl_strict_order_embedding (x y : A) (n : B) : x < y ↔ x ≪ n < y ≪ n.
 Proof.
@@ -151,14 +151,14 @@ Proof.
 Qed.
 
 Global Instance: ∀ n, StrictOrderEmbedding (≪ n).
-Proof. 
+Proof.
   repeat (split; try apply _); intros.
    now apply shiftl_strict_order_embedding.
   eapply shiftl_strict_order_embedding. eassumption.
 Qed.
 
 Global Instance: ∀ n, OrderEmbedding (≪ n).
-Proof. 
+Proof.
   split.
    now apply maps.full_pseudo_order_preserving.
   now apply maps.full_pseudo_order_reflecting.
@@ -167,7 +167,7 @@ Qed.
 Global Instance shiftl_strong_inj: ∀ n, StrongInjective (≪ n).
 Proof. intros. apply maps.pseudo_order_embedding_inj. Qed.
 
-Lemma shiftl_le_flip_r `{Negate B} `{!Ring B} (x y : A) (n : B) : 
+Lemma shiftl_le_flip_r `{Negate B} `{!Ring B} (x y : A) (n : B) :
   x ≤ y ≪ (-n)  ↔  x ≪ n ≤ y.
 Proof.
   split; intros E.
@@ -177,7 +177,7 @@ Proof.
   now rewrite shiftl_reverse by now apply rings.plus_negate_l.
 Qed.
 
-Lemma shiftl_le_flip_l `{Negate B} `{!Ring B} (x y : A) (n : B) : 
+Lemma shiftl_le_flip_l `{Negate B} `{!Ring B} (x y : A) (n : B) :
   x ≪ (-n) ≤ y  ↔  x ≤ y ≪ n.
 Proof. now rewrite <-shiftl_le_flip_r, rings.negate_involutive. Qed.
 
@@ -201,7 +201,7 @@ Hint Extern 18 (PropHolds (0 < _ ≪ _)) => eapply @shiftl_pos : typeclass_insta
 
 Section preservation.
   Context `{SemiRing B} `{!Biinduction B}
-    `{SemiRing A1} `{!ShiftLSpec A1 B sl1} `{SemiRing A2} `{!LeftCancellation (.*.) (2:A2)} `{!ShiftLSpec A2 B sl2} 
+    `{SemiRing A1} `{!ShiftLSpec A1 B sl1} `{SemiRing A2} `{!LeftCancellation (.*.) (2:A2)} `{!ShiftLSpec A2 B sl2}
     `{!SemiRing_Morphism (f : A1 → A2)}.
 
   Lemma preserves_shiftl x (n : B) : f (x ≪ n) = (f x) ≪ n.
@@ -213,7 +213,7 @@ Section preservation.
      rewrite 2!shiftl_S.
      now rewrite rings.preserves_mult, rings.preserves_2, IH.
     apply (left_cancellation (.*.) 2).
-    rewrite <-(rings.preserves_2 (f:=f)) at 1. 
+    rewrite <-(rings.preserves_2 (f:=f)) at 1.
     rewrite <-rings.preserves_mult, <-shiftl_S, IH.
     now rewrite shiftl_S.
   Qed.
@@ -221,7 +221,7 @@ End preservation.
 
 Section exp_preservation.
   Context `{SemiRing B1} `{!Biinduction B1} `{SemiRing B2} `{!Biinduction B2}
-   `{SemiRing A} `{!LeftCancellation (.*.) (2:A)} `{!ShiftLSpec A B1 sl1} `{!ShiftLSpec A B2 sl2} 
+   `{SemiRing A} `{!LeftCancellation (.*.) (2:A)} `{!ShiftLSpec A B1 sl1} `{!ShiftLSpec A B2 sl2}
    `{!SemiRing_Morphism (f : B1 → B2)}.
 
   Lemma preserves_shiftl_exp x (n : B1) : x ≪ f n = x ≪ n.
@@ -265,13 +265,13 @@ Section shiftl_dec_field.
   Proof. now rewrite shiftl_to_int_pow, rings.preserves_1, rings.mult_1_l. Qed.
 
   Lemma shiftl_negate_1_to_half x : f (x ≪ -1) = f x / 2.
-  Proof. 
+  Proof.
     rewrite shiftl_to_int_pow.
     apply (left_cancellation (.*.) 2).
     transitivity (f x * (2 * 2 ^ (-1))); [ring |].
     transitivity (f x * (2 / 2)); [| ring].
     rewrite dec_recip_inverse, <-int_pow_S by assumption.
-    now rewrite rings.plus_negate_r, int_pow_0. 
+    now rewrite rings.plus_negate_r, int_pow_0.
  Qed.
 
   Lemma shiftl_negate_1_to_fourth x : f (x ≪ -2) = f x / 4.
@@ -285,12 +285,12 @@ Section shiftl_dec_field.
      solve_propholds.
     rewrite dec_recip_inverse, <-!int_pow_S by assumption.
     setoid_replace (1 + (1 - 2) : Z) with (0 : Z) by ring.
-    now rewrite int_pow_0. 
+    now rewrite int_pow_0.
  Qed.
 End shiftl_dec_field.
 
 Section more_shiftl_dec_field.
-  Context `{DecField A} `{Integers B} `{∀ x y : A, Decision (x = y)} 
+  Context `{DecField A} `{Integers B} `{∀ x y : A, Decision (x = y)}
     `{!PropHolds ((2:A) ≠ 0)} `{!ShiftLSpec A B sl} `{!IntPowSpec A B ipw}.
 
   Lemma shiftl_int_pow x n : x ≪ n = x * 2 ^ n.

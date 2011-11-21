@@ -11,9 +11,9 @@ We specify the Rationals as a field that contains the integers and can be embedd
 into the field of integers fractions. Since we do not want to fix a specific integer
 representation in this interface, we quantify over all integer implementations.
 However, when constructing an instance of the rationals it is generally inconvenient
-to prove that the required properties hold for all possible integer implementations. 
+to prove that the required properties hold for all possible integer implementations.
 Therefore we provide a way (theory.rationals.alt_Build_Rationals) to construct
-a rationals implementation if the required properties hold for some specific 
+a rationals implementation if the required properties hold for some specific
 implementation of the integers.
 *)
 

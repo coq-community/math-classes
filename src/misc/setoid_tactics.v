@@ -1,11 +1,11 @@
 Require Import Setoid canonical_names.
 
-(* 
-When math-classes is used as part of another development setoid_replace 
+(*
+When math-classes is used as part of another development setoid_replace
 often uses an incorrect equality due to low cost instances of DefaultRelation.
-We provide mc_setoid_replace to ensure that (=) is used. 
+We provide mc_setoid_replace to ensure that (=) is used.
 *)
-Tactic Notation "mc_setoid_replace" constr(x) "with" constr(y) := 
+Tactic Notation "mc_setoid_replace" constr(x) "with" constr(y) :=
   setoidreplace ((=) x y) idtac.
 
 Tactic Notation "mc_setoid_replace" constr(x) "with" constr(y)

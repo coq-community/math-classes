@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   Morphisms abstract_algebra.
 
 Class Pow A B := pow : A → B → A.
@@ -8,10 +8,10 @@ Notation "( x ^)" := (pow x) (only parsing).
 Notation "(^ n )" := (λ x, x ^ n) (only parsing).
 Instance: Params (@pow) 3.
 
-(* If we make [nat_pow_proper] a subclass, Coq is unable to find it. 
+(* If we make [nat_pow_proper] a subclass, Coq is unable to find it.
 However, if we make a global instance in theory.nat_pow, it works? *)
 Class NatPowSpec A B (pw : Pow A B) `{Equiv A} `{Equiv B} `{One A} `{Mult A} `{Zero B} `{One B} `{Plus B} := {
-  nat_pow_proper : Proper ((=) ==> (=) ==> (=)) (^) ; 
+  nat_pow_proper : Proper ((=) ==> (=) ==> (=)) (^) ;
   nat_pow_0 : ∀ x, x ^ 0 = 1 ;
   nat_pow_S : ∀ x n, x ^ (1 + n) = x * x ^ n
 }.
@@ -42,7 +42,7 @@ Proof.
   pose proof nat_pow_proper.
   intros spec. split.
     intros ? ? E1 ? ? E2.
-    rewrite 2!spec. 
+    rewrite 2!spec.
     now rewrite E1, E2.
    intro x. rewrite spec, nat_pow_0. now apply right_identity.
   intros x n. rewrite 2!spec. rewrite nat_pow_S.

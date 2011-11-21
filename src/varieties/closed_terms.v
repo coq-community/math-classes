@@ -4,7 +4,7 @@ Require Import
   abstract_algebra canonical_names
   theory.categories categories.varieties.
 
-Section contents. 
+Section contents.
   Variable et: EquationalTheory.
 
   (* The initial object will consists of arity-0 terms with a congruence incorporating the variety's laws.
@@ -97,7 +97,7 @@ Section contents.
 
   (* To show its initiality, we begin by constructing arrows to arbitrary other objects: *)
 
-  Section for_another_object. 
+  Section for_another_object.
     Variable other: varieties.Object et.
 
     (* Computationally, the arrow simply evaluates closed terms in the other

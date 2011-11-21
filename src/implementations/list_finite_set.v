@@ -20,7 +20,7 @@ Section equivlistA_misc.
   Qed.
 
   Lemma InA_singleton x y : InA eqA x [y] ↔ eqA x y.
-  Proof. 
+  Proof.
     split; intros E.
      inversion_clear E; auto. now destruct (proj1 (InA_nil eqA x)).
     rewrite E. intuition.
@@ -86,7 +86,7 @@ Section equivlistA_misc.
     intros ???. now apply permA_trans.
   Qed.
 
-  Global Instance PermutationA_cons : 
+  Global Instance PermutationA_cons :
     Proper (eqA ==> PermutationA ==> PermutationA) (@cons A).
   Proof. repeat intro. now apply permA_skip. Qed.
 
@@ -94,14 +94,14 @@ Section equivlistA_misc.
     PermutationA l₁ l₂ → PermutationA (k ++ l₁) (k ++ l₂).
   Proof. intros. induction k. easy. apply permA_skip; intuition. Qed.
 
-  Global Instance PermutationA_app : 
+  Global Instance PermutationA_app :
     Proper (PermutationA ==> PermutationA ==> PermutationA) (@app A).
   Proof.
     intros  l₁ l₂ Pl k₁ k₂ Pk.
     induction Pl.
        easy.
       now apply permA_skip.
-     etransitivity. 
+     etransitivity.
       rewrite <-!app_comm_cons. now apply permA_swap.
      rewrite !app_comm_cons. now apply PermutationA_app_head.
     do 2 (etransitivity; try eassumption).
@@ -121,7 +121,7 @@ Section equivlistA_misc.
   Proof.
     induction l₁.
      now rewrite app_nil_r.
-    rewrite <-app_comm_cons, IHl₁. 
+    rewrite <-app_comm_cons, IHl₁.
     now rewrite app_comm_cons, PermutationA_cons_append, <-app_assoc.
   Qed.
 
@@ -163,7 +163,7 @@ End equivlistA_misc.
 
 Implicit Arguments PermutationA [[A]].
 
-(* 
+(*
 We define finite sets as unordered lists. This implementation is slow,
 but quite convenient as a reference implementation to lift properties to
 arbitrary finite set instances.
@@ -195,7 +195,7 @@ Global Instance listset_in: SetContains A := λ x l, x ∈ 'l.
 Global Instance listset_le: SetLe A := λ l k, ∀ x, x ∈ l → x ∈ k.
 Global Instance listset_equiv: SetEquiv A := λ l k, ∀ x, x ∈ l ↔ x ∈ k.
 
-Instance: Setoid (listset A).
+Instance: Setoid (set_type A).
 Proof. now apply (setoids.projected_setoid listset_to_list). Qed.
 
 Global Instance: Setoid_Morphism listset_to_list.
@@ -204,7 +204,7 @@ Global Instance: Injective listset_to_list.
 Proof. firstorder. Qed.
 
 Global Instance: Proper ((=) ==> (=) ==> iff) listset_in.
-Proof. 
+Proof.
   intros x y E1 l k E2.
   transitivity (listset_in x k). easy.
   unfold listset_in. now rewrite E1.
@@ -218,7 +218,7 @@ Fixpoint listset_add_raw (x : A) (l : list A) : list A :=
 
 Lemma listset_add_raw_cons l x :
   x :: l = listset_add_raw x l.
-Proof. 
+Proof.
   induction l; simpl; try reflexivity.
   case (decide_rel _); intros E.
    now rewrite E, equivlistA_double_head.
@@ -227,7 +227,7 @@ Qed.
 
 Lemma listset_add_raw_InA (l : list A) (x y : A) :
   y ∈ listset_add_raw x l → y = x ∨ y ∈ l.
-Proof. 
+Proof.
   unfold contains, listset_in_raw. induction l; simpl.
    intros E. inversion_clear E; auto.
   case (decide_rel _); auto; intros E1 E2.
@@ -249,14 +249,14 @@ Global Program Instance listset_empty: EmptySet A := [].
 Global Program Instance listset_singleton: SetSingleton A := λ x, [x].
 Next Obligation. now apply NoDupA_singleton. Qed.
 Global Program Instance listset_join: SetJoin A := λ l k, fold_right listset_add_raw (`k) (`l)↾_.
-Next Obligation. 
+Next Obligation.
   destruct l as [l Pl], k as [k Pk].
   induction l; intros; simpl in *; auto.
   apply listset_add_raw_NoDupA, IHl. now inversion Pl.
 Qed.
 
 Instance: Setoid_Morphism listset_singleton.
-Proof. 
+Proof.
   split; try apply _. intros ? ? E.
   apply (injective listset_to_list). change ([x] = [y]). now rewrite E.
 Qed.
@@ -264,8 +264,8 @@ Qed.
 Lemma listset_to_list_preserves_join l k :
   listset_to_list (l ⊔ k) = listset_to_list l ⊔ listset_to_list k.
 Proof.
-  destruct l as [l Pl], k as [k Pk]. 
-  unfold join, listset_join, listset_join_raw. simpl. clear Pk Pl. 
+  destruct l as [l Pl], k as [k Pk].
+  unfold join, listset_join, listset_join_raw. simpl. clear Pk Pl.
   induction l; simpl; intros; [easy|].
   now rewrite <-IHl, listset_add_raw_cons.
 Qed.
@@ -344,7 +344,7 @@ Section listset_extend.
     now rewrite IHl, 2!associativity, (commutativity (f _)).
   Qed.
 
-  Instance list_extend_mor: 
+  Instance list_extend_mor:
     BoundedJoinSemiLattice_Morphism (fset_extend f).
   Proof.
     repeat (split; try apply _).
@@ -364,7 +364,7 @@ Global Instance: FSet A.
 Proof.
   split; try apply _.
    intros B ???? f ? x y E.
-   unfold compose, fset_extend, list_extend. simpl. 
+   unfold compose, fset_extend, list_extend. simpl.
    now rewrite E, right_identity.
   intros B ??? f ? h ? E1 k l E2.
   pose proof (bounded_join_slmor_b (f:=h)).
@@ -389,7 +389,7 @@ Qed.
 Instance listset_in_raw_dec: ∀ x (l : list A), Decision (x ∈ l) := λ x l, InA_dec (decide_rel (=)) x l.
 Global Instance listset_in_dec: ∀ x (l : set_type A), Decision (x ∈ l) := λ x l, InA_dec (decide_rel (=)) x ('l).
 
-Instance listset_meet_raw: Meet (list A) := 
+Instance listset_meet_raw: Meet (list A) :=
   fix listset_meet_raw l k :=
     match l with
     | [] => []
@@ -429,7 +429,7 @@ Qed.
 Global Program Instance listset_meet: SetMeet A := λ l k, listset_meet_raw l k.
 Next Obligation. apply listset_meet_raw_NoDupA. now destruct l. Qed.
 
-Instance listset_diff_raw: Difference (list A) := 
+Instance listset_diff_raw: Difference (list A) :=
   fix listset_diff_raw l k :=
     match l with
     | [] => []
@@ -447,7 +447,7 @@ Proof.
     inversion_clear E; intuition.
    induction l; simpl.
     intros E1; inversion E1.
-   case (decide_rel _); intros ? E1. 
+   case (decide_rel _); intros ? E1.
     intuition.
    inversion_clear E1 as [?? E2|]; auto. now rewrite E2.
   intros [E1 E2]. induction l; simpl; [easy|].

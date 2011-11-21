@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.naturals theory.categories 
+  abstract_algebra interfaces.naturals theory.categories
   categories.varieties.
 Require
   varieties.rings.
@@ -18,12 +18,12 @@ Section initial_maps.
    abstract (apply rings.encode_morphism_only; apply _).
   Defined. (* for some reason [Program] isn't cooperating here. look into it *)
 
-  Lemma integer_initial (same_morphism : ∀ `{Ring B} {h :  A → B} `{!SemiRing_Morphism h}, integers_to_ring B = h) : 
+  Lemma integer_initial (same_morphism : ∀ `{Ring B} {h :  A → B} `{!SemiRing_Morphism h}, integers_to_ring B = h) :
     Initial (rings.object A).
   Proof.
     intros y [x h] [] ?. simpl in *.
     apply same_morphism.
-      apply rings.decode_variety_and_ops. 
+      apply rings.decode_variety_and_ops.
      apply (@rings.decode_morphism_and_ops _ _ _ _ _ _ _ _ _ h).
     reflexivity.
   Qed.
@@ -39,7 +39,7 @@ Class Integers A {e plus mult zero one negate} `{U : IntegersToRing A} :=
 Section specializable.
   Context (Z N : Type) `{Integers Z} `{Naturals N}.
 
-  Class IntAbs := int_abs_sig : ∀ x, 
+  Class IntAbs := int_abs_sig : ∀ x,
     { n : N | naturals_to_semiring N Z n = x } + { n : N | naturals_to_semiring N Z n = -x }.
 
   Definition int_abs `{ia : IntAbs} (x : Z) : N :=

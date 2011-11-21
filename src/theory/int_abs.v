@@ -2,12 +2,12 @@ Require Import
   Ring interfaces.naturals abstract_algebra interfaces.orders
   orders.nat_int theory.integers theory.rings orders.rings.
 
-Section contents. 
+Section contents.
 Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt} `{Naturals N}.
 
 Add Ring Z : (rings.stdlib_ring_theory Z).
 
-Lemma int_abs_unique_respectful {a b : IntAbs Z N} : 
+Lemma int_abs_unique_respectful {a b : IntAbs Z N} :
   ((=) ==> (=))%signature (int_abs Z N (ia:=a)) (int_abs Z N (ia:= b)).
 Proof.
   intros x y E. unfold int_abs, int_abs_sig.
@@ -19,7 +19,7 @@ Proof.
   apply (injective (-)). now rewrite A, B, !involutive.
 Qed.
 
-Lemma int_abs_unique (a b : IntAbs Z N) (z : Z) : 
+Lemma int_abs_unique (a b : IntAbs Z N) (z : Z) :
   int_abs Z N (ia:=a) z = int_abs Z N (ia:=a) z.
 Proof. now apply int_abs_unique_respectful. Qed.
 
@@ -46,22 +46,22 @@ Lemma int_abs_sig_alt x :
   { n : N | f n = x } + { n : N | f n = -x }.
 Proof. destruct (int_abs_spec x) as [[??]|[??]]; eauto. Qed.
 
-Lemma int_abs_nat n : 
+Lemma int_abs_nat n :
   int_abs Z N (f n) = n.
 Proof.
   apply (injective f). destruct (int_abs_spec (f n)) as [[? E]|[? E]]; intuition.
   apply naturals.negate_to_ring. now rewrite E, involutive.
-Qed. 
+Qed.
 
-Lemma int_abs_negate_nat n : 
+Lemma int_abs_negate_nat n :
   int_abs Z N (-f n) = n.
 Proof.
   apply (injective f). destruct (int_abs_spec (-f n)) as [[? E]|[? E]].
    symmetry. now apply naturals.negate_to_ring.
-  now rewrite involutive in E. 
-Qed. 
+  now rewrite involutive in E.
+Qed.
 
-Lemma int_abs_negate x : 
+Lemma int_abs_negate x :
   int_abs Z N (-x) = int_abs Z N x.
 Proof.
   destruct (int_abs_spec x) as [[_ E]|[_ E]].
@@ -71,7 +71,7 @@ Qed.
 
 Lemma int_abs_0_alt x : int_abs Z N x = 0 ↔ x = 0.
 Proof.
-  split; intros E1. 
+  split; intros E1.
    destruct (int_abs_spec x) as [[_ E2]|[_ E2]].
     now rewrite <-E2, E1, preserves_0.
    apply flip_negate_0. now rewrite <-E2, E1, preserves_0.
@@ -84,7 +84,7 @@ Proof. firstorder using int_abs_0_alt. Qed.
 Lemma int_abs_0 : int_abs Z N 0 = 0.
 Proof. now apply int_abs_0_alt. Qed.
 
-Lemma int_abs_nonneg x : 
+Lemma int_abs_nonneg x :
   0 ≤ x → f (int_abs Z N x) = x.
 Proof.
   intros E1. destruct (int_abs_spec x); intuition.
@@ -93,7 +93,7 @@ Proof.
   now apply (antisymmetry (≤)).
 Qed.
 
-Lemma int_abs_nonpos x : 
+Lemma int_abs_nonpos x :
   x ≤ 0 → f (int_abs Z N x) = -x.
 Proof.
   intros E. rewrite <-int_abs_negate, int_abs_nonneg; intuition.
@@ -106,7 +106,7 @@ Proof.
   apply int_abs_nonneg; solve_propholds.
 Qed.
 
-Lemma int_abs_nonneg_plus x y : 
+Lemma int_abs_nonneg_plus x y :
   0 ≤ x → 0 ≤ y → int_abs Z N (x + y) = int_abs Z N x + int_abs Z N y.
 Proof.
   intros. apply (injective f).
@@ -114,11 +114,11 @@ Proof.
   now apply nonneg_plus_compat.
 Qed.
 
-Lemma int_abs_mult x y : 
+Lemma int_abs_mult x y :
   int_abs Z N (x * y) = int_abs Z N x * int_abs Z N y.
 Proof.
   apply (injective f). rewrite preserves_mult.
-  destruct (int_abs_spec x) as [[? Ex]|[? Ex]], 
+  destruct (int_abs_spec x) as [[? Ex]|[? Ex]],
      (int_abs_spec y) as [[? Ey]|[? Ey]]; rewrite Ex, Ey.
      rewrite int_abs_nonneg. easy. now apply nonneg_mult_compat.
     rewrite int_abs_nonpos. ring. now apply nonneg_nonpos_mult.

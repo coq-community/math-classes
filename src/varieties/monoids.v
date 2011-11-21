@@ -60,7 +60,7 @@ Section encode_variety_and_ops.
   Global Instance encode_algebra_and_ops: Algebra sig _.
   Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
 
-  Global Instance encode_variety_and_ops: InVariety theory (λ _, A).
+  Global Instance encode_variety_and_ops: InVariety theory (λ _, A) | 10.
   Proof.
    constructor. apply _.
    intros ? [] ?; simpl; unfold algebra_op; simpl.
@@ -73,9 +73,9 @@ Section encode_variety_and_ops.
 End encode_variety_and_ops.
 
 Lemma encode_algebra_only `{!AlgebraOps theory A} `{∀ u, Equiv (A u)} `{!Monoid (A tt)}: Algebra theory A .
-Proof. constructor; intros []; simpl in *; try apply _. Qed.
+Proof. constructor; intros []; apply _. Qed.
 
-Global Instance decode_variety_and_ops `{InVariety theory A}: Monoid (A tt).
+Global Instance decode_variety_and_ops `{InVariety theory A}: Monoid (A tt) | 10.
 Proof with simpl; auto.
  pose proof (λ law lawgood x y z, variety_laws law lawgood (λ s n,
   match s with tt => match n with 0 => x | 1 => y | _ => z end end)) as laws.
@@ -140,7 +140,7 @@ Section specialized.
     apply (@decode_morphism_and_ops _ _ _ _ _ _ _ _ _ PP).
   Qed.
 
-  Instance invert_monoid_morphism: 
+  Lemma invert_monoid_morphism:
     ∀ `{!Inverse f}, Bijective f → Monoid_Morphism f → Monoid_Morphism (f⁻¹).
   Proof.
     intros. pose proof (encode_morphism_and_ops (f:=f)) as P.

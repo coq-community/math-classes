@@ -20,12 +20,11 @@ Section for_φAdjunction.
 
   Implicit Arguments φ [[d] [c]].
 
-  Let hint''''' := φ_adjunction_bijective F G.
-  Let hint'''' x y: Injective (@φ x y) := _.
-  Let hint := φ_adjunction_left_functor F G.
-  Let hint' := φ_adjunction_right_functor F G.
-  Let hint'' := functor_from G.
-  Let hint''' := functor_to G.
+  Instance: forall c d, Bijective (@φ c d) := φ_adjunction_bijective F G.
+  Instance: Functor F F'  := φ_adjunction_left_functor F G.
+  Instance: Functor G G'  := φ_adjunction_right_functor F G.
+  Instance: Category D := functor_from G.
+  Instance: Category C := functor_to G.
    (* Waiting for the new proof engine ... *)
 
   Lemma φ_adjunction_natural_right_inv `(g: c ⟶ G d) `(h: c' ⟶ c): φ⁻¹ (g ◎ h) = φ⁻¹ g ◎ fmap F h.
@@ -131,10 +130,10 @@ Section for_ηAdjunction.
 
   Context `(ηAdjunction).
 
-  Let hint := η_adjunction_left_functor F G.
-  Let hint' := η_adjunction_right_functor F G.
-  Let hint'' := functor_from G.
-  Let hint''' := functor_to G.
+  Instance: Functor F F'  := η_adjunction_left_functor F G.
+  Instance: Functor G G'  := η_adjunction_right_functor F G.
+  Instance: Category D := functor_from G.
+  Instance: Category C := functor_to G.
 
   Let φ x a (g: F x ⟶ a): (x ⟶ G a) := fmap G g ◎ η x.
 
@@ -182,12 +181,12 @@ Section for_ηεAdjunction.
 
   Context `(ηεAdjunction).
 
-  Let hint := ηε_adjunction_left_functor F G.
-  Let hint' := ηε_adjunction_right_functor F G.
-  Let hint'' := functor_from G.
-  Let hint''' := functor_to G.
-  Let hint'''' := ηε_adjunction_η_natural F G.
-  Let hint''''' := ηε_adjunction_ε_natural F G.
+  Instance: Functor F F'  := ηε_adjunction_left_functor F G.
+  Instance: Functor G G'  := ηε_adjunction_right_functor F G.
+  Instance: Category D := functor_from G.
+  Instance: Category C := functor_to G.
+  Instance: NaturalTransformation η := ηε_adjunction_η_natural F G.
+  Instance: NaturalTransformation ε := ηε_adjunction_ε_natural F G.
 
   Let φ `(f: F c ⟶ d): (c ⟶ G d) := fmap G f ◎ η c.
   Instance uniwit c d: Inverse (φ c d) := λ f, ε d ◎ fmap F f.

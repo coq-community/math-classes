@@ -39,7 +39,7 @@ Instance: Arrows Object := Arrow.
 Section contents.
   Implicit Arguments map_obj [[x] [y]].
 
-  Section more_arrows. 
+  Section more_arrows.
     Context (x y: Object).
 
     Global Program Instance e: Equiv (x ⟶ y) := λ a b,
@@ -93,10 +93,10 @@ Section contents.
     Qed.
 
     Global Instance: Setoid (x ⟶ y).
-    Proof. split; apply _. Qed.
+    Proof. split; assumption. Qed.
   End more_arrows.
 
-  Let obj_iso (x: Object): Equiv x := @iso x _ _ _ _.
+  Instance obj_iso (x: Object): Equiv x := @iso x _ _ _ _.
 
   Typeclasses Transparent Arrows.
   Global Instance: ∀ (x y: Object) (a: x ⟶ y), Setoid_Morphism (map_obj a).
@@ -161,7 +161,7 @@ Section contents.
    rewrite <- preserves_comp...
    reflexivity.
   Qed. (* todo: clean up! *)
- 
+
   Program Let id_lr_arrows (x y: Object) (a: y ⟶ x) v: isoT (map_obj a v) (map_obj a v)
     := (cat_id, cat_id).
     (* We can't remove the map_obj here and elsewhere even though it's a coercion,

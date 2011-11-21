@@ -5,7 +5,7 @@ Require Import
 
 Local Notation ne_list := ne_list.L.
 
-Section with_sorts. 
+Section with_sorts.
   Variable Sorts: Set.
 
   (* For single-sorted algebras, Sorts will typically be unit. *)

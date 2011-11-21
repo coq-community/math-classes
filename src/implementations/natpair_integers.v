@@ -37,7 +37,7 @@ Section for_another_ring.
 
   Instance: Proper ((=) ==> (=)) z_to_r.
   Proof.
-    intros [xp xn] [yp yn]. 
+    intros [xp xn] [yp yn].
     change (xp + yn = yp + xn → n_to_sr xp - n_to_sr xn = n_to_sr yp - n_to_sr yn). intros E.
     apply rings.equal_by_zero_sum.
     transitivity (n_to_sr xp + n_to_sr yn - (n_to_sr xn + n_to_sr yp)); [ring|].
@@ -79,7 +79,7 @@ Section for_another_ring.
     Proof.
       intros [p n] z' E. rewrite <- E. clear E z'.
       rewrite SRpair_splits.
-      preservation. rewrite 2!rings.preserves_negate. 
+      preservation. rewrite 2!rings.preserves_negate.
       now rewrite 2!(naturals.to_semiring_twice _ _ _).
     Qed.
   End for_another_morphism.
@@ -92,7 +92,7 @@ Global Instance: Integers Z := {}.
 
 Context `{!NatDistance N}.
 
-Global Program Instance SRpair_abs: IntAbs Z N := λ x, 
+Global Program Instance SRpair_abs: IntAbs Z N := λ x,
   match nat_distance_sig (pos x) (neg x) with
   | inl (n↾E) => inr n
   | inr (n↾E) => inl n
@@ -108,7 +108,7 @@ Qed.
 
 Notation n_to_z := (naturals_to_semiring N Z).
 
-Let zero_product_aux a b : 
+Let zero_product_aux a b :
   n_to_z a * n_to_z b = 0 → n_to_z a = 0 ∨ n_to_z b = 0.
 Proof.
   rewrite <-rings.preserves_mult.
