@@ -47,7 +47,7 @@ Definition Object := varieties.Object theory.
  Algebra/InVariety/HomoMorphism type classes instantiated with the above
  signature and theory. *)
 
-Section decode_operations. 
+Section decode_operations.
   Context `{AlgebraOps theory A}.
   Global Instance: Plus (A tt) := algebra_op plus.
   Global Instance: Mult (A tt) := algebra_op mult.
@@ -63,7 +63,7 @@ Section encode_with_ops.
     match o with plus => (+) | mult => (.*.) | zero => 0:A | one => 1:A | negate => (-) end.
 
   Global Instance encode_algebra_and_ops: Algebra sig _.
-  Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
+  Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; apply reflexivity. Qed.
 
   Add Ring A: (rings.stdlib_ring_theory A).
 
@@ -111,8 +111,8 @@ Proof.
    intros []; simpl.
        apply rings.preserves_plus.
       apply rings.preserves_mult.
-     change (f tt 0 = 0). apply rings.preserves_0.
-    change (f tt 1 = 1). apply rings.preserves_1.
+     apply rings.preserves_0.
+    apply rings.preserves_1.
    apply rings.preserves_negate.
   apply encode_algebra_only.
  apply encode_algebra_only.

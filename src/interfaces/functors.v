@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   abstract_algebra.
 Require theory.setoids.
 
@@ -15,6 +15,8 @@ Section functor_class.
     ; preserves_comp `(f: y ⟶ z) `(g: x ⟶ y): fmap (f ◎ g) = fmap f ◎ fmap g }.
 
 End functor_class.
+
+Typeclasses Transparent Fmap.
 
 (* The usual notational convention for functor application is to use the
 name of the functor to refer to both its object map and its arrow map, relying

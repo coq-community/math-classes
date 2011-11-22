@@ -14,9 +14,9 @@ Lemma ext_equiv_applied `{Setoid A} `{Equiv B} {f g : A → B} :
   f = g → ∀ x, f x = g x.
 Proof. intros E x. now apply E. Qed.
 
-Lemma ext_equiv_applied_iff `{Equiv A} `{Equiv B} `{!Setoid_Morphism (f : A → B)} 
+Lemma ext_equiv_applied_iff `{Equiv A} `{Equiv B} `{!Setoid_Morphism (f : A → B)}
   `{!Setoid_Morphism (g : A → B)} : f = g ↔ ∀ x, f x = g x.
-Proof. 
+Proof.
   pose proof (setoidmor_a f). pose proof (setoidmor_b f).
   split; intros E1.
    now apply ext_equiv_applied.

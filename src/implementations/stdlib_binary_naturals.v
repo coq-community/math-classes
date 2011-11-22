@@ -1,6 +1,7 @@
-Require Import 
+Require Import
   NArith peano_naturals theory.naturals
-  abstract_algebra interfaces.naturals interfaces.orders.  
+  abstract_algebra interfaces.naturals interfaces.orders
+  interfaces.additional_operations.  
 
 (* canonical names for relations/operations/constants: *)
 Instance N_equiv : Equiv N := eq.
@@ -29,7 +30,7 @@ Instance inject_nat_N: Cast nat N := N_of_nat.
 Instance inject_N_nat: Cast N nat := nat_of_N.
 
 Instance: SemiRing_Morphism nat_of_N.
-Proof. 
+Proof.
   repeat (split; try apply _); repeat intro.
    now apply nat_of_Nplus.
   now apply nat_of_Nmult.
@@ -68,21 +69,29 @@ Proof.
    split; try apply _.
      intros x y E. exists (Nminus y x).
      symmetry. rewrite commutativity. now apply N.sub_add.
-    repeat (split; try apply _); intros. 
+    repeat (split; try apply _); intros.
      now apply N.add_le_mono_l.
     eapply N.add_le_mono_l. eassumption.
-   intros. now apply Nle_0. 
+   intros. now apply Nle_0.
   assert (TotalRelation N_le).
    intros x y. now apply N.le_ge_cases.
   rapply semirings.dec_full_pseudo_srorder.
   split.
    intro. now apply N.le_neq.
-  intros [E1 E2]. now apply N.T.le_neq_lt.
+  intros [E1 E2]. now apply N.Private_Tac.le_neq_lt.
 Qed.
 
-Program Instance: ∀ x y: N, Decision (x ≤ y) := λ y x, 
+Program Instance: ∀ x y: N, Decision (x ≤ y) := λ y x,
   match Ncompare y x with
   | Gt => right _
   | _ => left _
   end.
 Next Obligation. now apply not_symmetry. Qed.
+
+Instance N_cut_minus: CutMinus N := Nminus.
+Instance: CutMinusSpec N _.
+Proof.
+  split; try apply _.
+   intros. now apply N.sub_add.
+  intros. now apply Nminus_N0_Nle.
+Qed.

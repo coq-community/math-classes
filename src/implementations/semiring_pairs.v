@@ -13,11 +13,11 @@ Context `{∀ z, LeftCancellation (+) z}.
 Add Ring SR : (rings.stdlib_semiring_theory SR).
 
 (* Equivalence *)
-Global Instance SRpair_equiv : Equiv (SRpair SR) := λ x y, pos x + neg y = pos y + neg x.
+Global Instance SRpair_equiv : Equiv (SRpair SR) | 4 := λ x y, pos x + neg y = pos y + neg x.
 Global Instance SRpair_apart `{Apart SR} : Apart (SRpair SR) := λ x y, pos x + neg y ≶ pos y + neg x.
 
 Global Instance SRpair_trivial_apart `{!TrivialApart SR} :  TrivialApart (SRpair SR).
-Proof. intros x y. now rapply trivial_apart. Qed. 
+Proof. intros x y. now rapply trivial_apart. Qed.
 
 Instance: Setoid (SRpair SR).
 Proof.
@@ -55,8 +55,8 @@ Ltac unfolds := unfold SRpair_negate, SRpair_plus, equiv, SRpair_equiv in *; sim
 Ltac ring_on_sr := repeat intro; unfolds; try ring.
 
 Instance: Proper ((=) ==> (=)) SRpair_negate.
-Proof. 
-  intros x y E. unfolds. 
+Proof.
+  intros x y E. unfolds.
   rewrite commutativity, <- E. ring.
 Qed.
 
@@ -75,7 +75,7 @@ Proof with try ring.
   now rewrite E.
 Qed.
 
-Instance: Commutative SRpair_mult. 
+Instance: Commutative SRpair_mult.
 Proof. repeat intro. ring_on_sr. Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) SRpair_mult.
@@ -99,7 +99,7 @@ Proof.
 Qed.
 
 Global Instance: Injective SRpair_inject.
-Proof. 
+Proof.
   repeat (constructor; try apply _).
   intros x y. unfolds. now rewrite 2!rings.plus_0_r.
 Qed.
@@ -132,7 +132,7 @@ Section with_semiring_order.
 
   Instance: Transitive SRpair_le.
   Proof.
-    intros [xp xn] [yp yn] [zp zn] E1 E2. 
+    intros [xp xn] [yp yn] [zp zn] E1 E2.
     unfold SRpair_le in *. simpl in *.
     apply (order_reflecting (+ (yn + yp))).
     setoid_replace (xp + zn + (yn + yp)) with ((xp + yn) + (yp + zn)) by ring.
@@ -141,7 +141,7 @@ Section with_semiring_order.
   Qed.
 
   Instance: AntiSymmetric SRpair_le.
-  Proof. 
+  Proof.
     intros [xp xn] [yp yn] E1 E2. unfold_le.
     now apply (antisymmetry (≤)).
   Qed.
@@ -175,7 +175,7 @@ Section with_semiring_order.
     apply compose_le with (a * b).
      now apply nonneg_mult_compat.
     ring.
-  Qed. 
+  Qed.
 
   Global Instance: SemiRingOrder SRpair_le.
   Proof. apply rings.from_ring_order; apply _. Qed.
@@ -201,7 +201,7 @@ Section with_strict_semiring_order.
 
   Instance: Transitive SRpair_lt.
   Proof.
-    intros [xp xn] [yp yn] [zp zn] E1 E2. 
+    intros [xp xn] [yp yn] [zp zn] E1 E2.
     unfold SRpair_lt in *. simpl in *.
     apply (strictly_order_reflecting (+ (yn + yp))).
     setoid_replace (xp + zn + (yn + yp)) with ((xp + yn) + (yp + zn)) by ring.
@@ -223,8 +223,8 @@ Section with_strict_semiring_order.
 
   Instance: ∀ x y : SRpair SR, PropHolds (0 < x) → PropHolds (0 < y) → PropHolds (0 < x * y).
   Proof.
-    intros [xp xn] [yp yn]. 
-    unfold PropHolds. unfold_lt. intros E1 E2. 
+    intros [xp xn] [yp yn].
+    unfold PropHolds. unfold_lt. intros E1 E2.
     ring_simplify in E1. ring_simplify in E2.
     destruct (decompose_lt E1) as [a [Ea1 Ea2]], (decompose_lt E2) as [b [Eb1 Eb2]].
     rewrite Ea2, Eb2. ring_simplify.
@@ -250,7 +250,7 @@ Section with_full_pseudo_semiring_order.
      intros [xp xn] [yp yn] E [zp zn]. unfold apart, SRpair_apart in *. simpl in *.
      apply (strong_left_cancellation (+) zn) in E.
      edestruct (cotransitive E).
-      left. apply (strong_extensionality (+ yn)). 
+      left. apply (strong_extensionality (+ yn)).
       setoid_replace (xp + zn + yn) with (zn + (xp + yn)) by ring. eassumption.
      right. apply (strong_extensionality (+ xn)).
      setoid_replace (zp + yn + xn) with (zp + xn + yn) by ring.
@@ -261,13 +261,13 @@ Section with_full_pseudo_semiring_order.
 
   Instance: FullPseudoOrder SRpair_le SRpair_lt.
   Proof.
-    split. 
+    split.
      split; try apply _.
        intros [??] [??]. unfold_lt. now apply pseudo_order_antisym.
       intros [xp xn] [yp yn] E [zp zn]. unfold lt, SRpair_lt in *. simpl in *.
       apply (strictly_order_preserving (zn +)) in E.
       edestruct (cotransitive E).
-       left. apply (strictly_order_reflecting (+ yn)). 
+       left. apply (strictly_order_reflecting (+ yn)).
        setoid_replace (xp + zn + yn) with (zn + (xp + yn)) by ring. eassumption.
       right. apply (strictly_order_reflecting (+ xn)).
       setoid_replace (zp + yn + xn) with (zp + xn + yn) by ring.
@@ -281,7 +281,7 @@ Section with_full_pseudo_semiring_order.
   Proof.
     intros [zp zn]. split; try apply _. intros [xp xn] [yp yn] E1.
     unfold apart, SRpair_apart in *. simpl in *.
-    destruct (strong_binary_extensionality (+) 
+    destruct (strong_binary_extensionality (+)
        (zp * (xp + yn)) (zn * (yp + xn)) (zp * (yp + xn)) (zn * (xp + yn))).
       eapply strong_setoids.apart_proper; eauto; ring.
      now apply (strong_extensionality (zp *.)).
@@ -289,10 +289,10 @@ Section with_full_pseudo_semiring_order.
   Qed.
 
   Global Instance: FullPseudoSemiRingOrder SRpair_le SRpair_lt.
-  Proof. 
+  Proof.
     apply from_full_pseudo_ring_order; try apply _.
     now apply strong_setoids.strong_binary_setoid_morphism_commutative.
-  Qed. 
+  Qed.
 End with_full_pseudo_semiring_order.
 
 Global Instance SRpair_dec `{∀ x y : SR, Decision (x = y)} : ∀ x y : SRpair SR, Decision (x = y)
@@ -302,7 +302,7 @@ Global Program Instance SRpair_le_dec `{Le SR} `{∀ x y: SR, Decision (x ≤ y)
   match decide_rel (≤) (pos x + neg y) (pos y + neg x) with
   | left E => left _
   | right E => right _
-  end. 
+  end.
 
 End semiring_pairs.
 

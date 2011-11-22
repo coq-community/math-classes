@@ -5,14 +5,14 @@ Require Export
   orders.semirings.
 
 (*
-We axiomatize the order on the naturals and the integers as a non trivial 
-pseudo semiring order that satisfies the biinduction principle. We prove 
-some results that hold for the order on the naturals and the integers. 
-In particular, we show that given another non trivial pseudo semiring order 
-(that not necessarily has to satisfy the biinduction principle, for example 
+We axiomatize the order on the naturals and the integers as a non trivial
+pseudo semiring order that satisfies the biinduction principle. We prove
+some results that hold for the order on the naturals and the integers.
+In particular, we show that given another non trivial pseudo semiring order
+(that not necessarily has to satisfy the biinduction principle, for example
 the rationals or the reals), any morphism to it is an order embedding.
 *)
-Lemma to_semiring_nonneg `{FullPseudoSemiRingOrder N} 
+Lemma to_semiring_nonneg `{FullPseudoSemiRingOrder N}
   `{!NaturalsToSemiRing N} `{!Naturals N} `{FullPseudoSemiRingOrder R}
   `{!SemiRing_Morphism (f : N → R)} n : 0 ≤ f n.
 Proof.
@@ -68,7 +68,7 @@ Proof.
    intros E. destruct (decompose_le E) as [z [Ez1 Ez2]].
    destruct (nat_int_nonneg_decompose _ Ez1) as [u Eu].
    exists u. now rewrite <-Eu.
-  intros [z Ez]. rewrite Ez. 
+  intros [z Ez]. rewrite Ez.
   now apply nonneg_plus_le_compat_r, to_semiring_nonneg.
 Qed.
 
@@ -113,7 +113,7 @@ Section another_semiring.
   Context `{FullPseudoSemiRingOrder R2} `{PropHolds ((1 : R2) ≶ 0)} `{!SemiRing_Morphism (f : R → R2)}.
 
   Instance: OrderPreserving f.
-  Proof. 
+  Proof.
     repeat (split; try apply _).
     intros x y E. apply nat_int_le_plus in E. destruct E as [z E].
     rewrite E, preserves_plus, (naturals.to_semiring_twice _ _ _).
@@ -121,7 +121,7 @@ Section another_semiring.
   Qed.
 
   Global Instance: StrictlyOrderPreserving f | 50.
-  Proof. 
+  Proof.
     repeat (split; try apply _).
     intros x y E. apply nat_int_lt_plus in E. destruct E as [z E].
     rewrite E, !preserves_plus, preserves_1, (naturals.to_semiring_twice _ _ _).

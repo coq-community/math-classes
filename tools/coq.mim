@@ -35,7 +35,10 @@
   ("\\dyadic" ?▼)
   ("\\shiftl" ?≪)
   ("\\shiftr" ?≫)
-  
+  ("\\cutminus" ?∸)
+  ("\\bind" ?≫=)
+  ("\\<-" ?←) ;; we add a backslash because we use <- too often for rewrites
+
   ("__0" ?₀)
   ("__1" ?₁)
   ("__2" ?₂)

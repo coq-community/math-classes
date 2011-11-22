@@ -1,7 +1,7 @@
 (* "Forgetting" a variety's laws (but keeping the algebraic operations) is a trivial functor. *)
 
-Require Import 
-  canonical_names universal_algebra interfaces.functors 
+Require Import
+  canonical_names universal_algebra interfaces.functors
   theory.categories categories.varieties categories.algebras.
 
 Section contents.

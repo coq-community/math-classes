@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   Morphisms abstract_algebra.
 
 Class Pow A B := pow : A → B → A.
@@ -8,10 +8,10 @@ Notation "( x ^)" := (pow x) (only parsing).
 Notation "(^ n )" := (λ x, x ^ n) (only parsing).
 Instance: Params (@pow) 3.
 
-(* If we make [nat_pow_proper] a subclass, Coq is unable to find it. 
+(* If we make [nat_pow_proper] a subclass, Coq is unable to find it.
 However, if we make a global instance in theory.nat_pow, it works? *)
 Class NatPowSpec A B (pw : Pow A B) `{Equiv A} `{Equiv B} `{One A} `{Mult A} `{Zero B} `{One B} `{Plus B} := {
-  nat_pow_proper : Proper ((=) ==> (=) ==> (=)) (^) ; 
+  nat_pow_proper : Proper ((=) ==> (=) ==> (=)) (^) ;
   nat_pow_0 : ∀ x, x ^ 0 = 1 ;
   nat_pow_S : ∀ x n, x ^ (1 + n) = x * x ^ n
 }.
@@ -42,7 +42,7 @@ Proof.
   pose proof nat_pow_proper.
   intros spec. split.
     intros ? ? E1 ? ? E2.
-    rewrite 2!spec. 
+    rewrite 2!spec.
     now rewrite E1, E2.
    intro x. rewrite spec, nat_pow_0. now apply right_identity.
   intros x n. rewrite 2!spec. rewrite nat_pow_S.
@@ -74,18 +74,24 @@ Class ShiftRSpec A B (sl : ShiftR A B) `{Equiv A} `{Equiv B} `{One A} `{Plus A} 
 
 Class DivEuclid A := div_euclid : A → A → A.
 Class ModEuclid A := mod_euclid : A → A → A.
-Infix "`div`" := div_euclid (at level 30).
-Infix "`mod`" := mod_euclid (at level 30).
+Infix "`div`" := div_euclid (at level 35).
+Notation "(`div`)" := div_euclid (only parsing).
+Notation "( x `div`)" := (div_euclid x) (only parsing).
+Notation "(`div` y )" := (λ x, x `div` y) (only parsing).
+Infix "`mod`" := mod_euclid (at level 40).
+Notation "(`mod` )" := mod_euclid (only parsing).
+Notation "( x `mod`)" := (mod_euclid x) (only parsing).
+Notation "(`mod` y )" := (λ x, x `mod` y) (only parsing).
 Instance: Params (@div_euclid) 2.
 Instance: Params (@mod_euclid) 2.
 
 Class EuclidSpec A (d : DivEuclid A) (m : ModEuclid A) `{Equiv A} `{Le A} `{Lt A} `{Zero A} `{Plus A} `{Mult A} := {
-  div_euclid_proper : Proper ((=) ==> (=) ==> (=)) div_euclid ;
-  mod_euclid_proper : Proper ((=) ==> (=) ==> (=)) mod_euclid ;
+  div_proper : Proper ((=) ==> (=) ==> (=)) (`div`) ;
+  mod_proper : Proper ((=) ==> (=) ==> (=)) (`mod`) ;
   div_mod : ∀ x y, y ≠ 0 → x = y * x `div` y + x `mod` y ;
-  mod_euclid_rem : ∀ x y, y ≠ 0 → 0 ≤ x `mod` y < y ∨ y < x `mod` y ≤ 0 ;
-  div_euclid_0 : ∀ x, x `div` 0 = 0 ;
-  mod_euclid_0 : ∀ x, x `mod` 0 = 0
+  mod_rem : ∀ x y, y ≠ 0 → 0 ≤ x `mod` y < y ∨ y < x `mod` y ≤ 0 ;
+  div_0 : ∀ x, x `div` 0 = 0 ;
+  mod_0 : ∀ x, x `mod` 0 = 0
 }.
 
 Class CutMinus A := cut_minus : A → A → A.

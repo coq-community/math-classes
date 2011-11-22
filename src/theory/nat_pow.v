@@ -1,6 +1,6 @@
 Require
   theory.naturals.
-Require Import 
+Require Import
   Ring abstract_algebra interfaces.naturals interfaces.orders interfaces.additional_operations.
 
 (* * Properties of Nat Pow *)
@@ -28,7 +28,7 @@ Proof.
 Qed.
 
 Global Instance nat_pow_1: RightIdentity (^) (1:B).
-Proof. 
+Proof.
   intro. assert ((1:B) = 1 + 0) as E by ring. rewrite E.
   rewrite nat_pow_S, nat_pow_0. ring.
 Qed.
@@ -43,50 +43,50 @@ Lemma nat_pow_4 x : x ^ (4:B) = x * (x * (x * x)).
 Proof. now rewrite nat_pow_S, nat_pow_3. Qed.
 
 Global Instance nat_pow_base_1: LeftAbsorb (^) 1.
-Proof. 
-  intro. 
+Proof.
+  intro.
   pattern y. apply naturals.induction; clear y.
     solve_proper.
    apply nat_pow_0.
   intros n E. rewrite nat_pow_S. rewrite E. ring.
 Qed.
 
-Lemma nat_pow_exp_plus (x : A) (n m : B) : 
+Lemma nat_pow_exp_plus (x : A) (n m : B) :
   x ^ (n + m) = x ^ n * x ^ m.
 Proof.
   pattern n. apply naturals.induction; clear n.
     solve_proper.
    rewrite nat_pow_0, left_identity. ring.
-  intros n E. 
+  intros n E.
   rewrite <-associativity.
   rewrite 2!nat_pow_S.
   rewrite E. ring.
 Qed.
 
-Lemma nat_pow_base_mult (x y : A) (n : B) : 
+Lemma nat_pow_base_mult (x y : A) (n : B) :
   (x * y) ^ n = x ^ n * y ^ n.
 Proof.
   pattern n. apply naturals.induction; clear n.
     solve_proper.
    rewrite ?nat_pow_0. ring.
-  intros n E. 
+  intros n E.
   rewrite ?nat_pow_S.
   rewrite E. ring.
 Qed.
 
-Lemma nat_pow_exp_mult (x : A) (n m : B) : 
+Lemma nat_pow_exp_mult (x : A) (n m : B) :
   x ^ (n * m) = (x ^ n) ^ m.
 Proof.
   pattern m. apply naturals.induction; clear m.
     solve_proper.
    rewrite right_absorb. now rewrite ?nat_pow_0.
-  intros m E. 
+  intros m E.
   rewrite nat_pow_S, <-E.
   rewrite distribute_l, right_identity.
   now rewrite nat_pow_exp_plus.
 Qed.
 
-Instance nat_pow_ne_0 `{!NoZeroDivisors A} `{!PropHolds ((1:A) ≠ 0)} (x : A) (n : B) : 
+Instance nat_pow_ne_0 `{!NoZeroDivisors A} `{!PropHolds ((1:A) ≠ 0)} (x : A) (n : B) :
   PropHolds (x ≠ 0) → PropHolds (x ^ n ≠ 0).
 Proof.
   pattern n. apply naturals.induction; clear n.
@@ -95,9 +95,9 @@ Proof.
   intros n E F G. rewrite nat_pow_S in G.
   unfold PropHolds in *.
   apply (no_zero_divisors x); split; eauto.
-Qed. 
+Qed.
 
-Context `{Apart A} `{!FullPseudoSemiRingOrder Ale Alt} `{PropHolds (1 ≶ 0)}.
+Context `{Apart A} `{!FullPseudoSemiRingOrder (A:=A) Ale Alt} `{PropHolds (1 ≶ 0)}.
 
 Instance: StrongSetoid A := pseudo_order_setoid.
 
@@ -109,7 +109,7 @@ Proof.
   intros n E F. rewrite nat_pow_S.
   rewrite <-(rings.mult_0_r x).
   apply (strong_left_cancellation (.*.) x). now apply E.
-Qed. 
+Qed.
 
 Instance nat_pow_nonneg (x : A) (n : B) : PropHolds (0 ≤ x) → PropHolds (0 ≤ x ^ n).
 Proof.
@@ -124,7 +124,7 @@ Proof.
   rewrite !lt_iff_le_apart.
   intros [? ?]. split.
    now apply nat_pow_nonneg.
-  symmetry. apply nat_pow_apart_0. 
+  symmetry. apply nat_pow_apart_0.
   red. now symmetry.
 Qed.
 
@@ -145,7 +145,7 @@ Hint Extern 18 (PropHolds (0 ≤ _ ^ _)) => eapply @nat_pow_nonneg : typeclass_i
 Hint Extern 18 (PropHolds (0 < _ ^ _)) => eapply @nat_pow_pos : typeclass_instances.
 
 Section preservation.
-  Context `{Naturals B} `{SemiRing A1} `{!NatPowSpec A1 B pw1} `{SemiRing A2} `{!NatPowSpec A2 B pw2} 
+  Context `{Naturals B} `{SemiRing A1} `{!NatPowSpec A1 B pw1} `{SemiRing A2} `{!NatPowSpec A2 B pw2}
     {f : A1 → A2} `{!SemiRing_Morphism f}.
 
   Add Ring B2 : (rings.stdlib_semiring_theory B).
@@ -155,14 +155,14 @@ Section preservation.
     revert n. apply naturals.induction.
       solve_proper.
      rewrite nat_pow_0, nat_pow_0. now apply rings.preserves_1.
-    intros n E. 
+    intros n E.
     rewrite nat_pow_S, rings.preserves_mult, E.
     now rewrite nat_pow_S.
   Qed.
 End preservation.
 
 Section exp_preservation.
-  Context `{SemiRing A} `{Naturals B1} `{Naturals B2} `{!NatPowSpec A B1 pw1} `{!NatPowSpec A B2 pw2} 
+  Context `{SemiRing A} `{Naturals B1} `{Naturals B2} `{!NatPowSpec A B1 pw1} `{!NatPowSpec A B2 pw2}
     {f : B1 → B2} `{!SemiRing_Morphism f}.
 
   Lemma preserves_nat_pow_exp x (n : B1) : x ^ (f n) = x ^ n.
@@ -172,7 +172,7 @@ Section exp_preservation.
      rewrite rings.preserves_0.
      now rewrite 2!nat_pow_0.
     intros n E.
-    rewrite rings.preserves_plus, rings.preserves_1. 
+    rewrite rings.preserves_plus, rings.preserves_1.
     rewrite 2!nat_pow_S.
     now rewrite E.
   Qed.
@@ -181,8 +181,8 @@ End exp_preservation.
 (* Very slow default implementation by translation into Peano *)
 Section nat_pow_default.
   Context `{SemiRing A}.
-  
-  Global Instance nat_pow_peano: Pow A nat := 
+
+  Global Instance nat_pow_peano: Pow A nat :=
     fix nat_pow_rec (x: A) (n : nat) : A := match n with
     | 0 => 1
     | S n => x * nat_pow_rec x n

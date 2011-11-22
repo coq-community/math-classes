@@ -1,12 +1,12 @@
 Require
   orders.semirings.
-Require Import 
+Require Import
   Ring abstract_algebra interfaces.additional_operations
   interfaces.orders orders.minmax.
 
 (* * Properties of Cut off Minus *)
 Section cut_minus_properties.
-  Context `{FullPseudoSemiRingOrder R} `{!TrivialApart R} 
+  Context `{FullPseudoSemiRingOrder R} `{!TrivialApart R}
     `{∀ x y, Decision (x = y)} `{!CutMinusSpec R cm}.
 
   Local Existing Instance pseudo_srorder_semiring.
@@ -139,7 +139,7 @@ Section cut_minus_properties.
     rewrite (cut_minus_0 z x) by easy. ring_simplify. now auto.
   Qed.
 
-  Lemma cut_minus_plus_toggle3 x₁ x₂ y₁ y₂ : x₁ ≤ y₁ → y₂ ≤ x₂ 
+  Lemma cut_minus_plus_toggle3 x₁ x₂ y₁ y₂ : x₁ ≤ y₁ → y₂ ≤ x₂
      → (y₁ ∸ x₁) + ((x₁ + x₂) ∸ (y₁ + y₂)) = (x₂ ∸ y₂) + ((y₁ + y₂) ∸ (x₁ + x₂)).
   Proof.
     intros. destruct (total (≤) (x₁ + x₂) (y₁ + y₂)).
@@ -174,7 +174,7 @@ Section cut_minus_properties.
   Section min.
   Context `{∀ x y : R, Decision (x ≤ y)}.
 
-  Lemma cut_minus_min1 x y z : x ∸ (y ⊓ z) = x ∸ y + ((x ⊓ y) ∸ z). 
+  Lemma cut_minus_min1 x y z : x ∸ (y ⊓ z) = x ∸ y + ((x ⊓ y) ∸ z).
   Proof with eauto; try ring.
     unfold meet, min, sort.
     case (decide_rel (≤) x y); case (decide_rel (≤) y z); intros F G; simpl.

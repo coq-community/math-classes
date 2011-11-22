@@ -1,6 +1,6 @@
-Require 
+Require
   stdlib_binary_integers theory.integers orders.semirings.
-Require Import 
+Require Import
   Setoid NSig NSigNAxioms NArith ZArith Program Morphisms
   abstract_algebra interfaces.naturals interfaces.integers
   interfaces.orders interfaces.additional_operations.
@@ -21,11 +21,11 @@ Program Instance: ∀ x y: t, Decision (x = y) := λ x y, match compare x y with
   | Eq => left _
   | _ => right _
   end.
-Next Obligation. 
+Next Obligation.
   apply Zcompare_Eq_eq. now rewrite <-spec_compare.
 Qed.
-Next Obligation. 
-  rewrite spec_compare in *. intros E. 
+Next Obligation.
+  rewrite spec_compare in *. intros E.
   apply Zcompare_Eq_iff_eq in E. auto.
 Qed.
 
@@ -38,15 +38,15 @@ Instance: SemiRing t | 10 := rings.from_stdlib_semiring_theory NType_semiring_th
 
 Instance inject_NType_N: Cast t N := to_N.
 
-Instance: Proper ((=) ==> (=)) to_N. 
+Instance: Proper ((=) ==> (=)) to_N.
 Proof. intros x y E. unfold equiv, NType_equiv, eq in E. unfold to_N. now rewrite E. Qed.
 
 Instance: SemiRing_Morphism to_N.
 Proof.
   repeat (split; try apply _); unfold to_N; intros.
-     now rewrite spec_add, Zabs_N_plus by apply spec_pos.
+     now rewrite spec_add, Z2N.inj_add by apply spec_pos.
     unfold mon_unit, zero_is_mon_unit, NType_0. now rewrite spec_0.
-   now rewrite spec_mul, Zabs_N_mult by apply spec_pos.
+   now rewrite spec_mul, Z2N.inj_mul by apply spec_pos.
   unfold mon_unit, one_is_mon_unit, NType_1. now rewrite spec_1.
 Qed.
 
@@ -54,18 +54,18 @@ Instance inject_N_NType: Cast N t := of_N.
 Instance: Inverse to_N := of_N.
 
 Instance: Surjective to_N.
-Proof. 
-  split; try apply _. intros x y E. 
+Proof.
+  split; try apply _. intros x y E.
   rewrite <-E. unfold to_N, inverse, compose. rewrite spec_of_N.
-  now apply Zabs_of_N.
-Qed. 
+  apply N2Z.id.
+Qed.
 
 Instance: Injective to_N.
 Proof.
-  split; try apply _. intros x y E. 
+  split; try apply _. intros x y E.
   unfold equiv, NType_equiv, eq. unfold to_N in E.
-  rewrite <-(Zabs_eq (to_Z x)), <-(Zabs_eq (to_Z y)) by now apply spec_pos.
-  now rewrite <-!Z_of_N_abs, E.
+  rewrite <-(Z2N.id (to_Z x)), <-(Z2N.id (to_Z y)) by now apply spec_pos.
+  now rewrite E.
 Qed.
 
 Instance: Bijective to_N := {}.
@@ -83,7 +83,7 @@ Instance: Naturals t := naturals.retract_is_nat of_N.
 
 Instance inject_NType_Z: Cast t Z := to_Z.
 
-Instance: Proper ((=) ==> (=)) to_Z. 
+Instance: Proper ((=) ==> (=)) to_Z.
 Proof. now intros x y E. Qed.
 
 Instance: SemiRing_Morphism to_Z.
@@ -91,7 +91,7 @@ Proof.
   repeat (split; try apply _).
      exact spec_add.
     exact spec_0.
-   exact spec_mul. 
+   exact spec_mul.
   exact spec_1.
 Qed.
 
@@ -100,9 +100,9 @@ Instance  NType_le: Le t := le.
 Instance  NType_lt: Lt t := lt.
 
 Instance: Proper ((=) ==> (=) ==> iff) NType_le.
-Proof. 
-  intros ? ? E1 ? ? E2. unfold NType_le, le. unfold equiv, NType_equiv, eq in *. 
-  now rewrite E1, E2. 
+Proof.
+  intros ? ? E1 ? ? E2. unfold NType_le, le. unfold equiv, NType_equiv, eq in *.
+  now rewrite E1, E2.
 Qed.
 
 Instance: SemiRingOrder NType_le.
@@ -151,7 +151,7 @@ Qed.
 
 Lemma NType_succ_1_plus x : succ x = 1 + x.
 Proof.
-  unfold_equiv. rewrite spec_succ, rings.preserves_plus, rings.preserves_1. 
+  unfold_equiv. rewrite spec_succ, rings.preserves_plus, rings.preserves_1.
   now rewrite commutativity.
 Qed.
 
@@ -170,7 +170,7 @@ Proof.
     intros x1 y1 E1 x2 y2 E2.
     now apply axioms.pow_wd.
    intros x1. apply axioms.pow_0_r.
-  intros x n. 
+  intros x n.
   unfold_equiv. unfold "^", NType_pow.
   rewrite <-axioms.pow_succ_r by (red; rewrite spec_0; apply spec_pos).
   now rewrite NType_succ_1_plus.
@@ -187,8 +187,8 @@ Proof.
   unfold_equiv. simpl.
   rewrite rings.preserves_mult, spec_pow.
   rewrite spec_shiftl, Z.shiftl_mul_pow2 by apply spec_pos.
-  now rewrite <-NType_two_2, spec_2. 
-Qed. 
+  now rewrite <-NType_two_2, spec_2.
+Qed.
 
 (* Efficient [shiftr] *)
 Program Instance: ShiftR t t := shiftr.

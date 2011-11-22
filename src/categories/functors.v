@@ -1,5 +1,4 @@
 Require Import
-  RelationClasses Equivalence
   abstract_algebra interfaces.functors theory.categories.
 
 Section natural_transformations_id_comp.
@@ -40,25 +39,25 @@ Section contents.
   Global Existing Instance NaturalTransformation_inst.
   Global Instance: Arrows Object := Arrow.
 
-  Section arrow_setoid. 
+  Section arrow_setoid.
     Context (F G: Object).
 
     Global Program Instance e: Equiv (F ⟶ G) :=
       λ m n, ∀ x: A, m x = n x.
 
-    Let e_refl: Reflexive e.
+    Instance e_refl: Reflexive e.
     Proof. intro a; red; reflexivity. Qed.
 
-    Let e_sym: Symmetric e.
+    Instance e_sym: Symmetric e.
     Proof. intros m n Hmn a. red in Hmn. rewrite Hmn. reflexivity. Qed.
 
-    Let e_trans: Transitive e.
+    Instance e_trans: Transitive e.
     Proof. intros m n o Hmn Hno a. red in Hmn, Hno. rewrite Hmn, Hno. reflexivity. Qed.
 
     Instance: Equivalence e := {}.
     Global Instance: Setoid (F ⟶ G) := {}.
   End arrow_setoid.
- 
+
   Global Instance: CatId Object := λ _, arrow (λ _, cat_id) _.
   Global Instance: CatComp Object := λ _ _ _ m n, arrow (λ a, m a ◎ n a) _.
 

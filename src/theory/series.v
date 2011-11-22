@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   Ring Factorial workaround_tactics
   abstract_algebra interfaces.additional_operations interfaces.orders
   interfaces.naturals interfaces.integers
@@ -12,12 +12,12 @@ Context `{SemiRingOrder A}.
 Add Ring A : (rings.stdlib_semiring_theory A).
 Add Ring nat : (rings.stdlib_semiring_theory nat).
 
-Class DecreasingNonNegative (s : Stream A) : Prop := 
+Class DecreasingNonNegative (s : Stream A) : Prop :=
   decreasing_nonneg : ForAll (λ t, 0 ≤ hd (tl t) ≤ hd t) s.
 
-(* An equivalent definition is to say that given a point [s] in the stream, 
+(* An equivalent definition is to say that given a point [s] in the stream,
   then every further point in that stream is in [[0,s]]. *)
-Lemma dnn_alt (s : Stream A) : 
+Lemma dnn_alt (s : Stream A) :
   DecreasingNonNegative s ↔ ForAll (λ s, ForAll (λ t, 0 ≤ hd t ≤ hd s) s) s.
 Proof.
   split; revert s; cofix FIX; intros s E.
@@ -27,18 +27,18 @@ Proof.
     generalize s E x. clear s E x.
     cofix FIX2. intros s E.
     constructor.
-     split; trivial. destruct E. 
+     split; trivial. destruct E.
      now transitivity (hd (tl s)).
     destruct E.
     apply FIX2; trivial.
     now transitivity (hd s).
-   destruct E. now apply FIX. 
+   destruct E. now apply FIX.
   constructor.
    now destruct E as [[? [? ?]] ?].
   apply FIX. now destruct E.
 Qed.
 
-Definition dnn_Str_nth (s : Stream A) : 
+Definition dnn_Str_nth (s : Stream A) :
   DecreasingNonNegative s ↔ ∀ n, 0 ≤ Str_nth (S n) s ≤ Str_nth n s.
 Proof.
   split.
@@ -49,7 +49,7 @@ Proof.
   revert s. cofix FIX. intros s E.
   constructor; unfold Str_nth in *; simpl in *.
    apply (E O).
-  apply FIX. intros n. 
+  apply FIX. intros n.
   apply (E (S n)).
 Qed.
 
@@ -69,7 +69,7 @@ Proof. destruct dnn. now transitivity (hd (tl s)). Qed.
 Lemma dnn_Str_nth_nonneg `(dnn : DecreasingNonNegative s) n : 0 ≤ Str_nth n s.
 Proof. destruct n; apply (dnn_hd_nonneg _). Qed.
 
-Class IncreasingNonNegative (s : Stream A) : Prop := 
+Class IncreasingNonNegative (s : Stream A) : Prop :=
   increasing_nonneg : ForAll (λ s, 0 ≤ hd s ≤ hd (tl s)) s.
 
 Lemma inn_Str_nth (s : Stream A) :
@@ -83,7 +83,7 @@ Proof.
   revert s. cofix FIX. intros s E.
   constructor; unfold Str_nth in *; simpl in *.
    apply (E O).
-  apply FIX. intros n. 
+  apply FIX. intros n.
   apply (E (S n)).
 Qed.
 
@@ -109,7 +109,7 @@ Section every_other.
      easy.
     change (1 + (1 + 1) * n = n + (1 + (n + 0))). ring.
   Qed.
-  
+
   Lemma Str_nth_everyOther (n : nat) (s : Stream A) : Str_nth n (everyOther s) = Str_nth (2 * n) s.
   Proof.
     unfold Str_nth.
@@ -119,7 +119,7 @@ Section every_other.
 
   Global Instance everyOther_dnn `(dnn : !DecreasingNonNegative s) : DecreasingNonNegative (everyOther s).
   Proof.
-    revert s dnn. 
+    revert s dnn.
     cofix FIX. intros s dnn.
     constructor; simpl.
      destruct dnn as [? [? ?]]. split. easy. now transitivity (hd (tl s)).
@@ -138,8 +138,8 @@ End every_other.
 
 Section mult.
   Definition mult_Streams := zipWith (.*.).
-  
-  Global Instance mult_Streams_dnn `(dnn1 : !DecreasingNonNegative s1) `(dnn2 : !DecreasingNonNegative s2) : 
+
+  Global Instance mult_Streams_dnn `(dnn1 : !DecreasingNonNegative s1) `(dnn2 : !DecreasingNonNegative s2) :
     DecreasingNonNegative (mult_Streams s1 s2).
   Proof.
     revert s1 s2 dnn1 dnn2.
@@ -162,16 +162,16 @@ Section mult.
      now apply semirings.mult_le_compat.
     now apply FIX.
   Qed.
-  
+
   Global Instance: Proper ((=) ==> (=) ==> (=)) mult_Streams.
-  Proof. apply _. Qed. 
+  Proof. apply _. Qed.
 End mult.
 
 Section powers.
   Context (a : A).
 
   CoFixpoint powers_help (c : A) : Stream A := Cons c (powers_help (c * a)).
-  
+
   Definition powers : Stream A := powers_help 1.
 
   Section with_nat_pow.
@@ -190,7 +190,7 @@ Section powers.
   Proof. unfold powers. rewrite Str_nth_powers_help. ring. Qed.
   End with_nat_pow.
 
-  Section with_int_pow. 
+  Section with_int_pow.
   Context `{!Negate A} `{!DecRecip A} `{!DecField A} `{∀ x y : A, Decision (x = y)}
      `{Integers Z} `{!IntPowSpec A Z pw} (f : nat → Z) `{!SemiRing_Morphism f}.
 
@@ -217,18 +217,18 @@ Qed.
 Section positives.
   CoFixpoint positives_help (x : A) : Stream A := Cons x (positives_help (1 + x)).
 
-  Lemma Str_nth_positives_help (n : nat) (x : A) : 
+  Lemma Str_nth_positives_help (n : nat) (x : A) :
     Str_nth n (positives_help x) = x + naturals_to_semiring nat A n.
   Proof.
     revert x.
-    induction n using peano_naturals.nat_induction; intros c; unfold Str_nth in *; simpl. 
+    induction n using peano_naturals.nat_induction; intros c; unfold Str_nth in *; simpl.
      rewrite rings.preserves_0. now ring.
     rewrite IHn, rings.preserves_plus, rings.preserves_1. now ring.
   Qed.
 
   Definition positives : Stream A := positives_help 1.
 
-  Lemma Str_nth_positives (n : nat) : 
+  Lemma Str_nth_positives (n : nat) :
     Str_nth n positives = 1 + naturals_to_semiring nat A n.
   Proof. unfold positives. now rewrite Str_nth_positives_help. Qed.
 End positives.
@@ -236,7 +236,7 @@ End positives.
 Section factorials.
   CoFixpoint factorials_help (n c : A) : Stream A := Cons c (factorials_help (1 + n) (n * c)).
 
-  Fixpoint fac_help (n : nat) (m c : A) : A := 
+  Fixpoint fac_help (n : nat) (m c : A) : A :=
     match n with
     | O => c
     | S n => (m + naturals_to_semiring nat A n) * fac_help n m c
@@ -247,7 +247,7 @@ Section factorials.
   Proof.
     revert m c.
     induction n using peano_naturals.nat_induction; intros m c; unfold Str_nth in *; simpl.
-     ring. 
+     ring.
     rewrite IHn. clear IHn.
     induction n using peano_naturals.nat_induction; simpl.
      rewrite rings.preserves_0. now ring.

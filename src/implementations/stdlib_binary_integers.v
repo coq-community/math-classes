@@ -1,7 +1,7 @@
-Require 
+Require
   interfaces.naturals theory.naturals peano_naturals theory.integers.
 Require Import
-  BinInt Ring Arith NArith ZBinary
+  BinInt Ring Arith NArith ZArith ZBinary
   abstract_algebra interfaces.integers
   natpair_integers stdlib_binary_naturals
   interfaces.additional_operations interfaces.orders
@@ -37,7 +37,7 @@ Instance: ∀ x y : Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
 (* * Embedding N into Z *)
-Instance inject_N_Z: Cast BinNat.N Z := Z_of_N.
+Instance inject_N_Z: Cast BinNat.N.t Z := Z_of_N.
 
 Instance: SemiRing_Morphism Z_of_N.
 Proof.
@@ -74,7 +74,7 @@ Proof.
 Qed.
 
 Instance: Injective Npair_to_Z.
-Proof. 
+Proof.
   split; try apply _.
   intros [xp xn] [yp yn] E.
   unfold Npair_to_Z in E. do 2 red. simpl in *.
@@ -93,7 +93,7 @@ Instance Z_to_Npair: Inverse Npair_to_Z := λ x,
 Instance: Surjective Npair_to_Z.
 Proof.
   split; try apply _.
-  intros x y E. rewrite E. 
+  intros x y E. compute in E. rewrite E. (* FIXME: loop without the compute *)
   now destruct y as [|p|p].
 Qed.
 
@@ -120,7 +120,7 @@ Proof.
 Qed.
 
 Instance: TotalRelation Z_le.
-Proof. 
+Proof.
   intros x y.
   destruct (Zorder.Zle_or_lt x y); intuition.
   right. now apply Zorder.Zlt_le_weak.
@@ -145,7 +145,7 @@ Proof.
 Qed.
 
 (* absolute value *)
-Program Instance: IntAbs Z nat := λ x,
+Program Instance Z_abs_nat: IntAbs Z nat := λ x,
   match x with
   | Z0 => inl (0:nat)
   | Zpos p => inl (nat_of_P p)
@@ -155,7 +155,7 @@ Next Obligation. reflexivity. Qed.
 Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_nat), Znat.Z_of_nat_of_P. Qed.
 Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_nat), Znat.Z_of_nat_of_P. Qed.
 
-Program Instance: IntAbs Z N := λ x,
+Program Instance Z_abs_N: IntAbs Z N := λ x,
   match x with
   | Z0 => inl (0:N)
   | Zpos p => inl (Npos p)
@@ -176,7 +176,7 @@ Proof.
     simpl in *. now rewrite E1, E2.
    intros. now apply Z.pow_0_r.
   intros x n.
-  rewrite rings.preserves_plus, rings.preserves_1.  
+  rewrite rings.preserves_plus, rings.preserves_1.
   rewrite <-(Z.pow_1_r x) at 2. apply Z.pow_add_r.
    auto with zarith.
   now destruct n.
@@ -217,9 +217,21 @@ Proof.
   now destruct n.
 Qed.
 
-Program Instance: Abs Z := Zabs.
+Program Instance Z_abs: Abs Z := Zabs.
 Next Obligation.
   split; intros E.
    now apply Z.abs_eq.
   now apply Z.abs_neq.
+Qed.
+
+Instance Z_div: DivEuclid Z := Zdiv.
+Instance Z_mod: ModEuclid Z := Zmod.
+
+Instance: EuclidSpec Z _ _.
+Proof.
+  split; try apply _.
+     exact Z_div_mod_eq_full.
+    intros x y Ey. destruct (Z_mod_remainder x y); intuition.
+   now intros [].
+  now intros [].
 Qed.

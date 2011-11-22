@@ -1,5 +1,6 @@
-Require theory.fields.
-Require Import Morphisms Ring abstract_algebra theory.rings.
+Require Import 
+  Ring abstract_algebra 
+  theory.rings theory.dec_fields.
 
 Inductive Frac R `{Rap : Equiv R} `{Rzero : Zero R} : Type := frac { num: R; den: R; den_ne_0: den ≠ 0 }.
   (* We used to have [den] and [den_nonzero] bundled, which did work relatively nicely with Program, but the
@@ -14,7 +15,7 @@ Context `{IntegralDomain R} `{∀ x y, Decision (x = y)}.
 
 Add Ring R: (stdlib_ring_theory R).
 
-Global Instance Frac_equiv: Equiv (Frac R) := λ x y, num x * den y = num y * den x.
+Global Instance Frac_equiv : Equiv (Frac R) | 0 := λ x y, num x * den y = num y * den x.
 
 Instance: Setoid (Frac R).
 Proof with auto.
@@ -23,12 +24,12 @@ Proof with auto.
    intros x y E. now symmetry.
   intros [nx dx] [ny dy] [nz dz] V W. simpl in *.
   apply (left_cancellation_ne_0 (.*.) dy)...
-  rewrite 2!associativity. 
+  rewrite 2!associativity.
   rewrite 2!(commutativity dy).
   rewrite V, <- W. ring.
 Qed.
 
-Global Instance Frac_dec : ∀ x y: Frac R, Decision (x = y) 
+Global Instance Frac_dec : ∀ x y: Frac R, Decision (x = y)
   := λ x y, decide_rel (=) (num x * den y) (num y * den x).
 
 (* injection from R *)
@@ -70,9 +71,9 @@ Proof with try ring.
 Qed.
 
 Instance: Proper ((=) ==> (=)) Frac_negate.
-Proof. 
-  intros x y E. unfolds. 
-  rewrite <-negate_mult_distr_l, E. ring. 
+Proof.
+  intros x y E. unfolds.
+  rewrite <-negate_mult_distr_l, E. ring.
 Qed.
 
 Instance: Proper ((=) ==> (=) ==> (=)) Frac_mult.
@@ -82,7 +83,7 @@ Proof with try ring.
   rewrite E, E'...
 Qed.
 
-Instance: Ring (Frac R).
+Global Instance: Ring (Frac R).
 Proof. repeat (split; try apply _); ring_on_ring. Qed.
 
 Global Instance Frac_dec_recip: DecRecip (Frac R) := λ x,
@@ -97,10 +98,10 @@ Proof.
   intros [xn xd Px] [yn yd Py]. unfolds. unfold Frac_dec_recip. simpl.
   case (decide_rel (=) xn 0); case (decide_rel (=) yn 0); intros Ey Ex; simpl.
      reflexivity.
-    rewrite Ex. intros E. destruct Ey. 
+    rewrite Ex. intros E. destruct Ey.
     apply (right_cancellation_ne_0 (.*.) xd); trivial.
     rewrite <-E. ring.
-   rewrite Ey. intros E. destruct Ex. 
+   rewrite Ey. intros E. destruct Ex.
    apply (right_cancellation_ne_0 (.*.) yd); trivial.
    rewrite E. ring.
   symmetry.
@@ -140,7 +141,7 @@ Proof.
 Qed.
 
 Global Instance: Injective Frac_inject.
-Proof. 
+Proof.
   repeat (constructor; try apply _).
   intros x y. unfolds. rewrite 2!mult_1_r. intuition.
 Qed.
@@ -159,7 +160,7 @@ Next Obligation.
   now apply (den_ne_0 x).
 Qed.
 
-Instance: Proper ((=) ==>(=)) Frac_lift.
+Instance: Proper ((=) ==> (=)) Frac_lift.
 Proof.
   intros x y E.
   unfold equiv, Frac_equiv, Frac_lift in *. simpl.
@@ -168,6 +169,7 @@ Qed.
 
 Global Instance: SemiRing_Morphism Frac_lift.
 Proof.
+  pose proof (_:Ring (Frac R1)).
   repeat (split; try apply _); unfold equiv, Frac_equiv, Frac_lift in *; simpl.
      intros x y. now rewrite preserves_plus, ?preserves_mult.
     now rewrite preserves_0, preserves_1.

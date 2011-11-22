@@ -36,7 +36,7 @@ Module simple.
 
     End instances.
 
-    Ltac do_quote := 
+    Ltac do_quote :=
       match goal with
       |- (?a = ?b) => change (eval (quote a) = eval (quote b))
       end.
@@ -53,7 +53,7 @@ Module simple.
 
   Next, we show an alternative implementation where the Quote instances
   are all proved locally correct at their definition: *)
-  
+
   Module approach_B.
 
     Class Quote (n: nat) := { quote: Expr; eval_quote: n = eval quote  }.
@@ -69,10 +69,10 @@ Module simple.
       Global Program Instance: Quote 1 := { quote := One }.
 
       Global Instance: Quote (n + m) := { quote := Plus (quote n) (quote m) }.
-      Proof. simpl. do 2 rewrite <- eval_quote. reflexivity. Qed. 
+      Proof. simpl. do 2 rewrite <- eval_quote. reflexivity. Qed.
 
       Global Instance: Quote (n * m) := { quote := Mult (quote n) (quote m) }.
-      Proof. simpl. do 2 rewrite <- eval_quote. reflexivity. Qed. 
+      Proof. simpl. do 2 rewrite <- eval_quote. reflexivity. Qed.
 
     End instances.
 
@@ -182,7 +182,7 @@ Proof.
   split.
    red in E.
    simpl in E.
-   
+
    apply IHx2.
 
   simpl in *.

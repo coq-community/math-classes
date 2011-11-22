@@ -47,7 +47,7 @@ Section from_instance.
     match o with plus => (+) | mult => (.*.) | zero => 0: A | one => 1:A end.
 
   Global Instance: Algebra sig _.
-  Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; unfold Proper; reflexivity. Qed.
+  Proof. constructor. intro. apply _. intro o. destruct o; simpl; try apply _; apply reflexivity. Qed.
 
   Lemma laws en (l: Laws en) vars: eval_stmt sig vars en.
   Proof.
@@ -73,7 +73,7 @@ End from_instance.
 
 (* Similarly, given a categorical object, we can make the corresponding class instances: *)
 
-Section ops_from_alg_to_sr. 
+Section ops_from_alg_to_sr.
   Context `{AlgebraOps theory A}.
   Global Instance: Plus (A tt) := algebra_op plus.
   Global Instance: Mult (A tt) := algebra_op mult.

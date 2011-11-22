@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   List
   abstract_algebra.
 
@@ -80,4 +80,4 @@ Section test.
     set (t := poly (poly R)).
     unfold poly_zero.
 
-*)    
+*)

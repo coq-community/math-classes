@@ -22,7 +22,7 @@ Global Instance: IntegralDomain F.
 Proof. split; try apply _. Qed.
 
 Lemma dec_recip_1: / 1 = 1.
-Proof. 
+Proof.
   rewrite <-(rings.mult_1_l (/1)).
   apply dec_recip_inverse.
   solve_propholds.
@@ -45,7 +45,7 @@ Lemma dec_recip_zero x : / x = 0 ↔ x = 0.
 Proof.
   split; intros E.
    apply stable. intros Ex.
-   destruct (is_ne_0 1). 
+   destruct (is_ne_0 1).
    rewrite <-(dec_recip_inverse x), E by assumption. ring.
   rewrite E. now apply dec_recip_0.
 Qed.
@@ -70,7 +70,7 @@ Qed.
 Global Instance dec_recip_inj: Injective (/).
 Proof.
   repeat (split; try apply _).
-  intros x y E. 
+  intros x y E.
   destruct (decide (y = 0)) as [Ey|Ey].
    rewrite Ey in *. rewrite dec_recip_0 in E.
    now apply dec_recip_zero.
@@ -79,7 +79,7 @@ Proof.
   rewrite dec_recip_inverse by assumption.
   rewrite <-E, dec_recip_inverse.
    easy.
-  apply dec_recip_ne_0_iff. rewrite E. 
+  apply dec_recip_ne_0_iff. rewrite E.
   now apply dec_recip_ne_0.
 Qed.
 
@@ -90,7 +90,7 @@ Proof.
   apply (right_cancellation_ne_0 (.*.) (/x)).
    now apply dec_recip_ne_0.
   rewrite dec_recip_inverse by assumption.
-  rewrite commutativity, dec_recip_inverse. 
+  rewrite commutativity, dec_recip_inverse.
    reflexivity.
   now apply dec_recip_ne_0.
 Qed.
@@ -125,10 +125,10 @@ Proof with auto.
   rewrite E1, E2. ring.
 Qed.
 
-Lemma dec_recip_swap_l x y: x / y = / (/ x * y). 
+Lemma dec_recip_swap_l x y: x / y = / (/ x * y).
 Proof. rewrite dec_recip_distr, involutive. ring. Qed.
 
-Lemma dec_recip_swap_r x y: / x * y = / (x / y). 
+Lemma dec_recip_swap_r x y: / x * y = / (x / y).
 Proof. rewrite dec_recip_distr, involutive. ring. Qed.
 
 Lemma dec_recip_negate x : -(/ x) = / (-x).
@@ -161,9 +161,9 @@ Section is_field.
        now apply (dec_strong_binary_morphism (+)).
       now apply (dec_strong_binary_morphism (.*.)).
      split; try apply _.
-     intros ? ? E. unfold recip, recip_dec_field. 
+     intros ? ? E. unfold recip, recip_dec_field.
      now apply sm_proper.
-    intros [x Px]. rapply (dec_recip_inverse x). 
+    intros [x Px]. rapply (dec_recip_inverse x).
     now apply trivial_apart.
   Qed.
 
@@ -202,7 +202,7 @@ Section from_stdlib_field_theory.
   Proof with auto.
    destruct ftheory.
    repeat (constructor; try assumption); repeat intro
-   ; unfold equiv, mon_unit, sg_op, zero_is_mon_unit, plus_is_sg_op, 
+   ; unfold equiv, mon_unit, sg_op, zero_is_mon_unit, plus_is_sg_op,
      one_is_mon_unit, mult_is_sg_op, plus, mult, recip, negate; try field...
    unfold recip, mult.
    simpl.
@@ -214,7 +214,7 @@ End from_stdlib_field_theory.
 Section morphisms.
   Context  `{DecField F} `{∀ x y: F, Decision (x = y)}.
 
-  Global Instance dec_field_to_domain_inj `{IntegralDomain R} 
+  Global Instance dec_field_to_domain_inj `{IntegralDomain R}
     `{!SemiRing_Morphism (f : F → R)} : Injective f.
   Proof.
     apply injective_preserves_0.
@@ -227,7 +227,7 @@ Section morphisms.
     now apply left_absorb.
   Qed.
 
-  Lemma preserves_dec_recip `{DecField F2} `{∀ x y: F2, Decision (x = y)} 
+  Lemma preserves_dec_recip `{DecField F2} `{∀ x y: F2, Decision (x = y)}
     `{!SemiRing_Morphism (f : F → F2)} x : f (/ x) = / f x.
   Proof.
     case (decide (x = 0)) as [E | E].
@@ -241,7 +241,7 @@ Section morphisms.
     easy.
   Qed.
 
-  Lemma dec_recip_to_recip `{Field F2} `{!StrongSemiRing_Morphism (f : F → F2)} x Pfx : 
+  Lemma dec_recip_to_recip `{Field F2} `{!StrongSemiRing_Morphism (f : F → F2)} x Pfx :
     f (/ x) = // (f x)↾Pfx.
   Proof.
     assert (x ≠ 0).

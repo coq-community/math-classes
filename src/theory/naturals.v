@@ -25,19 +25,19 @@ Lemma to_semiring_unique_alt `{Naturals N} `{SemiRing SR} (f g: N → SR) `{!Sem
   f x = g x.
 Proof. now rewrite (to_semiring_unique f), (to_semiring_unique g). Qed.
 
-Lemma morphisms_involutive `{Naturals N} `{SemiRing R} (f : R → N) (g : N → R) 
+Lemma morphisms_involutive `{Naturals N} `{SemiRing R} (f : R → N) (g : N → R)
   `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} x : f (g x) = x.
 Proof. now apply (to_semiring_unique_alt (f ∘ g) id). Qed.
 
 Lemma to_semiring_twice `{Naturals N} `{SemiRing R1} `{SemiRing R2} (f : R1 → R2) (g : N → R1) (h : N → R2)
-     `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} `{!SemiRing_Morphism h} x : 
+     `{!SemiRing_Morphism f} `{!SemiRing_Morphism g} `{!SemiRing_Morphism h} x :
   f (g x) = h x.
 Proof. now apply (to_semiring_unique_alt (f ∘ g) h). Qed.
 
 Lemma to_semiring_self `{Naturals N} (f : N → N) `{!SemiRing_Morphism f} x : f x = x.
 Proof. now apply (to_semiring_unique_alt f id). Qed.
 
-Lemma to_semiring_injective `{Naturals N} `{SemiRing A}  
+Lemma to_semiring_injective `{Naturals N} `{SemiRing A}
    (f: A → N) (g: N → A) `{!SemiRing_Morphism f} `{!SemiRing_Morphism g}: Injective g.
 Proof.
   repeat (split; try apply _).
@@ -61,7 +61,7 @@ Section retract_is_nat.
 
     Instance: SemiRing_Morphism (naturals_to_semiring N R ∘ f⁻¹) := {}.
 
-    Context (h :  SR → R) `{!SemiRing_Morphism h}. 
+    Context (h :  SR → R) `{!SemiRing_Morphism h}.
 
     Lemma same_morphism: naturals_to_semiring N R ∘ f⁻¹ = h.
     Proof.
@@ -114,7 +114,7 @@ Section borrowed_from_nat.
 
   Let three_vars (x y z : N) (_: unit) v := match v with 0%nat => x | 1%nat => y | _ => z end.
   Let two_vars (x y : N) (_: unit) v := match v with 0%nat => x | _ => y end.
-  Let no_vars (_: unit) (v: nat) := 0.
+  Let no_vars (_: unit) (v: nat) := 0:N.
 
   Local Notation x' := (Var varieties.semirings.sig _ 0 tt).
   Local Notation y' := (Var varieties.semirings.sig _ 1 tt).
@@ -148,18 +148,18 @@ Section borrowed_from_nat.
     now rapply (from_nat_stmt (1 === 0 -=> Ext _ False) no_vars).
   Qed.
 
-  Instance nat_nontrivial_apart `{Apart N} `{!TrivialApart N} : 
+  Instance nat_nontrivial_apart `{Apart N} `{!TrivialApart N} :
     PropHolds ((1:N) ≶ 0).
   Proof. apply strong_setoids.ne_apart. solve_propholds. Qed.
 
-  Lemma zero_sum x y : x + y = 0 → x = 0 ∧ y = 0.
+  Lemma zero_sum (x y : N) : x + y = 0 → x = 0 ∧ y = 0.
   Proof.
     rapply (from_nat_stmt (x' + y' === 0 -=> Conj _ (x' === 0) (y' === 0)) (two_vars x y)).
     intro. simpl. apply Plus.plus_is_O.
   Qed.
 
-  Lemma one_sum x y : x + y = 1 → (x = 1 ∧ y = 0) ∨ (x = 0 ∧ y = 1).
-  Proof. 
+  Lemma one_sum (x y : N) : x + y = 1 → (x = 1 ∧ y = 0) ∨ (x = 0 ∧ y = 1).
+  Proof.
    rapply (from_nat_stmt (x' + y' === 1 -=> Disj _ (Conj _ (x' === 1) (y' === 0)) (Conj _ (x' === 0) (y' === 1))) (two_vars x y)).
    intros. simpl. intros. edestruct Plus.plus_is_one; eauto.
   Qed.
@@ -186,7 +186,7 @@ Next Obligation. intros F. apply E. now rewrite F. Qed.
 Section with_a_ring.
   Context `{Ring R} `{!SemiRing_Morphism (f : N → R)} `{!Injective f}.
 
-  Lemma to_ring_zero_sum x y : 
+  Lemma to_ring_zero_sum x y :
     -f x = f y → x = 0 ∧ y = 0.
   Proof.
     intros E. apply zero_sum, (injective f).
@@ -194,7 +194,7 @@ Section with_a_ring.
     now apply plus_negate_r.
   Qed.
 
-  Lemma negate_to_ring x y : 
+  Lemma negate_to_ring x y :
     -f x = f y → f x = f y.
   Proof.
     intros E. destruct (to_ring_zero_sum x y E) as [E2 E3].

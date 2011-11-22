@@ -1,6 +1,6 @@
-Require Import 
+Require Import
   Ring
-  abstract_algebra 
+  abstract_algebra
   theory.fields.
 
 (* The non zero elements of a field form a CommutativeMonoid. *)
@@ -23,7 +23,7 @@ Proof.
 Qed.
 
 Global Instance: CommutativeMonoid (F ₀).
-Proof. 
+Proof.
   repeat (split; try apply _); red; unfold_equiv.
      now apply associativity.
     now apply left_identity.
@@ -41,10 +41,10 @@ Lemma quotients (a c : F) (b d : F ₀) :
 Proof.
   setoid_replace (a // b) with ((a * `d) // (b * d)) by (apply equal_quotients; simpl; ring).
   setoid_replace (c // d) with ((`b * c) // (b * d)) by (apply equal_quotients; simpl; ring).
-  ring. 
+  ring.
 Qed.
 
-Lemma recip_distr `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} (x y : F ₀) : 
+Lemma recip_distr `{∀ z, PropHolds (z ≠ 0) → LeftCancellation (.*.) z} (x y : F ₀) :
   // (x * y) = // x * // y.
-Proof. destruct x, y. apply recip_distr_alt. Qed. 
+Proof. destruct x, y. apply recip_distr_alt. Qed.
 End contents.

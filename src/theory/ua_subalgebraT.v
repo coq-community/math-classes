@@ -44,7 +44,7 @@ Section subalgebras.
 
   (* Our new algebra's elements are just those for which P holds: *)
 
-  Definition carrier s := sigT (P s). 
+  Definition carrier s := sigT (P s).
 
   Hint Unfold carrier: typeclass_instances.
 

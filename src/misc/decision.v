@@ -7,13 +7,13 @@ Implicit Arguments decide [[Decision]].
 Instance: ∀ P, Decision P → Stable P.
 Proof. firstorder. Qed.
 
-Ltac solve_trivial_decision := 
+Ltac solve_trivial_decision :=
   match goal with
   | [ |- Decision (?P) ] => apply _
   | [ |- sumbool ?P (¬?P) ] => change (Decision P); apply _
   end.
 
-Ltac solve_decision := 
+Ltac solve_decision :=
   first [solve_trivial_decision | unfold Decision; decide equality; solve_trivial_decision].
 
 (* We cannot state this as Proper (iff ==> iffT) Decision due to the lack of setoid rewriting in Type *)
@@ -32,11 +32,11 @@ Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
 Lemma bool_decide_false `{dec : !Decision P} : bool_decide P ≡ false ↔ ¬P.
 Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
 
-(* 
-  Because [vm_compute] evaluates terms in [Prop] eagerly and does not remove dead code we 
+(*
+  Because [vm_compute] evaluates terms in [Prop] eagerly and does not remove dead code we
   need the decide_rel hack. Suppose we have [(x = y) =def  (f x = f y)], now:
      bool_decide (x = y) → bool_decide (f x = f y) → ...
-  As we see, the dead code [f x] and [f y] is actually evaluated, which is of course an utter waste. 
+  As we see, the dead code [f x] and [f y] is actually evaluated, which is of course an utter waste.
   Therefore we introduce decide_rel and bool_decide_rel.
      bool_decide_rel (=) x y → bool_decide_rel (λ a b, f a = f b) x y → ...
   Now the definition of equality remains under a lambda and our problem does not occur anymore!
@@ -45,20 +45,20 @@ Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
 Definition decide_rel `(R : A → B → Prop) {dec : ∀ x y, Decision (R x y)} (x : A) (y : B) : Decision (R x y)
   := dec x y.
 
-Definition bool_decide_rel `(R : relation A) {dec : ∀ x y, Decision (R x y)} : A → A → bool 
+Definition bool_decide_rel `(R : relation A) {dec : ∀ x y, Decision (R x y)} : A → A → bool
   := λ x y, if dec x y then true else false.
 
-Lemma bool_decide_rel_true `(R : relation A) {dec : ∀ x y, Decision (R x y)} : 
+Lemma bool_decide_rel_true `(R : relation A) {dec : ∀ x y, Decision (R x y)} :
   ∀ x y, bool_decide_rel R x y ≡ true ↔ R x y.
 Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder. Qed.
 
-Lemma bool_decide_rel_false `(R : relation A)`{dec : ∀ x y, Decision (R x y)} : 
+Lemma bool_decide_rel_false `(R : relation A)`{dec : ∀ x y, Decision (R x y)} :
   ∀ x y, bool_decide_rel R x y ≡ false ↔ ¬R x y.
 Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder. Qed.
 
-Program Definition decision_from_bool_decide {P b} (prf : b ≡ true ↔ P) : 
+Program Definition decision_from_bool_decide {P b} (prf : b ≡ true ↔ P) :
   Decision P := match b with true => left _ | false => right _ end.
-Next Obligation. now apply prf. Qed. 
+Next Obligation. now apply prf. Qed.
 Next Obligation. rewrite <-prf. discriminate. Qed.
 
 Program Instance prod_eq_dec `(A_dec : ∀ x y : A, Decision (x ≡ y))
@@ -98,7 +98,7 @@ Program Instance is_None_dec `(x : option A) : Decision (is_None x) :=
 Program Instance option_eq_dec `(A_dec : ∀ x y : A, Decision (x ≡ y))
      : ∀ x y : option A, Decision (x ≡ y) := λ x y,
   match x with
-  | Some r => 
+  | Some r =>
     match y with
     | Some s => match A_dec r s with left _ => left _ | right _ => right _ end
     | None => right _
