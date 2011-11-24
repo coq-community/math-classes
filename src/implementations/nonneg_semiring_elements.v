@@ -28,7 +28,6 @@ Next Obligation.
 Qed.
 
 Global Program Instance NonNeg_0: Zero (R⁺) := 0↾_.
-Next Obligation. reflexivity. Qed.
 
 Global Program Instance NonNeg_1: One (R⁺) := 1↾_.
 Next Obligation. apply le_0_1. Qed.

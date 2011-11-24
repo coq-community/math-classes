@@ -31,7 +31,6 @@ Section contents.
   Proof.
     intros x y z. unfold min, max, sort.
     repeat case (decide_rel _); simpl; try solve [intuition].
-      intros E1 ? ? ? ?. destruct E1. now transitivity y.
      intros. apply (antisymmetry (≤)); [|easy]. now transitivity y; apply le_flip.
     intros. now apply (antisymmetry (≤)).
   Qed.

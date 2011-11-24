@@ -139,13 +139,7 @@ Section practical.
     split.
      repeat intro.
      simpl in *.
-     assert (f x0 = f y0).
-      destruct fM.
-      apply sm_proper.
-      assumption.
-     unfold compose.
-     simpl in *.
-     rewrite H4.
+     rewrite H3.
      symmetry.
      apply (@sequence_extend_commutes PS x _ _ _ _ _ _ H2 f fM).
      reflexivity.
