@@ -1,5 +1,6 @@
 Require Import 
-  Morphisms abstract_algebra interfaces.orders.
+  abstract_algebra interfaces.orders.
+
 
 (** Scalar multiplication function class *)
 
@@ -11,6 +12,7 @@ Notation "(·)" := scalar_mult (only parsing).
 Notation "( x ·)" := (scalar_mult x) (only parsing).
 Notation "(· x )" := (λ y, y · x) (only parsing).
 
+
 (** The inproduct function class *)
 
 Class Inproduct K V := inprod : V → V → K.
@@ -21,6 +23,7 @@ Notation "⟨ u , ⟩" := (λ v, ⟨u,v⟩) (at level 50, only parsing).
 Notation "⟨ , v ⟩" := (λ u, ⟨u,v⟩) (at level 50, only parsing).
 Notation "x ⊥ y" := (⟨x,y⟩ = 0) (at level 70).
 
+
 (** The norm function class *)
 
 Class Norm K V := norm : V → K.
@@ -29,39 +32,76 @@ Instance: Params (@norm) 2.
 Notation "∥ L ∥" := (norm L) (at level 50).
 Notation "∥·∥" := norm (only parsing).
 
-Class Metric K V := d : V → V → K.
 
-Section spaces.
+(** Let [M] be an R-Module. *)
+
+Class Module (R M : Type)
+  {Re Rplus Rmult Rzero Rone Rnegate}
+  {Me Mop Munit Mnegate}
+  {sm : ScalarMult R M}
+:=
+  { lm_ring     :>> @Ring R Re Rplus Rmult Rzero Rone Rnegate
+  ; lm_group    :>> @AbGroup M Me Mop Munit Mnegate
+  ; lm_distr_l  :> LeftHeteroDistribute (·) (&) (&)
+  ; lm_distr_r  :> RightHeteroDistribute (·) (+) (&)
+  ; lm_assoc    :> HeteroAssociative (·) (·) (·) (.*.)
+  ; lm_identity :> LeftIdentity (·) 1
+  }.
+
+(* TODO K is commutative, so derive right module laws? *)
+
+(** A module with a seminorm. *)
+
+Class Seminormed
+  {R Re Rplus Rmult Rzero Rone Rnegate Rle Rlt Rapart}
+  {M Me Mop Munit Mnegate Smult}
+ `{!Abs R} (n : Norm R M)
+:=
+  (* We have a module *)
+  { snm_module      :>> @Module R M Re Rplus Rmult Rzero Rone Rnegate
+                                  Me Mop Munit Mnegate Smult
+  ; snm_order       :>> @FullPseudoSemiRingOrder R Re Rapart Rplus Rmult Rzero Rone Rle Rlt
+
+  (* With respect to which our norm preserves the following: *)
+  ; snm_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
+  ; snm_triangle    :  ∀ u v, ∥u & v∥ = ∥u∥ + ∥v∥     (* triangle inequality *)
+  }.
+
 
 (** A Vector space: This class says that [K] is the field
     of scalars, [V] the abelian group of vectors and together
     with the scalar multiplication they satisfy the laws
-    of a vector space *)
-
+    of a vector space
+*)
 Class VectorSpace (K V : Type)
    {Ke Kplus Kmult Kzero Kone Knegate Krecip} (* scalar operations *)
    {Ve Vop Vunit Vnegate}                     (* vector operations *)
    {sm : ScalarMult K V}
  :=
-   { vs_field         :> @DecField K Ke Kplus Kmult Kzero Kone Knegate Krecip
-   ; vs_abgroup       :> @AbGroup V Ve Vop Vunit Vnegate
+   { vs_field         :>> @DecField K Ke Kplus Kmult Kzero Kone Knegate Krecip
+   ; vs_abgroup       :>> @AbGroup V Ve Vop Vunit Vnegate
    ; vs_distr_l       :> LeftHeteroDistribute (·) (&) (&)
    ; vs_distr_r       :> RightHeteroDistribute (·) (+) (&)
    ; vs_assoc         :> HeteroAssociative (·) (·) (·) (.*.)
    ; vs_left_identity :> LeftIdentity (·) 1
    }.
 
-(** Given some vector space V over a ordered field K,
-  we define the inner product space *)
+(** Every vectorspace is trivially a module
+*)
+Instance vs_module `{VectorSpace K V}: Module K V.
+Proof. repeat split; apply _. Qed.
 
+(** Given some vector space V over a ordered field K,
+  we define the inner product space
+*)
 Class InnerProductSpace (K V : Type)
    {Ke Kplus Kmult Kzero Kone Knegate Krecip} (* scalar operations *)
    {Ve Vop Vunit Vnegate}                     (* vector operations *)
    {sm : ScalarMult K V} {inp: Inproduct K V} {Kle: Le K}
  :=
-   { in_vectorspace :> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
+   { in_vectorspace :>> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
                                     Krecip Ve Vop Vunit Vnegate sm
-   ; in_srorder     :> SemiRingOrder Kle
+   ; in_srorder     :>> SemiRingOrder Kle
    ; in_comm        :> Commutative inprod
    ; in_linear_l    :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
    ; in_nonneg      :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
@@ -75,9 +115,7 @@ Class InnerProductSpace (K V : Type)
  End proof_in_linear_r.
 *)
 
-(* This is probably a bad idea?
-   because ∣ ≠ |
-
+(* This is probably a bad idea? (because ∣ ≠ |)
    Notation "∣ a ∣" := (abs a).
 *)
 
@@ -87,7 +125,7 @@ Class SemiNormedSpace (K V : Type)
    {Ve Vop Vunit Vnegate}                     (* vector operations *)
    {sm : ScalarMult K V}
  :=
-   { sn_vectorspace :> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
+   { sn_vectorspace :>> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
                                     Krecip Ve Vop Vunit Vnegate sm
    ; sn_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
    ; sn_triangle    :  ∀ u v, ∥u & v∥ = ∥u∥ + ∥v∥     (* triangle inequality *)
@@ -111,51 +149,3 @@ Class SemiNormedSpace (K V : Type)
 
    - Same for seminorm
 *)
-
-End spaces.
-
-(** Modules *)
-
-Section module.
-
- (** Let [M] be an R-Module *)
-
- Class Module (R M : Type)
-   {Re Rplus Rmult Rzero Rone Rnegate}
-   {Me Mop Munit Mnegate}
-   {sm : ScalarMult R M}
- :=
-   { lm_ring     :> @Ring R Re Rplus Rmult Rzero Rone Rnegate
-   ; lm_group    :> @AbGroup M Me Mop Munit Mnegate
-   ; lm_distr_l  :> LeftHeteroDistribute (·) (&) (&)
-   ; lm_distr_r  :> RightHeteroDistribute (·) (+) (&)
-   ; lm_assoc    :> HeteroAssociative (·) (·) (·) (.*.)
-   ; lm_identity :> LeftIdentity (·) 1
-   }.
-
- (* TODO K is commutative, so derive right module laws? *)
- (* TODO split into left/right module? *)
- Section if_commutative.
- End if_commutative.
-  
- (** Every vectorspace is trivially a module *)
-
- Instance vs_module `{VectorSpace K V}: Module K V.
- Proof. now repeat split; try apply _. Qed.
-
- Class Seminormed
-   {R Re Rplus Rmult Rzero Rone Rnegate Rle Rlt Rapart}
-   {M Me Mop Munit Mnegate Smult}
-  `{!Abs R} (n : Norm R M)
- :=
-   (* We have a module *)
-   { snm_module      : @Module R M Re Rplus Rmult Rzero Rone Rnegate
-                                   Me Mop Munit Mnegate Smult
-   ; snm_order       : @FullPseudoSemiRingOrder R Re Rapart Rplus Rmult Rzero Rone Rle Rlt
-
-   (* With respect to which our norm preserves the following: *)
-   ; snm_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
-   ; snm_triangle    :  ∀ u v, ∥u & v∥ = ∥u∥ + ∥v∥     (* triangle inequality *)
-   }.
-
-End module.
