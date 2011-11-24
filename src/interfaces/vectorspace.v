@@ -141,7 +141,7 @@ Section module.
  (** Every vectorspace is trivially a module *)
 
  Instance vs_module `{VectorSpace K V}: Module K V.
- Proof. now repeat split; try apply _. Defined.
+ Proof. now repeat split; try apply _. Qed.
 
  Class Seminormed
    {R Re Rplus Rmult Rzero Rone Rnegate Rle Rlt Rapart}
