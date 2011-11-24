@@ -1,17 +1,17 @@
 (* In the standard library equality on streams is defined as pointwise Leibniz equality.
     Here we prove similar results, but we use setoid equality instead. *)
 Require Export Streams.
-Require Import Morphisms peano_naturals abstract_algebra.
+Require Import peano_naturals abstract_algebra.
 
 Section streams.
 Context `{Setoid A}.
 
-CoInductive Stream_eq_coind (s1 s2: Stream A) : Prop :=
+CoInductive Stream_eq_coind (s1 s2: ∞A) : Prop :=
   stream_eq_coind : hd s1 = hd s2 → Stream_eq_coind (tl s1) (tl s2) → Stream_eq_coind s1 s2.
 
-Global Instance stream_eq: Equiv (Stream A) := Stream_eq_coind.
+Global Instance stream_eq: Equiv (∞A) := Stream_eq_coind.
 
-Global Instance: Setoid (Stream A).
+Global Instance: Setoid (∞A).
 Proof.
   split.
     cofix FIX.
@@ -40,7 +40,7 @@ Proof. now intros ? ? []. Qed.
 Global Instance: Proper ((=) ==> (=)) (@tl A).
 Proof. now intros ? ? []. Qed.
 
-Lemma Str_nth_tl_S (s : Stream A) n : Str_nth_tl (S n) s ≡ tl (Str_nth_tl n s).
+Lemma Str_nth_tl_S (s : ∞A) n : Str_nth_tl (S n) s ≡ tl (Str_nth_tl n s).
 Proof. now rewrite tl_nth_tl. Qed.
 
 Global Instance: Proper ((=) ==> (=) ==> (=)) (@Str_nth_tl A).
@@ -74,7 +74,7 @@ Proof.
   intros. now apply (E (S n)).
 Qed.
 
-Global Instance ForAll_proper `{!Proper ((=) ==> iff) (P : Stream A → Prop)} :
+Global Instance ForAll_proper `{!Proper ((=) ==> iff) (P : ∞A → Prop)} :
   Proper ((=) ==> iff) (ForAll P).
 Proof.
   assert (∀ x y, x = y → ForAll P x → ForAll P y).
@@ -88,13 +88,13 @@ Proof.
   intros ? ? E1. firstorder.
 Qed.
 
-Lemma ForAll_tl (P : Stream A → Prop) s : ForAll P s → ForAll P (tl s).
+Lemma ForAll_tl (P : ∞A → Prop) s : ForAll P s → ForAll P (tl s).
 Proof. apply (ForAll_Str_nth_tl 1). Qed.
 
-Lemma ForAll_True (s : Stream A) : ForAll (λ _, True) s.
+Lemma ForAll_True (s : ∞A) : ForAll (λ _, True) s.
 Proof. revert s. cofix. intros. constructor; trivial. Qed.
 
-Definition EventuallyForAll (P : Stream A → Prop) := ForAll (λ s, P s → P (tl s)).
+Definition EventuallyForAll (P : ∞A → Prop) := ForAll (λ s, P s → P (tl s)).
 
 Lemma EventuallyForAll_tl P s : EventuallyForAll P s → EventuallyForAll P (tl s).
 Proof. repeat intro. now apply ForAll_tl. Qed.
@@ -108,7 +108,7 @@ Proof.
   intros. now apply IHn, EventuallyForAll_tl.
 Qed.
 
-Global Instance EventuallyForAll_proper `{!Proper ((=) ==> iff) (P : Stream A → Prop)} :
+Global Instance EventuallyForAll_proper `{!Proper ((=) ==> iff) (P : ∞A → Prop)} :
   Proper ((=) ==> iff) (EventuallyForAll P).
 Proof.
   assert (Proper ((=) ==> iff) (λ s, P s → P (tl s))).
@@ -117,15 +117,20 @@ Proof.
   intros ? ? E.
   now rewrite E.
 Qed.
+
+CoFixpoint iterate (f:A → A) (x:A) : ∞A := x ::: iterate f (f x).
+CoFixpoint repeat (x:A) : ∞A := x ::: repeat x.
+
 End streams.
+
 
 Section more.
 Context `{Setoid A} `{Setoid B}.
 
-CoInductive ForAllIf (PA : Stream A → Prop) (PB : Stream B → Prop) : Stream A → Stream B → Prop :=
+CoInductive ForAllIf (PA : ∞A → Prop) (PB : ∞B → Prop) : ∞A → ∞B → Prop :=
   ext_if : ∀ s1 s2, (PA s1 → PB s2) → ForAllIf PA PB (tl s1) (tl s2) → ForAllIf PA PB s1 s2.
 
-Global Instance ForAllIf_proper `{!Proper ((=) ==> iff) (PA : Stream A → Prop)} `{!Proper ((=) ==> iff) (PB : Stream B → Prop)} :
+Global Instance ForAllIf_proper `{!Proper ((=) ==> iff) (PA : ∞A → Prop)} `{!Proper ((=) ==> iff) (PB : ∞B → Prop)} :
   Proper ((=) ==> (=) ==> iff) (ForAllIf PA PB).
 Proof.
   assert (∀ x1 y1 x2 y2, x1 = y1 → x2 = y2 → ForAllIf PA PB x1 x2 → ForAllIf PA PB y1 y2) as P.

@@ -271,7 +271,11 @@ Notation "(∘)" := compose (only parsing).
 
 (* Agda style! *)
 Require Import Streams.
-Notation "∞ X" := (Stream X) (at level 50).
+Notation "∞ X" := (Stream X) (at level 23).
+Infix ":::" := Cons (at level 60, right associativity).
+Notation "(:::)" := Cons (only parsing).
+Notation "(::: X )" := (λ x, Cons x X) (only parsing).
+Notation "( x :::)" := (Cons x) (only parsing).
 
 Class Abs A `{Equiv A} `{Le A} `{Zero A} `{Negate A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
 Definition abs `{Abs A} := λ x : A, ` (abs_sig x).
