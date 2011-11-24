@@ -213,5 +213,8 @@ Section contents.
 
   (* Todo: Show decidability of equality (likely quite tricky). Without that, we cannot use any of this to
    get a canonical model of the naturals/integers, because such models must be decidable. *)
+  (* (Tom): This is possible in the general case, since that would involve solving the word problem for
+     groups. In particular, a group presentation determines a variety, the initial object of which is the
+     group so presented. *)
 
 End contents.

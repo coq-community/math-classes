@@ -8,7 +8,7 @@ Section contents.
 
   Context `{Category C} (x: C).
 
-  Definition homFrom (y: C): setoids.Object := @setoids.object (x ⟶ y) _ _.
+  Definition homFrom (y: C): setoids.Object := setoids.object (x ⟶ y).
 
   Global Program Instance: Fmap homFrom := λ v w X, (X ◎): (x ⟶ v) → (x ⟶ w).
   Next Obligation. constructor; apply _. Qed.

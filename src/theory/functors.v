@@ -9,7 +9,7 @@ Section setoid_functor_as_posh_functor.
   Context `{SFunctor F}.
 
   Program Definition map_setoid: setoids.Object → setoids.Object :=
-    λ o, @setoids.object (F (setoids.T o)) (map_eq (setoids.T o) (setoids.e o)) _.
+    λ o, setoids.object (F (setoids.T o)) (map_eq (setoids.T o) (setoids.e o)) _.
 
   Next Obligation. Proof.
    destruct o.
