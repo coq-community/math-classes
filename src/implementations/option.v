@@ -61,7 +61,6 @@ Section contents.
       | None => left _
       end
     end.
-  Next Obligation. now apply sm_proper. Qed.
   Next Obligation. now apply (injective_ne Some). Qed.
   Next Obligation. apply Some_ne_None. Qed.
   Next Obligation. apply None_ne_Some. Qed.
