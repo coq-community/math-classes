@@ -1,5 +1,7 @@
 Global Generalizable All Variables.
 Global Set Automatic Introduction.
+Global Set Automatic Coercions Import.
+
 
 Require Export
   Morphisms Setoid Program Unicode.Utf8 Utf8_core.
