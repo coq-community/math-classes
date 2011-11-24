@@ -123,7 +123,6 @@ Lemma decode_morphism_and_ops
   `{InVariety theory x} `{InVariety theory y} `{!HomoMorphism theory x y f}:
     SemiRing_Morphism (f tt).
 Proof.
- pose proof (homo_proper theory x y f tt).
  pose proof (preserves theory x y f) as P.
  repeat (constructor; try apply _)
  ; [ apply (P plus) | apply (P zero) | apply (P mult) | apply (P one) ].
