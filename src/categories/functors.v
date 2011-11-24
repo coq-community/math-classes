@@ -81,4 +81,7 @@ Section contents.
 End contents.
 
 Implicit Arguments Object [[Arrows0] [H] [CatId0] [CatComp0] [Arrows1] [H1] [CatId1] [CatComp1]].
+Implicit Arguments object [[A] [Arrows0] [H] [CatId0] [CatComp0] [B] [Arrows1] [H1] [CatId1] [CatComp1] [Fmap_inst] [Functor_inst]]
+                          [[A] [Arrows0] [H] [CatId0] [CatComp0] [B] [Arrows1] [H1] [CatId1] [CatComp1] [Functor_inst]].
 Implicit Arguments CatComp_instance_0 [[A] [Arrows0] [CatId0] [CatComp0] [B] [Arrows1] [H1] [CatId1] [CatComp1] [H2]].
+Implicit Arguments eta [[A] [Arrows0] [CatId0] [CatComp0] [B] [Arrows1] [H] [CatId1] [CatComp1] [H1] [F] [G]].
