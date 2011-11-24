@@ -269,6 +269,10 @@ Notation "(→)" := (λ x y, x → y).
 Notation "t $ r" := (t r) (at level 65, right associativity, only parsing).
 Notation "(∘)" := compose (only parsing).
 
+(* Agda style! *)
+Require Import Streams.
+Notation "∞ X" := (Stream X) (at level 50).
+
 Class Abs A `{Equiv A} `{Le A} `{Zero A} `{Negate A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
 Definition abs `{Abs A} := λ x : A, ` (abs_sig x).
 Instance: Params (@abs_sig) 6.

@@ -304,3 +304,21 @@ Section preservation.
     now rewrite <-(naturals.to_semiring_unique (f ∘ naturals_to_semiring nat A)).
   Qed.
 End preservation.
+
+(** Simple streams created by iteration of one operator *)
+Section iter.
+
+  Context `{Monoid M}.
+  Variable m:M.
+
+  (** The infinite stream s, m & s, m & m & s, ... *)
+  CoFixpoint inf_iter (start:M) : ∞M :=
+    Cons start (inf_iter (m & start)).
+
+  (** The infinite stream 0, m, m & m, m & m & m, ... *)
+  CoFixpoint inf_iter_0 : ∞ M := inf_iter mon_unit.
+
+End iter.
+
+Notation "[ X , s ]∞" := (inf_iter s X) (at level 40).
+Notation "[ X ]∞" := (inf_iter_0 X) (at level 40).
