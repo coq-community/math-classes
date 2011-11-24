@@ -114,9 +114,9 @@ Section contents.
   Global Program Instance: CatComp Object := λ _ _ _ x y, arrow (x ∘ y) _ _.
 
   Program Let proper_arrows (x y z: Object) (x0 y0: y ⟶ z) (x1 y1: x ⟶ y)
-    (f: ∀ v, @isoT _ _ _ _ _ (map_obj x0 v) (map_obj y0 v))
-    (g: ∀ v, @isoT _ _ _ _ _ (map_obj x1 v) (map_obj y1 v)) (v: x):
-      @isoT _ _ _ _ _ (map_obj x0 (map_obj x1 v)) (map_obj y0 (map_obj y1 v))
+    (f: ∀ v, isoT (map_obj x0 v) (map_obj y0 v))
+    (g: ∀ v, isoT (map_obj x1 v) (map_obj y1 v)) (v: x):
+      isoT (map_obj x0 (map_obj x1 v)) (map_obj y0 (map_obj y1 v))
    := (fst (f (y1 v)) ◎ fmap x0 (fst (g v)), fmap x0 (snd (g v)) ◎ snd (f (y1 v))).
      (* Todo: Investigate why things go wrong without the underscores. *)
 
