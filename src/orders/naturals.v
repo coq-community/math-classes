@@ -54,7 +54,6 @@ Global Program Instance slow_nat_le_dec: ∀ x y: N, Decision (x ≤ y) | 10 := 
   | right E => right _
   end.
 Next Obligation. now apply (order_reflecting (naturals_to_semiring N nat)). Qed.
-Next Obligation. intros F. apply E. now apply (order_preserving _). Qed.
 
 Section another_ring.
   Context `{Ring R} `{Apart R} `{!FullPseudoSemiRingOrder (A:=R) Rle Rlt}

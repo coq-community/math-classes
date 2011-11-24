@@ -10,7 +10,6 @@ Program Instance slow_rat_dec `{Rationals Q} : ∀ x y: Q, Decision (x = y) | 10
   | right E => right _
   end.
 Next Obligation. now apply (injective (rationals_to_frac Q (SRpair nat))). Qed.
-Next Obligation. intros F. apply E. now apply sm_proper. Qed.
 
 Section another_integers.
   Context `{Rationals Q} `{Integers Z}.

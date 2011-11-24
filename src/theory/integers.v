@@ -98,7 +98,6 @@ Global Program Instance: ∀ x y: Z, Decision (x = y) | 10 := λ x y,
   | right E => right _
   end.
 Next Obligation. now apply (injective (integers_to_ring Z (SRpair nat))). Qed.
-Next Obligation. intros F. apply E. now rewrite F. Qed.
 
 Global Program Instance slow_int_abs `{Naturals N} : IntAbs Z N | 10 := λ x, 
   match int_abs_sig (SRpair N) N (integers_to_ring Z (SRpair N) x) with

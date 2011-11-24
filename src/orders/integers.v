@@ -63,7 +63,6 @@ Global Program Instance: ∀ x y: Z, Decision (x ≤ y) | 10 := λ x y,
   | right E => right _
   end.
 Next Obligation. now apply (order_reflecting (integers_to_ring _ (SRpair nat))). Qed.
-Next Obligation. intros F. apply E. now apply (order_preserving _). Qed.
 End integers.
 
 (* A default order on the integers *)

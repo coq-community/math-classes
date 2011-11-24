@@ -4,6 +4,8 @@ Global Set Automatic Introduction.
 Require Export
   Morphisms Setoid Program Unicode.Utf8 Utf8_core.
 
+Require Export stdlib_hints.
+
 (* Equality *)
 Class Equiv A := equiv: relation A.
 
@@ -20,6 +22,10 @@ Notation "(≠)" := (λ x y, ¬x = y) (only parsing).
 Notation "x ≠ y":= (¬x = y): type_scope.
 Notation "( x ≠)" := (λ y, x ≠ y) (only parsing).
 Notation "(≠ x )" := (λ y, y ≠ x) (only parsing).
+
+Hint Extern 2 (?x = ?x) => reflexivity.
+Hint Extern 2 (?x = ?y) => auto_symm.
+Hint Extern 2 (?x = ?y) => auto_trans.
 
 (* Coq sometimes uses an incorrect DefaultRelation, so we override it. *)
 Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3.
@@ -276,6 +282,10 @@ Infix ":::" := Cons (at level 60, right associativity).
 Notation "(:::)" := Cons (only parsing).
 Notation "(::: X )" := (λ x, Cons x X) (only parsing).
 Notation "( x :::)" := (Cons x) (only parsing).
+
+Hint Extern 2 (?x ≤ ?y) => reflexivity.
+Hint Extern 4 (?x ≤ ?z) => auto_trans.
+Hint Extern 4 (?x < ?z) => auto_trans.
 
 Class Abs A `{Equiv A} `{Le A} `{Zero A} `{Negate A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
 Definition abs `{Abs A} := λ x : A, ` (abs_sig x).

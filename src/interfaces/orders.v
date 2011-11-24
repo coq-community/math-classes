@@ -124,6 +124,7 @@ Section order_maps.
     { strict_order_embedding_preserving :> StrictlyOrderPreserving
     ; strict_order_embedding_reflecting :> StrictlyOrderReflecting }.
 End order_maps.
+Hint Extern 4 (?f _ ≤ ?f _) => apply (order_preserving f).
 
 (*
 We define various classes to describe the order on the lower part of the
