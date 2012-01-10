@@ -185,7 +185,7 @@ Section nat_pow_default.
   Global Instance nat_pow_peano: Pow A nat :=
     fix nat_pow_rec (x: A) (n : nat) : A := match n with
     | 0 => 1
-    | S n => x * nat_pow_rec x n
+    | S n => x * @pow _ _ nat_pow_rec x n
     end.
 
   Instance: Proper ((=) ==> (=) ==> (=)) nat_pow_peano.
@@ -200,7 +200,7 @@ Section nat_pow_default.
 
   Context `{Naturals B}.
 
-  Global Instance default_nat_pow: Pow A B | 10 := λ x n, nat_pow_peano x (naturals_to_semiring B nat n).
+  Global Instance default_nat_pow: Pow A B | 10 := λ x n, x ^ naturals_to_semiring B nat n.
   Global Instance: NatPowSpec A B default_nat_pow.
   Proof.
     split; unfold pow, default_nat_pow.
