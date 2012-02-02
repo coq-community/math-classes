@@ -1,8 +1,8 @@
 Global Generalizable All Variables.
 Global Set Automatic Introduction.
 
-Require Export
-  Morphisms Setoid Program Unicode.Utf8 Utf8_core.
+Require Import Streams.
+Require Export Morphisms Setoid Program Unicode.Utf8 Utf8_core.
 
 (* Equality *)
 Class Equiv A := equiv: relation A.
@@ -82,7 +82,7 @@ Definition sig_apart `{Apart A} (P: A → Prop) : Equiv (sig P) := λ x y, `x �
 Hint Extern 10 (Apart (sig _)) => apply @sig_apart : typeclass_instances.
 
 Class Cast A B := cast: A → B.
-Implicit Arguments cast [[Cast]].
+Arguments cast _ _ {Cast} _.
 Notation "' x" := (cast _ _ x) (at level 20) : mc_scope.
 Instance: Params (@cast) 3.
 Typeclasses Transparent Cast.
@@ -128,8 +128,8 @@ Class CatId O `{Arrows O} := cat_id: ∀ x, x ⟶ x.
 Class CatComp O `{Arrows O} := comp: ∀ x y z, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
 Class RalgebraAction A B := ralgebra_action: A → B → B.
 
-Implicit Arguments cat_id [[O] [H] [CatId] [x]].
-Implicit Arguments comp [[O] [H] [CatComp]].
+Arguments cat_id {O arrows CatId x}.
+Arguments comp {O arrow CatComp} _ _ _ _ _.
 
 Instance: Params (@mult) 2.
 Instance: Params (@plus) 2.
@@ -273,7 +273,6 @@ Notation "t $ r" := (t r) (at level 65, right associativity, only parsing) : mc_
 Notation "(∘)" := compose (only parsing) : mc_scope.
 
 (* Agda style! *)
-Require Import Streams.
 Notation "∞ X" := (Stream X) (at level 23) : mc_scope.
 Infix ":::" := Cons (at level 60, right associativity) : mc_scope.
 Notation "(:::)" := Cons (only parsing) : mc_scope.
@@ -287,12 +286,12 @@ Instance: Params (@abs) 6.
 
 (* Common properties: *)
 Class Inverse `(A → B) : Type := inverse: B → A.
-Implicit Arguments inverse [[A] [B] [Inverse]].
+Arguments inverse {A B} _ {Inverse} _.
 Typeclasses Transparent Inverse.
 Notation "f ⁻¹" := (inverse f) (at level 30) : mc_scope.
 
 Class Idempotent `{ea : Equiv A} (f: A → A → A) (x : A) : Prop := idempotency: f x x = x.
-Implicit Arguments idempotency [[A] [ea] [Idempotent]].
+Arguments idempotency {A ea} _ _ {Idempotent}.
 
 Class UnaryIdempotent `{Equiv A} (f: A → A) : Prop := unary_idempotent :> Idempotent (∘) f.
 Lemma unary_idempotency `{Equiv A} `{!Reflexive (=)} `{!UnaryIdempotent f} x : f (f x) = f x.
@@ -322,17 +321,18 @@ Notation ArrowsAssociative C := (∀ {w x y z: C}, HeteroAssociative (◎) (comp
 Class Involutive `{Equiv A} (f : A → A) := involutive: ∀ x, f (f x) = x.
 
 Class TotalRelation `(R : relation A) : Prop := total : ∀ x y : A, R x y ∨ R y x.
-Implicit Arguments total [[A] [TotalRelation]].
+Arguments total {A} _ {TotalRelation} _ _.
 
 Class Trichotomy `{Ae : Equiv A} `(R : relation A) := trichotomy : ∀ x y : A, R x y ∨ x = y ∨ R y x.
-Implicit Arguments trichotomy [[Ae] [A] [Trichotomy]].
+Arguments trichotomy {A Ae} _ {Trichotomy} _ _.
 
-Implicit Arguments irreflexivity [[A] [Irreflexive]].
+Arguments irreflexivity {A} _ {Irreflexive} _ _.
+
 Class CoTransitive `(R : relation A) : Prop := cotransitive : ∀ x y, R x y → ∀ z, R x z ∨ R z y.
-Implicit Arguments cotransitive [[A] [R] [CoTransitive] [x] [y]].
+Arguments cotransitive {A R CoTransitive x y} _ _.
 
 Class AntiSymmetric `{Ae : Equiv A} (R : relation A) : Prop := antisymmetry: ∀ x y, R x y → R y x → x = y.
-Implicit Arguments antisymmetry [[A] [Ae] [AntiSymmetric]].
+Arguments antisymmetry {A Ae} _ {AntiSymmetric} _ _ _ _.
 
 Class LeftHeteroDistribute {A B} `{Equiv C} (f : A → B → C) (g_r : B → B → B) (g : C → C → C) : Prop
   := distribute_l : ∀ a b c, f a (g_r b c) = g (f a b) (f a c).
@@ -369,8 +369,7 @@ Class NoZeroDivisors R `{Equiv R} `{Zero R} `{Mult R} : Prop
 Instance zero_product_no_zero_divisors `{ZeroProduct A} : NoZeroDivisors A.
 Proof. intros x [? [? [? E]]]. destruct (zero_product _ _ E); intuition. Qed.
 
-Class RingUnit `{Equiv R} `{Mult R} `{One R} (x : R) : Prop
-  := ring_unit : ∃ y, x * y = 1.
+Class RingUnit `{Equiv R} `{Mult R} `{One R} (x : R) : Prop := ring_unit : ∃ y, x * y = 1.
 
 (* A common induction principle for both the naturals and integers *)
 Class Biinduction R `{Equiv R} `{Zero R} `{One R} `{Plus R} : Prop

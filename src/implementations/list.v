@@ -159,11 +159,11 @@ Section equivlistA_misc.
   Qed.
 End equivlistA_misc.
 
-Implicit Arguments PermutationA [[A]].
+Arguments PermutationA {A} _ _ _.
 
 Notation "( x ::)" := (cons x) (only parsing) : mc_scope.
 Notation "(:: l )" := (λ x, cons x l) (only parsing) : mc_scope.
-Implicit Arguments app [[A]].
+Arguments app {A} _ _.
 
 Section contents.
   Context `{Setoid A}.

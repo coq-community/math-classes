@@ -12,7 +12,6 @@ Notation App := (ua.App msig False _ _).
 Notation Term V := (ua.Term0 msig V tt).
 
 Section contents.
-
   Context `{Monoid M}.
 
   Definition Vars V := V → M.
@@ -23,10 +22,9 @@ Section contents.
     fun i => match i with inl j => a j | inr j => b j end.
 
   Section Lookup.
-
     Class Lookup {A} (x: M) (f: Vars A) := { lookup: A; lookup_correct: f lookup ≡ x }.
 
-    Global Implicit Arguments lookup [[A] [Lookup]].
+    Global Arguments lookup {A} _ _ {Lookup}.
 
     Context (x: M) {A B} (va: Vars A) (vb: Vars B).
 
@@ -39,7 +37,6 @@ Section contents.
     Proof. apply lookup_correct. Defined.
 
     Global Program Instance: Lookup x (singlevar x) := { lookup := tt }.
-
   End Lookup.
 
   Instance: MonUnit (Term V) := λ V, ua.Op msig _ monoids.one.
@@ -49,12 +46,11 @@ Section contents.
   Notation eval V vs := (ua.eval _ (λ _, (vs: Vars V))).
 
   Section Quote.
-
     Class Quote {V} (l: Vars V) (n: M) {V'} (r: Vars V') :=
       { quote: Term (V + V')
       ; eval_quote: @eval (V+V') (merge l r) quote ≡ n }.
 
-    Implicit Arguments quote [[V] [l] [V'] [r] [Quote]].
+    Arguments quote {V l} _ {V' r Quote}.
 
     Global Program Instance quote_zero V (v: Vars V): Quote v mon_unit novars := { quote := mon_unit }.
 
@@ -78,7 +74,6 @@ Section contents.
 
     Global Program Instance quote_new_var V (v: Vars V) x: Quote v x (singlevar x) | 9
       := { quote := ua.Var msig _ (inr tt) tt }.
-
   End Quote.
 
   Definition quote': ∀ x {V'} {v: Vars V'} {d: Quote novars x v}, Term _ := @quote _ _.
@@ -87,8 +82,8 @@ Section contents.
     eval _ (merge novars v) quote ≡ x
       := @eval_quote _ _.
 
-  Implicit Arguments quote' [[V'] [v] [d]].
-  Implicit Arguments eval_quote' [[V'] [v] [d]].
+  Arguments quote' _ {V' v d}.
+  Arguments eval_quote' _ {V' v d}.
 
   Lemma quote_equality `{v: Vars V} `{v': Vars V'} (l r: M) `{!Quote novars l v} `{!Quote v r v'}:
     let heap := (merge v v') in
@@ -120,5 +115,4 @@ Section contents.
 
   Example ex x y z: x & (y & z) & mon_unit = mon_unit & (x & y) & z.
   Proof. monoid. Qed.
-
 End contents.

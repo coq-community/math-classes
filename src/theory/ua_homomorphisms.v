@@ -7,7 +7,6 @@ Section contents.
   Notation OpType := (OpType (sorts σ)).
 
   Section homo.
-
   Context (A B: sorts σ → Type)
     `{A_equiv : ∀ a, Equiv (A a)} `{B_equiv : ∀ a, Equiv (B a)}
     `{A_ops : AlgebraOps σ A} `{B_ops : AlgebraOps σ B}.
@@ -15,7 +14,7 @@ Section contents.
   Section with_f.
     Context (f : ∀ a, A a → B a).
 
-    Implicit Arguments f [[a]].
+    Arguments f {a} _.
 
     Fixpoint Preservation {n : OpType}: op_type A n → op_type B n → Prop :=
       match n with
@@ -61,7 +60,6 @@ Section contents.
       reflexivity.
      apply H2.
     Qed. (* todo: evil, get rid of *)
-
   End with_f.
 
   Lemma Preservation_proper' (f g: ∀ a, A a → B a)
@@ -104,7 +102,6 @@ Section contents.
      assert (∀ (a : sorts σ) (x0 : A a), y a x0 = x a x0) as E2. symmetry. apply E1.
      apply (Preservation_proper' y x E2 (σ o) (A_ops o) (B_ops o))...
     Qed.
-
   End homo.
 
   Global Instance id_homomorphism A

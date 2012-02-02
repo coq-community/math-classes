@@ -1,5 +1,5 @@
 Require Import
-  Relation_Definitions abstract_algebra interfaces.functors theory.categories.
+  abstract_algebra interfaces.functors theory.categories.
 
 Record Object := object
   { obj:> Type
@@ -9,7 +9,7 @@ Record Object := object
   ; CatComp_inst: CatComp obj
   ; Category_inst: Category obj }.
 
-Implicit Arguments object [[Arrows_inst] [Equiv_inst] [CatId_inst] [CatComp_inst] [Category_inst]].
+Arguments object _ {Arrows_inst Equiv_inst CatId_inst CatComp_inst Category_inst}.
 Existing Instance Arrows_inst.
 Hint Extern 0 (Equiv (_ ⟶ _)) => eapply @Equiv_inst : typeclass_instances.
 Existing Instance CatId_inst.
@@ -28,8 +28,8 @@ Record Arrow (x y: Object): Type := arrow
   ; Fmap_inst: Fmap map_obj
   ; Functor_inst: Functor map_obj _ }.
 
-Implicit Arguments arrow [[x][y]] [[x][y][Functor_inst]][[x][y][Fmap_inst][Functor_inst]].
-Implicit Arguments map_obj [[x][y]].
+Arguments arrow {x y} _ {Fmap Functor}.
+Arguments map_obj {x y} _ _.
 Existing Instance Fmap_inst.
 Existing Instance Functor_inst.
 
@@ -109,9 +109,9 @@ Section contents.
    rewrite F. apply preserves_id...
   Qed. (* Putting this in the "arrows" section above (where it belongs) triggers a Coq bug. *)
 
-  Global Instance: CatId Object := λ _, arrow id _ _.
+  Global Instance: CatId Object := λ _, arrow id.
 
-  Global Program Instance: CatComp Object := λ _ _ _ x y, arrow (x ∘ y) _ _.
+  Global Program Instance: CatComp Object := λ _ _ _ x y, arrow (x ∘ y).
 
   Program Let proper_arrows (x y z: Object) (x0 y0: y ⟶ z) (x1 y1: x ⟶ y)
     (f: ∀ v, @isoT _ _ _ _ _ (map_obj x0 v) (map_obj y0 v))

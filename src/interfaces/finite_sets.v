@@ -17,7 +17,7 @@ type class:
 *)
 
 Class SetType (A : Type) := set_type: Type.
-Implicit Arguments set_type [[SetType]].
+Arguments set_type _ {SetType}.
 (* We can't make this type transparent to typeclass resolution. *)
 
 (*

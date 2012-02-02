@@ -1,7 +1,5 @@
 Require Import
-  Ring
-  abstract_algebra
-  theory.fields.
+  Ring abstract_algebra theory.fields.
 
 (* The non zero elements of a field form a CommutativeMonoid. *)
 Section contents.

@@ -1,9 +1,7 @@
 Require Import 
   abstract_algebra interfaces.orders.
 
-
 (** Scalar multiplication function class *)
-
 Class ScalarMult K V := scalar_mult: K → V → V.
 Instance: Params (@scalar_mult) 3.
 
@@ -12,9 +10,7 @@ Notation "(·)" := scalar_mult (only parsing) : mc_scope.
 Notation "( x ·)" := (scalar_mult x) (only parsing) : mc_scope.
 Notation "(· x )" := (λ y, y · x) (only parsing) : mc_scope.
 
-
 (** The inproduct function class *)
-
 Class Inproduct K V := inprod : V → V → K.
 Instance: Params (@inprod) 3.
 
@@ -23,18 +19,14 @@ Notation "⟨ u , ⟩" := (λ v, ⟨u,v⟩) (at level 50, only parsing) : mc_sco
 Notation "⟨ , v ⟩" := (λ u, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
 Notation "x ⊥ y" := (⟨x,y⟩ = 0) (at level 70) : mc_scope.
 
-
 (** The norm function class *)
-
 Class Norm K V := norm : V → K.
 Instance: Params (@norm) 2.
 
 Notation "∥ L ∥" := (norm L) (at level 50) : mc_scope.
 Notation "∥·∥" := norm (only parsing) : mc_scope.
 
-
 (** Let [M] be an R-Module. *)
-
 Class Module (R M : Type)
   {Re Rplus Rmult Rzero Rone Rnegate}
   {Me Mop Munit Mnegate}
@@ -51,7 +43,6 @@ Class Module (R M : Type)
 (* TODO K is commutative, so derive right module laws? *)
 
 (** A module with a seminorm. *)
-
 Class Seminormed
   {R Re Rplus Rmult Rzero Rone Rnegate Rle Rlt Rapart}
   {M Me Mop Munit Mnegate Smult}

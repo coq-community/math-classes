@@ -2,7 +2,7 @@ Require Import
   canonical_names util.
 
 Class Decision P := decide: sumbool P (¬P).
-Implicit Arguments decide [[Decision]].
+Arguments decide _ {Decision}.
 
 Instance: ∀ P, Decision P → Stable P.
 Proof. firstorder. Qed.

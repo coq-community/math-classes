@@ -12,9 +12,9 @@ Require Import
   theory.rationals theory.shiftl theory.int_pow theory.nat_pow theory.abs.
 
 Record Dyadic Z := dyadic { mant: Z; expo: Z }.
-Implicit Arguments dyadic [[Z]].
-Implicit Arguments mant [[Z]].
-Implicit Arguments expo [[Z]].
+Arguments dyadic {Z} _ _.
+Arguments mant {Z} _.
+Arguments expo {Z} _.
 
 Infix "▼" := dyadic (at level 80) : mc_scope.
 

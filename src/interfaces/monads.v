@@ -11,9 +11,9 @@ Section ops.
   Class MonadJoin := join: ∀ {A}, M (M A) → M A.
 End ops.
 
-Implicit Arguments ret [[M] [MonadReturn] [A]].
-Implicit Arguments bind [[M] [MonadBind] [A] [B]].
-Implicit Arguments join [[M] [MonadJoin] [A]].
+Arguments ret {M MonadReturn A} _.
+Arguments bind {M MonadBind A B} _ _.
+Arguments join {M MonadJoin A} _.
 
 Notation "m ≫= f" := (bind f m) (at level 60, right associativity) : mc_scope.
 Notation "x ← y ; z" := (y ≫= (λ x : _, z)) (at level 65, next at level 35, right associativity, only parsing) : mc_scope.

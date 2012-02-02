@@ -12,8 +12,7 @@ Record Object (et: EquationalTheory) : Type := object
   ; variety_equiv: ∀ a, Equiv (variety_carriers a)
   ; variety_ops: AlgebraOps et variety_carriers
   ; variety_proof: InVariety et variety_carriers }.
-
-Implicit Arguments object [[variety_equiv] [variety_ops] [variety_proof]].
+Arguments object _ _ {variety_equiv variety_ops variety_proof}.
 
 (* Avoid Coq trying to apply variety_equiv to find arbitrary Equiv instances *)
 Hint Extern 0 (Equiv (variety_carriers _ _ _)) => eapply @variety_equiv : typeclass_instances.

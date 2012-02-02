@@ -2,9 +2,9 @@ Require Import
   Ring abstract_algebra interfaces.orders orders.rings.
 
 Inductive SRpair (SR : Type) := C { pos : SR ; neg : SR }.
-Implicit Arguments C [[SR]].
-Implicit Arguments pos [[SR]].
-Implicit Arguments neg [[SR]].
+Arguments C {SR} _ _.
+Arguments pos {SR} _.
+Arguments neg {SR} _.
 
 Section semiring_pairs.
 Context `{SemiRing SR} `{Apart SR}.

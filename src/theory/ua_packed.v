@@ -24,10 +24,9 @@ Section packed.
     end.
 
   Context (P: ∀ {s}, Applied s → Type).
-  Implicit Arguments P [[s]].
+  Arguments P {s} _.
 
   Section forallArgs.
-
     Fixpoint forallArgs {o} (a: Arguments o): Type :=
       match a with
       | NoMoreArguments _ => True
@@ -49,7 +48,6 @@ Section packed.
       exact tt.
      assumption.
     Defined. (* todo: write as term *)
-
   End forallArgs.
 
   Context
@@ -66,7 +64,6 @@ Section packed.
     | NoMoreArguments _ => I
     | MoreArguments _ _ x y => (better_Applied_rect x, better_args y)
     end.
-
 End packed.
 
 (* Conversion /from/ packed representation: *)

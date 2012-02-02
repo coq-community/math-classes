@@ -244,7 +244,6 @@ Lemma freedom_as_adjunction
     ∀ b, proves_free forget b (eta b) (phi b).
 Proof. exact (alt_adjunction_η_universal _ _ _ _). Qed.
 *)
-
-Implicit Arguments Producer [].
-Implicit Arguments HasProducts [[Arrows0] [H] [CatComp0] [H1] [H2] [H3]]. (* todo: rename args *)
-Implicit Arguments product [[X] [Producer] [I]].
+Arguments Producer : clear implicits.
+Arguments HasProducts _ {Arrows Eq CatComp H1 H2 H3}.
+Arguments product {X Producer I} _.

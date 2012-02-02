@@ -1,8 +1,8 @@
 Require Import
-  Relation_Definitions abstract_algebra theory.categories.
+  abstract_algebra theory.categories.
 
 Inductive Object := object { T:> Type; e: Equiv T; setoid_proof: Setoid T }.
-
+Arguments object _ {e setoid_prf}.
 Existing Instance e.
 Existing Instance setoid_proof.
 
@@ -38,7 +38,7 @@ Section contents.
    intros ? ? [??] ? ? E. simpl. now rewrite E.
   Qed.
 
-  Global Instance: Producer Object := λ _ c, object (∀ i, c i) (λ x y, ∀ i, x i = y i) _.
+  Global Instance: Producer Object := λ _ c, @object (∀ i, c i) (λ x y, ∀ i, x i = y i) _.
     (* todo: use pointwise_relation or something like that *)
 
   Section product.
@@ -65,5 +65,3 @@ Section contents.
   Global Instance mono (X Y: Object) (a: X ⟶ Y): Injective (` a) → Mono a.
   Proof. intros A ??? E1 ?? E2. apply A. apply (E1 _ _ E2). Qed.
 End contents.
-
-Implicit Arguments object [] [[setoid_proof]] [[e] [setoid_proof]].

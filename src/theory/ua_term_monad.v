@@ -61,7 +61,7 @@ Section contents.
       | Op o => Op _ _ o
       end.
 
-  Implicit Arguments gen_bind_aux [[A] [B] [s]].
+  Arguments gen_bind_aux {A B} _ {s} _.
 
   Instance gen_bind: MonadBind M := λ _ _ f z, gen_bind_aux f z.
 

@@ -16,7 +16,7 @@ Section for_signature.
     | App t y: Term V (ne_list.cons y t) → Term V (ne_list.one y) → Term V t
     | Op o: Term V (σ o).
 
-  Implicit Arguments Var [[V]].
+  Arguments Var {V} _ _.
 
   Fixpoint map_var `(f: V → W) `(t: Term V o): Term W o :=
     match t in Term _ o return Term W o with
@@ -34,7 +34,7 @@ Section for_signature.
   Section applications_ind.
     Context V (P: ∀ {a}, Term0 V a → Type).
 
-    Implicit Arguments P [[a]].
+    Arguments P {a} _.
 
     (* Proving such properties for nullary terms directly using Term's induction principle is
     problematic because it requires a property over terms of /any/ arity. Hence, we must first

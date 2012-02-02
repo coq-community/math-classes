@@ -17,30 +17,32 @@ Section natural_transformations_id_comp.
   Qed.
 End natural_transformations_id_comp.
 
+Record Object A `{Arrows A} `{∀ x y : A, Equiv (x ⟶ y)} `{!CatId A} `{!CatComp A}
+     B `{Arrows B} `{∀ x y : B, Equiv (x ⟶ y)} `{!CatId B} `{!CatComp B} : Type := object
+  { map_obj:> A → B
+  ; Fmap_inst:> Fmap map_obj
+  ; Functor_inst: Functor map_obj _ }.
+Existing Instance Fmap_inst.
+Existing Instance Functor_inst.
+
+Arguments Object _ {Aarrows Aeq Aid Acomp} _ {Barrows Beq Bid Bcomp}.
+Arguments object {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp} {Fmap Functor} _.
+Arguments map_obj {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp} _ _.
+
 Section contents.
-  Context `(Category A) `(Category B).
+  Context `{Category A} `{Category B}.
 
-  Record Object: Type := object
-    { map_obj:> A → B
-    ; Fmap_inst:> Fmap map_obj
-    ; Functor_inst: Functor map_obj _ }.
-
-  Implicit Arguments object [[Fmap_inst] [Functor_inst]].
-
-  Global Existing Instance Fmap_inst.
-  Global Existing Instance Functor_inst.
-
-  Record Arrow (F G : Object) : Type := arrow
+  Record Arrow (F G : Object A B) : Type := arrow
     { eta:> map_obj F ⇛ map_obj G
     ; NaturalTransformation_inst: NaturalTransformation eta }.
 
-  Implicit Arguments arrow [[F] [G]].
+  Arguments arrow {F G} _ _.
 
   Global Existing Instance NaturalTransformation_inst.
-  Global Instance: Arrows Object := Arrow.
+  Global Instance: Arrows (Object A B) := Arrow.
 
   Section arrow_setoid.
-    Context (F G: Object).
+    Context (F G : Object A B).
 
     Global Program Instance e: Equiv (F ⟶ G) :=
       λ m n, ∀ x: A, m x = n x.
@@ -58,27 +60,24 @@ Section contents.
     Global Instance: Setoid (F ⟶ G) := {}.
   End arrow_setoid.
 
-  Global Instance: CatId Object := λ _, arrow (λ _, cat_id) _.
-  Global Instance: CatComp Object := λ _ _ _ m n, arrow (λ a, m a ◎ n a) _.
+  Global Instance: CatId (Object A B) := λ _, arrow (λ _, cat_id) _.
+  Global Instance: CatComp (Object A B) := λ _ _ _ m n, arrow (λ a, m a ◎ n a) _.
 
-  Global Instance: ∀ x y z: Object,
+  Global Instance: ∀ x y z: Object A B,
     Proper ((=) ==> (=) ==> (=)) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof.
     intros ????? Hx ?? Hy a.
     simpl. rewrite (Hx a), (Hy a). reflexivity.
   Qed.
 
-  Instance: forall x y: Object, LeftIdentity (comp x y y) cat_id.
+  Instance: ∀ x y: Object A B, LeftIdentity (comp x y y) cat_id.
   Proof. repeat intro. simpl. apply left_identity. Qed.
 
-  Instance: forall x y: Object, RightIdentity (comp x x y) cat_id.
+  Instance: ∀ x y: Object A B, RightIdentity (comp x x y) cat_id.
   Proof. repeat intro. simpl. apply right_identity. Qed.
 
-  Instance: ArrowsAssociative Object.
+  Instance: ArrowsAssociative (Object A B).
   Proof. repeat intro. simpl. apply associativity. Qed.
 
-  Global Instance: Category Object := {}.
+  Global Instance: Category (Object A B) := {}.
 End contents.
-
-Implicit Arguments Object [[Arrows0] [H] [CatId0] [CatComp0] [Arrows1] [H1] [CatId1] [CatComp1]].
-Implicit Arguments CatComp_instance_0 [[A] [Arrows0] [CatId0] [CatComp0] [B] [Arrows1] [H1] [CatId1] [CatComp1] [H2]].

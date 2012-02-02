@@ -5,9 +5,7 @@ Section contents.
   Variable Sorts: Set.
 
   Section map_op.
-
     (* Given maps between two realizations of the sorts, there are maps between the corresponding op_types*)
-
     Context {A B: Sorts → Type}
       `{∀ a, Equiv (A a)} `{∀ a, Equiv (B a)}
       (ab: ∀ a, A a → B a)
@@ -24,7 +22,6 @@ Section contents.
     Global Instance map_op_proper o: Proper ((=) ==> (=)) (@map_op o).
     Proof. unfold equiv. induction o; simpl; firstorder. Qed.
       (* todo: can't we make this nameless? *)
-
   End map_op.
 
   (* If the maps between the sorts are eachother's inverse, then so are the two generated op_type maps: *)
@@ -32,10 +29,10 @@ Section contents.
   Context {A B: Sorts → Type} {e: ∀ a, Equiv (B a)} `{∀ b, Equivalence (e b)}
    (ab: ∀ a, A a → B a) (ba: ∀ a, B a → A a).
 
-  Implicit Arguments ab [a].
-  Implicit Arguments ba [a].
+  Arguments ab [a] _.
+  Arguments ba [a] _.
 
-   Context `(iso: ∀ a (x: B a), ab (ba x) = x).
+  Context `(iso: ∀ a (x: B a), ab (ba x) = x).
 
   Lemma map_iso o (x: op_type B o) (xproper: Proper (=) x):
     map_op ab ba (map_op ba ab x) = x.
@@ -47,5 +44,4 @@ Section contents.
     apply IHo, xproper...
    apply xproper. rewrite iso, H0...
   Qed.
-
 End contents.

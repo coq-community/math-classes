@@ -5,10 +5,10 @@ Require Import
 Inductive Frac R `{Rap : Equiv R} `{Rzero : Zero R} : Type := frac { num: R; den: R; den_ne_0: den ≠ 0 }.
   (* We used to have [den] and [den_nonzero] bundled, which did work relatively nicely with Program, but the
    extra messyness in proofs etc turned out not to be worth it. *)
-Implicit Arguments frac [[R] [Rap] [Rzero]].
-Implicit Arguments num [[R] [Rap] [Rzero]].
-Implicit Arguments den [[R] [Rap] [Rzero]].
-Implicit Arguments den_ne_0 [[R] [Rap] [Rzero]].
+Arguments frac {R Rap Rzero} _ _ _.
+Arguments num {R Rap Rzero} _.
+Arguments den {R Rap Rzero} _.
+Arguments den_ne_0 {R Rap Rzero} _ _.
 
 Section contents.
 Context `{IntegralDomain R} `{∀ x y, Decision (x = y)}.

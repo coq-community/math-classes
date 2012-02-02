@@ -1,5 +1,4 @@
 Require Import
-  Relation_Definitions
   abstract_algebra ChoiceFacts interfaces.functors
   theory.categories categories.categories.
 
@@ -47,7 +46,7 @@ Section contents.
   Notation ith_obj i := (categories.object (O i)).
 
   Program Definition project i: categories.object (Object O) ⟶ ith_obj i :=
-    categories.arrow (λ d, d i) (λ _ _ a, a i) _.
+    @categories.arrow _ _ (λ d, d i) (λ _ _ a, a i) _.
   Next Obligation. Proof. (* functorial *)
    constructor; intros; try reflexivity; try apply _.
    constructor; try apply _.
@@ -62,7 +61,7 @@ Section contents.
       (* todo: really necessary? *)
 
     Program Definition factor: C ⟶ product_object
-      := categories.arrow (λ (c: C) i, X i c) (λ (x y: C) (c: x ⟶ y) i, fmap (X i) c) _.
+      := @categories.arrow _ _ (λ (c: C) i, X i c) (λ (x y: C) (c: x ⟶ y) i, fmap (X i) c) _.
     Next Obligation. Proof with try reflexivity; intuition. (* functorial *)
      constructor; intros; try apply _.
        constructor; try apply _.

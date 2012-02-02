@@ -4,9 +4,7 @@ Require Import Morphisms Program Unicode.Utf8.
  holes/variables in the expression: *)
 
 Module simple.
-
   (* An example term language and evaluation: *)
-
   Inductive Expr := Plus (a b: Expr) | Mult (a b: Expr) | Zero | One.
 
   Fixpoint eval (e: Expr): nat :=
@@ -18,9 +16,7 @@ Module simple.
     end.
 
   (* First up is the simplest approach I can think of. *)
-
   Module approach_A.
-
     Class Quote (n: nat) := quote: Expr.
 
     Implicit Arguments quote [[Quote]].
@@ -44,7 +40,6 @@ Module simple.
     Lemma example: (1 + 0 + 1) * (1 + 1) = (1 + 1) + (1 + 1).
      do_quote.
     Admitted.
-
   End approach_A.
 
   (* This works, but there's something unsatisfying about this quotation, because
@@ -55,7 +50,6 @@ Module simple.
   are all proved locally correct at their definition: *)
 
   Module approach_B.
-
     Class Quote (n: nat) := { quote: Expr; eval_quote: n = eval quote  }.
 
     Implicit Arguments quote [[Quote]].
@@ -82,25 +76,20 @@ Module simple.
     Lemma example: (1 + 0 + 1) * (1 + 1) = (1 + 1) + (1 + 1).
      apply do_quote.
     Admitted.
-
   End approach_B.
-
 End simple.
 
 (* So far so good, but the variable-less scenario isn't really interesting. We now rework approach B
  to include quotation of holes/variables, including recognition of syntactically identical ones. *)
 
 Module with_vars.
-
 (* Some random utilities: *)
 
 Lemma sum_assoc {A B C}: (A+B)+C → A+(B+C). intuition. Defined.
 Lemma bla {A B C}: (A+B) → A+(B+C). intuition. Defined.
 Lemma monkey {A B}: False + A → A + B. intuition. Defined.
 
-
 Section obvious.
-
   Class Obvious (T: Type) := obvious: T.
 
   Context (A B C: Type).
@@ -112,7 +101,6 @@ Section obvious.
   Global Instance obvious_sum_src  `{Obvious (A → C)} `{Obvious (B → C)}: Obvious (A+B → C). repeat intro. intuition. Defined.
   Global Instance obvious_sum_dst_l `{Obvious (A → B)}: Obvious (A → B+C). repeat intro. intuition. Defined.
   Global Instance obvious_sum_dst_r `{Obvious (A → B)}: Obvious (A → C+B). repeat intro. intuition. Defined.
-
 End obvious.
 
 (* Again our example term language, this time without plus/one (they're boring), but with Var
@@ -236,7 +224,6 @@ Definition merge {A B} (a: Vars A) (b: Vars B): Vars (A+B) :=
  lookup with type classes: *)
 
 Section Lookup.
-
   (* Given a heap and value, Lookup instances give the value's index in the heap: *)
 
   Class Lookup {A} (x: Value) (f: Vars A) := { lookup: A; lookup_correct: f lookup = x }.
@@ -265,7 +252,6 @@ Section Lookup.
   (* Note that we don't have any fallback/default instances at this point. We /will/ introduce
   such an instance for our Quote class later on, which will add a new variable to the heap
   if another Quote instance that relies on Lookup into the "current" heap fails. *)
-
 End Lookup.
 
 (* One useful operation we need before we get to Quote relates to variables and expression
@@ -292,7 +278,6 @@ Qed.
 (* Finally, Quote itself: *)
 
 Section Quote.
-
   (* In Quote, the idea is that V, l, and n are all "input" variables, while V' and r are "output"
   variables (in the sense that we will rely on unification to generate them. V and l represent
   the "current heap", n represents the value we want to quote, and V' and r' represent the
@@ -345,7 +330,6 @@ Section Quote.
 
   Global Program Instance quote_new_var V (v: Vars V) x: Quote v x (singlevar x) | 9
     := { quote := Var (inr tt) }.
-
 End Quote.
 
 (* Note: Explicitly using dynamically configured variable index sets instead of plain lists
@@ -395,7 +379,6 @@ Section inspect.
 
   (* I think adding some additional Quote instances might let us
    get rid of the False's, but at the moment I see little reason to. *)
-
 End inspect.
 
 (* If we want to quote an equation between two expressions we should make

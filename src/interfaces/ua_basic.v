@@ -80,7 +80,7 @@ Section with_sorts.
 
 End with_sorts.
 
-Implicit Arguments op_type [[Sorts]].
+Arguments op_type {Sorts} _ _.
 
 (* Avoid eager application *)
 Hint Extern 0 (Equiv (op_type _ _ )) => eapply @op_type_equiv : typeclass_instances.

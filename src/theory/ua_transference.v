@@ -10,8 +10,8 @@ Section contents.
     `{!HomoMorphism et A B ab} `{!HomoMorphism et B A ba}
     (i: iso_arrows (varieties.arrow et ab) (varieties.arrow et ba)).
 
-  Implicit Arguments ab [[a]].
-  Implicit Arguments ba [[a]].
+  Arguments ab {a} _.
+  Arguments ba {a} _.
 
   Let ab_proper a: Proper ((=) ==> (=)) (@ab a).
   Proof. apply _. Qed.

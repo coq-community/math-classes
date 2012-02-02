@@ -18,7 +18,7 @@ Section for_φAdjunction.
 
   Context `(φAdjunction).
 
-  Implicit Arguments φ [[d] [c]].
+  Arguments φ {d c} _.
 
   Instance: forall c d, Bijective (@φ c d) := φ_adjunction_bijective F G.
   Instance: Functor F F'  := φ_adjunction_left_functor F G.

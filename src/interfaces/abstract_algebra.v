@@ -30,7 +30,7 @@ Class StrongSetoid A {Ae : Equiv A} `{Aap : Apart A} : Prop :=
   ; strong_setoid_cotrans :> CoTransitive (≶) 
   ; tight_apart : ∀ x y, ¬x ≶ y ↔ x = y }.
 
-Implicit Arguments tight_apart [[A] [Ae] [Aap] [StrongSetoid]].
+Arguments tight_apart {A Ae Aap StrongSetoid} _ _.
 
 Section setoid_morphisms.
   Context {A B} {Ae : Equiv A} {Aap : Apart A} {Be : Equiv B} {Bap : Apart B} (f : A → B).
@@ -46,7 +46,7 @@ Section setoid_morphisms.
     ; strong_extensionality : ∀ x y, f x ≶ f y → x ≶ y }.
 End setoid_morphisms.
 
-Implicit Arguments sm_proper [[A] [B] [Ae] [Be] [f] [Setoid_Morphism]].
+Arguments sm_proper {A B Ae Be f Setoid_Morphism} _ _ _.
 
 Section setoid_binary_morphisms.
   Context {A B C} {Ae: Equiv A} {Aap: Apart A} 
@@ -159,10 +159,10 @@ take the right way
 *)
 Hint Extern 10 (Ring _) => apply @intdom_ring : typeclass_instances.
 
-Implicit Arguments recip_inverse [[A] [Ae] [Aplus] [Amult] [Azero] [Aone] [Anegate] [Aap] [Arecip] [Field]].
-Implicit Arguments dec_recip_inverse [[A] [Ae] [Aplus] [Amult] [Azero] [Aone] [Anegate] [Adec_recip] [DecField]].
-Implicit Arguments dec_recip_0 [[A] [Ae] [Aplus] [Amult] [Azero] [Aone] [Anegate] [Adec_recip] [DecField]].
-Implicit Arguments sg_op_proper [[A] [Ae] [Aop] [SemiGroup]].
+Arguments recip_inverse {A Ae Aplus Amult Azero Aone Anegate Aap Arecip Field} _.
+Arguments dec_recip_inverse {A Ae Aplus Amult Azero Aone Anegate Adec_recip DecField} _ _.
+Arguments dec_recip_0 {A Ae Aplus Amult Azero Aone Anegate Adec_recip DecField}.
+Arguments sg_op_proper {A Ae Aop SemiGroup} _ _ _ _ _ _.
 
 Section lattice.
   Context A `{Ae: Equiv A} {Ajoin: Join A} {Ameet: Meet A} `{Abottom : Bottom A}.
@@ -194,7 +194,7 @@ Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatC
       (* note: no equality on objects. *)
 
 (* todo: use my comp everywhere *)
-Implicit Arguments comp_assoc [[O] [Arrows0] [H] [CatId0] [CatComp0] [Category] [w] [x] [y] [z]].
+Arguments comp_assoc {O arrows eq CatId CatComp Category w x y z} _ _ _.
 
 Section morphism_classes.
   Context {A B} {Ae : Equiv A} {Be : Equiv B}.

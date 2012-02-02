@@ -1,11 +1,8 @@
 Require Import
-  Relation_Definitions
   abstract_algebra theory.setoids interfaces.functors theory.categories.
-
 Require categories.setoids.
 
 Section contents.
-
   Context `{Category C} (x: C).
 
   Definition homFrom (y: C): setoids.Object := setoids.object (x ⟶ y).
@@ -30,5 +27,4 @@ Section contents.
    symmetry.
    apply comp_assoc.
   Qed.
-
 End contents.

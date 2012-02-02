@@ -1,7 +1,7 @@
 Require
   JMrelation.
 Require Import
-  Relation_Definitions abstract_algebra interfaces.functors theory.categories.
+  abstract_algebra interfaces.functors theory.categories.
 
 Record Object := object
   { obj:> Type
@@ -11,7 +11,7 @@ Record Object := object
   ; CatComp_inst: CatComp obj
   ; Category_inst: Category obj }.
 
-Implicit Arguments object [[Arrows_inst] [Equiv_inst] [CatId_inst] [CatComp_inst] [Category_inst]].
+Arguments object _ {Arrows Equiv CatId CatComp Category}.
 Existing Instance Arrows_inst.
 Existing Instance Equiv_inst.
 Existing Instance CatId_inst.
@@ -23,7 +23,8 @@ Record Arrow (x y: Object): Type := arrow
   ; Fmap_inst: Fmap map_obj
   ; Functor_inst: Functor map_obj _ }.
 
-Implicit Arguments arrow [[x] [y]].
+Arguments arrow {x y} _ _ _.
+Arguments map_obj {x y} _ _.
 Existing Instance Fmap_inst.
 Existing Instance Functor_inst.
 
@@ -31,8 +32,6 @@ Instance: Arrows Object := Arrow.
 (* Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances. *)
 
 Section contents.
-  Implicit Arguments map_obj [[x] [y]].
-
   Section more_arrows.
     Context (x y: Object).
 

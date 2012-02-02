@@ -10,7 +10,7 @@ Record Object (sign: Signature) : Type := object
   ; algebra_ops: AlgebraOps sign algebra_carriers
   ; algebra_proof: Algebra sign algebra_carriers }.
 
-Implicit Arguments object [[algebra_equiv] [algebra_ops] [algebra_proof]].
+Arguments object _ _ {algebra_equiv algebra_ops algebra_proof}.
 
 (* Avoid Coq trying to apply algebra_equiv to find arbitrary Equiv instances *)
 Hint Extern 0 (Equiv (algebra_carriers _ _ _)) => eapply @algebra_equiv : typeclass_instances.
