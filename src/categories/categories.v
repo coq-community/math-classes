@@ -130,7 +130,7 @@ Section contents.
    rewrite <- associativity.
    rewrite (associativity _ _ (fmap x0 _)).
    rewrite e1, left_identity, <- preserves_comp, e3, preserves_id...
-  Defined.
+  Qed.
 
   Global Instance: ∀ x y z: Object, Proper ((=) ==> (=) ==> (=)) ((◎): (y ⟶ z) → (x ⟶ y) → (x ⟶ z)).
   Proof with try apply _.

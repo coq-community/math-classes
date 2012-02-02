@@ -37,7 +37,7 @@ Instance: ∀ x y : Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
 (* * Embedding N into Z *)
-Instance inject_N_Z: Cast BinNat.N.t Z := Z_of_N.
+Instance inject_N_Z: Cast N Z := Z_of_N.
 
 Instance: SemiRing_Morphism Z_of_N.
 Proof.
@@ -91,11 +91,7 @@ Instance Z_to_Npair: Inverse Npair_to_Z := λ x,
   end.
 
 Instance: Surjective Npair_to_Z.
-Proof.
-  split; try apply _.
-  intros x y E. compute in E. rewrite E. (* FIXME: loop without the compute *)
-  now destruct y as [|p|p].
-Qed.
+Proof. split; try apply _. intros [|?|?] ? E; now rewrite <-E. Qed. 
 
 Instance: Bijective Npair_to_Z := {}.
 
