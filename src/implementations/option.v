@@ -1,6 +1,5 @@
 Require Import
-  Morphisms Program
-  abstract_algebra interfaces.monads jections.
+  abstract_algebra interfaces.monads jections theory.monads.
 
 Inductive option_equiv A `{Equiv A} : Equiv (option A) :=
   | option_equiv_Some : Proper ((=) ==> (=)) Some
@@ -69,8 +68,17 @@ End contents.
 
 Hint Extern 10 (Equiv (option _)) => apply @option_equiv : typeclass_instances.
 
+Lemma option_equiv_eq {A} (x y : option A) : 
+  @option_equiv A (≡) x y ↔ x ≡ y.
+Proof.
+  split.
+   induction 1. now f_equal. reflexivity.
+  intros. subst.
+  now assert (@Setoid A (@eq A)) by (split; apply _).
+Qed.
+
 Instance option_ret: MonadReturn option := λ A x, Some x.
-Instance option_bind: MonadBind option := λ A B x f,
+Instance option_bind: MonadBind option := λ A B f x,
   match x with
   | Some a => f a
   | None => None
@@ -79,27 +87,33 @@ Instance option_bind: MonadBind option := λ A B x f,
 Instance option_ret_proper `{Equiv A} : Proper ((=) ==> (=)) (option_ret A).
 Proof. intros x y E. now apply option_equiv_Some. Qed.
 
-Instance option_bind_proper `{Setoid A} `{Setoid B}: Proper (=) (option_bind A B).
+Instance option_bind_proper `{Setoid A} `{Setoid (option B)}: Proper (=) (option_bind A B).
 Proof.
-  intros x₁ x₂. destruct 1.
-   intros f₁ f₂ E₂. unfold option_bind. simpl. now apply E₂.
+  intros f₁ f₂ E1 x₁ x₂ [?|].
+   unfold option_bind. simpl. now apply E1.
   easy.
 Qed.
 
 Instance: Monad option.
 Proof.
-  repeat (split; try apply _); unfold bind, ret, option_bind, option_ret.
-    easy.
-   now intros ? ? ? [x|].
-  intros ? ? ? ? ? ? ? ? ? [x|] f g.
-   now destruct (f x).
+  repeat (split; try apply _); unfold bind, ret, option_bind, option_ret, compose.
+    intros. now apply setoids.ext_equiv_refl.
+   now intros ? ? ? [?|].
+  intros A ? B ? C ? ? f [???] g [???] [x|] [y|] E; try solve [inversion_clear E].
+   apply (injective _) in E. cut (g x = g y); [|now rewrite E].
+   case (g x), (g y); intros E2; inversion_clear E2. now f_equiv. easy.
   easy.
 Qed.
+
+Instance option_map: SFmap option := option_map.
+
+Instance: FullMonad option.
+Proof. apply @monad_default_full_monad. apply _. Qed.
 
 Section map.
   Context `{Setoid A} `{Setoid B} `{!Injective (f : A → B)}.
 
-  Global Instance: Injective (map f).
+  Global Instance: Injective (sfmap f).
   Proof.
     pose proof (injective_mor f).
     repeat (split; try apply _).

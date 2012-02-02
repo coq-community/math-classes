@@ -1,11 +1,12 @@
 Require Import
   abstract_algebra.
-Require theory.setoids.
+Require 
+  theory.setoids.
 
 Section functor_class.
-  Context `{Category C} `{Category D} (map_obj: C → D).
+  Context `{Category C} `{Category D} (M: C → D).
 
-  Class Fmap: Type := fmap: ∀ {v w: C}, (v ⟶ w) → (map_obj v ⟶ map_obj w).
+  Class Fmap: Type := fmap: ∀ {v w: C}, (v ⟶ w) → (M v ⟶ M w).
 
   Class Functor `(Fmap): Prop :=
     { functor_from: Category C
@@ -13,7 +14,6 @@ Section functor_class.
     ; functor_morphism:> ∀ a b: C, Setoid_Morphism (@fmap _ a b)
     ; preserves_id: `(fmap (cat_id: a ⟶ a) = cat_id)
     ; preserves_comp `(f: y ⟶ z) `(g: x ⟶ y): fmap (f ◎ g) = fmap f ◎ fmap g }.
-
 End functor_class.
 
 Typeclasses Transparent Fmap.
@@ -68,7 +68,6 @@ Section id_functor.
    change (Setoid_Morphism (id: (a ⟶ b) → (a ⟶ b))).
    apply _.
   Qed.
-
 End id_functor.
 
 Section compose_functors.
@@ -98,7 +97,6 @@ Section compose_functors.
    change (fmap f (fmap g (f0 ◎ g0)) = fmap f (fmap g f0) ◎ fmap f (fmap g g0)).
    repeat try rewrite preserves_comp...
   Qed.
-
 End compose_functors.
 
 (** The Functor class is nice and abstract and theory-friendly, but not as convenient
@@ -118,20 +116,13 @@ End compose_functors.
  To justify this definition, in theory/functors we show that instances of this new functor
  class do indeed give rise to instances of the original nice abstract Functor class. *)
 
-Section setoid_functor.
-  Context (map_obj: Type → Type) {map_eq: ∀ `{Equiv A}, Equiv (map_obj A)}.
+Class SFmap (M : Type → Type) := sfmap: ∀ `(A → B), (M A → M B).
 
-  Class SFmap: Type := sfmap: ∀ `(v → w), (map_obj v → map_obj w).
-
-  Class SFunctor `{SFmap}: Prop :=
-    { sfunctor_makes_setoids `{Setoid A}: Setoid (map_obj A)
-    ; sfunctor_makes_morphisms `{Equiv v} `{Equiv w} (f: v → w):>
-        Setoid_Morphism f → Setoid_Morphism (sfmap f)
-    ; sfunctor_morphism `{Setoid v} `{Setoid w}:>
-        Proper (((=) ==> (=)) ==> ((=) ==> (=))) (@sfmap _ v w)
-    ; sfunctor_id `{Setoid v}: sfmap id = id
-    ; sfunctor_comp `{Equiv a} `{Equiv b} `{Equiv c} (f: b → c) (g: a → b):
-        Setoid_Morphism f → Setoid_Morphism g →
-        sfmap (f ∘ g) = sfmap f ∘ sfmap g }.
-
-End setoid_functor.
+Class SFunctor (M : Type → Type) 
+     `{∀ `{Equiv A}, Equiv (M A)} `{SFmap M} : Prop :=
+  { sfunctor_setoid `{Setoid A} :> Setoid (M A)
+  ; sfmap_proper `{Setoid A} `{Setoid B} :>
+      Proper (((=) ==> (=)) ==> ((=) ==> (=))) (@sfmap M _ A B)
+  ; sfmap_id `{Setoid A} : sfmap id = id
+  ; sfmap_comp `{Equiv A} `{Equiv B} `{Equiv C} `{!Setoid_Morphism (f : B → C)} `{!Setoid_Morphism (g : A → B)} :
+      sfmap (f ∘ g) = sfmap f ∘ sfmap g }.

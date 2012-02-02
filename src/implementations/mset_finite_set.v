@@ -1,6 +1,6 @@
 Require Import
   MSetInterface MSetFacts MSetProperties
-  implementations.list_finite_set theory.finite_sets
+  implementations.list implementations.list_finite_set theory.finite_sets
   interfaces.finite_sets interfaces.orders abstract_algebra.
 
 Module MSet_FSet (E : DecidableType) (Import set : WSetsOn E).

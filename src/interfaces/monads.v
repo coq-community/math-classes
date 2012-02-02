@@ -1,50 +1,55 @@
 Require Import
   abstract_algebra canonical_names.
+Require Export
+  interfaces.functors.
 
 Section ops.
   Context (M : Type → Type).
 
   Class MonadReturn := ret: ∀ {A}, A → M A.
-  Class MonadBind := bind: ∀ {A B}, M A → (A → M B) → M B.
+  Class MonadBind := bind: ∀ {A B}, (A → M B) → M A → M B.
+  Class MonadJoin := join: ∀ {A}, M (M A) → M A.
 End ops.
 
 Implicit Arguments ret [[M] [MonadReturn] [A]].
 Implicit Arguments bind [[M] [MonadBind] [A] [B]].
+Implicit Arguments join [[M] [MonadJoin] [A]].
 
-Infix ">>=" := bind (at level 50, no associativity).
-Notation "x ← y ; z" := (y >>= (λ x : _, z)) (at level 30, right associativity).
-Notation "x >> y" := (_ ← x ; y) (at level 30, right associativity).
+Notation "m ≫= f" := (bind f m) (at level 60, right associativity).
+Notation "x ← y ; z" := (y ≫= (λ x : _, z)) (at level 65, next at level 35, right associativity, only parsing).
+(* Notation "x ≫ y" := (_ ← x ; y) (at level 33, right associativity, only parsing). *)
 
-Section structure.
-  Context (M : Type → Type).
+Class Monad (M : Type → Type) `{∀ A, Equiv A → Equiv (M A)} 
+     `{MonadReturn M} `{MonadBind M} : Prop :=
+  { mon_ret_proper `{Setoid A} :> Proper ((=) ==> (=)) (@ret _ _ A)
+  ; mon_bind_proper `{Setoid A} `{Setoid B} :>
+      Proper (((=) ==> (=)) ==> (=) ==> (=)) (@bind _ _ A B)
+  ; mon_setoid `{Setoid A} :> Setoid (M A)
+  ; bind_lunit `{Equiv A} `{Setoid B} `{!Setoid_Morphism (f : A → M B)} : bind f ∘ ret = f
+  ; bind_runit `{Setoid A} : bind ret = id
+  ; bind_assoc `{Equiv A} `{Equiv B} `{Setoid C} 
+         `{!Setoid_Morphism (f : B → M C)} `{!Setoid_Morphism (g : A → M B)} :
+      bind f ∘ bind g = bind (bind f ∘ g) }.
 
-  Class Monad {Me: ∀ A, Equiv A → Equiv (M A)} `{MonadReturn M} `{MonadBind M} : Prop :=
-    (* Propers: *)
-    { ret_proper:> ∀ `{Setoid A}, Proper ((=) ==> (=)) (@ret _ _ A)
-    ; bind_proper:> ∀ `{Setoid A} `{Setoid B},
-       Proper ((=) ==> ((=) ==> (=)) ==> (=)) (@bind _ _ A B)
-    ; mon_setoid: ∀ `{Setoid A}, Setoid (M A)
+Class StrongMonad (M : Type → Type) `{∀ A, Equiv A → Equiv (M A)}
+     `{MonadReturn M} `{SFmap M} `{MonadJoin M} : Prop :=
+  { smon_ret_proper `{Setoid A} :> Proper ((=) ==> (=)) (@ret _ _ A)
+  ; smon_join_proper `{Setoid A} :> Proper ((=) ==> (=)) (@join _ _ A)
+  ; smon_sfunctor :> SFunctor M  
+  ; sfmap_ret `{Equiv A} `{Equiv B} `{!Setoid_Morphism (f : A → B)} :
+      sfmap f ∘ ret = ret ∘ f
+  ; sfmap_join `{Equiv A} `{Equiv B} `{!Setoid_Morphism (f : A → B)} : 
+      sfmap f ∘ join = join ∘ sfmap (sfmap f)
+  ; join_ret `{Setoid A} :
+      join ∘ ret = id
+  ; join_sfmap_ret `{Setoid A} :
+      join ∘ sfmap ret = id
+  ; join_sfmap_join `{Setoid A} :
+      join ∘ sfmap join = join ∘ join }.
 
-    (* Laws: *)
-    ; mon_lunit: ∀ `{Setoid A} `{Setoid B} (x: A) (f: A → M B), ret x >>= f = f x
-    ; mon_runit: ∀ `{Setoid A} (m: M A), m >>= ret = m
-    ; mon_assoc: ∀ `{Setoid A} `{Setoid B} `{Setoid C} (n: M A) (f: A → M B) (g: B → M C),
-        (n >>= f) >>= g = n >>= (λ x, f x >>= g) }.
-End structure.
-
-Section monadic_functions.
-  Context `{Monad M}.
-
-  Local Existing Instance mon_setoid.
-
-  Definition map `(f : A → B) : M A → M B := λ ma, a ← ma ; ret (f a).
-
-  Global Instance map_proper `{Setoid A} `{Setoid B} `(f : A → B) `{!Proper ((=) ==> (=)) f}:
-    Proper ((=) ==> (=)) (map f).
-  Proof.
-    assert (Proper ((=) ==> (=)) (λ a : A, ret (f a))) by solve_proper.
-    unfold map. solve_proper.
-  Qed.
-
-  Definition join `(mma : M (M A)) : M A := ma ← mma ; ma.
-End monadic_functions.
+Class FullMonad (M : Type → Type) `{∀ A, Equiv A → Equiv (M A)} 
+     `{MonadReturn M} `{MonadBind M} `{SFmap M} `{MonadJoin M} : Prop := 
+  { full_mon_mon :> Monad M
+  ; full_smon :> StrongMonad M
+  ; bind_as_join_sfmap `{Equiv A} `{Setoid B} `{!Setoid_Morphism (f : A → M B)} :
+      bind f = join ∘ sfmap f }.

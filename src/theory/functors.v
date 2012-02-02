@@ -5,45 +5,49 @@ Require
   categories.setoids.
 
 Section setoid_functor_as_posh_functor.
+Context `{Pfunctor : @SFunctor F map_eq map}.
 
-  Context `{SFunctor F}.
+Global Instance sfmap_mor `{Setoid_Morphism A B f} :
+  Setoid_Morphism (sfmap f).
+Proof.
+  pose proof (setoidmor_a f). pose proof (setoidmor_b f).
+  split; try apply _.
+Qed.
 
-  Program Definition map_setoid: setoids.Object → setoids.Object :=
-    λ o, setoids.object (F (setoids.T o)) (map_eq (setoids.T o) (setoids.e o)) _.
+Lemma sfmap_id_applied `{Setoid A} (x : F A) :
+  sfmap id x = x.
+Proof. 
+  change (sfmap id x = id x). 
+  apply setoids.ext_equiv_applied, sfmap_id.
+Qed.
 
-  Next Obligation. Proof.
-   destruct o.
-   apply (@sfunctor_makes_setoids F _ _ _).
-   assumption.
-  Qed.
+Lemma sfmap_comp_applied `{Equiv A} `{Equiv B} `{Equiv C} 
+     `{!Setoid_Morphism (f : B → C)} `{!Setoid_Morphism (g : A → B)} (x : F A) :
+  sfmap (f ∘ g) x = sfmap f (sfmap g x).
+Proof. 
+  change (sfmap (f ∘ g) x = (sfmap f ∘ sfmap g) x).
+  pose proof (setoidmor_a g).
+  apply setoids.ext_equiv_applied. now apply sfmap_comp.
+Qed.
 
-  Program Instance: Fmap map_setoid := λ v w X, @sfmap F H _ _ (proj1_sig X).
+Program Definition map_setoid: setoids.Object → setoids.Object :=
+  λ o, @setoids.object (F (setoids.T o)) (map_eq (setoids.T o) (setoids.e o)) _.
 
-  Next Obligation. Proof.
-   destruct v, w, X. simpl in *.
-   apply sfunctor_makes_morphisms; apply _.
-  Qed.
+Program Instance: Fmap map_setoid := λ v w x, @sfmap F map _ _ (`x).
+Next Obligation. destruct v, w, x. simpl in *. apply _. Qed.
 
-  Instance: Functor map_setoid _.
-  Proof with auto; intuition.
-   pose proof (@sfunctor_makes_setoids F _ _ _).
-   constructor; try apply _.
-     intros [???] [???].
-     constructor; try apply _.
-     intros [x ?] [y ?] U ?? E. simpl in *.
-     rewrite E.
-     cut (sfmap F x = sfmap F y)...
-     assert (x = y) as E'. intro...
-     rewrite E'...
-     apply (sfunctor_makes_morphisms F)...
-    intros [???] x ??. simpl in *.
-    rewrite (sfunctor_id F x x)...
-   intros [???] [???] [??] [???] [??] ?? E. simpl in *.
-   unfold compose at 2.
-   rewrite <- E.
-   apply (sfunctor_comp F)...
-  Qed.
-
+Instance: Functor map_setoid _.
+Proof.
+  split; try apply _.
+    intros [???] [???].
+    split; try apply _.
+    intros [x ?] [y ?] ??? E1. simpl in *.
+    assert (x = y) as E2 by intuition.
+    now rewrite E1, E2.
+   intros [???] x y E. simpl in *. now rewrite sfmap_id_applied.  
+  intros [???] [???] [??] [???] [??] ?? E. simpl in *.
+  now rewrite sfmap_comp_applied, E.
+Qed.
 End setoid_functor_as_posh_functor.
 
 (** Note that we cannot prove the reverse (i.e. that an endo-Functor on
