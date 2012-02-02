@@ -4,10 +4,10 @@ Require Import
 Lemma ext_equiv_refl `{Setoid_Morphism A B f} : f = f.
 Proof. intros ?? E. pose proof (setoidmor_b f). now rewrite E. Qed.
 
-Instance ext_equiv_trans `{Setoid A} `{Setoid B} : Transitive (_ : Equiv (A → B)).
+Instance ext_equiv_trans `{Equiv A} `{Equiv B} `{Reflexive (A:=A) (=)} `{Transitive (A:=B) (=)} : Transitive (_ : Equiv (A → B)).
 Proof. intros ? y ???? w ?. transitivity (y w); firstorder. Qed.
 
-Instance ext_equiv_sym `{Setoid A} `{Setoid B} : Symmetric (_ : Equiv (A → B)).
+Instance ext_equiv_sym `{Equiv A} `{Equiv B} `{Symmetric (A:=A) (=)} `{Symmetric (A:=B) (=)}: Symmetric (A:=A→B) (=).
 Proof. firstorder. Qed.
 
 Lemma ext_equiv_applied `{Setoid A} `{Equiv B} {f g : A → B} :

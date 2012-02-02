@@ -29,16 +29,18 @@ Arguments Object _ {Aarrows Aeq Aid Acomp} _ {Barrows Beq Bid Bcomp}.
 Arguments object {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp} {Fmap Functor} _.
 Arguments map_obj {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp} _ _.
 
+Record Arrow `{Arrows A} `{∀ x y : A, Equiv (x ⟶ y)} `{!CatId A} `{!CatComp A}
+     `{Arrows B} `{∀ x y : B, Equiv (x ⟶ y)} `{!CatId B} `{!CatComp B} (F G : Object A B) : Type := arrow
+  { eta:> map_obj F ⇛ map_obj G
+  ; NaturalTransformation_inst: NaturalTransformation eta }.
+Existing Instance NaturalTransformation_inst.
+
+Arguments arrow {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp F G} _ _.
+Arguments eta {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp F G} _ _.
+
 Section contents.
   Context `{Category A} `{Category B}.
 
-  Record Arrow (F G : Object A B) : Type := arrow
-    { eta:> map_obj F ⇛ map_obj G
-    ; NaturalTransformation_inst: NaturalTransformation eta }.
-
-  Arguments arrow {F G} _ _.
-
-  Global Existing Instance NaturalTransformation_inst.
   Global Instance: Arrows (Object A B) := Arrow.
 
   Section arrow_setoid.
