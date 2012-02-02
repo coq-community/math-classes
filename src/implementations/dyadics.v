@@ -16,7 +16,7 @@ Implicit Arguments dyadic [[Z]].
 Implicit Arguments mant [[Z]].
 Implicit Arguments expo [[Z]].
 
-Infix "▼" := dyadic (at level 80).
+Infix "▼" := dyadic (at level 80) : mc_scope.
 
 Section dyadics.
 Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt}

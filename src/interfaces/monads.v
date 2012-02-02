@@ -15,9 +15,9 @@ Implicit Arguments ret [[M] [MonadReturn] [A]].
 Implicit Arguments bind [[M] [MonadBind] [A] [B]].
 Implicit Arguments join [[M] [MonadJoin] [A]].
 
-Notation "m ≫= f" := (bind f m) (at level 60, right associativity).
-Notation "x ← y ; z" := (y ≫= (λ x : _, z)) (at level 65, next at level 35, right associativity, only parsing).
-(* Notation "x ≫ y" := (_ ← x ; y) (at level 33, right associativity, only parsing). *)
+Notation "m ≫= f" := (bind f m) (at level 60, right associativity) : mc_scope.
+Notation "x ← y ; z" := (y ≫= (λ x : _, z)) (at level 65, next at level 35, right associativity, only parsing) : mc_scope.
+(* Notation "x ≫ y" := (_ ← x ; y) (at level 33, right associativity, only parsing) : mc_scope. *)
 
 Class Monad (M : Type → Type) `{∀ A, Equiv A → Equiv (M A)} 
      `{MonadReturn M} `{MonadBind M} : Prop :=

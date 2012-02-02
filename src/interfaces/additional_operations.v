@@ -2,10 +2,10 @@ Require Import
   Morphisms abstract_algebra.
 
 Class Pow A B := pow : A → B → A.
-Infix "^" := pow.
-Notation "(^)" := pow (only parsing).
-Notation "( x ^)" := (pow x) (only parsing).
-Notation "(^ n )" := (λ x, x ^ n) (only parsing).
+Infix "^" := pow : mc_scope.
+Notation "(^)" := pow (only parsing) : mc_scope.
+Notation "( x ^)" := (pow x) (only parsing) : mc_scope.
+Notation "(^ n )" := (λ x, x ^ n) (only parsing) : mc_scope.
 Instance: Params (@pow) 3.
 
 (* If we make [nat_pow_proper] a subclass, Coq is unable to find it.
@@ -24,10 +24,10 @@ Class IntPowSpec A B (pow : Pow A B) `{Equiv A} `{Equiv B} `{Zero A} `{One A} `{
 }.
 
 Class ShiftL A B := shiftl: A → B → A.
-Infix "≪" := shiftl (at level 33, left associativity).
-Notation "(≪)" := shiftl (only parsing).
-Notation "( x ≪)" := (shiftl x) (only parsing).
-Notation "(≪ n )" := (λ x, x ≪ n) (only parsing).
+Infix "≪" := shiftl (at level 33, left associativity) : mc_scope.
+Notation "(≪)" := shiftl (only parsing) : mc_scope.
+Notation "( x ≪)" := (shiftl x) (only parsing) : mc_scope.
+Notation "(≪ n )" := (λ x, x ≪ n) (only parsing) : mc_scope.
 Instance: Params (@shiftl) 3.
 
 Class ShiftLSpec A B (sl : ShiftL A B) `{Equiv A} `{Equiv B} `{One A} `{Plus A} `{Mult A} `{Zero B} `{One B} `{Plus B} := {
@@ -62,8 +62,8 @@ Proof.
 Qed.
 
 Class ShiftR A B := shiftr: A → B → A.
-Infix "≫" := shiftr (at level 33, left associativity).
-Notation "(≫)" := shiftr (only parsing).
+Infix "≫" := shiftr (at level 33, left associativity) : mc_scope.
+Notation "(≫)" := shiftr (only parsing) : mc_scope.
 Instance: Params (@shiftr) 3.
 
 Class ShiftRSpec A B (sl : ShiftR A B) `{Equiv A} `{Equiv B} `{One A} `{Plus A} `{Mult A} `{Zero B} `{One B} `{Plus B} := {
@@ -74,14 +74,14 @@ Class ShiftRSpec A B (sl : ShiftR A B) `{Equiv A} `{Equiv B} `{One A} `{Plus A} 
 
 Class DivEuclid A := div_euclid : A → A → A.
 Class ModEuclid A := mod_euclid : A → A → A.
-Infix "`div`" := div_euclid (at level 35).
-Notation "(`div`)" := div_euclid (only parsing).
-Notation "( x `div`)" := (div_euclid x) (only parsing).
-Notation "(`div` y )" := (λ x, x `div` y) (only parsing).
-Infix "`mod`" := mod_euclid (at level 40).
-Notation "(`mod` )" := mod_euclid (only parsing).
-Notation "( x `mod`)" := (mod_euclid x) (only parsing).
-Notation "(`mod` y )" := (λ x, x `mod` y) (only parsing).
+Infix "`div`" := div_euclid (at level 35) : mc_scope.
+Notation "(`div`)" := div_euclid (only parsing) : mc_scope.
+Notation "( x `div`)" := (div_euclid x) (only parsing) : mc_scope.
+Notation "(`div` y )" := (λ x, x `div` y) (only parsing) : mc_scope.
+Infix "`mod`" := mod_euclid (at level 40) : mc_scope.
+Notation "(`mod` )" := mod_euclid (only parsing) : mc_scope.
+Notation "( x `mod`)" := (mod_euclid x) (only parsing) : mc_scope.
+Notation "(`mod` y )" := (λ x, x `mod` y) (only parsing) : mc_scope.
 Instance: Params (@div_euclid) 2.
 Instance: Params (@mod_euclid) 2.
 
@@ -95,10 +95,10 @@ Class EuclidSpec A (d : DivEuclid A) (m : ModEuclid A) `{Equiv A} `{Le A} `{Lt A
 }.
 
 Class CutMinus A := cut_minus : A → A → A.
-Infix "∸" := cut_minus (at level 50, left associativity).
-Notation "(∸)" := cut_minus (only parsing).
-Notation "( x ∸)" := (cut_minus x) (only parsing).
-Notation "(∸ y )" := (λ x, x ∸ y) (only parsing).
+Infix "∸" := cut_minus (at level 50, left associativity) : mc_scope.
+Notation "(∸)" := cut_minus (only parsing) : mc_scope.
+Notation "( x ∸)" := (cut_minus x) (only parsing) : mc_scope.
+Notation "(∸ y )" := (λ x, x ∸ y) (only parsing) : mc_scope.
 Instance: Params (@cut_minus) 2.
 
 Class CutMinusSpec A (cm : CutMinus A) `{Equiv A} `{Zero A} `{Plus A} `{Le A} := {

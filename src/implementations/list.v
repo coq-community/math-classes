@@ -161,8 +161,8 @@ End equivlistA_misc.
 
 Implicit Arguments PermutationA [[A]].
 
-Notation "( x ::)" := (cons x) (only parsing).
-Notation "(:: l )" := (λ x, cons x l) (only parsing).
+Notation "( x ::)" := (cons x) (only parsing) : mc_scope.
+Notation "(:: l )" := (λ x, cons x l) (only parsing) : mc_scope.
 Implicit Arguments app [[A]].
 
 Section contents.

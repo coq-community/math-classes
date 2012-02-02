@@ -2,7 +2,7 @@ Require Import
   Relation_Definitions
   abstract_algebra theory.setoids interfaces.functors theory.jections.
 
-Notation "x ⇛ y" := (∀ a, x a ⟶ y a) (at level 90, right associativity).
+Notation "x ⇛ y" := (∀ a, x a ⟶ y a) (at level 90, right associativity) : mc_scope.
   (* Transformations (polymorphic arrows). Couldn't find an "arrow with dot over it" unicode character. *)
 
 (* Natural transformations: *)

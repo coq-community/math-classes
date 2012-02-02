@@ -7,10 +7,10 @@ Require Import
 Class ScalarMult K V := scalar_mult: K → V → V.
 Instance: Params (@scalar_mult) 3.
 
-Infix "·" := scalar_mult (at level 50).
-Notation "(·)" := scalar_mult (only parsing).
-Notation "( x ·)" := (scalar_mult x) (only parsing).
-Notation "(· x )" := (λ y, y · x) (only parsing).
+Infix "·" := scalar_mult (at level 50) : mc_scope.
+Notation "(·)" := scalar_mult (only parsing) : mc_scope.
+Notation "( x ·)" := (scalar_mult x) (only parsing) : mc_scope.
+Notation "(· x )" := (λ y, y · x) (only parsing) : mc_scope.
 
 
 (** The inproduct function class *)
@@ -18,10 +18,10 @@ Notation "(· x )" := (λ y, y · x) (only parsing).
 Class Inproduct K V := inprod : V → V → K.
 Instance: Params (@inprod) 3.
 
-Notation "⟨ u , v ⟩" := (inprod u v) (at level 51).
-Notation "⟨ u , ⟩" := (λ v, ⟨u,v⟩) (at level 50, only parsing).
-Notation "⟨ , v ⟩" := (λ u, ⟨u,v⟩) (at level 50, only parsing).
-Notation "x ⊥ y" := (⟨x,y⟩ = 0) (at level 70).
+Notation "⟨ u , v ⟩" := (inprod u v) (at level 51) : mc_scope.
+Notation "⟨ u , ⟩" := (λ v, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
+Notation "⟨ , v ⟩" := (λ u, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
+Notation "x ⊥ y" := (⟨x,y⟩ = 0) (at level 70) : mc_scope.
 
 
 (** The norm function class *)
@@ -29,8 +29,8 @@ Notation "x ⊥ y" := (⟨x,y⟩ = 0) (at level 70).
 Class Norm K V := norm : V → K.
 Instance: Params (@norm) 2.
 
-Notation "∥ L ∥" := (norm L) (at level 50).
-Notation "∥·∥" := norm (only parsing).
+Notation "∥ L ∥" := (norm L) (at level 50) : mc_scope.
+Notation "∥·∥" := norm (only parsing) : mc_scope.
 
 
 (** Let [M] be an R-Module. *)

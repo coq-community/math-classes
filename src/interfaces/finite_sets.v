@@ -27,7 +27,7 @@ on any specific properties it likes.
 For convenience we define some notations to hide nasty details.
 *)
 Notation EmptySet A := (Bottom (set_type A)).
-Notation "∅" := (@bottom (set_type _) _).
+Notation "∅" := (@bottom (set_type _) _) : mc_scope.
 Notation SetEquiv A := (Equiv (set_type A)).
 Notation SetJoin A := (Join (set_type A)).
 Notation SetMeet A := (Meet (set_type A)).
