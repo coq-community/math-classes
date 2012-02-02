@@ -1,6 +1,6 @@
 Compilation
 
-  Known to compile with Coq trunk 14722.
+  Known to compile with Coq 8.4 beta
 
   Warning: This development assumes a case sensitive file system.
 
