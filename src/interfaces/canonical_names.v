@@ -1,8 +1,9 @@
 Global Generalizable All Variables.
 Global Set Automatic Introduction.
+Global Set Automatic Coercions Import.
 
 Require Import Streams.
-Require Export Morphisms Setoid Program Unicode.Utf8 Utf8_core.
+Require Export Morphisms Setoid Program Unicode.Utf8 Utf8_core stdlib_hints.
 
 (* Equality *)
 Class Equiv A := equiv: relation A.
@@ -23,6 +24,10 @@ Notation "(≠ x )" := (λ y, y ≠ x) (only parsing) : mc_scope.
 
 Delimit Scope mc_scope with mc. 
 Global Open Scope mc_scope.
+
+Hint Extern 2 (?x = ?x) => reflexivity.
+Hint Extern 2 (?x = ?y) => auto_symm.
+Hint Extern 2 (?x = ?y) => auto_trans.
 
 (* Coq sometimes uses an incorrect DefaultRelation, so we override it. *)
 Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3.
@@ -72,8 +77,14 @@ Hint Extern 10 (Equiv (relation _)) => apply @ext_equiv : typeclass_instances. (
 However, in the end that version was just not strong enough for comfortable rewriting
 in setoid-pervasive contexts. *)
 
+Notation "x ↾ p" := (exist _ x p) (at level 20) : mc_scope.
 Definition sig_equiv `{Equiv A} (P: A → Prop) : Equiv (sig P) := λ x y, `x = `y.
+Ltac simpl_sig_equiv := 
+  match goal with 
+  | |- (@equiv _ (@sig_equiv _ ?e _) (?x↾_) (?y↾_)) => change (@equiv _ e x y) 
+  end.
 Hint Extern 10 (Equiv (sig _)) => apply @sig_equiv : typeclass_instances.
+Hint Extern 4 (@equiv _ (sig_equiv _ _ _) (_↾_) (_↾_)) => simpl_sig_equiv.
 
 Definition sigT_equiv `{Equiv A} (P: A → Type) : Equiv (sigT P) := λ a b, projT1 a = projT1 b.
 Hint Extern 10 (Equiv (sigT _)) => apply @sigT_equiv : typeclass_instances.
@@ -172,7 +183,6 @@ Notation "R ⁺" := (NonNeg R) (at level 20, no associativity) : mc_scope.
 Notation "R ₊" := (Pos R) (at level 20, no associativity) : mc_scope.
 Notation "R ⁻" := (NonPos R) (at level 20, no associativity) : mc_scope.
 Notation "R ∞" := (PosInf R) (at level 20, no associativity) : mc_scope.
-Notation "x ↾ p" := (exist _ x p) (at level 20) : mc_scope.
 
 Infix "&" := sg_op (at level 50, left associativity) : mc_scope.
 Notation "(&)" := sg_op (only parsing) : mc_scope.
@@ -278,6 +288,10 @@ Infix ":::" := Cons (at level 60, right associativity) : mc_scope.
 Notation "(:::)" := Cons (only parsing) : mc_scope.
 Notation "(::: X )" := (λ x, Cons x X) (only parsing) : mc_scope.
 Notation "( x :::)" := (Cons x) (only parsing) : mc_scope.
+
+Hint Extern 2 (?x ≤ ?y) => reflexivity.
+Hint Extern 4 (?x ≤ ?z) => auto_trans.
+Hint Extern 4 (?x < ?z) => auto_trans.
 
 Class Abs A `{Equiv A} `{Le A} `{Zero A} `{Negate A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
 Definition abs `{Abs A} := λ x : A, ` (abs_sig x).

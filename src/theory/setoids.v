@@ -61,3 +61,4 @@ Proof.
   intros f g; split; intros ?; eapply aux; eauto.
   pose proof (setoidmor_a g). pose proof (setoidmor_b g). now symmetry.
 Qed.
+

@@ -1,5 +1,4 @@
 (* To be imported qualified. *)
-Set Automatic Coercions Import.
 Require
   categories.varieties categories.product forget_algebra forget_variety theory.groups.
 Require Import
@@ -122,7 +121,6 @@ Lemma decode_morphism_and_ops
   `{InVariety theory x} `{InVariety theory y} `{!HomoMorphism theory x y f}:
     Monoid_Morphism (f tt).
 Proof.
- pose proof (homo_proper theory x y f tt).
  constructor; try apply _.
   constructor; try apply _.
   apply (preserves theory x y f mult).

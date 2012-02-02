@@ -19,11 +19,7 @@ Section algebras.
     | ne_list.cons _ g => λ X X0, rec_impl g (λ i, X i (X0 i))
     end.
 
-  Instance u (s: sorts sig): Equiv (forall i : I, carriers i s).
-  Proof.
-   apply products.dep_prod_equiv.
-   intro. apply _.
-  Defined.
+  Instance u (s: sorts sig): Equiv (∀ i : I, carriers i s) := products.dep_prod_equiv _ _.
 
   Instance rec_impl_proper: ∀ o,
     Proper (@products.dep_prod_equiv I _ (fun _ => op_type_equiv _ _ _) ==> (=)) (rec_impl o).
@@ -176,13 +172,11 @@ Section varieties.
    constructor. apply product_algebra. intro i. apply _.
    apply laws_hold.
   Qed.
-
 End varieties.
 
 Require categories.varieties.
 
 Section categorical.
-
   Context
     (et: EquationalTheory).
 
@@ -227,7 +221,6 @@ Section categorical.
   End for_a_given_c.
 
   Global Instance: HasProducts (varieties.Object et) := {}.
-
 End categorical.
 
 (* Todo: Lots of cleanup. *)

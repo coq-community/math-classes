@@ -30,7 +30,6 @@ Section contents.
   Global Program Instance: CatId (Object et) := λ _ _, id.
 
   Global Program Instance: CatComp (Object et) := λ _ _ _ f g v, f v ∘ g v.
-  Next Obligation. destruct f, g. apply _. Qed.
 
   Global Program Instance: ∀ (x y: Object et), Equiv (x ⟶ y)
     := λ _ _ x y, ∀ b, pointwise_relation _ (=) (x b) (y b).

@@ -153,7 +153,6 @@ Section in_domain.
   Global Instance in_domain_equivalence: Equivalence R → Equivalence in_domain.
   Proof with intuition.
    constructor; repeat intro; unfold equiv, in_domain in *...
-   transitivity (f y)...
   Qed.
 
 End in_domain.
@@ -260,7 +259,7 @@ Section first_iso.
     λ a X, existT _ (f a X) (existT _ X (reflexivity _)).
 
   Next Obligation. Proof with try apply _; intuition.
-   repeat constructor... intro...
+   repeat constructor...
    unfold ua_subalgebraT.impl.
    generalize (subset_closed image o).
    unfold algebra_op.

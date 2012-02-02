@@ -77,15 +77,11 @@ Section subalgebras.
    generalize (H o).
    induction (sign o); simpl; intuition.
   Qed.
+  Hint Extern 4 (Setoid_Morphism (proj ?s)) => class_apply (homo_proper _ _ _ (A_equiv:=λ s, @sig_equiv _ (_ s) (_ s))) : typeclass_instances.
 
   (* Which is mono because proj is injective. *)
-
-  Instance: Injective ((λ i, proj i) i).
-  Proof.
-   constructor. firstorder.
-   change (@Setoid_Morphism ((λ i, @sig (A i) (P i)) i) (A i) ((λ i, @sig_equiv (A i) (e i) (P i)) i) (e i) (proj i)).
-   apply _.
-  Qed.
+  Instance: Injective ((λ i, proj i) i) := {}.
+  Proof. firstorder. Qed.
 
   Global Instance: Mono (algebras.arrow _ proj) := {}.
   Proof.

@@ -125,6 +125,9 @@ Section order_maps.
     ; strict_order_embedding_reflecting :> StrictlyOrderReflecting }.
 End order_maps.
 
+Hint Extern 4 (?f _ ≤ ?f _) => apply (order_preserving f).
+Hint Extern 4 (?f _ < ?f _) => apply (strictly_order_preserving f).
+
 (*
 We define various classes to describe the order on the lower part of the
 algebraic hierarchy. This results in the notion of a PseudoSemiRingOrder, which

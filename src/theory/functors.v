@@ -34,7 +34,6 @@ Program Definition map_setoid: setoids.Object → setoids.Object :=
   λ o, @setoids.object (F (setoids.T o)) (map_eq (setoids.T o) (setoids.e o)) _.
 
 Program Instance: Fmap map_setoid := λ v w x, @sfmap F map _ _ (`x).
-Next Obligation. destruct v, w, x. simpl in *. apply _. Qed.
 
 Instance: Functor map_setoid _.
 Proof.

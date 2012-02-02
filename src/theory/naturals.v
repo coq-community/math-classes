@@ -181,7 +181,6 @@ Global Program Instance: ∀ x y: N, Decision (x = y) | 10 := λ x y,
   | right E => right _
   end.
 Next Obligation. now rewrite <-(to_semiring_involutive _ nat x), <-(to_semiring_involutive _ nat y), E. Qed.
-Next Obligation. intros F. apply E. now rewrite F. Qed.
 
 Section with_a_ring.
   Context `{Ring R} `{!SemiRing_Morphism (f : N → R)} `{!Injective f}.

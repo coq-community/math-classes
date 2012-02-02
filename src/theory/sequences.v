@@ -70,7 +70,7 @@ Section contents.
    symmetry.
    apply (sequence_only_extend_commutes sq _)...
    symmetry.
-   change (f = extend id ∘ ((fmap (v:=A) (w:=B) sq f: sq A → sq B) ∘ inject A)).
+   change (f = extend id ∘ ((fmap sq f: sq A → sq B) ∘ inject A)).
    rewrite <- (sequence_inject_natural sq f _).
    change (f = fold sq ∘ inject B ∘ f).
    pose proof (_ : Morphisms.ProperProxy equiv f).
