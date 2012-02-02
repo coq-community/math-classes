@@ -393,10 +393,7 @@ Section pseudo_semiring_order.
   Qed.
 
   Lemma pos_mult_rev_l x y : 0 < x * y → 0 < y → 0 < x.
-  Proof.
-    intros. assert (PropHolds (0 < y)) by auto.
-    apply (strictly_order_reflecting (.* y)). now rewrite rings.mult_0_l.
-  Qed.
+  Proof. intros. apply (strictly_order_reflecting (.* y)). now rewrite rings.mult_0_l. Qed.
 
   Lemma pos_mult_rev_r x y : 0 < x * y → 0 < x → 0 < y.
   Proof. intros. apply pos_mult_rev_l with x. now rewrite commutativity. easy. Qed.
@@ -513,10 +510,7 @@ Section full_pseudo_semiring_order.
   Qed.
 
   Lemma nonneg_mult_rev_l x y : 0 ≤ x * y → 0 < y → 0 ≤ x.
-  Proof.
-    intros. assert (PropHolds (0 < y)) by auto.
-    apply (order_reflecting (.* y)). now rewrite rings.mult_0_l.
-  Qed.
+  Proof. intros. apply (order_reflecting (.* y)). now rewrite rings.mult_0_l. Qed.
 
   Lemma nonneg_mult_rev_r x y : 0 ≤ x * y → 0 < x → 0 ≤ y.
   Proof. intros. apply nonneg_mult_rev_l with x. now rewrite commutativity. easy. Qed.

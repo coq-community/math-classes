@@ -8,7 +8,7 @@ Require
  theory.naturals.
 Require Import
  Ring abstract_algebra theory.categories
- interfaces.naturals interfaces.integers.
+ interfaces.naturals interfaces.integers jections.
 Require Export
  implementations.semiring_pairs.
 
@@ -113,8 +113,7 @@ Let zero_product_aux a b :
 Proof.
   rewrite <-rings.preserves_mult.
   rewrite <-(naturals.to_semiring_unique (SRpair_inject)).
-  intros E. apply (injective SRpair_inject) in E.
-  destruct (zero_product _ _ E) as [C|C].
+  intros E. setoid_inject. destruct (zero_product _ _ E) as [C|C].
    left. now rewrite C, rings.preserves_0.
   right. now rewrite C, rings.preserves_0.
 Qed.

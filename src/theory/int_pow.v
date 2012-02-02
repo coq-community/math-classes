@@ -263,8 +263,7 @@ Instance int_pow_exp_le:
   ∀ x : A, PropHolds (1 ≤ x) → OrderPreserving (x^).
 Proof.
   repeat (split; try apply _).
-  assert (PropHolds (0 < x))
-    by (apply orders.lt_le_trans with 1; [solve_propholds | easy]).
+  assert (0 < x) by (apply orders.lt_le_trans with 1; [solve_propholds | easy]).
   intros n m E.
   destruct (semirings.decompose_le E) as [z [Ea Eb]].
   rewrite Eb.
@@ -278,8 +277,7 @@ Instance int_pow_exp_lt:
   ∀ x : A, PropHolds (1 < x) → StrictlyOrderPreserving (x^).
 Proof.
   repeat (split; try apply _).
-  assert (PropHolds (0 < x))
-   by (apply orders.le_lt_trans with 1; [solve_propholds | easy]).
+  assert (0 < x) by (apply orders.le_lt_trans with 1; [solve_propholds | easy]).
   intros n m E.
   apply nat_int.lt_iff_plus_1_le in E.
   destruct (semirings.decompose_le E) as [z [Ea Eb]].
@@ -343,7 +341,7 @@ Section preservation.
      rewrite int_pow_0, int_pow_0.
      now apply rings.preserves_1.
     intros n.
-    assert (PropHolds (f x ≠ 0)) by now apply rings.injective_ne_0.
+    assert (f x ≠ 0) by now apply rings.injective_ne_0.
     rewrite 2!int_pow_S, rings.preserves_mult; trivial.
     split; intros E.
      now rewrite E.

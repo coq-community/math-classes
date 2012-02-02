@@ -338,6 +338,17 @@ Section full_fset_props.
   Qed.
 End full_fset_props.
 
+Ltac split_sets :=
+  repeat (match goal with
+  | E : _ ∈ ∅ |- _ => apply fset_notin_empty in E; destruct E
+  | E : _ ∈ {{ _ }} |- _ => apply fset_in_singleton_eq in E
+  | E : _ ∉ {{ _ }} |- _ => apply fset_notin_singleton_neq in E
+  | E : _ ∈ _ ⊔ _ |- _ => apply fset_in_join in E; destruct E
+  | E : _ ∉ _ ⊔ _ |- _ => apply fset_notin_join in E; destruct E
+  | E : _ ∈ _ ⊓ _ |- _ => apply fset_in_meet in E; destruct E
+  | |-  context [_ ∈ _ ⊔ _] => rewrite !fset_in_join
+  end).
+
 Section iso_is_fset.
   Context `{Setoid A} `{At : SetType A}
     `{BoundedJoinSemiLattice (set_type A)} `{fsetB : FSet B}

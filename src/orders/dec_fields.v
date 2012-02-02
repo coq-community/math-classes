@@ -73,10 +73,9 @@ Qed.
 Lemma flip_lt_dec_recip x y : 0 < y → y < x  → /x < /y.
 Proof.
   intros E1 E2.
-  assert (PropHolds (0 < x)) by (red; now transitivity y).
+  assert (0 < x) by now transitivity y.
   apply (strictly_order_reflecting (x *.)).
   rewrite dec_recip_inverse.
-   assert (PropHolds (0 < y)) by easy.
    apply (strictly_order_reflecting (y *.)).
    rewrite (commutativity x), associativity, dec_recip_inverse.
     now ring_simplify.

@@ -40,3 +40,18 @@ Tactic Notation "mc_setoid_replace" constr(x) "with" constr(y)
   "at" int_or_var_list(o)
   "by" tactic3(t) :=
   setoidreplaceinat ((=) x y) id ltac:t o.
+
+Ltac setoid_subst :=
+  repeat (match goal with
+  | E : ?x = ?e |- _ => is_var x; lazymatch e with context [x] => fail | _ => rewrite ?E in *; clear x E end
+  | E : ?e = ?x |- _ => is_var x; lazymatch e with context [x] => fail | _ => rewrite <-?E in *; clear x E end
+  | E : ?x ≡ ?e |- _ => is_var x; lazymatch e with context [x] => fail | _ => rewrite ?E in *; clear x E end
+  | E : ?e ≡ ?x |- _ => is_var x; lazymatch e with context [x] => fail | _ => rewrite <-?E in *; clear x E end
+  end).
+
+Ltac setoid_discriminate :=
+  repeat intro; exfalso;
+  match goal with
+  | E : _ = _ |- _ => solve [inversion E]
+  | E : _ ≡ _ |- _ => discriminate E
+  end.

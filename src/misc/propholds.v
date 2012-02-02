@@ -1,5 +1,5 @@
 Require Import
-  Morphisms canonical_names.
+  canonical_names.
 
 (*
   The following class is nice to parametrize instances by additional properties, for example:
@@ -10,6 +10,8 @@ Require Import
   easily lead to a blow-up of the search space (or worse, cycles).
 *)
 Class PropHolds (P : Prop) := prop_holds: P.
+
+Hint Extern 0 (PropHolds _) => assumption : typeclass_instances.
 
 Instance: Proper (iff ==> iff) PropHolds.
 Proof. now repeat intro. Qed.

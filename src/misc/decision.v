@@ -7,6 +7,11 @@ Arguments decide _ {Decision}.
 Instance: ∀ P, Decision P → Stable P.
 Proof. firstorder. Qed.
 
+Ltac case_decide := match goal with
+  | H : context [@decide ?P ?dec] |- _ => case (@decide P dec) in *
+  | |- context [@decide ?P ?dec] => case (@decide P dec) in *
+  end.
+
 Ltac solve_trivial_decision :=
   match goal with
   | [ |- Decision (?P) ] => apply _

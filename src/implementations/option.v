@@ -100,7 +100,7 @@ Proof.
     intros. now apply setoids.ext_equiv_refl.
    now intros ? ? ? [?|].
   intros A ? B ? C ? ? f [???] g [???] [x|] [y|] E; try solve [inversion_clear E].
-   apply (injective _) in E. cut (g x = g y); [|now rewrite E].
+   setoid_inject. cut (g x = g y); [|now rewrite E].
    case (g x), (g y); intros E2; inversion_clear E2. now f_equiv. easy.
   easy.
 Qed.

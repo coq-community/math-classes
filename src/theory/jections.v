@@ -143,3 +143,10 @@ Proof.
    now apply surjective_applied.
   rewrite E1; apply _.
 Qed.
+
+Ltac setoid_inject :=
+  match goal with
+  | E : _ = ?f _ |- _ => apply (injective f) in E
+  | E : ?f _ = _ |- _ => apply (injective f) in E
+  | E : _ ≡ _ |-  ?G => change (id G); injection E; clear E; intros; unfold id at 1 
+  end.
