@@ -18,7 +18,7 @@ Section for_φAdjunction.
 
   Context `(φAdjunction).
 
-  Arguments φ {d c} _.
+  Arguments φ {_ _} _.
 
   Instance: forall c d, Bijective (@φ c d) := φ_adjunction_bijective F G.
   Instance: Functor F F'  := φ_adjunction_left_functor F G.
@@ -223,5 +223,4 @@ Section for_ηεAdjunction.
 
   Instance ηεAdjunction_φAdjunction: φAdjunction F G φ.
   Proof. apply ηAdjunction_φAdjunction, _. Qed.
-
 End for_ηεAdjunction.

@@ -11,7 +11,7 @@ Record Object := object
   ; CatComp_inst: CatComp obj
   ; Category_inst: Category obj }.
 
-Arguments object _ {Arrows Equiv CatId CatComp Category}.
+Arguments object _ {Arrows_inst Equiv_inst CatId_inst CatComp_inst Category_inst}.
 Existing Instance Arrows_inst.
 Existing Instance Equiv_inst.
 Existing Instance CatId_inst.

@@ -139,8 +139,8 @@ Class CatId O `{Arrows O} := cat_id: ∀ x, x ⟶ x.
 Class CatComp O `{Arrows O} := comp: ∀ x y z, (y ⟶ z) → (x ⟶ y) → (x ⟶ z).
 Class RalgebraAction A B := ralgebra_action: A → B → B.
 
-Arguments cat_id {O arrows CatId x}.
-Arguments comp {O arrow CatComp} _ _ _ _ _.
+Arguments cat_id {O arrows CatId x} : rename.
+Arguments comp {O arrow CatComp} _ _ _ _ _ : rename.
 
 Instance: Params (@mult) 2.
 Instance: Params (@plus) 2.

@@ -25,9 +25,9 @@ Record Object A `{Arrows A} `{∀ x y : A, Equiv (x ⟶ y)} `{!CatId A} `{!CatCo
 Existing Instance Fmap_inst.
 Existing Instance Functor_inst.
 
-Arguments Object _ {Aarrows Aeq Aid Acomp} _ {Barrows Beq Bid Bcomp}.
-Arguments object {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp} {Fmap Functor} _.
-Arguments map_obj {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp} _ _.
+Arguments Object _ {Aarrows Aeq Aid Acomp} _ {Barrows Beq Bid Bcomp} : rename.
+Arguments object {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp} {Fmap Functor} _ : rename.
+Arguments map_obj {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp} _ _ : rename.
 
 Record Arrow `{Arrows A} `{∀ x y : A, Equiv (x ⟶ y)} `{!CatId A} `{!CatComp A}
      `{Arrows B} `{∀ x y : B, Equiv (x ⟶ y)} `{!CatId B} `{!CatComp B} (F G : Object A B) : Type := arrow
@@ -35,8 +35,8 @@ Record Arrow `{Arrows A} `{∀ x y : A, Equiv (x ⟶ y)} `{!CatId A} `{!CatComp 
   ; NaturalTransformation_inst: NaturalTransformation eta }.
 Existing Instance NaturalTransformation_inst.
 
-Arguments arrow {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp F G} _ _.
-Arguments eta {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp F G} _ _.
+Arguments arrow {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp F G} _ _ : rename.
+Arguments eta {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp F G} _ _ : rename.
 
 Section contents.
   Context `{Category A} `{Category B}.

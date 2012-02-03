@@ -1,5 +1,4 @@
 Require Import
-  Relation_Definitions
   abstract_algebra theory.setoids interfaces.functors theory.jections.
 
 Notation "x ⇛ y" := (∀ a, x a ⟶ y a) (at level 90, right associativity) : mc_scope.
@@ -245,5 +244,5 @@ Lemma freedom_as_adjunction
 Proof. exact (alt_adjunction_η_universal _ _ _ _). Qed.
 *)
 Arguments Producer : clear implicits.
-Arguments HasProducts _ {Arrows Eq CatComp H1 H2 H3}.
+Arguments HasProducts _ {Arrows Eq CatComp H1 H2 H3} : rename.
 Arguments product {X Producer I} _.

@@ -28,7 +28,7 @@ Record Arrow (x y: Object): Type := arrow
   ; Fmap_inst: Fmap map_obj
   ; Functor_inst: Functor map_obj _ }.
 
-Arguments arrow {x y} _ {Fmap Functor}.
+Arguments arrow {x y} _ {Fmap_inst Functor_inst}.
 Arguments map_obj {x y} _ _.
 Existing Instance Fmap_inst.
 Existing Instance Functor_inst.
@@ -55,7 +55,6 @@ Section contents.
 
     Program Let sym_arrows (a b: x → y) (v: x) (p: isoT (a v) (b v)): isoT (b v) (a v)
         := (snd p, fst p).
-
     Next Obligation. destruct p. simpl in *. firstorder. Qed.
 
     Let e_sym: Symmetric e.
@@ -73,7 +72,6 @@ Section contents.
      (x1: sig (λ (p: (x0 v ⟶ y0 v) * _), uncurry iso_arrows p))
      (x2: sig (λ (p: (y0 v ⟶ z v) * _), uncurry iso_arrows p)): (* todo: use isoT *)
       isoT (x0 v) (z v) := (fst x2 ◎ fst x1, snd x1 ◎ snd x2).
-
     Next Obligation. Proof with assumption.
      destruct H as [? H1], H0 as [? H2]. unfold uncurry. simpl in *.
      split. rewrite <- associativity, (associativity a1 a2 a0), H0, left_identity...
@@ -119,7 +117,6 @@ Section contents.
       isoT (map_obj x0 (map_obj x1 v)) (map_obj y0 (map_obj y1 v))
    := (fst (f (y1 v)) ◎ fmap x0 (fst (g v)), fmap x0 (snd (g v)) ◎ snd (f (y1 v))).
      (* Todo: Investigate why things go wrong without the underscores. *)
-
   Next Obligation. Proof with try apply _; intuition.
    destruct (f (y1 v)) as [? [e0 e1]].
    destruct (g v) as [? [e2 e3]].
@@ -166,10 +163,9 @@ Section contents.
     (* We can't remove the map_obj here and elsewhere even though it's a coercion,
      because unification isn't smart enough to resolve and use that coercion. This is
      likely due to Coq bug #2229. *)
-
   Next Obligation. split; apply left_identity. Qed.
 
-  Instance: forall x y: Object, LeftIdentity (comp x _ y) cat_id.
+  Instance: ∀ x y: Object, LeftIdentity (comp x _ y) cat_id.
   Proof.
    intros ?? a.
    exists (id_lr_arrows _ _ a).
@@ -177,7 +173,7 @@ Section contents.
    rewrite right_identity, left_identity. reflexivity.
   Qed.
 
-  Instance: forall x y: Object, RightIdentity (comp x _ y) cat_id.
+  Instance: ∀ x y: Object, RightIdentity (comp x _ y) cat_id.
   Proof.
    intros ?? a.
    exists (id_lr_arrows _ _ a).

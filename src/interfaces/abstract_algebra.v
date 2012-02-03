@@ -195,7 +195,7 @@ Class Category O `{!Arrows O} `{∀ x y: O, Equiv (x ⟶ y)} `{!CatId O} `{!CatC
       (* note: no equality on objects. *)
 
 (* todo: use my comp everywhere *)
-Arguments comp_assoc {O arrows eq CatId CatComp Category w x y z} _ _ _.
+Arguments comp_assoc {O arrows eq CatId CatComp Category w x y z} _ _ _ : rename.
 
 Section morphism_classes.
   Context {A B} {Ae : Equiv A} {Be : Equiv B}.

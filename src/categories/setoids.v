@@ -2,7 +2,7 @@ Require Import
   abstract_algebra theory.categories.
 
 Inductive Object := object { T:> Type; e: Equiv T; setoid_proof: Setoid T }.
-Arguments object _ {e setoid_prf}.
+Arguments object _ {e setoid_proof}.
 Existing Instance e.
 Existing Instance setoid_proof.
 
