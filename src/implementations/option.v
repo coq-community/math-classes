@@ -34,6 +34,20 @@ Section contents.
   Global Instance: Injective Some.
   Proof. split; try apply _. intros ? ? E. now inversion E. Qed.
 
+  Global Instance option_zero: MonUnit (option A) := None.
+
+  Global Instance option_op: SgOp (option A) := λ mx my,
+    match mx with
+    | Some x => Some x
+    | None => my
+    end.
+
+  Instance: Proper ((=) ==> (=) ==> (=)) option_op.
+  Proof. intros [?|] [?|] ? ???; simpl; try setoid_discriminate; auto. Qed.
+
+  Global Instance: Monoid (option A).
+  Proof. repeat (split; try apply _); now repeat intros [?|]. Qed.
+
   Lemma option_equiv_alt x y :
     x = y ↔ (∀ n, x = Some n ↔ y = Some n).
   Proof.
@@ -46,7 +60,7 @@ Section contents.
     easy.
   Qed.
 
-  Program Instance option_dec `(A_dec : ∀ x y : A, Decision (x = y))
+  Global Program Instance option_dec `(A_dec : ∀ x y : A, Decision (x = y))
      : ∀ x y : option A, Decision (x = y) := λ x y,
     match x with
     | Some r =>
@@ -61,8 +75,8 @@ Section contents.
       end
     end.
   Next Obligation. now apply (injective_ne Some). Qed.
-  Next Obligation. apply Some_ne_None. Qed.
-  Next Obligation. apply None_ne_Some. Qed.
+  Next Obligation. setoid_discriminate. Qed.
+  Next Obligation. setoid_discriminate. Qed.
 End contents.
 
 Hint Extern 10 (Equiv (option _)) => apply @option_equiv : typeclass_instances.
