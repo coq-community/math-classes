@@ -7,7 +7,7 @@ Require Import
 Local Existing Instance pseudo_srorder_semiring.
 
 Section positive_semiring_elements.
-Context `{FullPseudoSemiRingOrder R} `{Apart R} `{!PropHolds (1 ≶ 0)}.
+Context `{FullPseudoSemiRingOrder R} `{!PropHolds (1 ≶ 0)}.
 
 Add Ring R : (rings.stdlib_semiring_theory R).
 
@@ -54,7 +54,8 @@ Proof. now repeat (split; try apply _). Qed.
 Section shiftl.
   Context `{SemiRing B} `{!Biinduction B} `{!ShiftLSpec R B sl}.
 
-  Global Program Instance Pos_shiftl: ShiftL (R₊) B | 5 := λ x n, (x ≪ n : R).
+  Global Program Instance Pos_shiftl: ShiftL (R₊) B | 5 := λ x n,
+    (`x ≪ n)↾_.
   Next Obligation. destruct x. now apply shiftl_pos. Qed.
 End shiftl.
 End positive_semiring_elements.
@@ -63,6 +64,7 @@ Section int_pow.
   Context `{DecField R} `{Apart R} `{!FullPseudoSemiRingOrder Rle Rlt}
     `{!TrivialApart R} `{∀ x y : R, Decision (x = y)} `{Integers B} `{!IntPowSpec R B ipw}.
 
-  Global Program Instance Pos_int_pow: Pow (R₊) B | 5 := λ x n, (x ^ n : R).
+  Global Program Instance Pos_int_pow: Pow (R₊) B | 5 := λ x n,
+    (`x ^ n)↾_.
   Next Obligation. destruct x. now apply int_pow_pos. Qed.
 End int_pow.

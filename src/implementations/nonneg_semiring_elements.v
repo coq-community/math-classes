@@ -15,13 +15,13 @@ Add Ring R : (rings.stdlib_semiring_theory R).
 Global Instance NonNeg_inject: Cast (R⁺) R := @proj1_sig R _.
 
 (* Operations *)
-Global Program Instance NonNeg_plus: Plus (R⁺) := λ x y, (x + y)↾_.
+Global Program Instance NonNeg_plus: Plus (R⁺) := λ x y, (`x + `y)↾_.
 Next Obligation.
   destruct x as [x Hx], y as [y Hy].
   now apply nonneg_plus_compat.
 Qed.
 
-Global Program Instance NonNeg_mult: Mult (R⁺) := λ x y, (x * y)↾_.
+Global Program Instance NonNeg_mult: Mult (R⁺) := λ x y, (`x * `y)↾_.
 Next Obligation.
   destruct x as [x Hx], y as [y Hy].
   now apply nonneg_mult_compat.

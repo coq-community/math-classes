@@ -1,6 +1,8 @@
 Compilation
 
-  Known to compile with Coq 8.4 beta
+  Known to compile with Coq 8.4 which can be obtained from
+
+    http://pauillac.inria.fr/~herbelin/coq/distrib/V8.4/files/coq-8.4.tar.gz
 
   Warning: This development assumes a case sensitive file system.
 
