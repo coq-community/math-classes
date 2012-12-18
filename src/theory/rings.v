@@ -81,6 +81,12 @@ Section semiring_props.
   Global Instance mult_1_l: LeftIdentity (.*.) 1 := left_identity.
   Global Instance mult_1_r: RightIdentity (.*.) 1 := right_identity.
 
+  Global Instance plus_assoc: Associative (+) := simple_associativity.
+  Global Instance mult_assoc: Associative (.*.) := simple_associativity.
+
+  Global Instance plus_comm: Commutative (+) := commutativity.
+  Global Instance mult_comm: Commutative (.*.) := commutativity.
+
   Global Instance mult_0_l: LeftAbsorb (.*.) 0 := left_absorb.
 
   Global Instance mult_0_r: RightAbsorb (.*.) 0.
