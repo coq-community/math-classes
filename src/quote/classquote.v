@@ -365,7 +365,7 @@ Admitted.
 
 Section inspect.
   Variables x y: Value.
-  Eval compute in quote' ((x * y) * (x * 0)).
+  (* Eval compute in quote' ((x * y) * (x * 0)). *)
     (* = Mult (Mult (Var (inr (inl (inl ())))) (Var (inr (inl (inr ())))))
            (Mult (Var (inr (inl (inl ())))) Zero)
        : Expr (False + (() + () + (False + False))) *)
