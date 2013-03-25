@@ -1,9 +1,6 @@
 Require Import
   abstract_algebra theory.products.
 
-Lemma neq_symm `{Ae : Equiv X} `{!Symmetric Ae} (x y : X) : x ≠ y -> y ≠ x.
-Proof. intros A1 A2; apply A1; now symmetry. Qed.
-
 Lemma ext_equiv_refl `{Setoid_Morphism A B f} : f = f.
 Proof. intros ?? E. pose proof (setoidmor_b f). now rewrite E. Qed.
 
