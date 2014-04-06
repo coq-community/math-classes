@@ -105,12 +105,7 @@ Section practical.
 
   Program Definition posh_extend (x: setoids.Object) (y: monoids.Object)
     (X: x ⟶ monoids.forget y): posh_free x ⟶ y
-    := λ u, match u return posh_free x u → y u with
-      tt => @extend free ExtendToSeq0 x (monoids.forget y) _ _ X end.
-
-  Next Obligation. apply _. Defined.
-  Next Obligation. apply _. Defined.
-
+    := λ u, match u return posh_free x u → y u with tt => extend X end.
   Next Obligation.
    apply monoids.encode_morphism_only.
    destruct X. simpl in *.

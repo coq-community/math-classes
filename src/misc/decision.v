@@ -27,7 +27,7 @@ Program Instance decision_proper (P Q : Prop) (PiffQ : P ↔ Q) (P_dec : Decisio
   | left _ => left _
   | right _ => right _
   end.
-Solve Obligations using (program_simpl; tauto).
+Solve Obligations with (program_simpl; tauto).
 
 Definition bool_decide (P : Prop) `{dec : !Decision P} : bool := if dec then true else false.
 
@@ -72,21 +72,21 @@ Program Instance prod_eq_dec `(A_dec : ∀ x y : A, Decision (x ≡ y))
   | left _ => match B_dec (snd x) (snd y) with left _ => left _ | right _ => right _ end
   | right _ => right _
   end.
-Solve Obligations using (program_simpl; f_equal; firstorder).
+Solve Obligations with (program_simpl; f_equal; firstorder).
 
 Program Instance and_dec `(P_dec : Decision P) `(Q_dec : Decision Q) : Decision (P ∧ Q) :=
   match P_dec with
   | left _ => match Q_dec with left _ => left _ | right _ => right _ end
   | right _ => right _
   end.
-Solve Obligations using (program_simpl; tauto).
+Solve Obligations with (program_simpl; tauto).
 
 Program Instance or_dec `(P_dec : Decision P) `(Q_dec : Decision Q) : Decision (P ∨ Q) :=
   match P_dec with
   | left _ => left _
   | right _ => match Q_dec with left _ => left _ | right _ => right _ end
   end.
-Solve Obligations using (program_simpl; firstorder).
+Solve Obligations with (program_simpl; firstorder).
 
 Program Instance is_Some_dec `(x : option A) : Decision (is_Some x) :=
   match x with

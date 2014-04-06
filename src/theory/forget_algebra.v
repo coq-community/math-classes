@@ -17,7 +17,6 @@ Section contents.
   Definition object (v: algebras.Object sign): TargetObject := λ i, @setoids.object (v i) (algebras.algebra_equiv sign v i) _.
 
   Global Program Instance: Fmap object := λ _ _, id.
-  Next Obligation. apply _. Qed.
 
   Global Instance forget: Functor object _.
   Proof.

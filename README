@@ -1,8 +1,6 @@
 Compilation
 
-  Known to compile with Coq 8.4 which can be obtained from
-
-    http://pauillac.inria.fr/~herbelin/coq/distrib/V8.4/files/coq-8.4.tar.gz
+  Known to compile with Coq 8.4 trunk commit "aba9691ef2"
 
   Warning: This development assumes a case sensitive file system.
 
