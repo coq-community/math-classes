@@ -42,7 +42,7 @@ Section contents.
     Context (x y: Object).
 
     Global Program Instance e: Equiv (x ⟶ y) := λ a b,
-      exists X: ∀ _, isoT _ _, ∀ (p q: x) (r: p ⟶ q),
+      exists X: ∀ v, isoT _ _, ∀ (p q: x) (r: p ⟶ q),
        fmap a r ◎ snd (X p) = snd (X q) ◎ fmap b r.
 
     Let e_refl: Reflexive e.

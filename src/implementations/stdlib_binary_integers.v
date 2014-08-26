@@ -53,12 +53,12 @@ Proof.
 Qed.
 
 (* SRpair N and Z are isomorphic *)
-Definition Npair_to_Z (x : SRpair N) : Z := 'pos x - 'neg x.
+Definition Npair_to_Z (x : SRpair N) : Z := ('pos x - 'neg x)%mc.
 
 Instance: Proper (=) Npair_to_Z.
 Proof.
-  intros x y E. do 2 red in E. unfold Npair_to_Z.
-  apply (right_cancellation (+) ('neg y + 'neg x)). ring_simplify.
+  intros [xp xn] [yp yn] E; do 2 red in E; unfold Npair_to_Z; simpl in *.
+  apply (right_cancellation (+) ('yn + 'xn)); ring_simplify.
   now rewrite <-?rings.preserves_plus, E, commutativity.
 Qed.
 

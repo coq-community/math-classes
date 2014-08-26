@@ -6,8 +6,6 @@ Require Import
 Instance: ∀ A, Proper (@Permutation A ==> eq) (@length A).
 Proof Permutation_length.
 
-Existing Instance Permutation_map_aux_Proper.
-
 Section contents.
   Context {T: Type}.
 
