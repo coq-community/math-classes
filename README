@@ -1,6 +1,6 @@
 Compilation
 
-  Known to compile with Coq 8.4 trunk commit "aba9691ef2"
+  Known to compile with trunk commit "f23e7e7d6f8912ef3ddcc6288cd0f5710a12b99a"
 
   Warning: This development assumes a case sensitive file system.
 
