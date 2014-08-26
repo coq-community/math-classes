@@ -98,8 +98,6 @@ Section practical.
 
   Program Definition posh_inject: id ⇛ monoids.forget ∘ posh_free := λ a, inject a.
 
-  Next Obligation. apply PS, _. Qed.
-
   (* Needed for some type conversions. *)
   Typeclasses Transparent compose.
 

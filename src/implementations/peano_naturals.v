@@ -107,7 +107,7 @@ Instance: NoZeroDivisors nat.
 Proof. intros x [Ex [y [Ey1 Ey2]]]. destruct (Mult.mult_is_O x y Ey2); intuition. Qed.
 
 Instance: ∀ z : nat, PropHolds (z ≠ 0) → LeftCancellation (.*.) z.
-Proof. intros z Ez x y. now apply NPeano.Nat.mul_cancel_l. Qed.
+Proof. intros z Ez x y. now apply Nat.mul_cancel_l. Qed.
 
 (* Order *)
 Instance nat_le: Le nat := Peano.le.
@@ -126,7 +126,7 @@ Proof.
     intros. now apply plus_le_reg_l with z.
    intros x y ? ?. change (0 * 0 <= x * y)%nat. now apply Mult.mult_le_compat.
   apply dec_full_pseudo_srorder.
-  now apply NPeano.Nat.le_neq.
+  now apply Nat.le_neq.
 Qed.
 
 Instance: OrderEmbedding S.

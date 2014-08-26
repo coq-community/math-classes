@@ -17,7 +17,7 @@ Lemma to_semiring_nonneg `{FullPseudoSemiRingOrder N}
   `{!SemiRing_Morphism (f : N → R)} n : 0 ≤ f n.
 Proof.
   pose proof (pseudo_srorder_semiring (A:=R)).
-  revert n. rapply naturals.induction.
+  revert n. apply naturals.induction.
     solve_proper.
    intros. now rewrite preserves_0.
   intros n E. rewrite preserves_plus, preserves_1.
@@ -33,7 +33,7 @@ Add Ring R : (stdlib_semiring_theory R).
 (* Hmm, can we avoid using nat here? *)
 Lemma nat_int_to_semiring x : ∃ z, x = naturals_to_semiring nat R z ∨ x + naturals_to_semiring nat R z = 0.
 Proof.
-  revert x. rapply biinduction.
+  revert x. apply biinduction.
     solve_proper.
    exists (0 : nat). left. now rewrite preserves_0.
   intros n; split.

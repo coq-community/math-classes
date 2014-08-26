@@ -149,7 +149,7 @@ Section contents.
    destruct (x2 (y1 p)) as [[a3 a4] [e4 e5]], (x2 (y1 q)) as [[a5 a6] [e6 e7]]. clear x2.
    simpl in *.
    rewrite <- associativity, <- H0. clear H0.
-   apply transitivity with ((fmap x0 (fmap x1 r) ◎ fmap x0 a0) ◎ a4).
+   eapply (transitivity (y:=((fmap x0 (fmap x1 r) ◎ fmap x0 a0) ◎ a4))).
     repeat rewrite associativity. reflexivity.
    rewrite <- preserves_comp...
    rewrite H1.

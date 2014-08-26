@@ -1,6 +1,6 @@
 Require Import
   abstract_algebra.
-Require 
+Require Import
   theory.setoids.
 
 Section functor_class.

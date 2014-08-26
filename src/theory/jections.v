@@ -55,6 +55,8 @@ Proof. intros E1 E2. apply E1. now apply (injective f). Qed.
 
 Instance id_inverse {A} : Inverse (@id A) := (@id A).
 
+Global Existing Instance id_morphism.
+
 Instance id_injective `{Setoid A} : Injective (@id A).
 Proof. split; try apply _. easy. Qed.
 Instance id_surjective `{Setoid A} : Surjective (@id A).

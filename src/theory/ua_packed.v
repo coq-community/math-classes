@@ -14,13 +14,11 @@ Section packed.
   Definition head_arg x y (a: Arguments (ne_list.cons x y)): Applied x :=
     match a with
     | MoreArguments k l m n => m
-    | NoMoreArguments _ => False
     end.
 
   Definition tail_args x y (a: Arguments (ne_list.cons x y)): Arguments y :=
     match a with
     | MoreArguments k l m n => n
-    | NoMoreArguments _ => False
     end.
 
   Context (P: ∀ {s}, Applied s → Type).

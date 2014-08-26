@@ -1,5 +1,5 @@
 (* JMeq without the [eq] hard-wiring. Meant for use with [Require] only, not [Import]. *)
-Require Import Relation_Definitions RelationClasses.
+Require Import Relation_Definitions Setoid.
 Require Export Unicode.Utf8 Utf8_core.
 
 Inductive R {A: Type} (r: relation A) (x: A): forall B: Type, relation B → B → Prop := relate y: r x y → R r x A r y.
