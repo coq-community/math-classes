@@ -55,7 +55,6 @@ interfaces/sequences.v
 interfaces/ua_basic.v
 interfaces/universal_algebra.v
 interfaces/vectorspace.v
-misc/benchmarks_nobuild.v
 misc/decision.v
 misc/JMrelation.v
 misc/propholds.v
