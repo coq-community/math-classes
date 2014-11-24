@@ -1,0 +1,4 @@
+# Library name
+-R . MathClasses
+
+# Coq files (filled by the configure)
