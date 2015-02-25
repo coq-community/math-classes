@@ -1,4 +1,3 @@
-
 import os, glob, string
 
 nodes = ['.']

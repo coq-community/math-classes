@@ -1,11 +1,13 @@
+Make
+Makefile
+Makefile.bak
+*.v.d
 *.vo
 *.glob
 *.pdf
 *.crashcoqide
 *.pyc
 tmp.*
-src/deps
-src/.sconsign.dblite
 coqidescript
 coqdoc
 *#
