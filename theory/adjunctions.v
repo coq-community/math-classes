@@ -188,7 +188,7 @@ Section for_ηεAdjunction.
   Instance: NaturalTransformation η := ηε_adjunction_η_natural F G.
   Instance: NaturalTransformation ε := ηε_adjunction_ε_natural F G.
 
-  Let φ `(f: F c ⟶ d): (c ⟶ G d) := fmap G f ◎ η c.
+  Let φ c d `(f: F c ⟶ d): (c ⟶ G d) := fmap G f ◎ η c.
   Instance uniwit c d: Inverse (φ c d) := λ f, ε d ◎ fmap F f.
 
   Instance ηεAdjunction_ηAdjunction: ηAdjunction F G η uniwit.
