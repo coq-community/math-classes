@@ -1,8 +1,8 @@
 Require Import
-  RelationClasses
-  universal_algebra ua_homomorphisms canonical_names theory.categories abstract_algebra.
+  Coq.Classes.RelationClasses
+  MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.interfaces.canonical_names MathClasses.theory.categories MathClasses.interfaces.abstract_algebra.
 Require
-  categories.algebras forget_algebra.
+  MathClasses.categories.algebras MathClasses.theory.forget_algebra.
 
 Section subalgebras.
   Context `{Algebra sign A} (P: ∀ s, A s → Prop).

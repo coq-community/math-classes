@@ -1,6 +1,6 @@
 Require Import
-  Ring interfaces.naturals abstract_algebra interfaces.orders
-  orders.nat_int theory.integers theory.rings orders.rings.
+  Coq.setoid_ring.Ring MathClasses.interfaces.naturals MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders
+  MathClasses.orders.nat_int MathClasses.theory.integers MathClasses.theory.rings MathClasses.orders.rings.
 
 Section contents. 
 Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt} `{Naturals N}.

@@ -1,7 +1,7 @@
 Require Import
-  abstract_algebra canonical_names.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.canonical_names.
 Require Export
-  interfaces.functors.
+  MathClasses.interfaces.functors.
 
 Section ops.
   Context (M : Type → Type).

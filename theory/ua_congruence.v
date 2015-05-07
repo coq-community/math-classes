@@ -1,9 +1,9 @@
 Require Import
-  Morphisms RelationClasses Relation_Definitions List
-  universal_algebra ua_homomorphisms canonical_names ua_subalgebraT util.
-Require ua_products.
+  Coq.Classes.Morphisms Coq.Classes.RelationClasses Coq.Relations.Relation_Definitions Coq.Lists.List
+  MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.interfaces.canonical_names MathClasses.theory.ua_subalgebraT MathClasses.misc.util.
+Require MathClasses.theory.ua_products.
 
-Require theory.categories.
+Require MathClasses.theory.categories.
 
 (* Remove this *)
 Local Hint Transparent Equiv : typeclass_instances.

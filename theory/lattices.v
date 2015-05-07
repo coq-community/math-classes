@@ -1,7 +1,7 @@
 Require Import
-  abstract_algebra theory.groups.
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.groups.
 Require
-  varieties.semigroups varieties.monoids.
+  MathClasses.varieties.semigroups MathClasses.varieties.monoids.
 
 Instance bounded_sl_is_sl `{BoundedSemiLattice L} : SemiLattice L.
 Proof. repeat (split; try apply _). Qed.

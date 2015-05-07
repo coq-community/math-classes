@@ -1,11 +1,11 @@
 Require
-  interfaces.naturals theory.naturals peano_naturals theory.integers.
+  MathClasses.interfaces.naturals MathClasses.theory.naturals MathClasses.implementations.peano_naturals MathClasses.theory.integers.
 Require Import
-  BinInt Ring Arith NArith ZArith ZBinary
-  abstract_algebra interfaces.integers
-  natpair_integers stdlib_binary_naturals
-  interfaces.additional_operations interfaces.orders
-  nonneg_integers_naturals.
+  Coq.ZArith.BinInt Coq.setoid_ring.Ring Coq.Arith.Arith Coq.NArith.NArith Coq.ZArith.ZArith Coq.Numbers.Integer.Binary.ZBinary
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers
+  MathClasses.implementations.natpair_integers MathClasses.implementations.stdlib_binary_naturals
+  MathClasses.interfaces.additional_operations MathClasses.interfaces.orders
+  MathClasses.implementations.nonneg_integers_naturals.
 
 (* canonical names: *)
 Instance Z_equiv: Equiv Z := eq.

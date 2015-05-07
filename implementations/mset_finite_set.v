@@ -1,7 +1,7 @@
 Require Import
-  MSetInterface MSetFacts MSetProperties
-  implementations.list implementations.list_finite_set theory.finite_sets
-  interfaces.finite_sets interfaces.orders abstract_algebra.
+  Coq.MSets.MSetInterface Coq.MSets.MSetFacts Coq.MSets.MSetProperties
+  MathClasses.implementations.list MathClasses.implementations.list_finite_set MathClasses.theory.finite_sets
+  MathClasses.interfaces.finite_sets MathClasses.interfaces.orders MathClasses.interfaces.abstract_algebra.
 
 Module MSet_FSet (E : DecidableType) (Import set : WSetsOn E).
 

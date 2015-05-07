@@ -1,8 +1,8 @@
 Require Import
-  RelationClasses Relation_Definitions List Morphisms
-  universal_algebra ua_homomorphisms
-  abstract_algebra canonical_names
-  theory.categories categories.varieties.
+  Coq.Classes.RelationClasses Coq.Relations.Relation_Definitions Coq.Lists.List Coq.Classes.Morphisms
+  MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.canonical_names
+  MathClasses.theory.categories MathClasses.categories.varieties.
 
 Section contents.
   Variable et: EquationalTheory.

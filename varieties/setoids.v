@@ -1,7 +1,7 @@
 Require
-  categories.varieties.
+  MathClasses.categories.varieties.
 Require Import
-  abstract_algebra universal_algebra ua_homomorphisms.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms.
 
 Definition op := False.
 

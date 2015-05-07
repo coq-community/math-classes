@@ -1,5 +1,5 @@
 Require Import
-  canonical_names.
+  MathClasses.interfaces.canonical_names.
 
 (*
   The following class is nice to parametrize instances by additional properties, for example:

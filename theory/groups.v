@@ -1,7 +1,7 @@
 Require
-  theory.setoids.
+  MathClasses.theory.setoids.
 Require Import
-  Morphisms abstract_algebra.
+  Coq.Classes.Morphisms MathClasses.interfaces.abstract_algebra.
 
 Section semigroup_props.
 Context `{SemiGroup G}.

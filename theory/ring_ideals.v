@@ -1,9 +1,9 @@
  (* We define what a ring ideal is, show that they yield congruences,
  define what a kernel is, and show that kernels are ideal. *)
 Require Import
-  Ring abstract_algebra theory.rings.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.theory.rings.
 Require Export
-   theory.ring_congruence.
+   MathClasses.theory.ring_congruence.
 
 (* Require ua_congruence varieties.rings. *)
 

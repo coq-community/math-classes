@@ -1,7 +1,7 @@
 (* In the standard library equality on streams is defined as pointwise Leibniz equality.
     Here we prove similar results, but we use setoid equality instead. *)
-Require Export Streams.
-Require Import peano_naturals abstract_algebra.
+Require Export Coq.Lists.Streams.
+Require Import MathClasses.implementations.peano_naturals MathClasses.interfaces.abstract_algebra.
 
 Section streams.
 Context `{Setoid A}.

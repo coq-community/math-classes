@@ -1,11 +1,11 @@
 Require
-  theory.integers theory.int_abs.
+  MathClasses.theory.integers MathClasses.theory.int_abs.
 Require Import
-  Ring abstract_algebra interfaces.integers interfaces.naturals
-  interfaces.additional_operations interfaces.orders
-  natpair_integers orders.rings.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers MathClasses.interfaces.naturals
+  MathClasses.interfaces.additional_operations MathClasses.interfaces.orders
+  MathClasses.implementations.natpair_integers MathClasses.orders.rings.
 Require Export
-  orders.nat_int.
+  MathClasses.orders.nat_int.
 
 Section integers.
 Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt}.

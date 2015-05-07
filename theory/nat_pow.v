@@ -1,7 +1,7 @@
 Require
-  theory.naturals.
+  MathClasses.theory.naturals.
 Require Import
-  Ring abstract_algebra interfaces.naturals interfaces.orders interfaces.additional_operations.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders MathClasses.interfaces.additional_operations.
 
 (* * Properties of Nat Pow *)
 Section nat_pow_properties.

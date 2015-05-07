@@ -1,8 +1,8 @@
 Require Import
-  abstract_algebra
-  universal_algebra ua_homomorphisms
-  theory.categories categories.varieties.
-Require theory.setoids.
+  MathClasses.interfaces.abstract_algebra
+  MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms
+  MathClasses.theory.categories MathClasses.categories.varieties.
+Require MathClasses.theory.setoids.
 
 Section algebras.
   Context
@@ -174,7 +174,7 @@ Section varieties.
   Qed.
 End varieties.
 
-Require categories.varieties.
+Require MathClasses.categories.varieties.
 
 Section categorical.
   Context

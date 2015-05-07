@@ -1,8 +1,8 @@
 (* To be imported qualified. *)
 Require
-  categories.varieties categories.product forget_algebra forget_variety.
+  MathClasses.categories.varieties MathClasses.categories.product MathClasses.theory.forget_algebra MathClasses.theory.forget_variety.
 Require Import
-  abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.misc.workaround_tactics.
 
 Inductive op := mult.
 

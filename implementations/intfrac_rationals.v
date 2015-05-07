@@ -1,8 +1,8 @@
 Require Import
-  interfaces.rationals interfaces.integers
-  abstract_algebra theory.rationals.
+  MathClasses.interfaces.rationals MathClasses.interfaces.integers
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.rationals.
 Require Export
-  field_of_fractions.
+  MathClasses.implementations.field_of_fractions.
 
 Section intfrac_rationals.
   Context `{Integers Z}.

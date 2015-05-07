@@ -1,8 +1,8 @@
 Require Import
-  Ring abstract_algebra interfaces.naturals interfaces.orders
-  theory.naturals theory.rings peano_naturals.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders
+  MathClasses.theory.naturals MathClasses.theory.rings MathClasses.implementations.peano_naturals.
 Require Export
-  orders.semirings.
+  MathClasses.orders.semirings.
 
 (*
 We axiomatize the order on the naturals and the integers as a non trivial

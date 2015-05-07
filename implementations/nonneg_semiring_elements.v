@@ -1,8 +1,8 @@
 Require
-  theory.rings.
+  MathClasses.theory.rings.
 Require Import
-  Ring
-  abstract_algebra interfaces.orders orders.semirings.
+  Coq.setoid_ring.Ring
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.semirings.
 
 Local Existing Instance pseudo_srorder_semiring.
 

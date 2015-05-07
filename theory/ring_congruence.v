@@ -1,5 +1,5 @@
 Require Import
-  Ring abstract_algebra theory.rings.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.theory.rings.
 
 Class RingCongruence A (R : relation A) `{Ring A} :=
   { ring_congr_equivalence : Equivalence R

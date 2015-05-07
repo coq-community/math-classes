@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra universal_algebra interfaces.monads.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.interfaces.monads.
 
 Section contents.
   Context (operation: Set) (operation_type: operation → OpType unit).

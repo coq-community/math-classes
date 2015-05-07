@@ -1,7 +1,7 @@
 Require
-  theory.rings categories.varieties.
+  MathClasses.theory.rings MathClasses.categories.varieties.
 Require Import
-  abstract_algebra universal_algebra.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra.
 
 Definition op := False.
 

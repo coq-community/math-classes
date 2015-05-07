@@ -1,5 +1,5 @@
 Require Import
-  theory.setoids abstract_algebra.
+  MathClasses.theory.setoids MathClasses.interfaces.abstract_algebra.
 
 Local Existing Instance injective_mor.
 Local Existing Instance surjective_mor.

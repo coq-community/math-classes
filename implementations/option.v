@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.monads jections theory.monads.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.jections MathClasses.theory.monads.
 
 Inductive option_equiv A `{Equiv A} : Equiv (option A) :=
   | option_equiv_Some : Proper ((=) ==> (=)) Some

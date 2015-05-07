@@ -1,10 +1,10 @@
 Require 
-  peano_naturals.
+  MathClasses.implementations.peano_naturals.
 Require Import
-  Ring abstract_algebra interfaces.integers interfaces.naturals interfaces.orders
-  interfaces.additional_operations int_abs.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers MathClasses.interfaces.naturals MathClasses.interfaces.orders
+  MathClasses.interfaces.additional_operations MathClasses.theory.int_abs.
 Require Export
-  implementations.nonneg_semiring_elements.
+  MathClasses.implementations.nonneg_semiring_elements.
 
 Section nonneg_integers_naturals.
 Context `{Integers Z} `{Apart Z} `{!TrivialApart Z} `{!FullPseudoSemiRingOrder Zle Zlt}.

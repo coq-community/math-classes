@@ -1,7 +1,7 @@
 (** This module should be [Require]d but not [Import]ed (except for the notations submodule). *)
 
 Require Import
-  Unicode.Utf8 Coq.Lists.List Setoid Morphisms Permutation.
+  Coq.Unicode.Utf8 Coq.Lists.List Coq.Setoids.Setoid Coq.Classes.Morphisms Coq.Sorting.Permutation.
 
 Instance: ∀ A, Proper (@Permutation A ==> eq) (@length A).
 Proof Permutation_length.

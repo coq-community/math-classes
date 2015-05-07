@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.functors theory.categories.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.functors MathClasses.theory.categories.
 
 Record Object := object
   { obj:> Type

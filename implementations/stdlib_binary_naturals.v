@@ -1,7 +1,7 @@
 Require Import
-  NArith peano_naturals theory.naturals
-  abstract_algebra interfaces.naturals interfaces.orders
-  interfaces.additional_operations.  
+  Coq.NArith.NArith MathClasses.implementations.peano_naturals MathClasses.theory.naturals
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders
+  MathClasses.interfaces.additional_operations.  
 
 (* canonical names for relations/operations/constants: *)
 Instance N_equiv : Equiv N := eq.

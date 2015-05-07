@@ -1,10 +1,10 @@
 Require
-  theory.fields stdlib_rationals theory.int_pow.
+  MathClasses.theory.fields MathClasses.implementations.stdlib_rationals MathClasses.theory.int_pow.
 Require Import
-  QArith QSig
-  abstract_algebra interfaces.orders
-  interfaces.integers interfaces.rationals interfaces.additional_operations
-  theory.rings theory.rationals.
+  Coq.QArith.QArith Coq.Numbers.Rational.SpecViaQ.QSig
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders
+  MathClasses.interfaces.integers MathClasses.interfaces.rationals MathClasses.interfaces.additional_operations
+  MathClasses.theory.rings MathClasses.theory.rationals.
 
 Module QType_Rationals (Import anyQ: QType).
 

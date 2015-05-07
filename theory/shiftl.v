@@ -1,9 +1,9 @@
 Require
-  orders.integers theory.dec_fields theory.nat_pow.
+  MathClasses.orders.integers MathClasses.theory.dec_fields MathClasses.theory.nat_pow.
 Require Import
-  Ring
-  abstract_algebra interfaces.naturals interfaces.integers
-  interfaces.additional_operations interfaces.orders.
+  Coq.setoid_ring.Ring
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.integers
+  MathClasses.interfaces.additional_operations MathClasses.interfaces.orders.
 
 Section shiftl.
 Context `{SemiRing A} `{!LeftCancellation (.*.) (2:A)} `{SemiRing B} `{!Biinduction B} `{!ShiftLSpec A B sl}.

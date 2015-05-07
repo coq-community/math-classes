@@ -1,9 +1,9 @@
 Require
-  ua_homomorphisms.
+  MathClasses.theory.ua_homomorphisms.
 Require Import
-  Morphisms Ring Arith_base
-  abstract_algebra interfaces.naturals theory.categories
-  interfaces.additional_operations interfaces.orders orders.semirings.
+  Coq.Classes.Morphisms Coq.setoid_ring.Ring Coq.Arith.Arith_base
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.theory.categories
+  MathClasses.interfaces.additional_operations MathClasses.interfaces.orders MathClasses.orders.semirings.
 
 Instance nat_equiv: Equiv nat := eq.
 Instance nat_plus: Plus nat := Peano.plus.

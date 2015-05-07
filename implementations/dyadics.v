@@ -4,12 +4,12 @@
    embedded into any [Rationals] implementation [Q].
 *)
 Require Import
-  Ring abstract_algebra
-  interfaces.integers interfaces.naturals interfaces.rationals
-  interfaces.additional_operations interfaces.orders
-  orders.minmax orders.integers orders.rationals
-  nonneg_integers_naturals stdlib_rationals
-  theory.rationals theory.shiftl theory.int_pow theory.nat_pow theory.abs.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra
+  MathClasses.interfaces.integers MathClasses.interfaces.naturals MathClasses.interfaces.rationals
+  MathClasses.interfaces.additional_operations MathClasses.interfaces.orders
+  MathClasses.orders.minmax MathClasses.orders.integers MathClasses.orders.rationals
+  MathClasses.implementations.nonneg_integers_naturals MathClasses.implementations.stdlib_rationals
+  MathClasses.theory.rationals MathClasses.theory.shiftl MathClasses.theory.int_pow MathClasses.theory.nat_pow MathClasses.theory.abs.
 
 Record Dyadic Z := dyadic { mant: Z; expo: Z }.
 Arguments dyadic {Z} _ _.

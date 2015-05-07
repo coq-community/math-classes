@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra universal_algebra.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra.
 
 Section contents.
   Variable Sorts: Set.

@@ -1,5 +1,5 @@
-Require Import canonical_names.
-Require Import Equivalence Morphisms RelationClasses.
+Require Import MathClasses.interfaces.canonical_names.
+Require Import Coq.Classes.Equivalence Coq.Classes.Morphisms Coq.Classes.RelationClasses.
 
 (* Remove some duplicate / obsolete instances *)
 Remove Hints Equivalence_Reflexive

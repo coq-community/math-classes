@@ -1,6 +1,6 @@
 (* JMeq without the [eq] hard-wiring. Meant for use with [Require] only, not [Import]. *)
-Require Import Relation_Definitions RelationClasses.
-Require Export Unicode.Utf8 Utf8_core.
+Require Import Coq.Relations.Relation_Definitions Coq.Classes.RelationClasses.
+Require Export Coq.Unicode.Utf8 Coq.Unicode.Utf8_core.
 
 Inductive R {A: Type} (r: relation A) (x: A): forall B: Type, relation B → B → Prop := relate y: r x y → R r x A r y.
 
@@ -14,7 +14,7 @@ Lemma transitive A B C (Ra: relation A) (Rb: relation B) (Rc: relation C) (a:A) 
   R Ra a _ Rb b → R Rb b _ Rc c → R Ra a _ Rc c.
 Proof. destruct 1. destruct 1. apply relate. transitivity y; assumption. Qed.
 
-Require Import Eqdep.
+Require Import Coq.Logic.Eqdep.
 
 Lemma unJM A (r: relation A) (x y:A) r' (E: R r x A r' y): r x y.
 Proof.

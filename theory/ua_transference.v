@@ -1,8 +1,8 @@
 Require Import
-  abstract_algebra universal_algebra ua_homomorphisms
-  canonical_names theory.categories ua_mapped_operations.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms
+  MathClasses.interfaces.canonical_names MathClasses.theory.categories MathClasses.theory.ua_mapped_operations.
 
-Require categories.varieties.
+Require MathClasses.categories.varieties.
 
 Section contents.
 

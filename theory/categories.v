@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra theory.setoids interfaces.functors theory.jections.
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.setoids MathClasses.interfaces.functors MathClasses.theory.jections.
 
 Notation "x ⇛ y" := (∀ a, x a ⟶ y a) (at level 90, right associativity) : mc_scope.
   (* Transformations (polymorphic arrows). Couldn't find an "arrow with dot over it" unicode character. *)

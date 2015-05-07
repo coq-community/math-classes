@@ -1,9 +1,9 @@
 Require Import
-  BigZ
-  interfaces.abstract_algebra interfaces.integers
-  interfaces.additional_operations fast_naturals.
+  Coq.Numbers.Integer.BigZ.BigZ
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers
+  MathClasses.interfaces.additional_operations MathClasses.implementations.fast_naturals.
 Require Export
-  ZType_integers.
+  MathClasses.implementations.ZType_integers.
 
 Module BigZ_Integers := ZType_Integers BigZ.
 

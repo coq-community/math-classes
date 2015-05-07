@@ -1,10 +1,10 @@
 Require
-  theory.setoids ne_list.
+  MathClasses.theory.setoids MathClasses.implementations.ne_list.
 Require Import
-  List
-  abstract_algebra util jections.
+  Coq.Lists.List
+  MathClasses.interfaces.abstract_algebra MathClasses.misc.util MathClasses.theory.jections.
 Require Export
-  ua_basic.
+  MathClasses.interfaces.ua_basic.
 
 Section for_signature.
   Variable σ: Signature.

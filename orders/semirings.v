@@ -1,7 +1,7 @@
 Require Import
-  Ring abstract_algebra interfaces.orders theory.rings.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.theory.rings.
 Require Export
-  orders.orders orders.maps.
+  MathClasses.orders.orders MathClasses.orders.maps.
 
 Local Existing Instance srorder_semiring.
 Local Existing Instance strict_srorder_semiring.

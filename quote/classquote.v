@@ -1,4 +1,4 @@
-Require Import Morphisms Program Unicode.Utf8.
+Require Import Coq.Classes.Morphisms Coq.Program.Program Coq.Unicode.Utf8.
 
 (* First, two ways to do quoting in the naive scenario without
  holes/variables in the expression: *)

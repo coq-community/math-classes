@@ -1,8 +1,8 @@
 (* To be imported qualified. *)
 Require
-  theory.rings categories.varieties.
+  MathClasses.theory.rings MathClasses.categories.varieties.
 Require Import
-  abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.misc.workaround_tactics.
 
 Inductive op := plus | mult | zero | one.
 

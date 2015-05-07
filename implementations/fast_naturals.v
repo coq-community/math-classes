@@ -1,6 +1,6 @@
 Require Import
-  BigN interfaces.naturals.
+  Coq.Numbers.Natural.BigN.BigN MathClasses.interfaces.naturals.
 Require Export
-  NType_naturals.
+  MathClasses.implementations.NType_naturals.
 
 Module BigN_Integers := NType_Integers BigN.

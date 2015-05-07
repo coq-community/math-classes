@@ -1,6 +1,6 @@
 Require Import
-  abstract_algebra interfaces.integers interfaces.additional_operations
-  implementations.dyadics fast_integers.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers MathClasses.interfaces.additional_operations
+  MathClasses.implementations.dyadics MathClasses.implementations.fast_integers.
 
 Section wolfram_sqrt.
 Context `{Integers Z} `{!RingOrder oZ} `{!TotalOrder oZ}

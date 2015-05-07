@@ -1,8 +1,8 @@
 Require
-  orders.semirings.
+  MathClasses.orders.semirings.
 Require Import
-  Ring abstract_algebra interfaces.additional_operations
-  interfaces.orders orders.minmax.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.additional_operations
+  MathClasses.interfaces.orders MathClasses.orders.minmax.
 
 (* * Properties of Cut off Minus *)
 Section cut_minus_properties.

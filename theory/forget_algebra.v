@@ -2,9 +2,9 @@
 
 This functor should nicely compose with the one forgetting variety laws. *)
 Require Import
-  abstract_algebra universal_algebra interfaces.functors
-  ua_homomorphisms theory.categories
-  categories.setoids categories.product categories.algebras.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.interfaces.functors
+  MathClasses.theory.ua_homomorphisms MathClasses.theory.categories
+  MathClasses.categories.setoids MathClasses.categories.product MathClasses.categories.algebras.
 
 Section contents.
   Variable sign: Signature.

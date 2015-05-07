@@ -1,4 +1,4 @@
-Require Import Setoid canonical_names.
+Require Import Coq.Setoids.Setoid MathClasses.interfaces.canonical_names.
 
 (*
 When math-classes is used as part of another development setoid_replace

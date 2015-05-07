@@ -1,8 +1,8 @@
 Require Import
-  Ring Field abstract_algebra interfaces.orders
-  interfaces.naturals interfaces.rationals interfaces.integers
-  natpair_integers theory.rationals theory.dec_fields theory.rings
-  orders.integers orders.dec_fields.
+  Coq.setoid_ring.Ring Coq.setoid_ring.Field MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders
+  MathClasses.interfaces.naturals MathClasses.interfaces.rationals MathClasses.interfaces.integers
+  MathClasses.implementations.natpair_integers MathClasses.theory.rationals MathClasses.theory.dec_fields MathClasses.theory.rings
+  MathClasses.orders.integers MathClasses.orders.dec_fields.
 
 Section rationals_and_integers.
   Context `{Rationals Q} `{!SemiRingOrder Qle}

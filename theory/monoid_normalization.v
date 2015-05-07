@@ -1,6 +1,6 @@
-Require Import Omega.
-Require Import abstract_algebra ua_packed.
-Require universal_algebra varieties.monoids.
+Require Import Coq.omega.Omega.
+Require Import MathClasses.interfaces.abstract_algebra MathClasses.theory.ua_packed.
+Require MathClasses.interfaces.universal_algebra MathClasses.varieties.monoids.
 
 Notation msig := varieties.monoids.sig.
 Notation Op := (universal_algebra.Op msig False).

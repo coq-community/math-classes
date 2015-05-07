@@ -1,5 +1,5 @@
 Require Export
-  canonical_names util decision propholds workarounds setoid_tactics.
+  MathClasses.interfaces.canonical_names MathClasses.misc.util MathClasses.misc.decision MathClasses.misc.propholds MathClasses.misc.workarounds MathClasses.misc.setoid_tactics.
 
 (* 
 For various structures we omit declaration of substructures. For example, if we 

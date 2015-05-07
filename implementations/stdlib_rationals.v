@@ -1,10 +1,10 @@
 Require
-  stdlib_binary_integers Field QArith.Qfield theory.rationals.
+  MathClasses.implementations.stdlib_binary_integers Coq.setoid_ring.Field Coq.QArith.Qfield MathClasses.theory.rationals.
 Require Import
-  Ring QArith_base Qabs Qpower
-  abstract_algebra interfaces.rationals
-  interfaces.orders interfaces.additional_operations
-  field_of_fractions orders.integers.
+  Coq.setoid_ring.Ring Coq.QArith.QArith_base Coq.QArith.Qabs Coq.QArith.Qpower
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.rationals
+  MathClasses.interfaces.orders MathClasses.interfaces.additional_operations
+  MathClasses.implementations.field_of_fractions MathClasses.orders.integers.
 
 (* canonical names for relations/operations/constants: *)
 Instance Q_eq: Equiv Q := Qeq.

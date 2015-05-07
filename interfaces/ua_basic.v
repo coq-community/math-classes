@@ -1,7 +1,7 @@
 Require
-  ne_list.
+  MathClasses.implementations.ne_list.
 Require Import
-  List abstract_algebra.
+  Coq.Lists.List MathClasses.interfaces.abstract_algebra.
 
 Local Notation ne_list := ne_list.L.
 

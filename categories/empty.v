@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.functors.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.functors.
 
 Definition Empty_map {A: Empty_set → Type} : ∀ x : Empty_set, A x := λ x, match x with end.
 Local Notation E := Empty_map.

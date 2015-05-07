@@ -1,8 +1,8 @@
 Require Import
-  abstract_algebra interfaces.naturals theory.categories
-  categories.varieties.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.theory.categories
+  MathClasses.categories.varieties.
 Require
-  varieties.rings.
+  MathClasses.varieties.rings.
 
 Section initial_maps.
   Variable A : Type.

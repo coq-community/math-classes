@@ -1,6 +1,6 @@
 Require Import
-  Ring abstract_algebra interfaces.integers
-  theory.integers theory.ring_ideals.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers
+  MathClasses.theory.integers MathClasses.theory.ring_ideals.
 
 Definition is_multiple `{Equiv Z} `{Mult Z} (b x : Z) := ∃ k, x = b * k.
 Notation Mod b := (Factor _ (is_multiple b)).

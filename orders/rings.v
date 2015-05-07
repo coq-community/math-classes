@@ -1,7 +1,7 @@
 Require Import
-  Ring abstract_algebra interfaces.orders theory.rings.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.theory.rings.
 Require Export
-  orders.semirings.
+  MathClasses.orders.semirings.
 
 Section from_ring_order.
   Context `{Ring R} `{!PartialOrder Rle}

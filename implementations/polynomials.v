@@ -1,6 +1,6 @@
 Require Import
-  List
-  abstract_algebra.
+  Coq.Lists.List
+  MathClasses.interfaces.abstract_algebra.
 
 Section contents.
   Context R `{Ring R}.

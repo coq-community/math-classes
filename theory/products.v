@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra.
+  MathClasses.interfaces.abstract_algebra.
 
 Definition prod_equiv `{Equiv A} `{Equiv B} : Equiv (A * B) := λ p q, fst p = fst q ∧ snd p = snd q.
 (* Avoid eager application *)

@@ -1,8 +1,8 @@
 Require Import
-  Ring Factorial workaround_tactics
-  abstract_algebra interfaces.additional_operations interfaces.orders
-  interfaces.naturals interfaces.integers
-  theory.nat_pow theory.int_pow theory.streams.
+  Coq.setoid_ring.Ring Coq.Arith.Factorial MathClasses.misc.workaround_tactics
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.additional_operations MathClasses.interfaces.orders
+  MathClasses.interfaces.naturals MathClasses.interfaces.integers
+  MathClasses.theory.nat_pow MathClasses.theory.int_pow MathClasses.theory.streams.
 
 Local Existing Instance srorder_semiring.
 

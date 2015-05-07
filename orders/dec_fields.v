@@ -1,8 +1,8 @@
 Require Import
-  Relation_Definitions Ring
-  abstract_algebra interfaces.orders theory.rings theory.dec_fields.
+  Coq.Relations.Relation_Definitions Coq.setoid_ring.Ring
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.theory.rings MathClasses.theory.dec_fields.
 Require Export
-  orders.rings.
+  MathClasses.orders.rings.
 
 Section contents.
 Context `{DecField F} `{Apart F} `{!TrivialApart F} `{!FullPseudoSemiRingOrder Fle Flt} `{∀ x y : F, Decision (x = y)}.

@@ -1,10 +1,10 @@
 (* General results about arbitrary integer implementations. *)
 Require
- theory.nat_distance.
+ MathClasses.theory.nat_distance.
 Require Import
- Ring interfaces.naturals abstract_algebra natpair_integers.
+ Coq.setoid_ring.Ring MathClasses.interfaces.naturals MathClasses.interfaces.abstract_algebra MathClasses.implementations.natpair_integers.
 Require Export
- interfaces.integers.
+ MathClasses.interfaces.integers.
 
 (* Any two integer implementations are trivially isomorphic because of their initiality,
  but it's nice to have this stated in terms of integers_to_ring being self-inverse: *)

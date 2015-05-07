@@ -1,6 +1,6 @@
 Require Import
- abstract_algebra theory.categories
- varieties.semirings categories.varieties.
+ MathClasses.interfaces.abstract_algebra MathClasses.theory.categories
+ MathClasses.varieties.semirings MathClasses.categories.varieties.
 
 Module bad.
   Class Naturals (A: semirings.Object) `{!InitialArrow A}: Prop :=

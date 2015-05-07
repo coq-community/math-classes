@@ -1,5 +1,5 @@
 Require Import
-  canonical_names universal_algebra Program.
+  MathClasses.interfaces.canonical_names MathClasses.interfaces.universal_algebra Coq.Program.Program.
 
 Section packed.
   Context (σ: Signature) {V: Type}.

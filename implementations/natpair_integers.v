@@ -5,12 +5,12 @@
   of these integers. *)
 
 Require
- theory.naturals.
+ MathClasses.theory.naturals.
 Require Import
- Ring abstract_algebra theory.categories
- interfaces.naturals interfaces.integers jections.
+ Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.theory.categories
+ MathClasses.interfaces.naturals MathClasses.interfaces.integers MathClasses.theory.jections.
 Require Export
- implementations.semiring_pairs.
+ MathClasses.implementations.semiring_pairs.
 
 Section contents.
 Context `{Naturals N}.

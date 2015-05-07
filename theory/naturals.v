@@ -1,8 +1,8 @@
 Require Import
-  Ring abstract_algebra peano_naturals theory.rings
-  categories.varieties theory.ua_transference.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.implementations.peano_naturals MathClasses.theory.rings
+  MathClasses.categories.varieties MathClasses.theory.ua_transference.
 Require Export
-  interfaces.naturals.
+  MathClasses.interfaces.naturals.
 
 Lemma to_semiring_involutive N `{Naturals N} N2 `{Naturals N2} x :
   naturals_to_semiring N2 N (naturals_to_semiring N N2 x) = x.
