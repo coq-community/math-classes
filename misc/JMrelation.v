@@ -1,6 +1,6 @@
 (* JMeq without the [eq] hard-wiring. Meant for use with [Require] only, not [Import]. *)
-Require Import Relation_Definitions RelationClasses.
-Require Export Unicode.Utf8 Utf8_core.
+Require Import Coq.Relations.Relation_Definitions Coq.Classes.RelationClasses.
+Require Export Coq.Unicode.Utf8 Coq.Unicode.Utf8_core.
 
 Inductive R {A: Type} (r: relation A) (x: A): forall B: Type, relation B → B → Prop := relate y: r x y → R r x A r y.
 
