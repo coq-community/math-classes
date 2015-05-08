@@ -1,8 +1,6 @@
 ## Compilation
 Known to compile with Coq 8.4.pl3.
 
-Warning: This development assumes a case sensitive file system.
-
 ## Directory structure
 ### categories/
 Proofs that certain structures form categories.
