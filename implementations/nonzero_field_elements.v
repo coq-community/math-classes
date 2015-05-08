@@ -1,5 +1,5 @@
 Require Import
-  Ring abstract_algebra theory.fields.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.theory.fields.
 
 (* The non zero elements of a field form a CommutativeMonoid. *)
 Section contents.

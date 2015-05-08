@@ -1,5 +1,5 @@
 Require Import 
-  abstract_algebra interfaces.orders.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders.
 
 (** Scalar multiplication function class *)
 Class ScalarMult K V := scalar_mult: K → V → V.

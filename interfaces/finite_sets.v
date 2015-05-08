@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.orders.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders.
 
 (*
 We define finite sets as the initial join semi lattice over a decidable type.

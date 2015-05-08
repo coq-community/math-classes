@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.orders orders.maps theory.lattices.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.maps MathClasses.theory.lattices.
 
 (*
 We prove that the algebraic definition of a lattice corresponds to the

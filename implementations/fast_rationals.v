@@ -1,12 +1,12 @@
 Require
-  theory.shiftl theory.int_pow.
+  MathClasses.theory.shiftl MathClasses.theory.int_pow.
 Require Import
-  QArith BigQ
-  abstract_algebra
-  interfaces.integers interfaces.rationals interfaces.additional_operations
-  fast_naturals fast_integers field_of_fractions stdlib_rationals.
+  Coq.QArith.QArith Coq.Numbers.Rational.BigQ.BigQ
+  MathClasses.interfaces.abstract_algebra
+  MathClasses.interfaces.integers MathClasses.interfaces.rationals MathClasses.interfaces.additional_operations
+  MathClasses.implementations.fast_naturals MathClasses.implementations.fast_integers MathClasses.implementations.field_of_fractions MathClasses.implementations.stdlib_rationals.
 Require Export
-  QType_rationals.
+  MathClasses.implementations.QType_rationals.
 
 Module Import BigQ_Rationals := QType_Rationals BigQ.
 

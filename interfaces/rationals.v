@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.integers field_of_fractions theory.integers.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers MathClasses.implementations.field_of_fractions MathClasses.theory.integers.
 
 Section rationals_to_frac.
   Context (A : Type).

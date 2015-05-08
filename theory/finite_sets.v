@@ -1,7 +1,7 @@
 Require Import
-  theory.lattices varieties.monoids implementations.bool
-  implementations.list_finite_set orders.lattices
-  abstract_algebra interfaces.finite_sets interfaces.orders.
+  MathClasses.theory.lattices MathClasses.varieties.monoids MathClasses.implementations.bool
+  MathClasses.implementations.list_finite_set MathClasses.orders.lattices
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.finite_sets MathClasses.interfaces.orders.
 
 Definition fset_car_setoid A `{FSet A} : Setoid A := setoidmor_a singleton.
 

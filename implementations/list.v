@@ -1,5 +1,5 @@
 Require Import
-  List SetoidList abstract_algebra interfaces.monads theory.monads.
+  Coq.Lists.List Coq.Lists.SetoidList MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.monads.
 
 (* The below belongs in the stdlib *)
 Section equivlistA_misc.

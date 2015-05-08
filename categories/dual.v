@@ -1,5 +1,5 @@
 Require Import
-  Relation_Definitions abstract_algebra theory.categories interfaces.functors.
+  Coq.Relations.Relation_Definitions MathClasses.interfaces.abstract_algebra MathClasses.theory.categories MathClasses.interfaces.functors.
 
 Section contents.
 

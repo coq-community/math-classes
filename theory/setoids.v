@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra theory.products.
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.products.
 
 Lemma ext_equiv_refl `{Setoid_Morphism A B f} : f = f.
 Proof. intros ?? E. pose proof (setoidmor_b f). now rewrite E. Qed.

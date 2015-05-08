@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.orders strong_setoids.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.theory.strong_setoids.
 
 Lemma le_flip `{Le A} `{!TotalRelation (≤)} x y : ¬y ≤ x → x ≤ y.
 Proof. firstorder. Qed.

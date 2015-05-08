@@ -1,6 +1,6 @@
 Require Import
-  RelationClasses Equivalence
-  categories.categories abstract_algebra categories.functors.
+  Coq.Classes.RelationClasses Coq.Classes.Equivalence
+  MathClasses.categories.categories MathClasses.interfaces.abstract_algebra MathClasses.categories.functors.
 
 Instance: Arrows unit := λ _ _, unit.
 Instance: CatId unit := λ _, tt.

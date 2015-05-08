@@ -1,10 +1,10 @@
 Require
-  theory.naturals orders.semirings orders.integers orders.dec_fields.
+  MathClasses.theory.naturals MathClasses.orders.semirings MathClasses.orders.integers MathClasses.orders.dec_fields.
 Require Import
-  Ring Field
-  abstract_algebra interfaces.naturals interfaces.integers
-  interfaces.additional_operations interfaces.orders
-  theory.nat_pow theory.int_abs theory.dec_fields.
+  Coq.setoid_ring.Ring Coq.setoid_ring.Field
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.integers
+  MathClasses.interfaces.additional_operations MathClasses.interfaces.orders
+  MathClasses.theory.nat_pow MathClasses.theory.int_abs MathClasses.theory.dec_fields.
 
 (* * Properties of Int Pow *)
 Section int_pow_properties.

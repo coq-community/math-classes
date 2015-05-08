@@ -1,5 +1,5 @@
 Require Import
-  Ring abstract_algebra interfaces.orders orders.rings.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.rings.
 
 Section contents.
 Context `{Ring R} `{Apart R} `{!TrivialApart R} `{!FullPseudoSemiRingOrder Rle Rlt} `{∀ x y, Decision (x = y)} `{a : !Abs R}.

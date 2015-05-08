@@ -1,9 +1,9 @@
 Require
-  theory.naturals.
+  MathClasses.theory.naturals.
 Require Import
-  Ring abstract_algebra interfaces.naturals interfaces.orders orders.rings.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders MathClasses.orders.rings.
 Require Export
-  orders.nat_int.
+  MathClasses.orders.nat_int.
 
 Section naturals_order.
 Context `{Naturals N} `{Apart N} `{!TrivialApart N} `{!FullPseudoSemiRingOrder Nle Nlt}.

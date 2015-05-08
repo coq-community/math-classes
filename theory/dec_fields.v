@@ -1,8 +1,8 @@
 Require Import
-  Field Ring
-  abstract_algebra theory.fields theory.strong_setoids.
+  Coq.setoid_ring.Field Coq.setoid_ring.Ring
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.fields MathClasses.theory.strong_setoids.
 Require Export
-  theory.rings.
+  MathClasses.theory.rings.
 
 Section contents.
 Context `{DecField F} `{∀ x y: F, Decision (x = y)}.

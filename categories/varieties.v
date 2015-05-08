@@ -5,7 +5,7 @@ factor out the commonality.
 
  *)
 Require Import
-  abstract_algebra universal_algebra ua_homomorphisms.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms.
 
 Record Object (et: EquationalTheory) : Type := object
   { variety_carriers:> sorts et → Type

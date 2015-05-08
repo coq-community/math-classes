@@ -1,8 +1,8 @@
 Require Import
-  canonical_names abstract_algebra
-  interfaces.functors.
+  MathClasses.interfaces.canonical_names MathClasses.interfaces.abstract_algebra
+  MathClasses.interfaces.functors.
 Require
-  categories.setoids.
+  MathClasses.categories.setoids.
 
 Section setoid_functor_as_posh_functor.
 Context `{Pfunctor : @SFunctor F map_eq map}.

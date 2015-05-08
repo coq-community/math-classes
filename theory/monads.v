@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.monads theory.functors.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.functors.
 
 Instance default_mon_join `{MonadBind M} : MonadJoin M | 20 := λ _, bind id.
 Instance default_mon_map `{MonadReturn M} `{MonadBind M} : SFmap M | 20 := λ _ _ f, bind (ret ∘ f).

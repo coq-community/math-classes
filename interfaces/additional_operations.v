@@ -1,5 +1,5 @@
 Require Import
-  Morphisms abstract_algebra.
+  Coq.Classes.Morphisms MathClasses.interfaces.abstract_algebra.
 
 Class Pow A B := pow : A → B → A.
 Infix "^" := pow : mc_scope.

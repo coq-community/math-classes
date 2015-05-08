@@ -1,7 +1,7 @@
 Require
-  varieties.monoids theory.groups strong_setoids.
+  MathClasses.varieties.monoids MathClasses.theory.groups MathClasses.theory.strong_setoids.
 Require Import
-  Ring abstract_algebra.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra.
 
 Definition is_ne_0 `(x : R) `{Equiv R} `{Zero R} `{p : PropHolds (x ≠ 0)} : x ≠ 0 := p.
 Definition is_nonneg `(x : R) `{Equiv R} `{Le R} `{Zero R} `{p : PropHolds (0 ≤ x)} : 0 ≤ x := p.

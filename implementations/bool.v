@@ -1,4 +1,4 @@
-Require Import abstract_algebra.
+Require Import MathClasses.interfaces.abstract_algebra.
 
 Instance bool_eq: Equiv bool := eq.
 Instance bool_bottom: Bottom bool := false.

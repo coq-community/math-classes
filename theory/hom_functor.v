@@ -1,6 +1,6 @@
 Require Import
-  abstract_algebra theory.setoids interfaces.functors theory.categories.
-Require categories.setoids.
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.setoids MathClasses.interfaces.functors MathClasses.theory.categories.
+Require MathClasses.categories.setoids.
 
 Section contents.
   Context `{Category C} (x: C).

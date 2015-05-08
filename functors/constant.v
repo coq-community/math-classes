@@ -1,5 +1,5 @@
 Require Import
-  theory.categories abstract_algebra interfaces.functors.
+  MathClasses.theory.categories MathClasses.interfaces.abstract_algebra MathClasses.interfaces.functors.
 
 Section constant_functor.
   Context `{Category A} `{Category B}.

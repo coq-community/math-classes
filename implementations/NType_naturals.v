@@ -1,9 +1,9 @@
 Require
-  stdlib_binary_integers theory.integers orders.semirings.
+  MathClasses.implementations.stdlib_binary_integers MathClasses.theory.integers MathClasses.orders.semirings.
 Require Import
-  Setoid NSig NSigNAxioms NArith ZArith Program Morphisms
-  abstract_algebra interfaces.naturals interfaces.integers
-  interfaces.orders interfaces.additional_operations.
+  Coq.Setoids.Setoid Coq.Numbers.Natural.SpecViaZ.NSig Coq.Numbers.Natural.SpecViaZ.NSigNAxioms Coq.NArith.NArith Coq.ZArith.ZArith Coq.Program.Program Coq.Classes.Morphisms
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.integers
+  MathClasses.interfaces.orders MathClasses.interfaces.additional_operations.
 
 Module NType_Integers (Import anyN: NType).
 

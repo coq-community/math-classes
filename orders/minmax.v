@@ -1,6 +1,6 @@
 Require Import
-  abstract_algebra interfaces.orders orders.orders
-  orders.lattices theory.setoids.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.orders
+  MathClasses.orders.lattices MathClasses.theory.setoids.
 
 Section contents.
   Context `{TotalOrder A} `{∀ x y: A, Decision (x ≤ y)}.

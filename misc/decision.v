@@ -1,5 +1,5 @@
 Require Import
-  canonical_names util.
+  MathClasses.interfaces.canonical_names MathClasses.misc.util.
 
 Class Decision P := decide: sumbool P (¬P).
 Arguments decide _ {Decision}.

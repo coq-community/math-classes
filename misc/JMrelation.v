@@ -14,7 +14,7 @@ Lemma transitive A B C (Ra: relation A) (Rb: relation B) (Rc: relation C) (a:A) 
   R Ra a _ Rb b → R Rb b _ Rc c → R Ra a _ Rc c.
 Proof. destruct 1. destruct 1. apply relate. transitivity y; assumption. Qed.
 
-Require Import Eqdep.
+Require Import Coq.Logic.Eqdep.
 
 Lemma unJM A (r: relation A) (x y:A) r' (E: R r x A r' y): r x y.
 Proof.

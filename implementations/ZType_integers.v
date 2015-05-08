@@ -1,9 +1,9 @@
 Require
-  stdlib_binary_integers theory.integers orders.semirings.
+  MathClasses.implementations.stdlib_binary_integers MathClasses.theory.integers MathClasses.orders.semirings.
 Require Import
-  ZSig ZSigZAxioms NArith ZArith
-  nonneg_integers_naturals interfaces.orders
-  abstract_algebra interfaces.integers interfaces.additional_operations.
+  Coq.Numbers.Integer.SpecViaZ.ZSig Coq.Numbers.Integer.SpecViaZ.ZSigZAxioms Coq.NArith.NArith Coq.ZArith.ZArith
+  MathClasses.implementations.nonneg_integers_naturals MathClasses.interfaces.orders
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers MathClasses.interfaces.additional_operations.
 
 Module ZType_Integers (Import anyZ: ZType).
 

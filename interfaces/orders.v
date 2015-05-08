@@ -1,4 +1,4 @@
-Require Import abstract_algebra.
+Require Import MathClasses.interfaces.abstract_algebra.
 
 (*
 In this file we describe interfaces for ordered structures. Since we are in a

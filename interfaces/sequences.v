@@ -1,10 +1,10 @@
 Require Import
-  List abstract_algebra theory.categories forget_algebra forget_variety
-  theory.rings interfaces.universal_algebra interfaces.functors
-  categories.setoids categories.varieties.
+  Coq.Lists.List MathClasses.interfaces.abstract_algebra MathClasses.theory.categories MathClasses.theory.forget_algebra MathClasses.theory.forget_variety
+  MathClasses.theory.rings MathClasses.interfaces.universal_algebra MathClasses.interfaces.functors
+  MathClasses.categories.setoids MathClasses.categories.varieties.
 Require
-  categories.product varieties.monoids categories.algebras
-  categories.categories theory.setoids.
+  MathClasses.categories.product MathClasses.varieties.monoids MathClasses.categories.algebras
+  MathClasses.categories.categories MathClasses.theory.setoids.
 
 Module ua := universal_algebra.
 

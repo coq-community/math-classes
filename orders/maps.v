@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra interfaces.orders orders.orders theory.setoids theory.strong_setoids.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.orders MathClasses.theory.setoids MathClasses.theory.strong_setoids.
 
 Local Existing Instance order_morphism_po_a.
 Local Existing Instance order_morphism_po_b.

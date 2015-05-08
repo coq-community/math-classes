@@ -1,7 +1,7 @@
 Require Import
-  abstract_algebra theory.categories orders.maps interfaces.orders orders.orders
-  interfaces.functors.
-Require categories.setoids.
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.categories MathClasses.orders.maps MathClasses.interfaces.orders MathClasses.orders.orders
+  MathClasses.interfaces.functors.
+Require MathClasses.categories.setoids.
 
 Inductive Object := object { T:> Type; e: Equiv T; le: Le T; setoid_proof: Setoid T;  po_proof: PartialOrder le }.
 Existing Instance e.

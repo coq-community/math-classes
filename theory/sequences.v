@@ -1,8 +1,8 @@
 Require Import
-  theory.categories
-  interfaces.functors
-  abstract_algebra
-  interfaces.sequences.
+  MathClasses.theory.categories
+  MathClasses.interfaces.functors
+  MathClasses.interfaces.abstract_algebra
+  MathClasses.interfaces.sequences.
 
 Section contents.
   Context `{Sequence sq}.

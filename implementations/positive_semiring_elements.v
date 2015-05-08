@@ -1,8 +1,8 @@
 Require Import
-  Ring
-  abstract_algebra additional_operations
-  interfaces.orders interfaces.integers
-  orders.semirings theory.shiftl theory.int_pow.
+  Coq.setoid_ring.Ring
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.additional_operations
+  MathClasses.interfaces.orders MathClasses.interfaces.integers
+  MathClasses.orders.semirings MathClasses.theory.shiftl MathClasses.theory.int_pow.
 
 Local Existing Instance pseudo_srorder_semiring.
 

@@ -1,8 +1,8 @@
 Require Import
-  Ring
-  abstract_algebra interfaces.integers interfaces.naturals interfaces.rationals
-  field_of_fractions natpair_integers
-  theory.rings theory.integers theory.dec_fields.
+  Coq.setoid_ring.Ring
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers MathClasses.interfaces.naturals MathClasses.interfaces.rationals
+  MathClasses.implementations.field_of_fractions MathClasses.implementations.natpair_integers
+  MathClasses.theory.rings MathClasses.theory.integers MathClasses.theory.dec_fields.
 
 Program Instance slow_rat_dec `{Rationals Q} : ∀ x y: Q, Decision (x = y) | 10 := λ x y,
   match decide (rationals_to_frac Q (SRpair nat) x = rationals_to_frac Q (SRpair nat) y) with

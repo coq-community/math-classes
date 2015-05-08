@@ -1,8 +1,8 @@
 (** We prove the equivalence of the two definitions of adjunction. *)
 Require Import
-  abstract_algebra theory.setoids interfaces.functors theory.categories
-  workaround_tactics theory.jections.
-Require dual.
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.setoids MathClasses.interfaces.functors MathClasses.theory.categories
+  MathClasses.misc.workaround_tactics MathClasses.theory.jections.
+Require MathClasses.categories.dual.
 
 Local Hint Unfold id compose: typeclass_instances. (* todo: move *)
 Local Existing Instance injective_mor.

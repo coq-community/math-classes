@@ -1,7 +1,7 @@
 Require Import
-  Ring abstract_algebra strong_setoids.
+  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.theory.strong_setoids.
 Require Export
-  theory.rings.
+  MathClasses.theory.rings.
 
 Section field_properties.
 Context `{Field F}.

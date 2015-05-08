@@ -1,7 +1,7 @@
 Require Import
-  List SetoidList implementations.list
-  abstract_algebra interfaces.finite_sets interfaces.orders
-  theory.lattices orders.lattices.
+  Coq.Lists.List Coq.Lists.SetoidList MathClasses.implementations.list
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.finite_sets MathClasses.interfaces.orders
+  MathClasses.theory.lattices MathClasses.orders.lattices.
 
 (*
 We define finite sets as unordered lists. This implementation is slow,

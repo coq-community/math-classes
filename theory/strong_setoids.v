@@ -1,5 +1,5 @@
 Require Import
-  abstract_algebra jections.
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.jections.
 
 Section contents.
 Context `{StrongSetoid A}.

@@ -1,5 +1,5 @@
-Require Import Setoid Morphisms RelationClasses.
-Require Import Utf8.
+Require Import Coq.Setoids.Setoid Coq.Classes.Morphisms Coq.Classes.RelationClasses.
+Require Import Coq.Unicode.Utf8.
 
 Hint Unfold Proper respectful.
 

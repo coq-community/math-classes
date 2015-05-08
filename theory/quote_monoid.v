@@ -1,10 +1,10 @@
-Require Import abstract_algebra.
-Require universal_algebra.
+Require Import MathClasses.interfaces.abstract_algebra.
+Require MathClasses.interfaces.universal_algebra.
 
 Module ua := universal_algebra.
 
-Require varieties.monoids.
-Require monoid_normalization.
+Require MathClasses.varieties.monoids.
+Require MathClasses.theory.monoid_normalization.
 
 Notation msig := varieties.monoids.sig.
 Notation Op := (ua.Op msig False).

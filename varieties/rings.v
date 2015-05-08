@@ -1,9 +1,9 @@
 (* To be imported qualified. *)
 Require
-  categories.varieties theory.rings.
+  MathClasses.categories.varieties MathClasses.theory.rings.
 Require Import
-  Ring
-  abstract_algebra universal_algebra ua_homomorphisms workaround_tactics.
+  Coq.setoid_ring.Ring
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.misc.workaround_tactics.
 
 Inductive op := plus | mult | zero | one | negate.
 

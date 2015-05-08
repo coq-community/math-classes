@@ -2,8 +2,8 @@ Global Generalizable All Variables.
 Global Set Automatic Introduction.
 Global Set Automatic Coercions Import.
 
-Require Import Streams.
-Require Export Morphisms Setoid Program Unicode.Utf8 Utf8_core stdlib_hints.
+Require Import Coq.Lists.Streams.
+Require Export Coq.Classes.Morphisms Coq.Setoids.Setoid Coq.Program.Program Coq.Unicode.Utf8 Coq.Unicode.Utf8_core MathClasses.misc.stdlib_hints.
 
 (* Equality *)
 Class Equiv A := equiv: relation A.
