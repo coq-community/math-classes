@@ -26,7 +26,7 @@ Section product.
     | left _ => match B_dec (snd x) (snd y) with left _ => left _ | right _ => right _ end
     | right _ => right _
     end.
-  Solve Obligations using (program_simpl; firstorder).
+  Solve Obligations with (program_simpl; firstorder).
 End product.
 
 Definition prod_fst_equiv X A `{Equiv X} : relation (X * A) := λ x y, fst x = fst y.

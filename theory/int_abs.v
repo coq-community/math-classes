@@ -79,7 +79,7 @@ Proof.
 Qed.
 
 Lemma int_abs_ne_0 x : int_abs Z N x ≠ 0 ↔ x ≠ 0.
-Proof. firstorder using int_abs_0_alt. Qed.
+Proof. destruct (int_abs_0_alt x). intuition. Defined.
 
 Lemma int_abs_0 : int_abs Z N 0 = 0.
 Proof. now apply int_abs_0_alt. Qed.

@@ -13,6 +13,7 @@ Section contents.
   Global Instance: Fmap forget := λ _ _, id.
 
   Global Instance: Functor forget _.
-  Proof. constructor; intros; try apply _; repeat intro; reflexivity. Qed.
+  Proof. constructor; intros; try apply _; repeat intro; try reflexivity. 
+  Qed.
 
 End contents.

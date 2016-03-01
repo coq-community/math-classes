@@ -5,6 +5,8 @@ Global Set Automatic Coercions Import.
 Require Import Coq.Lists.Streams.
 Require Export Coq.Classes.Morphisms Coq.Setoids.Setoid Coq.Program.Program Coq.Unicode.Utf8 Coq.Unicode.Utf8_core MathClasses.misc.stdlib_hints.
 
+Definition id {A : Type} (a : A) := a.
+
 (* Equality *)
 Class Equiv A := equiv: relation A.
 
@@ -307,7 +309,8 @@ Notation "f ⁻¹" := (inverse f) (at level 30) : mc_scope.
 Class Idempotent `{ea : Equiv A} (f: A → A → A) (x : A) : Prop := idempotency: f x x = x.
 Arguments idempotency {A ea} _ _ {Idempotent}.
 
-Class UnaryIdempotent `{Equiv A} (f: A → A) : Prop := unary_idempotent :> Idempotent (∘) f.
+Class UnaryIdempotent `{Equiv A} (f: A → A) : Prop := 
+  unary_idempotent :> Idempotent (@compose A A A) f.
 Lemma unary_idempotency `{Equiv A} `{!Reflexive (=)} `{!UnaryIdempotent f} x : f (f x) = f x.
 Proof. firstorder. Qed.
 

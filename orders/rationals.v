@@ -15,7 +15,7 @@ Section rationals_and_integers.
   Proof.
     destruct (rationals_decompose x) as [num [den [E1 E2]]].
     destruct (total (≤) den 0).
-     exists (-num) (-den). split.
+     exists (-num), (-den). split.
       apply lt_iff_le_ne. split.
        now apply rings.flip_nonpos_negate.
       apply not_symmetry. now apply flip_negate_ne_0.
@@ -99,13 +99,13 @@ Section default_order.
   Instance: Proper ((=) ==> (=) ==> iff) rationals_le.
   Proof.
     intros x x' E y y' E'. unfold rationals_le.
-    split; intros [n [d d_nonzero]]; exists n d.
+    split; intros [n [d d_nonzero]]; exists n, d.
      now rewrite <-E, <-E'.
     now rewrite E, E'.
   Qed.
 
   Instance: Reflexive rationals_le.
-  Proof. intro. exists (0:nat) (0:nat). rewrite preserves_0. ring. Qed.
+  Proof. intro. exists (0:nat), (0:nat). rewrite preserves_0. ring. Qed.
 
   (* rationals_le can actually only happen if the denominator is nonzero: *)
   Lemma rationals_decompose_le (x y: Q) :
@@ -113,7 +113,7 @@ Section default_order.
   Proof with eauto.
     intros [n [d E]].
     destruct (decide (d = 0)) as [A|A]...
-    exists (0:nat) (1:nat).
+    exists (0:nat), (1:nat).
     split. discriminate.
     rewrite E, A, preserves_0, preserves_1, dec_recip_0.
     ring.
@@ -124,7 +124,7 @@ Section default_order.
     intros x y z E1 E2.
     destruct (rationals_decompose_le x y) as [n1 [d1 [A1 B1]]]...
     destruct (rationals_decompose_le y z) as [n2 [d2 [A2 B2]]]...
-    exists (n1 * d2 + n2 * d1) (d1 * d2).
+    exists (n1 * d2 + n2 * d1), (d1 * d2).
     rewrite B2, B1.
     rewrite preserves_plus.
     rewrite ?preserves_mult.
@@ -164,9 +164,9 @@ Section default_order.
   Proof.
     apply from_ring_order.
      repeat (split; try apply _).
-     intros x y [n [d E]]. exists n d. rewrite E. ring.
+     intros x y [n [d E]]. exists n, d. rewrite E. ring.
     intros x y [n1 [d1 E1]] [n2 [d2 E2]].
-    exists (n1 * n2) (d1 * d2).
+    exists (n1 * n2), (d1 * d2).
     rewrite 2!preserves_mult.
     rewrite E1, E2, dec_recip_distr. ring.
   Qed.

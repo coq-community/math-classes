@@ -52,6 +52,7 @@ reflect the fact that notationally identifying these two different and interdepe
 maps is a typical example of an "abus de notation" that by its very nature
 is ill-suited to a formal development where software engineering concerns apply.
 
+
 Hence, we do not adopt this practice, and use "fmap F" (name taken from the Haskell
 standard library) to refer to the arrow map of a functor F.
 
@@ -64,10 +65,9 @@ Section id_functor.
 
   Global Instance id_functor: Functor (id: C → C) _.
   Proof.
-   constructor; try reflexivity; try apply _. intros.
-   change (Setoid_Morphism (id: (a ⟶ b) → (a ⟶ b))).
-   apply _.
+   constructor; try reflexivity; try apply _. 
   Qed.
+
 End id_functor.
 
 Section compose_functors.

@@ -85,7 +85,7 @@ Proof.
    apply FIX with (tl x).
     now rewrite E1.
    now destruct E2.
-  intros ? ? E1. firstorder.
+  intros ? ? E1. intuition eauto. symmetry in E1; intuition eauto.
 Qed.
 
 Lemma ForAll_tl (P : ∞A → Prop) s : ForAll P s → ForAll P (tl s).
