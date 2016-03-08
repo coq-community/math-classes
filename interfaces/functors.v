@@ -65,7 +65,7 @@ Section id_functor.
 
   Global Instance id_functor: Functor (id: C → C) _.
   Proof.
-   constructor; try reflexivity; try apply _. 
+   constructor; try reflexivity; try apply _.
   Qed.
 
 End id_functor.
