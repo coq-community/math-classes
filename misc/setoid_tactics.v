@@ -23,23 +23,23 @@ Tactic Notation "mc_setoid_replace" constr(x) "with" constr(y)
 
 Tactic Notation "mc_setoid_replace" constr(x) "with" constr(y)
   "by" tactic3(t) :=
-  setoidreplace ((=) x y) ltac:t.
+  setoidreplace ((=) x y) ltac:(t).
 
 Tactic Notation "mc_setoid_replace" constr(x) "with" constr(y)
   "at" int_or_var_list(o)
   "by" tactic3(t) :=
-  setoidreplaceat ((=) x y) ltac:t o.
+  setoidreplaceat ((=) x y) ltac:(t) o.
 
 Tactic Notation "mc_setoid_replace" constr(x) "with" constr(y)
   "in" hyp(id)
   "by" tactic3(t) :=
-  setoidreplacein ((=) x y) id ltac:t.
+  setoidreplacein ((=) x y) id ltac:(t).
 
 Tactic Notation "mc_setoid_replace" constr(x) "with" constr(y)
   "in" hyp(id)
   "at" int_or_var_list(o)
   "by" tactic3(t) :=
-  setoidreplaceinat ((=) x y) id ltac:t o.
+  setoidreplaceinat ((=) x y) id ltac:(t) o.
 
 Ltac setoid_subst :=
   repeat (match goal with
