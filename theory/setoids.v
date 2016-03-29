@@ -46,6 +46,7 @@ Instance sigT_setoid `{Setoid A} (P : A → Type) : Setoid (sigT P).
 Proof. now apply (projected_setoid (@projT1 _ P)). Qed.
 
 Instance id_morphism `{Setoid A} : Setoid_Morphism (@id A) := {}.
+Proof. repeat red; intros x y Heq. apply Heq. Qed.
 
 Lemma compose_setoid_morphism `{Equiv A} `{Equiv B} `{Equiv C} (f : A → B) (g : B → C) :
   Setoid_Morphism f → Setoid_Morphism g → Setoid_Morphism (g ∘ f).

@@ -168,7 +168,7 @@ Section borrowed_from_nat.
   Proof.
     intros x y.
     rapply (from_nat_stmt (x' * y' === 0 -=>Disj _ (x' === 0) (y' === 0)) (two_vars x y)).
-    intros ? E. destruct (Mult.mult_is_O _ _ E); intuition.
+    intros ? E. destruct (Mult.mult_is_O _ _ E); red; intuition.
   Qed.
 End borrowed_from_nat.
 

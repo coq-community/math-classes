@@ -40,7 +40,7 @@ Lemma induction_nonneg
   (P: Z → Prop) `{!Proper ((=) ==> iff) P}:
   P 0 → (∀ n, 0 ≤ n → P n → P (1 + n)) → ∀ n, 0 ≤ n → P n.
 Proof.
-  intros P0 PS. rapply induction; auto.
+  intros P0 PS. refine (induction _ _ _ _); auto.
    solve_proper.
   intros n E1 ? E2.
   destruct (rings.is_ne_0 1).

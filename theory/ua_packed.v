@@ -14,13 +14,11 @@ Section packed.
   Definition head_arg x y (a: Arguments (ne_list.cons x y)): Applied x :=
     match a with
     | MoreArguments k l m n => m
-    | NoMoreArguments _ => False
     end.
 
   Definition tail_args x y (a: Arguments (ne_list.cons x y)): Arguments y :=
     match a with
     | MoreArguments k l m n => n
-    | NoMoreArguments _ => False
     end.
 
   Context (P: ∀ {s}, Applied s → Type).
@@ -70,22 +68,22 @@ End packed.
 
 Fixpoint curry {σ} {V} {o} (a: Applied σ o): Term σ V (ne_list.one o) :=
   match a in (Applied _ s) (*return (Term σ V (ne_list.one s))*) with
-  | AppliedOp op y => apply_args y (app_tree σ (Op σ V op))
-  | AppliedVar v x => Var σ V v x
+  | AppliedOp _ op y => apply_args y (app_tree σ (Op σ V op))
+  | AppliedVar _ v x => Var σ V v x
   end
 with apply_args {σ} {V} {o} (a: @Arguments σ V o): op_type (Term0 σ V) o → Term0 σ V (result _ o) :=
   match a with
-  | NoMoreArguments y => id
-  | MoreArguments x y u q => λ z, apply_args q (z (curry u))
+  | NoMoreArguments _ y => id
+  | MoreArguments _ x y u q => λ z, apply_args q (z (curry u))
   end.
 
 (* Conversion /to/ packed representation: *)
 
 Fixpoint decode `(t: Term σ V o): Arguments σ o → Applied σ (result _ o) :=
   match t with
-  | Var x y => λ z, AppliedVar σ x y
-  | Op x => AppliedOp σ x
-  | App x y z w => λ p, decode z (MoreArguments σ y x (decode w (NoMoreArguments σ _)) p)
+  | Var _ _ x y => λ z, AppliedVar σ x y
+  | Op _ _ x => AppliedOp σ x
+  | App _ _ x y z w => λ p, decode z (MoreArguments σ y x (decode w (NoMoreArguments σ _)) p)
   end.
 
 (* Back and forth: *)

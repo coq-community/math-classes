@@ -13,7 +13,7 @@ Section modular_ring.
   Proof.
     unfold is_multiple. split.
         solve_proper.
-       split. exists 0 0. ring.
+       split. exists 0, 0. ring.
       intros x y [k1 E1] [k2 E2]. exists (k1 - k2). rewrite E1, E2. ring.
      intros x y [k E]. exists (y * k). rewrite E. ring.
     intros x y [k E]. exists (x * k). rewrite E. ring.

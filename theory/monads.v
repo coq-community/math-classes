@@ -5,6 +5,29 @@ Instance default_mon_join `{MonadBind M} : MonadJoin M | 20 := λ _, bind id.
 Instance default_mon_map `{MonadReturn M} `{MonadBind M} : SFmap M | 20 := λ _ _ f, bind (ret ∘ f).
 Instance default_mon_bind `{SFmap M} `{MonadJoin M} : MonadBind M | 20 := λ _ _ f, join ∘ (sfmap f).
 
+Hint Extern 0 (ProperProxy (@respectful _ _ _ _) _) =>
+  class_apply @proper_proper_proxy : typeclass_instances.
+
+Instance equiv_ext_equiv `{Equiv A} `{Equiv B} :
+  Setoid A -> Setoid B ->
+  Proper ((equiv ==> equiv) ==> (equiv ==> equiv) ==> flip impl)
+         (@equiv _ (@ext_equiv A _ B _)).
+Proof.
+  unfold ext_equiv. repeat (red; intros).
+  assert ((equiv ==> equiv)%signature x x0).
+  eapply transitivity. eauto.
+  eapply transitivity. eauto.
+  eapply symmetry. eauto.
+  eapply H7. eapply H6.
+Qed.
+
+Instance equiv_ext_equiv_partial `{Equiv A} `{Equiv B} (f : A -> B) :
+  Setoid A -> Setoid B ->
+  Proper (equiv ==> equiv) f ->
+  Proper ((equiv ==> equiv) ==> flip impl)
+         (@equiv _ (@ext_equiv A _ B _) f).
+Proof. intros. partial_application_tactic; eauto. apply equiv_ext_equiv; eauto. Qed.
+
 Section monad.
   Context `{Monad M}.
 
@@ -38,7 +61,7 @@ Section monad.
 
   Let bind_correct `{Equiv A} `{Setoid B} `{!Setoid_Morphism (f : A → M B)} : 
     bind f = join ∘ sfmap f.
-  Proof. 
+  Proof.
     pose proof (setoidmor_a f). pose proof (setoidmor_b f).
     rewrite join_correct, map_correct by apply _.
     rewrite bind_assoc.
@@ -119,13 +142,16 @@ Section strong_monad.
   Global Instance sret_mor `{Setoid A} : Setoid_Morphism (@ret _ _ A) := {}.
   Global Instance join_mor `{Setoid A} : Setoid_Morphism (@join _ _ A) := {}.
 
+  Hint Immediate setoidmor_a : typeclass_instances.
+  Hint Immediate setoidmor_b : typeclass_instances.
+
   Lemma sfmap_ret_applied `{Equiv A} `{Equiv B} `{!Setoid_Morphism (f : A → B)} (x : A) : 
     sfmap f (ret x) = ret (f x).
-  Proof. pose proof (setoidmor_a f). now apply sfmap_ret. Qed.
+  Proof. now apply sfmap_ret. Qed.
 
   Lemma sfmap_join_applied `{Equiv A} `{Equiv B} `{!Setoid_Morphism (f : A → B)} (m : M (M A)) : 
     sfmap f (join m) = join (sfmap (sfmap f) m).
-  Proof. pose proof (setoidmor_a f). now apply sfmap_join. Qed.
+  Proof. now apply sfmap_join. Qed.
 
   Lemma join_ret_applied `{Setoid A} (m : M A) :
     join (ret m) = m.
@@ -146,11 +172,11 @@ Section strong_monad.
 
   Instance: ∀ `{Equiv A} `{Setoid B} `{!Setoid_Morphism (f : A → M B)},
     Setoid_Morphism (bind f).
-  Proof. intros. pose proof (setoidmor_a f). split; try apply _. Qed.
+  Proof. intros. split; try apply _. Qed.
 
   Let bind_correct_applied `{Equiv A} `{Setoid B} `{!Setoid_Morphism (f : A → M B)} m :
     bind f m = join (sfmap f m).
-  Proof. pose proof (setoidmor_a f).  now eapply bind_correct; try apply _. Qed.
+  Proof. now eapply bind_correct; try apply _. Qed.
 
   Instance strong_monad_monad: Monad M.
   Proof.
