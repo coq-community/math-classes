@@ -41,10 +41,9 @@ Section contents.
     intros ? ? E ? ?. symmetry. apply E.
    intros ? ? ? E F ? ?. rewrite (E _ _). apply F.
   Qed.
-
   Instance: ∀ (x y z: Object et), Proper ((=) ==> (=) ==> (=)) (comp x y z).
   Proof.
-   intros ??? [? [??]] ? E ?? F ??. simpl.
+   intros ??? [? [??]] ? ? ? E ? ? F ? ?. simpl.
    unfold compose. rewrite (F _ _), (E _ _). reflexivity.
   Qed.
 

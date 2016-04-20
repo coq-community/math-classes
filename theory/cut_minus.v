@@ -30,8 +30,8 @@ Section cut_minus_properties.
   Global Instance cut_minus_mor_2: ∀ x : R, Setoid_Morphism (∸ x) | 0.
   Proof. split; try apply _. solve_proper. Qed.
 
-  Hint Resolve cut_minus_0.
-  Hint Resolve cut_minus_le.
+  Hint Resolve (cut_minus_0).
+  Hint Resolve (cut_minus_le).
 
   Lemma cut_minus_diag x : x ∸ x = 0.
   Proof. now apply cut_minus_0. Qed.

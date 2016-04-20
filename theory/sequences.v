@@ -47,6 +47,7 @@ Section contents.
    apply sm_proper.
   Qed.
 
+(*
   Lemma fmap_alt `{Equiv A} `{Equiv B} (f: A → B) `{!Setoid_Morphism f} :
     extend (inject B ∘ f) = (fmap (v:=A) (w:=B) sq f: sq A → sq B). (* Remove (v:=A) (w:=B) *)
   Proof with try apply _.
@@ -59,10 +60,12 @@ Section contents.
    symmetry.
    apply (sequence_inject_natural sq)...
   Qed.
+*)
 
   Lemma fold_inject `{Monoid A}: fold sq ∘ inject A = id.
   Proof. apply (sequence_extend_commutes sq id). apply _. Qed.
 
+(*
   Lemma fold_map `{Setoid A} `{Monoid B} (f: A → B) `{!Setoid_Morphism f} :
     extend f (free:=sq) = fold sq ∘ fmap (v:=A) (w:=B) sq f. (* Remove (v:=A) (w:=B) *)
   Proof with try apply _.
@@ -78,6 +81,7 @@ Section contents.
    rewrite compose_id_left.
    apply sm_proper.
   Qed.
+*)
 End contents.
 
 (* In the context of a SemiRing, we have two particularly useful folds: sum and product. *)
@@ -88,7 +92,7 @@ Section semiring_folds.
   Definition product: sq R → R := @fold sq _ _ (1:R) mult.
 
   (* These are implicitly Monoid_Morphisms, and we also easily have: *)
-
+(*
   Lemma distribute_sum (a: R): (a *.) ∘ sum = sum ∘ fmap (v:=R) (w:=R) sq (a *.).
   Proof.
    unfold sum, fold.
@@ -98,4 +102,5 @@ Section semiring_folds.
    rewrite (fold_map (a *.)).
    intros x y E. now rewrite E.
   Qed.
+*)
 End semiring_folds.
