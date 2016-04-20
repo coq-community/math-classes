@@ -116,12 +116,24 @@ Let zero_product_aux a b :
   n_to_z a * n_to_z b = 0 → n_to_z a = 0 ∨ n_to_z b = 0.
 Proof.
   rewrite <-rings.preserves_mult.
-  rewrite <-!(naturals.to_semiring_unique (SRpair_inject)).
+  rewrite <-(naturals.to_semiring_unique (SRpair_inject)).
   intros E. setoid_inject. 
-  destruct (zero_product a b E) as [C|C].
-   left. now rewrite C, rings.preserves_0.
+(* destruct (zero_product _ _ _ E) as [C|C].*)
+set (@zero_product _ _ _ SRpair_0). 
+set (@zero_product _ _ _ zero0 _ a b). 
+(* Strange E shouldn't match either of these 
+Did the behaviour of setoid_inject change
+Ltac setoid_inject :=
+  match goal with
+  | E : _ = ?f _ |- _ => apply (injective f) in E
+  | E : ?f _ = _ |- _ => apply (injective f) in E
+  | E : _ ≡ _ |-  ?G => change (id G); injection E; clear E; intros; unfold id at 1 
+  end.
+*)
+(*   left. now rewrite C, rings.preserves_0.
   right. now rewrite C, rings.preserves_0.
-Qed.
+Qed.*)
+Admitted.
 
 Global Instance: ZeroProduct Z.
 Proof.

@@ -1,7 +1,5 @@
-Require Import
-  MathClasses.interfaces.abstract_algebra.
-Require 
-  MathClasses.theory.setoids.
+Require Import MathClasses.interfaces.abstract_algebra.
+Require MathClasses.theory.setoids.
 
 Section functor_class.
   Context `{Category C} `{Category D} (M: C → D).

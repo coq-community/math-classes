@@ -309,8 +309,8 @@ Notation "f ⁻¹" := (inverse f) (at level 30) : mc_scope.
 Class Idempotent `{ea : Equiv A} (f: A → A → A) (x : A) : Prop := idempotency: f x x = x.
 Arguments idempotency {A ea} _ _ {Idempotent}.
 
-Class UnaryIdempotent `{Equiv A} (f: A → A) : Prop := 
-  unary_idempotent :> Idempotent (@compose A A A) f.
+Class UnaryIdempotent `{Equiv A} (f: A → A) : Prop := unary_idempotent :> Idempotent (@compose A A A) f.
+
 Lemma unary_idempotency `{Equiv A} `{!Reflexive (=)} `{!UnaryIdempotent f} x : f (f x) = f x.
 Proof. firstorder. Qed.
 

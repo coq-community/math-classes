@@ -41,7 +41,7 @@ Proof.
    rewrite 2!int_pow_base_0; trivial.
     now rewrite dec_recip_0.
    now apply rings.flip_negate_ne_0.
-  revert n. apply biinduction. 
+  revert n. apply biinduction.
     solve_proper.
    now rewrite rings.negate_0, int_pow_0, dec_recip_1.
   intros n.
@@ -66,7 +66,7 @@ Proof.
    destruct (decide (n = 0)) as [En | En].
     rewrite En, 3!int_pow_0. ring.
    destruct (zero_product x y Exy) as [E|E]; rewrite E, int_pow_base_0; trivial; ring.
-  revert n. apply biinduction. 
+  revert n. apply biinduction.
     solve_proper.
    rewrite 3!int_pow_0. ring.
   intros n.

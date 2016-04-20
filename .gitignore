@@ -16,4 +16,5 @@ coqdoc
 *.cmx
 *.cmxs
 *.o
+*.native
 *.aux

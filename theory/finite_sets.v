@@ -57,7 +57,7 @@ Section fset_props.
      intros E1. apply stable; intros E2.
      assert (fset_extend (F x y)  {{ x ; y }} ≠ fset_extend (F x y) {{ x }}) as E3.
       rewrite preserves_join, <-!(fset_extend_correct_applied (F x y)).
-      unfold F. do 2 (case (decide _)); intuition try discriminate; auto. 
+      unfold F. do 2 (case (decide _)); intuition try discriminate; auto.
      destruct E3. now rewrite E1.
     intros E. now rewrite E, fset_join_singletons.
   Qed.

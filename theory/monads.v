@@ -176,7 +176,7 @@ Section strong_monad.
 
   Let bind_correct_applied `{Equiv A} `{Setoid B} `{!Setoid_Morphism (f : A → M B)} m :
     bind f m = join (sfmap f m).
-  Proof. now eapply bind_correct; try apply _. Qed.
+  Proof. now eapply bind_correct. Qed.
 
   Instance strong_monad_monad: Monad M.
   Proof.
