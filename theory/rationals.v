@@ -21,7 +21,7 @@ Section another_integers.
   Lemma rationals_decompose `{!SemiRing_Morphism (f : Z → Q)} (x : Q) :
     ∃ num, ∃ den, den ≠ 0 ∧ x = f num / f den.
   Proof.
-    exists (num (QtoFrac x)) (den (QtoFrac x)). split.
+    exists (num (QtoFrac x)), (den (QtoFrac x)). split.
      now apply den_ne_0.
     apply (injective QtoFrac).
     rewrite preserves_mult.

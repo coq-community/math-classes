@@ -3,6 +3,7 @@ Require Import
 
 Inductive Object := object { T:> Type; e: Equiv T; setoid_proof: Setoid T }.
 Arguments object _ {e setoid_proof}.
+
 Existing Instance e.
 Existing Instance setoid_proof.
 

@@ -74,7 +74,7 @@ Proof with simpl; auto.
   match s with tt => match n with 0 => x | 1 => y | _ => z end end)) as laws.
  constructor; try apply _.
   intro. apply_simplified (laws _ e_mult_assoc).
- apply (algebra_propers mult)...
+ apply_simplified (algebra_propers mult)...
 Qed.
 
 Lemma encode_morphism_only

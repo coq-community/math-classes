@@ -15,9 +15,9 @@ Section contents.
 
     Fixpoint geneq {s s'} (x: Term sign A s) (y: Term sign A s'): Prop :=
       match x, y with
-      | Var v _, Var w _ => v = w
-      | App _ z t t', App _ z' t'' t''' => geneq t t'' ∧ geneq t' t'''
-      | Op o, Op o' => o ≡ o'
+      | Var _ _ v _, Var _ _ w _ => v = w
+      | App _ _ _ z t t', App _ _ _ z' t'' t''' => geneq t t'' ∧ geneq t' t'''
+      | Op _ _ o, Op _ _ o' => o ≡ o'
       | _, _ => False
       end.
 
@@ -56,9 +56,9 @@ Section contents.
   Definition gen_bind_aux {A B: Type} (f: A → M B): ∀ {s}, Term sign A s → Term sign B s
     := fix F {s} (t: Term sign A s): Term sign B s :=
       match t with
-      | Var v tt => f v
-      | App o z x y => App _ _ _ z (F x) (F y)
-      | Op o => Op _ _ o
+      | Var _ _ v tt => f v
+      | App _ _ o z x y => App _ _ _ z (F x) (F y)
+      | Op _ _ o => Op _ _ o
       end.
 
   Arguments gen_bind_aux {A B} _ {s} _.

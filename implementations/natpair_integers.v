@@ -108,12 +108,17 @@ Qed.
 
 Notation n_to_z := (naturals_to_semiring N Z).
 
+(* Without this opaque, typeclasses find a proof of Injective zero,
+ from [id_injective] *)
+Typeclasses Opaque zero.
+
 Let zero_product_aux a b :
   n_to_z a * n_to_z b = 0 → n_to_z a = 0 ∨ n_to_z b = 0.
 Proof.
   rewrite <-rings.preserves_mult.
-  rewrite <-(naturals.to_semiring_unique (SRpair_inject)).
-  intros E. setoid_inject. destruct (zero_product _ _ E) as [C|C].
+  rewrite <-!(naturals.to_semiring_unique (SRpair_inject)).
+  intros E. setoid_inject. 
+  destruct (zero_product a b E) as [C|C].
    left. now rewrite C, rings.preserves_0.
   right. now rewrite C, rings.preserves_0.
 Qed.

@@ -52,7 +52,7 @@ Section contents.
     * constructor; try typeclasses eauto.
       intros ???. assumption.
     * intros ????. assumption.
-    * intros ??[] ?[] ???.
+    * intros ? ? [] ? [] ? ? ?.
     simpl. rewrite H.
     reflexivity.
   Qed.
