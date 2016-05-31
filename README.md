@@ -1,5 +1,5 @@
 ## Compilation
-Known to compile with Coq 8.4.pl3.
+Should follow Coq trunk
 
 ## Directory structure
 ### categories/
