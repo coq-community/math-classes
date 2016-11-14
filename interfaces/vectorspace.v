@@ -32,12 +32,13 @@ Class Module (R M : Type)
   {Me Mop Munit Mnegate}
   {sm : ScalarMult R M}
 :=
-  { lm_ring     :>> @Ring R Re Rplus Rmult Rzero Rone Rnegate
-  ; lm_group    :>> @AbGroup M Me Mop Munit Mnegate
-  ; lm_distr_l  :> LeftHeteroDistribute (·) (&) (&)
-  ; lm_distr_r  :> RightHeteroDistribute (·) (+) (&)
-  ; lm_assoc    :> HeteroAssociative (·) (·) (·) (.*.)
-  ; lm_identity :> LeftIdentity (·) 1
+  { lm_ring            :>> @Ring R Re Rplus Rmult Rzero Rone Rnegate
+  ; lm_group           :>> @AbGroup M Me Mop Munit Mnegate
+  ; lm_distr_l         :> LeftHeteroDistribute (·) (&) (&)
+  ; lm_distr_r         :> RightHeteroDistribute (·) (+) (&)
+  ; lm_assoc           :> HeteroAssociative (·) (·) (·) (.*.)
+  ; lm_identity        :> LeftIdentity (·) 1
+  ; scalar_mult_proper :> Proper ((=) ==> (=) ==> (=)) sm
   }.
 
 (* TODO K is commutative, so derive right module laws? *)
@@ -59,10 +60,9 @@ Class Seminormed
   }.
 
 
-(** A Vector space: This class says that [K] is the field
-    of scalars, [V] the abelian group of vectors and together
-    with the scalar multiplication they satisfy the laws
-    of a vector space
+(** [K] is the field of scalars, [V] the abelian group of vectors,
+    and together with a scalar multiplication operation, they satisfy
+    the Module laws.
 *)
 Class VectorSpace (K V : Type)
    {Ke Kplus Kmult Kzero Kone Knegate Krecip} (* scalar operations *)
@@ -71,16 +71,9 @@ Class VectorSpace (K V : Type)
  :=
    { vs_field         :>> @DecField K Ke Kplus Kmult Kzero Kone Knegate Krecip
    ; vs_abgroup       :>> @AbGroup V Ve Vop Vunit Vnegate
-   ; vs_distr_l       :> LeftHeteroDistribute (·) (&) (&)
-   ; vs_distr_r       :> RightHeteroDistribute (·) (+) (&)
-   ; vs_assoc         :> HeteroAssociative (·) (·) (·) (.*.)
-   ; vs_left_identity :> LeftIdentity (·) 1
+   ; vs_module        :>> @Module K V Ke Kplus Kmult Kzero Kone Knegate
+                                      Ve Vop Vunit Vnegate sm
    }.
-
-(** Every vectorspace is trivially a module
-*)
-Instance vs_module `{VectorSpace K V}: Module K V.
-Proof. repeat split; apply _. Qed.
 
 (** Given some vector space V over a ordered field K,
   we define the inner product space
