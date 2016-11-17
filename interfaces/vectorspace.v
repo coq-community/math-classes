@@ -56,7 +56,7 @@ Class Seminormed
 
   (* With respect to which our norm preserves the following: *)
   ; snm_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
-  ; snm_triangle    :  ∀ u v, ∥u & v∥ = ∥u∥ + ∥v∥     (* triangle inequality *)
+  ; snm_triangle    :  ∀ u v, ∥u & v∥ ≤ ∥u∥ + ∥v∥     (* triangle inequality *)
   }.
 
 
