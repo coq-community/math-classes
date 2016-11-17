@@ -93,6 +93,7 @@
 ./theory/setoids.v
 ./theory/products.v
 ./theory/groups.v
+./theory/modules.v
 ./theory/finite_sets.v
 ./theory/abs.v
 ./theory/ua_subalgebraT.v
