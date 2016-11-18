@@ -38,7 +38,7 @@ Class Module (R M : Type)
   ; lm_distr_r         :> RightHeteroDistribute (·) (+) (&)
   ; lm_assoc           :> HeteroAssociative (·) (·) (·) (.*.)
   ; lm_identity        :> LeftIdentity (·) 1
-  ; scalar_mult_proper :> Proper ((=) ==> (=) ==> (=)) sm
+  ; scalar_mult_proper :> Proper ((=) ==> (=) ==> (=)) (·)
   }.
 
 (* TODO K is commutative, so derive right module laws? *)

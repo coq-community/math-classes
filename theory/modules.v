@@ -16,4 +16,16 @@ Section Module_Lemmas.
     apply scalar_mult_proper; [apply right_identity | reflexivity].
   Qed.
 
+  Lemma mult_munit : forall c : R, c · mon_unit = mon_unit.
+    intro c.
+    rewrite <- right_identity.
+    assert (intermediate : mon_unit = c · mon_unit & - (c · mon_unit)) by
+      now rewrite right_inverse.
+    rewrite intermediate at 2.
+    rewrite associativity.
+    rewrite <- distribute_l.
+    rewrite right_identity.
+    apply right_inverse.
+  Qed.
+
 End Module_Lemmas.
