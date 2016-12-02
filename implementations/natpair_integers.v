@@ -117,23 +117,10 @@ Let zero_product_aux a b :
 Proof.
   rewrite <-rings.preserves_mult.
   rewrite <-(naturals.to_semiring_unique (SRpair_inject)).
-  intros E. setoid_inject. 
-(* destruct (zero_product _ _ _ E) as [C|C].*)
-set (@zero_product _ _ _ SRpair_0). 
-set (@zero_product _ _ _ zero0 _ a b). 
-(* Strange E shouldn't match either of these 
-Did the behaviour of setoid_inject change
-Ltac setoid_inject :=
-  match goal with
-  | E : _ = ?f _ |- _ => apply (injective f) in E
-  | E : ?f _ = _ |- _ => apply (injective f) in E
-  | E : _ ≡ _ |-  ?G => change (id G); injection E; clear E; intros; unfold id at 1 
-  end.
-*)
-(*   left. now rewrite C, rings.preserves_0.
-  right. now rewrite C, rings.preserves_0.
-Qed.*)
-Admitted.
+  intros E. setoid_inject.
+  assert (HN : (a = 0) ∨ (b = 0)) by now apply zero_product.
+  destruct HN as [HN|HN]; [left|right]; rewrite HN; apply preserves_mon_unit.
+Qed.
 
 Global Instance: ZeroProduct Z.
 Proof.
