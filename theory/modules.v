@@ -1,5 +1,5 @@
-From MathClasses.interfaces Require Import vectorspace canonical_names.
-From MathClasses.theory Require Import groups rings.
+From MathClasses
+Require Import interfaces.vectorspace interfaces.canonical_names theory.groups theory.rings.
 Require Import Coq.setoid_ring.Ring. (* `ring` tactic *)
 
 (*
