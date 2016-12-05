@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders.
 
 (** Scalar multiplication function class *)
@@ -14,6 +14,7 @@ Notation "(· x )" := (λ y, y · x) (only parsing) : mc_scope.
 Class Inproduct K V := inprod : V → V → K.
 Instance: Params (@inprod) 3.
 
+Notation "(⟨⟩)" := (inprod) (only parsing) : mc_scope.
 Notation "⟨ u , v ⟩" := (inprod u v) (at level 51) : mc_scope.
 Notation "⟨ u , ⟩" := (λ v, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
 Notation "⟨ , v ⟩" := (λ u, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
@@ -38,7 +39,7 @@ Class Module (R M : Type)
   ; lm_distr_r         :> RightHeteroDistribute (·) (+) (&)
   ; lm_assoc           :> HeteroAssociative (·) (·) (·) (.*.)
   ; lm_identity        :> LeftIdentity (·) 1
-  ; scalar_mult_proper :> Proper ((=) ==> (=) ==> (=)) sm
+  ; scalar_mult_proper :> Proper ((=) ==> (=) ==> (=)) (·)
   }.
 
 (* TODO K is commutative, so derive right module laws? *)
@@ -88,7 +89,9 @@ Class InnerProductSpace (K V : Type)
    ; in_srorder     :>> SemiRingOrder Kle
    ; in_comm        :> Commutative inprod
    ; in_linear_l    :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
-   ; in_nonneg      :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
+   ; in_pos_def1    :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
+   ; in_pos_def2    :> ∀ v, 0 = ⟨v,v⟩ <-> v = mon_unit
+   ; inprod_proper  :> Proper ((=) ==> (=) ==> (=)) (⟨⟩)
    }.
 
 (* TODO complex conjugate?
