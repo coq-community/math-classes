@@ -49,12 +49,4 @@ Section Module_Lemmas.
     reflexivity.
   Qed.
 
-  Lemma double_negation : forall x, - (- x) = x.
-    intros.
-    do 2 rewrite <- multiplication_by_negative_1_is_negation.
-    rewrite associativity.
-    setoid_replace (-1 * -1) with 1 by ring.
-    apply lm_identity.
-  Qed.
-
 End Module_Lemmas.
