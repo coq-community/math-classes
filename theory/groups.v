@@ -43,7 +43,7 @@ Proof.
   now rewrite associativity, left_inverse, left_identity.
 Qed.
 
-Lemma mon_unit_unique : forall x i, x & i = x -> i = mon_unit.
+Lemma mon_unit_unique : forall x i, x & i = x → i = mon_unit.
   intros x i Hyp.
   apply (left_cancellation (&) x).
   now rewrite right_identity.
