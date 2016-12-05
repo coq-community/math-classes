@@ -84,14 +84,14 @@ Class InnerProductSpace (K V : Type)
    {Ve Vop Vunit Vnegate}                     (* vector operations *)
    {sm : ScalarMult K V} {inp: Inproduct K V} {Kle: Le K}
  :=
-   { in_vectorspace :>> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
-                                    Krecip Ve Vop Vunit Vnegate sm
-   ; in_srorder     :>> SemiRingOrder Kle
-   ; in_comm        :> Commutative inprod
-   ; in_linear_l    :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
-   ; in_pos_def1    :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
-   ; in_pos_def2    :> ∀ v, 0 = ⟨v,v⟩ <-> v = mon_unit
-   ; inprod_proper  :> Proper ((=) ==> (=) ==> (=)) (⟨⟩)
+   { in_vectorspace   :>> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
+                                      Krecip Ve Vop Vunit Vnegate sm
+   ; in_srorder       :>> SemiRingOrder Kle
+   ; in_comm          :> Commutative inprod
+   ; in_linear_l      :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
+   ; in_nonneg        :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
+   ; in_mon_unit_zero :> ∀ v, 0 = ⟨v,v⟩ <-> v = mon_unit
+   ; inprod_proper    :> Proper ((=) ==> (=) ==> (=)) (⟨⟩)
    }.
 
 (* TODO complex conjugate?
