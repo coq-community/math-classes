@@ -1,4 +1,4 @@
-Require Import 
+Require Import
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders.
 
 (** Scalar multiplication function class *)
@@ -14,6 +14,7 @@ Notation "(· x )" := (λ y, y · x) (only parsing) : mc_scope.
 Class Inproduct K V := inprod : V → V → K.
 Instance: Params (@inprod) 3.
 
+Notation "(⟨⟩)" := (inprod) (only parsing) : mc_scope.
 Notation "⟨ u , v ⟩" := (inprod u v) (at level 51) : mc_scope.
 Notation "⟨ u , ⟩" := (λ v, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
 Notation "⟨ , v ⟩" := (λ u, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
@@ -83,12 +84,14 @@ Class InnerProductSpace (K V : Type)
    {Ve Vop Vunit Vnegate}                     (* vector operations *)
    {sm : ScalarMult K V} {inp: Inproduct K V} {Kle: Le K}
  :=
-   { in_vectorspace :>> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
-                                    Krecip Ve Vop Vunit Vnegate sm
-   ; in_srorder     :>> SemiRingOrder Kle
-   ; in_comm        :> Commutative inprod
-   ; in_linear_l    :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
-   ; in_nonneg      :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
+   { in_vectorspace   :>> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
+                                      Krecip Ve Vop Vunit Vnegate sm
+   ; in_srorder       :>> SemiRingOrder Kle
+   ; in_comm          :> Commutative inprod
+   ; in_linear_l      :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
+   ; in_nonneg        :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
+   ; in_mon_unit_zero :> ∀ v, 0 = ⟨v,v⟩ <-> v = mon_unit
+   ; inprod_proper    :> Proper ((=) ==> (=) ==> (=)) (⟨⟩)
    }.
 
 (* TODO complex conjugate?
