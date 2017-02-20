@@ -21,7 +21,7 @@ Section contents.
     match p, q with
     | [], _ => poly_eq_zero q
     | _, [] => poly_eq_zero p
-    | h :: t, h' :: t' => h = h ∧ F t t'
+    | h :: t, h' :: t' => h = h' ∧ F t t'
     end.
 
 (*
