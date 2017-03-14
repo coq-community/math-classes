@@ -72,7 +72,7 @@ Section contents.
    intros.
    generalize (@variety_laws et A _ _ _ s H1 (Pvars vars)). clear H1.
    destruct s as [x [? [t t0]]].
-   induction x as [A| [x1 [t1 t2]]]; simpl in *; intros.
+   induction x as [| [x1 [t1 t2]]]; simpl in *; intros.
     unfold equiv, sig_equiv.
     rewrite (heq_eval_const vars t).
     rewrite (heq_eval_const vars t0)...
