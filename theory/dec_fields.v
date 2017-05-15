@@ -1,6 +1,7 @@
 Require Import
   Coq.setoid_ring.Field Coq.setoid_ring.Ring
-  MathClasses.interfaces.abstract_algebra MathClasses.theory.fields MathClasses.theory.strong_setoids.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.vectorspace
+  MathClasses.theory.fields MathClasses.theory.strong_setoids.
 Require Export
   MathClasses.theory.rings.
 
@@ -141,6 +142,14 @@ Proof.
    ring_simplify.
    now apply dec_recip_inverse.
   now apply flip_negate_ne_0.
+Qed.
+
+Instance: @VectorSpace F F Ae Aplus Amult Azero Aone Anegate Adec_recip
+                       Ae Aplus Azero Anegate Amult.
+Proof.
+  repeat split; repeat (try apply _).
+  - apply dec_recip_0.
+  - now apply dec_recip_inverse.
 Qed.
 End contents.
 
