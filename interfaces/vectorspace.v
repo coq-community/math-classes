@@ -116,7 +116,7 @@ Class SemiNormedSpace (K V : Type)
                                     Krecip Ve Vop Vunit Vnegate sm
    ; sn_nonneg      :  ∀ v, 0 ≤ ∥v∥                     (* non-negativity *)
    ; sn_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
-   ; sn_triangle    :  ∀ u v, ∥u & v∥ = ∥u∥ + ∥v∥       (* triangle inequality *)
+   ; sn_triangle    :  ∀ u v, ∥u & v∥ ≤ ∥u∥ + ∥v∥       (* triangle inequality *)
    }.
 
 
