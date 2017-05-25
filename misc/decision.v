@@ -22,7 +22,7 @@ Ltac solve_decision :=
   first [solve_trivial_decision | unfold Decision; decide equality; solve_trivial_decision].
 
 (* We cannot state this as Proper (iff ==> iffT) Decision due to the lack of setoid rewriting in Type *)
-Program Instance decision_proper (P Q : Prop) (PiffQ : P ↔ Q) (P_dec : Decision P) : Decision Q :=
+Program Definition decision_proper (P Q : Prop) (PiffQ : P ↔ Q) (P_dec : Decision P) : Decision Q :=
   match P_dec with
   | left _ => left _
   | right _ => right _

@@ -59,7 +59,14 @@ Section for_φAdjunction.
   Proof with try reflexivity; try apply _.
    intros d d' f.
    change ((φ ⁻¹) cat_id ◎ fmap F (fmap G f) = f ◎ (φ ⁻¹) cat_id).
-   rewrite <- φ_adjunction_natural_left_inv, <- φ_adjunction_natural_right_inv, left_identity, right_identity...
+   rewrite <- φ_adjunction_natural_left_inv, <- φ_adjunction_natural_right_inv.
+   Set Typeclasses Compatibility "8.5".
+   (** This is relying on a bug in resolution which did not try dual.e
+      when backtracking, when [rewrite] finds (φ ⁻¹) as the [op] and
+      (cat_id ◎ fmap G f) as the [x] argument to [left_identity].
+    *)
+   rewrite left_identity, right_identity...
+   Set Typeclasses Compatibility "Current".
   Qed.
 
   Lemma φ_in_terms_of_η `(f: F x ⟶ a): φ f = fmap G f ◎ η x.
@@ -164,7 +171,11 @@ Section for_ηAdjunction.
    unfold φ. unfold id in *. unfold compose in η.
    constructor...
     repeat intro. unfold compose.
+    Set Typeclasses Compatibility "8.5".
+    (** Again, this relies on not backtracking and going into
+        an infinite loop with dual.e *)
     rewrite associativity...
+    Set Typeclasses Compatibility "Current".
     rewrite preserves_comp...
    repeat intro. unfold compose.
    rewrite preserves_comp...
@@ -172,7 +183,9 @@ Section for_ηAdjunction.
    pose proof (η_adjunction_natural F G c' c h) as P.
    change (η c ◎ h = fmap G (fmap F h) ◎ η c') in P.
    rewrite <- P.
+   Set Typeclasses Compatibility "8.5".
    rewrite associativity...
+   Set Typeclasses Compatibility "Current".
   Qed.
 
 End for_ηAdjunction.
