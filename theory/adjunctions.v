@@ -59,7 +59,11 @@ Section for_φAdjunction.
   Proof with try reflexivity; try apply _.
    intros d d' f.
    change ((φ ⁻¹) cat_id ◎ fmap F (fmap G f) = f ◎ (φ ⁻¹) cat_id).
-   rewrite <- φ_adjunction_natural_left_inv, <- φ_adjunction_natural_right_inv, left_identity, right_identity...
+   rewrite
+    <- φ_adjunction_natural_left_inv,
+    <- φ_adjunction_natural_right_inv,
+    (left_identity (fmap G f)),
+    right_identity...
   Qed.
 
   Lemma φ_in_terms_of_η `(f: F x ⟶ a): φ f = fmap G f ◎ η x.
@@ -164,7 +168,7 @@ Section for_ηAdjunction.
    unfold φ. unfold id in *. unfold compose in η.
    constructor...
     repeat intro. unfold compose.
-    rewrite associativity...
+    rewrite (associativity (fmap G k))...
     rewrite preserves_comp...
    repeat intro. unfold compose.
    rewrite preserves_comp...
@@ -172,7 +176,7 @@ Section for_ηAdjunction.
    pose proof (η_adjunction_natural F G c' c h) as P.
    change (η c ◎ h = fmap G (fmap F h) ◎ η c') in P.
    rewrite <- P.
-   rewrite associativity...
+   rewrite (associativity (fmap G f))...
   Qed.
 
 End for_ηAdjunction.
