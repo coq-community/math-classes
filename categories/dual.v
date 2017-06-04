@@ -34,6 +34,13 @@ Section contents.
 
 End contents.
 
+(** Avoid looping on applications of e, without making flipA opaque.
+   Note that the dual instances make proof search slower in general,
+   making flipA opaque for resolution would speed things up but require
+   a few changes to the scripts to explicitly convert terms to applications
+   of flipA. *)
+Hint Cut [_* e (_*) e] : typeclass_instances.
+
 Section functors.
 
   (** Given a functor F: C → D, we have a functor F^op: C^op → D^op *)
