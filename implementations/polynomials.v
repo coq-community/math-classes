@@ -32,8 +32,30 @@ Section contents.
   Instance: Reflexive poly_eq.
   Proof with intuition. repeat intro. induction x... split... Qed.
 
+  Lemma poly_eq_cons :
+    ∀ (a b : R) (p q : poly), (a = b /\ poly_eq p q) <-> poly_eq (a :: p) (b :: q).
+    intros a b.
+    split; induction p, q; try trivial.
+  Qed.
+
   Instance: Symmetric poly_eq.
-  Admitted.
+  Proof.
+    unfold Symmetric.
+    induction x, y; try trivial.
+    intros a_x_eq_r_y.
+    apply poly_eq_cons.
+    split.
+    {
+      assert (Hyp : a = r /\ poly_eq x y) by (now apply poly_eq_cons).
+      destruct Hyp as [? _].
+      now symmetry.
+    }
+    {
+      assert (Hyp : a = r /\ poly_eq x y) by (now apply poly_eq_cons).
+      destruct Hyp as [_ ?].
+      now apply IHx.
+    }
+  Qed.
 
   Instance: Transitive poly_eq.
   Admitted.
