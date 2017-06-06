@@ -1,5 +1,5 @@
 Require Import
-  Coq.Numbers.Integer.BigZ.BigZ
+  Bignums.BigZ.BigZ
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers
   MathClasses.interfaces.additional_operations MathClasses.implementations.fast_naturals.
 Require Export
