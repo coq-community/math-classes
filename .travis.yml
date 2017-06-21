@@ -1,0 +1,13 @@
+sudo: required
+language: c
+cache:
+  apt: true
+  directories:
+    - $HOME/.opam
+install:
+  # https://opam.ocaml.org/doc/Install.html#Ubuntu
+  - sudo add-apt-repository --yes ppa:avsm/ppa
+  - sudo apt-get update && sudo apt-get install -y opam
+  - opam init -y && eval $(opam config env) && opam config var root
+  - travis_wait opam install -y coq
+script: make
