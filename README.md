@@ -1,5 +1,5 @@
 ## Compilation
-Should follow Coq trunk
+This code should compile with 8.6 and later versions. The other branches are deprecated.
 
 ## Directory structure
 ### categories/
