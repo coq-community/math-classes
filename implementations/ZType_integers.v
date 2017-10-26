@@ -1,7 +1,7 @@
 Require
   MathClasses.implementations.stdlib_binary_integers MathClasses.theory.integers MathClasses.orders.semirings.
 Require Import
-  Coq.Numbers.Integer.SpecViaZ.ZSig Coq.Numbers.Integer.SpecViaZ.ZSigZAxioms Coq.NArith.NArith Coq.ZArith.ZArith
+  Bignums.SpecViaZ.ZSig Bignums.SpecViaZ.ZSigZAxioms Coq.NArith.NArith Coq.ZArith.ZArith
   MathClasses.implementations.nonneg_integers_naturals MathClasses.interfaces.orders
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers MathClasses.interfaces.additional_operations.
 
