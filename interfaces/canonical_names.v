@@ -91,7 +91,7 @@ Hint Extern 4 (@equiv _ (sig_equiv _ _ _) (_↾_) (_↾_)) => simpl_sig_equiv.
 Definition sigT_equiv `{Equiv A} (P: A → Type) : Equiv (sigT P) := λ a b, projT1 a = projT1 b.
 Hint Extern 10 (Equiv (sigT _)) => apply @sigT_equiv : typeclass_instances.
 
-Definition sig_apart `{Apart A} (P: A → Prop) : Apart (sig P) := λ x y, `x ≶ `y.
+Definition sig_apart `{Apart A} (P: A → Prop) : Equiv (sig P) := λ x y, `x ≶ `y.
 Hint Extern 10 (Apart (sig _)) => apply @sig_apart : typeclass_instances.
 
 Class Cast A B := cast: A → B.
