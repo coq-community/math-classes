@@ -1,4 +1,4 @@
-Require Import
+Require Import 
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders.
 
 (** Scalar multiplication function class *)
@@ -14,7 +14,6 @@ Notation "(· x )" := (λ y, y · x) (only parsing) : mc_scope.
 Class Inproduct K V := inprod : V → V → K.
 Instance: Params (@inprod) 3.
 
-Notation "(⟨⟩)" := (inprod) (only parsing) : mc_scope.
 Notation "⟨ u , v ⟩" := (inprod u v) (at level 51) : mc_scope.
 Notation "⟨ u , ⟩" := (λ v, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
 Notation "⟨ , v ⟩" := (λ u, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
@@ -33,13 +32,12 @@ Class Module (R M : Type)
   {Me Mop Munit Mnegate}
   {sm : ScalarMult R M}
 :=
-  { lm_ring            :>> @Ring R Re Rplus Rmult Rzero Rone Rnegate
-  ; lm_group           :>> @AbGroup M Me Mop Munit Mnegate
-  ; lm_distr_l         :> LeftHeteroDistribute (·) (&) (&)
-  ; lm_distr_r         :> RightHeteroDistribute (·) (+) (&)
-  ; lm_assoc           :> HeteroAssociative (·) (·) (·) (.*.)
-  ; lm_identity        :> LeftIdentity (·) 1
-  ; scalar_mult_proper :> Proper ((=) ==> (=) ==> (=)) sm
+  { lm_ring     :>> @Ring R Re Rplus Rmult Rzero Rone Rnegate
+  ; lm_group    :>> @AbGroup M Me Mop Munit Mnegate
+  ; lm_distr_l  :> LeftHeteroDistribute (·) (&) (&)
+  ; lm_distr_r  :> RightHeteroDistribute (·) (+) (&)
+  ; lm_assoc    :> HeteroAssociative (·) (·) (·) (.*.)
+  ; lm_identity :> LeftIdentity (·) 1
   }.
 
 (* TODO K is commutative, so derive right module laws? *)
@@ -57,13 +55,14 @@ Class Seminormed
 
   (* With respect to which our norm preserves the following: *)
   ; snm_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
-  ; snm_triangle    :  ∀ u v, ∥u & v∥ ≤ ∥u∥ + ∥v∥     (* triangle inequality *)
+  ; snm_triangle    :  ∀ u v, ∥u & v∥ = ∥u∥ + ∥v∥     (* triangle inequality *)
   }.
 
 
-(** [K] is the field of scalars, [V] the abelian group of vectors,
-    and together with a scalar multiplication operation, they satisfy
-    the Module laws.
+(** A Vector space: This class says that [K] is the field
+    of scalars, [V] the abelian group of vectors and together
+    with the scalar multiplication they satisfy the laws
+    of a vector space
 *)
 Class VectorSpace (K V : Type)
    {Ke Kplus Kmult Kzero Kone Knegate Krecip} (* scalar operations *)
@@ -72,9 +71,16 @@ Class VectorSpace (K V : Type)
  :=
    { vs_field         :>> @DecField K Ke Kplus Kmult Kzero Kone Knegate Krecip
    ; vs_abgroup       :>> @AbGroup V Ve Vop Vunit Vnegate
-   ; vs_module        :>> @Module K V Ke Kplus Kmult Kzero Kone Knegate
-                                      Ve Vop Vunit Vnegate sm
+   ; vs_distr_l       :> LeftHeteroDistribute (·) (&) (&)
+   ; vs_distr_r       :> RightHeteroDistribute (·) (+) (&)
+   ; vs_assoc         :> HeteroAssociative (·) (·) (·) (.*.)
+   ; vs_left_identity :> LeftIdentity (·) 1
    }.
+
+(** Every vectorspace is trivially a module
+*)
+Instance vs_module `{VectorSpace K V}: Module K V.
+Proof. repeat split; apply _. Qed.
 
 (** Given some vector space V over a ordered field K,
   we define the inner product space
@@ -84,14 +90,12 @@ Class InnerProductSpace (K V : Type)
    {Ve Vop Vunit Vnegate}                     (* vector operations *)
    {sm : ScalarMult K V} {inp: Inproduct K V} {Kle: Le K}
  :=
-   { in_vectorspace   :>> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
-                                      Krecip Ve Vop Vunit Vnegate sm
-   ; in_srorder       :>> SemiRingOrder Kle
-   ; in_comm          :> Commutative inprod
-   ; in_linear_l      :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
-   ; in_nonneg        :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
-   ; in_mon_unit_zero :> ∀ v, 0 = ⟨v,v⟩ <-> v = mon_unit
-   ; inprod_proper    :> Proper ((=) ==> (=) ==> (=)) (⟨⟩)
+   { in_vectorspace :>> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
+                                    Krecip Ve Vop Vunit Vnegate sm
+   ; in_srorder     :>> SemiRingOrder Kle
+   ; in_comm        :> Commutative inprod
+   ; in_linear_l    :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
+   ; in_nonneg      :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
    }.
 
 (* TODO complex conjugate?
@@ -114,9 +118,8 @@ Class SemiNormedSpace (K V : Type)
  :=
    { sn_vectorspace :>> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
                                     Krecip Ve Vop Vunit Vnegate sm
-   ; sn_nonneg      :  ∀ v, 0 ≤ ∥v∥                     (* non-negativity *)
    ; sn_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
-   ; sn_triangle    :  ∀ u v, ∥u & v∥ ≤ ∥u∥ + ∥v∥       (* triangle inequality *)
+   ; sn_triangle    :  ∀ u v, ∥u & v∥ = ∥u∥ + ∥v∥     (* triangle inequality *)
    }.
 
 
