@@ -1,7 +1,7 @@
 Require
   MathClasses.theory.fields MathClasses.implementations.stdlib_rationals MathClasses.theory.int_pow.
 Require Import
-  Coq.QArith.QArith Coq.Numbers.Rational.SpecViaQ.QSig
+  Coq.QArith.QArith Bignums.SpecViaQ.QSig
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders
   MathClasses.interfaces.integers MathClasses.interfaces.rationals MathClasses.interfaces.additional_operations
   MathClasses.theory.rings MathClasses.theory.rationals.
