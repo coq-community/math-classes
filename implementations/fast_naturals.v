@@ -1,5 +1,5 @@
 Require Import
-  Coq.Numbers.Natural.BigN.BigN MathClasses.interfaces.naturals.
+  Bignums.BigN.BigN MathClasses.interfaces.naturals.
 Require Export
   MathClasses.implementations.NType_naturals.
 
