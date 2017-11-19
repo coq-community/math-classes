@@ -119,7 +119,7 @@ Qed.
 Instance: PropHolds ((1:Z) ≠ 0).
 Proof.
   intros E.
-  apply (rings.is_ne_0 (1:nat)).
+  apply (rings.is_ne_0 1).
   apply (injective (naturals_to_semiring nat Z)).
   now rewrite rings.preserves_0, rings.preserves_1.
 Qed.
