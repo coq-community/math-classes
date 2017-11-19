@@ -107,7 +107,7 @@ Section default_order.
   Qed.
 
   Instance: Reflexive rationals_le.
-  Proof. intro. exists (0:nat), (0:nat). rewrite preserves_0. ring. Qed.
+  Proof. intro. exists (0%mc:nat), (0%mc:nat). rewrite preserves_0. ring. Qed.
 
   (* rationals_le can actually only happen if the denominator is nonzero: *)
   Lemma rationals_decompose_le (x y: Q) :
@@ -115,7 +115,7 @@ Section default_order.
   Proof with eauto.
     intros [n [d E]].
     destruct (decide (d = 0)) as [A|A]...
-    exists (0:nat), (1:nat).
+    exists (0%mc:nat), (1%mc:nat).
     split. discriminate.
     rewrite E, A, preserves_0, preserves_1, dec_recip_0.
     ring.
