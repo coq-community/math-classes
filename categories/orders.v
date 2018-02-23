@@ -8,9 +8,9 @@ Existing Instance e.
 Existing Instance le.
 Existing Instance setoid_proof.
 Existing Instance po_proof.
-Implicit Arguments object [[e] [le] [setoid_proof] [po_proof]]
-                          [[e] [setoid_proof] [po_proof]]
-                          [[setoid_proof] [po_proof]].
+Arguments object _ {e le setoid_proof po_proof},
+                 _ {e} _ {setoid_proof po_proof},
+                 _ _ _ {setoid_proof po_proof}.
 
 Section contents.
   Global Instance Arrow: Arrows Object := λ A B, sig (@OrderPreserving A B _ _ _ _).
