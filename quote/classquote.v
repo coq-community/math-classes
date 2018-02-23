@@ -19,7 +19,7 @@ Module simple.
   Module approach_A.
     Class Quote (n: nat) := quote: Expr.
 
-    Implicit Arguments quote [[Quote]].
+    Arguments quote _ {Quote}.
 
     Section instances.
 
@@ -52,8 +52,8 @@ Module simple.
   Module approach_B.
     Class Quote (n: nat) := { quote: Expr; eval_quote: n = eval quote  }.
 
-    Implicit Arguments quote [[Quote]].
-    Implicit Arguments eval_quote [[Quote]].
+    Arguments quote _ {Quote}.
+    Arguments eval_quote _ {Quote}.
 
     Section instances.
 
@@ -108,9 +108,9 @@ End obvious.
 
 Inductive Expr (V: Type) := Mult (a b: Expr V) | Zero | Var (v: V).
 
-Implicit Arguments Var [[V]].
-Implicit Arguments Zero [[V]].
-Implicit Arguments Mult [[V]].
+Arguments Var {V}.
+Arguments Zero {V}.
+Arguments Mult {V}.
 
 (*
 Require Import monads canonical_names.
@@ -228,7 +228,7 @@ Section Lookup.
 
   Class Lookup {A} (x: Value) (f: Vars A) := { lookup: A; lookup_correct: f lookup = x }.
 
-  Global Implicit Arguments lookup [[A] [Lookup]].
+  Global Arguments lookup {A} _ _ {Lookup}.
 
   Context (x: Value) {A B} (va: Vars A) (vb: Vars B).
 
@@ -290,7 +290,7 @@ Section Quote.
     { quote: Expr (V + V')
     ; eval_quote: @eval (V+V') (merge l r) quote = n }.
 
-  Implicit Arguments quote [[V] [l] [V'] [r] [Quote]].
+  Arguments quote {V l} _ {V' r Quote}.
 
   (* Our first instance for Zero is easy. The "novars" in the result type reflects the fact that no new
    variables are encountered. The correctness proof is easy enough for Program. *)
@@ -347,8 +347,8 @@ Definition eval_quote': ∀ x {V'} {v: Vars V'} {d: Quote novars x v},
   eval (merge novars v) quote = x
     := @eval_quote _ _ .
 
-Implicit Arguments quote' [[V'] [v] [d]].
-Implicit Arguments eval_quote' [[V'] [v] [d]].
+Arguments quote' _ {V' v d}.
+Arguments eval_quote' _ {V' v d}.
 
 (* Time for some tests! *)
 
