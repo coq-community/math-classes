@@ -2,7 +2,7 @@ Global Generalizable All Variables.
 Global Set Automatic Introduction.
 Global Set Automatic Coercions Import.
 
-Require Import Coq.Lists.Streams.
+Require Import MathClasses.theory.Streams.
 Require Export Coq.Classes.Morphisms Coq.Setoids.Setoid Coq.Program.Program Coq.Unicode.Utf8 Coq.Unicode.Utf8_core MathClasses.misc.stdlib_hints.
 
 Definition id {A : Type} (a : A) := a.
