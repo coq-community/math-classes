@@ -12,4 +12,4 @@ install:
   - travis_wait opam install -y coq
   - opam repo add coq-released http://coq.inria.fr/opam/released
   - opam install -y coq-bignums
-script: make
+script: ./configure.sh && make
