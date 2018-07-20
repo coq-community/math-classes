@@ -1,6 +1,6 @@
 (* In the standard library equality on streams is defined as pointwise Leibniz equality.
     Here we prove similar results, but we use setoid equality instead. *)
-Require Export MathClasses.theory.Streams.
+Require Export MathClasses.theory.CoqStreams.
 Require Import MathClasses.implementations.peano_naturals MathClasses.interfaces.abstract_algebra.
 
 Section streams.
