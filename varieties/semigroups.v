@@ -2,7 +2,7 @@
 Require
   MathClasses.categories.varieties MathClasses.categories.product MathClasses.theory.forget_algebra MathClasses.theory.forget_variety.
 Require Import
-  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.misc.workaround_tactics.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.misc.workaround_tactics categories.categories.
 
 Inductive op := mult.
 
