@@ -10,6 +10,6 @@ install:
   - sudo apt-get update && sudo apt-get install -y opam
   - opam init -y && eval $(opam config env) && opam config var root
   - travis_wait opam install -y coq
-  - opam repo add coq-released http://coq.inria.fr/opam/released
+  - opam repo add coq-released http://coq.inria.fr/opam/released || true
   - opam install -y coq-bignums
 script: ./configure.sh && make
