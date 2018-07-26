@@ -1,7 +1,9 @@
+_CoqProject
+Makefile.conf
 Makefile.bak
 Makefile.coq
 Makefile.coq.conf
-*.v.d
+*.d
 *.vo
 *.glob
 *.pdf
