@@ -1,4 +1,3 @@
-#!/usr/bin/env sh
-cp -f Make.in Make
-find . -name "*.v" |grep -v misc/benchmarks_nobuild.v >>Make
-${COQBIN}coq_makefile -f Make -o Makefile
+#!/bin/sh
+cp -f _CoqProject.in _CoqProject
+find . -name "*.v" |grep -v misc/benchmarks_nobuild.v >> _CoqProject
