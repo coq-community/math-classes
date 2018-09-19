@@ -1,5 +1,5 @@
 ## Compilation
-This code should compile with 8.6 and later versions. The other branches are deprecated.
+This code has been tested with 8.6 through 8.8.1. The other branches are deprecated.
 The code depends on [BigNums](https://github.com/coq/bignums) which can be installed using opam.
 
 ## Directory structure
