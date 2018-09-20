@@ -110,12 +110,12 @@ Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y,
   end.
 Next Obligation.
   rewrite spec_compare in *.
-  destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate.
+  destruct (Z.compare_spec (to_Z x) (to_Z y)); try discriminate.
   now apply orders.lt_not_le_flip.
 Qed.
 Next Obligation.
   rewrite spec_compare in *.
-  destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate; try intuition.
+  destruct (Z.compare_spec (to_Z x) (to_Z y)); try discriminate; try intuition.
    now apply Zeq_le.
   now apply orders.lt_le.
 Qed.
