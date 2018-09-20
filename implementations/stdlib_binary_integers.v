@@ -13,7 +13,7 @@ Instance Z_plus: Plus Z := Zplus.
 Instance Z_0: Zero Z := 0%Z.
 Instance Z_1: One Z := 1%Z.
 Instance Z_mult: Mult Z := Zmult.
-Instance Z_negate: Negate Z := Zopp.
+Instance Z_negate: Negate Z := Z.opp.
   (* some day we'd like to do this with [Existing Instance] *)
 
 Instance: Ring Z.
@@ -32,7 +32,7 @@ Proof.
 Qed.
 
 (* misc: *)
-Instance: ∀ x y : Z, Decision (x = y) := ZArith_dec.Z_eq_dec.
+Instance: ∀ x y : Z, Decision (x = y) := Z.eq_dec.
 
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
@@ -101,8 +101,8 @@ Proof. change (SemiRing_Morphism (Npair_to_Z⁻¹)). split; apply _. Qed.
 Instance: IntegersToRing Z := integers.retract_is_int_to_ring Npair_to_Z.
 Instance: Integers Z := integers.retract_is_int Npair_to_Z.
 
-Instance Z_le: Le Z := Zle.
-Instance Z_lt: Lt Z := Zlt.
+Instance Z_le: Le Z := Z.le.
+Instance Z_lt: Lt Z := Z.lt.
 
 Instance: SemiRingOrder Z_le.
 Proof.
@@ -213,14 +213,14 @@ Proof.
   now destruct n.
 Qed.
 
-Program Instance Z_abs: Abs Z := Zabs.
+Program Instance Z_abs: Abs Z := Z.abs.
 Next Obligation.
   split; intros E.
    now apply Z.abs_eq.
   now apply Z.abs_neq.
 Qed.
 
-Instance Z_div: DivEuclid Z := Zdiv.
+Instance Z_div: DivEuclid Z := Z.div.
 Instance Z_mod: ModEuclid Z := Zmod.
 
 Instance: EuclidSpec Z _ _.

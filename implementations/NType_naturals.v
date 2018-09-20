@@ -111,7 +111,7 @@ Proof.
    reflexivity.
   intros x y E. exists (sub y x).
   unfold_equiv. rewrite spec_add, spec_sub.
-  rewrite Zmax_r by now apply Z.le_0_sub.
+  rewrite Z.max_r by now apply Z.le_0_sub.
   ring.
 Qed.
 
@@ -139,12 +139,12 @@ Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y, match (compare x y) 
   end.
 Next Obligation.
   rewrite spec_compare in *.
-  destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate.
+  destruct (Z.compare_spec (to_Z x) (to_Z y)); try discriminate.
   now apply orders.lt_not_le_flip.
 Qed.
 Next Obligation.
   rewrite spec_compare in *.
-  destruct (Zcompare_spec (to_Z x) (to_Z y)); try discriminate; try intuition.
+  destruct (Z.compare_spec (to_Z x) (to_Z y)); try discriminate; try intuition.
    now apply Zeq_le.
   now apply orders.lt_le.
 Qed.

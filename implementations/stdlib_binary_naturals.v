@@ -24,7 +24,7 @@ Proof.
   now apply Nmult_plus_distr_l.
 Qed.
 
-Instance: ∀ x y : N, Decision (x = y) := N_eq_dec.
+Instance: ∀ x y : N, Decision (x = y) := N.eq_dec.
 
 Instance inject_nat_N: Cast nat N := N_of_nat.
 Instance inject_N_nat: Cast N nat := nat_of_N.
@@ -58,8 +58,8 @@ Instance: NaturalsToSemiRing N := retract_is_nat_to_sr N_of_nat.
 Instance: Naturals N := retract_is_nat N_of_nat.
 
 (* order *)
-Instance N_le: Le N := Nle.
-Instance N_lt: Lt N := Nlt.
+Instance N_le: Le N := N.le.
+Instance N_lt: Lt N := N.lt.
 
 Instance: FullPseudoSemiRingOrder N_le N_lt.
 Proof.
@@ -82,7 +82,7 @@ Proof.
 Qed.
 
 Program Instance: ∀ x y: N, Decision (x ≤ y) := λ y x,
-  match Ncompare y x with
+  match N.compare y x with
   | Gt => right _
   | _ => left _
   end.
