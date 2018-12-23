@@ -44,7 +44,7 @@ Section contents.
 
   Instance: ∀ a, Equiv (ClosedTerm0 a) := λ a, e (ne_list.one a).
 
-  Instance: ∀ a, Setoid (ClosedTerm0 a) := {}.
+  Instance: ∀ a, Setoid (ClosedTerm0 a).
   Proof. split; apply _. Qed.
 
   (* While this fancy congruence is the one we'll use to make our initial object a setoid,

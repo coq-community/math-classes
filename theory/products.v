@@ -8,7 +8,7 @@ Hint Extern 0 (Equiv (_ * _)) => eapply @prod_equiv : typeclass_instances.
 Section product.
   Context `{Setoid A} `{Setoid B}.
 
-  Global Instance: Setoid (A * B) := {}.
+  Global Instance: Setoid (A * B).
   Proof. firstorder auto. Qed.
 
   Global Instance pair_proper: Proper ((=) ==> (=) ==> (=)) (@pair A B).

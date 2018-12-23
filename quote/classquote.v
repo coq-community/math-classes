@@ -62,11 +62,17 @@ Module simple.
       Global Program Instance: Quote 0 := { quote := Zero }.
       Global Program Instance: Quote 1 := { quote := One }.
 
-      Global Instance: Quote (n + m) := { quote := Plus (quote n) (quote m) }.
-      Proof. simpl. do 2 rewrite <- eval_quote. reflexivity. Qed.
+      Global Instance: Quote (n + m).
+      Proof.
+      refine {| quote := Plus (quote n) (quote m) |}.
+      simpl. do 2 rewrite <- eval_quote. reflexivity.
+      Qed.
 
-      Global Instance: Quote (n * m) := { quote := Mult (quote n) (quote m) }.
-      Proof. simpl. do 2 rewrite <- eval_quote. reflexivity. Qed.
+      Global Instance: Quote (n * m).
+      Proof.
+      refine {| quote := Mult (quote n) (quote m) |}.
+      simpl. do 2 rewrite <- eval_quote. reflexivity.
+      Qed.
 
     End instances.
 
@@ -235,15 +241,19 @@ Section Lookup.
   (* If the heap is a merge of two heaps and we can find the value's index in the left heap,
    we can access it by indexing the merged heap: *)
 
-  Global Instance lookup_left `{!Lookup x va}: Lookup x (merge va vb)
-    := { lookup := inl (lookup x va) }.
-  Proof. apply lookup_correct. Defined.
+  Global Instance lookup_left `{!Lookup x va}: Lookup x (merge va vb).
+  Proof.
+  refine {| lookup := inl (lookup x va) |}.
+  apply lookup_correct.
+  Defined.
 
   (* And vice-versa: *)
 
-  Global Instance lookup_right `{!Lookup x vb}: Lookup x (merge va vb)
-    := { lookup := inr (lookup x vb) }.
-  Proof. apply lookup_correct. Defined.
+  Global Instance lookup_right `{!Lookup x vb} : Lookup x (merge va vb).
+  Proof.
+  refine {| lookup := inr (lookup x vb) |}.
+  apply lookup_correct.
+  Defined.
 
   (* If the heap is just a singlevar, we can easily index it. *)
 

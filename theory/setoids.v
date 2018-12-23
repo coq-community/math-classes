@@ -45,7 +45,7 @@ Proof. now apply (projected_setoid (@proj1_sig _ P)). Qed.
 Instance sigT_setoid `{Setoid A} (P : A → Type) : Setoid (sigT P).
 Proof. now apply (projected_setoid (@projT1 _ P)). Qed.
 
-Global Instance id_morphism `{Setoid A} : Setoid_Morphism (@id A) := {}.
+Global Instance id_morphism `{Setoid A} : Setoid_Morphism (@id A).
 Proof. firstorder. Qed.
 
 Lemma compose_setoid_morphism `{Equiv A} `{Equiv B} `{Equiv C} (f : A → B) (g : B → C) :

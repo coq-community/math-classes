@@ -361,8 +361,11 @@ Section dec_partial_order.
 
   Instance: StrongSetoid A := dec_strong_setoid.
 
-  Instance dec_full_partial_order: FullPartialOrder (≤) (<) := {}.
-  Proof. setoid_rewrite trivial_apart; apply lt_correct. Qed.
+  Instance dec_full_partial_order: FullPartialOrder (≤) (<).
+  Proof.
+  constructor; try typeclasses eauto.
+  setoid_rewrite trivial_apart; apply lt_correct.
+  Qed.
 
   Context `{!TotalRelation (≤)}.
 

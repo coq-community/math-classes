@@ -20,14 +20,16 @@ Instance QType_dec_recip: DecRecip t := inv.
 
 Instance: Setoid t := {}.
 
-Instance: ∀ x y: t, Decision (x = y) := λ x y,
+Instance: ∀ x y: t, Decision (x = y).
+Proof with intuition.
+refine (λ x y,
   (match anyQ.eq_bool x y as p return p ≡ Qeq_bool (to_Q x) (to_Q y) → Decision (x = y) with
   | true => λ e, left _
   | false => λ e, right _
-  end) (anyQ.spec_eq_bool x y).
+  end) (anyQ.spec_eq_bool x y)).
     (* hm, do we really need the anyQ.spec_eq_bool in here? *)
 
-Proof with intuition. apply Qeq_bool_iff... apply Qeq_bool_neq... Qed.
+apply Qeq_bool_iff... apply Qeq_bool_neq... Qed.
 
   (* We could get the above for free from the fact that anyQ.eq is just projected Qeq,
    but that mean that any comparison would involve two conversion to Q, which is

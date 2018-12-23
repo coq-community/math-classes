@@ -28,13 +28,17 @@ Section contents.
 
     Context (x: M) {A B} (va: Vars A) (vb: Vars B).
 
-    Global Instance lookup_left `{!Lookup x va}: Lookup x (merge va vb)
-      := { lookup := inl (lookup x va) }.
-    Proof. apply lookup_correct. Defined.
+    Global Instance lookup_left `{!Lookup x va}: Lookup x (merge va vb).
+    Proof.
+    refine {| lookup := inl (lookup x va) |}.
+    apply lookup_correct.
+    Defined.
 
-    Global Instance lookup_right `{!Lookup x vb}: Lookup x (merge va vb)
-      := { lookup := inr (lookup x vb) }.
-    Proof. apply lookup_correct. Defined.
+    Global Instance lookup_right `{!Lookup x vb}: Lookup x (merge va vb).
+    Proof.
+    refine {| lookup := inr (lookup x vb) |}.
+    apply lookup_correct.
+    Defined.
 
     Global Program Instance: Lookup x (singlevar x) := { lookup := tt }.
   End Lookup.
