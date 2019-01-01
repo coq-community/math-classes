@@ -47,8 +47,9 @@ Section contents.
   Definition forget (O: Object) : setoids.Object := setoids.object O.
   Global Program Instance: Fmap forget := λ x y f, f.
 
-  Global Instance: Functor forget _ := {}.
+  Global Instance: Functor forget _.
   Proof.
+  constructor; try typeclasses eauto.
     * constructor; try typeclasses eauto.
       intros ???. assumption.
     * intros ????. assumption.
