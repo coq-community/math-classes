@@ -29,7 +29,7 @@ Section initial_maps.
   Qed.
 End initial_maps.
 
-Instance: Params (@integers_to_ring) 8.
+Instance: Params (@integers_to_ring) 8 := {}.
 
 Class Integers A {e plus mult zero one negate} `{U : IntegersToRing A} :=
   { integers_ring:> @Ring A e plus mult zero one negate
@@ -55,6 +55,6 @@ Section specializable.
     end.
 End specializable.
 
-Instance: Params (@int_abs) 10.
-Instance: Params (@int_abs_sig) 10.
-Instance: Params (@int_to_nat) 11.
+Instance: Params (@int_abs) 10 := {}.
+Instance: Params (@int_abs_sig) 10 := {}.
+Instance: Params (@int_to_nat) 11 := {}.

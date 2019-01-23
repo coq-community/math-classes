@@ -423,7 +423,7 @@ Section embed_rationals.
   Notation DtoQ_slow' := (DtoQ_slow ZtoQ).
   Notation StdQtoQ := (rationals_to_rationals StdQ Q).
 
-  Instance: Params (@DtoQ_slow) 6.
+  Instance: Params (@DtoQ_slow) 6 := {}.
   Lemma DtoQ_slow_correct : DtoQ_slow' = StdQtoQ ∘ DtoStdQ.
   Proof.
     intros x y E. unfold compose. rewrite <- E. clear y E.
