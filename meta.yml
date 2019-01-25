@@ -1,0 +1,86 @@
+---
+fullname: Math Classes
+shortname: math-classes
+
+description: |
+  A library of abstract interfaces for mathematical structures in Coq.
+
+paper:
+  doi: 10.1017/S0960129511000119
+  url: https://arxiv.org/abs/1102.1323
+  title: Type Classes for Mathematics in Type Theory
+
+authors:
+- name: Eelis van der Weegen
+  initial: true
+- name: Bas Spitters
+  initial: true
+- name: Robbert Krebbers
+  initial: true
+
+maintainers:
+- name: Bas Spitters
+  nickname: spitters
+
+opam-file-maintainer: b.a.w.spitters@gmail.com
+
+license:
+  fullname: Public Domain
+  shortname: Public Domain
+
+supported_coq_versions:
+  text: Coq 8.6 or later (use releases for other Coq versions)
+  opam: '{(>= "8.6" & < "8.10~") | (= "dev")}'
+
+tested_coq_versions:
+- version_or_url: https://github.com/coq/coq/tarball/master
+- version_or_url: 8.9
+- version_or_url: 8.8
+- version_or_url: 8.7
+- version_or_url: 8.6
+
+tested_coq_opam_version: dev
+
+dependencies:
+- opam:
+    name: coq-bignums
+  nix: bignums
+  description: "[BigNums](https://github.com/coq/bignums)"
+
+namespace: MathClasses
+
+documentation: |
+  ## Directory structure
+
+  ### categories/
+  Proofs that certain structures form categories.
+
+  ### functors/
+
+  ### interfaces/
+  Definitions of abstract interfaces/structures.
+
+  ### implementations/
+  Definitions of concrete data structures and algorithms, and proofs that they are instances of certain structures (i.e. implement certain interfaces).
+
+  ### misc/
+  Miscellaneous things.
+
+  ### orders/
+  Theory about orders on different structures.
+
+  ### quote/
+  Prototype implementation of type class based quoting. To be integrated.
+
+  ### theory/
+  Proofs of properties of structures.
+
+  ### varieties/
+  Proofs that certain structures are varieties, and translation to/from type classes dedicated to these structures (defined in interfaces/).
+
+  The reason we treat categories and varieties differently from other structures
+  (like groups and rings) is that they are like meta-interfaces whose implementations
+  are not concrete data structures and algorithms but are themselves abstract structures.
+
+  To be able to distinguish the various arrows, we recommend using a variable width font.
+---
