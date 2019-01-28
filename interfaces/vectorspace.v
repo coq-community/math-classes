@@ -3,7 +3,7 @@ Require Import
 
 (** Scalar multiplication function class *)
 Class ScalarMult K V := scalar_mult: K → V → V.
-Instance: Params (@scalar_mult) 3.
+Instance: Params (@scalar_mult) 3 := {}.
 
 Infix "·" := scalar_mult (at level 50) : mc_scope.
 Notation "(·)" := scalar_mult (only parsing) : mc_scope.
@@ -12,7 +12,7 @@ Notation "(· x )" := (λ y, y · x) (only parsing) : mc_scope.
 
 (** The inproduct function class *)
 Class Inproduct K V := inprod : V → V → K.
-Instance: Params (@inprod) 3.
+Instance: Params (@inprod) 3 := {}.
 
 Notation "(⟨⟩)" := (inprod) (only parsing) : mc_scope.
 Notation "⟨ u , v ⟩" := (inprod u v) (at level 51) : mc_scope.
@@ -22,7 +22,7 @@ Notation "x ⊥ y" := (⟨x,y⟩ = 0) (at level 70) : mc_scope.
 
 (** The norm function class *)
 Class Norm K V := norm : V → K.
-Instance: Params (@norm) 2.
+Instance: Params (@norm) 2 := {}.
 
 Notation "∥ L ∥" := (norm L) (at level 50) : mc_scope.
 Notation "∥·∥" := norm (only parsing) : mc_scope.

@@ -31,7 +31,7 @@ Hint Extern 2 (?x = ?y) => auto_symm.
 Hint Extern 2 (?x = ?y) => auto_trans.
 
 (* Coq sometimes uses an incorrect DefaultRelation, so we override it. *)
-Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3.
+Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3 := {}.
 
 (*
 Because Coq does not support setoid rewriting in Type'd relations
@@ -96,7 +96,7 @@ Hint Extern 10 (Apart (sig _)) => apply @sig_apart : typeclass_instances.
 Class Cast A B := cast: A → B.
 Arguments cast _ _ {Cast} _.
 Notation "' x" := (cast _ _ x) (at level 20) : mc_scope.
-Instance: Params (@cast) 3.
+Instance: Params (@cast) 3 := {}.
 Typeclasses Transparent Cast.
 
 (* Other canonically named relations/operations/constants: *)
@@ -143,20 +143,20 @@ Class RalgebraAction A B := ralgebra_action: A → B → B.
 Arguments cat_id {O arrows CatId x} : rename.
 Arguments comp {O arrow CatComp} _ _ _ _ _ : rename.
 
-Instance: Params (@mult) 2.
-Instance: Params (@plus) 2.
-Instance: Params (@negate) 2.
-Instance: Params (@equiv) 2.
-Instance: Params (@apart) 2.
-Instance: Params (@le) 2.
-Instance: Params (@lt) 2.
-Instance: Params (@recip) 4.
-Instance: Params (@dec_recip) 2.
-Instance: Params (@meet) 2.
-Instance: Params (@join) 2.
-Instance: Params (@contains) 3.
-Instance: Params (@singleton) 3.
-Instance: Params (@difference) 2.
+Instance: Params (@mult) 2 := {}.
+Instance: Params (@plus) 2 := {}.
+Instance: Params (@negate) 2 := {}.
+Instance: Params (@equiv) 2 := {}.
+Instance: Params (@apart) 2 := {}.
+Instance: Params (@le) 2 := {}.
+Instance: Params (@lt) 2 := {}.
+Instance: Params (@recip) 4 := {}.
+Instance: Params (@dec_recip) 2 := {}.
+Instance: Params (@meet) 2 := {}.
+Instance: Params (@join) 2 := {}.
+Instance: Params (@contains) 3 := {}.
+Instance: Params (@singleton) 3 := {}.
+Instance: Params (@difference) 2 := {}.
 
 Instance plus_is_sg_op `{f : Plus A} : SgOp A := f.
 Instance mult_is_sg_op `{f : Mult A} : SgOp A := f.
@@ -296,8 +296,8 @@ Hint Extern 4 (?x < ?z) => auto_trans.
 
 Class Abs A `{Equiv A} `{Le A} `{Zero A} `{Negate A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
 Definition abs `{Abs A} := λ x : A, ` (abs_sig x).
-Instance: Params (@abs_sig) 6.
-Instance: Params (@abs) 6.
+Instance: Params (@abs_sig) 6 := {}.
+Instance: Params (@abs) 6 := {}.
 
 (* Common properties: *)
 Class Inverse `(A → B) : Type := inverse: B → A.
