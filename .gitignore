@@ -21,3 +21,4 @@ coqdoc
 *.o
 *.native
 *.aux
+result
