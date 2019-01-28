@@ -1,13 +1,15 @@
 language: nix
 
 script:
-- nix-build --argstr coq-version-or-url "$COQ" --extra-substituters https://coq.cachix.org --trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= coq.cachix.org-1:Jgt0DwGAUo+wpxCM52k2V+E0hLoOzFPzvg94F65agtI="
+- nix-build --argstr coq-version-or-url "$COQ" --argstr bignums-url "$BIGNUMS" --extra-substituters https://coq.cachix.org --trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= coq.cachix.org-1:Jgt0DwGAUo+wpxCM52k2V+E0hLoOzFPzvg94F65agtI="
 
 matrix:
   include:
 
   # Test supported versions of Coq
-  - env: COQ=https://github.com/coq/coq/tarball/master
+  - env:
+      COQ=https://github.com/coq/coq/tarball/master
+      BIGNUMS=https://github.com/coq/bignums/tarball/master
   - env: COQ=8.9
   - env: COQ=8.8
   - env: COQ=8.7
