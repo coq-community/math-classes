@@ -1,7 +1,7 @@
 language: nix
 
 script:
-- nix-build --argstr coq-version-or-url "$COQ" --argstr bignums-url "$BIGNUMS" --extra-substituters https://coq.cachix.org --trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= coq.cachix.org-1:Jgt0DwGAUo+wpxCM52k2V+E0hLoOzFPzvg94F65agtI="
+- nix-build --argstr coq-version-or-url "$COQ" --argstr bignums-url "$BIGNUMS" --extra-substituters https://coq.cachix.org --trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= coq.cachix.org-1:5QW/wwEnD+l2jvN6QRbRRsa4hBHG3QiQQ26cxu1F5tI="
 
 matrix:
   include:
