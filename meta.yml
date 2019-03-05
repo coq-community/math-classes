@@ -1,6 +1,7 @@
 ---
 fullname: Math Classes
 shortname: math-classes
+organization: coq-community
 
 description: |
   A library of abstract interfaces for mathematical structures in Coq.
@@ -33,7 +34,7 @@ supported_coq_versions:
   opam: '{(>= "8.6" & < "8.10~") | (= "dev")}'
 
 tested_coq_versions:
-- version_or_url: https://github.com/coq/coq/tarball/master
+- version_or_url: https://github.com/coq/coq-on-cachix/tarball/master
 - version_or_url: 8.9
 - version_or_url: 8.8
 - version_or_url: 8.7
