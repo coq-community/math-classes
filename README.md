@@ -33,7 +33,7 @@ More details about the project can be found in the paper
   - Eelis van der Weegen (initial)
   - Bas Spitters (initial)
   - Robbert Krebbers (initial)
-- Coq-community maintainer(s):
+- Maintainer(s):
   - Bas Spitters ([**@spitters**](https://github.com/spitters))
 - License: [Public Domain](LICENSE)
 - Compatible Coq versions: Coq 8.6 or later (use releases for other Coq versions)

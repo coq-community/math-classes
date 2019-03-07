@@ -8,7 +8,7 @@ matrix:
 
   # Test supported versions of Coq
   - env:
-      COQ=https://github.com/coq/coq/tarball/master
+      COQ=https://github.com/coq/coq-on-cachix/tarball/master
       BIGNUMS=https://github.com/coq/bignums/tarball/master
   - env: COQ=8.9
   - env: COQ=8.8
