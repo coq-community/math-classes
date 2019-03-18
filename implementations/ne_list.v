@@ -37,7 +37,7 @@ Section contents.
     | cons x xs => x :: to_list xs
     end.
 
-  Global Coercion to_list: L >-> list.
+  Local Coercion to_list: L >-> list.
 
   Fixpoint from_list (x: T) (xs: list T): L :=
     match xs with
@@ -113,6 +113,10 @@ Section contents.
    reflexivity.
   Qed.
 End contents.
+
+Module Export coercions.
+  Coercion to_list: L >-> list.
+End coercions.
 
 Arguments L : clear implicits.
 
