@@ -1,19 +1,24 @@
-opam-version: "1.2"
+opam-version: "2.0"
 maintainer: "b.a.w.spitters@gmail.com"
 
 homepage: "https://github.com/coq-community/math-classes"
-dev-repo: "https://github.com/coq-community/math-classes.git"
+dev-repo: "git+https://github.com/coq-community/math-classes.git"
 bug-reports: "https://github.com/coq-community/math-classes/issues"
 license: "Public Domain"
+
+synopsis: ""
+description: """
+A library of abstract interfaces for mathematical structures in Coq.
+"""
 
 build: [
   [ "./configure.sh" ]
   [ make "-j%{jobs}%" ]
 ]
 install: [make "install"]
-remove: ["rm" "-R" "%{lib}%/coq/user-contrib/MathClasses"]
 depends: [
-  "coq" {(>= "8.6" & < "8.10~") | (= "dev")}
+  "ocaml"
+  "coq" {(>= "8.6" & < "8.11~") | (= "dev")}
   "coq-bignums" 
 ]
 
