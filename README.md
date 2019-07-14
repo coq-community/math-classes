@@ -6,9 +6,6 @@
 [![Gitter][gitter-shield]][gitter-link]
 [![DOI][doi-shield]][doi-link]
 
-[doi-shield]: https://zenodo.org/badge/DOI/10.1017/S0960129511000119.svg
-[doi-link]: https://doi.org/10.1017/S0960129511000119
-
 [travis-shield]: https://travis-ci.com/coq-community/math-classes.svg?branch=master
 [travis-link]: https://travis-ci.com/coq-community/math-classes/builds
 
@@ -20,6 +17,9 @@
 
 [gitter-shield]: https://img.shields.io/badge/chat-on%20gitter-%23c1272d.svg
 [gitter-link]: https://gitter.im/coq-community/Lobby
+
+[doi-shield]: https://zenodo.org/badge/DOI/10.1017/S0960129511000119.svg
+[doi-link]: https://doi.org/10.1017/S0960129511000119
 
 A library of abstract interfaces for mathematical structures in Coq.
 
@@ -33,18 +33,17 @@ More details about the project can be found in the paper
   - Eelis van der Weegen (initial)
   - Bas Spitters (initial)
   - Robbert Krebbers (initial)
-- Maintainer(s):
+- Coq-community maintainer(s):
   - Bas Spitters ([**@spitters**](https://github.com/spitters))
 - License: [Public Domain](LICENSE)
 - Compatible Coq versions: Coq 8.6 or later (use releases for other Coq versions)
-- Additional dependencies:
+- Additional Coq dependencies:
   - [BigNums](https://github.com/coq/bignums)
-
 
 ## Building and installation instructions
 
-The easiest way to install the latest released version is via
-[OPAM](https://opam.ocaml.org/doc/Install.html):
+The easiest way to install the latest released version of Math Classes
+is via [OPAM](https://opam.ocaml.org/doc/Install.html):
 
 ```shell
 opam repo add coq-released https://coq.inria.fr/opam/released
@@ -63,6 +62,7 @@ make install
 
 After installation, the included modules are available under
 the `MathClasses` namespace.
+
 
 ## Directory structure
 
