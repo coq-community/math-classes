@@ -21,7 +21,19 @@
 [doi-shield]: https://zenodo.org/badge/DOI/10.1017/S0960129511000119.svg
 [doi-link]: https://doi.org/10.1017/S0960129511000119
 
-A library of abstract interfaces for mathematical structures in Coq.
+Math classes is a library of abstract interfaces for mathematical
+structures, such as:
+
+*  Algebraic hierarchy (groups, rings, fields, …)
+*  Relations, orders, …
+*  Categories, functors, universal algebra, …
+*  Numbers: N, Z, Q, …
+*  Operations, (shift, power, abs, …)
+
+It is heavily based on Coq’s new type classes in order to provide:
+structure inference, multiple inheritance/sharing, convenient
+algebraic manipulation (e.g. rewriting) and idiomatic use of
+notations.
 
 
 More details about the project can be found in the paper
