@@ -114,7 +114,7 @@ Section every_other.
   Proof.
     unfold Str_nth.
     rewrite Str_nth_tl_everyOther.
-    now destruct (Str_nth_tl (2 * n) s).
+    reflexivity.
   Qed.
 
   Global Instance everyOther_dnn `(dnn : !DecreasingNonNegative s) : DecreasingNonNegative (everyOther s).
