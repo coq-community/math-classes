@@ -48,16 +48,16 @@ Section quotient_ring.
   Qed.
 
   Instance: Proper ((=) ==> (=) ==> (=)) quotient_plus.
-  Proof. intros [?] [?] E1 [?] [?] E2. now rapply ring_congr_plus. Qed.
+  Proof. intros [?] [?] E1 [?] [?] E2. now Tactics.rapply ring_congr_plus. Qed.
 
   Instance: Proper ((=) ==> (=) ==> (=)) quotient_mult.
-  Proof. intros [?] [?] E1 [?] [?] E2. now rapply ring_congr_mult. Qed.
+  Proof. intros [?] [?] E1 [?] [?] E2. now Tactics.rapply ring_congr_mult. Qed.
 
   Instance: Proper ((=) ==> (=)) quotient_negate.
-  Proof. intros [?] [?] E. now rapply ring_congr_negate. Qed.
+  Proof. intros [?] [?] E. now Tactics.rapply ring_congr_negate. Qed.
 
   Global Instance: Setoid_Morphism quotient_inject.
-  Proof. split; try apply _. intros ?? E. now rapply ring_congr_subrelation. Qed.
+  Proof. split; try apply _. intros ?? E. now Tactics.rapply ring_congr_subrelation. Qed.
 
   Global Instance: Ring (Quotient A R).
   Proof.

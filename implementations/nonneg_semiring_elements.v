@@ -62,7 +62,7 @@ Proof. split. trivial. apply _. Qed.
 
 (* Misc *)
 Global Instance NonNeg_trivial_apart `{!TrivialApart R} :  TrivialApart (R⁺).
-Proof. intros x y. now rapply trivial_apart. Qed.
+Proof. intros x y. now Tactics.rapply trivial_apart. Qed.
 
 Global Instance NonNeg_equiv_dec `{∀ x y : R, Decision (x = y)} : ∀ x y: R⁺, Decision (x = y)
   := λ x y, decide_rel (=) ('x : R) ('y : R).
