@@ -47,7 +47,7 @@ Section setoid_morphisms.
 End setoid_morphisms.
 
 Arguments sm_proper {A B Ae Be f Setoid_Morphism} _ _ _.
-Hint Extern 4 (?f _ = ?f _) => eapply (sm_proper (f:=f)).
+Hint Extern 4 (?f _ = ?f _) => unshelve eapply (sm_proper (f:=f)).
 
 Section setoid_binary_morphisms.
   Context {A B C} {Ae: Equiv A} {Aap: Apart A} 
