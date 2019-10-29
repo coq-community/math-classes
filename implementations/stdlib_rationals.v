@@ -1,6 +1,7 @@
 Require
   MathClasses.implementations.stdlib_binary_integers Coq.setoid_ring.Field Coq.QArith.Qfield MathClasses.theory.rationals.
 Require Import
+  Coq.ZArith.ZArith
   Coq.setoid_ring.Ring Coq.QArith.QArith_base Coq.QArith.Qabs Coq.QArith.Qpower
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.rationals
   MathClasses.interfaces.orders MathClasses.interfaces.additional_operations
