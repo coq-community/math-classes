@@ -205,6 +205,7 @@ Section from_stdlib_field_theory.
     `{!Proper (Fe ==> Fe) Fnegate}
     `{!Proper (Fe ==> Fe) Frecip}.
 
+  Add Ring F2 : (F_R ftheory).
   Add Field F2 : ftheory.
 
   Definition from_stdlib_field_theory: @DecField F Fe Fplus Fmult Fzero Fone Fnegate Frecip.

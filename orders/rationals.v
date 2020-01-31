@@ -34,6 +34,7 @@ Section rationals_and_another_rationals.
   Context `{Rationals Q2} `{Apart Q2} `{!TrivialApart Q2} `{!FullPseudoSemiRingOrder (A:=Q2) Q2le Q2lt}
      {f : Q1 → Q2} `{!SemiRing_Morphism f}.
 
+  Add Ring Q1 : (F_R (stdlib_field_theory Q1)).
   Add Field Q1 : (stdlib_field_theory Q1).
 
   Notation i_to_r := (integers.integers_to_ring (SRpair nat) Q1).
@@ -93,6 +94,7 @@ Instance rationals_lt  `{Rationals Q} : Lt Q | 10 := dec_lt.
 Section default_order.
   Context `{Rationals Q} `{Apart Q} `{!TrivialApart Q}.
 
+  Add Ring R: (F_R (stdlib_field_theory Q)).
   Add Field F: (stdlib_field_theory Q).
   Notation n_to_sr := (naturals_to_semiring nat Q).
 
