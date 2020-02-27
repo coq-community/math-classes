@@ -32,10 +32,10 @@ Solve Obligations with (program_simpl; tauto).
 Definition bool_decide (P : Prop) `{dec : !Decision P} : bool := if dec then true else false.
 
 Lemma bool_decide_true `{dec : Decision P} : bool_decide P ≡ true ↔ P.
-Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
+Proof. unfold bool_decide. split; intro; destruct dec; firstorder with bool. Qed.
 
 Lemma bool_decide_false `{dec : !Decision P} : bool_decide P ≡ false ↔ ¬P.
-Proof. unfold bool_decide. split; intro; destruct dec; firstorder. Qed.
+Proof. unfold bool_decide. split; intro; destruct dec; firstorder with bool. Qed.
 
 (*
   Because [vm_compute] evaluates terms in [Prop] eagerly and does not remove dead code we
@@ -55,11 +55,11 @@ Definition bool_decide_rel `(R : relation A) {dec : ∀ x y, Decision (R x y)} :
 
 Lemma bool_decide_rel_true `(R : relation A) {dec : ∀ x y, Decision (R x y)} :
   ∀ x y, bool_decide_rel R x y ≡ true ↔ R x y.
-Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder. Qed.
+Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder with bool. Qed.
 
 Lemma bool_decide_rel_false `(R : relation A)`{dec : ∀ x y, Decision (R x y)} :
   ∀ x y, bool_decide_rel R x y ≡ false ↔ ¬R x y.
-Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder. Qed.
+Proof. unfold bool_decide_rel. split; intro; destruct dec; firstorder with bool. Qed.
 
 Program Definition decision_from_bool_decide {P b} (prf : b ≡ true ↔ P) :
   Decision P := match b with true => left _ | false => right _ end.
