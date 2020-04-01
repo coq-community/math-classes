@@ -18,6 +18,7 @@
 [gitter-shield]: https://img.shields.io/badge/chat-on%20gitter-%23c1272d.svg
 [gitter-link]: https://gitter.im/coq-community/Lobby
 
+
 [doi-shield]: https://zenodo.org/badge/DOI/10.1017/S0960129511000119.svg
 [doi-link]: https://doi.org/10.1017/S0960129511000119
 
@@ -36,9 +37,6 @@ algebraic manipulation (e.g. rewriting) and idiomatic use of
 notations.
 
 
-More details about the project can be found in the paper
-[Type Classes for Mathematics in Type Theory](https://arxiv.org/abs/1102.1323).
-
 ## Meta
 
 - Author(s):
@@ -49,8 +47,11 @@ More details about the project can be found in the paper
   - Bas Spitters ([**@spitters**](https://github.com/spitters))
 - License: [Public Domain](LICENSE)
 - Compatible Coq versions: Coq 8.6 or later (use releases for other Coq versions)
-- Additional Coq dependencies:
+- Additional dependencies:
   - [BigNums](https://github.com/coq/bignums)
+- Coq namespace: `MathClasses`
+- Related publication(s):
+  - [Type Classes for Mathematics in Type Theory](https://arxiv.org/abs/1102.1323) doi:[10.1017/S0960129511000119](https://doi.org/10.1017/S0960129511000119)
 
 ## Building and installation instructions
 
@@ -65,15 +66,12 @@ opam install coq-math-classes
 To instead build and install manually, do:
 
 ``` shell
-git clone https://github.com/coq-community/math-classes
+git clone https://github.com/coq-community/math-classes.git
 cd math-classes
 ./configure.sh
 make   # or make -j <number-of-cores-on-your-machine>
 make install
 ```
-
-After installation, the included modules are available under
-the `MathClasses` namespace.
 
 
 ## Directory structure

@@ -3,6 +3,8 @@ fullname: Math Classes
 shortname: math-classes
 organization: coq-community
 community: true
+travis: true
+doi: 10.1017/S0960129511000119
 
 synopsis: >-
   A library of abstract interfaces for mathematical structures in Coq.
@@ -22,10 +24,10 @@ description: |
   algebraic manipulation (e.g. rewriting) and idiomatic use of
   notations.
 
-paper:
-  doi: 10.1017/S0960129511000119
-  url: https://arxiv.org/abs/1102.1323
-  title: Type Classes for Mathematics in Type Theory
+publications:
+- pub_doi: 10.1017/S0960129511000119
+  pub_url: https://arxiv.org/abs/1102.1323
+  pub_title: Type Classes for Mathematics in Type Theory
 
 authors:
 - name: Eelis van der Weegen
@@ -47,17 +49,18 @@ license:
 
 supported_coq_versions:
   text: Coq 8.6 or later (use releases for other Coq versions)
-  opam: '{(>= "8.6" & < "8.11~") | (= "dev")}'
+  opam: '{(>= "8.6" & < "8.12~") | (= "dev")}'
 
 tested_coq_nix_versions:
+- version_or_url: "8.11"
 - version_or_url: "8.10"
 - version_or_url: "8.9"
 - version_or_url: "8.8"
 - version_or_url: "8.7"
-- version_or_url: "8.6"
 
 tested_coq_opam_versions:
 - version: dev
+- version: "8.6"
 
 dependencies:
 - opam:
