@@ -22,5 +22,5 @@ pkgs.stdenv.mkDerivation {
 
   src = if shell then null else ./.;
 
-  installFlags = "COQLIB=$(out)/lib/coq/${coq.coq-version}/";
+  installFlags = "COQMF_COQLIB=$(out)/lib/coq/${coq.coq-version}/";
 }
