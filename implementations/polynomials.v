@@ -3,6 +3,7 @@ Require Import
   MathClasses.interfaces.abstract_algebra
   MathClasses.theory.rings
   Ring.
+Import ListNotations.
 
 Section contents.
   Context R `{Ring R}.
