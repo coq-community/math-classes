@@ -14,6 +14,7 @@ language: shell
       echo \"Build triggered by ${TRAVIS_EVENT_TYPE}\"
       export PS4='+ \e[33;1m(\$0 @ line \$LINENO) \$\e[0m '
       set -ex  # -e = exit on failure; -x = trace for debug
+      opam repo -a --set-default add coq-extra-dev https://coq.inria.fr/opam/extra-dev
       opam update -y
       opam pin add ${PACKAGE} . -y -n -k path
       opam install ${PACKAGE} -y -j ${NJOBS} --deps-only
