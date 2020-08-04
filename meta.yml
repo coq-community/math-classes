@@ -44,8 +44,8 @@ maintainers:
 opam-file-maintainer: b.a.w.spitters@gmail.com
 
 license:
-  fullname: Public Domain
-  identifier: Public Domain
+  fullname: MIT License
+  identifier: MIT
 
 supported_coq_versions:
   text: Coq 8.6 or later (use releases for other Coq versions)
