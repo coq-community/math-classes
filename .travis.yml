@@ -36,6 +36,10 @@ language: shell
 
 .nix: &NIX
   language: nix
+  install:
+  # for cachix we need travis to be a trusted nix user
+  - echo "trusted-users = $USER" | sudo tee -a /etc/nix/nix.conf
+  - sudo systemctl restart nix-daemon
   script:
   - nix-build --argstr coq-version-or-url "$COQ" --extra-substituters https://coq.cachix.org --trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= coq.cachix.org-1:5QW/wwEnD+l2jvN6QRbRRsa4hBHG3QiQQ26cxu1F5tI="
 
@@ -43,6 +47,9 @@ jobs:
   include:
 
   # Test supported versions of Coq via Nix
+  - env:
+    - COQ=8.12
+    <<: *NIX
   - env:
     - COQ=8.11
     <<: *NIX

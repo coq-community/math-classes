@@ -22,3 +22,5 @@ coqdoc
 *.native
 *.aux
 result
+.lia.cache
+.nia.cache

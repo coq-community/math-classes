@@ -4,6 +4,7 @@ shortname: math-classes
 organization: coq-community
 community: true
 travis: true
+ci_extra_dev: true
 doi: 10.1017/S0960129511000119
 
 synopsis: >-
@@ -49,9 +50,10 @@ license:
 
 supported_coq_versions:
   text: Coq 8.6 or later (use releases for other Coq versions)
-  opam: '{(>= "8.6" & < "8.12~") | (= "dev")}'
+  opam: '{(>= "8.6" & < "8.13~") | (= "dev")}'
 
 tested_coq_nix_versions:
+- version_or_url: "8.12"
 - version_or_url: "8.11"
 - version_or_url: "8.10"
 - version_or_url: "8.9"
