@@ -139,9 +139,9 @@ Section contents.
 
     (* And with those two somewhat subtle lemmas, we show that eval_in_other is a setoid morphism: *)
 
-    Instance prep_proper: Proper ((=) ==> (=)) (@eval_in_other o).
+    Instance prep_proper {o}: Proper ((=) ==> (=)) (@eval_in_other o).
     Proof with intuition.
-     intros o x y H.
+     intros x y H.
      induction H; simpl...
        induction x; simpl...
         apply IHx1...

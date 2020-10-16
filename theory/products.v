@@ -34,7 +34,7 @@ Definition prod_fst_equiv X A `{Equiv X} : relation (X * A) := λ x y, fst x = f
 Section product_fst.
   Context `{Setoid X}.
 
-  Global Instance: Equivalence (prod_fst_equiv X A).
+  Global Instance : `{Equivalence (prod_fst_equiv X A)}.
   Proof. unfold prod_fst_equiv. firstorder auto. Qed.
 End product_fst.
 

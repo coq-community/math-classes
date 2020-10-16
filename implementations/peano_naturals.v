@@ -135,7 +135,7 @@ Proof. repeat (split; try apply _). exact le_n_S. exact le_S_n. Qed.
 Instance: StrictOrderEmbedding S.
 Proof. split; try apply _. Qed.
 
-Instance nat_le_dec: Decision (x ≤ y) := le_dec.
+Instance nat_le_dec : `{Decision (x ≤ y)} := le_dec.
 
 Instance nat_cut_minus: CutMinus nat := minus.
 Instance: CutMinusSpec nat nat_cut_minus.

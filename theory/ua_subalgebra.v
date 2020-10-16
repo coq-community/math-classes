@@ -79,7 +79,7 @@ Section subalgebras.
   Qed.
 
   (* Which is mono because proj is injective. *)
-  Instance: Injective (proj i).
+  Instance: `{Injective (proj i)}.
   Proof.
     split.
      firstorder.

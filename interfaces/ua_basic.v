@@ -45,12 +45,12 @@ Section with_sorts.
 
   Existing Instance op_type_equiv. (* There's no [Global Instance Fixpoint]. *)
 
-  Global Instance sig_type_sym `{∀ s, Symmetric (e s)}: Symmetric (op_type_equiv o).
+  Global Instance sig_type_sym `{∀ s, Symmetric (e s)} {o} : Symmetric (op_type_equiv o).
   Proof. induction o; simpl; firstorder. Qed.
 
   (* We need either reflexivity or symmetry of e in order to get transitivity of op_type_equiv: *)
 
-  Global Instance sig_type_trans `{∀ s, Reflexive (e s)} `{∀ s, Transitive (e s)}: Transitive (op_type_equiv o).
+  Global Instance sig_type_trans `{∀ s, Reflexive (e s)} `{∀ s, Transitive (e s)} {o}: Transitive (op_type_equiv o).
   Proof.
    induction o; simpl. firstorder.
    intros ? y ???? y0 ?. transitivity (y y0); firstorder.
@@ -58,7 +58,7 @@ Section with_sorts.
 
   Hint Unfold op_type.
 
-  Global Instance sig_type_trans' `{∀ s, Symmetric (e s)} `{∀ s, Transitive (e s)}: Transitive (op_type_equiv o).
+  Global Instance sig_type_trans' `{∀ s, Symmetric (e s)} `{∀ s, Transitive (e s)} {o}: Transitive (op_type_equiv o).
   Proof with auto.
    induction o; simpl...
    intros x y ? ? H2 x0 y0 ?.
