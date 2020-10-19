@@ -13,7 +13,7 @@ Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
 
 Let carriers := False_rect _: sorts sig → Type.
 
-Instance: Equiv (carriers a).
+Instance: `{Equiv (carriers a)}.
 Proof. intros []. Qed.
 
 Instance implementation: AlgebraOps sig carriers := λ o, False_rect _ o.

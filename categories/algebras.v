@@ -40,7 +40,7 @@ Section contents.
    intros ? ? ? E F ? ?. rewrite (E _ _). apply F.
   Qed.
 
-  Instance: Proper ((=) ==> (=) ==> (=)) (comp x y z).
+  Instance: `{Proper ((=) ==> (=) ==> (=)) (comp x y z)}.
   Proof.
    intros ? ? ? x0 ? E ? ? F ? ?.
    simpl. unfold compose. do 3 red in E, F.

@@ -43,8 +43,8 @@ Section contents.
     Global Program Instance: Lookup x (singlevar x) := { lookup := tt }.
   End Lookup.
 
-  Instance: MonUnit (Term V) := λ V, ua.Op msig _ monoids.one.
-  Instance: SgOp (Term V) :=
+  Instance: `{MonUnit (Term V)} := λ V, ua.Op msig _ monoids.one.
+  Instance: `{SgOp (Term V)} :=
     λ V x, ua.App msig _ _ _ (ua.App msig _ _ _ (ua.Op msig _ monoids.mult) x).
 
   Notation eval V vs := (ua.eval _ (λ _, (vs: Vars V))).
