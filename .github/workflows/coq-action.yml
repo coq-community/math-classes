@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    # the OS must be GNU/Linux to be able to use the docker-coq-action
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image:
+          - 'coqorg/coq:dev'
+          - 'coqorg/coq:8.12'
+          - 'coqorg/coq:8.11'
+          - 'coqorg/coq:8.10'
+          - 'coqorg/coq:8.9'
+          - 'coqorg/coq:8.8'
+          - 'coqorg/coq:8.7'
+          - 'coqorg/coq:8.6'
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+      - uses: coq-community/docker-coq-action@v1
+        with:
+          opam_file: 'coq-math-classes.opam'
+          custom_image: ${{ matrix.image }}
+
+# See also:
+# https://github.com/coq-community/docker-coq-action#readme
+# https://github.com/erikmd/docker-coq-github-action-demo
