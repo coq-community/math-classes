@@ -1,4 +1,6 @@
-name: CI
+# This file was generated from `meta.yml`, please do not edit manually.
+# Follow the instructions on https://github.com/coq-community/templates to regenerate.
+name: Docker CI
 
 on:
   push:
@@ -16,13 +18,9 @@ jobs:
       matrix:
         image:
           - 'coqorg/coq:dev'
+          - 'coqorg/coq:8.13'
           - 'coqorg/coq:8.12'
           - 'coqorg/coq:8.11'
-          - 'coqorg/coq:8.10'
-          - 'coqorg/coq:8.9'
-          - 'coqorg/coq:8.8'
-          - 'coqorg/coq:8.7'
-          - 'coqorg/coq:8.6'
       fail-fast: false
     steps:
       - uses: actions/checkout@v2

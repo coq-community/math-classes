@@ -1,13 +1,17 @@
+<!---
+This file was generated from `meta.yml`, please do not edit manually.
+Follow the instructions on https://github.com/coq-community/templates to regenerate.
+--->
 # Math Classes
 
-[![CI][action-shield]][action-link]
+[![Docker CI][docker-action-shield]][docker-action-link]
 [![Contributing][contributing-shield]][contributing-link]
 [![Code of Conduct][conduct-shield]][conduct-link]
 [![Zulip][zulip-shield]][zulip-link]
 [![DOI][doi-shield]][doi-link]
 
-[action-shield]: https://github.com/coq-community/math-classes/workflows/CI/badge.svg?branch=master
-[action-link]: https://github.com/coq-community/math-classes/actions?query=workflow%3ACI
+[docker-action-shield]: https://github.com/coq-community/math-classes/workflows/Docker%20CI/badge.svg?branch=master
+[docker-action-link]: https://github.com/coq-community/math-classes/actions?query=workflow:"Docker%20CI"
 
 [contributing-shield]: https://img.shields.io/badge/contributions-welcome-%23f7931e.svg
 [contributing-link]: https://github.com/coq-community/manifesto/blob/master/CONTRIBUTING.md
@@ -46,7 +50,7 @@ notations.
 - Coq-community maintainer(s):
   - Bas Spitters ([**@spitters**](https://github.com/spitters))
 - License: [MIT License](LICENSE)
-- Compatible Coq versions: Coq 8.6 or later (use releases for other Coq versions)
+- Compatible Coq versions: Coq 8.11 or later (use releases for other Coq versions)
 - Additional dependencies:
   - [BigNums](https://github.com/coq/bignums)
 - Coq namespace: `MathClasses`
