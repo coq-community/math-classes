@@ -1,4 +1,4 @@
-Require Import Coq.omega.Omega.
+From Coq Require Import Lia.
 Require Import MathClasses.interfaces.abstract_algebra MathClasses.theory.ua_packed.
 Require MathClasses.interfaces.universal_algebra MathClasses.varieties.monoids.
 
@@ -73,7 +73,7 @@ Section contents.
     | Comp (Comp x y) z => internal_simplify (Comp x (Comp y z))
     end.
 
-  Solve Obligations with (program_simpl; simpl; try apply reflexivity; omega).
+  Solve Obligations with (program_simpl; simpl; try apply reflexivity; lia).
 
   Next Obligation.
    destruct internal_simplify.
