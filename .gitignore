@@ -5,6 +5,8 @@ Makefile.coq
 Makefile.coq.conf
 *.d
 *.vo
+*.vok
+*.vos
 *.glob
 *.pdf
 *.crashcoqide
