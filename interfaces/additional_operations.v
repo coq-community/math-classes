@@ -91,7 +91,7 @@ Class EuclidSpec A (d : DivEuclid A) (m : ModEuclid A) `{Equiv A} `{Le A} `{Lt A
   div_mod : ∀ x y, y ≠ 0 → x = y * x `div` y + x `mod` y ;
   mod_rem : ∀ x y, y ≠ 0 → 0 ≤ x `mod` y < y ∨ y < x `mod` y ≤ 0 ;
   div_0 : ∀ x, x `div` 0 = 0 ;
-  mod_0 : ∀ x, x `mod` 0 = 0
+  mod_0 : ∀ x, x `mod` 0 = match (Nat.modulo 1 0) with | 0 => 0 | _ => x end
 }.
 
 Class CutMinus A := cut_minus : A → A → A.
