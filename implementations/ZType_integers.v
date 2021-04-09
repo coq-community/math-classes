@@ -150,7 +150,7 @@ Proof.
       apply (strictly_order_reflecting to_Z). now rewrite spec_modulo.
      apply (order_reflecting to_Z). now rewrite spec_modulo, rings.preserves_0.
    intros x. unfold_equiv. rewrite spec_div, rings.preserves_0. now apply Zdiv_0_r.
-  intros x. unfold_equiv. rewrite spec_modulo, rings.preserves_0. now apply Zmod_0_r.
+  intros x. unfold_equiv. unfold Nat.modulo. rewrite spec_modulo, rings.preserves_0. now apply Zmod_0_r.
 Qed.
 
 Lemma ZType_succ_1_plus x : succ x = 1 + x.
