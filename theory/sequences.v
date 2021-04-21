@@ -4,6 +4,8 @@ Require Import
   MathClasses.interfaces.abstract_algebra
   MathClasses.interfaces.sequences.
 
+Instance: Params (@extend) 6 := {}.
+
 Section contents.
   Context `{Sequence sq}.
 
