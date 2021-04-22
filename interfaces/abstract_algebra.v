@@ -265,3 +265,8 @@ Section jections.
     { bijective_injective :> Injective
     ; bijective_surjective :> Surjective }.
 End jections.
+
+Instance: Params (@StrongInjective) 4 := {}.
+Instance: Params (@Injective) 4 := {}.
+Instance: Params (@Surjective) 4 := {}.
+Instance: Params (@Bijective) 4 := {}.
