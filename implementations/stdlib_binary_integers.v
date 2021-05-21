@@ -226,7 +226,7 @@ Instance Z_mod: ModEuclid Z := Zmod.
 Instance: EuclidSpec Z _ _.
 Proof.
   split; try apply _.
-     exact Z_div_mod_eq_full.
+     exact Z.div_mod.
     intros x y Ey. destruct (Z_mod_remainder x y); intuition.
    now intros [].
   now intros [].
