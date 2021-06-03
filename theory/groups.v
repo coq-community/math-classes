@@ -13,17 +13,39 @@ Global Instance sg_op_mor_2: ∀ x, Setoid_Morphism (& x) | 0.
 Proof. split; try apply _. solve_proper. Qed.
 End semigroup_props.
 
+Hint Rewrite @associativity using apply _: group_simplify.
+Hint Rewrite @left_identity @right_identity @left_inverse @right_inverse using apply _: group_cancellation.
+
+Ltac group_simplify :=
+  (* (((a & b) & c) & d) *)
+  rewrite_strat
+    (try bottomup (hints group_simplify));
+    (try bottomup (choice (hints group_cancellation) <- associativity)).
+
+Ltac group := group_simplify; firstorder.
+
 Section group_props.
 Context `{Group G}.
+Lemma negate_sg_op_distr_flip `{Group A}: ∀ a b, -(a & b) = -b & -a.
+Proof.
+intros.
+  setoid_replace (-b & -a) with (-(a & b) & (a & b) & (-b & -a)) by group;
+  rewrite <- associativity;
+  setoid_replace (a & b & (-b & -a)) with mon_unit;
+  group.
+Qed.
+
+Hint Rewrite @negate_sg_op_distr_flip using apply _ : group_simplify.
+
 Global Instance negate_involutive: Involutive (-).
 Proof.
-  intros x.
-  rewrite <-(left_identity x) at 2.
-  rewrite <-(left_inverse (- x)).
-  rewrite <-associativity.
-  rewrite left_inverse.
-  now rewrite right_identity.
+  intros x;
+  setoid_replace x with (- - x & (- x & x)) at 2 by group;
+  setoid_replace (-x & x) with mon_unit by group;
+  group.
 Qed.
+
+Hint Rewrite @negate_involutive using apply _ : group_cancellation.
 
 Global Instance: Injective (-).
 Proof.
@@ -33,37 +55,31 @@ Proof.
 Qed.
 
 Lemma negate_mon_unit : -mon_unit = mon_unit.
-Proof. rewrite <-(left_inverse mon_unit) at 2. now rewrite right_identity. Qed.
+Proof.
+  setoid_replace mon_unit with (-mon_unit & mon_unit); group.
+Qed.
+
+Hint Rewrite @negate_mon_unit using apply _ : group_cancellation.
 
 Global Instance: ∀ z : G, LeftCancellation (&) z.
 Proof.
-  intros z x y E.
-  rewrite <-(left_identity x), <-(left_inverse z), <-associativity.
-  rewrite E.
-  now rewrite associativity, left_inverse, left_identity.
+  intros z x y E;
+  setoid_replace x with (-z & (z & x)) by group;
+  rewrite E;
+  group.
 Qed.
 
 Global Instance: ∀ z : G, RightCancellation (&) z.
 Proof.
-  intros z x y E.
-  rewrite <-(right_identity x), <-(right_inverse z), associativity.
-  rewrite E.
-  now rewrite <-associativity, right_inverse, right_identity.
+  intros z x y E;
+  setoid_replace x with (x & z & -z) by group;
+  rewrite E;
+  group.
 Qed.
 
 Lemma negate_sg_op_distr `{!AbGroup G} x y: -(x & y) = -x & -y.
-Proof.
-  rewrite <-(left_identity (-x & -y)).
-  rewrite <-(left_inverse (x & y)).
-  rewrite <-associativity.
-  rewrite <-associativity.
-  rewrite (commutativity (-x) (-y)).
-  rewrite (associativity y).
-  rewrite right_inverse.
-  rewrite left_identity.
-  rewrite right_inverse.
-  now rewrite right_identity.
-Qed.
+Proof. group. Qed.
+
 End group_props.
 
 Section groupmor_props.
@@ -71,11 +87,12 @@ Section groupmor_props.
 
   Lemma preserves_negate x : f (-x) = -f x.
   Proof.
-    apply (left_cancellation (&) (f x)).
-    rewrite <-preserves_sg_op.
-    rewrite 2!right_inverse.
-    apply preserves_mon_unit.
+    apply (left_cancellation (&) (f x));
+    rewrite <- preserves_sg_op;
+    group.
   Qed.
+
+  Hint Rewrite @preserves_sg_op @preserves_negate @preserves_mon_unit using apply _ : group_simplify.
 End groupmor_props.
 
 Instance semigroup_morphism_proper {A B eA eB opA opB} :
