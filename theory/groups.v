@@ -13,16 +13,19 @@ Global Instance sg_op_mor_2: ∀ x, Setoid_Morphism (& x) | 0.
 Proof. split; try apply _. solve_proper. Qed.
 End semigroup_props.
 
-Hint Rewrite @associativity using apply _: group_simplify.
-Hint Rewrite @left_identity @right_identity @left_inverse @right_inverse using apply _: group_cancellation.
-
+(**
+ * This tactic simplifies group expressions by first pushing group morphisms and
+ * negations down to the leaves, then cancelling inverses and removing units.
+ *)
 Ltac group_simplify :=
-  (* (((a & b) & c) & d) *)
   rewrite_strat
     (try bottomup (hints group_simplify));
     (try bottomup (choice (hints group_cancellation) <- associativity)).
 
-Ltac group := group_simplify; firstorder.
+Ltac group := group_simplify; easy.
+
+Hint Rewrite @associativity using apply _: group_simplify.
+Hint Rewrite @left_identity @right_identity @left_inverse @right_inverse using apply _: group_cancellation.
 
 Section group_props.
 Context `{Group G}.
@@ -78,7 +81,7 @@ Proof.
 Qed.
 
 Lemma negate_sg_op_distr `{!AbGroup G} x y: -(x & y) = -x & -y.
-Proof. group. Qed.
+Proof. group_simplify. apply commutativity. Qed.
 
 End group_props.
 
@@ -89,7 +92,8 @@ Section groupmor_props.
   Proof.
     apply (left_cancellation (&) (f x));
     rewrite <- preserves_sg_op;
-    group.
+    group_simplify;
+    apply preserves_mon_unit.
   Qed.
 
   Hint Rewrite @preserves_sg_op @preserves_negate @preserves_mon_unit using apply _ : group_simplify.
@@ -202,3 +206,4 @@ Section from_another_ab_group.
     repeat intro; apply (injective f). now rewrite op_correct, commutativity.
   Qed.
 End from_another_ab_group.
+
