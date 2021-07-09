@@ -73,7 +73,7 @@ Section contents.
     | Comp (Comp x y) z => internal_simplify (Comp x (Comp y z))
     end.
 
-  Solve Obligations with (program_simpl; simpl; try apply reflexivity; lia).
+  Solve Obligations with (program_simpl; simpl; try apply reflexivity; clear internal_simplify; lia).
 
   Next Obligation.
    destruct internal_simplify.
