@@ -49,14 +49,19 @@ license:
   identifier: MIT
 
 supported_coq_versions:
-  text: Coq 8.11 or later (use releases for other Coq versions)
-  opam: '{(>= "8.11" & < "8.14~") | (= "dev")}'
+  text: Coq 8.6 or later (use releases for other Coq versions)
+  opam: '{(>= "8.6" & < "8.14~") | (= "dev")}'
 
 tested_coq_opam_versions:
 - version: dev
 - version: "8.13"
 - version: "8.12"
 - version: "8.11"
+- version: "8.10"
+- version: "8.9"
+- version: "8.8"
+- version: "8.7"
+- version: "8.6"
 
 dependencies:
 - opam:

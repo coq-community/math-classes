@@ -50,7 +50,7 @@ notations.
 - Coq-community maintainer(s):
   - Bas Spitters ([**@spitters**](https://github.com/spitters))
 - License: [MIT License](LICENSE)
-- Compatible Coq versions: Coq 8.11 or later (use releases for other Coq versions)
+- Compatible Coq versions: Coq 8.6 or later (use releases for other Coq versions)
 - Additional dependencies:
   - [BigNums](https://github.com/coq/bignums)
 - Coq namespace: `MathClasses`

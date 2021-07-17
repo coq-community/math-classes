@@ -21,6 +21,11 @@ jobs:
           - 'coqorg/coq:8.13'
           - 'coqorg/coq:8.12'
           - 'coqorg/coq:8.11'
+          - 'coqorg/coq:8.10'
+          - 'coqorg/coq:8.9'
+          - 'coqorg/coq:8.8'
+          - 'coqorg/coq:8.7'
+          - 'coqorg/coq:8.6'
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
