@@ -88,6 +88,8 @@ Section subalgebras.
     apply _.
   Qed.
 
+  Hint Extern 4 => progress (cbv beta iota) : typeclass_instances.
+
   Global Instance: Mono (algebras.arrow _ proj).
   Proof.
    apply forget_algebra.mono.
