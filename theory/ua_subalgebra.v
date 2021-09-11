@@ -36,7 +36,7 @@ Section subalgebras.
 
   Definition carrier s := sig (P s).
 
-  Hint Unfold carrier: typeclass_instances.
+  Hint Extern 4 => progress unfold carrier: typeclass_instances.
 
   (* We can implement closed operations in the new algebra: *)
 

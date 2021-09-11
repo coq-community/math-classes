@@ -85,6 +85,8 @@ Hint Unfold rationals_to_rationals : typeclass_instances.
 Section another_rationals.
   Context `{Rationals Q1} `{Rationals Q2}.
 
+  Hint Extern 4 => progress unfold rationals_to_rationals : typeclass_instances.
+
   Local Existing Instance to_frac_bijective.
   Global Instance: SemiRing_Morphism (rationals_to_rationals Q1 Q2) := _.
   Global Instance: Bijective (rationals_to_rationals Q1 Q2) := _.
@@ -142,7 +144,7 @@ Section isomorphic_image_is_rationals.
   Context (f : Q → F) `{!Inverse f} `{!Bijective f} `{!SemiRing_Morphism f}.
 
   Instance iso_to_frac: RationalsToFrac F := λ Z _ _ _ _ _ _ _ _, rationals_to_frac Q Z ∘ f⁻¹.
-  Hint Unfold iso_to_frac: typeclass_instances.
+  Hint Extern 4 => progress unfold iso_to_frac : typeclass_instances.
 
   Instance: Bijective (f⁻¹) := _.
   Instance: SemiRing_Morphism (f⁻¹) := {}.
