@@ -8,7 +8,7 @@ ci_extra_dev: true
 doi: 10.1017/S0960129511000119
 
 synopsis: >-
-  A library of abstract interfaces for mathematical structures in Coq.
+  A library of abstract interfaces for mathematical structures in Coq
 
 description: |
   Math classes is a library of abstract interfaces for mathematical
@@ -50,10 +50,12 @@ license:
 
 supported_coq_versions:
   text: Coq 8.6 or later (use releases for other Coq versions)
-  opam: '{(>= "8.6" & < "8.14~") | (= "dev")}'
+  opam: '{(>= "8.6" & < "8.16~") | (= "dev")}'
 
 tested_coq_opam_versions:
 - version: dev
+- version: "8.15"
+- version: "8.14"
 - version: "8.13"
 - version: "8.12"
 - version: "8.11"
