@@ -112,5 +112,7 @@ Global Program Instance NonNeg_le_dec `{∀ x y : R, Decision (x ≤ y)} : ∀ x
   end.
 End nonneg_semiring_elements.
 
+#[global]
 Typeclasses Opaque NonNeg_le.
+#[global]
 Typeclasses Opaque NonNeg_lt.

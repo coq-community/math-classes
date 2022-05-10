@@ -4,9 +4,13 @@ Require Import
 Require MathClasses.categories.setoids.
 
 Inductive Object := object { T:> Type; e: Equiv T; le: Le T; setoid_proof: Setoid T;  po_proof: PartialOrder le }.
+#[global]
 Existing Instance e.
+#[global]
 Existing Instance le.
+#[global]
 Existing Instance setoid_proof.
+#[global]
 Existing Instance po_proof.
 Arguments object _ {e le setoid_proof po_proof},
                  _ {e} _ {setoid_proof po_proof},

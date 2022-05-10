@@ -107,6 +107,7 @@ Section semiring_props.
 End semiring_props.
 
 (* Due to bug #2528 *)
+#[global]
 Hint Extern 3 (PropHolds (_ * _ ≠ 0)) => eapply @mult_ne_0 : typeclass_instances.
 
 Section semiringmor_props.
@@ -141,6 +142,7 @@ Section semiringmor_props.
 End semiringmor_props.
 
 (* Due to bug #2528 *)
+#[global]
 Hint Extern 12 (PropHolds (_ _ ≠ 0)) => eapply @injective_ne_0 : typeclass_instances.
 
 Lemma stdlib_ring_theory R `{Ring R} :
@@ -245,6 +247,7 @@ Section integral_domain_props.
 End integral_domain_props.
 
 (* Due to bug #2528 *)
+#[global]
 Hint Extern 6 (PropHolds (1 ≶ 0)) => eapply @intdom_nontrivial_apart : typeclass_instances.
 
 Section ringmor_props.
@@ -321,6 +324,7 @@ Section from_stdlib_ring_theory.
   Qed.
 End from_stdlib_ring_theory.
 
+#[global]
 Instance id_sr_morphism `{SemiRing A}: SemiRing_Morphism (@id A) := {}.
 
 Section morphism_composition.
@@ -337,9 +341,12 @@ Section morphism_composition.
   Proof. split; try apply _; firstorder. Qed.
 End morphism_composition.
 
+#[global]
 Hint Extern 4 (SemiRing_Morphism (_ ∘ _)) => class_apply @compose_sr_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (SemiRing_Morphism (_⁻¹)) => class_apply @invert_sr_morphism : typeclass_instances.
 
+#[global]
 Instance semiring_morphism_proper {A B eA eB pA mA zA oA pB mB zB oB} :
   Proper ((=) ==> (=)) (@SemiRing_Morphism A B eA eB pA mA zA oA pB mB zB oB).
 Proof.

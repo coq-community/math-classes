@@ -8,6 +8,7 @@ Require
 
 Module ua := universal_algebra.
 
+#[global]
 Instance: Arrows Type := λ X Y, X → Y.
   (* todo: move elsewhere *)
 

@@ -306,5 +306,7 @@ Global Program Instance SRpair_le_dec `{Le SR} `{∀ x y: SR, Decision (x ≤ y)
 
 End semiring_pairs.
 
+#[global]
 Typeclasses Opaque SRpair_equiv.
+#[global]
 Typeclasses Opaque SRpair_le.

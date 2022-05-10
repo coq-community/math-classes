@@ -13,14 +13,17 @@ Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
 
 Let carriers := False_rect _: sorts sig → Type.
 
+#[global]
 Instance: `{Equiv (carriers a)}.
 Proof. intros []. Qed.
 
+#[global]
 Instance implementation: AlgebraOps sig carriers := λ o, False_rect _ o.
 
 Global Instance: Algebra sig _.
 Proof. constructor; intuition. Qed.
 
+#[global]
 Instance variety: InVariety theory carriers.
 Proof. constructor; intuition. Qed.
 

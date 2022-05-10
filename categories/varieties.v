@@ -15,8 +15,11 @@ Record Object (et: EquationalTheory) : Type := object
 Arguments object _ _ {variety_equiv variety_ops variety_proof}.
 
 (* Avoid Coq trying to apply variety_equiv to find arbitrary Equiv instances *)
+#[global]
 Hint Extern 0 (Equiv (variety_carriers _ _ _)) => eapply @variety_equiv : typeclass_instances.
+#[global]
 Existing Instance variety_ops.
+#[global]
 Existing Instance variety_proof.
 
 Section contents.

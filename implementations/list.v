@@ -196,23 +196,29 @@ Lemma list_equiv_eq {A} (x y : list A) :
   @list_equiv A (≡) x y ↔ x ≡ y.
 Proof. split. induction 1. reflexivity. now f_equal. intros. now subst. Qed.
 
+#[global]
 Instance list_join: MonadJoin list := λ _, fix list_join ll :=
   match ll with
   | [] => []
   | l :: ll => l & list_join ll
   end.
+#[global]
 Instance list_map: SFmap list := map.
+#[global]
 Instance list_ret: MonadReturn list := λ _ x, [x].
 
+#[global]
 Instance list_join_proper `{Setoid A} : Proper (=) (@list_join A).
 Proof.
   intros l. induction l; intros k E; inversion_clear E; try reflexivity.
   simpl. apply app_proper; auto.
 Qed.
 
+#[global]
 Instance list_ret_proper `{Equiv A}: Proper (=) (list_ret A).
 Proof. compute. firstorder. Qed.
 
+#[global]
 Instance list_map_proper `{Setoid A} `{Setoid B} : 
   Proper (((=) ==> (=)) ==> ((=) ==> (=))) (list_map A B).
 Proof.
@@ -242,6 +248,7 @@ Proof.
   pose proof (setoidmor_a g). now rewrite <-E, map_map.
 Qed.
 
+#[global]
 Instance: StrongMonad list.
 Proof.
   split; try apply _; unfold compose, id, sfmap, join, ret.
@@ -258,6 +265,7 @@ Proof.
   simpl. now rewrite IHl, list_join_app.
 Qed.
 
+#[global]
 Instance: FullMonad list.
 Proof. apply strong_monad_default_full_monad. Qed.
 

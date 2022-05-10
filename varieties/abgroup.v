@@ -34,6 +34,7 @@ End laws.
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
 Definition Object := varieties.Object theory.
 
+#[global]
 Hint Extern 4 => match goal with [ |- ∀ _:unit, _ ] => intros [] end : typeclass_instances.
 Program Definition forget: Object → setoids.Object :=
   product.project (λ _, setoids.Object) tt
@@ -45,6 +46,7 @@ Program Definition forget: Object → setoids.Object :=
  Algebra/InVariety/HomoMorphism type classes instantiated with the above
  signature and theory. *)
 
+#[global]
 Instance encode_operations A `{!SgOp A} `{Negate A} `{!MonUnit A}: AlgebraOps sig (λ _, A) :=
   λ o, match o with mult => sg_op | inv => negate | one => mon_unit: A end.
 

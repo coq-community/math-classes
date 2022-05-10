@@ -3,6 +3,7 @@ Require Import
 
 Definition prod_equiv `{Equiv A} `{Equiv B} : Equiv (A * B) := λ p q, fst p = fst q ∧ snd p = snd q.
 (* Avoid eager application *)
+#[global]
 Hint Extern 0 (Equiv (_ * _)) => eapply @prod_equiv : typeclass_instances.
 
 Section product.

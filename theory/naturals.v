@@ -45,6 +45,7 @@ Proof.
   now rewrite <-(to_semiring_twice f g id x), <-(to_semiring_twice f g id y), E.
 Qed.
 
+#[global]
 Instance naturals_to_naturals_injective `{Naturals N} `{Naturals N2} (f: N → N2) `{!SemiRing_Morphism f}:
   Injective f | 15.
 Proof. now apply (to_semiring_injective (naturals_to_semiring N2 N) _). Qed.
@@ -203,5 +204,7 @@ End with_a_ring.
 End contents.
 
 (* Due to bug #2528 *)
+#[global]
 Hint Extern 6 (PropHolds (1 ≠ 0)) => eapply @nat_nontrivial : typeclass_instances.
+#[global]
 Hint Extern 6 (PropHolds (1 ≶ 0)) => eapply @nat_nontrivial_apart : typeclass_instances.

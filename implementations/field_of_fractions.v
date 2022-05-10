@@ -147,6 +147,7 @@ Proof.
 Qed.
 End contents.
 
+#[global]
 Typeclasses Opaque Frac_equiv.
 
 Section morphisms.

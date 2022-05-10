@@ -78,4 +78,5 @@ Section subalgebras.
   Proof. constructor. apply _. intro. apply close_op_proper, algebra_propers. Qed.
 End subalgebras.
 
+#[global]
 Hint Extern 4 => progress unfold carrier: typeclass_instances.

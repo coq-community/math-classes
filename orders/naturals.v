@@ -67,10 +67,13 @@ Section another_ring.
 End another_ring.
 End naturals_order.
 
+#[global]
 Hint Extern 20 (PropHolds (_ ≤ _)) => eapply @nat_nonneg : typeclass_instances.
 
 (* A default order on the naturals *)
+#[global]
 Instance nat_le `{Naturals N} : Le N | 10 :=  λ x y, ∃ z, x + z = y.
+#[global]
 Instance nat_lt  `{Naturals N} : Lt N | 10 := dec_lt.
 
 Section default_order.

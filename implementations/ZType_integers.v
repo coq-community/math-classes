@@ -9,15 +9,23 @@ Module ZType_Integers (Import anyZ: ZType).
 
 Module axioms := ZTypeIsZAxioms anyZ.
 
+#[global]
 Instance ZType_equiv : Equiv t := eq.
+#[global]
 Instance ZType_plus : Plus t := add.
+#[global]
 Instance ZType_0 : Zero t := zero.
+#[global]
 Instance ZType_1 : One t := one.
+#[global]
 Instance ZType_mult : Mult t := mul.
+#[global]
 Instance ZType_negate: Negate t := opp.
 
+#[global]
 Instance: Setoid t | 10 := {}.
 
+#[global]
 Program Instance: ∀ x y: t, Decision (x = y) := λ x y,
   match compare x y with
   | Eq => left _
@@ -39,11 +47,14 @@ Proof. repeat split; repeat intro; axioms.zify; auto with zarith. Qed.
 
 Local Instance: Ring t := rings.from_stdlib_ring_theory ZType_ring_theory.
 
+#[global]
 Instance inject_ZType_Z: Cast t Z := to_Z.
 
+#[global]
 Instance: Proper ((=) ==> (=)) to_Z.
 Proof. intros x y E. easy. Qed.
 
+#[global]
 Instance: SemiRing_Morphism to_Z.
 Proof.
   repeat (split; try apply _).
@@ -53,47 +64,64 @@ Proof.
   exact spec_1.
 Qed.
 
+#[global]
 Instance inject_Z_ZType: Cast Z t := of_Z.
+#[global]
 Instance: Inverse to_Z := of_Z.
 
+#[global]
 Instance: Surjective to_Z.
 Proof. constructor. intros x y E. rewrite <- E. apply spec_of_Z. apply _. Qed.
 
+#[global]
 Instance: Injective to_Z.
 Proof. constructor. unfold_equiv. intuition. apply _. Qed.
 
+#[global]
 Instance: Bijective to_Z := {}.
 
+#[global]
 Instance: Inverse of_Z := to_Z.
 
+#[global]
 Instance: Bijective of_Z.
 Proof. apply jections.flip_bijection. Qed.
 
+#[global]
 Instance: SemiRing_Morphism of_Z.
 Proof. change (SemiRing_Morphism (to_Z⁻¹)). split; apply _. Qed.
 
+#[global]
 Instance: IntegersToRing t := integers.retract_is_int_to_ring of_Z.
+#[global]
 Instance: Integers t := integers.retract_is_int of_Z.
 
 (* Order *)
+#[global]
 Instance ZType_le: Le t := le.
+#[global]
 Instance ZType_lt: Lt t := lt.
 
+#[global]
 Instance: Proper ((=) ==> (=) ==> iff) ZType_le.
 Proof.
   intros ? ? E1 ? ? E2. unfold ZType_le, le. unfold equiv, ZType_equiv, eq in *.
   now rewrite E1, E2.
 Qed.
 
+#[global]
 Instance: SemiRingOrder ZType_le.
 Proof. now apply (rings.projected_ring_order to_Z). Qed.
 
+#[global]
 Instance: OrderEmbedding to_Z.
 Proof. now repeat (split; try apply _). Qed.
 
+#[global]
 Instance: TotalRelation ZType_le.
 Proof. now apply (maps.projected_total_order to_Z). Qed.
 
+#[global]
 Instance: FullPseudoSemiRingOrder ZType_le ZType_lt.
 Proof.
   rapply semirings.dec_full_pseudo_srorder.
@@ -103,6 +131,7 @@ Proof.
 Qed.
 
 (* Efficient comparison *)
+#[global]
 Program Instance: ∀ x y: t, Decision (x ≤ y) := λ x y,
   match compare x y with
   | Gt => right _
@@ -120,6 +149,7 @@ Next Obligation.
   now apply orders.lt_le.
 Qed.
 
+#[global]
 Program Instance: Abs t := abs.
 Next Obligation.
   split; intros E; unfold_equiv; rewrite spec_abs.
@@ -133,9 +163,12 @@ Next Obligation.
 Qed.
 
 (* Efficient division *)
+#[global]
 Instance ZType_div: DivEuclid t := anyZ.div.
+#[global]
 Instance ZType_mod: ModEuclid t := modulo.
 
+#[global]
 Instance: EuclidSpec t ZType_div ZType_mod.
 Proof.
   split; try apply _; unfold div_euclid, ZType_div.
@@ -166,8 +199,10 @@ Proof.
 Qed.
 
 (* Efficient [nat_pow] *)
+#[global]
 Program Instance ZType_pow: Pow t (t⁺) := pow.
 
+#[global]
 Instance: NatPowSpec t (t⁺) ZType_pow.
 Proof.
   split.
@@ -180,8 +215,10 @@ Proof.
   now rewrite ZType_succ_1_plus.
 Qed.
 
+#[global]
 Program Instance ZType_Npow: Pow t N := pow_N.
 
+#[global]
 Instance: NatPowSpec t N ZType_Npow.
 Proof.
   split; unfold "^", ZType_Npow.
@@ -219,8 +256,10 @@ Qed.
 *)
 
 (* Efficient [shiftl] *)
+#[global]
 Program Instance ZType_shiftl: ShiftL t (t⁺) := shiftl.
 
+#[global]
 Instance: ShiftLSpec t (t⁺) ZType_shiftl.
 Proof.
   apply shiftl_spec_from_nat_pow.
@@ -234,6 +273,7 @@ Proof.
 Qed.
 
 (* Efficient [shiftr] *)
+#[global]
 Program Instance: ShiftR t (t⁺) := shiftr.
 
 End ZType_Integers.

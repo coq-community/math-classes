@@ -29,6 +29,7 @@ Section initial_maps.
   Qed.
 End initial_maps.
 
+#[global]
 Instance: Params (@integers_to_ring) 8 := {}.
 
 Class Integers A {e plus mult zero one negate} `{U : IntegersToRing A} :=
@@ -55,6 +56,9 @@ Section specializable.
     end.
 End specializable.
 
+#[global]
 Instance: Params (@int_abs) 10 := {}.
+#[global]
 Instance: Params (@int_abs_sig) 10 := {}.
+#[global]
 Instance: Params (@int_to_nat) 11 := {}.

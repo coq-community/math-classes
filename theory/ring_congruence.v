@@ -20,9 +20,11 @@ The latter makes the clearest distinction between the original structure
 and the quotient. Unfortunately, it is sometimes a bit verbose.
 *)
 Inductive Quotient A (R : relation A) := quotient_inject : Cast A (Quotient A R).
+#[global]
 Existing Instance quotient_inject.
 Arguments quotient_inject {A R} _.
 
+#[global]
 Instance quotient_rep {A R} : Cast (Quotient A R) A := λ x,
   match x with quotient_inject r => r end.
 

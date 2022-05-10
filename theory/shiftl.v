@@ -195,8 +195,11 @@ Qed.
 End shiftl.
 
 (* Due to bug #2528 *)
+#[global]
 Hint Extern 18 (PropHolds (_ ≪ _ ≠ 0)) => eapply @shiftl_ne_0 : typeclass_instances.
+#[global]
 Hint Extern 18 (PropHolds (0 ≤ _ ≪ _)) => eapply @shiftl_nonneg : typeclass_instances.
+#[global]
 Hint Extern 18 (PropHolds (0 < _ ≪ _)) => eapply @shiftl_pos : typeclass_instances.
 
 Section preservation.
@@ -347,6 +350,7 @@ Section default_shiftl_naturals.
   Proof. now apply shiftl_spec_from_nat_pow. Qed.
 End default_shiftl_naturals.
 
+#[global]
 Typeclasses Opaque default_shiftl.
 
 Section default_shiftl_integers.
@@ -358,4 +362,5 @@ Section default_shiftl_integers.
   Proof. now apply shiftl_spec_from_int_pow. Qed.
 End default_shiftl_integers.
 
+#[global]
 Typeclasses Opaque default_shiftl_int.

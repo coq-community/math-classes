@@ -3,6 +3,7 @@
 Require Import
   Coq.Unicode.Utf8 Coq.Lists.List Coq.Setoids.Setoid Coq.Classes.Morphisms Coq.Sorting.Permutation.
 
+#[global]
 Instance: ∀ A, Proper (@Permutation A ==> eq) (@length A).
 Proof Permutation_length.
 

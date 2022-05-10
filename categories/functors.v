@@ -22,7 +22,9 @@ Record Object A `{Arrows A} `{∀ x y : A, Equiv (x ⟶ y)} `{!CatId A} `{!CatCo
   { map_obj:> A → B
   ; Fmap_inst:> Fmap map_obj
   ; Functor_inst: Functor map_obj _ }.
+#[global]
 Existing Instance Fmap_inst.
+#[global]
 Existing Instance Functor_inst.
 
 Arguments Object _ {Aarrows Aeq Aid Acomp} _ {Barrows Beq Bid Bcomp} : rename.
@@ -33,6 +35,7 @@ Record Arrow `{Arrows A} `{∀ x y : A, Equiv (x ⟶ y)} `{!CatId A} `{!CatComp 
      `{Arrows B} `{∀ x y : B, Equiv (x ⟶ y)} `{!CatId B} `{!CatComp B} (F G : Object A B) : Type := arrow
   { eta:> map_obj F ⇛ map_obj G
   ; NaturalTransformation_inst: NaturalTransformation eta }.
+#[global]
 Existing Instance NaturalTransformation_inst.
 
 Arguments arrow {A Aarrows Aeq Aid Acomp B Barrows Beq Bid Bcomp F G} _ _ : rename.

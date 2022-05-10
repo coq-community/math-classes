@@ -76,6 +76,7 @@ End encode_with_ops.
 Lemma encode_algebra_only `{!AlgebraOps theory A} `{∀ u, Equiv (A u)} `{!Ring (A tt)}: Algebra sig A .
 Proof. constructor; intros []; simpl in *; try apply _. Qed.
 
+#[global]
 Instance decode_variety_and_ops `{InVariety theory A}: Ring (A tt).
 Proof with simpl; auto.
  pose proof (λ law lawgood x y z, variety_laws law lawgood (λ s n,

@@ -24,7 +24,9 @@ Ltac group_simplify :=
 
 Ltac group := group_simplify; easy.
 
+#[global]
 Hint Rewrite @associativity using apply _: group_simplify.
+#[global]
 Hint Rewrite @left_identity @right_identity @left_inverse @right_inverse using apply _: group_cancellation.
 
 Section group_props.
@@ -99,6 +101,7 @@ Section groupmor_props.
   Hint Rewrite @preserves_sg_op @preserves_negate @preserves_mon_unit using apply _ : group_simplify.
 End groupmor_props.
 
+#[global]
 Instance semigroup_morphism_proper {A B eA eB opA opB} :
   Proper ((=) ==> iff) (@SemiGroup_Morphism A B eA eB opA opB) | 1.
 Proof.
@@ -112,6 +115,7 @@ Proof.
   now apply P with g.
 Qed.
 
+#[global]
 Instance monoid_morphism_proper {A B eA eB opA uA opB uB} :
   Proper ((=) ==> iff) (@Monoid_Morphism A B eA eB opA uA opB uB) | 1.
 Proof.

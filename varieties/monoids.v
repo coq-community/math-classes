@@ -45,6 +45,7 @@ Definition forget: Object → setoids.Object :=
  Algebra/InVariety/HomoMorphism type classes instantiated with the above
  signature and theory. *)
 
+#[global]
 Instance encode_operations A `{!SgOp A} `{!MonUnit A}: AlgebraOps sig (λ _, A) :=
   λ o, match o with mult => (&) | one => mon_unit: A end.
 
@@ -119,6 +120,7 @@ Proof.
  apply (preserves theory x y f one).
 Qed.
 
+#[global]
 Instance id_monoid_morphism `{Monoid A}: Monoid_Morphism (@id A).
 Proof. repeat (split; try apply _); easy. Qed.
 
@@ -149,5 +151,7 @@ Section specialized.
   Qed.
 End specialized.
 
+#[global]
 Hint Extern 4 (Monoid_Morphism (_ ∘ _)) => class_apply @compose_monoid_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (Monoid_Morphism (_⁻¹)) => class_apply @invert_monoid_morphism : typeclass_instances.

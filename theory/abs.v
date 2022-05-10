@@ -81,6 +81,7 @@ Proof with trivial.
 Qed.
 End contents.
 
+#[global]
 Program Instance default_abs `{Ring R} `{!SemiRingOrder Rle} `{∀ x y, Decision (x ≤ y)} : Abs R | 20
   := λ x, if decide_rel (≤) 0 x then x else (-x).
 Next Obligation.

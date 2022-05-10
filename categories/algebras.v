@@ -13,8 +13,11 @@ Record Object (sign: Signature) : Type := object
 Arguments object _ _ {algebra_equiv algebra_ops algebra_proof}.
 
 (* Avoid Coq trying to apply algebra_equiv to find arbitrary Equiv instances *)
+#[global]
 Hint Extern 0 (Equiv (algebra_carriers _ _ _)) => eapply @algebra_equiv : typeclass_instances.
+#[global]
 Existing Instance algebra_ops.
+#[global]
 Existing Instance algebra_proof.
 
 Section contents.

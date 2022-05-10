@@ -4,6 +4,7 @@ Require Import
   MathClasses.interfaces.abstract_algebra
   MathClasses.interfaces.sequences.
 
+#[global]
 Instance: Params (@extend) 6 := {}.
 
 Section contents.

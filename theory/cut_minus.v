@@ -227,6 +227,7 @@ Section cut_minus_default.
   Qed.
 End cut_minus_default.
 
+#[global]
 Typeclasses Opaque default_cut_minus.
 
 Section order_preserving.

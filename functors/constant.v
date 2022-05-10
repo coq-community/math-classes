@@ -22,6 +22,7 @@ Section constant_functor.
   Qed.
 End constant_functor.
 
+#[global]
 Typeclasses Transparent const.
 
 Section constant_transformation.

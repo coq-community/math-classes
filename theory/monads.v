@@ -1,13 +1,18 @@
 Require Import
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.functors.
 
+#[global]
 Instance default_mon_join `{MonadBind M} : MonadJoin M | 20 := λ _, bind id.
+#[global]
 Instance default_mon_map `{MonadReturn M} `{MonadBind M} : SFmap M | 20 := λ _ _ f, bind (ret ∘ f).
+#[global]
 Instance default_mon_bind `{SFmap M} `{MonadJoin M} : MonadBind M | 20 := λ _ _ f, join ∘ (sfmap f).
 
+#[global]
 Hint Extern 0 (ProperProxy (@respectful _ _ _ _) _) =>
   class_apply @proper_proper_proxy : typeclass_instances.
 
+#[global]
 Instance equiv_ext_equiv `{Equiv A} `{Equiv B} :
   Setoid A -> Setoid B ->
   Proper ((equiv ==> equiv) ==> (equiv ==> equiv) ==> flip impl)
@@ -21,6 +26,7 @@ Proof.
   eapply H7. eapply H6.
 Qed.
 
+#[global]
 Instance equiv_ext_equiv_partial `{Equiv A} `{Equiv B} (f : A -> B) :
   Setoid A -> Setoid B ->
   Proper (equiv ==> equiv) f ->

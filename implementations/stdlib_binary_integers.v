@@ -8,14 +8,21 @@ Require Import
   MathClasses.implementations.nonneg_integers_naturals.
 
 (* canonical names: *)
+#[global]
 Instance Z_equiv: Equiv Z := eq.
+#[global]
 Instance Z_plus: Plus Z := Zplus.
+#[global]
 Instance Z_0: Zero Z := 0%Z.
+#[global]
 Instance Z_1: One Z := 1%Z.
+#[global]
 Instance Z_mult: Mult Z := Zmult.
+#[global]
 Instance Z_negate: Negate Z := Z.opp.
   (* some day we'd like to do this with [Existing Instance] *)
 
+#[global]
 Instance: Ring Z.
 Proof.
   repeat (split; try apply _); repeat intro.
@@ -32,13 +39,16 @@ Proof.
 Qed.
 
 (* misc: *)
+#[global]
 Instance: ∀ x y : Z, Decision (x = y) := Z.eq_dec.
 
 Add Ring Z: (rings.stdlib_ring_theory Z).
 
 (* * Embedding N into Z *)
+#[global]
 Instance inject_N_Z: Cast N Z := Z_of_N.
 
+#[global]
 Instance: SemiRing_Morphism Z_of_N.
 Proof.
   repeat (split; try apply _).
@@ -46,6 +56,7 @@ Proof.
   exact Znat.Z_of_N_mult.
 Qed.
 
+#[global]
 Instance: Injective Z_of_N.
 Proof.
   repeat (split; try apply _).
@@ -55,6 +66,7 @@ Qed.
 (* SRpair N and Z are isomorphic *)
 Definition Npair_to_Z (x : SRpair N) : Z := ('pos x - 'neg x)%mc.
 
+#[global]
 Instance: Proper (=) Npair_to_Z.
 Proof.
   intros [xp xn] [yp yn] E; do 2 red in E; unfold Npair_to_Z; simpl in *.
@@ -62,6 +74,7 @@ Proof.
   now rewrite <-?rings.preserves_plus, E, commutativity.
 Qed.
 
+#[global]
 Instance: SemiRing_Morphism Npair_to_Z.
 Proof.
   repeat (split; try apply _).
@@ -73,6 +86,7 @@ Proof.
   rewrite ?rings.preserves_plus, ?rings.preserves_mult. ring.
 Qed.
 
+#[global]
 Instance: Injective Npair_to_Z.
 Proof.
   split; try apply _.
@@ -83,6 +97,7 @@ Proof.
   apply (right_cancellation (+) ('xp - 'xn)). rewrite E at 1. ring.
 Qed.
 
+#[global]
 Instance Z_to_Npair: Inverse Npair_to_Z := λ x,
   match x with
   | Z0 => C 0 0
@@ -90,20 +105,28 @@ Instance Z_to_Npair: Inverse Npair_to_Z := λ x,
   | Zneg p => C 0 (Npos p)
   end.
 
+#[global]
 Instance: Surjective Npair_to_Z.
 Proof. split; try apply _. intros [|?|?] ? E; now rewrite <-E. Qed. 
 
+#[global]
 Instance: Bijective Npair_to_Z := {}.
 
+#[global]
 Instance: SemiRing_Morphism Z_to_Npair.
 Proof. change (SemiRing_Morphism (Npair_to_Z⁻¹)). split; apply _. Qed.
 
+#[global]
 Instance: IntegersToRing Z := integers.retract_is_int_to_ring Npair_to_Z.
+#[global]
 Instance: Integers Z := integers.retract_is_int Npair_to_Z.
 
+#[global]
 Instance Z_le: Le Z := Z.le.
+#[global]
 Instance Z_lt: Lt Z := Z.lt.
 
+#[global]
 Instance: SemiRingOrder Z_le.
 Proof.
   assert (PartialOrder Z_le).
@@ -115,6 +138,7 @@ Proof.
   intros x E y F. now apply Zorder.Zmult_le_0_compat.
 Qed.
 
+#[global]
 Instance: TotalRelation Z_le.
 Proof.
   intros x y.
@@ -122,6 +146,7 @@ Proof.
   right. now apply Zorder.Zlt_le_weak.
 Qed.
 
+#[global]
 Instance: FullPseudoSemiRingOrder Z_le Z_lt.
 Proof.
   rapply semirings.dec_full_pseudo_srorder.
@@ -131,8 +156,10 @@ Proof.
 Qed.
 
 (* * Embedding of the Peano naturals into [Z] *)
+#[global]
 Instance inject_nat_Z: Cast nat Z := Z_of_nat.
 
+#[global]
 Instance: SemiRing_Morphism Z_of_nat.
 Proof.
   repeat (split; try apply _).
@@ -141,6 +168,7 @@ Proof.
 Qed.
 
 (* absolute value *)
+#[global]
 Program Instance Z_abs_nat: IntAbs Z nat := λ x,
   match x with
   | Z0 => inl (0:nat)
@@ -151,6 +179,7 @@ Next Obligation. reflexivity. Qed.
 Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_nat), Znat.Z_of_nat_of_P. Qed.
 Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_nat), Znat.Z_of_nat_of_P. Qed.
 
+#[global]
 Program Instance Z_abs_N: IntAbs Z N := λ x,
   match x with
   | Z0 => inl (0:N)
@@ -162,8 +191,10 @@ Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_N). Qed.
 Next Obligation. now rewrite <-(naturals.to_semiring_unique Z_of_N). Qed.
 
 (* Efficient nat_pow *)
+#[global]
 Program Instance Z_pow: Pow Z (Z⁺) := Z.pow.
 
+#[global]
 Instance: NatPowSpec Z (Z⁺) Z_pow.
 Proof.
   split; unfold pow, Z_pow.
@@ -178,8 +209,10 @@ Proof.
   now destruct n.
 Qed.
 
+#[global]
 Instance Z_Npow: Pow Z N := λ x n, Z.pow x ('n).
 
+#[global]
 Instance: NatPowSpec Z N Z_Npow.
 Proof.
   split; unfold pow, Z_Npow.
@@ -193,8 +226,10 @@ Proof.
 Qed.
 
 (* Efficient shiftl *)
+#[global]
 Program Instance Z_shiftl: ShiftL Z (Z⁺) := Z.shiftl.
 
+#[global]
 Instance: ShiftLSpec Z (Z⁺) Z_shiftl.
 Proof.
   apply shiftl_spec_from_nat_pow.
@@ -203,8 +238,10 @@ Proof.
   now apply En.
 Qed.
 
+#[global]
 Instance Z_Nshiftl: ShiftL Z N := λ x n, Z.shiftl x ('n).
 
+#[global]
 Instance: ShiftLSpec Z N Z_Nshiftl.
 Proof.
   apply shiftl_spec_from_nat_pow.
@@ -213,6 +250,7 @@ Proof.
   now destruct n.
 Qed.
 
+#[global]
 Program Instance Z_abs: Abs Z := Z.abs.
 Next Obligation.
   split; intros E.
@@ -220,9 +258,12 @@ Next Obligation.
   now apply Z.abs_neq.
 Qed.
 
+#[global]
 Instance Z_div: DivEuclid Z := Z.div.
+#[global]
 Instance Z_mod: ModEuclid Z := Zmod.
 
+#[global]
 Instance: EuclidSpec Z _ _.
 Proof.
   split; try apply _.

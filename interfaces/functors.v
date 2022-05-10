@@ -14,6 +14,7 @@ Section functor_class.
     ; preserves_comp `(f: y ⟶ z) `(g: x ⟶ y): fmap (f ◎ g) = fmap f ◎ fmap g }.
 End functor_class.
 
+#[global]
 Typeclasses Transparent Fmap.
 
 (* The usual notational convention for functor application is to use the

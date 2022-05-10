@@ -3,12 +3,15 @@ Require Import
 Require
   MathClasses.varieties.semigroups MathClasses.varieties.monoids.
 
+#[global]
 Instance bounded_sl_is_sl `{BoundedSemiLattice L} : SemiLattice L.
 Proof. repeat (split; try apply _). Qed.
 
+#[global]
 Instance bounded_join_sl_is_join_sl `{BoundedJoinSemiLattice L} : JoinSemiLattice L.
 Proof. repeat (split; try apply _). Qed.
 
+#[global]
 Instance bounded_sl_mor_is_sl_mor `{H : BoundedJoinSemiLattice_Morphism A B f} :
   JoinSemiLattice_Morphism f.
 Proof. destruct H. split; apply _. Qed.
@@ -111,12 +114,16 @@ Section from_another_bounded_sl.
   Qed.
 End from_another_bounded_sl.
 
+#[global]
 Instance id_join_sl_morphism `{JoinSemiLattice A} : JoinSemiLattice_Morphism (@id A).
 Proof. firstorder. Qed.
+#[global]
 Instance id_meet_sl_morphism `{MeetSemiLattice A} : MeetSemiLattice_Morphism (@id A).
 Proof. firstorder. Qed.
+#[global]
 Instance id_bounded_join_sl_morphism `{BoundedJoinSemiLattice A} : BoundedJoinSemiLattice_Morphism (@id A).
 Proof. firstorder. Qed.
+#[global]
 Instance id_lattice_morphism `{Lattice A} : Lattice_Morphism (@id A).
 Proof. firstorder. Qed.
 
@@ -153,11 +160,19 @@ Section morphism_composition.
   Proof. split; try apply _; firstorder. Qed.
 End morphism_composition.
 
+#[global]
 Hint Extern 4 (JoinSemiLattice_Morphism (_ ∘ _)) => class_apply @compose_join_sl_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (MeetSemiLattice_Morphism (_ ∘ _)) => class_apply @compose_meet_sl_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (BoundedJoinSemiLattice_Morphism (_ ∘ _)) => class_apply @compose_bounded_join_sl_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (Lattice_Morphism (_ ∘ _)) => class_apply @compose_lattice_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (JoinSemiLattice_Morphism (_⁻¹)) => class_apply @invert_join_sl_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (MeetSemiLattice_Morphism (_⁻¹)) => class_apply @invert_meet_sl_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (BoundedJoinSemiLattice_Morphism (_⁻¹)) => class_apply @invert_bounded_join_sl_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (Lattice_Morphism (_⁻¹)) => class_apply @invert_lattice_morphism : typeclass_instances.

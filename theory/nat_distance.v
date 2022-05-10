@@ -39,6 +39,7 @@ Proof. apply nat_distance_unique_respectful. Qed.
 End contents.
 
 (* An existing instance of [CutMinus] allows to create an instance of [NatDistance] *)
+#[global]
 Program Instance natdistance_cut_minus `{Naturals N} `{Apart N} `{!TrivialApart N} `{!FullPseudoSemiRingOrder Nle Nlt}
     `{!CutMinusSpec N cm} `{∀ x y, Decision (x ≤ y)} : NatDistance N :=
   λ x y, if decide_rel (≤) x y then inl (y ∸ x) else inr (x ∸ y).

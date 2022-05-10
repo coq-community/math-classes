@@ -209,6 +209,7 @@ Fixpoint eval {V} (vs: Vars V) (e: Expr V): Value :=
   | Var v => vs v
   end.
 
+#[global]
 Instance eval_proper V: Proper (pointwise_relation _ eq ==> eq ==> eq) (@eval V).
 Proof.
  repeat intro. subst.

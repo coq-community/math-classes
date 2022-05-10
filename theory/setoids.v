@@ -4,9 +4,11 @@ Require Import
 Lemma ext_equiv_refl `{Setoid_Morphism A B f} : f = f.
 Proof. intros ?? E. pose proof (setoidmor_b f). now rewrite E. Qed.
 
+#[global]
 Instance ext_equiv_trans `{Equiv A} `{Equiv B} `{Reflexive (A:=A) (=)} `{Transitive (A:=B) (=)} : Transitive (_ : Equiv (A → B)).
 Proof. intros ? y ???? w ?. transitivity (y w); firstorder. Qed.
 
+#[global]
 Instance ext_equiv_sym `{Equiv A} `{Equiv B} `{Symmetric (A:=A) (=)} `{Symmetric (A:=B) (=)}: Symmetric (A:=A→B) (=).
 Proof. firstorder. Qed.
 
@@ -27,7 +29,9 @@ Lemma morphism_ne `{Equiv A} `{Equiv B} (f : A → B) `{!Setoid_Morphism f} x y 
   f x ≠ f y → x ≠ y.
 Proof. intros E1 E2. apply E1. now apply sm_proper. Qed.
 
+#[global]
 Instance: Equiv Prop := iff.
+#[global]
 Instance: Setoid Prop := {}.
 
 Lemma projected_setoid `{Setoid B} `{Equiv A} (f : A → B)
@@ -39,9 +43,11 @@ Proof.
  transitivity (f y); now apply eq_correct.
 Qed.
 
+#[global]
 Instance sig_setoid `{Setoid A} (P : A → Prop) : Setoid (sig P).
 Proof. now apply (projected_setoid (@proj1_sig _ P)). Qed.
 
+#[global]
 Instance sigT_setoid `{Setoid A} (P : A → Type) : Setoid (sigT P).
 Proof. now apply (projected_setoid (@projT1 _ P)). Qed.
 
@@ -51,8 +57,10 @@ Proof. firstorder. Qed.
 Lemma compose_setoid_morphism `{Equiv A} `{Equiv B} `{Equiv C} (f : A → B) (g : B → C) :
   Setoid_Morphism f → Setoid_Morphism g → Setoid_Morphism (g ∘ f).
 Proof. firstorder. Qed.
+#[global]
 Hint Extern 4 (Setoid_Morphism (_ ∘ _)) => class_apply @compose_setoid_morphism : typeclass_instances.
 
+#[global]
 Instance morphism_proper `{Equiv A} `{Equiv B}: Proper ((=) ==> iff) (@Setoid_Morphism A B _ _).
 Proof.
   assert (∀ f g : A → B, f = g → Setoid_Morphism f → Setoid_Morphism g) as aux.
