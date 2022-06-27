@@ -350,8 +350,12 @@ Section default_shiftl_naturals.
   Proof. now apply shiftl_spec_from_nat_pow. Qed.
 End default_shiftl_naturals.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Typeclasses Opaque default_shiftl.
+
+Set Warnings "+unsupported-attributes".
 
 Section default_shiftl_integers.
   Context `{DecField A} `{!PropHolds ((2:A) ≠ 0)} `{Integers B} `{!IntPowSpec A B ipw}.
@@ -361,6 +365,8 @@ Section default_shiftl_integers.
   Global Instance: ShiftLSpec A B default_shiftl_int.
   Proof. now apply shiftl_spec_from_int_pow. Qed.
 End default_shiftl_integers.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
 
 #[global]
 Typeclasses Opaque default_shiftl_int.

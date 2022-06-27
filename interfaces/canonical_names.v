@@ -9,11 +9,15 @@ Definition id {A : Type} (a : A) := a.
 (* Equality *)
 Class Equiv A := equiv: relation A.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 (* Revert to transparency to allow conversions during unification. *)
 #[global]
 Typeclasses Transparent Equiv.
 #[global]
 Typeclasses Transparent compose flip.
+
+Set Warnings "+unsupported-attributes".
 
 (* We use this virtually everywhere, and so use "=" for it: *)
 Infix "=" := equiv : type_scope.
@@ -110,8 +114,13 @@ Arguments cast _ _ {Cast} _.
 Notation "' x" := (cast _ _ x) (at level 20) : mc_scope.
 #[global]
 Instance: Params (@cast) 3 := {}.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Typeclasses Transparent Cast.
+
+Set Warnings "+unsupported-attributes".
 
 (* Other canonically named relations/operations/constants: *)
 Class SgOp A := sg_op: A → A → A.
@@ -124,26 +133,46 @@ Class Negate A := negate: A → A.
 Class DecRecip A := dec_recip: A → A.
 Definition ApartZero R `{Zero R} `{Apart R} := sig (≶ zero).
 Class Recip A `{Apart A} `{Zero A} := recip: ApartZero A → A.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Typeclasses Transparent SgOp MonUnit Plus Mult Zero One Negate.
+
+Set Warnings "+unsupported-attributes".
 
 Class Meet A := meet: A → A → A.
 Class Join A := join: A → A → A.
 Class Top A := top: A.
 Class Bottom A := bottom: A.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Typeclasses Transparent Meet Join Top Bottom.
+
+Set Warnings "+unsupported-attributes".
 
 Class Contains A B := contains: A → B → Prop.
 Class Singleton A B := singleton: A → B.
 Class Difference A := difference : A → A → A.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Typeclasses Transparent Contains Singleton Difference.
 
+Set Warnings "+unsupported-attributes".
+
 Class Le A := le: relation A.
 Class Lt A := lt: relation A.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Typeclasses Transparent Le Lt.
+
+Set Warnings "+unsupported-attributes".
 
 Definition NonNeg R `{Zero R} `{Le R} := sig (le zero).
 Definition Pos R `{Zero R} `{Equiv R} `{Lt R} := sig (lt zero).
@@ -151,8 +180,13 @@ Definition NonPos R `{Zero R} `{Le R} := sig (λ y, le y zero).
 Inductive PosInf (R : Type) : Type := finite (x : R) | infinite.
 
 Class Arrows (O: Type): Type := Arrow: O → O → Type.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Typeclasses Transparent Arrows. (* Ideally this should be removed *)
+
+Set Warnings "+unsupported-attributes".
 
 Infix "⟶" := Arrow (at level 90, right associativity) : mc_scope.
 Class CatId O `{Arrows O} := cat_id: ∀ x, x ⟶ x.
@@ -358,8 +392,14 @@ Instance: Params (@abs) 6 := {}.
 (* Common properties: *)
 Class Inverse `(A → B) : Type := inverse: B → A.
 Arguments inverse {A B} _ {Inverse} _.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Typeclasses Transparent Inverse.
+
+Set Warnings "+unsupported-attributes".
+
 Notation "f ⁻¹" := (inverse f) (at level 30) : mc_scope.
 
 Class Idempotent `{ea : Equiv A} (f: A → A → A) (x : A) : Prop := idempotency: f x x = x.

@@ -24,10 +24,14 @@ Ltac group_simplify :=
 
 Ltac group := group_simplify; easy.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Hint Rewrite @associativity using apply _: group_simplify.
 #[global]
 Hint Rewrite @left_identity @right_identity @left_inverse @right_inverse using apply _: group_cancellation.
+
+Set Warnings "+unsupported-attributes".
 
 Section group_props.
 Context `{Group G}.

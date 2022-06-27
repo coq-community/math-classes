@@ -150,8 +150,13 @@ End more_morphisms.
 
 #[global]
 Instance default_apart `{Equiv A} : Apart A | 20 := (≠).
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Typeclasses Opaque default_apart.
+
+Set Warnings "+unsupported-attributes".
 
 #[global]
 Instance default_apart_trivial `{Equiv A} : TrivialApart A (Aap:=default_apart).

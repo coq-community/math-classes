@@ -214,5 +214,7 @@ Section nat_pow_default.
   Qed.
 End nat_pow_default.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 #[global]
 Typeclasses Opaque default_nat_pow.
