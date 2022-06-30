@@ -9,6 +9,7 @@ We define finite sets as unordered lists. This implementation is slow,
 but quite convenient as a reference implementation to lift properties to
 arbitrary finite set instances.
 *)
+#[global]
 Instance listset A `{Equiv A} : SetType A | 30 := sig (NoDupA (=)).
 
 Section listset.

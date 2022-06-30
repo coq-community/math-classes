@@ -67,7 +67,9 @@ Next Obligation. now apply (order_reflecting (integers_to_ring _ (SRpair nat))).
 End integers.
 
 (* A default order on the integers *)
+#[global]
 Instance int_le `{Integers Z} : Le Z | 10 :=  λ x y, ∃ z, y = x + naturals_to_semiring nat Z z.
+#[global]
 Instance int_lt  `{Integers Z} : Lt Z | 10 := dec_lt.
 
 Section default_order.

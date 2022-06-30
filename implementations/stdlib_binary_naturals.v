@@ -4,13 +4,19 @@ Require Import
   MathClasses.interfaces.additional_operations.  
 
 (* canonical names for relations/operations/constants: *)
+#[global]
 Instance N_equiv : Equiv N := eq.
+#[global]
 Instance N_0 : Zero N := 0%N.
+#[global]
 Instance N_1 : One N := 1%N.
+#[global]
 Instance N_plus : Plus N := Nplus.
+#[global]
 Instance N_mult : Mult N := Nmult.
 
 (* properties: *)
+#[global]
 Instance: SemiRing N.
 Proof.
   repeat (split; try apply _); repeat intro.
@@ -24,11 +30,15 @@ Proof.
   now apply Nmult_plus_distr_l.
 Qed.
 
+#[global]
 Instance: ∀ x y : N, Decision (x = y) := N.eq_dec.
 
+#[global]
 Instance inject_nat_N: Cast nat N := N_of_nat.
+#[global]
 Instance inject_N_nat: Cast N nat := nat_of_N.
 
+#[global]
 Instance: SemiRing_Morphism nat_of_N.
 Proof.
   repeat (split; try apply _); repeat intro.
@@ -36,31 +46,43 @@ Proof.
   now apply nat_of_Nmult.
 Qed.
 
+#[global]
 Instance: Inverse nat_of_N := N_of_nat.
 
+#[global]
 Instance: Surjective nat_of_N.
 Proof. constructor. intros x y E. rewrite <- E. now apply nat_of_N_of_nat. now apply _. Qed.
 
+#[global]
 Instance: Injective nat_of_N.
 Proof. constructor. exact nat_of_N_inj. apply _. Qed.
 
+#[global]
 Instance: Bijective nat_of_N := {}.
 
+#[global]
 Instance: Inverse N_of_nat := nat_of_N.
 
+#[global]
 Instance: Bijective N_of_nat.
 Proof. apply jections.flip_bijection. Qed.
 
+#[global]
 Instance: SemiRing_Morphism N_of_nat.
 Proof. change (SemiRing_Morphism (nat_of_N⁻¹)). split; apply _. Qed.
 
+#[global]
 Instance: NaturalsToSemiRing N := retract_is_nat_to_sr N_of_nat.
+#[global]
 Instance: Naturals N := retract_is_nat N_of_nat.
 
 (* order *)
+#[global]
 Instance N_le: Le N := N.le.
+#[global]
 Instance N_lt: Lt N := N.lt.
 
+#[global]
 Instance: FullPseudoSemiRingOrder N_le N_lt.
 Proof.
   assert (PartialOrder N_le).
@@ -81,6 +103,7 @@ Proof.
   intros [E1 E2]. now apply N.Private_Tac.le_neq_lt.
 Qed.
 
+#[global]
 Program Instance: ∀ x y: N, Decision (x ≤ y) := λ y x,
   match N.compare y x with
   | Gt => right _
@@ -88,7 +111,9 @@ Program Instance: ∀ x y: N, Decision (x ≤ y) := λ y x,
   end.
 Next Obligation. now apply not_symmetry. Qed.
 
+#[global]
 Instance N_cut_minus: CutMinus N := Nminus.
+#[global]
 Instance: CutMinusSpec N _.
 Proof.
   split; try apply _.

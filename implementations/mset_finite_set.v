@@ -9,20 +9,32 @@ Module MSet_FSet (E : DecidableType) (Import set : WSetsOn E).
 Module facts := WFactsOn E set.
 Module props := WPropertiesOn E set.
 
+#[global]
 Instance mset: SetType elt := t.
 
+#[global]
 Instance mset_in: SetContains elt := In.
+#[global]
 Instance mset_car_eq: Equiv elt := E.eq.
+#[global]
 Instance mset_eq: SetEquiv elt := Equal.
+#[global]
 Instance mset_le: SetLe elt := Subset.
 
+#[global]
 Instance mset_singleton: SetSingleton elt := singleton.
+#[global]
 Instance mset_empty: EmptySet elt := empty.
+#[global]
 Instance mset_join: SetJoin elt := union.
+#[global]
 Instance mset_meet: SetMeet elt := inter.
+#[global]
 Instance mset_difference: SetDifference elt := diff.
 
+#[global]
 Instance mset_car_dec: ∀ x y : elt, Decision (x = y) := E.eq_dec.
+#[global]
 Instance mset_dec: ∀ x y : t, Decision (x = y) := eq_dec.
 
 Local Instance: Setoid elt.
@@ -45,6 +57,7 @@ Proof. split; try apply _. Qed.
 
 Definition to_listset (X : @set_type _ mset) : @set_type _ (listset elt)
   := props.to_list X↾elements_spec2w X.
+#[global]
 Instance from_listset: Inverse to_listset := λ l, props.of_list (`l).
 
 Local Instance: Setoid_Morphism to_listset.
@@ -54,6 +67,7 @@ Proof.
   now rewrite <-!props.of_list_1, 2!props.of_list_3, E.
 Qed.
 
+#[global]
 Instance: Bijective to_listset.
 Proof.
   split; split; try apply _.
@@ -61,6 +75,7 @@ Proof.
   intros ?? E. rewrite <-E. now rapply props.of_list_2.
 Qed.
 
+#[global]
 Instance: BoundedJoinSemiLattice_Morphism to_listset.
 Proof.
   split; try apply _; split; try apply _.
@@ -71,6 +86,7 @@ Proof.
   intros z. compute. rewrite props.elements_empty. tauto.
 Qed.
 
+#[global]
 Instance mset_extend: FSetExtend elt := iso_is_fset_extend id to_listset.
 
 Local Instance: FSet elt.
@@ -81,6 +97,7 @@ Proof.
   now rewrite elements_spec1, singleton_spec, E, InA_singleton.
 Qed.
 
+#[global]
 Instance: FullFSet elt.
 Proof.
   split; try apply _. split.

@@ -95,6 +95,7 @@ Proof.
  change (Algebra theory B). apply _.
 Qed. (* todo: these [change]s should not be necessary at all. [apply] is too weak. report bug. *)
 
+#[global]
 Instance decode_variety_and_ops `{v: InVariety theory A}: SemiRing (A tt).
 Proof with simpl; auto.
  pose proof (λ law lawgood x y z, variety_laws law lawgood (λ s n,

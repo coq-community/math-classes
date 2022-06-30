@@ -241,12 +241,15 @@ Proof.
   intros F. destruct E. now apply P2.
 Qed.
 
+#[global]
 Instance id_order_morphism `{PartialOrder A} : Order_Morphism (@id A).
 Proof. pose proof po_setoid. repeat (split; try apply _). Qed.
 
+#[global]
 Instance id_order_preserving `{PartialOrder A} : OrderPreserving (@id A).
 Proof. split; try apply _. easy. Qed.
 
+#[global]
 Instance id_order_reflecting `{PartialOrder A} : OrderReflecting (@id A).
 Proof. split; try apply _. easy. Qed.
 
@@ -278,9 +281,13 @@ Section composition.
     OrderEmbedding f → OrderEmbedding g → OrderEmbedding (g ∘ f) := {}.
 End composition.
 
+#[global]
 Hint Extern 4 (Order_Morphism (_ ∘ _)) => class_apply @compose_order_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (OrderPreserving (_ ∘ _)) => class_apply @compose_order_preserving : typeclass_instances.
+#[global]
 Hint Extern 4 (OrderReflecting (_ ∘ _)) => class_apply @compose_order_reflecting : typeclass_instances.
+#[global]
 Hint Extern 4 (OrderEmbedding (_ ∘ _)) => class_apply @compose_order_embedding : typeclass_instances.
 
 Section propers.

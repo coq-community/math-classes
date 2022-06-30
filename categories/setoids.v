@@ -4,7 +4,9 @@ Require Import
 Inductive Object := object { T:> Type; e: Equiv T; setoid_proof: Setoid T }.
 Arguments object _ {e setoid_proof}.
 
+#[global]
 Existing Instance e.
+#[global]
 Existing Instance setoid_proof.
 
 Section contents.

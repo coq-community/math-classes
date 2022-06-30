@@ -5,7 +5,9 @@ Inductive option_equiv A `{Equiv A} : Equiv (option A) :=
   | option_equiv_Some : Proper ((=) ==> (=)) Some
   | option_equiv_None : None = None.
 
+#[global]
 Existing Instance option_equiv.
+#[global]
 Hint Constructors option_equiv.
 
 Section contents.
@@ -79,6 +81,7 @@ Section contents.
   Next Obligation. setoid_discriminate. Qed.
 End contents.
 
+#[global]
 Hint Extern 10 (Equiv (option _)) => apply @option_equiv : typeclass_instances.
 
 Lemma option_equiv_eq {A} (x y : option A) : 
@@ -90,16 +93,20 @@ Proof.
   now assert (@Setoid A (@eq A)) by (split; apply _).
 Qed.
 
+#[global]
 Instance option_ret: MonadReturn option := λ A x, Some x.
+#[global]
 Instance option_bind: MonadBind option := λ A B f x,
   match x with
   | Some a => f a
   | None => None
   end.
 
+#[global]
 Instance option_ret_proper `{Equiv A} : Proper ((=) ==> (=)) (option_ret A).
 Proof. intros x y E. now apply option_equiv_Some. Qed.
 
+#[global]
 Instance option_bind_proper `{Setoid A} `{Setoid (option B)}: Proper (=) (option_bind A B).
 Proof.
   intros f₁ f₂ E1 x₁ x₂ [?|].
@@ -107,6 +114,7 @@ Proof.
   easy.
 Qed.
 
+#[global]
 Instance: Monad option.
 Proof.
   repeat (split; try apply _); unfold bind, ret, option_bind, option_ret, compose.
@@ -118,8 +126,10 @@ Proof.
   easy.
 Qed.
 
+#[global]
 Instance option_map: SFmap option := option_map.
 
+#[global]
 Instance: FullMonad option.
 Proof. apply @monad_default_full_monad. apply _. Qed.
 

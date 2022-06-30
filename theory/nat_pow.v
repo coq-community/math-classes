@@ -139,9 +139,13 @@ Qed.
 End nat_pow_properties.
 
 (* Due to bug #2528 *)
+#[global]
 Hint Extern 18 (PropHolds (_ ^ _ ≠ 0)) => eapply @nat_pow_ne_0 : typeclass_instances.
+#[global]
 Hint Extern 18 (PropHolds (_ ^ _ ≶ 0)) => eapply @nat_pow_apart_0 : typeclass_instances.
+#[global]
 Hint Extern 18 (PropHolds (0 ≤ _ ^ _)) => eapply @nat_pow_nonneg : typeclass_instances.
+#[global]
 Hint Extern 18 (PropHolds (0 < _ ^ _)) => eapply @nat_pow_pos : typeclass_instances.
 
 Section preservation.
@@ -210,4 +214,7 @@ Section nat_pow_default.
   Qed.
 End nat_pow_default.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Opaque default_nat_pow.

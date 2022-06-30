@@ -83,6 +83,7 @@ End with_sorts.
 Arguments op_type {Sorts} _ _.
 
 (* Avoid eager application *)
+#[global]
 Hint Extern 0 (Equiv (op_type _ _ )) => eapply @op_type_equiv : typeclass_instances.
 
 Inductive Signature: Type :=

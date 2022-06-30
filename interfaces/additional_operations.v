@@ -6,6 +6,7 @@ Infix "^" := pow : mc_scope.
 Notation "(^)" := pow (only parsing) : mc_scope.
 Notation "( x ^)" := (pow x) (only parsing) : mc_scope.
 Notation "(^ n )" := (λ x, x ^ n) (only parsing) : mc_scope.
+#[global]
 Instance: Params (@pow) 3 := {}.
 
 (* If we make [nat_pow_proper] a subclass, Coq is unable to find it.
@@ -28,6 +29,7 @@ Infix "≪" := shiftl (at level 33, left associativity) : mc_scope.
 Notation "(≪)" := shiftl (only parsing) : mc_scope.
 Notation "( x ≪)" := (shiftl x) (only parsing) : mc_scope.
 Notation "(≪ n )" := (λ x, x ≪ n) (only parsing) : mc_scope.
+#[global]
 Instance: Params (@shiftl) 3 := {}.
 
 Class ShiftLSpec A B (sl : ShiftL A B) `{Equiv A} `{Equiv B} `{One A} `{Plus A} `{Mult A} `{Zero B} `{One B} `{Plus B} := {
@@ -64,6 +66,7 @@ Qed.
 Class ShiftR A B := shiftr: A → B → A.
 Infix "≫" := shiftr (at level 33, left associativity) : mc_scope.
 Notation "(≫)" := shiftr (only parsing) : mc_scope.
+#[global]
 Instance: Params (@shiftr) 3 := {}.
 
 Class ShiftRSpec A B (sl : ShiftR A B) `{Equiv A} `{Equiv B} `{One A} `{Plus A} `{Mult A} `{Zero B} `{One B} `{Plus B} := {
@@ -82,7 +85,9 @@ Infix "`mod`" := mod_euclid (at level 40) : mc_scope.
 Notation "(`mod` )" := mod_euclid (only parsing) : mc_scope.
 Notation "( x `mod`)" := (mod_euclid x) (only parsing) : mc_scope.
 Notation "(`mod` y )" := (λ x, x `mod` y) (only parsing) : mc_scope.
+#[global]
 Instance: Params (@div_euclid) 2 := {}.
+#[global]
 Instance: Params (@mod_euclid) 2 := {}.
 
 Class EuclidSpec A (d : DivEuclid A) (m : ModEuclid A) `{Equiv A} `{Le A} `{Lt A} `{Zero A} `{Plus A} `{Mult A} := {
@@ -99,6 +104,7 @@ Infix "∸" := cut_minus (at level 50, left associativity) : mc_scope.
 Notation "(∸)" := cut_minus (only parsing) : mc_scope.
 Notation "( x ∸)" := (cut_minus x) (only parsing) : mc_scope.
 Notation "(∸ y )" := (λ x, x ∸ y) (only parsing) : mc_scope.
+#[global]
 Instance: Params (@cut_minus) 2 := {}.
 
 Class CutMinusSpec A (cm : CutMinus A) `{Equiv A} `{Zero A} `{Plus A} `{Le A} := {

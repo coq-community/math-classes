@@ -229,8 +229,11 @@ Section full_partial_order.
 End full_partial_order.
 
 (* Due to bug #2528 *)
+#[global]
 Hint Extern 5 (PropHolds (_ ≠ _)) => eapply @strict_po_apart_ne :  typeclass_instances.
+#[global]
 Hint Extern 10 (PropHolds (_ ≤ _)) => eapply @lt_le : typeclass_instances.
+#[global]
 Hint Extern 20 (Decision (_ < _)) => eapply @lt_dec_slow : typeclass_instances.
 
 Section full_pseudo_order.
@@ -300,6 +303,7 @@ Section full_pseudo_order.
   Next Obligation. now apply not_le_lt_flip. Qed.
 End full_pseudo_order.
 
+#[global]
 Hint Extern 8 (Decision (_ < _)) => eapply @lt_dec : typeclass_instances.
 (*
 The following instances would be tempting, but turn out to be a bad idea.

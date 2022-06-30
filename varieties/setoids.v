@@ -50,4 +50,5 @@ Proof with try apply _.
  change (Algebra theory B)...
 Qed.
 
+#[global]
 Instance decode_variety_and_ops `{InVariety theory A}: Setoid (A tt) := {}.

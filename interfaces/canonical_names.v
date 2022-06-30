@@ -9,9 +9,15 @@ Definition id {A : Type} (a : A) := a.
 (* Equality *)
 Class Equiv A := equiv: relation A.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
 (* Revert to transparency to allow conversions during unification. *)
+#[global]
 Typeclasses Transparent Equiv.
+#[global]
 Typeclasses Transparent compose flip.
+
+Set Warnings "+unsupported-attributes".
 
 (* We use this virtually everywhere, and so use "=" for it: *)
 Infix "=" := equiv : type_scope.
@@ -26,11 +32,15 @@ Notation "(≠ x )" := (λ y, y ≠ x) (only parsing) : mc_scope.
 Delimit Scope mc_scope with mc. 
 Global Open Scope mc_scope.
 
+#[global]
 Hint Extern 2 (?x = ?x) => reflexivity.
+#[global]
 Hint Extern 2 (?x = ?y) => auto_symm.
+#[global]
 Hint Extern 2 (?x = ?y) => auto_trans.
 
 (* Coq sometimes uses an incorrect DefaultRelation, so we override it. *)
+#[global]
 Instance equiv_default_relation `{Equiv A} : DefaultRelation (=) | 3 := {}.
 
 (*
@@ -71,7 +81,9 @@ Notation "(≢ x )" := (λ y, y ≢ x) (only parsing) : mc_scope.
 
 (* Some common notions of equality *)
 Definition ext_equiv `{Equiv A} `{Equiv B} : Equiv (A → B) := ((=) ==> (=))%signature.
+#[global]
 Hint Extern 10 (Equiv (_ → _)) => apply @ext_equiv : typeclass_instances.
+#[global]
 Hint Extern 10 (Equiv (relation _)) => apply @ext_equiv : typeclass_instances. (* Due to bug #2491 *)
 (** Interestingly, most of the development works fine if this is defined as
   ∀ x, f x = g x.
@@ -84,20 +96,31 @@ Ltac simpl_sig_equiv :=
   match goal with 
   | |- (@equiv _ (@sig_equiv _ ?e _) (?x↾_) (?y↾_)) => change (@equiv _ e x y) 
   end.
+#[global]
 Hint Extern 10 (Equiv (sig _)) => apply @sig_equiv : typeclass_instances.
+#[global]
 Hint Extern 4 (@equiv _ (sig_equiv _ _ _) (_↾_) (_↾_)) => simpl_sig_equiv.
 
 Definition sigT_equiv `{Equiv A} (P: A → Type) : Equiv (sigT P) := λ a b, projT1 a = projT1 b.
+#[global]
 Hint Extern 10 (Equiv (sigT _)) => apply @sigT_equiv : typeclass_instances.
 
 Definition sig_apart `{Apart A} (P: A → Prop) : Apart (sig P) := λ x y, `x ≶ `y.
+#[global]
 Hint Extern 10 (Apart (sig _)) => apply @sig_apart : typeclass_instances.
 
 Class Cast A B := cast: A → B.
 Arguments cast _ _ {Cast} _.
 Notation "' x" := (cast _ _ x) (at level 20) : mc_scope.
+#[global]
 Instance: Params (@cast) 3 := {}.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Transparent Cast.
+
+Set Warnings "+unsupported-attributes".
 
 (* Other canonically named relations/operations/constants: *)
 Class SgOp A := sg_op: A → A → A.
@@ -110,22 +133,46 @@ Class Negate A := negate: A → A.
 Class DecRecip A := dec_recip: A → A.
 Definition ApartZero R `{Zero R} `{Apart R} := sig (≶ zero).
 Class Recip A `{Apart A} `{Zero A} := recip: ApartZero A → A.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Transparent SgOp MonUnit Plus Mult Zero One Negate.
+
+Set Warnings "+unsupported-attributes".
 
 Class Meet A := meet: A → A → A.
 Class Join A := join: A → A → A.
 Class Top A := top: A.
 Class Bottom A := bottom: A.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Transparent Meet Join Top Bottom.
+
+Set Warnings "+unsupported-attributes".
 
 Class Contains A B := contains: A → B → Prop.
 Class Singleton A B := singleton: A → B.
 Class Difference A := difference : A → A → A.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Transparent Contains Singleton Difference.
+
+Set Warnings "+unsupported-attributes".
 
 Class Le A := le: relation A.
 Class Lt A := lt: relation A.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Transparent Le Lt.
+
+Set Warnings "+unsupported-attributes".
 
 Definition NonNeg R `{Zero R} `{Le R} := sig (le zero).
 Definition Pos R `{Zero R} `{Equiv R} `{Lt R} := sig (lt zero).
@@ -133,7 +180,13 @@ Definition NonPos R `{Zero R} `{Le R} := sig (λ y, le y zero).
 Inductive PosInf (R : Type) : Type := finite (x : R) | infinite.
 
 Class Arrows (O: Type): Type := Arrow: O → O → Type.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Transparent Arrows. (* Ideally this should be removed *)
+
+Set Warnings "+unsupported-attributes".
 
 Infix "⟶" := Arrow (at level 90, right associativity) : mc_scope.
 Class CatId O `{Arrows O} := cat_id: ∀ x, x ⟶ x.
@@ -143,39 +196,71 @@ Class RalgebraAction A B := ralgebra_action: A → B → B.
 Arguments cat_id {O arrows CatId x} : rename.
 Arguments comp {O arrow CatComp} _ _ _ _ _ : rename.
 
+#[global]
 Instance: Params (@mult) 2 := {}.
+#[global]
 Instance: Params (@plus) 2 := {}.
+#[global]
 Instance: Params (@negate) 2 := {}.
+#[global]
 Instance: Params (@equiv) 2 := {}.
+#[global]
 Instance: Params (@apart) 2 := {}.
+#[global]
 Instance: Params (@le) 2 := {}.
+#[global]
 Instance: Params (@lt) 2 := {}.
+#[global]
 Instance: Params (@recip) 4 := {}.
+#[global]
 Instance: Params (@dec_recip) 2 := {}.
+#[global]
 Instance: Params (@meet) 2 := {}.
+#[global]
 Instance: Params (@join) 2 := {}.
+#[global]
 Instance: Params (@contains) 3 := {}.
+#[global]
 Instance: Params (@singleton) 3 := {}.
+#[global]
 Instance: Params (@difference) 2 := {}.
 
+#[global]
 Instance plus_is_sg_op `{f : Plus A} : SgOp A := f.
+#[global]
 Instance mult_is_sg_op `{f : Mult A} : SgOp A := f.
+#[global]
 Instance one_is_mon_unit `{c : One A} : MonUnit A := c.
+#[global]
 Instance zero_is_mon_unit `{c : Zero A} : MonUnit A := c.
+#[global]
 Instance meet_is_sg_op `{f : Meet A} : SgOp A := f.
+#[global]
 Instance join_is_sg_op `{f : Join A} : SgOp A := f.
+#[global]
 Instance top_is_mon_unit `{s : Top A} : MonUnit A := s.
+#[global]
 Instance bottom_is_mon_unit `{s : Bottom A} : MonUnit A := s.
+#[global]
 Instance singleton_is_cast `{s : Singleton A B} : Cast A B := s.
 
+#[global]
 Hint Extern 10 (Equiv (_ ⟶ _)) => apply @ext_equiv : typeclass_instances.
+#[global]
 Hint Extern 4 (Equiv (ApartZero _)) => apply @sig_equiv : typeclass_instances.
+#[global]
 Hint Extern 4 (Equiv (NonNeg _)) => apply @sig_equiv : typeclass_instances.
+#[global]
 Hint Extern 4 (Equiv (Pos _)) => apply @sig_equiv : typeclass_instances.
+#[global]
 Hint Extern 4 (Equiv (PosInf _)) => apply @sig_equiv : typeclass_instances.
+#[global]
 Hint Extern 4 (Apart (ApartZero _)) => apply @sig_apart : typeclass_instances.
+#[global]
 Hint Extern 4 (Apart (NonNeg _)) => apply @sig_apart : typeclass_instances.
+#[global]
 Hint Extern 4 (Apart (Pos _)) => apply @sig_apart : typeclass_instances.
+#[global]
 Hint Extern 4 (Apart (PosInf _)) => apply @sig_apart : typeclass_instances.
 
 (* Notations: *)
@@ -290,19 +375,31 @@ Notation "(:::)" := Cons (only parsing) : mc_scope.
 Notation "(::: X )" := (λ x, Cons x X) (only parsing) : mc_scope.
 Notation "( x :::)" := (Cons x) (only parsing) : mc_scope.
 
+#[global]
 Hint Extern 2 (?x ≤ ?y) => reflexivity.
+#[global]
 Hint Extern 4 (?x ≤ ?z) => auto_trans.
+#[global]
 Hint Extern 4 (?x < ?z) => auto_trans.
 
 Class Abs A `{Equiv A} `{Le A} `{Zero A} `{Negate A} := abs_sig: ∀ (x : A), { y : A | (0 ≤ x → y = x) ∧ (x ≤ 0 → y = -x)}.
 Definition abs `{Abs A} := λ x : A, ` (abs_sig x).
+#[global]
 Instance: Params (@abs_sig) 6 := {}.
+#[global]
 Instance: Params (@abs) 6 := {}.
 
 (* Common properties: *)
 Class Inverse `(A → B) : Type := inverse: B → A.
 Arguments inverse {A B} _ {Inverse} _.
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Transparent Inverse.
+
+Set Warnings "+unsupported-attributes".
+
 Notation "f ⁻¹" := (inverse f) (at level 30) : mc_scope.
 
 Class Idempotent `{ea : Equiv A} (f: A → A → A) (x : A) : Prop := idempotency: f x x = x.
@@ -382,6 +479,7 @@ Class ZeroDivisor {R} `{Equiv R} `{Zero R} `{Mult R} (x : R) : Prop
 Class NoZeroDivisors R `{Equiv R} `{Zero R} `{Mult R} : Prop
   := no_zero_divisors x : ¬ZeroDivisor x.
 
+#[global]
 Instance zero_product_no_zero_divisors `{ZeroProduct A} : NoZeroDivisors A.
 Proof. intros x [? [? [? E]]]. destruct (zero_product _ _ E); intuition. Qed.
 

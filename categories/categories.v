@@ -10,10 +10,15 @@ Record Object := object
   ; Category_inst: Category obj }.
 
 Arguments object _ {Arrows_inst Equiv_inst CatId_inst CatComp_inst Category_inst}.
+#[global]
 Existing Instance Arrows_inst.
+#[global]
 Hint Extern 0 (Equiv (_ ⟶ _)) => eapply @Equiv_inst : typeclass_instances.
+#[global]
 Existing Instance CatId_inst.
+#[global]
 Existing Instance CatComp_inst.
+#[global]
 Existing Instance Category_inst.
     (* Todo: Ask mattam for [Existing Instance foo bar bas.] *)
 
@@ -30,9 +35,12 @@ Record Arrow (x y: Object): Type := arrow
 
 Arguments arrow {x y} _ {Fmap_inst Functor_inst}.
 Arguments map_obj {x y} _ _.
+#[global]
 Existing Instance Fmap_inst.
+#[global]
 Existing Instance Functor_inst.
 
+#[global]
 Instance: Arrows Object := Arrow.
 (* Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances. *)
   (* Matthieu is adding [Existing Instance (c: T).], which is nicer. *)

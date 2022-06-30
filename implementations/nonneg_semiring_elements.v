@@ -112,5 +112,9 @@ Global Program Instance NonNeg_le_dec `{∀ x y : R, Decision (x ≤ y)} : ∀ x
   end.
 End nonneg_semiring_elements.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Opaque NonNeg_le.
+#[global]
 Typeclasses Opaque NonNeg_lt.

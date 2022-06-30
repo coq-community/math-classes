@@ -86,8 +86,10 @@ Section rationals_order_isomorphic.
   Qed.
 End rationals_order_isomorphic.
 
+#[global]
 Instance rationals_le `{Rationals Q} : Le Q | 10 := λ x y,
   ∃ num, ∃ den, y = x + naturals_to_semiring nat Q num / naturals_to_semiring nat Q den.
+#[global]
 Instance rationals_lt  `{Rationals Q} : Lt Q | 10 := dec_lt.
 
 Section default_order.

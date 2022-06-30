@@ -48,6 +48,7 @@ Definition forget: Object → setoids.Object :=
  Algebra/InVariety/HomoMorphism type classes instantiated with the above
  signature and theory. *)
 
+#[global]
 Instance encode_operations A `{!SgOp A} `(Negate A) `{!MonUnit A}: AlgebraOps sig (λ _, A) :=
   λ o, match o with mult => (&) | inv => (-) | one => mon_unit: A end.
 

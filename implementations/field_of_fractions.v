@@ -147,7 +147,12 @@ Proof.
 Qed.
 End contents.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Opaque Frac_equiv.
+
+Set Warnings "+unsupported-attributes".
 
 Section morphisms.
 Context `{IntegralDomain R1} `{∀ x y : R1, Decision (x = y)}.

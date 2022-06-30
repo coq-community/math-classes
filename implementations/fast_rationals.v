@@ -11,20 +11,28 @@ Require Export
 Module Import BigQ_Rationals := QType_Rationals BigQ.
 
 (* Embedding of [bigZ] into [bigQ] *)
+#[global]
 Instance inject_bigZ_bigQ: Cast bigZ bigQ := BigQ.Qz.
+#[global]
 Instance inject_bigN_bigQ: Cast bigN bigQ := cast bigZ bigQ ∘ cast bigN bigZ.
+#[global]
 Instance inject_Z_bigQ: Cast Z bigQ := cast bigZ bigQ ∘ cast Z bigZ.
 
+#[global]
 Instance: Proper ((=) ==> (=)) inject_bigZ_bigQ.
 Proof. intros x y E. unfold_equiv. unfold Qeq. simpl. now rewrite E. Qed.
+#[global]
 Instance: SemiRing_Morphism inject_bigZ_bigQ.
 Proof. repeat (split; try apply _). Qed.
 
+#[global]
 Instance: SemiRing_Morphism inject_bigN_bigQ.
 Proof. unfold inject_bigN_bigQ. apply _. Qed.
+#[global]
 Instance: SemiRing_Morphism inject_Z_bigQ.
 Proof. unfold inject_Z_bigQ. apply _. Qed.
 
+#[global]
 Instance: Proper ((=) ==> (=) ==> (=)) BigQ.Qq.
 Proof.
   intros x1 y1 E1 x2 y2 E2.
@@ -60,6 +68,7 @@ Lemma bigQ_div_bigQq_alt (n : bigZ) (d : bigN) :
 Proof. apply bigQ_div_bigQq. Qed.
 
 (* Embedding of [bigQ] into [Frac bigZ] *)
+#[global]
 Instance inject_bigQ_frac_bigZ: Cast bigQ (Frac bigZ) := λ x,
   match x with
   | BigQ.Qz n => 'n
@@ -87,9 +96,11 @@ Proof.
   now rewrite Frac_dec_mult_num_den at 1.
 Qed.
 
+#[global]
 Instance: Injective inject_bigQ_frac_bigZ.
 Proof. rewrite inject_bigQ_frac_bigZ_correct. apply _. Qed.
 
+#[global]
 Instance: SemiRing_Morphism inject_bigQ_frac_bigZ.
 Proof.
   eapply rings.semiring_morphism_proper.
@@ -98,6 +109,7 @@ Proof.
 Qed.
 
 (* Efficient shiftl on [bigQ] *)
+#[global]
 Instance bigQ_shiftl: ShiftL bigQ bigZ := λ x k,
   match k with
   | BigZ.Pos k =>
@@ -112,6 +124,7 @@ Instance bigQ_shiftl: ShiftL bigQ bigZ := λ x k,
     end
   end.
 
+#[global]
 Instance: ShiftLSpec bigQ bigZ _.
 Proof.
   apply shiftl_spec_from_int_pow.
@@ -138,8 +151,10 @@ Proof.
   now rewrite dec_fields.dec_recip_distr, associativity.
 Qed.
 
+#[global]
 Instance bigQ_Zshiftl: ShiftL bigQ Z := λ x k, x ≪ 'k.
 
+#[global]
 Instance: ShiftLSpec bigQ Z _.
 Proof.
   split; unfold shiftl, bigQ_Zshiftl.

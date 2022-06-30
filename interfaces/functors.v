@@ -14,7 +14,12 @@ Section functor_class.
     ; preserves_comp `(f: y ⟶ z) `(g: x ⟶ y): fmap (f ◎ g) = fmap f ◎ fmap g }.
 End functor_class.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Transparent Fmap.
+
+Set Warnings "+unsupported-attributes".
 
 (* The usual notational convention for functor application is to use the
 name of the functor to refer to both its object map and its arrow map, relying

@@ -247,8 +247,11 @@ Section for_signature.
 End for_signature.
 
 (* Avoid eager application *)
+#[global]
 Remove Hints ua_vars_equiv : typeclass_instances.
+#[global]
 Hint Extern 0 (Equiv (Vars _ _ _)) => eapply @ua_vars_equiv : typeclass_instances.
+#[global]
 Instance: Params (@eval_stmt) 3 := {}.
 
 (* And with that, we define equational theories and varieties: *)

@@ -39,6 +39,7 @@ Qed.
 End contents.
 
 (* Due to bug #2528 *)
+#[global]
 Hint Extern 3 (PropHolds (_ ≠ _)) => eapply @apart_ne : typeclass_instances.
 
 Lemma projected_strong_setoid `{StrongSetoid B} `{Equiv A} `{Apart A} (f: A → B)
@@ -51,6 +52,7 @@ Proof.
   intros x y. rewrite apart_correct, eq_correct. now apply tight_apart.
 Qed.
 
+#[global]
 Instance sig_strong_setoid `{StrongSetoid A} (P: A → Prop): StrongSetoid (sig P).
 Proof. now apply (projected_strong_setoid (@proj1_sig _ P)). Qed.
 
@@ -146,9 +148,17 @@ Section more_morphisms.
   Qed.
 End more_morphisms.
 
+#[global]
 Instance default_apart `{Equiv A} : Apart A | 20 := (≠).
+
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Opaque default_apart.
 
+Set Warnings "+unsupported-attributes".
+
+#[global]
 Instance default_apart_trivial `{Equiv A} : TrivialApart A (Aap:=default_apart).
 Proof. red. reflexivity. Qed.
 

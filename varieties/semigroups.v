@@ -41,6 +41,7 @@ Definition forget: Object → setoids.Object :=
  Algebra/InVariety/HomoMorphism type classes instantiated with the above
  signature and theory. *)
 
+#[global]
 Instance encode_operations A `{!SgOp A}: AlgebraOps sig (λ _, A) :=
   λ o, match o with mult => (&) end.
 
@@ -104,6 +105,7 @@ Proof.
  apply (preserves theory x y f mult).
 Qed.
 
+#[global]
 Instance id_sg_morphism `{SemiGroup A}: SemiGroup_Morphism (@id A).
 Proof. repeat (split; try apply _); easy. Qed.
 
@@ -132,5 +134,7 @@ Section specialized.
   Qed.
 End specialized.
 
+#[global]
 Hint Extern 4 (SemiGroup_Morphism (_ ∘ _)) => class_apply @compose_sg_morphism : typeclass_instances.
+#[global]
 Hint Extern 4 (SemiGroup_Morphism (_⁻¹)) => class_apply @invert_sg_morphism : typeclass_instances.

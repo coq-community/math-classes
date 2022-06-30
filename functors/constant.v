@@ -22,7 +22,12 @@ Section constant_functor.
   Qed.
 End constant_functor.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Transparent const.
+
+Set Warnings "+unsupported-attributes".
 
 Section constant_transformation.
   Context `{Category A} `{Category J}.

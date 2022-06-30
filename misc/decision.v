@@ -4,6 +4,7 @@ Require Import
 Class Decision P := decide: sumbool P (¬P).
 Arguments decide _ {Decision}.
 
+#[global]
 Instance: ∀ P, Decision P → Stable P.
 Proof. firstorder. Qed.
 
@@ -66,6 +67,7 @@ Program Definition decision_from_bool_decide {P b} (prf : b ≡ true ↔ P) :
 Next Obligation. now apply prf. Qed.
 Next Obligation. rewrite <-prf. discriminate. Qed.
 
+#[global]
 Program Instance prod_eq_dec `(A_dec : ∀ x y : A, Decision (x ≡ y))
      `(B_dec : ∀ x y : B, Decision (x ≡ y)) : ∀ x y : A * B, Decision (x ≡ y) := λ x y,
   match A_dec (fst x) (fst y) with
@@ -74,6 +76,7 @@ Program Instance prod_eq_dec `(A_dec : ∀ x y : A, Decision (x ≡ y))
   end.
 Solve Obligations with (program_simpl; f_equal; firstorder).
 
+#[global]
 Program Instance and_dec `(P_dec : Decision P) `(Q_dec : Decision Q) : Decision (P ∧ Q) :=
   match P_dec with
   | left _ => match Q_dec with left _ => left _ | right _ => right _ end
@@ -81,6 +84,7 @@ Program Instance and_dec `(P_dec : Decision P) `(Q_dec : Decision Q) : Decision 
   end.
 Solve Obligations with (program_simpl; tauto).
 
+#[global]
 Program Instance or_dec `(P_dec : Decision P) `(Q_dec : Decision Q) : Decision (P ∨ Q) :=
   match P_dec with
   | left _ => left _
@@ -88,18 +92,21 @@ Program Instance or_dec `(P_dec : Decision P) `(Q_dec : Decision Q) : Decision (
   end.
 Solve Obligations with (program_simpl; firstorder).
 
+#[global]
 Program Instance is_Some_dec `(x : option A) : Decision (is_Some x) :=
   match x with
   | None => right _
   | Some _ => left _
   end.
 
+#[global]
 Program Instance is_None_dec `(x : option A) : Decision (is_None x) :=
   match x with
   | None => left _
   | Some _ => right _
   end.
 
+#[global]
 Program Instance option_eq_dec `(A_dec : ∀ x y : A, Decision (x ≡ y))
      : ∀ x y : option A, Decision (x ≡ y) := λ x y,
   match x with
@@ -115,5 +122,7 @@ Program Instance option_eq_dec `(A_dec : ∀ x y : A, Decision (x ≡ y))
     end
   end.
 
+#[global]
 Program Instance True_dec: Decision True := left _.
+#[global]
 Program Instance False_dec: Decision False := right _.

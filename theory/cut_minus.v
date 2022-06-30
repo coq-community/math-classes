@@ -227,7 +227,12 @@ Section cut_minus_default.
   Qed.
 End cut_minus_default.
 
+Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
+
+#[global]
 Typeclasses Opaque default_cut_minus.
+
+Set Warnings "+unsupported-attributes".
 
 Section order_preserving.
   Context `{FullPseudoSemiRingOrder A} `{!TrivialApart A} `{!CutMinusSpec A cmA} `{∀ x y : A, Decision (x = y)}

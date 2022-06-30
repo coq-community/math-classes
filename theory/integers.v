@@ -49,10 +49,12 @@ Proof.
   unfold compose. now rewrite E.
 Qed.
 
+#[global]
 Instance integers_to_integers_injective `{Integers Z} `{Integers Z2} (f: Z → Z2) `{!SemiRing_Morphism f} :
   Injective f.
 Proof. apply (to_ring_injective (integers_to_ring Z2 Z) _). Qed.
 
+#[global]
 Instance naturals_to_integers_injective `{Integers Z} `{Naturals N} (f: N → Z) `{!SemiRing_Morphism f} :
   Injective f.
 Proof.

@@ -314,8 +314,11 @@ Qed.
 End int_pow_properties.
 
 (* Due to bug #2528 *)
+#[global]
 Hint Extern 18 (PropHolds (_ ^ _ ≠ 0)) => eapply @int_pow_ne_0 : typeclass_instances.
+#[global]
 Hint Extern 18 (PropHolds (0 ≤ _ ^ _)) => eapply @int_pow_nonneg : typeclass_instances.
+#[global]
 Hint Extern 18 (PropHolds (0 < _ ^ _)) => eapply @int_pow_pos : typeclass_instances.
 
 Section preservation.

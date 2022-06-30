@@ -36,6 +36,7 @@ Section initial_maps.
   Qed.
 End initial_maps.
 
+#[global]
 Instance: Params (@naturals_to_semiring) 7 := {}.
 
 Class Naturals A {e plus mult zero one} `{U: NaturalsToSemiRing A} :=
@@ -51,5 +52,7 @@ Definition nat_distance `{nd : NatDistance N} (x y : N) :=
   | inl (n↾_) => n
   | inr (n↾_) => n
   end.
+#[global]
 Instance: Params (@nat_distance_sig) 4 := {}.
+#[global]
 Instance: Params (@nat_distance) 4 := {}.

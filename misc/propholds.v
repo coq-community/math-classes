@@ -11,8 +11,10 @@ Require Import
 *)
 Class PropHolds (P : Prop) := prop_holds: P.
 
+#[global]
 Hint Extern 0 (PropHolds _) => assumption : typeclass_instances.
 
+#[global]
 Instance: Proper (iff ==> iff) PropHolds.
 Proof. now repeat intro. Qed.
 

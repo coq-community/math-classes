@@ -12,10 +12,15 @@ Record Object := object
   ; Category_inst: Category obj }.
 
 Arguments object _ {Arrows_inst Equiv_inst CatId_inst CatComp_inst Category_inst}.
+#[global]
 Existing Instance Arrows_inst.
+#[global]
 Existing Instance Equiv_inst.
+#[global]
 Existing Instance CatId_inst.
+#[global]
 Existing Instance CatComp_inst.
+#[global]
 Existing Instance Category_inst.
 
 Record Arrow (x y: Object): Type := arrow
@@ -25,9 +30,12 @@ Record Arrow (x y: Object): Type := arrow
 
 Arguments arrow {x y} _ _ _.
 Arguments map_obj {x y} _ _.
+#[global]
 Existing Instance Fmap_inst.
+#[global]
 Existing Instance Functor_inst.
 
+#[global]
 Instance: Arrows Object := Arrow.
 (* Hint Extern 4 (Arrows Object) => exact Arrow: typeclass_instances. *)
 

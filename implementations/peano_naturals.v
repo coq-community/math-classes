@@ -5,12 +5,18 @@ Require Import
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.theory.categories
   MathClasses.interfaces.additional_operations MathClasses.interfaces.orders MathClasses.orders.semirings.
 
+#[global]
 Instance nat_equiv: Equiv nat := eq.
+#[global]
 Instance nat_plus: Plus nat := Peano.plus.
+#[global]
 Instance nat_0: Zero nat := 0%nat.
+#[global]
 Instance nat_1: One nat := 1%nat.
+#[global]
 Instance nat_mult: Mult nat := Peano.mult.
 
+#[global]
 Instance: SemiRing nat.
 Proof.
   repeat (split; try apply _); repeat intro.
@@ -25,6 +31,7 @@ Proof.
 Qed.
 
 (* misc *)
+#[global]
 Instance: Injective S.
 Proof. repeat (split; try apply _). intros ?? E. now injection E. Qed.
 
@@ -34,6 +41,7 @@ Add Ring nat: (rings.stdlib_semiring_theory nat).
 
 Close Scope nat_scope.
 
+#[global]
 Instance: NaturalsToSemiRing nat :=
   λ _ _ _ _ _, fix f (n: nat) := match n with 0%nat => 0 | S n' => f n' + 1 end.
 
@@ -88,6 +96,7 @@ Lemma nat_induction (P : nat → Prop) :
   P 0 → (∀ n, P n → P (1 + n)) → ∀ n, P n.
 Proof nat_ind P.
 
+#[global]
 Instance: Initial (semirings.object nat).
 Proof.
   intros. apply natural_initial. intros.
@@ -100,19 +109,25 @@ Proof.
 Qed.
 
 (* [nat] is indeed a model of the naturals *)
+#[global]
 Instance: Naturals nat := {}.
 
 (* Misc *)
+#[global]
 Instance: NoZeroDivisors nat.
 Proof. intros x [Ex [y [Ey1 Ey2]]]. destruct (Mult.mult_is_O x y Ey2); intuition. Qed.
 
+#[global]
 Instance: ∀ z : nat, PropHolds (z ≠ 0) → LeftCancellation (.*.) z.
 Proof. intros z Ez x y. now apply Nat.mul_cancel_l. Qed.
 
 (* Order *)
+#[global]
 Instance nat_le: Le nat := Peano.le.
+#[global]
 Instance nat_lt: Lt nat := Peano.lt.
 
+#[global]
 Instance: FullPseudoSemiRingOrder nat_le nat_lt.
 Proof.
   assert (TotalRelation nat_le).
@@ -129,15 +144,20 @@ Proof.
   now apply Nat.le_neq.
 Qed.
 
+#[global]
 Instance: OrderEmbedding S.
 Proof. repeat (split; try apply _). exact le_n_S. exact le_S_n. Qed.
 
+#[global]
 Instance: StrictOrderEmbedding S.
 Proof. split; try apply _. Qed.
 
+#[global]
 Instance nat_le_dec : `{Decision (x ≤ y)} := le_dec.
 
+#[global]
 Instance nat_cut_minus: CutMinus nat := minus.
+#[global]
 Instance: CutMinusSpec nat nat_cut_minus.
 Proof.
   split.

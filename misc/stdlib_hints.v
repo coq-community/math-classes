@@ -1,9 +1,12 @@
 Require Import Coq.Setoids.Setoid Coq.Classes.Morphisms Coq.Classes.RelationClasses.
 Require Import Coq.Unicode.Utf8.
 
+#[global]
 Hint Unfold Proper respectful.
 
+#[global]
 Hint Unfold Reflexive Symmetric Transitive.
+#[global]
 Hint Constructors PreOrder.
 
 (*
@@ -28,10 +31,12 @@ Ltac auto_trans := match goal with
    These tactics make handling sig types slightly easier.
 *)
 Ltac exist_hyp := match goal with [ H : sig ?P |- ?P _  ] => exact (proj2_sig H) end.
+#[global]
 Hint Extern 0 => exist_hyp: core typeclass_instances.
 
 Ltac exist_proj1 :=
   match goal with
     | [ |- context [proj1_sig ?x] ] => apply (proj2_sig x)
   end.
+#[global]
 Hint Extern 0 => exist_proj1: core typeclass_instances.

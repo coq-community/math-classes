@@ -4,6 +4,7 @@ Require Import
   MathClasses.implementations.field_of_fractions MathClasses.implementations.natpair_integers
   MathClasses.theory.rings MathClasses.theory.integers MathClasses.theory.dec_fields.
 
+#[global]
 Program Instance slow_rat_dec `{Rationals Q} : ∀ x y: Q, Decision (x = y) | 10 := λ x y,
   match decide (rationals_to_frac Q (SRpair nat) x = rationals_to_frac Q (SRpair nat) y) with
   | left E => left _
@@ -80,6 +81,7 @@ Qed.
 
 Definition rationals_to_rationals Q1 Q2 `{Rationals Q1} `{Rationals Q2} : Q1 → Q2
   := (rationals_to_frac Q2 (SRpair nat))⁻¹ ∘ rationals_to_frac Q1 (SRpair nat).
+#[global]
 Hint Unfold rationals_to_rationals : typeclass_instances.
 
 Section another_rationals.

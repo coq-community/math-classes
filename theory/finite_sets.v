@@ -66,6 +66,7 @@ Section fset_props.
   Proof. rewrite commutativity, fset_join_singletons_eq_l. intuition. Qed.
 End fset_props.
 
+#[global]
 Instance fset_map_mor `{FSet A} `{FSet B} (f : A → B) `{!Setoid_Morphism f} :
   BoundedJoinSemiLattice_Morphism (fset_map (H:=At) (H0:=At0) (SetSingleton0:=Asingle0)  f).
 Proof. apply _. Qed.
@@ -128,6 +129,7 @@ Section fset_map_inverse.
   Qed.
 End fset_map_inverse.
 
+#[global]
 Instance fset_map_bijective `{FSet A} `{FSet B}
   (f : A → B) `{!Inverse f} `{!Bijective f} : Bijective (fset_map f).
 Proof.

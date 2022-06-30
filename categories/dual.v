@@ -39,6 +39,7 @@ End contents.
    making flipA opaque for resolution would speed things up but require
    a few changes to the scripts to explicitly convert terms to applications
    of flipA. *)
+#[global]
 Hint Cut [_* e (_*) e] : typeclass_instances.
 
 Section functors.
