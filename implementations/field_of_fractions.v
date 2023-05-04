@@ -115,10 +115,10 @@ Proof.
     rewrite 2!mult_1_r.
     apply (is_ne_0 1).
    unfold dec_recip, Frac_dec_recip.
-   case (decide_rel _); simpl; intuition.
+   case (decide_rel); simpl; intuition.
   intros [xn xs] Ex.
   unfold dec_recip, Frac_dec_recip.
-  case (decide_rel _); simpl.
+  simpl. case (decide_rel); simpl.
    intros E. destruct Ex. unfolds. rewrite E. ring.
   intros. ring_on_ring.
 Qed.
@@ -127,7 +127,7 @@ Lemma Frac_dec_mult_num_den x :
   x = 'num x / 'den x.
 Proof.
   unfold dec_recip, Frac_dec_recip.
-  case (decide_rel _); simpl; intros E.
+  simpl. case (decide_rel); simpl; intros E.
    now destruct (den_ne_0 x).
   unfolds. ring.
 Qed.

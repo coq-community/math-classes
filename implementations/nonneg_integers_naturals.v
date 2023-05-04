@@ -75,11 +75,11 @@ Qed.
 Global Instance: CutMinusSpec (Z⁺) ZPos_cut_minus.
 Proof.
   split; intros [x Ex] [y Ey] E1; unfold cut_minus, ZPos_cut_minus; unfold_equivs.
-   case (decide_rel (≤)); intros E2.
+   case (decide_rel); intros E2.
     rewrite left_identity.
     now apply (antisymmetry (≤)).
    simpl. ring.
-  case (decide_rel (≤)); intros E2.
+  case (decide_rel); intros E2.
    reflexivity.
   simpl.
   apply (antisymmetry (≤)).
