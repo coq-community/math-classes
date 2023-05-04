@@ -182,7 +182,7 @@ Proof.
   repeat (split; try apply _).
    intros x y. unfold sg_op at 2, plus_is_sg_op, dy_plus.
    unfold equiv, dy_equiv, dy_inject, DtoQ_slow; simpl.
-   case (le_dec 0 0); intros E; simpl.
+   case (decide_rel); intros E; simpl.
     rewrite 2!rings.preserves_plus, ZtoQ_shift.
     rewrite rings.plus_negate_r.
     rewrite lattices.meet_l, int_pow_0. ring.
@@ -446,7 +446,7 @@ Section embed_rationals.
     intros x y E. rewrite <-E. clear y E.
     unfold DtoQ, DtoQ_slow.
     destruct x as [xm xe]. simpl.
-    case (decide_rel _); intros E.
+    case (decide_rel); intros E.
      now rewrite ZtoQ_shift.
     rewrite int_pow_negate_alt, ZtoQ_shift.
     now rewrite rings.preserves_1, left_identity.

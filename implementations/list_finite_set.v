@@ -245,14 +245,14 @@ Proof.
    intros E; split; revert E.
     induction l; simpl.
      intuition.
-    case (decide_rel _); intros ? E; intuition.
+    case (decide_rel); intros ? E; intuition.
     inversion_clear E; intuition.
    induction l; simpl.
     intros E1; inversion E1.
-   case (decide_rel _); intros ? E1; intuition.
+   case (decide_rel); intros ? E1; intuition.
    inversion_clear E1 as [?? E2|]; auto. now rewrite E2.
   intros [E1 E2]. induction l; simpl; [easy|].
-  case (decide_rel _); intros E3.
+  case (decide_rel); intros E3.
    inversion_clear E1; intuition.
   inversion_clear E1 as [?? E4|]; intuition.
   destruct E3. now rewrite <-E4.
@@ -263,7 +263,7 @@ Lemma listset_meet_raw_NoDupA (l k : list A) :
 Proof.
   unfold meet. intros Pl. induction l; simpl; auto.
   inversion_clear Pl as [|? ? E1].
-  case (decide_rel _); intros; auto.
+  case (decide_rel); intros; auto.
   apply NoDupA_cons; auto.
   intros E2. destruct E1. now apply (listset_in_meet_raw l k _).
 Qed.
@@ -285,15 +285,15 @@ Proof.
    intros E; split; revert E.
     induction l; simpl.
      intuition.
-    case (decide_rel _); intros ? E; intuition.
+    case (decide_rel); intros ? E; intuition.
     inversion_clear E; intuition.
    induction l; simpl.
     intros E1; inversion E1.
-   case (decide_rel _); intros ? E1.
+   case (decide_rel); intros ? E1.
     intuition.
    inversion_clear E1 as [?? E2|]; auto. now rewrite E2.
   intros [E1 E2]. induction l; simpl; [easy|].
-  case (decide_rel _); intros E3.
+  case (decide_rel); intros E3.
    inversion_clear E1 as [?? E4|]; intuition.
    destruct E2. now rewrite E4.
   inversion_clear E1; intuition.
@@ -304,7 +304,7 @@ Lemma listset_diff_raw_NoDupA (l k : list A) :
 Proof.
   unfold difference. intros Pl. induction l; simpl; auto.
   inversion_clear Pl as [|? ? E1].
-  case (decide_rel _); intros; auto.
+  case (decide_rel); intros; auto.
   apply NoDupA_cons; auto.
   intros E2. destruct E1. now apply (listset_in_diff_raw l k _).
 Qed.

@@ -395,16 +395,16 @@ Section int_pow_default.
   Proof.
     split; unfold pow, int_pow_default.
        intros ? ? E1 ? ? E2.
-       now (case (decide_rel _); case (decide_rel _); rewrite E1, E2).
-      intros x. case (decide_rel _); intros E.
+       now (case (decide_rel); case (decide_rel); rewrite E1, E2).
+      intros x. case (decide_rel); intros E.
        now rewrite int_abs_0.
       now destruct E.
-     intros n ?. case (decide_rel _); intros E.
+     intros n ?. case (decide_rel); intros E.
       now apply nat_pow_base_0, int_abs_ne_0.
      rewrite nat_pow_base_0.
      apply dec_recip_0.
      now apply int_abs_ne_0.
-    intros x n E. case (decide_rel _); case (decide_rel _); intros E1 E2.
+    intros x n E. case (decide_rel); case (decide_rel); intros E1 E2.
        now rewrite int_abs_nonneg_plus, int_abs_1 by (auto;solve_propholds).
       setoid_replace n with (-1 : B).
        rewrite rings.plus_negate_r, int_abs_0, nat_pow_0.
