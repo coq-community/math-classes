@@ -35,18 +35,18 @@ Lemma nat_int_to_semiring x : ∃ z, x = naturals_to_semiring nat R z ∨ x + na
 Proof.
   revert x. apply biinduction.
     solve_proper.
-   exists (0 : nat). left. now rewrite preserves_0.
+   exists 0. left. now rewrite preserves_0.
   intros n; split.
    intros [z [Ez | Ez]].
     exists (1 + z). left. now rewrite preserves_plus, preserves_1, Ez.
    destruct z as [|z].
-    exists (1 : nat). left. rewrite O_nat_0, preserves_0, plus_0_r in Ez.
+    exists 1. left. rewrite O_nat_0, preserves_0, plus_0_r in Ez.
     rewrite Ez, preserves_1. ring.
    exists z. right. rewrite S_nat_1_plus, preserves_plus, preserves_1 in Ez.
    rewrite <-Ez. ring.
   intros [z [Ez | Ez]].
    destruct z as [|z].
-    exists (1 : nat). right. rewrite O_nat_0, preserves_0 in Ez.
+    exists 1. right. rewrite O_nat_0, preserves_0 in Ez.
     rewrite preserves_1, <-Ez. ring.
    exists z. left. rewrite S_nat_1_plus, preserves_plus, preserves_1 in Ez.
    now apply (left_cancellation (+) 1).
@@ -57,7 +57,7 @@ Lemma nat_int_nonneg_decompose x : 0 ≤ x → ∃ z, x = naturals_to_semiring n
 Proof.
   destruct (nat_int_to_semiring x) as [z [Ez1 | Ez2]].
    now exists z.
-  intros E. exists (0 : nat). rewrite preserves_0.
+  intros E. exists 0. rewrite preserves_0.
   apply (antisymmetry (≤)); auto.
   rewrite <-Ez2. now apply nonneg_plus_le_compat_r, to_semiring_nonneg.
 Qed.

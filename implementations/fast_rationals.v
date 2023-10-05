@@ -132,7 +132,7 @@ Proof.
   intros [n|n d] [k|k].
      rewrite shiftl.preserves_shiftl.
      now rewrite <-shiftl.shiftl_int_pow, shiftl.preserves_shiftl_exp.
-    change (BigZ.Neg k) with (-'k : bigZ).
+    change (BigZ.Neg k) with ((-'k)%mc:bigZ).
     rewrite int_pow.int_pow_negate.
     rewrite bigQ_div_bigQq, shiftl.preserves_shiftl.
     rewrite <-(shiftl.preserves_shiftl_exp (f:=cast bigN bigZ)).
@@ -142,7 +142,7 @@ Proof.
    rewrite <-(shiftl.preserves_shiftl_exp (f:=cast bigN bigZ)).
    rewrite shiftl.shiftl_int_pow.
    now rewrite <-2!associativity, (commutativity (/cast bigN bigQ d)).
-  change (BigZ.Neg k) with (-'k : bigZ).
+  change (BigZ.Neg k) with ((-'k)%mc : bigZ).
   rewrite int_pow.int_pow_negate.
   rewrite 2!bigQ_div_bigQq.
   rewrite shiftl.preserves_shiftl.

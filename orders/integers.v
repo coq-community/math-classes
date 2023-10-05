@@ -87,7 +87,7 @@ Qed.
 Instance: PartialOrder int_le.
 Proof.
   repeat (split; try apply _).
-    intros x. exists (0:nat). rewrite rings.preserves_0. ring.
+    intros x. exists 0. rewrite rings.preserves_0. ring.
    intros x y z [a A] [b B]. exists (a + b).
    now rewrite rings.preserves_plus, associativity, <-A, B.
   intros x y [a A] [b B].
