@@ -1,7 +1,7 @@
 Require
   MathClasses.theory.ua_homomorphisms.
 Require Import
-  Coq.Classes.Morphisms Coq.setoid_ring.Ring Coq.Arith.Arith_base
+  Coq.Classes.Morphisms Coq.setoid_ring.Ring Coq.Arith.Arith_base Coq.Arith.PeanoNat
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.theory.categories
   MathClasses.interfaces.additional_operations MathClasses.interfaces.orders MathClasses.orders.semirings.
 
@@ -20,14 +20,14 @@ Instance nat_mult: Mult nat := Peano.mult.
 Instance: SemiRing nat.
 Proof.
   repeat (split; try apply _); repeat intro.
-         now apply plus_assoc.
-        now apply plus_0_r.
-       now apply plus_comm.
-      now apply mult_assoc.
-     now apply mult_1_l.
-    now apply mult_1_r.
-   now apply mult_comm.
-  now apply mult_plus_distr_l.
+         now apply Nat.add_assoc.
+        now apply Nat.add_0_r.
+       now apply Nat.add_comm.
+      now apply Nat.mul_assoc.
+     now apply Nat.mul_1_l.
+    now apply Nat.mul_1_r.
+   now apply Nat.mul_comm.
+  now apply Nat.mul_add_distr_l.
 Qed.
 
 (* misc *)
@@ -115,7 +115,7 @@ Instance: Naturals nat := {}.
 (* Misc *)
 #[global]
 Instance: NoZeroDivisors nat.
-Proof. intros x [Ex [y [Ey1 Ey2]]]. destruct (Mult.mult_is_O x y Ey2); intuition. Qed.
+Proof. now intros x [Ex [y [Ey1 [H | H]%Nat.eq_mul_0]]]. Qed.
 
 #[global]
 Instance: ∀ z : nat, PropHolds (z ≠ 0) → LeftCancellation (.*.) z.
@@ -133,13 +133,14 @@ Proof.
   assert (TotalRelation nat_le).
    intros x y. now destruct (le_ge_dec x y); intuition.
   assert (PartialOrder nat_le).
-   split; try apply _. intros x y E. now apply Le.le_antisym.
+   split; try apply _. intros x y E. now apply Nat.le_antisymm.
   assert (SemiRingOrder nat_le).
    repeat (split; try apply _).
-      intros x y E. exists (y - x)%nat. now apply le_plus_minus.
-     intros. now apply Plus.plus_le_compat_l.
-    intros. now apply plus_le_reg_l with z.
-   intros x y ? ?. change (0 * 0 <= x * y)%nat. now apply Mult.mult_le_compat.
+      intros x y E. exists (y - x)%nat.
+      now rewrite Nat.add_comm, Nat.sub_add by (exact E).
+     intros. now apply Nat.add_le_mono_l.
+    intros. now apply Nat.add_le_mono_l with z.
+   intros x y ? ?. change (0 * 0 <= x * y)%nat. now apply Nat.mul_le_mono.
   apply dec_full_pseudo_srorder.
   now apply Nat.le_neq.
 Qed.
@@ -162,8 +163,8 @@ Instance: CutMinusSpec nat nat_cut_minus.
 Proof.
   split.
    symmetry. rewrite commutativity.
-   now apply le_plus_minus.
+   now rewrite Nat.add_comm, Nat.sub_add by (exact H).
   intros x y E. destruct (orders.le_equiv_lt x y E) as [E2|E2].
-   rewrite E2. now apply minus_diag.
-  apply not_le_minus_0. now apply orders.lt_not_le_flip.
+   rewrite E2. now apply Nat.sub_diag.
+   apply Nat.sub_0_le; exact E.
 Qed.
