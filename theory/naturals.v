@@ -1,5 +1,6 @@
 Require Import
   Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.implementations.peano_naturals MathClasses.theory.rings
+  Coq.Arith.PeanoNat
   MathClasses.categories.varieties MathClasses.theory.ua_transference.
 Require Export
   MathClasses.interfaces.naturals.
@@ -128,7 +129,7 @@ Section borrowed_from_nat.
   Proof.
     intros x y z.
     rapply (from_nat_stmt (x' + y' === x' + z' -=> y' === z') (three_vars x y z)).
-    intro. simpl. apply Plus.plus_reg_l.
+    intro. simpl. apply Nat.add_cancel_l.
   Qed.
 
   Global Instance: ∀ z : N, RightCancellation (+) z.
@@ -156,20 +157,20 @@ Section borrowed_from_nat.
   Lemma zero_sum (x y : N) : x + y = 0 → x = 0 ∧ y = 0.
   Proof.
     rapply (from_nat_stmt (x' + y' === 0 -=> Conj _ (x' === 0) (y' === 0)) (two_vars x y)).
-    intro. simpl. apply Plus.plus_is_O.
+    intro. simpl. apply Nat.eq_add_0.
   Qed.
 
   Lemma one_sum (x y : N) : x + y = 1 → (x = 1 ∧ y = 0) ∨ (x = 0 ∧ y = 1).
   Proof.
    rapply (from_nat_stmt (x' + y' === 1 -=> Disj _ (Conj _ (x' === 1) (y' === 0)) (Conj _ (x' === 0) (y' === 1))) (two_vars x y)).
-   intros. simpl. intros. edestruct Plus.plus_is_one; eauto.
+   intros. simpl. intros. edestruct Nat.eq_add_1; eauto.
   Qed.
 
   Global Instance: ZeroProduct N.
   Proof.
     intros x y.
     rapply (from_nat_stmt (x' * y' === 0 -=>Disj _ (x' === 0) (y' === 0)) (two_vars x y)).
-    intros ? E. destruct (Mult.mult_is_O _ _ E); red; intuition.
+    intros ? E. destruct ((proj1 (Nat.eq_mul_0 _ _)) E); red; intuition.
   Qed.
 End borrowed_from_nat.
 
