@@ -1,6 +1,7 @@
 Require Import
   Coq.Lists.List
   MathClasses.interfaces.abstract_algebra
+  MathClasses.interfaces.vectorspace
   MathClasses.theory.rings
   Ring.
 Import ListNotations.
@@ -229,13 +230,13 @@ Section contents.
   Instance poly_plus_abgroup: AbGroup poly.
   Proof. repeat (split; try apply _). Qed.
 
-  Fixpoint poly_mult_cr (q: poly) (c: R): poly :=
+  Global Instance: ScalarMult R poly := fix F c q :=
     match q with
     | [] => 0
-    | d :: q1 => c*d :: poly_mult_cr q1 c
+    | d :: q1 => c*d :: F c q1
     end.
 
-  Lemma poly_mult_cr_0_l q c: poly_eq_zero q → poly_eq_zero (poly_mult_cr q c).
+  Lemma poly_scalar_mult_0_r q c: poly_eq_zero q → poly_eq_zero (c · q).
   Proof.
     induction q as [|x q IH].
     { easy. }
@@ -245,45 +246,44 @@ Section contents.
     ring.
   Qed.
 
-  Instance poly_mult_cr_proper: Proper ((=) ==> (=) ==> (=)) poly_mult_cr.
+  Instance poly_scalar_mult_proper: Proper ((=) ==> (=) ==> (=)) (·).
   Proof.
-    intros p p' eqp c c' eqc.
+    intros c c' eqc p p' eqp.
     revert p p' eqp; refine (poly_eq_ind _ _ _).
-    { now intros; apply poly_eq_zero_trans; apply poly_mult_cr_0_l. }
+    { now intros; apply poly_eq_zero_trans; apply poly_scalar_mult_0_r. }
     intros ???? eqx eqp IH.
     split; auto; cbn.
     ring [eqx eqc].
   Qed.
 
-  Lemma poly_mult_cr_1_l x: poly_mult_cr 1 x = [x].
+  Lemma poly_scalar_mult_1_r x: x · 1 = [x].
   Proof. cbn; split; [ring|easy]. Qed.
-  Instance poly_mult_cr_1_r: RightIdentity poly_mult_cr 1.
+  Instance poly_scalar_mult_1_l: LeftIdentity (·) 1.
   Proof.
-    red; induction x as [|x p IH]; [easy|cbn].
+    red; induction y as [|y p IH]; [easy|cbn].
     split; auto; ring.
   Qed.
 
-  Instance poly_mult_cr_dist_l: LeftHeteroDistribute poly_mult_cr (+) (+).
+  Instance poly_scalar_mult_dist_l: LeftHeteroDistribute (·) (+) (+).
   Proof.
-    intros x a b.
-    induction x as [|x p IH]; [easy|cbn].
-    split; auto; ring.
-  Qed.
-  Instance poly_mult_cr_dist_r: RightHeteroDistribute poly_mult_cr (+) (+).
-  Proof.
-    intros p q a.
-    revert q.
+    intros a p.
     induction p as [|x p IH]; intros [|y q]; [easy..|cbn].
     split; auto; ring.
   Qed.
-  Instance poly_mult_cr_assoc: HeteroAssociative poly_mult_cr (.*.) poly_mult_cr poly_mult_cr.
+  Instance poly_scalar_mult_dist_r: RightHeteroDistribute (·) (+) (+).
   Proof.
-    intros x a b.
+    intros a b x.
+    induction x as [|x p IH]; [easy|cbn].
+    split; auto; ring.
+  Qed.
+  Instance poly_scalar_mult_assoc: HeteroAssociative (·) (·) (·) (.*.).
+  Proof.
+    intros a b x.
     induction x as [|p x IH]; [easy|cbn].
     split; auto; ring.
   Qed.
 
-  Lemma poly_mult_cr_0_r q c: c = 0 → poly_eq_zero (poly_mult_cr q c).
+  Lemma poly_scalar_mult_0_l q c: c = 0 → poly_eq_zero (c · q).
   Proof.
     intros ->.
     induction q as [|x q IH]; [easy|cbn].
@@ -294,14 +294,14 @@ Section contents.
   Global Instance: Mult poly := fix F p q :=
     match p with
     | [] => 0
-    | c :: p1 => poly_mult_cr q c + (0 :: F p1 q)
+    | c :: p1 => c · q + (0 :: F p1 q)
     end.
 
   Lemma poly_mult_0_l p q: poly_eq_zero p → poly_eq_zero (p * q).
   Proof.
     induction 1 using poly_eq_zero_ind; [easy|cbn].
     apply poly_eq_zero_plus.
-    - now apply poly_mult_cr_0_r.
+    - now apply poly_scalar_mult_0_l.
     - rewrite poly_eq_zero_cons; auto.
   Qed.
 
@@ -310,7 +310,7 @@ Section contents.
     induction p as [|x p IH]; [easy|cbn].
     intro eq0.
     apply poly_eq_zero_plus.
-    - now apply poly_mult_cr_0_l.
+    - now apply poly_scalar_mult_0_r.
     - rewrite poly_eq_zero_cons; auto.
   Qed.
 
@@ -331,18 +331,18 @@ Section contents.
   Proof.
     intros p q r.
     induction p as [|x p IH]; [easy|cbn].
-    rewrite (distribute_r q r x).
+    rewrite (distribute_l x q r ).
     rewrite <- !associativity; apply poly_plus_proper; [easy|].
     rewrite associativity, (commutativity (0::p*q)), <- associativity.
     apply poly_plus_proper; [easy|].
     cbn; split; [ring|easy].
   Qed.
 
-  Lemma poly_mult_cons_r p q x: p * (x::q) = poly_mult_cr p x + (0 :: p * q).
+  Lemma poly_mult_cons_r p q x: p * (x::q) = x · p + (0 :: p * q).
   Proof.
     induction p as [|y p IH]; cbn; auto.
     split; auto.
-    rewrite IH, !associativity, (commutativity (poly_mult_cr _ _)).
+    rewrite IH, !associativity, (commutativity (y · q)).
     split; try easy.
     ring.
   Qed.
@@ -373,7 +373,7 @@ Section contents.
   Instance poly_mult_1_l: LeftIdentity (.*.) 1.
   Proof.
     intro; cbn.
-    rewrite poly_mult_cr_1_r, poly_eq_zero_plus_r; auto.
+    rewrite poly_scalar_mult_1_l, poly_eq_zero_plus_r; auto.
     now split.
   Qed.
 
@@ -391,18 +391,22 @@ Section contents.
     apply poly_plus_proper; cbn -[poly_eq].
     { clear IH.
       induction q as [|y q IH]...
-      rewrite distribute_r, <- associativity, (commutativity x y).
+      rewrite distribute_l, <- associativity.
       apply poly_plus_proper...
       split; auto.
       ring. }
-    assert (poly_mult_cr r 0 = 0) as ->.
-    { now rewrite poly_eq_p_zero; apply poly_mult_cr_0_r. }
+    assert (0 · r = 0) as ->.
+    { now rewrite poly_eq_p_zero; apply poly_scalar_mult_0_l. }
     cbn; split; eauto.
     now rewrite IH.
   Qed.
 
   Global Instance poly_ring: Ring poly.
   Proof. repeat (split; try apply _). Qed.
+
+  Global Instance poly_module : @Module R poly Ae Aplus Amult Azero Aone Anegate
+                                               poly_eq (+) 0 (-) (·).
+  Proof. split; apply _. Qed.
 End contents.
 
 (*
