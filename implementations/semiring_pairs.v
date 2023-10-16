@@ -17,7 +17,7 @@ Global Instance SRpair_equiv : Equiv (SRpair SR) | 4 := λ x y, pos x + neg y = 
 Global Instance SRpair_apart `{Apart SR} : Apart (SRpair SR) := λ x y, pos x + neg y ≶ pos y + neg x.
 
 Global Instance SRpair_trivial_apart `{!TrivialApart SR} :  TrivialApart (SRpair SR).
-Proof. intros x y. now rapply trivial_apart. Qed.
+Proof. intros x y. now Tactics.rapply trivial_apart. Qed.
 
 Instance: Setoid (SRpair SR).
 Proof.
@@ -256,7 +256,7 @@ Section with_full_pseudo_semiring_order.
      setoid_replace (zp + yn + xn) with (zp + xn + yn) by ring.
      setoid_replace (yp + zn + xn) with (zn + (yp + xn)) by ring.
      eassumption.
-    intros [??] [??]. now rapply tight_apart.
+    intros [??] [??]. now Tactics.rapply tight_apart.
   Qed.
 
   Instance: FullPseudoOrder SRpair_le SRpair_lt.
@@ -273,8 +273,8 @@ Section with_full_pseudo_semiring_order.
       setoid_replace (zp + yn + xn) with (zp + xn + yn) by ring.
       setoid_replace (yp + zn + xn) with (zn + (yp + xn)) by ring.
       eassumption.
-     intros [??] [??]. now rapply apart_iff_total_lt.
-    intros [??] [??]. now rapply le_iff_not_lt_flip.
+     intros [??] [??]. now Tactics.rapply apart_iff_total_lt.
+    intros [??] [??]. now Tactics.rapply le_iff_not_lt_flip.
   Qed.
 
   Instance: ∀ z : SRpair SR, StrongSetoid_Morphism (z *.).
