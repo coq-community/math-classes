@@ -20,7 +20,7 @@ End semigroup_props.
 Ltac group_simplify :=
   rewrite_strat
     (try bottomup (hints group_simplify));
-    (try bottomup (choice (hints group_cancellation) <- associativity)).
+    (try bottomup (choice (hints group_cancellation) ( <- associativity ))).
 
 Ltac group := group_simplify; easy.
 
