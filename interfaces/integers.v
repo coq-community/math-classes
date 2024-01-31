@@ -33,9 +33,9 @@ End initial_maps.
 Instance: Params (@integers_to_ring) 8 := {}.
 
 Class Integers A {e plus mult zero one negate} `{U : IntegersToRing A} :=
-  { integers_ring:> @Ring A e plus mult zero one negate
-  ; integers_to_ring_mor:> ∀ `{Ring B}, SemiRing_Morphism (integers_to_ring A B)
-  ; integers_initial:> Initial (rings.object A) }.
+  { integers_ring:: @Ring A e plus mult zero one negate
+  ; integers_to_ring_mor:: ∀ `{Ring B}, SemiRing_Morphism (integers_to_ring A B)
+  ; integers_initial:: Initial (rings.object A) }.
 
 Section specializable.
   Context (Z N : Type) `{Integers Z} `{Naturals N}.

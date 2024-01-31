@@ -34,7 +34,7 @@ Instance: Params (@shiftl) 3 := {}.
 
 Class ShiftLSpec A B (sl : ShiftL A B) `{Equiv A} `{Equiv B} `{One A} `{Plus A} `{Mult A} `{Zero B} `{One B} `{Plus B} := {
   shiftl_proper : Proper ((=) ==> (=) ==> (=)) (≪) ;
-  shiftl_0 :> RightIdentity (≪) 0 ;
+  shiftl_0 :: RightIdentity (≪) 0 ;
   shiftl_S : ∀ x n, x ≪ (1 + n) = 2 * x ≪ n
 }.
 
@@ -71,7 +71,7 @@ Instance: Params (@shiftr) 3 := {}.
 
 Class ShiftRSpec A B (sl : ShiftR A B) `{Equiv A} `{Equiv B} `{One A} `{Plus A} `{Mult A} `{Zero B} `{One B} `{Plus B} := {
   shiftr_proper : Proper ((=) ==> (=) ==> (=)) (≫) ;
-  shiftr_0 :> RightIdentity (≫) 0 ;
+  shiftr_0 :: RightIdentity (≫) 0 ;
   shiftr_S : ∀ x n, x ≫ n = 2 * x ≫ (1 + n) ∨ x ≫ n = 2 * x ≫ (1 + n) + 1
 }.
 

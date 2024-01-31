@@ -9,7 +9,7 @@ Section functor_class.
   Class Functor `(Fmap): Prop :=
     { functor_from: Category C
     ; functor_to: Category D
-    ; functor_morphism:> ∀ a b: C, Setoid_Morphism (@fmap _ a b)
+    ; functor_morphism:: ∀ a b: C, Setoid_Morphism (@fmap _ a b)
     ; preserves_id: `(fmap (cat_id: a ⟶ a) = cat_id)
     ; preserves_comp `(f: y ⟶ z) `(g: x ⟶ y): fmap (f ◎ g) = fmap f ◎ fmap g }.
 End functor_class.
@@ -123,8 +123,8 @@ Class SFmap (M : Type → Type) := sfmap: ∀ `(A → B), (M A → M B).
 
 Class SFunctor (M : Type → Type) 
      `{∀ `{Equiv A}, Equiv (M A)} `{SFmap M} : Prop :=
-  { sfunctor_setoid `{Setoid A} :> Setoid (M A)
-  ; sfmap_proper `{Setoid A} `{Setoid B} :>
+  { sfunctor_setoid `{Setoid A} :: Setoid (M A)
+  ; sfmap_proper `{Setoid A} `{Setoid B} ::
       Proper (((=) ==> (=)) ==> ((=) ==> (=))) (@sfmap M _ A B)
   ; sfmap_id `{Setoid A} : sfmap id = id
   ; sfmap_comp `{Equiv A} `{Equiv B} `{Equiv C} `{!Setoid_Morphism (f : B → C)} `{!Setoid_Morphism (g : A → B)} :

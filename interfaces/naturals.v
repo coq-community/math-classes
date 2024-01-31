@@ -4,7 +4,7 @@ Require Import
 
 Module bad.
   Class Naturals (A: semirings.Object) `{!InitialArrow A}: Prop :=
-    { naturals_initial:> Initial A }.
+    { naturals_initial:: Initial A }.
 End bad.
 
 Section initial_maps.
@@ -40,9 +40,9 @@ End initial_maps.
 Instance: Params (@naturals_to_semiring) 7 := {}.
 
 Class Naturals A {e plus mult zero one} `{U: NaturalsToSemiRing A} :=
-  { naturals_ring:> @SemiRing A e plus mult zero one
-  ; naturals_to_semiring_mor:> ∀ `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
-  ; naturals_initial:> Initial (semirings.object A) }.
+  { naturals_ring:: @SemiRing A e plus mult zero one
+  ; naturals_to_semiring_mor:: ∀ `{SemiRing B}, SemiRing_Morphism (naturals_to_semiring A B)
+  ; naturals_initial:: Initial (semirings.object A) }.
 
 (* Specializable operations: *)
 Class NatDistance N `{Equiv N} `{Plus N}

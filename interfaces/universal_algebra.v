@@ -265,7 +265,7 @@ Class InVariety
   (carriers: sorts et → Type)
   {e: ∀ a, Equiv (carriers a)}
   `{!AlgebraOps et carriers}: Prop :=
-  { variety_algebra:> Algebra et carriers
+  { variety_algebra:: Algebra et carriers
   ; variety_laws: ∀ s, et_laws et s → ∀ vars, eval_stmt et vars s }.
 
 Module op_type_notations.

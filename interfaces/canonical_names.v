@@ -405,12 +405,12 @@ Notation "f ⁻¹" := (inverse f) (at level 30) : mc_scope.
 Class Idempotent `{ea : Equiv A} (f: A → A → A) (x : A) : Prop := idempotency: f x x = x.
 Arguments idempotency {A ea} _ _ {Idempotent}.
 
-Class UnaryIdempotent `{Equiv A} (f: A → A) : Prop := unary_idempotent :> Idempotent (@compose A A A) f.
+Class UnaryIdempotent `{Equiv A} (f: A → A) : Prop := unary_idempotent :: Idempotent (@compose A A A) f.
 
 Lemma unary_idempotency `{Equiv A} `{!Reflexive (=)} `{!UnaryIdempotent f} x : f (f x) = f x.
 Proof. firstorder. Qed.
 
-Class BinaryIdempotent `{Equiv A} (op: A → A → A) : Prop := binary_idempotent :> ∀ x, Idempotent op x.
+Class BinaryIdempotent `{Equiv A} (op: A → A → A) : Prop := binary_idempotent :: ∀ x, Idempotent op x.
 
 Class LeftIdentity {A} `{Equiv B} (op : A → B → B) (x : A): Prop := left_identity: ∀ y, op x y = y.
 Class RightIdentity `{Equiv A} {B} (op : A → B → A) (y : B): Prop := right_identity: ∀ x, op x y = x.
@@ -428,7 +428,7 @@ Class Commutative `{Equiv B} `(f : A → A → B) : Prop := commutativity: ∀ x
 Class HeteroAssociative {A B C AB BC} `{Equiv ABC}
      (fA_BC: A → BC → ABC) (fBC: B → C → BC) (fAB_C: AB → C → ABC) (fAB : A → B → AB): Prop
    := associativity : ∀ x y z, fA_BC x (fBC y z) = fAB_C (fAB x y) z.
-Class Associative `{Equiv A} f := simple_associativity:> HeteroAssociative f f f f.
+Class Associative `{Equiv A} f := simple_associativity:: HeteroAssociative f f f f.
 Notation ArrowsAssociative C := (∀ {w x y z: C}, HeteroAssociative (◎) (comp z _ _ ) (◎) (comp y x w)).
 
 Class Involutive `{Equiv A} (f : A → A) := involutive: ∀ x, f (f x) = x.
@@ -451,8 +451,8 @@ Class LeftHeteroDistribute {A B} `{Equiv C} (f : A → B → C) (g_r : B → B �
   := distribute_l : ∀ a b c, f a (g_r b c) = g (f a b) (f a c).
 Class RightHeteroDistribute {A B} `{Equiv C} (f : A → B → C) (g_l : A → A → A) (g : C → C → C) : Prop
   := distribute_r: ∀ a b c, f (g_l a b) c = g (f a c) (f b c).
-Class LeftDistribute`{Equiv A} (f g: A → A → A) := simple_distribute_l :> LeftHeteroDistribute f g g.
-Class RightDistribute `{Equiv A} (f g: A → A → A) := simple_distribute_r :> RightHeteroDistribute f g g.
+Class LeftDistribute`{Equiv A} (f g: A → A → A) := simple_distribute_l :: LeftHeteroDistribute f g g.
+Class RightDistribute `{Equiv A} (f g: A → A → A) := simple_distribute_r :: RightHeteroDistribute f g g.
 
 Class HeteroSymmetric {A} {T : A → A → Type} (R : ∀ {x y}, T x y → T y x → Prop) : Prop :=
   hetero_symmetric `(a : T x y) (b : T y x) : R a b → R b a.

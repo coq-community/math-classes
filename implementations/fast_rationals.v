@@ -1,8 +1,9 @@
 Require
+  MathClasses.theory.rings
   MathClasses.theory.shiftl MathClasses.theory.int_pow.
 Require Import
   Coq.QArith.QArith Bignums.BigQ.BigQ
-  MathClasses.interfaces.abstract_algebra
+  MathClasses.interfaces.orders MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals
   MathClasses.interfaces.integers MathClasses.interfaces.rationals MathClasses.interfaces.additional_operations
   MathClasses.implementations.fast_naturals MathClasses.implementations.fast_integers MathClasses.implementations.field_of_fractions MathClasses.implementations.stdlib_rationals.
 Require Export

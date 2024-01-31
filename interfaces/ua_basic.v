@@ -106,5 +106,5 @@ Class Algebra
   (carriers: sorts σ → Type)
   {e: ∀ a, Equiv (carriers a)}
   `{AlgebraOps σ carriers}: Prop :=
-    { algebra_setoids:> ∀ a, Setoid (carriers a)
-    ; algebra_propers:> ∀ o: σ, Proper (=) (algebra_op o) }.
+    { algebra_setoids:: ∀ a, Setoid (carriers a)
+    ; algebra_propers:: ∀ o: σ, Proper (=) (algebra_op o) }.
