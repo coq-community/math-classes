@@ -23,7 +23,7 @@ Section contents.
       end.
 
     Class HomoMorphism: Prop :=
-      { homo_proper:> ∀ a, Setoid_Morphism (@f a)
+      { homo_proper:: ∀ a, Setoid_Morphism (@f a)
       ; preserves: ∀ (o: σ), Preservation (A_ops o) (B_ops o)
       ; homo_source_algebra: Algebra σ A
       ; homo_target_algebra: Algebra σ B }.

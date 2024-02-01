@@ -10,8 +10,8 @@ Follow the instructions on https://github.com/coq-community/templates to regener
 [![Zulip][zulip-shield]][zulip-link]
 [![DOI][doi-shield]][doi-link]
 
-[docker-action-shield]: https://github.com/coq-community/math-classes/workflows/Docker%20CI/badge.svg?branch=master
-[docker-action-link]: https://github.com/coq-community/math-classes/actions?query=workflow:"Docker%20CI"
+[docker-action-shield]: https://github.com/coq-community/math-classes/actions/workflows/docker-action.yml/badge.svg?branch=master
+[docker-action-link]: https://github.com/coq-community/math-classes/actions/workflows/docker-action.yml
 
 [contributing-shield]: https://img.shields.io/badge/contributions-welcome-%23f7931e.svg
 [contributing-link]: https://github.com/coq-community/manifesto/blob/master/CONTRIBUTING.md
@@ -50,7 +50,7 @@ notations.
 - Coq-community maintainer(s):
   - Bas Spitters ([**@spitters**](https://github.com/spitters))
 - License: [MIT License](LICENSE)
-- Compatible Coq versions: Coq 8.11 or later (use releases for other Coq versions)
+- Compatible Coq versions: Coq 8.18 or later (use releases for other Coq versions)
 - Additional dependencies:
   - [BigNums](https://github.com/coq/bignums)
 - Coq namespace: `MathClasses`

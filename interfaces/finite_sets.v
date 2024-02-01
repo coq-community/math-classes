@@ -42,9 +42,9 @@ Class FSetExtend A `{t : SetType A} :=
 Class FSet A `{At : SetType A} `{Ae : Equiv A} `{Ate : SetEquiv A}
    `{Aempty : EmptySet A} `{Ajoin : SetJoin A} `{Asingle : SetSingleton A}
    `{∀ a₁ a₂ : A, Decision (a₁ = a₂)} `{U : !FSetExtend A} :=
- { fset_bounded_sl :> BoundedJoinSemiLattice (set_type A)
-  ; singleton_mor :> Setoid_Morphism singleton
-  ; fset_extend_mor `{BoundedJoinSemiLattice B} `{!Setoid_Morphism (f : A → B)} :>
+ { fset_bounded_sl :: BoundedJoinSemiLattice (set_type A)
+  ; singleton_mor :: Setoid_Morphism singleton
+  ; fset_extend_mor `{BoundedJoinSemiLattice B} `{!Setoid_Morphism (f : A → B)} ::
       BoundedJoinSemiLattice_Morphism (fset_extend f)
   ; fset_extend_correct `{BoundedJoinSemiLattice B}  (f : A → B) `{!Setoid_Morphism f} :
       f = fset_extend f ∘ singleton
@@ -63,7 +63,7 @@ freely use orders.lattices.alt_Build_JoinSemiLatticeOrder.
 
 Class FSetContainsSpec A `{At : SetType A} `{Ae : Equiv A} `{Ate : SetEquiv A}
      `{SetLe A} `{SetContains A} `{Ajoin : SetJoin A} `{Asingle : SetSingleton A} :=
-  { fset_join_sl_order :> JoinSemiLatticeOrder (≤)
+  { fset_join_sl_order :: JoinSemiLatticeOrder (≤)
   ; fset_in_singleton_le : ∀ x X, x ∈ X ↔ {{ x }} ≤ X }.
 
 (*
@@ -71,7 +71,7 @@ Unfortunately, properties as meet and the differences cannot be uniquely
 defined in an algebraic way, therefore we just use set inclusion.
 *)
 Class FullFSet A {car Ae conAe conAle Acontains Aempty Ajoin Asingle U Adec} `{Adiff : SetDifference A} `{Ameet : SetMeet A} :=
-  { full_fset_fset :> @FSet A car Ae conAe Aempty Ajoin Asingle U Adec
-  ; full_fset_contains :> @FSetContainsSpec A car Ae conAe conAle Acontains Ajoin Asingle
+  { full_fset_fset :: @FSet A car Ae conAe Aempty Ajoin Asingle U Adec
+  ; full_fset_contains :: @FSetContainsSpec A car Ae conAe conAle Acontains Ajoin Asingle
   ; fset_in_meet : ∀ X Y x, x ∈ X ⊓ Y ↔ (x ∈ X ∧ x ∈ Y)
   ; fset_in_difference : ∀ X Y x, x ∈ X∖ Y ↔ (x ∈ X ∧ x ∉ Y) }.

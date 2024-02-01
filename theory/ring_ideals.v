@@ -8,8 +8,8 @@ Require Export
 (* Require ua_congruence varieties.rings. *)
 
 Class RingIdeal A (P : A → Prop) `{Ring A} : Prop :=
-  { ideal_proper :> Proper ((=) ==> iff) P
-  ; ideal_NonEmpty :> NonEmpty (sig P)
+  { ideal_proper :: Proper ((=) ==> iff) P
+  ; ideal_NonEmpty :: NonEmpty (sig P)
   ; ideal_closed_plus_negate : ∀ x y, P x → P y → P (x - y)
   ; ideal_closed_mult_r : ∀ x y, P x → P (x * y)
   ; ideal_closed_mult_l: ∀ x y, P y → P (x * y) }.

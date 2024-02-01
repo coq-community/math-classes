@@ -36,13 +36,13 @@ Class Module (R M : Type)
   {Me Mop Munit Mnegate}
   {sm : ScalarMult R M}
 :=
-  { lm_ring            :> @Ring R Re Rplus Rmult Rzero Rone Rnegate
-  ; lm_group           :> @AbGroup M Me Mop Munit Mnegate
-  ; lm_distr_l         :> LeftHeteroDistribute (·) (&) (&)
-  ; lm_distr_r         :> RightHeteroDistribute (·) (+) (&)
-  ; lm_assoc           :> HeteroAssociative (·) (·) (·) (.*.)
-  ; lm_identity        :> LeftIdentity (·) 1
-  ; scalar_mult_proper :> Proper ((=) ==> (=) ==> (=)) sm
+  { lm_ring            :: @Ring R Re Rplus Rmult Rzero Rone Rnegate
+  ; lm_group           :: @AbGroup M Me Mop Munit Mnegate
+  ; lm_distr_l         :: LeftHeteroDistribute (·) (&) (&)
+  ; lm_distr_r         :: RightHeteroDistribute (·) (+) (&)
+  ; lm_assoc           :: HeteroAssociative (·) (·) (·) (.*.)
+  ; lm_identity        :: LeftIdentity (·) 1
+  ; scalar_mult_proper :: Proper ((=) ==> (=) ==> (=)) sm
   }.
 
 (* TODO K is commutative, so derive right module laws? *)
@@ -54,9 +54,9 @@ Class Seminormed
  `{!Abs R} (n : Norm R M)
 :=
   (* We have a module *)
-  { snm_module      :> @Module R M Re Rplus Rmult Rzero Rone Rnegate
+  { snm_module      :: @Module R M Re Rplus Rmult Rzero Rone Rnegate
                                   Me Mop Munit Mnegate Smult
-  ; snm_order       :> @FullPseudoSemiRingOrder R Re Rapart Rplus Rmult Rzero Rone Rle Rlt
+  ; snm_order       :: @FullPseudoSemiRingOrder R Re Rapart Rplus Rmult Rzero Rone Rle Rlt
 
   (* With respect to which our norm preserves the following: *)
   ; snm_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
@@ -73,9 +73,9 @@ Class VectorSpace (K V : Type)
    {Ve Vop Vunit Vnegate}                     (* vector operations *)
    {sm : ScalarMult K V}
  :=
-   { vs_field         :> @DecField K Ke Kplus Kmult Kzero Kone Knegate Krecip
-   ; vs_abgroup       :> @AbGroup V Ve Vop Vunit Vnegate
-   ; vs_module        :> @Module K V Ke Kplus Kmult Kzero Kone Knegate
+   { vs_field         :: @DecField K Ke Kplus Kmult Kzero Kone Knegate Krecip
+   ; vs_abgroup       :: @AbGroup V Ve Vop Vunit Vnegate
+   ; vs_module        :: @Module K V Ke Kplus Kmult Kzero Kone Knegate
                                       Ve Vop Vunit Vnegate sm
    }.
 
@@ -87,14 +87,14 @@ Class InnerProductSpace (K V : Type)
    {Ve Vop Vunit Vnegate}                     (* vector operations *)
    {sm : ScalarMult K V} {inp: Inproduct K V} {Kle: Le K}
  :=
-   { in_vectorspace   :> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
+   { in_vectorspace   :: @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
                                       Krecip Ve Vop Vunit Vnegate sm
-   ; in_srorder       :> SemiRingOrder Kle
-   ; in_comm          :> Commutative inprod
+   ; in_srorder       :: SemiRingOrder Kle
+   ; in_comm          :: Commutative inprod
    ; in_linear_l      :  ∀ a u v, ⟨a·u,v⟩ = a*⟨u,v⟩
-   ; in_nonneg        :> ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
-   ; in_mon_unit_zero :> ∀ v, 0 = ⟨v,v⟩ <-> v = mon_unit
-   ; inprod_proper    :> Proper ((=) ==> (=) ==> (=)) (⟨⟩)
+   ; in_nonneg        :: ∀ v, PropHolds (0 ≤ ⟨v,v⟩) (* TODO Le to strong? *)
+   ; in_mon_unit_zero :: ∀ v, 0 = ⟨v,v⟩ <-> v = mon_unit
+   ; inprod_proper    :: Proper ((=) ==> (=) ==> (=)) (⟨⟩)
    }.
 
 (* TODO complex conjugate?
@@ -115,7 +115,7 @@ Class SemiNormedSpace (K V : Type)
    {Ve Vop Vunit Vnegate}                     (* vector operations *)
    {sm : ScalarMult K V}
  :=
-   { sn_vectorspace :> @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
+   { sn_vectorspace :: @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
                                     Krecip Ve Vop Vunit Vnegate sm
    ; sn_nonneg      :  ∀ v, 0 ≤ ∥v∥                     (* non-negativity *)
    ; sn_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)

@@ -44,15 +44,15 @@ Section practical.
    `{!InjectToSeq free} `{!ExtendToSeq free}.
 
   Class Sequence :=
-    { sequence_makes_monoids:> ∀ `{Setoid a}, Monoid (free a)
-    ; sequence_inject_morphism:> ∀ `{Setoid a}, Setoid_Morphism (inject a)
-    ; sequence_map_morphism:> ∀ `{Equiv x} `{Equiv y} (f: x → y),
+    { sequence_makes_monoids:: ∀ `{Setoid a}, Monoid (free a)
+    ; sequence_inject_morphism:: ∀ `{Setoid a}, Setoid_Morphism (inject a)
+    ; sequence_map_morphism:: ∀ `{Equiv x} `{Equiv y} (f: x → y),
         Setoid_Morphism f → Monoid_Morphism (raw_fmap _ _ f)
     ; sequence_fmap_proper: ∀ `{Equiv x} `{Equiv y} (f g: x → y), f = g → fmap free f = raw_fmap _ _ g
     ; sequence_fmap_id: ∀ `{Equiv x}, raw_fmap _ _ (@id x) = id
     ; sequence_fmap_comp: ∀ `{Equiv x} `{Equiv y} `{Equiv z} (f: y → z) (g: x → y),
         raw_fmap _ _ (f ∘ g) = raw_fmap _ _ f ∘ raw_fmap _ _ g
-    ; sequence_extend_makes_morphisms:> ∀ `{Equiv x} `{Monoid y} (f: x → y),
+    ; sequence_extend_makes_morphisms:: ∀ `{Equiv x} `{Monoid y} (f: x → y),
         Setoid_Morphism f → Monoid_Morphism (extend f)
     ; sequence_inject_natural: ∀ `{Setoid A} `{Setoid B} (f: A → B), Setoid_Morphism f →
         inject B ∘ f = raw_fmap _ _ f ∘ inject A

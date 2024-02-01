@@ -21,10 +21,10 @@ Notation "x ← y ; z" := (y ≫= (λ x : _, z)) (at level 65, (*next at level 3
 
 Class Monad (M : Type → Type) `{∀ A, Equiv A → Equiv (M A)} 
      `{MonadReturn M} `{MonadBind M} : Prop :=
-  { mon_ret_proper `{Setoid A} :> Proper ((=) ==> (=)) (@ret _ _ A)
-  ; mon_bind_proper `{Setoid A} `{Setoid B} :>
+  { mon_ret_proper `{Setoid A} :: Proper ((=) ==> (=)) (@ret _ _ A)
+  ; mon_bind_proper `{Setoid A} `{Setoid B} ::
       Proper (((=) ==> (=)) ==> (=) ==> (=)) (@bind _ _ A B)
-  ; mon_setoid `{Setoid A} :> Setoid (M A)
+  ; mon_setoid `{Setoid A} :: Setoid (M A)
   ; bind_lunit `{Equiv A} `{Setoid B} `{!Setoid_Morphism (f : A → M B)} : bind f ∘ ret = f
   ; bind_runit `{Setoid A} : bind ret = id
   ; bind_assoc `{Equiv A} `{Equiv B} `{Setoid C} 
@@ -33,9 +33,9 @@ Class Monad (M : Type → Type) `{∀ A, Equiv A → Equiv (M A)}
 
 Class StrongMonad (M : Type → Type) `{∀ A, Equiv A → Equiv (M A)}
      `{MonadReturn M} `{SFmap M} `{MonadJoin M} : Prop :=
-  { smon_ret_proper `{Setoid A} :> Proper ((=) ==> (=)) (@ret _ _ A)
-  ; smon_join_proper `{Setoid A} :> Proper ((=) ==> (=)) (@join _ _ A)
-  ; smon_sfunctor :> SFunctor M  
+  { smon_ret_proper `{Setoid A} :: Proper ((=) ==> (=)) (@ret _ _ A)
+  ; smon_join_proper `{Setoid A} :: Proper ((=) ==> (=)) (@join _ _ A)
+  ; smon_sfunctor :: SFunctor M
   ; sfmap_ret `{Equiv A} `{Equiv B} `{!Setoid_Morphism (f : A → B)} :
       sfmap f ∘ ret = ret ∘ f
   ; sfmap_join `{Equiv A} `{Equiv B} `{!Setoid_Morphism (f : A → B)} : 
@@ -49,7 +49,7 @@ Class StrongMonad (M : Type → Type) `{∀ A, Equiv A → Equiv (M A)}
 
 Class FullMonad (M : Type → Type) `{∀ A, Equiv A → Equiv (M A)} 
      `{MonadReturn M} `{MonadBind M} `{SFmap M} `{MonadJoin M} : Prop := 
-  { full_mon_mon :> Monad M
-  ; full_smon :> StrongMonad M
+  { full_mon_mon :: Monad M
+  ; full_smon :: StrongMonad M
   ; bind_as_join_sfmap `{Equiv A} `{Setoid B} `{!Setoid_Morphism (f : A → M B)} :
       bind f = join ∘ sfmap f }.

@@ -1,6 +1,6 @@
 Require Import
   Coq.Classes.Morphisms Coq.Classes.RelationClasses Coq.Relations.Relation_Definitions Coq.Lists.List
-  MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.interfaces.canonical_names MathClasses.theory.ua_subalgebraT MathClasses.misc.util.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.interfaces.canonical_names MathClasses.theory.ua_subalgebraT MathClasses.misc.util.
 Require MathClasses.theory.ua_products.
 
 Require MathClasses.theory.categories.
@@ -121,8 +121,8 @@ Section contents.
   (* This justifies the following definition of a congruence: *)
 
   Class Congruence: Prop :=
-    { congruence_proper:> ∀ s: sorts σ, Proper ((=) ==> (=) ==> iff) (e s)
-    ; congruence_quotient:> Algebra σ v (e:=e) }.
+    { congruence_proper:: ∀ s: sorts σ, Proper ((=) ==> (=) ==> iff) (e s)
+    ; congruence_quotient:: Algebra σ v (e:=e) }.
 
 End contents.
 

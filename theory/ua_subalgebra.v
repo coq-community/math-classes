@@ -25,7 +25,7 @@ Section subalgebras.
   Qed.
 
   Class ClosedSubset: Prop :=
-    { subset_proper:> ∀ s, Proper ((=) ==> iff) (P s)
+    { subset_proper:: ∀ s, Proper ((=) ==> iff) (P s)
     ; subset_closed: ∀ o, op_closed (algebra_op o) }.
 
   (* Now suppose P is closed in this way. *)
