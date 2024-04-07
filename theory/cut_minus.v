@@ -12,7 +12,8 @@ Section cut_minus_properties.
   Local Existing Instance pseudo_srorder_semiring.
 
   Add Ring SR: (rings.stdlib_semiring_theory R).
-  Hint Resolve (@orders.le_flip R _ _).
+  Let local_le_flip := @orders.le_flip R _ _.
+  Hint Resolve local_le_flip.
 
   Global Instance cut_minus_proper: Proper ((=) ==> (=) ==> (=)) cut_minus | 1.
   Proof.
@@ -30,8 +31,10 @@ Section cut_minus_properties.
   Global Instance cut_minus_mor_2: ∀ x : R, Setoid_Morphism (∸ x) | 0.
   Proof. split; try apply _. solve_proper. Qed.
 
-  Hint Resolve (cut_minus_0).
-  Hint Resolve (cut_minus_le).
+  Let local_cut_minus_0 := (cut_minus_0).
+  Let local_cut_minus_le := (cut_minus_le).
+  Hint Resolve local_cut_minus_0.
+  Hint Resolve local_cut_minus_le.
 
   Lemma cut_minus_diag x : x ∸ x = 0.
   Proof. now apply cut_minus_0. Qed.
