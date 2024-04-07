@@ -20,8 +20,12 @@ Section ideal_congruence.
   Context `{ideal : RingIdeal A P}.
   Add Ring A2 : (rings.stdlib_ring_theory A).
 
+  Let local_ideal_closed_plus_negate := (ideal_closed_plus_negate).
+  Let local_ideal_closed_mult_l := (ideal_closed_mult_l).
+  Let local_ideal_closed_mult_r := (ideal_closed_mult_r).
+
   (* If P is an ideal, we can easily derive some further closedness properties: *)
-  Hint Resolve (ideal_closed_plus_negate) (ideal_closed_mult_l) (ideal_closed_mult_r).
+  Hint Resolve local_ideal_closed_plus_negate local_ideal_closed_mult_l local_ideal_closed_mult_r.
 
   Lemma ideal_closed_0 : P 0.
   Proof. destruct ideal_NonEmpty as [[x Px]]. rewrite <-(plus_negate_r x). intuition. Qed.
