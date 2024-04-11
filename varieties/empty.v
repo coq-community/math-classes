@@ -11,7 +11,7 @@ Definition Laws (_: EqEntailment sig): Prop := False.
 
 Definition theory: EquationalTheory := Build_EquationalTheory sig Laws.
 
-Let carriers := False_rect _: sorts sig → Type.
+#[local] Definition carriers := False_rect _: sorts sig → Type.
 
 #[global]
 Instance: `{Equiv (carriers a)}.
