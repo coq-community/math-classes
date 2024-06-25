@@ -10,6 +10,7 @@ Require Import
 Section int_pow_properties.
 Context `{DecField A} `{∀ x y, Decision (x = y)} `{Integers B} `{!IntPowSpec A B ipw}.
 
+Add Ring A : (F_R (dec_fields.stdlib_field_theory A)).
 Add Field A : (dec_fields.stdlib_field_theory A).
 Add Ring B : (rings.stdlib_ring_theory B).
 
