@@ -1,5 +1,5 @@
+From Coq Require Import RelationClasses Morphisms Program.
 Require Import
-  Coq.Classes.RelationClasses Coq.Classes.Morphisms Coq.Program.Program
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.interfaces.canonical_names MathClasses.theory.ua_subalgebra.
 
 (* In theory/ua_subalgebra.v we defined closed proper subsets and showed that

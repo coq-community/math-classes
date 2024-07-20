@@ -1,6 +1,8 @@
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.implementations.peano_naturals MathClasses.theory.rings
-  Coq.Arith.PeanoNat
+  MathClasses.interfaces.abstract_algebra MathClasses.implementations.peano_naturals MathClasses.theory.rings.
+From Coq Require Import PeanoNat.
+Require Import
   MathClasses.categories.varieties MathClasses.theory.ua_transference.
 Require Export
   MathClasses.interfaces.naturals.

@@ -1,5 +1,6 @@
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers
   MathClasses.theory.integers MathClasses.theory.ring_ideals.
 
 Definition is_multiple `{Equiv Z} `{Mult Z} (b x : Z) := ∃ k, x = b * k.

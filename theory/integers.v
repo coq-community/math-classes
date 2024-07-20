@@ -1,8 +1,9 @@
 (* General results about arbitrary integer implementations. *)
 Require
  MathClasses.theory.nat_distance.
+From Coq Require Import Ring.
 Require Import
- Coq.setoid_ring.Ring MathClasses.interfaces.naturals MathClasses.interfaces.abstract_algebra MathClasses.implementations.natpair_integers.
+ MathClasses.interfaces.naturals MathClasses.interfaces.abstract_algebra MathClasses.implementations.natpair_integers.
 Require Export
  MathClasses.interfaces.integers.
 

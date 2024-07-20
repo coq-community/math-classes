@@ -1,7 +1,7 @@
 Require
   MathClasses.theory.naturals MathClasses.orders.semirings MathClasses.orders.integers MathClasses.orders.dec_fields.
+From Coq Require Import Ring Field.
 Require Import
-  Coq.setoid_ring.Ring Coq.setoid_ring.Field
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.integers
   MathClasses.interfaces.additional_operations MathClasses.interfaces.orders
   MathClasses.theory.nat_pow MathClasses.theory.int_abs MathClasses.theory.dec_fields.

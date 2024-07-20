@@ -1,7 +1,8 @@
 Require
   MathClasses.orders.naturals MathClasses.implementations.peano_naturals.
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders MathClasses.interfaces.additional_operations.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders MathClasses.interfaces.additional_operations.
 
 Section contents.
 Context `{Naturals N}.

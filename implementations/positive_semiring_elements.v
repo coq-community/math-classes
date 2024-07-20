@@ -1,5 +1,5 @@
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.additional_operations
   MathClasses.interfaces.orders MathClasses.interfaces.integers
   MathClasses.orders.semirings MathClasses.theory.shiftl MathClasses.theory.int_pow.

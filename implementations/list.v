@@ -1,5 +1,6 @@
+From Coq Require Import List SetoidList.
 Require Import
-  Coq.Lists.List Coq.Lists.SetoidList MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.monads.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.monads.
 Import ListNotations.
 
 (* The below belongs in the stdlib *)

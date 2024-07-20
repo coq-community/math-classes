@@ -1,8 +1,9 @@
 Require
-  MathClasses.implementations.stdlib_binary_integers Coq.setoid_ring.Field Coq.QArith.Qfield MathClasses.theory.rationals.
+  MathClasses.implementations.stdlib_binary_integers.
+From Coq Require Import Field Qfield.
+Require Import MathClasses.theory.rationals.
+From Coq Require Import ZArith Ring QArith_base Qabs Qpower.
 Require Import
-  Coq.ZArith.ZArith
-  Coq.setoid_ring.Ring Coq.QArith.QArith_base Coq.QArith.Qabs Coq.QArith.Qpower
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.rationals
   MathClasses.interfaces.orders MathClasses.interfaces.additional_operations
   MathClasses.implementations.field_of_fractions MathClasses.orders.integers.

@@ -1,5 +1,6 @@
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.theory.rings.
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.rings.
 
 Class RingCongruence A (R : relation A) `{Ring A} :=
   { ring_congr_equivalence : Equivalence R

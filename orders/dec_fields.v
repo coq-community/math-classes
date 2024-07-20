@@ -1,5 +1,5 @@
+From Coq Require Import Relation_Definitions Ring.
 Require Import
-  Coq.Relations.Relation_Definitions Coq.setoid_ring.Ring
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.theory.rings MathClasses.theory.dec_fields.
 Require Export
   MathClasses.orders.rings.
