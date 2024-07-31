@@ -1,6 +1,6 @@
 Require
   MathClasses.theory.setoids.
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.Classes.Morphisms MathClasses.interfaces.abstract_algebra.
 
 Section semigroup_props.
@@ -22,7 +22,7 @@ Ltac group_simplify :=
     (try bottomup (hints group_simplify));
     (try bottomup (choice (hints group_cancellation) ( <- associativity ))).
 
-Ltac group := group_simplify; easy.
+Ltac group := group_simplify; done.
 
 Set Warnings "-unsupported-attributes". (* FIXME: remove when minimal Coq version is enough *)
 

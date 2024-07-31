@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.orders MathClasses.theory.setoids MathClasses.theory.strong_setoids.
 
 Local Existing Instance order_morphism_po_a.
@@ -247,11 +247,11 @@ Proof. pose proof po_setoid. repeat (split; try apply _). Qed.
 
 #[global]
 Instance id_order_preserving `{PartialOrder A} : OrderPreserving (@id A).
-Proof. split; try apply _. easy. Qed.
+Proof. split; try apply _. done. Qed.
 
 #[global]
 Instance id_order_reflecting `{PartialOrder A} : OrderReflecting (@id A).
-Proof. split; try apply _. easy. Qed.
+Proof. split; try apply _. done. Qed.
 
 Section composition.
   Context `{Equiv A} `{Equiv B} `{Equiv C}
@@ -297,7 +297,7 @@ Section propers.
   Proof.
     assert (∀ (f g : A → B), g = f → Order_Morphism f → Order_Morphism g) as P.
      intros f g E [[? ? ?] ?].
-     split; auto. apply morphism_proper with f. easy. split; easy.
+     split; auto. apply morphism_proper with f. done. split; done.
     firstorder.
   Qed.
 
@@ -329,7 +329,7 @@ Section propers.
       eapply order_preserving_proper; eauto. now apply _.
      eapply order_reflecting_proper; eauto. now apply _.
     intros f g ?; split; intro E.
-     apply P with f. destruct E as [[[[? ?]]]]. now symmetry. easy.
+     apply P with f. destruct E as [[[[? ?]]]]. now symmetry. done.
     now apply P with g.
   Qed.
 End propers.

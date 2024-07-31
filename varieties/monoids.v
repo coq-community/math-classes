@@ -1,5 +1,5 @@
 (* To be imported qualified. *)
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.misc.workaround_tactics
   MathClasses.categories.categories.
 Require
@@ -122,7 +122,7 @@ Qed.
 
 #[global]
 Instance id_monoid_morphism `{Monoid A}: Monoid_Morphism (@id A).
-Proof. repeat (split; try apply _); easy. Qed.
+Proof. repeat (split; try apply _); done. Qed.
 
 (* Finally, we use these encoding/decoding functions to specialize some universal results: *)
 Section specialized.

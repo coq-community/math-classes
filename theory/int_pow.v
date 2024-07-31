@@ -1,6 +1,6 @@
 Require
   MathClasses.theory.naturals MathClasses.orders.semirings MathClasses.orders.integers MathClasses.orders.dec_fields.
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.setoid_ring.Ring Coq.setoid_ring.Field
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.integers
   MathClasses.interfaces.additional_operations MathClasses.interfaces.orders
@@ -132,7 +132,7 @@ Proof.
     solve_proper.
    now apply int_pow_0.
   intros n. rewrite int_pow_S, left_identity.
-   easy.
+   done.
   now apply (rings.is_ne_0 1).
 Qed.
 
@@ -173,7 +173,7 @@ Proof.
     now rewrite left_absorb.
    destruct (decide (m = 0)) as [Em|Em].
     now rewrite Em, right_absorb, 2!int_pow_0.
-   rewrite 3!int_pow_base_0; try easy.
+   rewrite 3!int_pow_base_0; try done.
    intros E. now destruct (zero_product n m E).
   revert m. apply biinduction.
     solve_proper.
@@ -188,7 +188,7 @@ Proof.
     apply (rings.left_cancellation_ne_0 (.*.) (x ^ n)).
      now apply int_pow_ne_0.
     now rewrite E.
-   easy.
+   done.
   now apply int_pow_ne_0.
 Qed.
 
@@ -263,7 +263,7 @@ Instance int_pow_exp_le:
   ∀ x : A, PropHolds (1 ≤ x) → OrderPreserving (x^).
 Proof.
   repeat (split; try apply _).
-  assert (0 < x) by (apply orders.lt_le_trans with 1; [solve_propholds | easy]).
+  assert (0 < x) by (apply orders.lt_le_trans with 1; [solve_propholds | done]).
   intros n m E.
   destruct (semirings.decompose_le E) as [z [Ea Eb]].
   rewrite Eb.
@@ -277,7 +277,7 @@ Instance int_pow_exp_lt:
   ∀ x : A, PropHolds (1 < x) → StrictlyOrderPreserving (x^).
 Proof.
   repeat (split; try apply _).
-  assert (0 < x) by (apply orders.le_lt_trans with 1; [solve_propholds | easy]).
+  assert (0 < x) by (apply orders.le_lt_trans with 1; [solve_propholds | done]).
   intros n m E.
   apply nat_int.lt_iff_plus_1_le in E.
   destruct (semirings.decompose_le E) as [z [Ea Eb]].
@@ -363,7 +363,7 @@ Section exp_preservation.
      rewrite Ex.
      destruct (decide (n = 0)) as [En|En].
       now rewrite En, rings.preserves_0, 2!int_pow_0.
-     rewrite 2!int_pow_base_0; try easy.
+     rewrite 2!int_pow_base_0; try done.
      now apply rings.injective_ne_0.
     revert n. apply biinduction.
       solve_proper.

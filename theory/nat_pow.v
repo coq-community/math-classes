@@ -1,6 +1,6 @@
 Require
   MathClasses.theory.naturals.
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders MathClasses.interfaces.additional_operations.
 
 (* * Properties of Nat Pow *)
@@ -195,12 +195,12 @@ Section nat_pow_default.
   Instance: Proper ((=) ==> (=) ==> (=)) nat_pow_peano.
   Proof.
     intros ? ? E a ? [].
-    induction a; try easy.
+    induction a; try done.
     simpl. now rewrite IHa, E.
   Qed.
 
   Global Instance: NatPowSpec A nat nat_pow_peano.
-  Proof. split; try apply _; easy. Qed.
+  Proof. split; try apply _; done. Qed.
 
   Context `{Naturals B}.
 

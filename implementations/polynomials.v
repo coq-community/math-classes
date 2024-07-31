@@ -1,4 +1,5 @@
-Require Import
+Require Import 
+  MathClasses.misc.stdpp_tactics
   Coq.Lists.List
   MathClasses.interfaces.abstract_algebra
   MathClasses.interfaces.vectorspace
@@ -63,7 +64,7 @@ Section contents.
 
   Lemma poly_eq_cons :
     ∀ (a b : R) (p q : poly), (a = b /\ poly_eq p q) <-> poly_eq (a :: p) (b :: q).
-  Proof. easy. Qed.
+  Proof. done. Qed.
 
   Lemma poly_eq_ind (P: poly → poly → Prop)
         (case_0: ∀ p p', poly_eq_zero p → poly_eq_zero p' → P p p')
@@ -134,7 +135,7 @@ Section contents.
   Proof.
     intro eqp; revert q.
     induction eqp as [|x p eqx eqp IH] using poly_eq_zero_ind.
-    { easy. }
+    { done. }
     intros [|y q].
     { cbn -[poly_eq_zero].
       rewrite poly_eq_zero_cons; auto. }
@@ -143,7 +144,7 @@ Section contents.
   Qed.
 
   Instance plus_commutative: Commutative (+).
-  Proof with (try easy); cbn.
+  Proof with (try done); cbn.
     intro.
     induction x as [|x p IH]; intros [|y q]...
     split; auto; ring.
@@ -179,7 +180,7 @@ Section contents.
   Qed.
 
   Instance plus_associative: Associative (+).
-  Proof with try easy.
+  Proof with try done.
     do 2 red; induction x as [|x p IH]...
     intros [|y q]...
     intros [|z r]...
@@ -200,7 +201,7 @@ Section contents.
   Lemma poly_negate_zero p: poly_eq_zero p ↔ poly_eq_zero (-p).
   Proof.
     induction p as [|x p IH].
-    { easy. }
+    { done. }
     cbn.
     rewrite !poly_eq_zero_cons, IH.
     enough (x = 0 ↔ -x = 0) by tauto.
@@ -219,7 +220,7 @@ Section contents.
   Proof.
     intro; rewrite poly_eq_p_zero.
     induction x as [|x p IH]; cbn.
-    { easy. }
+    { done. }
     rewrite poly_eq_zero_cons; split; auto.
     ring.
   Qed.
@@ -239,7 +240,7 @@ Section contents.
   Lemma poly_scalar_mult_0_r q c: poly_eq_zero q → poly_eq_zero (c · q).
   Proof.
     induction q as [|x q IH].
-    { easy. }
+    { done. }
     cbn.
     rewrite !poly_eq_zero_cons.
     intros [-> ?]; split; auto.
@@ -257,36 +258,36 @@ Section contents.
   Qed.
 
   Lemma poly_scalar_mult_1_r x: x · 1 = [x].
-  Proof. cbn; split; [ring|easy]. Qed.
+  Proof. cbn; split; [ring|done]. Qed.
   Instance poly_scalar_mult_1_l: LeftIdentity (·) 1.
   Proof.
-    red; induction y as [|y p IH]; [easy|cbn].
+    red; induction y as [|y p IH]; [done|cbn].
     split; auto; ring.
   Qed.
 
   Instance poly_scalar_mult_dist_l: LeftHeteroDistribute (·) (+) (+).
   Proof.
     intros a p.
-    induction p as [|x p IH]; intros [|y q]; [easy..|cbn].
+    induction p as [|x p IH]; intros [|y q]; [done..|cbn].
     split; auto; ring.
   Qed.
   Instance poly_scalar_mult_dist_r: RightHeteroDistribute (·) (+) (+).
   Proof.
     intros a b x.
-    induction x as [|x p IH]; [easy|cbn].
+    induction x as [|x p IH]; [done|cbn].
     split; auto; ring.
   Qed.
   Instance poly_scalar_mult_assoc: HeteroAssociative (·) (·) (·) (.*.).
   Proof.
     intros a b x.
-    induction x as [|p x IH]; [easy|cbn].
+    induction x as [|p x IH]; [done|cbn].
     split; auto; ring.
   Qed.
 
   Lemma poly_scalar_mult_0_l q c: c = 0 → poly_eq_zero (c · q).
   Proof.
     intros ->.
-    induction q as [|x q IH]; [easy|cbn].
+    induction q as [|x q IH]; [done|cbn].
     rewrite poly_eq_zero_cons; split; auto.
     ring.
   Qed.
@@ -299,7 +300,7 @@ Section contents.
 
   Lemma poly_mult_0_l p q: poly_eq_zero p → poly_eq_zero (p * q).
   Proof.
-    induction 1 using poly_eq_zero_ind; [easy|cbn].
+    induction 1 using poly_eq_zero_ind; [done|cbn].
     apply poly_eq_zero_plus.
     - now apply poly_scalar_mult_0_l.
     - rewrite poly_eq_zero_cons; auto.
@@ -307,7 +308,7 @@ Section contents.
 
   Lemma poly_mult_0_r p q: poly_eq_zero q → poly_eq_zero (p * q).
   Proof.
-    induction p as [|x p IH]; [easy|cbn].
+    induction p as [|x p IH]; [done|cbn].
     intro eq0.
     apply poly_eq_zero_plus.
     - now apply poly_scalar_mult_0_r.
@@ -330,12 +331,12 @@ Section contents.
   Instance poly_mult_left_distr: LeftDistribute (.*.) (+).
   Proof.
     intros p q r.
-    induction p as [|x p IH]; [easy|cbn].
+    induction p as [|x p IH]; [done|cbn].
     rewrite (distribute_l x q r ).
-    rewrite <- !associativity; apply poly_plus_proper; [easy|].
+    rewrite <- !associativity; apply poly_plus_proper; [done|].
     rewrite associativity, (commutativity (0::p*q)), <- associativity.
-    apply poly_plus_proper; [easy|].
-    cbn; split; [ring|easy].
+    apply poly_plus_proper; [done|].
+    cbn; split; [ring|done].
   Qed.
 
   Lemma poly_mult_cons_r p q x: p * (x::q) = x · p + (0 :: p * q).
@@ -343,7 +344,7 @@ Section contents.
     induction p as [|y p IH]; cbn; auto.
     split; auto.
     rewrite IH, !associativity, (commutativity (y · q)).
-    split; try easy.
+    split; try done.
     ring.
   Qed.
 
@@ -383,7 +384,7 @@ Section contents.
   Qed.
 
   Instance poly_mult_assoc: Associative (.*.).
-  Proof with (try easy); cbn.
+  Proof with (try done); cbn.
     intros x.
     induction x as [|x p IH]...
     intros q r; cbn.

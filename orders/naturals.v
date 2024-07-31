@@ -1,6 +1,6 @@
 Require
   MathClasses.theory.naturals.
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders MathClasses.orders.rings.
 Require Export
   MathClasses.orders.nat_int.
@@ -16,7 +16,7 @@ Proof.
   split; intros E.
    destruct (decompose_le E) as [z [Ez1 Ez2]]. now exists z.
   destruct E as [z Ez].
-  apply compose_le with z; [solve_propholds | easy].
+  apply compose_le with z; [solve_propholds | done].
 Qed.
 
 Lemma nat_not_neg x : ¬x < 0.

@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.implementations.peano_naturals MathClasses.theory.rings
   Coq.Arith.PeanoNat
   MathClasses.categories.varieties MathClasses.theory.ua_transference.
@@ -139,7 +139,7 @@ Section borrowed_from_nat.
   Proof.
     intros z E x y.
     rapply (from_nat_stmt ((z' === 0 -=> Ext _ False) -=> z' * x' === z' * y' -=> x' === y') (three_vars x y z)).
-    intro. simpl. intros. now apply (left_cancellation_ne_0 (.*.) (v () 2)). easy.
+    intro. simpl. intros. now apply (left_cancellation_ne_0 (.*.) (v () 2)). done.
   Qed.
 
   Global Instance: ∀ z : N, PropHolds (z ≠ 0) → RightCancellation (.*.) z.

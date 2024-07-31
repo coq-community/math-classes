@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.Relations.Relation_Definitions Coq.setoid_ring.Ring
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.theory.rings MathClasses.theory.dec_fields.
 Require Export
@@ -22,7 +22,7 @@ Proof.
   destruct (decide (x = 0)) as [E2 | E2].
    now rewrite E2, dec_recip_0.
   apply lt_le. apply pos_dec_recip_compat.
-  apply lt_iff_le_ne. split. easy. now apply not_symmetry.
+  apply lt_iff_le_ne. split. done. now apply not_symmetry.
 Qed.
 
 Lemma neg_dec_recip_compat x : x < 0 → /x < 0.

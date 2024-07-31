@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.setoid_ring.Ring MathClasses.interfaces.naturals MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders
   MathClasses.orders.nat_int MathClasses.theory.integers MathClasses.theory.rings MathClasses.orders.rings.
 
@@ -120,7 +120,7 @@ Proof.
   apply (injective f). rewrite preserves_mult.
   destruct (int_abs_spec x) as [[? Ex]|[? Ex]],
      (int_abs_spec y) as [[? Ey]|[? Ey]]; rewrite Ex, Ey.
-     rewrite int_abs_nonneg. easy. now apply nonneg_mult_compat.
+     rewrite int_abs_nonneg. done. now apply nonneg_mult_compat.
     rewrite int_abs_nonpos. ring. now apply nonneg_nonpos_mult.
    rewrite int_abs_nonpos. ring. now apply nonpos_nonneg_mult.
   rewrite int_abs_nonneg. ring. now apply nonpos_mult.

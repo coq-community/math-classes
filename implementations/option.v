@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.jections MathClasses.theory.monads MathClasses.misc.stdpp_tactics.
 
 Inductive option_equiv A `{Equiv A} : Equiv (option A) :=

@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.rings.
 
 Section contents.
@@ -31,7 +31,7 @@ Lemma abs_nonneg_plus (x y : R) :
   0 ≤ x → 0 ≤ y → abs (x + y) = abs x + abs y.
 Proof.
   intros Ex Ey.
-  rewrite ?abs_nonneg; try easy.
+  rewrite ?abs_nonneg; try done.
   now apply nonneg_plus_compat.
 Qed.
 
@@ -99,7 +99,7 @@ Section order_preserving.
   Lemma preserves_abs x : f (abs x) = abs (f x).
   Proof.
     destruct (total (≤) 0 x).
-     rewrite ?abs_nonneg; try easy.
+     rewrite ?abs_nonneg; try done.
      now apply semirings.preserves_nonneg.
     rewrite ?abs_nonpos; try easy.
      apply rings.preserves_negate.

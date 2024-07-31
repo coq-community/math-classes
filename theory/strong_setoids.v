@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   MathClasses.interfaces.abstract_algebra MathClasses.theory.jections.
 
 Section contents.
@@ -169,7 +169,7 @@ Section dec_setoid.
 
   (* Not Global in order to avoid loops *)
   Instance ne_apart x y : PropHolds (x ≠ y) → PropHolds (x ≶ y).
-  Proof. rewrite trivial_apart. easy. Qed.
+  Proof. rewrite trivial_apart. done. Qed.
 
   Instance dec_strong_setoid: StrongSetoid A.
   Proof.
