@@ -1,5 +1,5 @@
 Require Import
-  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.jections MathClasses.theory.monads.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.jections MathClasses.theory.monads MathClasses.misc.stdpp_tactics.
 
 Inductive option_equiv A `{Equiv A} : Equiv (option A) :=
   | option_equiv_Some : Proper ((=) ==> (=)) Some
@@ -27,7 +27,7 @@ Section contents.
     intros x y z E. revert z. induction E.
      intros z E2. inversion_clear E2.
      apply option_equiv_Some. etransitivity; eassumption.
-    easy.
+    done.
   Qed.
 
   Global Instance: Setoid_Morphism Some.
@@ -59,7 +59,7 @@ Section contents.
        now apply E1.
       symmetry. now apply E1.
      now apply E1.
-    easy.
+    done.
   Qed.
 
   Global Program Instance option_dec `(A_dec : ∀ x y : A, Decision (x = y))
@@ -111,7 +111,7 @@ Instance option_bind_proper `{Setoid A} `{Setoid (option B)}: Proper (=) (option
 Proof.
   intros f₁ f₂ E1 x₁ x₂ [?|].
    unfold option_bind. simpl. now apply E1.
-  easy.
+  done.
 Qed.
 
 #[global]
@@ -122,8 +122,8 @@ Proof.
    now intros ? ? ? [?|].
   intros A ? B ? C ? ? f [???] g [???] [x|] [y|] E; try solve [inversion_clear E].
    setoid_inject. cut (g x = g y); [|now rewrite E].
-   case (g x), (g y); intros E2; inversion_clear E2. now f_equiv. easy.
-  easy.
+   case (g x), (g y); intros E2; inversion_clear E2. now f_equiv. done.
+  done.
 Qed.
 
 #[global]
@@ -140,7 +140,7 @@ Section map.
   Proof.
     pose proof (injective_mor f).
     repeat (split; try apply _).
-    intros [x|] [y|] E; try solve [inversion E | easy].
+    intros [x|] [y|] E; try solve [inversion E | done].
     apply sm_proper. apply (injective f). now apply (injective Some).
   Qed.
 End map.
