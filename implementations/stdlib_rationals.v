@@ -1,5 +1,5 @@
 Require
-  MathClasses.implementations.stdlib_binary_integers Coq.setoid_ring.Field Coq.QArith.Qfield MathClasses.theory.rationals.
+  MathClasses.implementations.stdlib_binary_integers Coq.setoid_ring.Field Coq.QArith.Qfield MathClasses.theory.rationals .
 Require Import
   Coq.ZArith.ZArith
   Coq.setoid_ring.Ring Coq.QArith.QArith_base Coq.QArith.Qabs Coq.QArith.Qpower
