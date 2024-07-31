@@ -1,9 +1,7 @@
+Require Import MathClasses.misc.util.
 From Coq Require Export RelationClasses Relation_Definitions Lia.
 
 Module FastDoneTactic.
-
-Lemma not_symmetry {A} `{R : relation A, !Symmetric R} x y : ~ R x y -> ~ R y x.
-Proof. intuition. Qed.
 
 Ltac fast_done :=
   solve
