@@ -49,6 +49,7 @@ notations.
   - Robbert Krebbers (initial)
 - Coq-community maintainer(s):
   - Bas Spitters ([**@spitters**](https://github.com/spitters))
+  - Xia Li-yao ([**@Lysxia**](https://github.com/Lysxia))
 - License: [MIT License](LICENSE)
 - Compatible Coq versions: Coq 8.18 or later (use releases for other Coq versions)
 - Additional dependencies:
