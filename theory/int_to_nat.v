@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.setoid_ring.Ring MathClasses.interfaces.naturals MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders
   MathClasses.orders.nat_int MathClasses.theory.integers MathClasses.theory.rings MathClasses.orders.rings.
 
@@ -100,9 +100,9 @@ Lemma int_to_nat_mult_nonneg_l x y :
   0 ≤ x → int_to_nat Z N (x * y) = int_to_nat Z N x * int_to_nat Z N y.
 Proof.
   intros E. apply (injective f). rewrite preserves_mult. 
-  rewrite (int_to_nat_of_nonneg x) by easy.
+  rewrite (int_to_nat_of_nonneg x) by done.
   destruct (int_to_nat_spec y) as [[? Ey]|[? Ey]]; rewrite Ey, ?preserves_0.
-   rewrite int_to_nat_of_nonneg. easy. now apply nonneg_mult_compat.
+   rewrite int_to_nat_of_nonneg. done. now apply nonneg_mult_compat.
   rewrite int_to_nat_of_nonpos, preserves_0. ring. now apply nonneg_nonpos_mult.
 Qed.
 
@@ -160,13 +160,13 @@ Proof.
   repeat (split; try apply _). intros x y E.
   destruct (total (≤) 0 x).
    now apply int_to_nat_le_cancel_r, int_to_nat_le_l.
-  rewrite int_to_nat_of_nonpos. solve_propholds. easy.
+  rewrite int_to_nat_of_nonpos. solve_propholds. done.
 Qed.
 
 Lemma int_to_nat_le_back x y :
   0 ≤ y → int_to_nat Z N x ≤ int_to_nat Z N y → x ≤ y.
 Proof.
-  intros. rewrite <-(int_to_nat_of_nonneg y) by easy.
+  intros. rewrite <-(int_to_nat_of_nonneg y) by done.
   transitivity (f (int_to_nat Z N x)).
    now apply int_to_nat_le_r.
   now apply (order_preserving f).
@@ -197,13 +197,13 @@ Lemma int_to_nat_lt x y :
 Proof.
   intros Ey Exy. destruct (total (≤) 0 x).
    now apply int_to_nat_lt_cancel_r, int_to_nat_lt_l.
-  rewrite int_to_nat_of_nonpos by easy. now apply int_to_nat_pos.
+  rewrite int_to_nat_of_nonpos by done. now apply int_to_nat_pos.
 Qed.
 
 Lemma int_to_nat_lt_back x y :
   0 ≤ y → int_to_nat Z N x < int_to_nat Z N y → x < y.
 Proof.
-  intros. rewrite <-(int_to_nat_of_nonneg y) by easy.
+  intros. rewrite <-(int_to_nat_of_nonneg y) by done.
   apply le_lt_trans with (f (int_to_nat Z N x)).
    now apply int_to_nat_le_r.
   now apply (strictly_order_preserving f).

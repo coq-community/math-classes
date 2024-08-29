@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders
   MathClasses.theory.naturals MathClasses.theory.rings MathClasses.implementations.peano_naturals.
 Require Export
@@ -21,7 +21,7 @@ Proof.
     solve_proper.
    intros. now rewrite preserves_0.
   intros n E. rewrite preserves_plus, preserves_1.
-  apply nonneg_plus_compat. solve_propholds. easy.
+  apply nonneg_plus_compat. solve_propholds. done.
 Qed.
 
 Section nat_int_order.
@@ -96,7 +96,7 @@ Lemma pos_ge_1 x : 0 < x ↔ 1 ≤ x.
 Proof.
   split; intros E.
    rewrite <-(plus_0_l 1). now apply lt_iff_plus_1_le.
-  apply lt_le_trans with 1; [solve_propholds | easy].
+  apply lt_le_trans with 1; [solve_propholds | done].
 Qed.
 
 Lemma le_iff_lt_plus_1 x y : x ≤ y ↔ x < y + 1.

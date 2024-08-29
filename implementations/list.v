@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.Lists.List Coq.Lists.SetoidList MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.monads.
 Import ListNotations.
 
@@ -29,7 +29,7 @@ Section equivlistA_misc.
   Proof. intros E. now eapply InA_nil, E, InA_cons_hd. Qed.
 
   Lemma equivlistA_nil_eq l : equivlistA eqA l [] → l ≡ [].
-  Proof. induction l. easy. intros E. edestruct equivlistA_cons_nil; eauto. Qed.
+  Proof. induction l. done. intros E. edestruct equivlistA_cons_nil; eauto. Qed.
 
   Lemma InA_double_head z x l : InA eqA z (x :: x :: l) ↔ InA eqA z (x :: l).
   Proof. split; intros E1; auto. inversion_clear E1; auto. Qed.
@@ -91,14 +91,14 @@ Section equivlistA_misc.
 
   Lemma PermutationA_app_head l₁ l₂ k :
     PermutationA l₁ l₂ → PermutationA (k ++ l₁) (k ++ l₂).
-  Proof. intros. induction k. easy. apply permA_skip; intuition. Qed.
+  Proof. intros. induction k. done. apply permA_skip; intuition. Qed.
 
   Global Instance PermutationA_app :
     Proper (PermutationA ==> PermutationA ==> PermutationA) (@app A).
   Proof.
     intros  l₁ l₂ Pl k₁ k₂ Pk.
     induction Pl.
-       easy.
+       done.
       now apply permA_skip.
      etransitivity.
       rewrite <-!app_comm_cons. now apply permA_swap.
@@ -113,7 +113,7 @@ Section equivlistA_misc.
 
   Lemma PermutationA_cons_append l x :
     PermutationA (x :: l) (l ++ x :: nil).
-  Proof. induction l. easy. simpl. rewrite <-IHl. intuition. Qed.
+  Proof. induction l. done. simpl. rewrite <-IHl. intuition. Qed.
 
   Lemma PermutationA_app_comm l₁ l₂ :
     PermutationA (l₁ ++ l₂) (l₂ ++ l₁).

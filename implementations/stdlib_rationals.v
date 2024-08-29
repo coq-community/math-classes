@@ -1,6 +1,6 @@
 Require
-  MathClasses.implementations.stdlib_binary_integers Coq.setoid_ring.Field Coq.QArith.Qfield MathClasses.theory.rationals.
-Require Import
+  MathClasses.implementations.stdlib_binary_integers Coq.setoid_ring.Field Coq.QArith.Qfield MathClasses.theory.rationals .
+Require Import MathClasses.misc.stdpp_tactics
   Coq.ZArith.ZArith
   Coq.setoid_ring.Ring Coq.QArith.QArith_base Coq.QArith.Qabs Coq.QArith.Qpower
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.rationals
@@ -61,7 +61,7 @@ Program Instance Q_to_fracZ: Cast Q (Frac Z) := λ x, frac (Qnum x) (Zpos (Qden 
 
 #[global]
 Instance: Proper ((=) ==> (=)) Q_to_fracZ.
-Proof. intros ? ? E. easy. Qed.
+Proof. intros ? ? E. done. Qed.
 
 #[global]
 Instance: SemiRing_Morphism Q_to_fracZ.
@@ -69,7 +69,7 @@ Proof. repeat (split; try apply _). Qed.
 
 #[global]
 Instance: Injective Q_to_fracZ.
-Proof. split; try apply _. intros ? ? E. easy. Qed.
+Proof. split; try apply _. intros ? ? E. done. Qed.
 
 #[global]
 Instance: RationalsToFrac Q := rationals.alt_to_frac Q_to_fracZ.
@@ -92,7 +92,7 @@ Proof.
    exact Qle_antisym.
   apply (rings.from_ring_order (Rle:=Q_le)).
    repeat (split; try apply _).
-   intros. apply Qplus_le_compat. now apply Qle_refl. easy.
+   intros. apply Qplus_le_compat. now apply Qle_refl. done.
   intros. now apply Qmult_le_0_compat.
 Qed.
 
@@ -110,7 +110,7 @@ Proof.
   rapply (semirings.dec_full_pseudo_srorder (R:=Q)).
   split.
    intro. split. now apply Zorder.Zlt_le_weak. now apply Zorder.Zlt_not_eq.
-  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1). easy. now destruct E2.
+  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1). done. now destruct E2.
 Qed.
 
 #[global]

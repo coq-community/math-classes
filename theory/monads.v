@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.monads MathClasses.theory.functors.
 
 #[global]
@@ -134,7 +134,7 @@ Section monad.
       intros A ?? B ?? f g E1 m n E2.
       apply mon_bind_proper.
        intros x y E3. now apply mon_ret_proper, E1.
-      easy.
+      done.
      intros A ? B ? f ??? E. pose proof (setoidmor_a f). pose proof (setoidmor_b f).
      now rewrite E.
     intros A ?? ?? E. unfold join, default_mon_join.

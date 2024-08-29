@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.theory.rings.
 Require Export
   MathClasses.orders.orders MathClasses.orders.maps.
@@ -61,7 +61,7 @@ Section semiring_order.
   Proof.
     intros E.
     destruct (srorder_partial_minus x y E) as [z Ez].
-    exists z. split; [| easy].
+    exists z. split; [| done].
     apply (order_reflecting (x+)).
     now rewrite plus_0_r, <-Ez.
   Qed.
@@ -93,14 +93,14 @@ Section semiring_order.
     intros Ex₁ Ey₁ E1 E2.
     transitivity (y₁ * x₂).
      now apply (order_preserving_flip_nonneg (.*.) x₂).
-    apply (order_preserving_nonneg (.*.) y₁); [| easy].
+    apply (order_preserving_nonneg (.*.) y₁); [| done].
     now transitivity x₁.
   Qed.
 
   Lemma ge_1_mult_le_compat_r x y z : 1 ≤ z → 0 ≤ y → x ≤ y → x ≤ y * z.
   Proof.
     intros.
-    transitivity y; [easy |].
+    transitivity y; [done |].
     rewrite <-(mult_1_r y) at 1.
     now apply (order_preserving_nonneg (.*.) y).
   Qed.
@@ -200,7 +200,7 @@ Section strict_semiring_order.
   Proof.
     intros E.
     destruct (strict_srorder_partial_minus x y E) as [z Ez].
-    exists z. split; [| easy].
+    exists z. split; [| done].
     apply (strictly_order_reflecting (x+)).
     now rewrite <-Ez, rings.plus_0_r.
   Qed.
@@ -223,14 +223,14 @@ Section strict_semiring_order.
     intros Ex₁ Ey₁ E1 E2.
     transitivity (y₁ * x₂).
      now apply (strictly_order_preserving_flip_pos (.*.) x₂).
-    apply (strictly_order_preserving_pos (.*.) y₁); [| easy ].
+    apply (strictly_order_preserving_pos (.*.) y₁); [| done ].
     now transitivity x₁.
   Qed.
 
   Lemma gt_1_mult_lt_compat_r x y z : 1 < z → 0 < y → x < y → x < y * z.
   Proof.
     intros.
-    transitivity y; [ easy |].
+    transitivity y; [ done |].
     rewrite <-(mult_1_r y) at 1.
     now apply (strictly_order_preserving_pos (.*.) y).
   Qed.
@@ -320,10 +320,10 @@ Section pseudo_semiring_order.
     rewrite apart_iff_total_lt in Ex, Ey.
     destruct Ex as [Ex|Ex], Ey as [Ey|Ey]; try tauto.
      destruct (irreflexivity (<) 0).
-     transitivity (x * y); [| easy].
+     transitivity (x * y); [| done].
      now apply pos_mult_compat.
     destruct (irreflexivity (<) 0).
-    transitivity (x * y); [| easy].
+    transitivity (x * y); [| done].
     now apply neg_mult.
   Qed.
 
@@ -339,10 +339,10 @@ Section pseudo_semiring_order.
     rewrite apart_iff_total_lt in Ex, Ey.
     destruct Ex as [Ex|Ex], Ey as [Ey|Ey]; try tauto.
      destruct (irreflexivity (<) 0).
-     transitivity (x * y); [easy |].
+     transitivity (x * y); [done |].
      now apply pos_neg_mult.
     destruct (irreflexivity (<) 0).
-    transitivity (x * y); [easy |].
+    transitivity (x * y); [done |].
     now apply neg_pos_mult.
   Qed.
 
@@ -398,7 +398,7 @@ Section pseudo_semiring_order.
   Proof. intros. apply (strictly_order_reflecting (.* y)). now rewrite rings.mult_0_l. Qed.
 
   Lemma pos_mult_rev_r x y : 0 < x * y → 0 < x → 0 < y.
-  Proof. intros. apply pos_mult_rev_l with x. now rewrite commutativity. easy. Qed.
+  Proof. intros. apply pos_mult_rev_l with x. now rewrite commutativity. done. Qed.
 
   Context `{PropHolds (1 ≶ 0)}.
 
@@ -509,7 +509,7 @@ Section full_pseudo_semiring_order.
   Proof.
     apply not_lt_le_flip. intros E.
     destruct (lt_antisym (x * x) 0).
-    split; [easy |].
+    split; [done |].
     apply square_pos.
     apply (strong_extensionality (x *.)).
     rewrite mult_0_r.
@@ -520,7 +520,7 @@ Section full_pseudo_semiring_order.
   Proof. intros. apply (order_reflecting (.* y)). now rewrite rings.mult_0_l. Qed.
 
   Lemma nonneg_mult_rev_r x y : 0 ≤ x * y → 0 < x → 0 ≤ y.
-  Proof. intros. apply nonneg_mult_rev_l with x. now rewrite commutativity. easy. Qed.
+  Proof. intros. apply nonneg_mult_rev_l with x. now rewrite commutativity. done. Qed.
 
   Instance le_0_1 : PropHolds (0 ≤ 1).
   Proof. red. setoid_replace 1 with (1 * 1) by ring. now apply square_nonneg. Qed.
@@ -556,14 +556,14 @@ Section full_pseudo_semiring_order.
   Proof.
     intros.
     apply ge_1_mult_le_compat_r; trivial.
-    transitivity 1. now apply le_0_1. easy.
+    transitivity 1. now apply le_0_1. done.
   Qed.
 
   Lemma gt_1_ge_1_mult_compat x y : 1 < x → 1 ≤ y → 1 < x * y.
   Proof.
     intros.
     apply lt_le_trans with x; trivial.
-    apply ge_1_mult_le_compat_r; try easy.
+    apply ge_1_mult_le_compat_r; try done.
     transitivity 1. now apply le_0_1. now apply lt_le.
   Qed.
 

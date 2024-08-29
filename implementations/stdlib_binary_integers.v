@@ -1,6 +1,6 @@
 Require
   MathClasses.interfaces.naturals MathClasses.theory.naturals MathClasses.implementations.peano_naturals MathClasses.theory.integers.
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.ZArith.BinInt Coq.setoid_ring.Ring Coq.Arith.Arith Coq.NArith.NArith Coq.ZArith.ZArith Coq.Numbers.Integer.Binary.ZBinary
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers
   MathClasses.implementations.natpair_integers MathClasses.implementations.stdlib_binary_naturals
@@ -152,7 +152,7 @@ Proof.
   rapply semirings.dec_full_pseudo_srorder.
   split.
    intro. split. now apply Zorder.Zlt_le_weak. now apply Zorder.Zlt_not_eq.
-  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1). easy. now destruct E2.
+  intros [E1 E2]. destruct (Zorder.Zle_lt_or_eq _ _ E1). done. now destruct E2.
 Qed.
 
 (* * Embedding of the Peano naturals into [Z] *)

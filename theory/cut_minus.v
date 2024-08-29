@@ -1,6 +1,6 @@
 Require
   MathClasses.orders.semirings.
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.additional_operations
   MathClasses.interfaces.orders MathClasses.orders.minmax.
 
@@ -19,9 +19,9 @@ Section cut_minus_properties.
   Proof.
     intros x₁ x₂ E y₁ y₂ F.
     destruct (total (≤) x₂ y₂).
-     rewrite cut_minus_0, cut_minus_0; try easy. now rewrite E, F.
+     rewrite cut_minus_0, cut_minus_0; try done. now rewrite E, F.
     apply (right_cancellation (+) y₂).
-    rewrite cut_minus_le by easy.
+    rewrite cut_minus_le by done.
     rewrite <-E, <-F. apply cut_minus_le. now rewrite E, F.
   Qed.
 
@@ -65,7 +65,7 @@ Section cut_minus_properties.
   Lemma cut_minus_le_trans x y z : y ≤ x → z ≤ y → (x ∸ y) + (y ∸ z) = x ∸ z.
   Proof.
     intros. apply (right_cancellation (+) z).
-    rewrite <-associativity, !cut_minus_le; try easy.
+    rewrite <-associativity, !cut_minus_le; try done.
     now transitivity y.
   Qed.
   Hint Resolve cut_minus_le_trans.
@@ -90,7 +90,7 @@ Section cut_minus_properties.
       ring.
      now apply (maps.order_preserving_nonneg (.*.) x).
     apply (right_cancellation (+) (x * z)).
-    rewrite <-distribute_l, !cut_minus_le; try easy.
+    rewrite <-distribute_l, !cut_minus_le; try done.
     now apply (maps.order_preserving_nonneg (.*.) x).
   Qed.
 
@@ -106,7 +106,7 @@ Section cut_minus_properties.
      rewrite !cut_minus_0; intuition.
     apply (right_cancellation (+) (x + z)).
     transitivity ((y ∸ z + z) + x); try ring.
-    rewrite !cut_minus_le; try easy; try ring.
+    rewrite !cut_minus_le; try done; try ring.
     now apply (order_preserving (x +)).
   Qed.
 
@@ -117,8 +117,8 @@ Section cut_minus_properties.
   Lemma cut_minus_plus_r x y z : 0 ≤ z → x ∸ (y + z) = (x ∸ y) ∸ z.
   Proof.
     intros E. case (total (≤) x y); intros Exy.
-     rewrite (cut_minus_0 x y) by easy.
-     rewrite cut_minus_0_l, cut_minus_0; try easy.
+     rewrite (cut_minus_0 x y) by done.
+     rewrite cut_minus_0_l, cut_minus_0; try done.
      now apply semirings.plus_le_compat_r.
     rewrite (cut_minus_plus_rev_r y (x ∸ y) z).
     now rewrite cut_minus_le, commutativity.
@@ -130,28 +130,28 @@ Section cut_minus_properties.
   Lemma cut_minus_plus_toggle1 x y z : x ≤ y → z ≤ y → (y ∸ x) + (x ∸ z) = (y ∸ z) + (z ∸ x).
   Proof.
     intros. destruct (total (≤) x z).
-     rewrite (cut_minus_0 x z), cut_minus_le_trans by easy. ring.
-    rewrite (cut_minus_0 z x), cut_minus_le_trans by easy. ring.
+     rewrite (cut_minus_0 x z), cut_minus_le_trans by done. ring.
+    rewrite (cut_minus_0 z x), cut_minus_le_trans by done. ring.
   Qed.
 
   Lemma cut_minus_plus_toggle2 x y z : y ≤ x → y ≤ z →  (x ∸ z) + (z ∸ y) = (z ∸ x) + (x ∸ y).
   Proof.
     intros. destruct (total (≤) x z).
-     rewrite (cut_minus_0 x z), cut_minus_le_trans by easy. ring.
-    rewrite (cut_minus_0 z x) by easy. ring_simplify. now auto.
+     rewrite (cut_minus_0 x z), cut_minus_le_trans by done. ring.
+    rewrite (cut_minus_0 z x) by done. ring_simplify. now auto.
   Qed.
 
   Lemma cut_minus_plus_toggle3 x₁ x₂ y₁ y₂ : x₁ ≤ y₁ → y₂ ≤ x₂
      → (y₁ ∸ x₁) + ((x₁ + x₂) ∸ (y₁ + y₂)) = (x₂ ∸ y₂) + ((y₁ + y₂) ∸ (x₁ + x₂)).
   Proof.
     intros. destruct (total (≤) (x₁ + x₂) (y₁ + y₂)).
-     rewrite (cut_minus_0 (x₁ + x₂) (y₁ + y₂)) by easy.
-     rewrite cut_minus_plus_distr by easy.
+     rewrite (cut_minus_0 (x₁ + x₂) (y₁ + y₂)) by done.
+     rewrite cut_minus_plus_distr by done.
      setoid_replace (x₂ + (y₁ + y₂)) with (y₁ + (x₂ + y₂)) by ring.
      setoid_replace (y₂ + (x₁ + x₂)) with (x₁ + (x₂ + y₂)) by ring.
      rewrite <-cut_minus_plus_rev_r. ring.
-    rewrite (cut_minus_0 (y₁ + y₂) (x₁ + x₂)) by easy.
-    rewrite cut_minus_plus_distr by easy.
+    rewrite (cut_minus_0 (y₁ + y₂) (x₁ + x₂)) by done.
+    rewrite cut_minus_plus_distr by done.
     setoid_replace (y₁ + (x₁ + x₂)) with (x₂ + (x₁ + y₁)) by ring.
     setoid_replace (x₁ + (y₁ + y₂)) with (y₂ + (x₁ + y₁)) by ring.
     rewrite <-cut_minus_plus_rev_r. ring.
@@ -160,7 +160,7 @@ Section cut_minus_properties.
   Lemma cut_minus_0_plus_toggle x : x + (0 ∸ x) = x ∸ 0.
   Proof.
     destruct (total (≤) 0 x).
-     rewrite (cut_minus_0 0 x), (cut_minus_nonneg_0_r x) by easy. ring.
+     rewrite (cut_minus_0 0 x), (cut_minus_nonneg_0_r x) by done. ring.
     rewrite (cut_minus_0 x 0), commutativity; auto.
   Qed.
 
@@ -169,7 +169,7 @@ Section cut_minus_properties.
     intros. rewrite <-!cut_minus_0_plus_toggle.
     apply (right_cancellation (+) x).
     setoid_replace (y ∸ x + (x + (0 ∸ x)) + (0 ∸ y) + x) with ((y ∸ x + x) + (x + (0 ∸ x)) + (0 ∸ y)) by ring.
-    rewrite (cut_minus_le y x) by easy. ring.
+    rewrite (cut_minus_le y x) by done. ring.
   Qed.
 
   (* * Properties of min and minus *)

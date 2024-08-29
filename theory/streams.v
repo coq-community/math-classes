@@ -1,7 +1,7 @@
 (* In the standard library equality on streams is defined as pointwise Leibniz equality.
     Here we prove similar results, but we use setoid equality instead. *)
 Require Export MathClasses.theory.CoqStreams.
-Require Import MathClasses.implementations.peano_naturals MathClasses.interfaces.abstract_algebra.
+Require Import MathClasses.misc.stdpp_tactics MathClasses.implementations.peano_naturals MathClasses.interfaces.abstract_algebra.
 
 Section streams.
 Context `{Setoid A}.
@@ -31,7 +31,7 @@ Proof.
   intros ? ? E.
   constructor.
    simpl. now rewrite E.
-  easy.
+  done.
 Qed.
 
 Global Instance: Proper ((=) ==> (=)) (@hd A).
@@ -49,7 +49,7 @@ Proof.
   unfold equiv, peano_naturals.nat_equiv in E1.
   rewrite E1. clear E1 n.
   induction m.
-   easy.
+   done.
   simpl. rewrite <-2!tl_nth_tl.
   now rewrite IHm.
 Qed.
@@ -104,7 +104,7 @@ Lemma EventuallyForAll_Str_nth_tl P n s :
 Proof.
   revert s.
   induction n.
-   easy.
+   done.
   intros. now apply IHn, EventuallyForAll_tl.
 Qed.
 

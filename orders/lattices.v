@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.maps MathClasses.theory.lattices.
 
 (*
@@ -49,7 +49,7 @@ Section join_semilattice_order.
   Qed.
 
   Lemma join_le_compat_r x y z : z ≤ x → z ≤ x ⊔ y.
-  Proof. intros E. transitivity x. easy. apply join_ub_l. Qed.
+  Proof. intros E. transitivity x. done. apply join_ub_l. Qed.
   Lemma join_le_compat_l x y z : z ≤ y → z ≤ x ⊔ y.
   Proof. intros E. rewrite commutativity. now apply join_le_compat_r. Qed.
 
@@ -133,7 +133,7 @@ Section meet_semilattice_order.
   Qed.
 
   Lemma meet_le_compat_r x y z : x ≤ z → x ⊓ y ≤ z.
-  Proof. intros E. transitivity x. apply meet_lb_l. easy. Qed.
+  Proof. intros E. transitivity x. apply meet_lb_l. done. Qed.
   Lemma meet_le_compat_l x y z : y ≤ z → x ⊓ y ≤ z.
   Proof. intros E. rewrite commutativity. now apply meet_le_compat_r. Qed.
 
@@ -174,13 +174,13 @@ Section lattice_order.
   Proof.
     intros x y. apply (antisymmetry (≤)).
      now apply meet_lb_l.
-    apply meet_le. easy. now apply join_ub_l.
+    apply meet_le. done. now apply join_ub_l.
   Qed.
 
   Instance: Absorption (⊔) (⊓).
   Proof.
     intros x y. apply (antisymmetry (≤)).
-     apply join_le. easy. now apply meet_lb_l.
+     apply join_le. done. now apply meet_lb_l.
     now apply join_ub_l.
   Qed.
 
@@ -293,8 +293,8 @@ Section order_preserving_join_sl_mor.
   Proof.
     repeat (split; try apply _).
     intros x y. case (total (≤) x y); intros E.
-     rewrite 2!join_r; try easy. now apply (order_preserving _).
-    rewrite 2!join_l; try easy. now apply (order_preserving _).
+     rewrite 2!join_r; try done. now apply (order_preserving _).
+    rewrite 2!join_l; try done. now apply (order_preserving _).
   Qed.
 End order_preserving_join_sl_mor.
 
@@ -309,7 +309,7 @@ Section order_preserving_meet_sl_mor.
   Proof.
     repeat (split; try apply _).
     intros x y. case (total (≤) x y); intros E.
-     rewrite 2!meet_l; try easy. now apply (order_preserving _).
-    rewrite 2!meet_r; try easy. now apply (order_preserving _).
+     rewrite 2!meet_l; try done. now apply (order_preserving _).
+    rewrite 2!meet_r; try done. now apply (order_preserving _).
   Qed.
 End order_preserving_meet_sl_mor.

@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.orders
   MathClasses.orders.lattices MathClasses.theory.setoids.
 
@@ -24,14 +24,14 @@ Section contents.
   Global Instance: LatticeOrder (≤).
   Proof.
     repeat (split; try apply _); unfold join, meet, max, min, sort;
-     intros; case (decide_rel _); try easy; now apply le_flip.
+     intros; case (decide_rel _); try done; now apply le_flip.
   Qed.
 
   Instance: LeftDistribute max min.
   Proof.
     intros x y z. unfold min, max, sort.
     repeat case (decide_rel _); simpl; try solve [intuition].
-     intros. apply (antisymmetry (≤)); [|easy]. now transitivity y; apply le_flip.
+     intros. apply (antisymmetry (≤)); [|done]. now transitivity y; apply le_flip.
     intros. now apply (antisymmetry (≤)).
   Qed.
 

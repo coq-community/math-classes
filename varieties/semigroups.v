@@ -1,7 +1,7 @@
 (* To be imported qualified. *)
 Require
   MathClasses.categories.varieties MathClasses.categories.product MathClasses.theory.forget_algebra MathClasses.theory.forget_variety.
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.universal_algebra MathClasses.theory.ua_homomorphisms MathClasses.misc.workaround_tactics categories.categories.
 
 Inductive op := mult.
@@ -107,7 +107,7 @@ Qed.
 
 #[global]
 Instance id_sg_morphism `{SemiGroup A}: SemiGroup_Morphism (@id A).
-Proof. repeat (split; try apply _); easy. Qed.
+Proof. repeat (split; try apply _); done. Qed.
 
 (* Finally, we use these encoding/decoding functions to specialize some universal results: *)
 Section specialized.

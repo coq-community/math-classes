@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   MathClasses.theory.setoids MathClasses.interfaces.abstract_algebra.
 
 Local Existing Instance injective_mor.
@@ -61,7 +61,7 @@ Global Existing Instance id_morphism.
 
 #[global]
 Instance id_injective `{Setoid A} : Injective (@id A).
-Proof. split; try apply _. easy. Qed.
+Proof. split; try apply _. done. Qed.
 #[global]
 Instance id_surjective `{Setoid A} : Surjective (@id A).
 Proof. split; try apply _. now repeat intro. Qed.

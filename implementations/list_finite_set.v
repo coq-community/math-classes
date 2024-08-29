@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Coq.Lists.List Coq.Lists.SetoidList MathClasses.implementations.list
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.finite_sets MathClasses.interfaces.orders
   MathClasses.theory.lattices MathClasses.orders.lattices.
@@ -48,7 +48,7 @@ Proof. firstorder. Qed.
 Global Instance: Proper ((=) ==> (=) ==> iff) listset_in.
 Proof.
   intros x y E1 l k E2.
-  transitivity (listset_in x k). easy.
+  transitivity (listset_in x k). done.
   unfold listset_in. now rewrite E1.
 Qed.
 
@@ -108,7 +108,7 @@ Lemma listset_to_list_preserves_join l k :
 Proof.
   destruct l as [l Pl], k as [k Pk].
   unfold join, listset_join, listset_join_raw. simpl. clear Pk Pl.
-  induction l; simpl; intros; [easy|].
+  induction l; simpl; intros; [done|].
   now rewrite <-IHl, listset_add_raw_cons.
 Qed.
 
@@ -161,7 +161,7 @@ Section listset_extend.
   Proof.
     induction 1; simpl.
        reflexivity.
-      apply sg_op_proper. now apply sm_proper. easy.
+      apply sg_op_proper. now apply sm_proper. done.
      now rewrite !associativity, (commutativity (f _)).
     etransitivity; eassumption.
   Qed.
@@ -180,7 +180,7 @@ Section listset_extend.
     fset_extend f ({{x}} ⊔ l) = f x ⊔ fset_extend f l.
   Proof.
     destruct l as [l Pl]. unfold fset_extend, list_extend. simpl. clear Pl.
-    induction l; simpl; [easy|].
+    induction l; simpl; [done|].
     case (decide_rel _); intros E.
      now rewrite E, associativity, (idempotency (&) _).
     now rewrite IHl, 2!associativity, (commutativity (f _)).
@@ -215,7 +215,7 @@ Proof.
     solve_proper.
    now rewrite preserves_bottom.
   intros x l E2 E3. rewrite list_extend_add, preserves_join, E3.
-  apply sg_op_proper; [|easy]. symmetry. now apply E1.
+  apply sg_op_proper; [|done]. symmetry. now apply E1.
 Qed.
 
 Instance: FSetContainsSpec A.
@@ -251,7 +251,7 @@ Proof.
     intros E1; inversion E1.
    case (decide_rel); intros ? E1; intuition.
    inversion_clear E1 as [?? E2|]; auto. now rewrite E2.
-  intros [E1 E2]. induction l; simpl; [easy|].
+  intros [E1 E2]. induction l; simpl; [done|].
   case (decide_rel); intros E3.
    inversion_clear E1; intuition.
   inversion_clear E1 as [?? E4|]; intuition.
@@ -292,7 +292,7 @@ Proof.
    case (decide_rel); intros ? E1.
     intuition.
    inversion_clear E1 as [?? E2|]; auto. now rewrite E2.
-  intros [E1 E2]. induction l; simpl; [easy|].
+  intros [E1 E2]. induction l; simpl; [done|].
   case (decide_rel); intros E3.
    inversion_clear E1 as [?? E4|]; intuition.
    destruct E2. now rewrite E4.

@@ -1,6 +1,6 @@
 Require
   MathClasses.implementations.stdlib_binary_integers MathClasses.theory.integers MathClasses.orders.semirings.
-Require Import
+Require Import MathClasses.misc.stdpp_tactics
   Bignums.SpecViaZ.ZSig Bignums.SpecViaZ.ZSigZAxioms Coq.NArith.NArith Coq.ZArith.ZArith
   MathClasses.implementations.nonneg_integers_naturals MathClasses.interfaces.orders
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers MathClasses.interfaces.additional_operations.
@@ -52,7 +52,7 @@ Instance inject_ZType_Z: Cast t Z := to_Z.
 
 #[global]
 Instance: Proper ((=) ==> (=)) to_Z.
-Proof. intros x y E. easy. Qed.
+Proof. intros x y E. done. Qed.
 
 #[global]
 Instance: SemiRing_Morphism to_Z.
@@ -211,7 +211,7 @@ Proof.
    intros x1. apply axioms.pow_0_r.
   intros x [n ?].
   unfold_equiv. unfold "^", ZType_pow. simpl.
-  rewrite <-axioms.pow_succ_r; try easy.
+  rewrite <-axioms.pow_succ_r; try done.
   now rewrite ZType_succ_1_plus.
 Qed.
 
@@ -230,7 +230,7 @@ Proof.
   rewrite spec_mul, 2!spec_pow_N.
   rewrite rings.preserves_plus, Z.pow_add_r.
     now rewrite rings.preserves_1, Z.pow_1_r.
-   easy.
+   done.
   now apply Z_of_N_le_0.
 Qed.
 

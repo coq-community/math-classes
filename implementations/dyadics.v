@@ -3,8 +3,8 @@
    for some [Integers] implementation [Z]. These numbers form a ring and can be
    embedded into any [Rationals] implementation [Q].
 *)
-Require Import
-  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra
+Require Import 
+  Coq.setoid_ring.Ring  MathClasses.interfaces.abstract_algebra
   MathClasses.interfaces.integers MathClasses.interfaces.naturals MathClasses.interfaces.rationals
   MathClasses.interfaces.additional_operations MathClasses.interfaces.orders
   MathClasses.orders.minmax MathClasses.orders.integers MathClasses.orders.rationals

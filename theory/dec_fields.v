@@ -1,4 +1,4 @@
-Require Import
+Require Import MathClasses.misc.stdpp_tactics   
   Coq.setoid_ring.Field Coq.setoid_ring.Ring
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.vectorspace
   MathClasses.theory.fields MathClasses.theory.strong_setoids.
@@ -79,7 +79,7 @@ Proof.
    now apply dec_recip_ne_0.
   rewrite dec_recip_inverse by assumption.
   rewrite <-E, dec_recip_inverse.
-   easy.
+   done.
   apply dec_recip_ne_0_iff. rewrite E.
   now apply dec_recip_ne_0.
 Qed.
@@ -248,7 +248,7 @@ Section morphisms.
     rewrite <-preserves_mult, 2!dec_recip_inverse.
       now apply preserves_1.
      now apply injective_ne_0.
-    easy.
+    done.
   Qed.
 
   Lemma dec_recip_to_recip `{Field F2} `{!StrongSemiRing_Morphism (f : F → F2)} x Pfx :
