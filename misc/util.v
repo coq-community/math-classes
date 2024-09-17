@@ -1,5 +1,6 @@
+From Coq.Program Require Import Program.
 Require Import
-  Coq.Program.Program Coq.Classes.Morphisms Coq.Setoids.Setoid MathClasses.interfaces.canonical_names.
+  Coq.Classes.Morphisms Coq.Setoids.Setoid MathClasses.interfaces.canonical_names.
 
 Section pointwise_dependent_relation.
   Context A (B: A → Type) (R: ∀ a, relation (B a)).

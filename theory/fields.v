@@ -1,5 +1,6 @@
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.theory.strong_setoids.
+  MathClasses.interfaces.abstract_algebra MathClasses.theory.strong_setoids.
 Require Export
   MathClasses.theory.rings.
 

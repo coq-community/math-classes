@@ -1,7 +1,9 @@
 Require
   MathClasses.theory.ua_homomorphisms.
 Require Import
-  Coq.Classes.Morphisms Coq.setoid_ring.Ring Coq.Arith.Arith_base Coq.Arith.PeanoNat
+  Coq.Classes.Morphisms.
+From Coq Require Import Ring Arith_base PeanoNat.
+Require Import
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.theory.categories
   MathClasses.interfaces.additional_operations MathClasses.interfaces.orders MathClasses.orders.semirings.
 

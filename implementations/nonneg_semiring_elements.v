@@ -1,7 +1,7 @@
 Require
   MathClasses.theory.rings.
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.semirings.
 
 Local Existing Instance pseudo_srorder_semiring.

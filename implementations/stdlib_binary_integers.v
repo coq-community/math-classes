@@ -1,7 +1,7 @@
 Require
   MathClasses.interfaces.naturals MathClasses.theory.naturals MathClasses.implementations.peano_naturals MathClasses.theory.integers.
+From Coq Require Import BinInt Ring Arith NArith ZArith ZBinary.
 Require Import
-  Coq.ZArith.BinInt Coq.setoid_ring.Ring Coq.Arith.Arith Coq.NArith.NArith Coq.ZArith.ZArith Coq.Numbers.Integer.Binary.ZBinary
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.integers
   MathClasses.implementations.natpair_integers MathClasses.implementations.stdlib_binary_naturals
   MathClasses.interfaces.additional_operations MathClasses.interfaces.orders

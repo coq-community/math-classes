@@ -1,5 +1,6 @@
-Require Import 
-  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra 
+From Coq Require Import Ring.
+Require Import
+  MathClasses.interfaces.abstract_algebra
   MathClasses.theory.rings MathClasses.theory.dec_fields.
 
 Inductive Frac R `{Rap : Equiv R} `{Rzero : Zero R} : Type := frac { num: R; den: R; den_ne_0: den ≠ 0 }.

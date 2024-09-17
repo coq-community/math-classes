@@ -1,7 +1,7 @@
 Require
   MathClasses.orders.integers MathClasses.theory.dec_fields MathClasses.theory.nat_pow.
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.integers
   MathClasses.interfaces.additional_operations MathClasses.interfaces.orders.
 

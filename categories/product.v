@@ -1,5 +1,7 @@
 Require Import
-  MathClasses.interfaces.abstract_algebra Coq.Logic.ChoiceFacts MathClasses.interfaces.functors
+  MathClasses.interfaces.abstract_algebra.
+From Coq.Logic Require Import ChoiceFacts.
+Require Import MathClasses.interfaces.functors
   MathClasses.theory.categories MathClasses.categories.categories.
 
 (* Axiom dependent_functional_choice: DependentFunctionalChoice. *)

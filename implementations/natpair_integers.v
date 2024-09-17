@@ -6,8 +6,9 @@
 
 Require
  MathClasses.theory.naturals.
+From Coq Require Import Ring.
 Require Import
- Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.theory.categories
+ MathClasses.interfaces.abstract_algebra MathClasses.theory.categories
  MathClasses.interfaces.naturals MathClasses.interfaces.integers MathClasses.theory.jections.
 Require Export
  MathClasses.implementations.semiring_pairs.

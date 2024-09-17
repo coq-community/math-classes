@@ -1,5 +1,6 @@
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.rings.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.rings.
 
 Inductive SRpair (SR : Type) := C { pos : SR ; neg : SR }.
 Arguments C {SR} _ _.

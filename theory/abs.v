@@ -1,5 +1,6 @@
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.rings.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders MathClasses.orders.rings.
 
 Section contents.
 Context `{Ring R} `{Apart R} `{!TrivialApart R} `{!FullPseudoSemiRingOrder Rle Rlt} `{∀ x y, Decision (x = y)} `{a : !Abs R}.

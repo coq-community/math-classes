@@ -1,7 +1,8 @@
 Require
   MathClasses.theory.naturals.
+From Coq Require Import Ring.
 Require Import
-  Coq.setoid_ring.Ring MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders MathClasses.orders.rings.
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.naturals MathClasses.interfaces.orders MathClasses.orders.rings.
 Require Export
   MathClasses.orders.nat_int.
 

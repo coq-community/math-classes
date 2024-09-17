@@ -1,5 +1,6 @@
+From Coq Require Import Ring Field.
 Require Import
-  Coq.setoid_ring.Ring Coq.setoid_ring.Field MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders
+  MathClasses.interfaces.abstract_algebra MathClasses.interfaces.orders
   MathClasses.interfaces.naturals MathClasses.interfaces.rationals MathClasses.interfaces.integers
   MathClasses.implementations.natpair_integers MathClasses.theory.rationals MathClasses.theory.dec_fields MathClasses.theory.rings
   MathClasses.orders.integers MathClasses.orders.dec_fields.

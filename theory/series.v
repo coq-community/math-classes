@@ -1,5 +1,6 @@
+From Coq Require Import Ring Factorial.
 Require Import
-  Coq.setoid_ring.Ring Coq.Arith.Factorial MathClasses.misc.workaround_tactics
+  MathClasses.misc.workaround_tactics
   MathClasses.interfaces.abstract_algebra MathClasses.interfaces.additional_operations MathClasses.interfaces.orders
   MathClasses.interfaces.naturals MathClasses.interfaces.integers
   MathClasses.theory.nat_pow MathClasses.theory.int_pow MathClasses.theory.streams.
