@@ -58,7 +58,7 @@ Proof.
     case_eq (BigN.eqb d BigN.zero); intros Ed2; [reflexivity |].
     rewrite BigZ.spec_compare in Ed.
     destruct (proj2 (not_true_iff_false _) Ed2).
-    apply BigN.eqb_eq. symmetry. now apply Zcompare_Eq_eq.
+    apply BigN.eqb_eq. symmetry. now apply Zcompare.Zcompare_Eq_eq.
    unfold BigQ.mul. simpl. rewrite right_identity. reflexivity.
   destruct (BigZ.compare_spec BigZ.zero (BigZ.Pos d)); try discriminate.
   destruct (orders.lt_not_le_flip 0 ('d : bigZ)); trivial.

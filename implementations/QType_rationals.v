@@ -159,7 +159,7 @@ Qed.
 Next Obligation.
   rewrite spec_compare in *.
   destruct (Qcompare_spec (to_Q x) (to_Q y)); try discriminate; try intuition.
-   now apply Zeq_le.
+   now apply Zorder.Zeq_le.
   now apply orders.lt_le.
 Qed.
 
