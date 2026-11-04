@@ -111,7 +111,7 @@ Section another_rationals.
     intros x.
     apply (injective (rationals_to_rationals Q2 Q1)).
     rewrite to_rationals_involutive.
-    change ((rationals_to_frac Q1 (SRpair nat)⁻¹) ((rationals_to_frac Q2 (SRpair nat) ∘ f) x) = x).
+    change (((rationals_to_frac Q1 (SRpair nat))⁻¹) ((rationals_to_frac Q2 (SRpair nat) ∘ f) x) = x).
     rewrite (to_frac_unique (rationals_to_frac Q2 (SRpair nat) ∘ f) (rationals_to_frac Q1 (SRpair nat))).
     apply (jections.bijective_applied _).
   Qed.
