@@ -402,7 +402,7 @@ Typeclasses Transparent Inverse.
 
 Set Warnings "+unsupported-attributes".
 
-Notation "f ⁻¹" := (inverse f) (at level 30) : mc_scope.
+Notation "f ⁻¹" := (inverse f) (at level 1, left associativity) : mc_scope.
 
 Class Idempotent `{ea : Equiv A} (f: A → A → A) (x : A) : Prop := idempotency: f x x = x.
 Arguments idempotency {A ea} _ _ {Idempotent}.

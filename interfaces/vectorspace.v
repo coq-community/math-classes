@@ -17,9 +17,9 @@ Class Inproduct K V := inprod : V → V → K.
 Instance: Params (@inprod) 3 := {}.
 
 Notation "(⟨⟩)" := (inprod) (only parsing) : mc_scope.
-Notation "⟨ u , v ⟩" := (inprod u v) (at level 51) : mc_scope.
-Notation "⟨ u , ⟩" := (λ v, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
-Notation "⟨ , v ⟩" := (λ u, ⟨u,v⟩) (at level 50, only parsing) : mc_scope.
+Notation "⟨ u , v ⟩" := (inprod u v) : mc_scope.
+Notation "⟨ u , ⟩" := (λ v, ⟨u,v⟩) (only parsing) : mc_scope.
+Notation "⟨ , v ⟩" := (λ u, ⟨u,v⟩) (only parsing) : mc_scope.
 Notation "x ⊥ y" := (⟨x,y⟩ = 0) (at level 70) : mc_scope.
 
 (** The norm function class *)
@@ -27,7 +27,7 @@ Class Norm K V := norm : V → K.
 #[global]
 Instance: Params (@norm) 2 := {}.
 
-Notation "∥ L ∥" := (norm L) (at level 50) : mc_scope.
+Notation "'∥ L ∥" := (norm L) : mc_scope.
 Notation "∥·∥" := norm (only parsing) : mc_scope.
 
 (** Let [M] be an R-Module. *)
@@ -59,8 +59,8 @@ Class Seminormed
   ; snm_order       :: @FullPseudoSemiRingOrder R Re Rapart Rplus Rmult Rzero Rone Rle Rlt
 
   (* With respect to which our norm preserves the following: *)
-  ; snm_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
-  ; snm_triangle    :  ∀ u v, ∥u & v∥ ≤ ∥u∥ + ∥v∥     (* triangle inequality *)
+  ; snm_scale       :  ∀ a v, '∥a · v∥ = (abs a) * '∥v∥   (* positive homgeneity *)
+  ; snm_triangle    :  ∀ u v, '∥u & v∥ ≤ '∥u∥ + '∥v∥     (* triangle inequality *)
   }.
 
 
@@ -117,9 +117,9 @@ Class SemiNormedSpace (K V : Type)
  :=
    { sn_vectorspace :: @VectorSpace K V Ke Kplus Kmult Kzero Kone Knegate
                                     Krecip Ve Vop Vunit Vnegate sm
-   ; sn_nonneg      :  ∀ v, 0 ≤ ∥v∥                     (* non-negativity *)
-   ; sn_scale       :  ∀ a v, ∥a · v∥ = (abs a) * ∥v∥   (* positive homgeneity *)
-   ; sn_triangle    :  ∀ u v, ∥u & v∥ ≤ ∥u∥ + ∥v∥       (* triangle inequality *)
+   ; sn_nonneg      :  ∀ v, 0 ≤ '∥v∥                     (* non-negativity *)
+   ; sn_scale       :  ∀ a v, '∥a · v∥ = (abs a) * '∥v∥   (* positive homgeneity *)
+   ; sn_triangle    :  ∀ u v, '∥u & v∥ ≤ '∥u∥ + '∥v∥       (* triangle inequality *)
    }.
 
 

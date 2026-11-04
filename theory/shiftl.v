@@ -267,7 +267,7 @@ Section shiftl_dec_field.
   Lemma shiftl_base_1_to_int_pow n : f (1 ≪ n) = 2 ^ n.
   Proof. now rewrite shiftl_to_int_pow, rings.preserves_1, rings.mult_1_l. Qed.
 
-  Lemma shiftl_negate_1_to_half x : f (x ≪ -1) = f x / 2.
+  Lemma shiftl_negate_1_to_half x : f (x ≪ (-1)) = f x / 2.
   Proof.
     rewrite shiftl_to_int_pow.
     apply (left_cancellation (.*.) 2).
@@ -277,7 +277,7 @@ Section shiftl_dec_field.
     now rewrite rings.plus_negate_r, int_pow_0.
  Qed.
 
-  Lemma shiftl_negate_1_to_fourth x : f (x ≪ -2) = f x / 4.
+  Lemma shiftl_negate_1_to_fourth x : f (x ≪ (-2)) = f x / 4.
   Proof.
     rewrite shiftl_to_int_pow.
     apply (left_cancellation (.*.) (2 * 2)).
